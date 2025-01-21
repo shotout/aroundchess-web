@@ -1,0 +1,140 @@
+"use client";
+
+import { Input } from "../../ui/input";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { pusherClient } from "../../../lib/pusher";
+import { LoaderIcon } from "lucide-react";
+import { ShareLink } from "./shareLink";
+import { CreateRoom } from "../../../lib/db/room/create-game";
+import { JoinGame } from "../../../lib/db/room/join-game";
+import useChatStore from "../../../store/useChatStore";
+import { generateRoomId } from "../../../utils/common/generateRoomId";
+
+export default function Room() {
+  const { setRoomId: setRoomChatId } = useChatStore((state) => state);
+
+  const router = useRouter();
+  const [id, setId] = useState<string>("");
+  const [roomid, setRoomid] = useState<string>("");
+  const [playerId, setPlayerId] = useState<string>("");
+  const [joinLoading, setJoinLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [roomEnterLoading, setRoomEnterLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!roomid || !playerId) return;
+
+    const channel = pusherClient.subscribe(`room-${roomid}`);
+    channel.bind("player-joined", () => {
+      setLoading(false);
+      setRoomChatId(roomid);
+      router.push(`/online-multiplayer/room/${roomid}?playerId=${playerId}`);
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusherClient.unsubscribe(`room-${playerId}`);
+    };
+  }, [roomid, playerId, pusherClient, router]);
+
+  const createRoom = async () => {
+    setLoading(true);
+    const generatedRoomId = generateRoomId();
+    const data = await CreateRoom(generatedRoomId, "default-white", "default-black");
+    const CurrentplayerId = data.playerId;
+
+    if (data.roomId && CurrentplayerId) {
+      setRoomid(data.roomId);
+      setPlayerId(CurrentplayerId);
+    }
+
+    if (data.roomId) setRoomid(data.roomId);
+    else setRoomid("Error");
+  };
+
+  const joinRoom = async (roomId: string) => {
+    setJoinLoading(true);
+    if (playerId) {
+      alert("You are already in a room");
+      return;
+    }
+
+    const data = await JoinGame({ roomId });
+    if (data === "Error") {
+      setRoomid("Error");
+      return;
+    }
+
+    const OtherplayerId = data?.playerId;
+    if (data?.playerId) {
+      setRoomChatId(roomId);
+      setJoinLoading(false);
+      router.push(
+        `/online-multiplayer/room/${roomId}?playerId=${OtherplayerId}`
+      );
+    }
+  };
+
+  return (
+    <div className="w-full max-w-md">
+      {!roomEnterLoading ? (
+        <div>
+          <div className="mb-4">
+            <Input
+              type="text"
+              onChange={(e) => setId(e.target.value)}
+              placeholder="Enter room name"
+              className="w-full dark:bg-gray-600"
+            />
+            {joinLoading ? (
+              <div className="mt-2 w-full opacity-50 flex justify-center bg-blue-500 p-2 rounded ">
+                <LoaderIcon className="animate-spin" />
+              </div>
+            ) : (
+              <button
+                onClick={() => joinRoom(id)}
+                className="mt-2 w-full bg-blue-500 p-2 rounded"
+              >
+                Join Room
+              </button>
+            )}
+            {loading ? (
+              <div className="mt-2 w-full opacity-50 flex justify-center bg-blue-500 p-2 rounded ">
+                <LoaderIcon className="animate-spin" />
+              </div>
+            ) : (
+              <button
+                onClick={() => createRoom()}
+                className="mt-2 w-full bg-blue-500 p-2 rounded"
+              >
+                Create Room
+              </button>
+            )}
+          </div>
+
+          <div className="mt-4 p-4 border rounded bg-gray-100 dark:bg-gray-700">
+            <div className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200">
+              {roomid ? (
+                <ShareLink roomid={roomid} />
+              ) : (
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Click &quot;Create Room&quot; or enter a room ID to join.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="flex justify-center items-center h-full">
+            <LoaderIcon className="animate-spin" />
+            <span className="ml-2">Entering the game...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

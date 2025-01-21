@@ -1,0 +1,18 @@
+name: Branch Naming Policy
+
+on:
+  create:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-branch-naming:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch naming convention
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          if [[ ! "$BRANCH_NAME" =~ ^(feature|hotfix)/.+ && "$BRANCH_NAME" != "develop" && "$BRANCH_NAME" != "main" ]]; then
+            echo "Branch name must start with 'feature/' or 'hotfix/'"
+            exit 1
+          fi 

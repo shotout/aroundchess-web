@@ -1,0 +1,305 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["metrics"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String    @id
+  email        String    @unique
+  authProvider String    @default("email") @map("auth_provider")
+  isDisabled   Boolean   @default(false) @map("is_disabled")
+  isBanned     Boolean   @default(false) @map("is_banned")
+  mfaEnabled   Boolean   @default(false) @map("mfa_enabled")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @map("updated_at")
+
+  // Relations
+  profile        Profile?
+  affiliate      Affiliate?
+  preferences    UserPreference?
+  gamesAsWhite   Game[]         @relation("WhitePlayer")
+  gamesAsBlack   Game[]         @relation("BlackPlayer")
+  lessons        Lesson[]
+  news           News[]
+  comments       Comment[]
+  posts          Post[]
+  payments       Payment[]
+  ratings        Rating[]
+  notifications  Notification[]
+  friendsTo      Friendship[]   @relation("UserFriends")
+  friendsFrom    Friendship[]   @relation("FriendToUser")
+
+  @@map("users")
+}
+
+model Profile {
+  userId    String   @id @map("user_id")
+  username  String   @unique
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  address   String?
+  country   String?
+  avatarUrl String?  @map("avatar_url")
+  bio       String?
+  rating    Int      @default(1200)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("profiles")
+}
+
+model Affiliate {
+  userId            String   @id @map("user_id")
+  referralCount     Int      @default(0) @map("referral_count")
+  currentDiscount   Decimal  @default(0.00) @map("current_discount") @db.Decimal(5,2)
+  affiliateLink     String   @unique @map("affiliate_link")
+  progressToNextTier Decimal @default(0.00) @map("progress_to_next_tier") @db.Decimal(5,2)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@map("affiliates")
+}
+
+model UserPreference {
+  userId    String   @id @map("user_id")
+  theme     String   @default("default")
+  language  String   @default("en")
+  boardStyle String  @default("classic") @map("board_style")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("user_preferences")
+}
+
+model Game {
+  id          String    @id @default(cuid())
+  roomId      String    @unique
+  result      String?   
+  winner      String?   @default("none")
+  currentPlayer String  @default("white")
+  board        String   @default("[]")
+  lastMove     String?
+  rookMoved    String   @default("{}")
+  kingCheckOrMoved String @default("{}")
+  isKingInCheck  String @default("noCheck")
+  eliminatedPiece String @default("{}")
+  canPawnPromote String @default("{}")
+  whitePlayer String
+  blackPlayer String
+  pgn         String    @default("")
+  playedAt    DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  players     Player[]
+  whiteUser   User     @relation("WhitePlayer", fields: [whitePlayer], references: [id])
+  blackUser   User     @relation("BlackPlayer", fields: [blackPlayer], references: [id])
+  analysis    GameAnalysis[]
+  comments    Comment[] @relation("GameComments")
+
+  @@map("games")
+}
+
+model Player {
+  id          String   @id @default(cuid())
+  gameId      String?
+  name        String?
+  color       String
+  drawRequest Boolean  @default(false)
+  game        Game?    @relation(fields: [gameId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@map("players")
+}
+
+model GameAnalysis {
+  id           String   @id @default(cuid())
+  gameId       String
+  // Relations
+  game         Game     @relation(fields: [gameId], references: [id])
+}
+
+model Lesson {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  author    User      @relation(fields: [createdBy], references: [id])
+  comments    Comment[]  @relation("LessonComments")
+
+  @@map("lessons")
+}
+
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  authorId    String   @map("author_id")
+  publishedAt DateTime @default(now()) @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  author      User      @relation(fields: [authorId], references: [id])
+  comments    Comment[]  @relation("NewsComments")
+
+  @@map("news")
+}
+
+model Comment {
+  id             String    @id @default(cuid())
+  userId          String   @map("user_id")
+  content         String
+  createdAt       DateTime @default(now()) @map("created_at")
+  parentId        String?  @map("parent_id")
+  commentableType String   @map("commentable_type")
+  commentableId   String   @map("commentable_id")
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], map: "comments_user_id_fkey")
+  parent          Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  replies         Comment[] @relation("CommentToComment")
+  game          Game?    @relation("GameComments", fields: [commentableId], references: [id], map: "comments_game_id_fkey")
+  news          News?    @relation("NewsComments", fields: [commentableId], references: [id], map: "comments_news_id_fkey")
+  lesson         Lesson?  @relation("LessonComments", fields: [commentableId], references: [id], map: "comments_lesson_id_fkey")
+  post           Post?    @relation("PostComments", fields: [commentableId], references: [id], map: "comments_post_id_fkey")
+
+  @@index([commentableType, commentableId])
+  @@map("comments")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  author    User      @relation(fields: [userId], references: [id])
+  comments    Comment[]  @relation("PostComments")
+
+  @@map("posts")
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  stripePaymentId String   @unique @map("stripe_payment_id")
+  amount          Decimal  @db.Decimal(10,2)
+  currency        String   @default("USD")
+  status          String
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+model Rating {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  rating     Int
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("ratings")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model Friendship {
+  userId    String   @map("user_id")
+  friendId  String   @map("friend_id")
+  status    String   @default("pending")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user      User     @relation("UserFriends", fields: [userId], references: [id])
+  friend    User     @relation("FriendToUser", fields: [friendId], references: [id])
+
+  @@id([userId, friendId])
+  @@map("friendships")
+}
+
+// New PlaygroundGame model
+model PlaygroundGame {
+  roomId           String             @id @default(cuid())
+  winner           String             @default("none")
+  status           String             @default("in-progress")
+  board            Json               @default("{}")
+  currentPlayer    String             @default("white")
+  kingCheckOrMoved Json               @default("{}")
+  rookMoved        Json               @default("{}")
+  eliminatedPieces Json               @default("{}")
+  isKingInCheck    String             @default("noCheck")
+  canPromotePawn   Json?              @default("{}")
+  whiteTime        Int                @default(600)
+  blackTime        Int                @default(600)
+  lastMove         Json?
+  movingPiece      Json?
+  createdAt        DateTime           @default(now())
+  players          PlaygroundPlayer[]
+
+  @@map("playground_games")
+}
+
+model PlaygroundPlayer {
+  id          String         @id @default(cuid())
+  gameId      String
+  name        String?
+  color       String
+  drawRequest Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  
+  // Relations
+  game        PlaygroundGame @relation(fields: [gameId], references: [roomId])
+
+  @@map("playground_players")
+}
+
+// Stats model for game tracking
+model Stats {
+  id         String   @id @default(uuid())
+  totalGames Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  @@map("stats")
+}

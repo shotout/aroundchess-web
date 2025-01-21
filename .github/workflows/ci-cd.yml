@@ -1,0 +1,96 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [develop, main, 'feature/*', 'hotfix/*']
+
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  # Step 1: Enforce Branch Rules
+  branch-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch rules
+        run: |
+          # Ensure PRs to main are only from develop
+          if [[ "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "develop" ]]; then
+            echo "ERROR: PRs to main branch are only allowed from develop."
+            exit 1
+          fi
+
+          # Ensure PRs to develop are only from feature/* or hotfix/*
+          if [[ "${{ github.base_ref }}" == "develop" && ! "${{ github.head_ref }}" =~ ^(feature|hotfix)/ ]]; then
+            echo "ERROR: PRs to develop branch are only allowed from feature/* or hotfix/* branches."
+            exit 1
+          fi
+
+  # Step 2: Check for Duplicate Actions
+  check-duplicate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+
+  # Step 3: Deploy to Development (Vercel)
+  deploy-dev:
+    needs: [check-duplicate]
+    if: |
+      github.ref == 'refs/heads/develop' && 
+      needs.check-duplicate.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Vercel (Development)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GH_PAT }}
+
+      - name: Notify Slack (Development Deployment)
+        uses: rtCamp/action-slack-notify@v2
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_DEV }}
+          args: >
+            Deployment to `develop` was successful! ✅
+
+  # Step 4: Deploy to Production (Vercel)
+  deploy-production:
+    needs: [check-duplicate]
+    if: |
+      github.base_ref == 'main' && 
+      github.event_name == 'pull_request' &&
+      needs.check-duplicate.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Vercel (Production)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GH_PAT }}
+          vercel-args: '--prod'
+
+      - name: Notify Slack (Production Deployment)
+        uses: rtCamp/action-slack-notify@v2
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_MAIN }}
+          args: >
+            Deployment to `main` (production) was successful! 🚀
