@@ -261,7 +261,7 @@ export default function PricingPage() {
               <AccordionItem value="item-1">
                 <AccordionTrigger>What is AroundChess?</AccordionTrigger>
                 <AccordionContent>
-                  Aroundchess is an advanced AI-powered chess analysis tool that helps players of all levels improve their game. It provides detailed game analysis, personalized training plans, and advanced features to enhance your chess skills.
+                  aroundchess is an advanced AI-powered chess analysis tool that helps players of all levels improve their game. It provides detailed game analysis, personalized training plans, and advanced features to enhance your chess skills.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
