@@ -60,13 +60,6 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token: ${{ secrets.GH_PAT }}
 
-      - name: Notify Slack (Development Deployment)
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_DEV }}
-          args: >
-            Deployment to `develop` was successful! ✅
-
   # Step 4: Deploy to Production (Vercel)
   deploy-production:
     needs: [check-duplicate]
@@ -87,10 +80,3 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-token: ${{ secrets.GH_PAT }}
           vercel-args: '--prod'
-
-      - name: Notify Slack (Production Deployment)
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_MAIN }}
-          args: >
-            Deployment to `main` (production) was successful! 🚀
