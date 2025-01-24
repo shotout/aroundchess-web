@@ -24,7 +24,7 @@ const navItems = {
       { title: "Chess Fundamentals", href: "/learn/chess-fundamentals", description: "Master the basic principles and rules of chess" },
       { title: "Opening Principles", href: "/learn/opening-principles", description: "Study and understand key opening strategies" },
       { title: "Middle Game Strategies", href: "/learn/middle-game-stragegies", description: "Develop your tactical and positional play" },
-      { title: "Endgame Basics", href: "/learn/endgame", description: "Learn essential endgame techniques" },
+      { title: "Endgame Basics", href: "/learn/endgame-basics", description: "Learn essential endgame techniques" },
       { title: "Chess Tactics", href: "/learn/tactics", description: "Improve your tactical vision and calculation" },
       { title: "Positional Play", href: "/learn/positional", description: "Understand strategic concepts and planning" },
       { title: "Famous Games", href: "/learn/famous-games", description: "Study classic games from chess masters" },
@@ -94,7 +94,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
             </Button>
             <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6" />
-              <span className="hidden font-bold sm:inline-block">Aroundchess</span>
+              <span className="hidden font-bold sm:inline-block">aroundchess</span>
             </Link>
           </div>
 
@@ -279,7 +279,7 @@ function MobileNav() {
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
           <LayoutDashboard className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl text-primary">Aroundchess</span>
+          <span className="font-bold text-xl text-primary">aroundchess</span>
         </Link>
         <SheetClose className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted">
           <X className="h-4 w-4" />

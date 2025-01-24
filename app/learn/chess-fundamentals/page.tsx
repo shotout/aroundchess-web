@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { default as ChessFundamentals } from '@/components/chess-fundamentals/ChessFundamentals'
 
 export const metadata: Metadata = {
-  title: 'Chess Fundamentals | Aroundchess',
+  title: 'Chess Fundamentals | aroundchess',
   description: 'Learn the basic rules, piece movements, and fundamental concepts of chess.',
 }
 
