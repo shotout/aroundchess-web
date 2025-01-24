@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/site-footer'
 import OpeningPrinciples from '@/components/opening-principles/OpeningPrinciples'
 
 export const metadata: Metadata = {
-  title: 'Chess Opening Principles | Aroundchess',
+  title: 'Chess Opening Principles | aroundchess',
   description: 'Master the fundamentals of chess openings, explore popular opening families, and learn strategies for a strong start to your game.',
 }
 
