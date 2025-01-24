@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import MiddleGameStrategies from "@/components/middle-game-strategies/MiddleGameStrategies"
 
 export const metadata: Metadata = {
@@ -8,6 +10,14 @@ export const metadata: Metadata = {
 }
 
 export default function MiddleGameStrategiesPage() {
-  return <MiddleGameStrategies />
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex-1">
+        <MiddleGameStrategies />
+      </main>
+      <SiteFooter />
+    </div>
+  )
 }
 
