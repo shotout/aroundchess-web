@@ -14,7 +14,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
           <div>
             <Link href="/" className="flex items-center space-x-2">
               <LayoutDashboard className="h-6 w-6" />
-              <span className="font-bold">Aroundchess</span>
+              <span className="font-bold">aroundchess</span>
             </Link>
             <p className="mt-2 text-sm">
               Advanced chess training and analysis powered by AI
@@ -47,7 +47,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm">© 2024 Aroundchess. All rights reserved.</p>
+            <p className="text-sm">© 2024 aroundchess. All rights reserved.</p>
             <div className="flex space-x-6">
               <Link href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
                 <span className="sr-only">Facebook</span>

@@ -80,7 +80,7 @@ export default function AboutPage() {
       {/* Key Features Section */}
       <section className="py-20 sm:py-32 bg-muted/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Aroundchess?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose aroundchess?</h2>
           <motion.div
             className="grid md:grid-cols-3 gap-8"
             variants={staggerContainer}
@@ -165,7 +165,7 @@ export default function AboutPage() {
                     <h3 className="text-2xl font-semibold">The Beginning</h3>
                   </div>
                   <p className="text-lg text-muted-foreground leading-relaxed pl-12">
-                    Founded in 2024, Aroundchess was born from a passion for combining cutting-edge technology with the timeless game of chess.
+                    Founded in 2024, aroundchess was born from a passion for combining cutting-edge technology with the timeless game of chess.
                   </p>
                 </motion.div>
               </div>
@@ -255,7 +255,7 @@ export default function AboutPage() {
           >
             <h2 className="text-3xl font-bold mb-4">What Our Users Say</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Discover how Aroundchess is transforming the way players learn and improve their chess game
+              Discover how aroundchess is transforming the way players learn and improve their chess game
             </p>
           </motion.div>
           <div 
