@@ -23,7 +23,7 @@ const navItems = {
     { title: "Learn", href: "/learn", icon: GraduationCap, items: [
       { title: "Chess Fundamentals", href: "/learn/chess-fundamentals", description: "Master the basic principles and rules of chess" },
       { title: "Opening Principles", href: "/learn/opening-principles", description: "Study and understand key opening strategies" },
-      { title: "Middle Game Strategies", href: "/learn/middle-game", description: "Develop your tactical and positional play" },
+      { title: "Middle Game Strategies", href: "/learn/middle-game-stragegies", description: "Develop your tactical and positional play" },
       { title: "Endgame Basics", href: "/learn/endgame", description: "Learn essential endgame techniques" },
       { title: "Chess Tactics", href: "/learn/tactics", description: "Improve your tactical vision and calculation" },
       { title: "Positional Play", href: "/learn/positional", description: "Understand strategic concepts and planning" },
