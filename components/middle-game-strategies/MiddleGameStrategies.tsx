@@ -20,7 +20,7 @@ import { PositionEvaluation } from "./PositionEvaluation"
 import { CommonMiddlegamePatterns } from "./CommonMiddlegamePatterns"
 import { TacticalOpportunities } from "./TacticalOpportunities"
 import { MiddleGameProgressProvider, useMiddleGameProgress } from "@/contexts/MiddleGameProgressContext"
-import { ChessExample } from "./ChessExample"
+import { ChessExample } from "../chess/ChessExample"
 // import { LearningPathVisualizer } from "./LearningPathVisualizer" //Removed as per update 1
 import { useInView } from "react-intersection-observer"
 import {
