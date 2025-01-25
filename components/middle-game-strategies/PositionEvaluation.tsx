@@ -12,7 +12,7 @@ import {
   DiamondIcon as ChessQueen,
 } from "lucide-react"
 import { CompleteButton } from "./CompleteButton"
-import { ChessExample } from "./ChessExample"
+import { ChessExample } from "../chess/ChessExample"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
