@@ -26,7 +26,7 @@ const navItems = {
       { title: "Middle Game Strategies", href: "/learn/middle-game-stragegies", description: "Develop your tactical and positional play" },
       { title: "Endgame Basics", href: "/learn/endgame-basics", description: "Learn essential endgame techniques" },
       { title: "Chess Tactics", href: "/learn/chess-tactics", description: "Improve your tactical vision and calculation" },
-      { title: "Positional Play", href: "/learn/positional", description: "Understand strategic concepts and planning" },
+      { title: "Positional Play", href: "/learn/positional-play", description: "Understand strategic concepts and planning" },
       { title: "Famous Games", href: "/learn/famous-games", description: "Study classic games from chess masters" },
       { title: "Chess History", href: "/learn/history", description: "Explore the rich history of chess" },
     ]},
