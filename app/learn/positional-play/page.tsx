@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import PositionalPlay from "@/components/positional-play/PositionalPlay"
+import PositionalPlay from "@/components/learn/positional-play/PositionalPlay"
 
 export const metadata: Metadata = {
   title: "Positional Play | Chess Analyzer",

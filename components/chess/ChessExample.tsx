@@ -53,12 +53,24 @@ export function ChessExample({ initialFen, title, description }: ChessExamplePro
         <p className="text-gray-600 mb-4">{description}</p>
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="w-full max-w-[300px]">
-            <Chessboard position={currentPosition} onPieceDrop={onDrop} boardWidth={300} />
+            <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl shadow-inner">
+              <Chessboard 
+                position={currentPosition} 
+                onPieceDrop={onDrop} 
+                boardWidth={300}
+                customDarkSquareStyle={{ backgroundColor: "#B58863" }}
+                customLightSquareStyle={{ backgroundColor: "#F0D9B5" }}
+                customBoardStyle={{
+                  borderRadius: "0.75rem",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                }}
+              />
+            </div>
           </div>
           <div className="flex-1">
             <p className="text-sm text-gray-500 mb-2">Current FEN:</p>
             <code className="text-xs bg-gray-100 p-2 rounded block mb-4">{currentPosition}</code>
-            <Button onClick={resetPosition}>Reset Position</Button>
+            <Button variant="outline" onClick={resetPosition}>Reset Position</Button>
           </div>
         </div>
       </CardContent>

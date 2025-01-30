@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import MiddleGameStrategies from "@/components/middle-game-strategies/MiddleGameStrategies"
+import MiddleGameStrategies from "@/components/learn/middle-game-strategies/MiddleGameStrategies"
 
 export const metadata: Metadata = {
   title: "Middle Game Strategies | Chess Analyzer",
