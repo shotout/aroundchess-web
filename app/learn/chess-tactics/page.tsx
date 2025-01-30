@@ -1,7 +1,10 @@
-import type { Metadata } from "next"
-import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
-import ChessTactics from "@/components/chess-tactics/ChessTactics"
+import { Metadata } from "next"
+import dynamic from "next/dynamic"
+
+const ChessTacticsPage = dynamic(
+  () => import("@/components/learn/chess-tactics/ChessTactics"),
+  { ssr: false }
+)
 
 export const metadata: Metadata = {
   title: "Chess Tactics | Chess Analyzer",
@@ -9,14 +12,4 @@ export const metadata: Metadata = {
     "Master essential chess tactics to improve your gameplay. Learn about pins, forks, discovery attacks, and more advanced tactical motifs.",
 }
 
-export default function ChessTacticsPage() {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <ChessTactics />
-      </main>
-      <SiteFooter />
-    </div>
-  )
-}
+export default ChessTacticsPage
