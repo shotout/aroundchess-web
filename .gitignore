@@ -21,6 +21,7 @@
 *.pem
 .cursorrules
 .windsurfrules
+.documentation
 
 # debug
 npm-debug.log*
