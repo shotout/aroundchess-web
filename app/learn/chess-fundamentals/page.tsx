@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { default as ChessFundamentals } from '@/components/chess-fundamentals/ChessFundamentals'
+import { default as ChessFundamentals } from '@/components/learn/chess-fundamentals/ChessFundamentals'
 
 export const metadata: Metadata = {
   title: 'Chess Fundamentals | aroundchess',
