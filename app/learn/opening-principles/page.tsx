@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import OpeningPrinciples from '@/components/opening-principles/OpeningPrinciples'
+import OpeningPrinciples from '@/components/learn/opening-principles/OpeningPrinciples'
 
 export const metadata: Metadata = {
   title: 'Chess Opening Principles | aroundchess',
