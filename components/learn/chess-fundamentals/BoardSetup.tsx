@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Info, CircuitBoardIcon as ChessBoardIcon, ArrowRight } from 'lucide-react'
-import { CompleteButton } from '@/components/chess-fundamentals/CompleteButton'
+import { CompleteButton } from '@/components/learn/chess-fundamentals/CompleteButton'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { Chess } from 'chess.js'
