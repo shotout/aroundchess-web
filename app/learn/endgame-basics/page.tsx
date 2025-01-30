@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import EndgameBasics from "@/components/endgame-basics/EndgameBasics"
+import EndgameBasics from "@/components/learn/endgame-basics/EndgameBasics"
 
 export const metadata: Metadata = {
   title: "Endgame Basics | Chess Analyzer",

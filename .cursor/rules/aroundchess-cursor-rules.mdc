@@ -1,0 +1,281 @@
+---
+description: 
+globs: 
+---
+
+# Aroundchess
+
+
+Every time you choose to apply a rule(s), explicitly state the rule(s) in the output. You can abbreviate the rule description to a single word or phrase.
+
+## Project Context
+A comprehensive chess training and analysis platform that combines AI technology with personalized learning to help chess players of all levels improve their game. The platform acts as a 24/7 personal chess coach, providing real-time analysis, customized training plans, and detailed performance tracking.
+
+### Key Features of Chess Analyzer:
+
+1. Analysis
+- Real-time game evaluation using Stockfish: Instant move analysis by one of the world's strongest chess engines
+- Instant feedback on every move: Like having a grandmaster watching over your shoulder
+- Detailed explanations of better alternatives: Clear, human-readable explanations of why certain moves are better
+- Pattern and mistake identification: Automatically spots recurring themes and errors in your play
+
+2. Learning Tools
+- Personalized learning paths: Custom curriculum based on your playing style and goals
+- Interactive lessons: Hands-on learning with immediate feedback
+- Annotated master games library: Learn from the best games with expert commentary
+- Progressive difficulty adaptation: Content that grows with your skill level
+
+3. Practice Exercises
+- Tactical puzzles matched to skill level: Challenges that fit your current ability
+- Endgame training scenarios: Master crucial endgame positions
+- Opening repertoire builder: Develop and practice your preferred openings
+- Time management exercises: Learn to use your clock effectively
+- AI opponent with adjustable strength: Practice against an engine that matches your level
+
+4. Progress Tracking
+- Detailed performance metrics: Comprehensive stats about your chess improvement
+- Goal achievement monitoring: Track progress toward your chess objectives
+- Skill improvement visualization: Clear graphs showing your development
+- Custom progress reports: Personalized feedback on your improvement
+- Rating progression tracking: Monitor your rating changes over time
+
+5. Training Programs
+- Customized daily/weekly plans: Structured training tailored to your schedule
+- Goal-based training paths: Focused exercises to achieve specific objectives
+- Weakness-focused exercises: Training targeted at your problem areas
+- Adaptive difficulty levels: Challenges that adjust to your progress
+
+6. Game Modes
+- Computer play (350-2800 ELO): Face AI opponents of any strength
+- Two-player local games: Play face-to-face on the same device
+- Online multiplayer: Challenge players worldwide
+- Training positions: Practice specific scenarios
+- Game analysis mode: Deep dive into any chess position
+
+7. Social Features
+- Progress sharing: Show your improvement to friends
+- Community interaction: Connect with fellow chess enthusiasts
+- Achievement system: Earn rewards for your progress
+- Friend challenges: Compete with other players
+- Social media integration: Share achievements on your favorite platforms
+
+8. Security & Access
+- Two-factor authentication: Extra layer of account protection
+- Secure login options: Multiple safe ways to access your account
+- Multiple subscription tiers: Choose the plan that fits your needs
+- 7-day free trial: Test all premium features without commitment
+- Cross-platform access: Use on any device, anywhere
+
+
+The platform emphasizes user experience with a clean interface, responsive design, and seamless integration of advanced chess training tools with social features.
+
+## Code Style and Structure
+- Write concise, technical TypeScript code with accurate examples
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError)
+- Structure repository files as follows:
+```
+Aroundchess/
+├── app/                # Next.js App Router pages and routes
+    ├── auth/           # Authentication related pages
+    ├── playground/     # Game modes (computer, two-player, online)
+    ├── practice/       # Training and practice features
+    ├── analysis/       # Game analysis and statistics
+    ├── about/          # About pages
+    └── pricing/        # Pricing and subscription pages
+├── components/         # Reusable React components
+    ├── chess/          # Chess-specific components
+    ├── layout/         # Layout components (header, footer)
+    ├── ui/             # UI component library
+    ├── analysis/       # Analysis-specific components
+    └── playground/     # Game mode components
+├── lib/                # Core libraries and utilities
+    ├── stockfish/      # Stockfish engine integration
+    ├── chess/          # Chess game logic
+    └── api/            # API utilities
+├── utils/              # Helper functions and utilities
+    ├── chess/          # Chess-specific utilities
+    ├── motion/         # Animation utilities
+    └── common/         # Common helper functions
+├── store/              # State management
+    ├── chess/          # Chess game state
+    └── user/           # User preferences state
+├── styles/             # Global styles and themes
+    └── globals/        # Global CSS
+├── public/             # Static assets
+    ├── images/         # Image assets
+    └── icons/          # Icon assets
+├── types/              # TypeScript type definitions
+    ├── chess/          # Chess-related types
+    └── common/         # Common types
+└── config/             # Configuration files
+```
+
+## Tech Stack:
+Frontend:
+- Next.js 14+ (App Router)
+- TypeScript
+- Tailwind CSS
+- ShadcN UI Components
+- Framer Motion (animations)
+- Lucide Icons
+
+UI/UX:
+- Responsive design
+- Motion animations
+- Glassmorphism effects
+- Gradient backgrounds
+- Custom UI components
+
+State Management & Data:
+- React Hooks
+- Server Components
+- Client Components
+
+Authentication:
+- Clerk Authentication:
+```
+const handleSubscription = async (planType: string) => {
+  toast.info(`Subscription for ${planType} coming soon!`)
+}
+```
+
+Image Optimization:
+- Next.js Image Component
+- SVG Placeholders
+- Blur loading effects
+
+Development Tools:
+- ESLint
+- TypeScript strict mode
+- Prettier
+
+Performance:
+- Image optimization
+- Component lazy loading
+- Viewport-based animations:
+```
+<motion.div
+  key={feature.title}
+  className="glassmorphism p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+  initial={{ opacity: 0, y: 50 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: index * 0.1 }}
+  viewport={{ once: true }}
+>
+```
+
+Styling Utilities:
+- CSS Grid
+- Flexbox
+- Custom animations
+- Tailwind utilities
+- CSS variables
+
+Additional Libraries:
+- Sonner (toast notifications)
+
+```
+import { toast } from "sonner"
+```
+
+Chess-specific:
+- Stockfish engine integration
+- PGN parser
+- Chess.js (implied from features)
+- Custom chess analysis tools
+
+The application follows modern web development practices with a focus on performance, accessibility, and user experience.
+
+
+## Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/form-wizard)
+- Favor named exports for components and utilities
+- Use PascalCase for component files (e.g., VisaForm.tsx)
+- Use camelCase for utility files (e.g., formValidator.ts)
+
+## TypeScript Usage
+- Use TypeScript for all code; prefer interfaces over types
+- Avoid enums; use const objects with 'as const' assertion
+- Use functional components with TypeScript interfaces
+- Define strict types for message passing between different parts of the extension
+- Use absolute imports for all files @/...
+- Avoid try/catch blocks unless there's good reason to translate or handle error in that abstraction
+- Use explicit return types for all functions
+
+## State Management
+- Use React Context for global state when needed
+- Implement proper state persistence
+- Implement proper cleanup in useEffect hooks
+
+## Syntax and Formatting
+- Use "function" keyword for pure functions
+- Avoid unnecessary curly braces in conditionals
+- Use declarative JSX
+- Implement proper TypeScript discriminated unions for message types
+
+## UI and Styling
+- Use Shadcn UI and Radix for components
+- use `npx shadcn@latest add <component-name>` to add new shadcn components
+- Implement Tailwind CSS for styling
+- Consider extension-specific constraints (popup dimensions, permissions)
+- Follow Material Design guidelines for Chess components and extensions
+- When adding new shadcn component, document the installation command
+
+## Error Handling
+- Implement proper error boundaries
+- Log errors appropriately for debugging
+- Provide user-friendly error messages
+- Handle network failures gracefully
+
+## Testing
+- Write unit tests for utilities and components
+- Implement E2E tests for critical flows
+- Test across different views (Desktop, Mobile, Tablet)
+    - Desktop: default size
+    - Mobile Phone: 430x932 portrait / 932x430 landscape
+    - Tablet: 1024x1366 portrait / 1366x1024 landscape
+- Test memory usage and performance
+
+## Security
+- Implement Content Security Policy
+- Sanitize user inputs
+- Handle sensitive data properly
+- Implement proper CORS handling
+
+## Git Usage
+Commit Message Prefixes:
+- "fix:" for bug fixes
+- "feat:" for new features
+- "perf:" for performance improvements
+- "docs:" for documentation changes
+- "style:" for formatting changes
+- "refactor:" for code refactoring
+- "test:" for adding missing tests
+- "chore:" for maintenance tasks
+
+Rules:
+- Use lowercase for commit messages
+- Keep the summary line concise
+- Include description for non-obvious changes
+- Reference issue numbers when applicable
+
+## Documentation
+- Maintain clear README with setup instructions
+- Document API interactions and data flows directly to README
+- Keep manifest.json well-documented
+- Don't include comments unless it's for complex logic
+- Document permission requirements
+
+## Development Workflow
+- Use proper version control
+- Implement proper code review process
+- Test in multiple environments
+- Follow semantic versioning for releases
+- Maintain changelog
+
+
+# Cursor Specific
+- Automatically suggest additions for .cursorrules files where best practices are used during the generation
+- When you are not sure about the rule, you can ask the user for clarification
