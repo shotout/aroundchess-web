@@ -1,0 +1,113 @@
+"use client";
+
+import { useState } from "react";
+import PuzzleGame from "@/app/components/puzzle/PuzzleGame";
+import PuzzleInitializer from "@/app/components/puzzle/PuzzleInitializer";
+import { usePuzzles } from "@/app/hooks/usePuzzles";
+import PuzzleGameInfo from "@/app/components/puzzle/PuzzleGameInfo";
+import { SiteHeader } from "@/components/site-header";
+
+// Define the Puzzle type
+type Puzzle = {
+  PuzzleId: string;
+  FEN: string;
+  Moves: string;
+  Themes: string;
+};
+
+export default function Play() {
+  const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]); // Store filtered puzzles
+
+  // Use the custom hook with the filtered puzzles
+  const {
+    currentPuzzle,
+    getRandomPuzzle,
+    resetPuzzle,
+    isSolved,
+    solutionHistory,
+    currentSolutionIndex,
+    fenHistory,
+    setFenHistory,
+    activePlayer,
+    setActivePlayer,
+    playerColor,
+    handleNavigateToMove,
+    handleTakeBackMove,
+    toggleBoardOrientation,
+    boardOrientation,
+    setCurrentSolutionIndex,
+    setGameStarted,
+    getNextPuzzle,
+    getHint,
+    hint,
+    clearHint,
+    showConfirmationBox,
+    handleConfirm,
+  } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
+
+  // Callback for when puzzles are fetched and filtered
+  const handleFetchPuzzles = (puzzles: Puzzle[]) => {
+    if (puzzles.length === 0) {
+      // console.warn('No puzzles fetched.')
+      return;
+    }
+
+    setFilteredPuzzles(puzzles); // Update state first
+
+    // Wait for the state to update before calling getRandomPuzzle
+    setTimeout(() => {
+      // console.log('Filtered puzzles updated. Fetching random puzzle...')
+      getRandomPuzzle();
+    }, 0);
+  };
+
+  return (
+    <>
+      <SiteHeader />
+      <div className="flex flex-col items-center w-full h-auto p-4 mt-16">
+        <div className="relative w-full max-w-4xl flex flex-col items-center">
+          {!currentPuzzle ? (
+            <PuzzleInitializer
+              jsonPath="/puzzle/mate_puzzles.json" // Path to your JSON file
+              onFetchPuzzles={handleFetchPuzzles} // Pass filtered puzzles to this callback
+              filteredPuzzles={filteredPuzzles}
+              setFilteredPuzzles={setFilteredPuzzles}
+              setGameStarted={setGameStarted}
+            />
+          ) : (
+            <>
+              <PuzzleGame
+                fenHistory={fenHistory} // FEN of the current puzzle
+                puzzleMoves={solutionHistory} // Solution moves
+                currentMoveIndex={currentSolutionIndex}
+                setCurrentMoveIndex={setCurrentSolutionIndex}
+                isGameOver={isSolved} // Treat "solved" as game over for puzzles
+                onGameOver={() => {}} // Optional callback for when the puzzle is solved
+                setFenHistory={setFenHistory}
+                setActivePlayer={setActivePlayer}
+                activePlayer={activePlayer}
+                color={playerColor}
+                boardOrientation={boardOrientation}
+                resetPuzzle={resetPuzzle}
+                getNextPuzzle={getNextPuzzle}
+                hint={hint}
+                clearHint={clearHint}
+              />
+              <PuzzleGameInfo
+                fenHistory={fenHistory} // FEN of the current puzzle
+                currentMoveIndex={currentSolutionIndex}
+                navigateToMove={handleNavigateToMove}
+                onTakeBackMove={handleTakeBackMove}
+                onToggleBoardOrientation={toggleBoardOrientation}
+                getNextPuzzle={getNextPuzzle}
+                onGetHint={getHint}
+                showConfirmationBox={showConfirmationBox}
+                handleConfirm={handleConfirm}
+              />
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
