@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       },
       create: {
         username,  
-        data_games_archives: data,  
+        data_stats: data,  
       },
     })
 

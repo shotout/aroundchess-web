@@ -19,11 +19,12 @@ export async function POST(request: NextRequest) {
 
   try {
     let monthInt = parseInt(month, 10)
+    let yearInt = parseInt(year)
     const newOrUpdatedChessApiMonthlyGame = await prisma.chessApiMonthlyGames.upsert({
       where: {
         username_year_month: {
           username,
-          year,
+          year: yearInt,
           month: monthInt,
         },
       },
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       },
       create: {
         username,
-        year,
+        year: yearInt,
         month : monthInt,
         data,
       },
