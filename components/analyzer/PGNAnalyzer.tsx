@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import pgnParser from "pgn-parser";
+import { getStockfishService } from "@/lib/stockfish/stockfish-service";
 
 const PGNAnalyzer: React.FC = () => {
   const [game, setGame] = useState(new Chess());
   const [moves, setMoves] = useState<string[]>([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [headers, setHeaders] = useState<{ name: string; value: string }[]>([]);
+  const [currentFen, setCurrentFen] = useState(game.fen());
+  const [bestMove, setBestMove] = useState<string | null>(null);
+  const [evaluation, setEvaluation] = useState<number | null>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -39,6 +43,7 @@ const PGNAnalyzer: React.FC = () => {
       game.move(moves[currentMoveIndex]);
       setCurrentMoveIndex(currentMoveIndex + 1);
       setGame(new Chess(game.fen()));
+      setCurrentFen(game.fen());
     }
   };
 
@@ -51,8 +56,36 @@ const PGNAnalyzer: React.FC = () => {
 
       setCurrentMoveIndex(currentMoveIndex - 1);
       setGame(newGame);
+      setCurrentFen(game.fen());
     }
   };
+
+  const fetchStockfishData = async (fen: string) => {
+    const stockfishService = getStockfishService();
+
+    try {
+      await stockfishService.waitReady();
+
+      const bestMove = await stockfishService.getBestMove(fen, 20, 0.1);
+      setBestMove(bestMove);
+
+      const evaluation = await stockfishService.getEvaluation(fen, 20);
+      setEvaluation(evaluation);
+    } catch (error) {
+      console.error("Error using StockfishService:", error);
+    } finally {
+      stockfishService.destroy();
+    }
+  };
+
+  useEffect(() => {
+    fetchStockfishData(currentFen);
+  }, [currentFen]);
+
+  useEffect(() => {
+    console.log("Best move:", bestMove);
+    console.log("Evaluation:", evaluation);
+  }, [bestMove, evaluation]);
 
   return (
     <div className="flex justify-center gap-4">
@@ -105,6 +138,20 @@ const PGNAnalyzer: React.FC = () => {
             onChange={handleFileUpload}
             className="p-2 border rounded"
           />
+        </div>
+        <div>
+          {bestMove && (
+            <div className="p-4 border rounded bg-gray-100 w-full max-w-4xl">
+              <h2 className="text-lg font-bold mb-2">Best Move:</h2>
+              <p>{bestMove}</p>
+            </div>
+          )}
+          {evaluation !== null && (
+            <div className="p-4 border rounded bg-gray-100 w-full max-w-4xl">
+              <h2 className="text-lg font-bold mb-2">Evaluation:</h2>
+              <p>{evaluation}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
