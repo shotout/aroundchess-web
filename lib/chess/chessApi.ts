@@ -1,5 +1,3 @@
-// lib/chessApi.ts
-
 export const fetchChessData = async (username: string, endpoint: string) => {
     const url = `${process.env.CHESS_API_URL}${username}/${endpoint}`;
     
