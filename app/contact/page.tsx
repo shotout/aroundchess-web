@@ -40,7 +40,7 @@ import { subjectForm } from "../store/constants";
 import { toast } from "sonner";
 
 export default function ContactPage() {
-  const form = React.useRef<HTMLFormElement>(null);
+  const form = React.useRef<any|HTMLFormElement>(null);
 
   const sendToEmail = (e: { preventDefault: () => void }) => {
     e.preventDefault();
