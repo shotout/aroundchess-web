@@ -15,6 +15,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
+import { UserButton, useUser } from "@clerk/nextjs"
 
 const navItems = {
   main: [
@@ -64,6 +65,8 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
+
+  const {isSignedIn} = useUser()
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -231,14 +234,17 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
             
 
-            <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="text-xs px-2 py-1">
-                <Link href="/login">Sign In</Link>
+            {!isSignedIn ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild className="text-xs px-2 py-1">
+                  <Link href="/login">Sign In</Link>
               </Button>
               <Button size="sm" asChild className="text-xs px-2 py-1">
                 <Link href="/register">Try Now</Link>
               </Button>
             </div>
+              ) : (<UserButton showName={true} />)
+            }
           </div>
         </div>
       </div>
