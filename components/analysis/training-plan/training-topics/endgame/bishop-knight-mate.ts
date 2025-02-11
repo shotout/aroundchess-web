@@ -1,4 +1,4 @@
-import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
+import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../types'
 
 export const bishopknightmate: BaseEndgameTopic = {
   id: "bishop-knight-mate",
