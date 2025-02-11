@@ -1,6 +1,6 @@
 import { HeroSection } from "@/components/hero-section"
 import { FeaturesSection } from "@/components/features-section"
-import { AnalysisSection } from "@/components/analysis-section"
+import { AnalysisSection } from "@/components/analysis/training-plan/analysis-section"
 import { CTASection } from "@/components/cta-section"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"

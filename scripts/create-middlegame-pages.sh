@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# List of all middlegame topics
+topics=(
+  "attacking-patterns"
+  "attacking-the-king"
+  "basic-principles"
+  "basic-tactics"
+  "bishop-pair"
+  "breakthrough-sacrifices"
+  "calculation-skills"
+  "color-complex"
+  "compensation"
+  "complex-sacrifices"
+  "defense-technique"
+  "defensive-resources"
+  "doubled-pawns"
+  "dynamic-play"
+  "exchange-decisions"
+  "hanging-pawns"
+  "initiative"
+  "isolated-queen-pawn"
+  "knight-outposts"
+  "material-counting"
+  "minor-piece-strategy"
+  "minority-attack"
+  "pattern-recognition"
+  "pawn-breaks"
+  "pawn-majority"
+  "pawn-structures"
+  "piece-activity"
+  "piece-coordination"
+  "piece-domination"
+  "positional-play"
+  "prophylaxis-prevention"
+  "prophylaxis"
+  "rook-handling"
+  "space-advantage"
+  "strategic-planning"
+  "tactical-combinations"
+  "transformation"
+  "zugzwang-creation"
+)
+
+# Create directories for each topic
+for topic in "${topics[@]}"; do
+  mkdir -p "app/dashboard/learning/middlegame/$topic"
+done
+
+echo "Created directories for all middlegame topics" 
