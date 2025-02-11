@@ -1,4 +1,4 @@
-import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
+import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../types'
 
 export const complexqueenendgames: BaseEndgameTopic = {
   id: "complex-queen-endgames",

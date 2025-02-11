@@ -11,6 +11,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Cell,
 } from "recharts"
 
 // Mock data - replace with real data from your backend
@@ -92,25 +93,29 @@ export function TeamAnalytics() {
                   <XAxis dataKey="category" />
                   <YAxis />
                   <Tooltip />
-                  <Bar
-                    dataKey="count"
-                    fill={(entry) => {
+                  <Bar dataKey="count">
+                    {moveAnalysis.map((entry, index) => {
+                      let color = "#94a3b8"
                       switch (entry.category) {
                         case "Best Moves":
-                          return "#22c55e"
+                          color = "#22c55e"
+                          break
                         case "Good Moves":
-                          return "#3b82f6"
+                          color = "#3b82f6"
+                          break
                         case "Inaccuracies":
-                          return "#eab308"
+                          color = "#eab308"
+                          break
                         case "Mistakes":
-                          return "#f97316"
+                          color = "#f97316"
+                          break
                         case "Blunders":
-                          return "#ef4444"
-                        default:
-                          return "#94a3b8"
+                          color = "#ef4444"
+                          break
                       }
-                    }}
-                  />
+                      return <Cell key={`cell-${index}`} fill={color} />
+                    })}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
