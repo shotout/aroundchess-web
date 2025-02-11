@@ -42,33 +42,13 @@ const topics = [
   'zugzwang-positions'
 ]
 
-const template = (topic: string) => `interface Resource {
-  title: string
-  description: string
-  platform: "chess.com" | "lichess.org" | "custom"
-  url: string
-}
+const template = (topic: string) => `import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
 
-export interface EndgameTopic {
-  id: string
-  title: string
-  description: string
-  difficulty: string
-  estimatedTime: string
-  objectives: string[]
-  prerequisites: string[]
-  fundamentalPositions: string[]
-  winningTechniques: string[]
-  commonMistakes: string[]
-  resources: Resource[]
-  relatedTopics: string[]
-}
-
-export const ${topic.replace(/-/g, '')}: EndgameTopic = {
+export const ${topic.replace(/-/g, '')}: BaseEndgameTopic = {
   id: "${topic}",
   title: "${topic.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}",
   description: "Master the essential concepts and techniques for ${topic.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').toLowerCase()}",
-  difficulty: "Beginner",
+  difficulty: "Beginner" as Difficulty,
   estimatedTime: "30 minutes",
   objectives: [
     "Understand the fundamental concepts",
@@ -86,6 +66,18 @@ export const ${topic.replace(/-/g, '')}: EndgameTopic = {
     "Critical positions",
     "Common formations"
   ],
+  theoreticalKnowledge: [
+    "Core principles",
+    "Key patterns",
+    "Important concepts",
+    "Strategic ideas"
+  ],
+  practicalTips: [
+    "Calculate variations carefully",
+    "Use your pieces actively",
+    "Create and exploit weaknesses",
+    "Control key squares"
+  ],
   winningTechniques: [
     "Position improvement",
     "Creating and exploiting weaknesses",
@@ -100,16 +92,16 @@ export const ${topic.replace(/-/g, '')}: EndgameTopic = {
   ],
   resources: [
     {
-      title: "Essential Concepts",
-      description: "Learn the fundamental concepts and strategies",
-      platform: "lichess.org",
-      url: "https://lichess.org/study"
+      title: "${topic.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Fundamentals",
+      description: "Learn the essential concepts of ${topic.split('-').join(' ')}",
+      platform: "chess.com",
+      url: "https://www.chess.com/lessons/${topic}"
     },
     {
-      title: "Practice Positions",
-      description: "Train with carefully selected positions",
-      platform: "chess.com",
-      url: "https://www.chess.com/lessons"
+      title: "Advanced ${topic.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}",
+      description: "Master complex ${topic.split('-').join(' ')} positions",
+      platform: "lichess.org",
+      url: "https://lichess.org/study/${topic}"
     }
   ],
   relatedTopics: [
@@ -120,16 +112,15 @@ export const ${topic.replace(/-/g, '')}: EndgameTopic = {
   ]
 }`
 
-// Generate files for each topic
-topics.forEach(topic => {
-  const dir = path.join(process.cwd(), 'components/analysis/training-plan/training-topics/endgame')
-  const file = path.join(dir, `${topic}.ts`)
-  
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  
-  fs.writeFileSync(file, template(topic))
-})
+// Create the directory if it doesn't exist
+const dir = path.join(process.cwd(), 'components/analysis/training-plan/training-topics/endgame')
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true })
+}
 
-console.log('Generated all endgame topic files') 
+// Generate files
+topics.forEach(topic => {
+  const filePath = path.join(dir, `${topic}.ts`)
+  fs.writeFileSync(filePath, template(topic))
+  console.log(`Generated ${filePath}`)
+}) 

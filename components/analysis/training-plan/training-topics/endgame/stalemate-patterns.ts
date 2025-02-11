@@ -1,30 +1,10 @@
-interface Resource {
-  title: string
-  description: string
-  platform: "chess.com" | "lichess.org" | "custom"
-  url: string
-}
+import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
 
-export interface EndgameTopic {
-  id: string
-  title: string
-  description: string
-  difficulty: string
-  estimatedTime: string
-  objectives: string[]
-  prerequisites: string[]
-  fundamentalPositions: string[]
-  winningTechniques: string[]
-  commonMistakes: string[]
-  resources: Resource[]
-  relatedTopics: string[]
-}
-
-export const stalematepatterns: EndgameTopic = {
+export const stalematepatterns: BaseEndgameTopic = {
   id: "stalemate-patterns",
   title: "Stalemate Patterns",
   description: "Master the essential concepts and techniques for stalemate patterns",
-  difficulty: "Beginner",
+  difficulty: "Beginner" as Difficulty,
   estimatedTime: "30 minutes",
   objectives: [
     "Understand the fundamental concepts",
@@ -42,6 +22,18 @@ export const stalematepatterns: EndgameTopic = {
     "Critical positions",
     "Common formations"
   ],
+  theoreticalKnowledge: [
+    "Core principles",
+    "Key patterns",
+    "Important concepts",
+    "Strategic ideas"
+  ],
+  practicalTips: [
+    "Calculate variations carefully",
+    "Use your pieces actively",
+    "Create and exploit weaknesses",
+    "Control key squares"
+  ],
   winningTechniques: [
     "Position improvement",
     "Creating and exploiting weaknesses",
@@ -56,16 +48,16 @@ export const stalematepatterns: EndgameTopic = {
   ],
   resources: [
     {
-      title: "Essential Concepts",
-      description: "Learn the fundamental concepts and strategies",
-      platform: "lichess.org",
-      url: "https://lichess.org/study"
+      title: "Stalemate Patterns Fundamentals",
+      description: "Learn the essential concepts of stalemate patterns",
+      platform: "chess.com",
+      url: "https://www.chess.com/lessons/stalemate-patterns"
     },
     {
-      title: "Practice Positions",
-      description: "Train with carefully selected positions",
-      platform: "chess.com",
-      url: "https://www.chess.com/lessons"
+      title: "Advanced Stalemate Patterns",
+      description: "Master complex stalemate patterns positions",
+      platform: "lichess.org",
+      url: "https://lichess.org/study/stalemate-patterns"
     }
   ],
   relatedTopics: [

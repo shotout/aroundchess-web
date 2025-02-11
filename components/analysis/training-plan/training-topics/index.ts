@@ -59,35 +59,35 @@ import { bishopPair } from './middlegame/bishop-pair'
 import { rookHandling } from './middlegame/rook-handling'
 
 // Endgame
-import { rookEndgames } from './endgame/rook-endgames'
-import { pawnEndgames } from './endgame/pawn-endgames'
-import { basicCheckmates } from './endgame/basic-checkmates'
-import { basicEndgamePrinciples } from './endgame/basic-endgame-principles'
-import { theoreticalEndgames } from './endgame/theoretical-endgames'
-import { fortressPositions } from './endgame/fortress-positions'
-import { minorPieceEndgames } from './endgame/minor-piece-endgames'
-import { queenEndgames } from './endgame/queen-endgames'
-import { oppositeColoredBishops } from './endgame/opposite-colored-bishops'
-import { sameColoredBishops } from './endgame/same-colored-bishops'
-import { knightVsBishop } from './endgame/knight-vs-bishop'
-import { queenVsPawn } from './endgame/queen-vs-pawn'
-import { rookVsMinor } from './endgame/rook-vs-minor'
-import { technicalConversion } from './endgame/technical-conversion'
-import { endgameTactics } from './endgame/endgame-tactics'
-import { kingActivity } from './endgame/king-activity'
-import { zugzwangPositions } from './endgame/zugzwang-positions'
-import { kingAndPawn } from './endgame/king-and-pawn'
-import { basicRookEndgames } from './endgame/basic-rook-endgames'
-import { basicMinorPiece } from './endgame/basic-minor-piece'
-import { queenEndgamePrinciples } from './endgame/queen-endgame-principles'
-import { advancedPawnEndgames } from './endgame/advanced-pawn-endgames'
-import { complexRookEndgames } from './endgame/complex-rook-endgames'
-import { complexMinorPiece } from './endgame/complex-minor-piece'
-import { complexQueenEndgames } from './endgame/complex-queen-endgames'
-import { endgameStudies } from './endgame/endgame-studies'
-import { theoreticalPositions } from './endgame/theoretical-positions'
-import { endgameCalculation } from './endgame/endgame-calculation'
-import { practicalEndgame } from './endgame/practical-endgame'
+import { rookendgames } from './endgame/rook-endgames'
+import { pawnendgames } from './endgame/pawn-endgames'
+import { basiccheckmates } from './endgame/basic-checkmates'
+import { basicendgameprinciples } from './endgame/basic-endgame-principles'
+import { theoreticalendgames } from './endgame/theoretical-endgames'
+import { fortresspositions } from './endgame/fortress-positions'
+import { minorpieceendgames } from './endgame/minor-piece-endgames'
+import { queenendgames } from './endgame/queen-endgames'
+import { oppositecoloredbishops } from './endgame/opposite-colored-bishops'
+import { samecoloredbishops } from './endgame/same-colored-bishops'
+import { knightvsbishop } from './endgame/knight-vs-bishop'
+import { queenvspawn } from './endgame/queen-vs-pawn'
+import { rookvsminor } from './endgame/rook-vs-minor'
+import { technicalconversion } from './endgame/technical-conversion'
+import { endgametactics } from './endgame/endgame-tactics'
+import { kingactivity } from './endgame/king-activity'
+import { zugzwangpositions } from './endgame/zugzwang-positions'
+import { kingandpawn } from './endgame/king-and-pawn'
+import { basicrookendgames } from './endgame/basic-rook-endgames'
+import { basicminorpiece } from './endgame/basic-minor-piece'
+import { queenendgameprinciples } from './endgame/queen-endgame-principles'
+import { advancedpawnendgames } from './endgame/advanced-pawn-endgames'
+import { complexrookendgames } from './endgame/complex-rook-endgames'
+import { complexminorpiece } from './endgame/complex-minor-piece'
+import { complexqueenendgames } from './endgame/complex-queen-endgames'
+import { endgamestudies } from './endgame/endgame-studies'
+import { theoreticalpositions } from './endgame/theoretical-positions'
+import { endgamecalculation } from './endgame/endgame-calculation'
+import { practicalendgame } from './endgame/practical-endgame'
 
 // Re-export openings
 export {
@@ -151,35 +151,35 @@ export {
 
 // Re-export endgame topics
 export {
-  rookEndgames,
-  pawnEndgames,
-  basicCheckmates,
-  basicEndgamePrinciples,
-  theoreticalEndgames,
-  fortressPositions,
-  minorPieceEndgames,
-  queenEndgames,
-  oppositeColoredBishops,
-  sameColoredBishops,
-  knightVsBishop,
-  queenVsPawn,
-  rookVsMinor,
-  technicalConversion,
-  endgameTactics,
-  kingActivity,
-  zugzwangPositions,
-  kingAndPawn,
-  basicRookEndgames,
-  basicMinorPiece,
-  queenEndgamePrinciples,
-  advancedPawnEndgames,
-  complexRookEndgames,
-  complexMinorPiece,
-  complexQueenEndgames,
-  endgameStudies,
-  theoreticalPositions,
-  endgameCalculation,
-  practicalEndgame
+  rookendgames as rookEndgames,
+  pawnendgames as pawnEndgames,
+  basiccheckmates as basicCheckmates,
+  basicendgameprinciples as basicEndgamePrinciples,
+  theoreticalendgames as theoreticalEndgames,
+  fortresspositions as fortressPositions,
+  minorpieceendgames as minorPieceEndgames,
+  queenendgames as queenEndgames,
+  oppositecoloredbishops as oppositeColoredBishops,
+  samecoloredbishops as sameColoredBishops,
+  knightvsbishop as knightVsBishop,
+  queenvspawn as queenVsPawn,
+  rookvsminor as rookVsMinor,
+  technicalconversion as technicalConversion,
+  endgametactics as endgameTactics,
+  kingactivity as kingActivity,
+  zugzwangpositions as zugzwangPositions,
+  kingandpawn as kingAndPawn,
+  basicrookendgames as basicRookEndgames,
+  basicminorpiece as basicMinorPiece,
+  queenendgameprinciples as queenEndgamePrinciples,
+  advancedpawnendgames as advancedPawnEndgames,
+  complexrookendgames as complexRookEndgames,
+  complexminorpiece as complexMinorPiece,
+  complexqueenendgames as complexQueenEndgames,
+  endgamestudies as endgameStudies,
+  theoreticalpositions as theoreticalPositions,
+  endgamecalculation as endgameCalculation,
+  practicalendgame as practicalEndgame
 }
 
 // Topic Collections
@@ -242,35 +242,35 @@ export const middlegameTopics: { [key: string]: MiddlegameTopic } = {
 }
 
 export const endgameTopics: { [key: string]: EndgameTopic } = {
-  'basic-endgame-principles': basicEndgamePrinciples,
-  'basic-checkmates': basicCheckmates,
-  'pawn-endgames': pawnEndgames,
-  'rook-endgames': rookEndgames,
-  'minor-piece-endgames': minorPieceEndgames,
-  'theoretical-endgames': theoreticalEndgames,
-  'fortress-positions': fortressPositions,
-  'queen-endgames': queenEndgames,
-  'opposite-colored-bishops': oppositeColoredBishops,
-  'same-colored-bishops': sameColoredBishops,
-  'knight-vs-bishop': knightVsBishop,
-  'queen-vs-pawn': queenVsPawn,
-  'rook-vs-minor': rookVsMinor,
-  'technical-conversion': technicalConversion,
-  'endgame-tactics': endgameTactics,
-  'king-activity': kingActivity,
-  'zugzwang-positions': zugzwangPositions,
-  'king-and-pawn': kingAndPawn,
-  'basic-rook-endgames': basicRookEndgames,
-  'basic-minor-piece': basicMinorPiece,
-  'queen-endgame-principles': queenEndgamePrinciples,
-  'advanced-pawn-endgames': advancedPawnEndgames,
-  'complex-rook-endgames': complexRookEndgames,
-  'complex-minor-piece': complexMinorPiece,
-  'complex-queen-endgames': complexQueenEndgames,
-  'endgame-studies': endgameStudies,
-  'theoretical-positions': theoreticalPositions,
-  'endgame-calculation': endgameCalculation,
-  'practical-endgame': practicalEndgame
+  'basic-endgame-principles': basicendgameprinciples,
+  'basic-checkmates': basiccheckmates,
+  'pawn-endgames': pawnendgames,
+  'rook-endgames': rookendgames,
+  'minor-piece-endgames': minorpieceendgames,
+  'theoretical-endgames': theoreticalendgames,
+  'fortress-positions': fortresspositions,
+  'queen-endgames': queenendgames,
+  'opposite-colored-bishops': oppositecoloredbishops,
+  'same-colored-bishops': samecoloredbishops,
+  'knight-vs-bishop': knightvsbishop,
+  'queen-vs-pawn': queenvspawn,
+  'rook-vs-minor': rookvsminor,
+  'technical-conversion': technicalconversion,
+  'endgame-tactics': endgametactics,
+  'king-activity': kingactivity,
+  'zugzwang-positions': zugzwangpositions,
+  'king-and-pawn': kingandpawn,
+  'basic-rook-endgames': basicrookendgames,
+  'basic-minor-piece': basicminorpiece,
+  'queen-endgame-principles': queenendgameprinciples,
+  'advanced-pawn-endgames': advancedpawnendgames,
+  'complex-rook-endgames': complexrookendgames,
+  'complex-minor-piece': complexminorpiece,
+  'complex-queen-endgames': complexqueenendgames,
+  'endgame-studies': endgamestudies,
+  'theoretical-positions': theoreticalpositions,
+  'endgame-calculation': endgamecalculation,
+  'practical-endgame': practicalendgame
 }
 
 // All Topics Combined
