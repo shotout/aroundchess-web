@@ -1,30 +1,10 @@
-interface Resource {
-  title: string
-  description: string
-  platform: "chess.com" | "lichess.org" | "custom"
-  url: string
-}
+import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
 
-export interface EndgameTopic {
-  id: string
-  title: string
-  description: string
-  difficulty: string
-  estimatedTime: string
-  objectives: string[]
-  prerequisites: string[]
-  fundamentalPositions: string[]
-  winningTechniques: string[]
-  commonMistakes: string[]
-  resources: Resource[]
-  relatedTopics: string[]
-}
-
-export const complexrookendgames: EndgameTopic = {
+export const complexrookendgames: BaseEndgameTopic = {
   id: "complex-rook-endgames",
   title: "Complex Rook Endgames",
   description: "Master the essential concepts and techniques for complex rook endgames",
-  difficulty: "Beginner",
+  difficulty: "Beginner" as Difficulty,
   estimatedTime: "30 minutes",
   objectives: [
     "Understand the fundamental concepts",
@@ -42,6 +22,18 @@ export const complexrookendgames: EndgameTopic = {
     "Critical positions",
     "Common formations"
   ],
+  theoreticalKnowledge: [
+    "Core principles",
+    "Key patterns",
+    "Important concepts",
+    "Strategic ideas"
+  ],
+  practicalTips: [
+    "Calculate variations carefully",
+    "Use your pieces actively",
+    "Create and exploit weaknesses",
+    "Control key squares"
+  ],
   winningTechniques: [
     "Position improvement",
     "Creating and exploiting weaknesses",
@@ -56,16 +48,16 @@ export const complexrookendgames: EndgameTopic = {
   ],
   resources: [
     {
-      title: "Essential Concepts",
-      description: "Learn the fundamental concepts and strategies",
-      platform: "lichess.org",
-      url: "https://lichess.org/study"
+      title: "Complex Rook Endgames Fundamentals",
+      description: "Learn the essential concepts of complex rook endgames",
+      platform: "chess.com",
+      url: "https://www.chess.com/lessons/complex-rook-endgames"
     },
     {
-      title: "Practice Positions",
-      description: "Train with carefully selected positions",
-      platform: "chess.com",
-      url: "https://www.chess.com/lessons"
+      title: "Advanced Complex Rook Endgames",
+      description: "Master complex complex rook endgames positions",
+      platform: "lichess.org",
+      url: "https://lichess.org/study/complex-rook-endgames"
     }
   ],
   relatedTopics: [

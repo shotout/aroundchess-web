@@ -1,30 +1,10 @@
-interface Resource {
-  title: string
-  description: string
-  platform: "chess.com" | "lichess.org" | "custom"
-  url: string
-}
+import { Difficulty, Resource, EndgameTopic as BaseEndgameTopic } from '../../types'
 
-export interface EndgameTopic {
-  id: string
-  title: string
-  description: string
-  difficulty: string
-  estimatedTime: string
-  objectives: string[]
-  prerequisites: string[]
-  fundamentalPositions: string[]
-  winningTechniques: string[]
-  commonMistakes: string[]
-  resources: Resource[]
-  relatedTopics: string[]
-}
-
-export const theoreticalendgames: EndgameTopic = {
+export const theoreticalendgames: BaseEndgameTopic = {
   id: "theoretical-endgames",
   title: "Theoretical Endgames",
   description: "Master the essential concepts and techniques for theoretical endgames",
-  difficulty: "Beginner",
+  difficulty: "Beginner" as Difficulty,
   estimatedTime: "30 minutes",
   objectives: [
     "Understand the fundamental concepts",
@@ -42,6 +22,18 @@ export const theoreticalendgames: EndgameTopic = {
     "Critical positions",
     "Common formations"
   ],
+  theoreticalKnowledge: [
+    "Core principles",
+    "Key patterns",
+    "Important concepts",
+    "Strategic ideas"
+  ],
+  practicalTips: [
+    "Calculate variations carefully",
+    "Use your pieces actively",
+    "Create and exploit weaknesses",
+    "Control key squares"
+  ],
   winningTechniques: [
     "Position improvement",
     "Creating and exploiting weaknesses",
@@ -56,16 +48,16 @@ export const theoreticalendgames: EndgameTopic = {
   ],
   resources: [
     {
-      title: "Essential Concepts",
-      description: "Learn the fundamental concepts and strategies",
-      platform: "lichess.org",
-      url: "https://lichess.org/study"
+      title: "Theoretical Endgames Fundamentals",
+      description: "Learn the essential concepts of theoretical endgames",
+      platform: "chess.com",
+      url: "https://www.chess.com/lessons/theoretical-endgames"
     },
     {
-      title: "Practice Positions",
-      description: "Train with carefully selected positions",
-      platform: "chess.com",
-      url: "https://www.chess.com/lessons"
+      title: "Advanced Theoretical Endgames",
+      description: "Master complex theoretical endgames positions",
+      platform: "lichess.org",
+      url: "https://lichess.org/study/theoretical-endgames"
     }
   ],
   relatedTopics: [
