@@ -118,7 +118,7 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
       ...state,
       lastMove: { ...lastMove, recorded: true }
     }));
-  }, [lastMove, board]);
+  }, [lastMove, board, recordMove]);
 
   // Effect to trigger computer move
   useEffect(() => {
@@ -186,31 +186,6 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
     } else {
       playIncorrectMoveSound();
     }
-  };
-
-  const handlePieceClick = (row: number, col: number) => {
-    if (board && !board[row][col]) return;
-    
-    // Check if it's the player's turn
-    if (currentPlayer !== playerColor) {
-      playIncorrectMoveSound();
-      return;
-    }
-
-    // Check if the piece belongs to the player
-    const isPieceWhite = board[row][col] === board[row][col]?.toUpperCase();
-    if ((playerColor === 'white' && !isPieceWhite) || (playerColor === 'black' && isPieceWhite)) {
-      playIncorrectMoveSound();
-      return;
-    }
-
-    // Toggle piece selection
-    setSelectedPiece((prev) => {
-      if (prev && prev.row === row && prev.col === col) {
-        return null; // Deselect if clicking the same piece
-      }
-      return { row, col }; // Select new piece
-    });
   };
 
   const handleSquareClick = (rowIndex: number, colIndex: number, e: React.MouseEvent) => {
