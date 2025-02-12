@@ -9,9 +9,13 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.clerk.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
       }
     ],
   },
 }
 
-module.exports = nextConfig 
+export default nextConfig 
