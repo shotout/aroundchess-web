@@ -1244,6 +1244,11 @@
   dependencies:
     undici-types "~6.20.0"
 
+"@types/pgn-parser@^2.1.3":
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/@types/pgn-parser/-/pgn-parser-2.1.3.tgz#0e34bf905665b0b768f7c34b9d08346821893e74"
+  integrity sha512-iZz+YCCE7FqMk5ZjRWfr2ENE3ZGaTrJPzi+xOzDorbpCo9ojcMNaw7+mcS3oJGEzvpD5vHw5tgTuUUk44PF+YA==
+
 "@types/phoenix@^1.5.4":
   version "1.6.6"
   resolved "https://registry.npmjs.org/@types/phoenix/-/phoenix-1.6.6.tgz"
@@ -3823,6 +3828,11 @@ pathe@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/pathe/-/pathe-1.1.2.tgz"
   integrity sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==
+
+pgn-parser@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/pgn-parser/-/pgn-parser-2.2.0.tgz#c3e97536190050e44032cb9ef6d60756875912f5"
+  integrity sha512-cioZtVp+0mzzCwVSxN3RlH0Rr3ds5OyImypr1vAUWs0iUWBnXgUFd8tdup3hGE9ecytiTXzBz1jWabOAkjBG3w==
 
 picocolors@^1.0.0, picocolors@^1.1.1:
   version "1.1.1"
