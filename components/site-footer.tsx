@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { LayoutDashboard, Facebook, Twitter, Instagram, Youtube, Linkedin } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import CookieConsent from "@/app/cookies-consent/cookies-consent-message";
 
 interface SiteFooterProps {
   className?: string;
@@ -9,6 +10,8 @@ interface SiteFooterProps {
 export function SiteFooter({ className }: SiteFooterProps) {
   return (
     <footer className={cn("bg-background py-4", className)}>
+      <CookieConsent/>
+
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <div>
