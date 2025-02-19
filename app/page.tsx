@@ -2,18 +2,18 @@ import { HeroSection } from "@/components/hero-section"
 import { FeaturesSection } from "@/components/features-section"
 import { AnalysisSection } from "@/components/analysis-section"
 import { CTASection } from "@/components/cta-section"
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
+import { SiteHeaderNew } from "@/components/site-header-new"
+import { SiteFooterNew } from "@/components/site-footer-new"
 
 export default function Home() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeaderNew />
       <HeroSection />
       <FeaturesSection />
       <AnalysisSection />
       <CTASection />
-      <SiteFooter />
+      <SiteFooterNew/>
     </>
   )
 }
