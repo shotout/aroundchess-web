@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import Image from "next/image";
 
 const analysisFeatures = [
   "Stockfish-powered move evaluation",
@@ -87,24 +88,24 @@ export function AnalysisSection() {
                 </span>
               </div>
               <div className="border border-input rounded-md py-4 px-4 mt-4">
-                <div className="flex flex-row">
-                <div className="relative w-full max-w-3xl mx-auto overflow-hidden rounded-lg">
-                  <div className="relative max-w-[645px] h-[520px] sm:h-80 md:h-96">
-                    <AnimatePresence>
-                      <motion.img
-                        key={current}
-                        src={analysis[current].image}
-                        alt={analysis[current].title}
-                        className="w-[645px] h-[520px] object-contain rounded-sm"
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -50 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </AnimatePresence>
+                <div className="flex flex-row w-full">
+                  <div className="relative w-1/2 max-w-3xl mx-auto overflow-hidden rounded-lg bg-white">
+                    <div className="relative w-[685px] h-[428px] sm:h-[320px] md:h-[428px] bg-white">
+                      <AnimatePresence>
+                        <motion.img
+                          key={current}
+                          src={analysis[current].image}
+                          alt={analysis[current].title}
+                          className="w-[685px] h-[428px] object-contain rounded-sm bg-white"
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -50 }}
+                          transition={{ duration: 0.5 }}
+                        />
+                      </AnimatePresence>
+                    </div>
                   </div>
-                  </div>
-                  <div className="px-4">
+                  <div className="px-4 w-1/2 ">
                     <span className="block text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
                       {analysis[current].title}
                     </span>
@@ -116,14 +117,47 @@ export function AnalysisSection() {
                       <span className="text-[#3871EC] text-md font-bold">
                         Idea
                       </span>
-                      <span className="block mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
-                          21. xd5 xd5 xd5
+                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                          &nbsp;
+                          <Image
+                            src="/icons/dot-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-2 h-2"
+                          />
+                          &nbsp;21.&nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
                         </span>
-                        <span className="block">
-                          with a decisive advantage to White.
-                        </span>
+                      </span>
+
+                      <span className="block">
+                        with a decisive advantage to White.
                       </span>
                     </div>
 
@@ -131,14 +165,47 @@ export function AnalysisSection() {
                       <span className="text-[#FA402D] text-md font-bold">
                         Problem
                       </span>
-                      <span className="block mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
-                          21. xd5 xd5 xd5
+                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                          &nbsp;
+                          <Image
+                            src="/icons/dot-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-2 h-2"
+                          />
+                          &nbsp;21.&nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
                         </span>
-                        <span className="block">
-                          with a decisive advantage to White.
-                        </span>
+                      </span>
+
+                      <span className="block">
+                        with a decisive advantage to White.
                       </span>
                     </div>
 
@@ -146,14 +213,47 @@ export function AnalysisSection() {
                       <span className="text-[#0C7C65] text-md font-bold">
                         Solution
                       </span>
-                      <span className="block mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
-                          21. xd5 xd5 xd5
+                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                          &nbsp;
+                          <Image
+                            src="/icons/dot-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-2 h-2"
+                          />
+                          &nbsp;21.&nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
+                          <Image
+                            src="/icons/Knight-icon.png"
+                            alt="dot"
+                            width={900}
+                            height={900}
+                            className="w-4 h-4"
+                          />
+                          xd5 &nbsp;
                         </span>
-                        <span className="block">
-                          with a decisive advantage to White.
-                        </span>
+                      </span>
+
+                      <span className="block">
+                        with a decisive advantage to White.
                       </span>
                     </div>
                   </div>
