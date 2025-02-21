@@ -21,18 +21,16 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <CookieConsent />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-8">
-              {/* <LayoutDashboard className="h-6 w-6" />
-              <span className="font-bold">aroundchess</span> */}
               <Image
                 src="/icons/logo.png"
                 alt="logo"
                 className="w-44 h-8"
                 quality={100}
-                width={100}
-                height={100}
+                width={600}
+                height={600}
               />
             </Link>
             <p className="mt-2 text-sm text-[#364152]">
@@ -130,7 +128,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <p className="text-sm text-[#364152]">
-              © 2024 aroundchess. All rights reserved.
+              © 2025 aroundchess. All rights reserved.
             </p>
             <div className="flex space-x-2">
               <Link
@@ -142,8 +140,8 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   src="/icons/tiktok.png"
                   alt="tiktok"
                   className="w-7 h-7"
-                  width={100}
-                  height={100}
+                  width={600}
+                  height={600}
                 />
               </Link>
               <Link
@@ -155,8 +153,8 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   src="/icons/facebook.png"
                   alt="facebook"
                   className="w-7 h-7"
-                  width={100}
-                  height={100}
+                  width={600}
+                  height={600}
                 />
               </Link>
               <Link
@@ -168,8 +166,8 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   src="/icons/youtube.png"
                   alt="youtube"
                   className="w-7 h-7"
-                  width={100}
-                  height={100}
+                  width={600}
+                  height={600}
                 />
               </Link>
             </div>

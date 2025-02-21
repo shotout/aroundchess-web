@@ -1,68 +1,37 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  Menu,
-  X,
-  Home,
-  Info,
-  GraduationCap,
-  Dumbbell,
-  BarChart2,
-  Gamepad2,
-  DollarSign,
-  HelpCircle,
-  Mail,
-  Zap,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-  SheetClose,
-} from "@/components/ui/sheet";
-import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { Card } from "./ui/card";
+import { motion } from "framer-motion";
+import {
+  BarChart2,
+  DollarSign,
+  HelpCircle,
+  Home,
+  Info,
+  LayoutDashboard,
+  Menu,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import * as React from "react";
 
 const navItems = {
   main: [
     { title: "Home", href: "/", icon: Home },
     { title: "About", href: "/about", icon: Info },
-    // { title: "Learn", href: "/learn", icon: GraduationCap, items: [
-    //   { title: "Chess Fundamentals", href: "/learn/chess-fundamentals", description: "Master the basic principles and rules of chess" },
-    //   { title: "Opening Principles", href: "/learn/opening-principles", description: "Study and understand key opening strategies" },
-    //   { title: "Middle Game Strategies", href: "/learn/middle-game-stragegies", description: "Develop your tactical and positional play" },
-    //   { title: "Endgame Basics", href: "/learn/endgame-basics", description: "Learn essential endgame techniques" },
-    //   { title: "Chess Tactics", href: "/learn/chess-tactics", description: "Improve your tactical vision and calculation" },
-    //   { title: "Positional Play", href: "/learn/positional-play", description: "Understand strategic concepts and planning" },
-    //   { title: "Famous Games", href: "/learn/famous-games", description: "Study classic games from chess masters" },
-    //   { title: "Chess History", href: "/learn/history", description: "Explore the rich history of chess" },
-    // ]},
-    // { title: "Practice", href: "/practice", icon: Dumbbell, items: [
-    //   { title: "Training Hub", href: "/practice/hub", description: "Your personalized training dashboard" },
-    //   { title: "Tactics Arena", href: "/practice/tactics", description: "Solve tactical puzzles and challenges" },
-    //   { title: "Opening Laboratory", href: "/practice/openings", description: "Build and test your opening repertoire" },
-    //   { title: "Endgame Academy", href: "/practice/endgame", description: "Master essential endgame positions" },
-    //   { title: "Play vs AI", href: "/practice/ai", description: "Challenge our advanced chess engine" },
-    //   { title: "Advanced Training", href: "/practice/advanced", description: "Complex exercises for experienced players" },
-    //   { title: "Training Settings", href: "/practice/settings", description: "Customize your training experience" },
-    //   { title: "Training Progress", href: "/practice/progress", description: "Track your improvement over time" },
-    //   { title: "Import Game", href: "/practice/import", description: "Analyze your own chess games" },
-    // ]},
     {
       title: "Analysis",
       href: "/analysis",
@@ -111,9 +80,7 @@ const navItems = {
       ],
     },
     { title: "FAQ", href: "/faq", icon: HelpCircle },
-    // { title: "Playground", href: "/playground", icon: Gamepad2 },
     { title: "Pricing", href: "/pricing", icon: DollarSign },
-    // { title: "Contact", href: "/contact", icon: Mail },
   ],
 };
 
@@ -137,7 +104,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full bg-background border-b border-border"
+      className="sticky top-0 z-50 w-full bg-white"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -165,17 +132,13 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               </SheetContent>
             </Sheet>
             <Link href="/" className="flex items-center space-x-2">
-              {/* <Zap className="h-6 w-6" />
-              <span className="hidden font-bold sm:inline-block">
-                aroundchess
-              </span> */}
               <Image
                 src="/icons/logo.png"
                 alt="logo"
                 className="w-44 h-8"
                 quality={100}
-                width={100}
-                height={100}
+                width={600}
+                height={600}
               />
             </Link>
           </div>
@@ -194,7 +157,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                   </Link>
                 </NavigationMenuItem>
                 <div className="border border-input rounded-md py-0.5 px-1">
-                  <NavigationMenuList className="group gap-2 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
+                  <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                     <NavigationMenuItem>
                       <Link href="/about" legacyBehavior passHref>
                         <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
@@ -290,12 +253,15 @@ function MobileNav() {
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
           <LayoutDashboard className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl text-primary">aroundchess</span>
+          <Image
+            src="/icons/logo.png"
+            alt="logo"
+            className="w-44 h-8"
+            quality={100}
+            width={100}
+            height={100}
+          />
         </Link>
-        {/* <SheetClose className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </SheetClose> */}
       </div>
 
       <nav className="flex-1">
