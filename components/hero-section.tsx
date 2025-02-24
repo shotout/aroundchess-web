@@ -10,7 +10,7 @@ import { useState } from "react";
 export function HeroSection() {
   const [username, setUsername] = useState<string>("");
   return (
-    <section className="relative overflow-hidden bg-white pb-32 pt-24 ">
+    <section className="flex flex-1 relative overflow-hidden bg-white pb-32 pt-24 w-full">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 ">
         <motion.div
           className="flex flex-col lg:flex-row items-center"
@@ -22,7 +22,7 @@ export function HeroSection() {
             className="lg:w-1/2 lg:pr-12 mb-8 lg:mb-0 text-center lg:text-left"
             variants={fadeInUp}
           >
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-3xl tracking-tight text-black-900">
+            <h1 className="font-heading text-xl text-white bg-[black] sm:text-4xl md:text-5xl lg:text-4xl xl:text-3xl tracking-tight sm:text-black-900 sm:bg-transparent">
               <span className="block mb-2">
                 Understand your{" "}
                 <span className="text-gradient font-bold">Chess</span> Game with
@@ -95,9 +95,9 @@ export function HeroSection() {
       <div className="absolute top-8 right-0 w-3/5 h-auto py-16 sm:py-16 lg:py-12">
         <Image
           src="/images/homepage/hero-banner.png"
-          alt="Chess game in progress with dramatic lighting showing the intensity and strategy of chess"
-          width={900}
-          height={900}
+          alt="herobanner"
+          width={1000}
+          height={1000}
           className="w-full h-auto bg-no-repeat relative overflow-hidden rounded-lg bg-cover bg-no-repeat"
           priority
         />

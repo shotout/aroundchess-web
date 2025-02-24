@@ -109,28 +109,9 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="container px-4 md:px-6 lg:px-8 mx-auto max-w-7xl">
+      <div className="container px-4 md:px-6 lg:px-8 mx-auto w-full">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="left"
-                className="pr-0"
-                aria-describedby="mobile-nav-description"
-              >
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <div id="mobile-nav-description" className="sr-only">
-                  Mobile navigation menu for AroundChess
-                </div>
-                <MobileNav />
-              </SheetContent>
-            </Sheet>
+          <div className="flex w-full justify-between items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/icons/logo.png"
@@ -141,6 +122,25 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                 height={600}
               />
             </Link>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="pl-0"
+                aria-describedby="mobile-nav-description"
+              >
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <div id="mobile-nav-description" className="sr-only">
+                  Mobile navigation menu for AroundChess
+                </div>
+                <MobileNav isSignedIn={isSignedIn} />
+              </SheetContent>
+            </Sheet>
           </div>
 
           <div className="hidden xl:flex items-center gap-6">
@@ -247,72 +247,69 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-function MobileNav() {
+function MobileNav(props: { isSignedIn: any }) {
   return (
-    <div className="flex flex-col min-h-[100dvh]">
+    <div className="flex flex-col min-h-[100dvh] max-w-[240px] px-4">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
-          <LayoutDashboard className="h-6 w-6 text-primary" />
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-44 h-8"
+            className="w-40 h-7"
             quality={100}
             width={100}
             height={100}
           />
         </Link>
       </div>
-
-      <nav className="flex-1">
-        <div className="space-y-4">
-          {navItems.main.map((item) => (
-            <React.Fragment key={item.title}>
-              {item.items ? (
-                <details className="group">
-                  <summary className="flex items-center py-2 text-base font-medium cursor-pointer list-none">
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5" />
-                      <span className="text-lg">{item.title}</span>
-                    </div>
-                  </summary>
-                  <ul className="mt-2 space-y-2">
-                    {item.items.map((subItem) => (
-                      <li key={subItem.href}>
-                        <Link
-                          href={subItem.href}
-                          className="flex py-2 text-base text-muted-foreground hover:text-primary ml-8"
-                        >
-                          {subItem.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ) : (
-                <Link
-                  href={item.href}
-                  className="flex items-center gap-3 py-2 text-lg font-medium hover:text-primary"
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Link>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </nav>
-
-      <div className="mt-auto pt-4 space-y-4">
-        <Link href="/login" className="block w-full text-center py-3 text-lg">
-          Sign In
+      <Button color="primary" variant="outlineprimary">
+        <BarChart2 className="mr-2 h-4 w-4" />
+        Analytics
+      </Button>
+      <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4">
+        <Link href="/about" legacyBehavior passHref>
+          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+            <Info className="mr-2 h-4 w-4" />
+            About
+          </div>
         </Link>
-        <Link
-          href="/register"
-          className="block w-full text-center py-3 text-lg bg-primary text-white rounded-lg hover:bg-primary/90"
-        >
-          Try Now
+        <Link href="/faq" legacyBehavior passHref>
+          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            FAQ
+          </div>
         </Link>
+        <Link href="/pricing" legacyBehavior passHref>
+          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+            <DollarSign className="mr-2 h-4 w-4" />
+            Pricing
+          </div>
+        </Link>
+      </div>
+
+      <div className="flex flex-1 gap-2 mt-8">
+        {!props.isSignedIn ? (
+          <div className="sm:flex sm:flex-col w-full items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="mb-2 w-full h-8 text-xs px-2 py-1"
+            >
+              <Link href="/login">Sign In</Link>
+            </Button>
+            <Button
+              size="sm"
+              variant="default"
+              asChild
+              className="w-full text-xs px-2 py-1"
+            >
+              <Link href="/register">Try Now</Link>
+            </Button>
+          </div>
+        ) : (
+          <UserButton showName={true} />
+        )}
       </div>
     </div>
   );
