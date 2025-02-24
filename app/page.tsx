@@ -10,7 +10,7 @@ import { BenefitsOf } from "@/components/benefits-of"
 
 export default function Home() {
   return (
-    <div className="bg-white">
+    <div className="w-full">
       <SiteHeaderNew />
       <HeroSection />
       <FeaturesSection />
