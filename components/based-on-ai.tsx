@@ -13,11 +13,11 @@ const analysisFeatures = [
 
 export function BasedOnAI() {
   return ( 
-    <section className="py-2 sm:py-16 lg:py-20 xl:py-24 bg-[#EFF5FF] sm:mt-8">
+    <section className="py-2 sm:py-6 md:py-6 xl:py-8 bg-[#EFF5FF] sm:mt-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+        <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
           <motion.div
-            className="lg:w-1/2 relative mt-8 lg:mt-0"
+            className="md:w-1/2 relative mt-8 lg:mt-0"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -33,20 +33,20 @@ export function BasedOnAI() {
             />
           </motion.div>
           <motion.div
-            className="flex flex-col items-center sm:flex-none sm:items-start lg:w-1/2"
+            className="flex flex-col items-center md:flex-none md:items-start md:w-1/2"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading max-w-max border border-primary rounded-sm p-2 text-xs sm:text-lg lg:text-lg font-normal mb-4 sm:mb-6 text-gradient text-center lg:text-left">
+            <h2 className="font-heading max-w-max border border-primary rounded-sm p-2 text-xs md:text-xs lg:text-lg font-normal mb-4 sm:mb-2 lg:mb-6 text-gradient text-center md:text-left">
               Powerful Analysis - based on AI, fine-tuned by Humans
             </h2>
 
-            <h2 className="font-heading text-3xl sm:text-3xl lg:text-3xl font-bold mb-4 sm:mb-6 text-black text-center lg:text-left">
+            <h2 className="font-heading text-xl sm:text-[19px] lg:text-3xl font-bold mb-1 sm:mb-2 lg:mb-6 text-black text-center md:text-left">
               Powerful Analysis at Your Fingertips
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 text-center lg:text-left">
+            <p className="text-base md:text-md lg:text-lg  text-gray-600 mb-6 md:mb-4 lg:mb-8 text-center md:text-left">
               Our advanced chess engine provides deep insights into every move.
               Improve your game with real-time feedback and personalized
               recommendations.

@@ -68,7 +68,7 @@ export function AnalysisSection() {
     setCurrent((prev) => (prev === analysis.length - 1 ? 0 : prev + 1));
   };
   return (
-    <section className="py-2 sm:py-4 bg-white">
+    <section className="py-2 sm:py-4 bg-white flex items-center justify-center">
       <div className="container w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <motion.div
@@ -80,23 +80,23 @@ export function AnalysisSection() {
           >
             <div className="border border-input rounded-md py-4 px-4">
               <div className="group gap-4 flex flex-1 flex-row list-none items-center justify-start space-x-0 xl:space-x-0.5">
-                <span className="block text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
-                  Analysis Overview{" "}
-                  <span className="block sm:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
-                    - How does AI-powered AroundChess Game Analysis work?
+                <span className="block text-md sm:text-md lg:text-lg font-semibold text-black text-center sm:text-left">
+                  Analysis Overview -{" "}
+                  <span className="block lg:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
+                     How does AI-powered AroundChess Game Analysis work?
                   </span>
                 </span>
               </div>
-              <div className="border border-input rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
-                <div className="flex flex-col sm:flex-row w-full ">
-                  <div className="flex justify-center border border-input sm:w-1/2 max-w-3xl overflow-hidden rounded-lg bg-white">
-                    <div className="relative w-[244px] h-[240px] sm:w-[428px] md:w-[685px] sm:h-[320px] md:h-[428px] bg-white">
+              <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
+                <div className="flex flex-col lg:flex-row w-full ">
+                  <div className="flex items-center justify-center border border-input sm:border-none lg:w-1/2 max-w-3xl overflow-hidden rounded-lg bg-white">
+                    <div className="relative w-[244px] h-[240px] lg:w-[685px] md:w-[320px] lg:h-[420px] md:h-[316px] bg-white">
                       <AnimatePresence>
                         <motion.img
                           key={current}
                           src={analysis[current].image}
                           alt={analysis[current].title}
-                          className="w-[244px] h-[240px] sm:w-[428px] md:w-[685px] sm:h-[320px] md:h-[428px] object-contain rounded-sm bg-white"
+                          className=" w-[244px] h-[240px] lg:w-[685px] md:w-[320px] lg:h-[420px] md:h-[316px] object-contain rounded-sm bg-white"
                           initial={{ opacity: 0, x: 50 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -50 }}
@@ -105,21 +105,21 @@ export function AnalysisSection() {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <div className="px-1 sm:px-4 w-full sm:w-1/2 ">
-                    <span className="block text-sm sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left mt-4 sm:mt-0">
+                  <div className="px-1 lg:px-4 w-full lg:w-1/2 md:mt-2">
+                    <span className="block text-sm sm:text-md lg:text-lg font-semibold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-xs sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
+                    <span className="block mt-1 text-xs sm:text-md lg:text-lg font-normal text-black lg:text-left">
                       {analysis[current].description}
                     </span>
-
+                    <div className="flex flex-col md:flex-row lg:flex-col md:gap-2">
                     <div className="border border-[#3871EC] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
                       <span className="text-[#3871EC] text-sm sm:text-md font-bold">
                         Idea
                       </span>
-                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
+                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -156,7 +156,7 @@ export function AnalysisSection() {
                         </div>
                       </span>
 
-                      <span className="block text-[11px] sm:text-md">
+                      <span className="block text-[11px] sm:text-md lg:text-lg">
                         with a decisive advantage to White.
                       </span>
                     </div>
@@ -165,9 +165,9 @@ export function AnalysisSection() {
                       <span className="text-[#FA402D] text-sm sm:text-md font-bold">
                         Problem
                       </span>
-                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
+                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -204,7 +204,7 @@ export function AnalysisSection() {
                         </div>
                       </span>
 
-                      <span className="block text-[11px] sm:text-md">
+                      <span className="block text-[11px] sm:text-md lg:text-lg">
                         with a decisive advantage to White.
                       </span>
                     </div>
@@ -213,9 +213,9 @@ export function AnalysisSection() {
                       <span className="text-[#0C7C65] text-sm sm:text-md font-bold">
                         Solution
                       </span>
-                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
+                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -252,14 +252,15 @@ export function AnalysisSection() {
                         </div>
                       </span>
 
-                      <span className="block text-[11px] sm:text-md">
+                      <span className="block text-[11px] sm:text-md lg:text-lg">
                         with a decisive advantage to White.
                       </span>
                     </div>
                   </div>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center justify-center pt-6">
-                  <Button className="w-fill px-7 sm:px-16 font-normal text-sm sm:text-md">
+                <div className="flex flex-col items-center justify-center pt-6 md:pt-2 lg:pt-6">
+                  <Button className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md">
                     Analyze your most recent Game now
                   </Button>
                   <Button
@@ -270,7 +271,7 @@ export function AnalysisSection() {
                   </Button>
                 </div>
               </div>
-              <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4">
+              <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
                 {/* Left Arrow */}
                 <button
                   disabled={current == 0}

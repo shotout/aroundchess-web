@@ -111,7 +111,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     >
       <div className="container px-4 md:px-6 lg:px-8 mx-auto w-full">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex w-full justify-between items-center gap-2">
+          <div className="flex md:w-full lg:w-auto items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/icons/logo.png"
@@ -122,33 +122,14 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                 height={600}
               />
             </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="pl-0"
-                aria-describedby="mobile-nav-description"
-              >
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <div id="mobile-nav-description" className="sr-only">
-                  Mobile navigation menu for AroundChess
-                </div>
-                <MobileNav isSignedIn={isSignedIn} />
-              </SheetContent>
-            </Sheet>
           </div>
 
-          <div className="hidden xl:flex items-center gap-6">
+          <div className="items-center gap-6">
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
-                <NavigationMenuItem>
+                <NavigationMenuItem className="hidden sm:flex ">
                   <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
                       <Button color="primary" variant="outlineprimary">
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analytics
@@ -156,7 +137,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                <div className="border border-input rounded-md py-0.5 px-1">
+                <div className="hidden xl:flex border border-input rounded-md py-0.5 px-1">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                     <NavigationMenuItem>
                       <Link href="/about" legacyBehavior passHref>
@@ -188,8 +169,26 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-
-          <div className="flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="pl-0"
+              aria-describedby="mobile-nav-description"
+            >
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <div id="mobile-nav-description" className="sr-only">
+                Mobile navigation menu for AroundChess
+              </div>
+              <MobileNav isSignedIn={isSignedIn} />
+            </SheetContent>
+          </Sheet>
+          <div className="hidden xl:flex items-center gap-2">
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-2">
                 <Button
@@ -249,7 +248,7 @@ ListItem.displayName = "ListItem";
 
 function MobileNav(props: { isSignedIn: any }) {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-[240px] px-4">
+    <div className="flex flex-col min-h-[100dvh] max-w-[240px] sm:max-w-[372px] self-center px-4">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
@@ -262,25 +261,25 @@ function MobileNav(props: { isSignedIn: any }) {
           />
         </Link>
       </div>
-      <Button color="primary" variant="outlineprimary">
+      <div className="border border-primary rounded-sm px-4 py-2 sm:py-3 flex items-center gap-1 text-sm sm:text-lg">
         <BarChart2 className="mr-2 h-4 w-4" />
         Analytics
-      </Button>
-      <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4">
+      </div>
+      <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6">
         <Link href="/about" legacyBehavior passHref>
-          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
             <Info className="mr-2 h-4 w-4" />
             About
           </div>
         </Link>
         <Link href="/faq" legacyBehavior passHref>
-          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
             <HelpCircle className="mr-2 h-4 w-4" />
             FAQ
           </div>
         </Link>
         <Link href="/pricing" legacyBehavior passHref>
-          <div className=" w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
             <DollarSign className="mr-2 h-4 w-4" />
             Pricing
           </div>
@@ -294,7 +293,7 @@ function MobileNav(props: { isSignedIn: any }) {
               variant="outline"
               size="sm"
               asChild
-              className="mb-2 w-full h-8 text-xs px-2 py-1"
+              className="mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
             >
               <Link href="/login">Sign In</Link>
             </Button>
@@ -302,7 +301,7 @@ function MobileNav(props: { isSignedIn: any }) {
               size="sm"
               variant="default"
               asChild
-              className="w-full text-xs px-2 py-1"
+              className="w-full text-xs h-8 sm:h-12 px-2 py-1"
             >
               <Link href="/register">Try Now</Link>
             </Button>

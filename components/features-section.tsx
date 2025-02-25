@@ -16,10 +16,10 @@ export function FeaturesSection() {
           viewport={{ once: true }}
         >
           <Button variant={"outlineprimary"} className="text-primary">Boost your Chess Skills</Button>
-          <p className="my-4 font-heading text-xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">
+          <p className="md:my-2 lg:my-4 font-heading text-xl md:text-xl lg:text-3xl font-semibold text-gray-900">
           Your Personal Chess Lab
           </p>
-          <p className="max-w-[496px] text-xs sm:text-md md:text-md lg:text-md text-gray-600 max-w-2xl mx-auto">
+          <p className="lg:max-w-[496px] text-xs sm:text-md md:text-md lg:text-md text-gray-600 max-w-2xl mx-auto">
           Unlock your full potential with our comprehensive suite of Chess Analysis Tools and AI-based Training.
           </p>
         </motion.div>
