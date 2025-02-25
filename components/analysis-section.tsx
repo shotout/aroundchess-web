@@ -68,35 +68,35 @@ export function AnalysisSection() {
     setCurrent((prev) => (prev === analysis.length - 1 ? 0 : prev + 1));
   };
   return (
-    <section className="py-4 sm:py-4 lg:py-4 xl:py-4 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-2 sm:py-4 bg-white">
+      <div className="container w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <motion.div
-            className="lg:w-full"
+            className="w-full"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
             <div className="border border-input rounded-md py-4 px-4">
-              <div className="group gap-4 flex flex-1 flex-row list-none items-center justify-start space-x-1 xl:space-x-0.5">
+              <div className="group gap-4 flex flex-1 flex-row list-none items-center justify-start space-x-0 xl:space-x-0.5">
                 <span className="block text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
                   Analysis Overview{" "}
-                  <span className="text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
+                  <span className="block sm:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
                     - How does AI-powered AroundChess Game Analysis work?
                   </span>
                 </span>
               </div>
-              <div className="border border-input rounded-md py-4 px-4 mt-4">
-                <div className="flex flex-row w-full">
-                  <div className="relative w-1/2 max-w-3xl mx-auto overflow-hidden rounded-lg bg-white">
-                    <div className="relative w-[685px] h-[428px] sm:h-[320px] md:h-[428px] bg-white">
+              <div className="border border-input rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
+                <div className="flex flex-col sm:flex-row w-full ">
+                  <div className="flex justify-center border border-input sm:w-1/2 max-w-3xl overflow-hidden rounded-lg bg-white">
+                    <div className="relative w-[244px] h-[240px] sm:w-[428px] md:w-[685px] sm:h-[320px] md:h-[428px] bg-white">
                       <AnimatePresence>
                         <motion.img
                           key={current}
                           src={analysis[current].image}
                           alt={analysis[current].title}
-                          className="w-[685px] h-[428px] object-contain rounded-sm bg-white"
+                          className="w-[244px] h-[240px] sm:w-[428px] md:w-[685px] sm:h-[320px] md:h-[428px] object-contain rounded-sm bg-white"
                           initial={{ opacity: 0, x: 50 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -50 }}
@@ -105,21 +105,21 @@ export function AnalysisSection() {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <div className="px-4 w-1/2 ">
-                    <span className="block text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                  <div className="px-1 sm:px-4 w-full sm:w-1/2 ">
+                    <span className="block text-sm sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                    <span className="block mt-1 text-xs sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
                       {analysis[current].description}
                     </span>
 
-                    <div className="border border-[#3871EC] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-4 mt-4">
-                      <span className="text-[#3871EC] text-md font-bold">
+                    <div className="border border-[#3871EC] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#3871EC] text-sm sm:text-md font-bold">
                         Idea
                       </span>
-                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -131,43 +131,43 @@ export function AnalysisSection() {
                           &nbsp;21.&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
-                        </span>
+                           &nbsp;xd5&nbsp;
+                        </div>
                       </span>
 
-                      <span className="block">
+                      <span className="block text-[11px] sm:text-md">
                         with a decisive advantage to White.
                       </span>
                     </div>
 
-                    <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-4 mt-2">
-                      <span className="text-[#FA402D] text-md font-bold">
+                    <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#FA402D] text-sm sm:text-md font-bold">
                         Problem
                       </span>
-                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -179,43 +179,43 @@ export function AnalysisSection() {
                           &nbsp;21.&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
-                        </span>
+                           &nbsp;xd5&nbsp;
+                        </div>
                       </span>
 
-                      <span className="block">
+                      <span className="block text-[11px] sm:text-md">
                         with a decisive advantage to White.
                       </span>
                     </div>
 
-                    <div className="border border-[#0C7C65] border-l-4 bg-[#0C7C6508] rounded-md py-2 px-4 mt-2">
-                      <span className="text-[#0C7C65] text-md font-bold">
+                    <div className="border border-[#0C7C65] border-l-4 bg-[#0C7C6508] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#0C7C65] text-sm sm:text-md font-bold">
                         Solution
                       </span>
-                      <span className="block flex flex-row items-center mt-2 text-md sm:text-md lg:text-md font-normal text-black text-center lg:text-left">
+                      <span className="flex flex-row items-center mt-2 text-[11px] sm:text-md lg:text-md font-normal text-black sm:text-center lg:text-left">
                         White want the knights:{" "}
-                        <span className="flex flex-row items-center text-md sm:text-md lg:text-md font-semibold text-black text-center lg:text-left">
+                        <div className="flex flex-row items-center text-[11px] sm:text-md lg:text-md font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
                           <Image
                             src="/icons/dot-icon.png"
@@ -227,50 +227,50 @@ export function AnalysisSection() {
                           &nbsp;21.&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
+                          &nbsp;xd5&nbsp;
                           <Image
                             src="/icons/Knight-icon.png"
-                            alt="dot"
+                            alt="knight"
                             width={900}
                             height={900}
-                            className="w-4 h-4"
+                            className="w-[14px] h-[14px]"
                           />
-                          xd5 &nbsp;
-                        </span>
+                           &nbsp;xd5&nbsp;
+                        </div>
                       </span>
 
-                      <span className="block">
+                      <span className="block text-[11px] sm:text-md">
                         with a decisive advantage to White.
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center pt-6">
-                  <Button className="w-fill px-16 font-normal text-md">
+                  <Button className="w-fill px-7 sm:px-16 font-normal text-sm sm:text-md">
                     Analyze your most recent Game now
                   </Button>
                   <Button
                     variant="link"
-                    className="w-fill px-16 font-normal text-md"
+                    className="w-fill text-black px-7 sm:px-16 font-normal text-sm sm:text-md"
                   >
-                    No Sign-Up request
+                    No Sign-Up required
                   </Button>
                 </div>
               </div>
-              <div className="flex flex-row items-center justify-center gap-4 pt-4">
+              <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4">
                 {/* Left Arrow */}
                 <button
                   disabled={current == 0}
@@ -283,12 +283,14 @@ export function AnalysisSection() {
                   />
                 </button>
                 {/* Dot Indicators */}
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   {analysis.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrent(index)}
-                      className={`w-2 h-2 rounded-full transition ${
+                      className={`${
+                        current === index ? "w-5" : "w-3"
+                      } h-3 rounded-full transition ${
                         current === index ? "bg-primary" : "bg-gray-300"
                       }`}
                     />

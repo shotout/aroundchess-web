@@ -21,9 +21,9 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <CookieConsent />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-9 md:grid-cols-2 lg:grid-cols-4 sm:mb-8">
           <div>
-            <Link href="/" className="flex items-center space-x-2 mb-8">
+            <Link href="/" className="flex items-center space-x-2 mb-2 sm:mb-8">
               <Image
                 src="/icons/logo.png"
                 alt="logo"
@@ -33,7 +33,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 height={600}
               />
             </Link>
-            <p className="mt-2 text-sm text-[#364152]">
+            <p className="mt-1 text-md sm:mt-2:text-sm text-[#364152]">
               Advanced chess training and analysis powered by AI
             </p>
           </div>

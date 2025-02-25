@@ -55,10 +55,10 @@ export function BenefitsOf() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading text-2xl sm:text-2xl lg:text-2xl font-semibold mb-1 sm:mb-2 text-black text-center lg:text-left">
+            <h2 className="font-heading text-xl sm:text-2xl lg:text-2xl font-semibold mb-1 sm:mb-2 text-black text-center lg:text-left">
               Benefits of AroundChess
             </h2>
-            <p className="text-lg sm:text-lg text-gray-600 mb-6 sm:mb-8 text-center lg:text-left">
+            <p className="text-sm sm:text-lg text-gray-600 mb-4 sm:mb-8 text-center lg:text-left">
               What benefits you will get from our advance AI?
             </p>
           </motion.div>
@@ -70,22 +70,22 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <div className="flex flex-wrap w-full justify-around gap-10">
+          <div className="flex w-full overflow-x-auto sm:flex-wrap sm:justify-around sm:gap-10">
             {benefits.map((item, index) => {
               return (
-                <div className="w-full 2xl:max-w-[460px] md:max-w-[372px] lg:max-w-[372px] flex flex-col border border-[#DEDEDE] rounded-lg p-8">
+                <div className="min-w-[240px] h-[150px] mr-4 sm:mr-0 sm:max-w-[372px] md:max-w-[372px] flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8">
                   <Image
-                    className="w-[50px] h-[48px] object-contain mb-4"
+                    className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
                     src={item.image}
                     width={900}
                     height={900}
                     alt=""
                     priority
                   />
-                  <span className="text-black text-xl font-semibold">
+                  <span className="text-black text-sm sm:text-xl font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-black text-lg font-light">
+                  <span className="text-black text-xs mt-2 sm:text-lg font-light">
                     {item.description}
                   </span>
                 </div>
@@ -94,11 +94,11 @@ export function BenefitsOf() {
           </div>
         </motion.div>
         <div className="flex flex-col items-center justify-center pt-6">
-          <Button className="w-fill px-12 py-6 font-normal text-md">
+          <Button className="w-fill px-12 py-6 font-normal text-sm sm:text-md">
             Analyze your most recent Game now
           </Button>
-          <Button variant="link" className="w-fill px-16 font-normal text-md">
-            No Sign-Up request
+          <Button variant="link" className="w-fill px-16 font-normal text-black text-sm sm:text-md">
+            No Sign-Up required
           </Button>
         </div>
       </div>
