@@ -13,7 +13,7 @@ const analysisFeatures = [
 
 export function BasedOnAI() {
   return ( 
-    <section className="py-12 sm:py-16 lg:py-20 xl:py-24 bg-[#EFF5FF] mt-8">
+    <section className="py-2 sm:py-16 lg:py-20 xl:py-24 bg-[#EFF5FF] sm:mt-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <motion.div
@@ -33,13 +33,13 @@ export function BasedOnAI() {
             />
           </motion.div>
           <motion.div
-            className="lg:w-1/2"
+            className="flex flex-col items-center sm:flex-none sm:items-start lg:w-1/2"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading max-w-max border border-primary rounded-sm p-2 text-lg sm:text-lg lg:text-lg font-normal mb-4 sm:mb-6 text-gradient text-center lg:text-left">
+            <h2 className="font-heading max-w-max border border-primary rounded-sm p-2 text-xs sm:text-lg lg:text-lg font-normal mb-4 sm:mb-6 text-gradient text-center lg:text-left">
               Powerful Analysis - based on AI, fine-tuned by Humans
             </h2>
 
@@ -51,7 +51,7 @@ export function BasedOnAI() {
               Improve your game with real-time feedback and personalized
               recommendations.
             </p>
-            <ul className="space-y-3 sm:space-y-4">
+            <ul className="w-full space-y-3 sm:space-y-4">
               {analysisFeatures.map((feature, index) => (
                 <motion.li
                   key={index}
