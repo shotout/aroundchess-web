@@ -70,10 +70,10 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <div className="flex w-full overflow-x-auto sm:flex-wrap sm:justify-around sm:gap-10">
+          <div className="flex w-full overflow-x-auto sm:flex-row sm:overflow-hidden sm:flex-wrap sm:justify-around md:gap-4 lg:gap-10">
             {benefits.map((item, index) => {
               return (
-                <div className="min-w-[240px] h-[150px] mr-4 sm:mr-0 sm:max-w-[372px] md:max-w-[372px] flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8">
+                <div className="min-w-[224px] h-[150px] mr-4 sm:mr-0 lg:max-w-[372px] md:max-w-[216px] sm:h-auto md:items-center flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8 md:p-4">
                   <Image
                     className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
                     src={item.image}
@@ -82,10 +82,10 @@ export function BenefitsOf() {
                     alt=""
                     priority
                   />
-                  <span className="text-black text-sm sm:text-xl font-semibold">
+                  <span className="text-black text-sm md:text-md md:text-center lg:text-xl font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-black text-xs mt-2 sm:text-lg font-light">
+                  <span className="text-black text-xs md:mt-1 lg:mt-2 md:text-sm md:text-center lg:text-lg font-light">
                     {item.description}
                   </span>
                 </div>
