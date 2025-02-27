@@ -100,7 +100,7 @@ const AnalysisLatestGame: React.FC = () => {
               key={index}
               onClick={() => setFocusPage(tab.name)}
               className={`flex ${
-                tab.name == "movement" && `min-w-[120px] `
+                tab.name == "movement" && `min-w-[124px] `
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
