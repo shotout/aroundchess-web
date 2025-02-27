@@ -6,7 +6,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-const Summary: React.FC = () => {
+interface SummaryProps {
+  next: () => void;
+}
+
+const Summary: React.FC<SummaryProps> = (props) => {
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
   return (
@@ -360,15 +364,15 @@ const Summary: React.FC = () => {
         )}
       </div>
       <Button
-        asChild
+        onClick={props.next}
         size="lg"
         variant="default"
         className="whitespace-nowrap sm:mt-8 text-xs"
       >
-        <Link href="/pricing#top" className="text-[#3871EC] text-xs">
+        <div className="flex flex-row text-[#fff] text-xs">
           Movement Details
           <ArrowRight color="#FFF" className="ml-2 h-4 w-4" />
-        </Link>
+        </div>
       </Button>
     </div>
   );

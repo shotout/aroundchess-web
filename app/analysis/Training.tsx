@@ -10,14 +10,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-interface MiddleGameProps {
+interface TrainingProps {
   next: () => void;
   prev: () => void;
 }
-const MiddleGame: React.FC<MiddleGameProps> = (props) => {
-  const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
-  const [openBadMove, setopenBadMove] = useState<boolean>(false);
-  const [bestmoves, setBestMoves] = useState<any[]>([
+const Training: React.FC<TrainingProps> = (props) => {
+  const [openCriticalMistakes, setOpenCriticalMistakes] =
+    useState<boolean>(false);
+  const [openWeakness, setopenWeakness] = useState<boolean>(true);
+  const [criticalMoves, setCriticalMoves] = useState<any[]>([
     {
       number: 5,
       score: "+0.20",
@@ -35,19 +36,11 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
     },
   ]);
-  const [badMove, setBadMove] = useState<any[]>([
+  const [weaknessIdentification, setweaknessIdentification] = useState<any[]>([
     {
       number: 1,
       score: "+0.20",
       moves: "e4, c5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 7,
-      score: "+0.20",
-      moves: "f5, e5",
       classification: "Miss",
       analysis:
         "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
@@ -94,31 +87,26 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
       {/* best moves  */}
       <div className="border border-primary border-t-4 rounded-md p-3">
         <div className="flex flex-row items-center justify-between gap-2">
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-3">
             <Image
               alt=""
-              src={"/icons/check.png"}
+              src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
-              className="w-4 h-4"
+              className="w-5 h-5"
             />
-            <span className="text-md font-bold w-full">Best Moves</span>
-            <div className="flex flex-row gap-1">
-              <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs">Type:</span>
-              <span className="text-xs font-semibold ">Middlegame</span>
-            </div>
+            <span className="text-md font-bold w-full">Critical Mistakes</span>
           </div>
-          <div onClick={() => setOpenBestMoves(!openBestMoves)}>
-            {openBestMoves ? (
+          <div onClick={() => setOpenCriticalMistakes(!openCriticalMistakes)}>
+            {openCriticalMistakes ? (
               <ChevronUp size={24} color="black" />
             ) : (
               <ChevronDown size={24} color="black" />
             )}
           </div>
         </div>
-        {openBestMoves &&
-          bestmoves.map((item: any, index: number) => {
+        {openCriticalMistakes &&
+          criticalMoves.map((item: any, index: number) => {
             return (
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
@@ -162,25 +150,22 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
-              className="w-4 h-4"
+              className="w-5 h-5"
             />
-            <span className="text-md font-bold w-full">Bad Moves</span>
-            <div className="flex flex-row gap-1">
-              <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs">Type:</span>
-              <span className="text-xs font-semibold ">Middlegame</span>
-            </div>
+            <span className="text-md font-bold w-full">
+              Weakness Identification
+            </span>
           </div>
-          <div onClick={() => setopenBadMove(!openBadMove)}>
-            {openBadMove ? (
+          <div onClick={() => setopenWeakness(!openWeakness)}>
+            {openWeakness ? (
               <ChevronUp size={24} color="black" />
             ) : (
               <ChevronDown size={24} color="black" />
             )}
           </div>
         </div>
-        {openBadMove &&
-          badMove.map((item: any, index: number) => {
+        {openWeakness &&
+          weaknessIdentification.map((item: any, index: number) => {
             return (
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
@@ -210,27 +195,37 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
-                  <div className="mt-2 p-2 border border-l-4 border-[#3871EC] text-[#254B9D] text-xs bg-[#F6F9FF] rounded-md">
-                    [EXPLAIN WHY MOVE IS NOT PERFECT AND WHAT WOULD BE A BETTER
-                    MOVE]
+                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 items-center border-primary rounded-md p-2 py-4 mt-2">
+                    <div className="flex flex-row items-center gap-2">
+                      <Image
+                        alt=""
+                        src={"/icons/recommended-training-icon.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-8 h-8"
+                      />
+                      <span className="text-xs font-normal text-[#254B9D]">
+                        Recommended Training Exercise:{" "}
+                        <span className="font-semibold">
+                          Endgame Technique and Win the Game
+                        </span>
+                      </span>
+                    </div>
+                    <Button
+                      onClick={props.next}
+                      size="lg"
+                      variant="default"
+                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                    >
+                      <div className="flex flex-row items-center text-[#fff] text-xs">
+                        Go To Exercise
+                      </div>
+                    </Button>
                   </div>
                 </div>
               </div>
             );
           })}
-        <div className="flex flex-row bg-gradient mt-4 rounded-md p-2">
-          <Image
-            alt=""
-            src={"/icons/info-banner-icon.png"}
-            width={1000}
-            height={1000}
-            className="w-12 h-12"
-          />
-          <span className="text-xs font-normal text-primary ml-4">
-            We have added Exercises to your Training Plan to improve your
-            Strategy for the analyzed weaknesses.
-          </span>
-        </div>
       </div>
 
       <div className="flex flex-row justify-between mt-4">
@@ -242,7 +237,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         >
           <div className="flex flex-row items-center text-xs text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Openings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Improvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </Button>
         <div className="w-8" />
@@ -253,8 +248,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endgame
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+            Start your Training
           </div>
         </Button>
       </div>
@@ -262,4 +256,4 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   );
 };
 
-export default MiddleGame;
+export default Training;

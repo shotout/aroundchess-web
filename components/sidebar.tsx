@@ -1,34 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  LayoutDashboard,
-  Users,
-  Trophy,
-  Newspaper,
-  BarChart2,
-  Clock,
-  TrendingUp,
-  FileText,
-  Upload,
-  BookOpen,
-  Gamepad2,
-  Grid,
-  Crown,
-  User,
-  CreditCard,
-  Settings,
-  HelpCircle,
-  Zap,
-  LogOut,
-  GraduationCap,
-  Target,
-  Puzzle
-} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,9 +7,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useUser, useClerk } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { useClerk, useUser } from "@clerk/nextjs"
+import { AnimatePresence, motion } from "framer-motion"
+import {
+  BarChart2,
+  BookOpen,
+  Clock,
+  CreditCard,
+  Crown,
+  FileText,
+  Gamepad2,
+  GraduationCap,
+  Grid,
+  HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  Newspaper,
+  Puzzle,
+  Settings,
+  Target,
+  TrendingUp,
+  Trophy,
+  Upload,
+  User,
+  Users,
+  Zap
+} from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 
 interface SidebarProps {

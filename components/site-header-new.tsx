@@ -21,8 +21,7 @@ import {
   HelpCircle,
   Home,
   Info,
-  LayoutDashboard,
-  Menu,
+  Menu
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
