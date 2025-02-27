@@ -16,12 +16,56 @@ import {
 } from "lucide-react";
 import Board from "./3DBoard";
 
+type CapturedPieces = {
+  white: string[];
+  black: string[];
+};
+
 const AnalysisResult: React.FC = () => {
   const [game, setGame] = useState(new Chess());
   const [currentFen, setCurrentFen] = useState(game.fen());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
+  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [mounted, setMounted] = useState(true);
+  const [capturedPieces, setCapturedPieces] = useState<CapturedPieces>({
+    white: [],
+    black: [],
+  });
+  const [materialAdvantage, setMaterialAdvantage] = useState(0); // positive for white advantage
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
 
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
+
+  const handleResize = () => {
+    console.log("Resizing board...");
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    const minPadding = 0;
+    const maxSize = 700;
+
+    if (isPortrait) {
+      // In portrait mode, use screen width as the primary constraint
+      const availableWidth = width - minPadding * 2;
+      // Use 85% of available width for mobile, 90% for tablets
+      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor +20));
+      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+    } else {
+      // In landscape, use height as the primary constraint
+      const availableHeight = height - minPadding * 2;
+      // Use 80% of available height
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+    }
+  };
   const fetchStockfishData = async (fen: string) => {
     const stockfishService = getStockfishService();
 
@@ -50,7 +94,7 @@ const AnalysisResult: React.FC = () => {
   }, [bestMove, evaluation]);
 
   return (
-    <div className="flex justify-center gap-4 bg-white px-4">
+    <div className="flex justify-center gap-4 bg-white pb-4">
       <div className="flex flex-col gap-4">
         <div className="md:hidden">
           <h2 className="text-md pt-4 text-center font-bold">
@@ -92,7 +136,7 @@ const AnalysisResult: React.FC = () => {
                   height={1000}
                   className="w-3 h-4"
                 />
-                
+
                 <Image
                   src={"/icons/king-icon-alt-black.png"}
                   alt="king"
@@ -108,7 +152,7 @@ const AnalysisResult: React.FC = () => {
             <span className="text-xs font-medium">7:00</span>
           </div>
         </div>
-        <Chessboard position={game.fen()} boardWidth={358} />
+        <Chessboard position={game.fen()} boardWidth={boardSize} />
         {/* Group Button */}
         <div className="flex flex-row justify-around gap-4">
           <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
@@ -148,7 +192,7 @@ const AnalysisResult: React.FC = () => {
                   className="w-4 h-3"
                 />
               </div>
-              
+
               <div className="flex flex-row gap-1">
                 <Image
                   src={"/icons/pawn-icon-alt-white.png"}
@@ -164,7 +208,7 @@ const AnalysisResult: React.FC = () => {
                   height={1000}
                   className="w-3 h-4"
                 />
-                
+
                 <Image
                   src={"/icons/queen-icon-alt-white.png"}
                   alt="queen"

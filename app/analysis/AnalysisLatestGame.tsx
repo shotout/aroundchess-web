@@ -8,9 +8,21 @@ import Opening from "./Opening";
 import MiddleGame from "./MiddleGame";
 import EndGame from "./EndGame";
 import { SiteFooterNew } from "@/components/site-footer-new";
+import Improvement from "./Improvement";
+import Training from "./Training";
 
 const AnalysisLatestGame: React.FC = () => {
   const [focusPage, setFocusPage] = useState<string>("summary");
+  const [tabsMenu, setTabsMenu] = useState<any[]>([
+    { name: "summary", label: "Summary" },
+    { name: "movement", label: "Movement Details" },
+    { name: "threats", label: "Threats" },
+    { name: "opening", label: "Opening" },
+    { name: "middlegame", label: "Middlegame" },
+    { name: "endgame", label: "Endgame" },
+    { name: "improvement", label: "Improvement" },
+    { name: "training", label: "Training" },
+  ]);
   useEffect(() => {
     renderView(focusPage);
   }, [focusPage]);
@@ -18,17 +30,56 @@ const AnalysisLatestGame: React.FC = () => {
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
-        return <Summary />;
+        return <Summary next={() => setFocusPage("movement")} />;
       case "movement":
-        return <MovementDetails />;
+        return (
+          <MovementDetails
+            prev={() => setFocusPage("summary")}
+            next={() => setFocusPage("threats")}
+          />
+        );
       case "threats":
-        return <Threats />;
+        return (
+          <Threats
+            prev={() => setFocusPage("movement")}
+            next={() => setFocusPage("opening")}
+          />
+        );
       case "opening":
-        return <Opening />;
+        return (
+          <Opening
+            prev={() => setFocusPage("threats")}
+            next={() => setFocusPage("middlegame")}
+          />
+        );
       case "middlegame":
-        return <MiddleGame />;
+        return (
+          <MiddleGame
+            prev={() => setFocusPage("opening")}
+            next={() => setFocusPage("endgame")}
+          />
+        );
       case "endgame":
-        return <EndGame />;
+        return (
+          <EndGame
+            prev={() => setFocusPage("middlegame")}
+            next={() => setFocusPage("improvement")}
+          />
+        );
+      case "improvement":
+        return (
+          <Improvement
+            prev={() => setFocusPage("endgame")}
+            next={() => setFocusPage("training")}
+          />
+        );
+      case "training":
+        return (
+          <Training
+            prev={() => setFocusPage("improvement")}
+            next={() => null}
+          />
+        );
     }
   };
   return (
@@ -43,63 +94,25 @@ const AnalysisLatestGame: React.FC = () => {
 
       <div className="flex flex-row overflow-x-scroll no-scrollbar gap-1 px-4 pb-2">
         {/* tab horizontal */}
-        <div
-          onClick={() => setFocusPage("summary")}
-          className={`w-fill p-2 ${
-            focusPage == "summary" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Summary</span>
-        </div>
-        <div
-          onClick={() => setFocusPage("movement")}
-          className={`min-w-32 p-2 ${
-            focusPage == "movement" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Movement Details</span>
-        </div>
-        <div
-          onClick={() => setFocusPage("threats")}
-          className={`w-fill p-2 ${
-            focusPage == "threats" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Threats</span>
-        </div>
-        <div
-          onClick={() => setFocusPage("opening")}
-          className={`w-fill p-2 ${
-            focusPage == "opening" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Opening</span>
-        </div>
-        <div
-          onClick={() => setFocusPage("middlegame")}
-          className={`w-fill p-2 ${
-            focusPage == "middlegame" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Middlegame</span>
-        </div>
-        <div
-          onClick={() => setFocusPage("endgame")}
-          className={`w-fill p-2 ${
-            focusPage == "endgame" &&
-            `shadow-lg rounded-md bg-[#FFF] font-semibold `
-          }gap-2`}
-        >
-          <span className="text-xs">Endgame</span>
-        </div>
+        {tabsMenu.map((tab, index) => {
+          return (
+            <div
+              key={index}
+              onClick={() => setFocusPage(tab.name)}
+              className={`flex ${
+                tab.name == "movement" && `min-w-[120px] `
+              } p-2 ${
+                focusPage == tab.name &&
+                `shadow-lg rounded-md bg-[#FFF] font-semibold `
+              }`}
+            >
+              <span className="text-xs">{tab.label}</span>
+            </div>
+          );
+        })}
       </div>
       {renderView(focusPage)}
-      <SiteFooterNew/>
+      <SiteFooterNew />
     </div>
   );
 };

@@ -1,15 +1,7 @@
-import Link from "next/link";
-import {
-  LayoutDashboard,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-  Linkedin,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 import CookieConsent from "@/app/cookies-consent/cookies-consent-message";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 interface SiteFooterProps {
   className?: string;
