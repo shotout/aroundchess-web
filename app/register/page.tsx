@@ -1,125 +1,129 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { AuthLayout } from '@/components/auth-layout'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Mail, Lock, Apple, ArrowLeft } from 'lucide-react'
-import { toast } from "sonner"
-import { useSignUp } from "@clerk/nextjs"
-import { useState } from 'react'
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { AuthLayout } from "@/components/auth-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { useSignUp } from "@clerk/nextjs";
+import { useState } from "react";
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [verifying, setVerifying] = useState(false)
-  const [code, setCode] = useState('')
-  const router = useRouter()
-  const { signUp, isLoaded, setActive } = useSignUp()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [code, setCode] = useState("");
+  const router = useRouter();
+  const { signUp, isLoaded, setActive } = useSignUp();
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
+    event.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
-      return
+      toast.error("Passwords do not match");
+      return;
     }
 
     try {
-      if (!isLoaded) return
+      if (!isLoaded) return;
 
       await signUp.create({
         emailAddress: email,
         password,
-      })
+      });
 
       // Send verification email
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" })
-      
-      toast.success("Verification code sent to your email!")
-      setVerifying(true)
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+      toast.success("Verification code sent to your email!");
+      setVerifying(true);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Registration failed"
-      toast.error(errorMessage)
-      console.error("Sign up error:", error)
+      const errorMessage =
+        error instanceof Error ? error.message : "Registration failed";
+      toast.error(errorMessage);
+      console.error("Sign up error:", error);
     }
   }
 
   async function onVerify(event: React.SyntheticEvent) {
-    event.preventDefault()
+    event.preventDefault();
 
     try {
-      if (!isLoaded) return
+      if (!isLoaded) return;
 
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
-      })
+      });
 
       if (completeSignUp.status === "complete") {
-        await setActive({ session: completeSignUp.createdSessionId })
-        toast.success("Email verified successfully!")
-        router.push('/dashboard')
+        await setActive({ session: completeSignUp.createdSessionId });
+        toast.success("Email verified successfully!");
+        router.push("/dashboard");
       } else {
-        console.error("Verification failed:", completeSignUp)
-        toast.error("Verification failed")
+        console.error("Verification failed:", completeSignUp);
+        toast.error("Verification failed");
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Verification failed"
-      toast.error(errorMessage)
-      console.error("Verification error:", error)
+      const errorMessage =
+        error instanceof Error ? error.message : "Verification failed";
+      toast.error(errorMessage);
+      console.error("Verification error:", error);
     }
   }
 
   const handleGoogleSignUp = async () => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/dashboard"
+        redirectUrlComplete: "/dashboard",
       });
     } catch (error) {
-      console.error("OAuth error:", error)
-      toast.error("Failed to sign up with Google")
+      console.error("OAuth error:", error);
+      toast.error("Failed to sign up with Google");
     }
-  }
+  };
 
   const handleFacebookSignUp = async () => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/dashboard"
+        redirectUrlComplete: "/dashboard",
       });
     } catch (error) {
-      console.error("OAuth error:", error)
-      toast.error("Failed to sign up with Facebook")
+      console.error("OAuth error:", error);
+      toast.error("Failed to sign up with Facebook");
     }
-  }
+  };
 
   const handleAppleSignUp = async () => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/dashboard"
+        redirectUrlComplete: "/dashboard",
       });
     } catch (error) {
-      console.error("OAuth error:", error)
-      toast.error("Failed to sign up with Apple")
+      console.error("OAuth error:", error);
+      toast.error("Failed to sign up with Apple");
     }
-  }
+  };
 
   if (verifying) {
     return (
       <AuthLayout>
         <div className="w-full max-w-[450px] space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Verify your email</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Verify your email
+            </h1>
             <p className="text-sm text-muted-foreground">
               Enter the verification code sent to your email
             </p>
@@ -145,10 +149,8 @@ export default function RegisterPage() {
           </form>
         </div>
       </AuthLayout>
-    )
+    );
   }
-  
-  
 
   return (
     <AuthLayout>
@@ -160,7 +162,9 @@ export default function RegisterPage() {
           </Link>
         </Button>
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Create an account
+          </h1>
           <p className="text-sm text-muted-foreground">
             Enter your details to create your account
           </p>
@@ -228,9 +232,9 @@ export default function RegisterPage() {
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Button 
-            variant="outline" 
-            type="button" 
+          <Button
+            variant="outline"
+            type="button"
             className="w-full"
             onClick={handleGoogleSignUp}
           >
@@ -254,13 +258,27 @@ export default function RegisterPage() {
             </svg>
             Google
           </Button>
-          <Button variant="outline" type="button" className="w-full" onClick={handleFacebookSignUp}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 12-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleFacebookSignUp}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="mr-2 h-4 w-4"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 12-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
             </svg>
             Facebook
           </Button>
-          <Button variant="outline" type="button" className="w-full" onClick={handleAppleSignUp}>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleAppleSignUp}
+          >
             <Apple className="mr-2 h-4 w-4" />
             Apple
           </Button>
@@ -275,6 +293,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </AuthLayout>
-  )
+  );
 }
-
