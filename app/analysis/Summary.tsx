@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, Watch } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -16,10 +16,106 @@ const Summary: React.FC<SummaryProps> = (props) => {
   return (
     <div className="flex flex-col justify-center gap-4 bg-white px-4">
       <div className="flex flex-col gap-2 w-full py-2 rounded-md border-b border-b-input">
-        <span className="text-xs text-center">
+        <span className="text-xs sm:hidden text-center">
           <span className="text-[#00B427]">blitzmystic</span> (White) vs
           Guest1234 (Black)
         </span>
+        <div className="hidden sm:flex flex-row items-center justify-between gap-4">
+          <div className="w-full border border-[#00B427] bg-[#D3FFDD] p-3 rounded-md flex flex-row justify-between items-center gap-2">
+            <div className="flex flex-row gap-2">
+              {/* <Image 
+            alt="avatar"
+            src={"/images/icons/"}/> */}
+              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <div className="flex flex-col">
+                <div className="flex flex-row gap-2">
+                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
+                    Player name
+                  </span>
+                </div>
+
+                <div className="flex flex-row gap-1">
+                  <Image
+                    src={"/icons/pawn-icon-alt-white.png"}
+                    alt="pawn"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+                  <Image
+                    src={"/icons/rook-icon-alt-white.png"}
+                    alt="rook"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+
+                  <Image
+                    src={"/icons/queen-icon-alt-white.png"}
+                    alt="queen"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+                </div>
+              </div>
+            </div>
+            <Image
+              src={"/icons/switzerland-flag.png"}
+              alt="flag"
+              width={1000}
+              height={1000}
+              className="w-7 h-5"
+            />
+          </div>
+          <div className="w-full border border-input p-3 rounded-md flex flex-row justify-between items-center gap-2">
+            <div className="flex flex-row gap-2">
+              {/* <Image 
+            alt="avatar"
+            src={"/images/icons/"}/> */}
+              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <div className="flex flex-col">
+                <div className="flex flex-row gap-2">
+                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
+                    Player name
+                  </span>
+                </div>
+
+                <div className="flex flex-row gap-1">
+                  <Image
+                    src={"/icons/pawn-icon-alt-white.png"}
+                    alt="pawn"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+                  <Image
+                    src={"/icons/rook-icon-alt-white.png"}
+                    alt="rook"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+
+                  <Image
+                    src={"/icons/queen-icon-alt-white.png"}
+                    alt="queen"
+                    width={1000}
+                    height={1000}
+                    className="w-3 h-4"
+                  />
+                </div>
+              </div>
+            </div>
+            <Image
+              src={"/icons/switzerland-flag.png"}
+              alt="flag"
+              width={1000}
+              height={1000}
+              className="w-7 h-5"
+            />
+          </div>
+        </div>
         <div className="flex flex-row items-center justify-center gap-4">
           <div className="flex flex-col items-end justify-around gap-2">
             <span className="text-xs text-right font-semibold p-1">
@@ -253,7 +349,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         </div>
       </div>
       {/* overall assessment */}
-      <div className="border border-input rounded-md p-4">
+      <div className="border border-input sm:border-primary sm:border-t-4 rounded-md p-4">
         <span className="text-md font-bold">Overall Game Assessment</span>
         <div className="flex flex-row gap-2 mt-2">
           <Image
@@ -369,7 +465,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         variant="default"
         className="whitespace-nowrap sm:mt-8 text-xs"
       >
-        <div className="flex flex-row text-[#fff] text-xs">
+        <div className="flex flex-row text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details
           <ArrowRight color="#FFF" className="ml-2 h-4 w-4" />
         </div>
