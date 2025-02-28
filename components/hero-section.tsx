@@ -4,10 +4,32 @@ import Image from "next/image";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { usePgnStore } from "@/app/store/zustandStore";
+import axios from "axios";
+
+const PGN_API_URL = "/api/pgn";
 
 export function HeroSection() {
+  const router = useRouter();
+  //jahitan
+  const { setPgn, isLoading, setIsLoading, setError } = usePgnStore();
+  const fetchPgn = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(PGN_API_URL);
+      setPgn(response.data.pgn);
+      setError(null);
+      router.push("/analysis");
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const handleResize = () => setWidth(window.innerWidth);
@@ -17,6 +39,7 @@ export function HeroSection() {
     return () => window.removeEventListener("resize", handleResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <section className="flex flex-1 relative overflow-hidden bg-primary py-4 sm:bg-white lg:pb-32 lg:pt-24 w-full">
       <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
@@ -82,8 +105,16 @@ export function HeroSection() {
                 size="sm"
                 variant="default"
                 className="mt-2 w-full text-xs px-2 py-1"
+                onClick={fetchPgn}
               >
-                Analyze Now
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Analyze now"
+                )}
               </Button>
             </div>
           </motion.div>
