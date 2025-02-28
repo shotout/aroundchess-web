@@ -118,7 +118,7 @@ const AnalysisResult: React.FC = () => {
                   alt="flag"
                   width={1000}
                   height={1000}
-                  className="w-5 h-3"
+                  className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
                 />
               </div>
               <div className="flex flex-row gap-1">
@@ -127,14 +127,14 @@ const AnalysisResult: React.FC = () => {
                   alt="pawn"
                   width={1000}
                   height={1000}
-                  className="w-3 h-4"
+                  className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                 />
                 <Image
                   src={"/icons/bishop-icon-alt-black.png"}
                   alt="bishop"
                   width={1000}
                   height={1000}
-                  className="w-3 h-4"
+                  className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                 />
 
                 <Image
@@ -214,7 +214,7 @@ const AnalysisResult: React.FC = () => {
                   alt="queen"
                   width={1000}
                   height={1000}
-                  className="w-3 h-4"
+                  className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                 />
               </div>
             </div>
