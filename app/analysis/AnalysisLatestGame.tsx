@@ -83,7 +83,8 @@ const AnalysisLatestGame: React.FC = () => {
     }
   };
   return (
-    <div className="flex flex-col gap-4 bg-white mt-2">
+    <div className="flex flex-col gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg">
+      
       <div className="flex flex-col px-4 gap-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
           Analysis: Latest Game
