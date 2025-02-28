@@ -147,7 +147,7 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="border border-input rounded-md p-2 flex flex-row gap-2">
+          <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
             <Watch size={16} />
             <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">7:00</span>
           </div>
@@ -219,7 +219,7 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="border border-input rounded-md p-2 flex flex-row gap-2">
+          <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
             <Watch size={16} />
             <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">7:00</span>
           </div>

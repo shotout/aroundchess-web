@@ -85,7 +85,9 @@ const AnalysisLatestGame: React.FC = () => {
   return (
     <div className="flex flex-col gap-4 bg-white mt-2">
       <div className="flex flex-col px-4 gap-2">
-        <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">Analysis: Latest Game</span>
+        <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
+          Analysis: Latest Game
+        </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
           13/02/2025,blitzmystic (White -{" "}
           <span className="text-[#00B427]">WIN</span>) vs Guest1234 (Black)
@@ -106,7 +108,9 @@ const AnalysisLatestGame: React.FC = () => {
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg">{tab.label}</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg">
+                {tab.label}
+              </span>
             </div>
           );
         })}
