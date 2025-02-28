@@ -40,14 +40,14 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     alt="pawn"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                   <Image
                     src={"/icons/rook-icon-alt-white.png"}
                     alt="rook"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
 
                   <Image
@@ -55,7 +55,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     alt="queen"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                 </div>
               </div>
@@ -65,7 +65,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
               alt="flag"
               width={1000}
               height={1000}
-              className="w-7 h-5"
+              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
             />
           </div>
           <div className="w-full border border-input p-3 rounded-md flex flex-row justify-between items-center gap-2">
@@ -87,14 +87,14 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     alt="pawn"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                   <Image
                     src={"/icons/rook-icon-alt-white.png"}
                     alt="rook"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
 
                   <Image
@@ -102,7 +102,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     alt="queen"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                 </div>
               </div>
@@ -112,33 +112,33 @@ const Summary: React.FC<SummaryProps> = (props) => {
               alt="flag"
               width={1000}
               height={1000}
-              className="w-7 h-5"
+              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
             />
           </div>
         </div>
         <div className="flex flex-row items-center justify-center gap-4">
           <div className="flex flex-col items-end justify-around gap-2">
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Accuracy:
             </span>
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Game Rating:
             </span>
           </div>
           <div className="flex flex-col items-start justify-center gap-2">
             <div className="flex flex-row items-center justify-around gap-2">
-              <span className="text-xs text-center text-primary border border-primary rounded-sm p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-primary border border-primary rounded-sm p-1">
                 75.0
               </span>
-              <span className="text-xs text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
                 60.0
               </span>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
-              <span className="text-xs text-center text-primary border border-primary rounded-sm p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-primary border border-primary rounded-sm p-1">
                 950
               </span>
-              <span className="text-xs text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
                 700
               </span>
             </div>
@@ -147,37 +147,37 @@ const Summary: React.FC<SummaryProps> = (props) => {
       </div>
       {/* move quality */}
       <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input">
-        <span className="text-sm font-semibold text-center">Move Quality</span>
+        <span className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold text-center">Move Quality</span>
         <div className="flex flex-row items-center justify-center gap-4">
           <div className="flex flex-col items-end justify-around gap-2">
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Brilliant:
             </span>
-            <span className="text-xs text-right font-semibold p-1">Great:</span>
-            <span className="text-xs text-right font-semibold p-1">Best:</span>
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">Great:</span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">Best:</span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Mistake:
             </span>
-            <span className="text-xs text-right font-semibold p-1">Miss:</span>
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">Miss:</span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Blunder:
             </span>
           </div>
           <div className="flex flex-col items-start justify-center gap-2">
             <div className="flex flex-row items-center justify-around gap-2">
-              <span className="text-xs text-center text-[#27C2A3] p-1">2</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#27C2A3] p-1">2</span>
               <Image
                 alt=""
                 src={"/icons/brilliant-moves-icon.png"}
                 width={1000}
                 height={1000}
-                className="w-4 h-4"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
               />
-              <span className="text-xs text-center text-[#27C2A3] p-1">2</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#27C2A3] p-1">2</span>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
               <div className="flex flex-row items-center justify-around gap-2">
-                <span className="text-xs text-center text-[#749BBF] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#749BBF] p-1">
                   3
                 </span>
                 <Image
@@ -185,16 +185,16 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/great-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center text-[#749BBF] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#749BBF] p-1">
                   2
                 </span>
               </div>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
               <div className="flex flex-row items-center justify-around gap-2">
-                <span className="text-xs text-center text-[#80B64D] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#80B64D] p-1">
                   4
                 </span>
                 <Image
@@ -202,9 +202,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/best-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center text-[#80B64D] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#80B64D] p-1">
                   1
                 </span>
               </div>
@@ -212,7 +212,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
             <div className="flex flex-row items-center justify-around gap-2">
               <div className="flex flex-row items-center justify-around gap-2">
-                <span className="text-xs text-center text-[#FFA459] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FFA459] p-1">
                   0
                 </span>
                 <Image
@@ -220,9 +220,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/mistake-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center text-[#FFA459] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FFA459] p-1">
                   1
                 </span>
               </div>
@@ -230,7 +230,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
             <div className="flex flex-row items-center justify-around gap-2">
               <div className="flex flex-row items-center justify-around gap-2">
-                <span className="text-xs text-center text-[#FF7769] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FF7769] p-1">
                   1
                 </span>
                 <Image
@@ -238,16 +238,16 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/miss-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center text-[#FF7769] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FF7769] p-1">
                   1
                 </span>
               </div>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
               <div className="flex flex-row items-center justify-around gap-2">
-                <span className="text-xs text-center text-[#FF7769] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FF7769] p-1">
                   0
                 </span>
                 <Image
@@ -255,9 +255,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/blunder-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center text-[#FF7769] p-1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center text-[#FF7769] p-1">
                   1
                 </span>
               </div>
@@ -268,13 +268,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
       <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input pb-2">
         <div className="flex flex-row items-center justify-center gap-4">
           <div className="flex flex-col items-end justify-around gap-2">
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Opening:
             </span>
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Middlegame:
             </span>
-            <span className="text-xs text-right font-semibold p-1">
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
               Endgame:
             </span>
           </div>
@@ -286,9 +286,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/brilliant-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Brilliant</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Brilliant</span>
               </div>
               <div className="flex flex-col items-center w-16">
                 <Image
@@ -296,9 +296,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/mistake-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Mistake</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Mistake</span>
               </div>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
@@ -308,9 +308,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/great-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Great</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Great</span>
               </div>
               <div className="flex flex-col items-center w-16">
                 <Image
@@ -318,9 +318,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/miss-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Miss</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Miss</span>
               </div>
             </div>
             <div className="flex flex-row items-center justify-around gap-2">
@@ -330,9 +330,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/brilliant-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Brilliant</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Brilliant</span>
               </div>
               <div className="flex flex-col items-center w-16">
                 <Image
@@ -340,9 +340,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   src={"/icons/blunder-moves-icon.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs text-center p-1">Blunder</span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg text-center p-1">Blunder</span>
               </div>
             </div>
           </div>
@@ -350,25 +350,25 @@ const Summary: React.FC<SummaryProps> = (props) => {
       </div>
       {/* overall assessment */}
       <div className="border border-input sm:border-primary sm:border-t-4 rounded-md p-4">
-        <span className="text-md font-bold">Overall Game Assessment</span>
+        <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold">Overall Game Assessment</span>
         <div className="flex flex-row gap-2 mt-2">
           <Image
             alt=""
             src={"/icons/target.png"}
             width={1000}
             height={1000}
-            className="w-4 h-4"
+            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
           />
-          <span className="text-xs font-light">Game Accuracy:</span>
-          <span className="text-xs font-bold">71.3%</span>
+          <span className="text-xs sm:text-sm md:text-md lg:text-lg font-light">Game Accuracy:</span>
+          <span className="text-xs sm:text-sm md:text-md lg:text-lg font-bold">71.3%</span>
         </div>
         <div className="flex flex-col gap-3 mt-2">
-          <span className="text-sm font-light">
+          <span className="text-sm sm:text-md md:text-lg lg:text-xl font-light">
             A decent game with some good moves, but also some missed
             opportunities. The critical moments could have been handled more
             precisely.
           </span>
-          <span className="text-sm font-light">
+          <span className="text-sm sm:text-md md:text-lg lg:text-xl font-light">
             No major mistakes were made during the game. Based on the analysis,
             focusing on pawn structure and piece placement would be most
             beneficial for improvement
@@ -383,9 +383,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
             src={"/icons/check.png"}
             width={1000}
             height={1000}
-            className="w-4 h-4"
+            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
           />
-          <span className="text-md font-bold w-full">Best Moves</span>
+          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">Best Moves</span>
           <div onClick={() => setOpenBestMoves(!openBestMoves)}>
             {openBestMoves ? (
               <ChevronUp size={24} color="black" />
@@ -398,18 +398,18 @@ const Summary: React.FC<SummaryProps> = (props) => {
           <div className="flex flex-col gap-2 mt-2">
             <div className="border border-input rounded-md p-4">
               <div className="flex flex-row justify-between gap-2 mb-2">
-                <span className="text-[10px] font-normal border border-primary rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                   Move 2: <span className="font-bold">e5</span>
                 </span>
-                <span className="text-[10px] font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
                   [TYPE OF THROAT]
                 </span>
               </div>
-              <span className="text-[10px] font-normal">
+              <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal">
                 [EXPLANATION OF THROAT]
               </span>
               <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] font-normal text-primary">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-primary">
                   [HOW THE THREAT COULD HAVE BEEN AVOIDED]
                 </span>
               </div>
@@ -425,9 +425,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
             src={"/icons/alert-triangle.png"}
             width={1000}
             height={1000}
-            className="w-4 h-4"
+            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
           />
-          <span className="text-md font-bold w-full">Critical Mistakes</span>
+          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">Critical Mistakes</span>
           <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
             {openCriticalMoves ? (
               <ChevronUp size={24} color="black" />
@@ -440,18 +440,18 @@ const Summary: React.FC<SummaryProps> = (props) => {
           <div className="flex flex-col gap-2 mt-2">
             <div className="border border-input rounded-md p-4">
               <div className="flex flex-row justify-between gap-2 mb-2">
-                <span className="text-[10px] font-normal border border-primary rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                   Move 2: <span className="font-bold">e5</span>
                 </span>
-                <span className="text-[10px] font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
                   [TYPE OF THROAT]
                 </span>
               </div>
-              <span className="text-[10px] font-normal">
+              <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal">
                 [EXPLANATION OF THROAT]
               </span>
               <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] font-normal text-primary">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-primary">
                   [HOW THE THREAT COULD HAVE BEEN AVOIDED]
                 </span>
               </div>
@@ -463,7 +463,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         onClick={props.next}
         size="lg"
         variant="default"
-        className="whitespace-nowrap sm:mt-8 text-xs"
+        className="whitespace-nowrap sm:mt-2 text-xs"
       >
         <div className="flex flex-row text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details
