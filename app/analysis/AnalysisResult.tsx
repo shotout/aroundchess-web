@@ -110,7 +110,7 @@ const AnalysisResult: React.FC = () => {
             <div className="w-10 h-10 rounded-full bg-gray-300"></div>
             <div className="flex flex-col">
               <div className="flex flex-row gap-2">
-                <span className="text-xs font-medium text-[#00B427]">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
                   Player name
                 </span>
                 <Image
@@ -142,35 +142,35 @@ const AnalysisResult: React.FC = () => {
                   alt="king"
                   width={1000}
                   height={1000}
-                  className="w-3 h-4"
+                  className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                 />
               </div>
             </div>
           </div>
           <div className="border border-input rounded-md p-2 flex flex-row gap-2">
             <Watch size={16} />
-            <span className="text-xs font-medium">7:00</span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">7:00</span>
           </div>
         </div>
         <Chessboard position={game.fen()} boardWidth={boardSize} />
         {/* Group Button */}
         <div className="flex flex-row justify-around gap-4">
-          <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
-            <SkipBackIcon fill="black" size={16} color="black" />
+          <button className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 ">
+            <SkipBackIcon fill="black" size={boardSize/24} color="black" />
           </button>
 
-          <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
-            <ChevronLeft size={16} color="black" />
+          <button className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 ">
+            <ChevronLeft size={boardSize/24} color="black" />
           </button>
-          <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
-            <Play size={16} fill="black" color="black" />
+          <button className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 ">
+            <Play size={boardSize/24} fill="black" color="black" />
           </button>
 
-          <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
-            <ChevronRight size={16} color="black" />
+          <button className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 ">
+            <ChevronRight size={boardSize/24} color="black" />
           </button>
-          <button className="w-1/5 flex justify-center border border-primary rounded-sm p-1 ">
-            <SkipForwardIcon fill="black" size={16} color="black" />
+          <button className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 ">
+            <SkipForwardIcon fill="black" size={boardSize/24} color="black" />
           </button>
         </div>
         <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
@@ -181,7 +181,7 @@ const AnalysisResult: React.FC = () => {
             <div className="w-10 h-10 rounded-full bg-gray-300"></div>
             <div className="flex flex-col">
               <div className="flex flex-row gap-2">
-                <span className="text-xs font-medium text-[#00B427]">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
                   Player name
                 </span>
                 <Image
@@ -189,7 +189,7 @@ const AnalysisResult: React.FC = () => {
                   alt="flag"
                   width={1000}
                   height={1000}
-                  className="w-4 h-3"
+                  className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                 />
               </div>
 
@@ -221,7 +221,7 @@ const AnalysisResult: React.FC = () => {
           </div>
           <div className="border border-input rounded-md p-2 flex flex-row gap-2">
             <Watch size={16} />
-            <span className="text-xs font-medium">7:00</span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">7:00</span>
           </div>
         </div>
       </div>

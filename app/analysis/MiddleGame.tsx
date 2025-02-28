@@ -16,7 +16,7 @@ interface MiddleGameProps {
 }
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
-  const [openBadMove, setopenBadMove] = useState<boolean>(false);
+  const [openBadMove, setopenBadMove] = useState<boolean>(true);
   const [bestmoves, setBestMoves] = useState<any[]>([
     {
       number: 5,
@@ -100,13 +100,13 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               src={"/icons/check.png"}
               width={1000}
               height={1000}
-              className="w-4 h-4"
+              className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
             />
-            <span className="text-md font-bold w-full">Best Moves</span>
+            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Best Moves</span>
             <div className="flex flex-row gap-1">
               <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs">Type:</span>
-              <span className="text-xs font-semibold ">Middlegame</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Middlegame</span>
             </div>
           </div>
           <div onClick={() => setOpenBestMoves(!openBestMoves)}>
@@ -124,12 +124,12 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
-                      <span className="text-[12px] font-normal border border-primary rounded-[4px] p-1">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg  font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
-                        <span className="font-bold">{item.moves}</span>
+                        <span className="font-bold sm:text-sm md:text-md lg:text-lg ">{item.moves}</span>
                       </span>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs text-center font-normal ${getScoreClass(
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg  text-center font-normal ${getScoreClass(
                           item.classification
                         )}`}
                       >
@@ -137,14 +137,14 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                       </span>
                     </div>
                     <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs ${getBadgeClass(
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg  ${getBadgeClass(
                         item.classification
                       )}`}
                     >
                       {item.classification}
                     </span>
                   </div>
-                  <span className="text-sm font-normal">
+                  <span className="text-sm sm:text-md md:text-md lg:text-lg  font-normal">
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
@@ -162,13 +162,13 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
-              className="w-4 h-4"
+              className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
             />
-            <span className="text-md font-bold w-full">Bad Moves</span>
+            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Bad Moves</span>
             <div className="flex flex-row gap-1">
               <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs">Type:</span>
-              <span className="text-xs font-semibold ">Middlegame</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Middlegame</span>
             </div>
           </div>
           <div onClick={() => setopenBadMove(!openBadMove)}>
@@ -186,12 +186,12 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
-                      <span className="text-[12px] font-normal border border-primary rounded-[4px] p-1">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
                         <span className="font-bold">{item.moves}</span>
                       </span>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs text-center font-normal ${getScoreClass(
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
                           item.classification
                         )}`}
                       >
@@ -199,18 +199,18 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                       </span>
                     </div>
                     <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs ${getBadgeClass(
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
                         item.classification
                       )}`}
                     >
                       {item.classification}
                     </span>
                   </div>
-                  <span className="text-sm font-normal">
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
-                  <div className="mt-2 p-2 border border-l-4 border-[#3871EC] text-[#254B9D] text-xs bg-[#F6F9FF] rounded-md">
+                  <div className="mt-2 p-2 border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-lg bg-[#F6F9FF] rounded-md">
                     [EXPLAIN WHY MOVE IS NOT PERFECT AND WHAT WOULD BE A BETTER
                     MOVE]
                   </div>
@@ -218,15 +218,15 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               </div>
             );
           })}
-        <div className="flex flex-row bg-gradient mt-4 rounded-md p-2">
+        <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
           <Image
             alt=""
             src={"/icons/info-banner-icon.png"}
             width={1000}
             height={1000}
-            className="w-12 h-12"
+            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
           />
-          <span className="text-xs font-normal text-primary ml-4">
+          <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
             We have added Exercises to your Training Plan to improve your
             Strategy for the analyzed weaknesses.
           </span>
@@ -240,7 +240,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           variant="outline"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-xs text-black">
+          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
             Openings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -252,7 +252,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           variant="default"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs">
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endgame
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>

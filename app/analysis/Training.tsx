@@ -93,9 +93,9 @@ const Training: React.FC<TrainingProps> = (props) => {
               src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
-              className="w-5 h-5"
+              className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
             />
-            <span className="text-md font-bold w-full">Critical Mistakes</span>
+            <span className="text-md sm:text-md md:text-lg lg:text-xl  font-bold w-full">Critical Mistakes</span>
           </div>
           <div onClick={() => setOpenCriticalMistakes(!openCriticalMistakes)}>
             {openCriticalMistakes ? (
@@ -112,12 +112,12 @@ const Training: React.FC<TrainingProps> = (props) => {
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
-                      <span className="text-[12px] font-normal border border-primary rounded-[4px] p-1">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
                         <span className="font-bold">{item.moves}</span>
                       </span>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs text-center font-normal ${getScoreClass(
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
                           item.classification
                         )}`}
                       >
@@ -125,14 +125,14 @@ const Training: React.FC<TrainingProps> = (props) => {
                       </span>
                     </div>
                     <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs ${getBadgeClass(
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
                         item.classification
                       )}`}
                     >
                       {item.classification}
                     </span>
                   </div>
-                  <span className="text-sm font-normal">
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
@@ -150,9 +150,9 @@ const Training: React.FC<TrainingProps> = (props) => {
               src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
-              className="w-5 h-5"
+              className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
             />
-            <span className="text-md font-bold w-full">
+            <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
               Weakness Identification
             </span>
           </div>
@@ -171,12 +171,12 @@ const Training: React.FC<TrainingProps> = (props) => {
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
-                      <span className="text-[12px] font-normal border border-primary rounded-[4px] p-1">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
                         <span className="font-bold">{item.moves}</span>
                       </span>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs text-center font-normal ${getScoreClass(
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
                           item.classification
                         )}`}
                       >
@@ -184,27 +184,27 @@ const Training: React.FC<TrainingProps> = (props) => {
                       </span>
                     </div>
                     <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs ${getBadgeClass(
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
                         item.classification
                       )}`}
                     >
                       {item.classification}
                     </span>
                   </div>
-                  <span className="text-sm font-normal">
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 items-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center gap-2">
+                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                    <div className="flex flex-row items-center justify-start gap-2">
                       <Image
                         alt=""
                         src={"/icons/recommended-training-icon.png"}
                         width={1000}
                         height={1000}
-                        className="w-8 h-8"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="text-xs font-normal text-[#254B9D]">
+                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
                         Recommended Training Exercise:{" "}
                         <span className="font-semibold">
                           Endgame Technique and Win the Game
@@ -217,7 +217,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                       variant="default"
                       className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -235,7 +235,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           variant="outline"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-xs text-black">
+          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
             Improvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -247,7 +247,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           variant="default"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs">
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             Start your Training
           </div>
         </Button>

@@ -18,27 +18,27 @@ const Threats: React.FC<ThreatsProps> = (props) => {
             src={"/icons/alert-triangle.png"}
             width={1000}
             height={1000}
-            className="w-4 h-4"
+            className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
           />
-          <span className="text-md font-bold w-full">
+          <span className="text-md sm:text-lg lg:text-2xl font-bold w-full">
             Most Critical Threats
           </span>
         </div>
         <div className="flex flex-col gap-2 mt-2">
           <div className="border border-input rounded-md p-4">
             <div className="flex flex-row justify-between gap-2 mb-2">
-              <span className="text-[10px] font-normal border border-primary rounded-[4px] p-1">
+              <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                 Move 2: <span className="font-bold">e5</span>
               </span>
-              <span className="text-[10px] font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
+              <span className="text-[10px] font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
                 [TYPE OF THROAT]
               </span>
             </div>
-            <span className="text-[10px] font-normal">
+            <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal">
               [EXPLANATION OF THROAT]
             </span>
             <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-              <span className="text-[10px] font-normal text-primary">
+              <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-primary">
                 [HOW THE THREAT COULD HAVE BEEN AVOIDED]
               </span>
             </div>
