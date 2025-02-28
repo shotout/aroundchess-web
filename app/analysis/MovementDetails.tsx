@@ -304,7 +304,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           variant="outline"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
+          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black sm:py-4 md:py-6 lg:py-8">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
             Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -314,7 +314,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           onClick={props.next}
           size="lg"
           variant="default"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Threats
