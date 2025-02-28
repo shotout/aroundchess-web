@@ -95,7 +95,9 @@ const Training: React.FC<TrainingProps> = (props) => {
               height={1000}
               className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
             />
-            <span className="text-md sm:text-md md:text-lg lg:text-xl  font-bold w-full">Critical Mistakes</span>
+            <span className="text-md sm:text-md md:text-lg lg:text-xl  font-bold w-full">
+              Critical Mistakes
+            </span>
           </div>
           <div onClick={() => setOpenCriticalMistakes(!openCriticalMistakes)}>
             {openCriticalMistakes ? (
