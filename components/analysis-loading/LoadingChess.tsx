@@ -162,9 +162,9 @@ const PgnPlayer: React.FC = () => {
         // As a last resort, try letting chess.js handle it
         try {
           const tempGame = new Chess();
-          const successChessJs = tempGame.loadPgn(storePgn);
+          tempGame.loadPgn(storePgn);
 
-          if (successChessJs) {
+          if (tempGame.history().length > 0) {
             const history = tempGame.history({ verbose: true }) as ParsedMove[];
             setMoveHistory(history);
             setCurrentMoveIndex(0);

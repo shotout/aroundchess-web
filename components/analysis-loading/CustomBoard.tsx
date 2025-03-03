@@ -45,10 +45,10 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       },
     ];
 
-    const pieceComponents = {};
+    const pieceComponents: { [key: string]: React.FC<{ squareWidth: number }> } = {};
 
     pieces.forEach(({ piece, pieceHeight }) => {
-      pieceComponents[piece] = ({ squareWidth }) => (
+      pieceComponents[piece] = ({ squareWidth }: { squareWidth: number }) => (
         <div
           style={{
             width: squareWidth,
