@@ -24,7 +24,6 @@ export default function AboutPage() {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-
   useEffect(() => {
     if (!api) {
       return

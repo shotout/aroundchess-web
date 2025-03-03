@@ -1,30 +1,68 @@
-'use client'
+// "use client";
 
-import * as React from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Phone, MapPin, Twitter, Instagram, Facebook, Youtube, Linkedin, MessageCircle, Clock, Users } from 'lucide-react'
+import * as React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Twitter,
+  Instagram,
+  Facebook,
+  Youtube,
+  Linkedin,
+  MessageCircle,
+  Clock,
+  Users,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
+} from "@/components/ui/accordion";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import emailjs from "@emailjs/browser";
+import { subjectForm } from "../store/constants";
+import { toast } from "sonner";
 
 export default function ContactPage() {
+  const form = React.useRef<any|HTMLFormElement>(null);
+
+  const sendToEmail = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    const { current } = form;
+    emailjs
+      .sendForm("service_kj7oisp", "template_zc6g14o", current, {
+        publicKey: "jTUGjAIqTwezcSh2k",
+      })
+      .then(
+        () => {
+          toast.success("Form send successfully!");
+          form.current?.reset()
+
+          // window.location.reload();
+          console.log("SUCCESS!");
+        },
+        (error) => {
+          toast.error(error.text);
+          console.log("FAILED...", error.text);
+        }
+      );
+  };
   return (
     <>
       <SiteHeader />
@@ -42,7 +80,8 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
-              We&apos;re here to help and answer any question you might have. We look forward to hearing from you.
+              We&apos;re here to help and answer any question you might have. We
+              look forward to hearing from you.
             </p>
           </motion.div>
         </div>
@@ -62,13 +101,14 @@ export default function ContactPage() {
                   <CardTitle>Send us a Message</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
+                  <form ref={form} onSubmit={sendToEmail} className="space-y-4">
                     <div className="space-y-2">
                       <label htmlFor="name" className="text-sm font-medium">
                         Name
                       </label>
                       <Input
                         id="name"
+                        name="name"
                         placeholder="Your name"
                         className="w-full"
                       />
@@ -79,6 +119,7 @@ export default function ContactPage() {
                       </label>
                       <Input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="your@email.com"
                         className="w-full"
@@ -88,23 +129,18 @@ export default function ContactPage() {
                       <label htmlFor="subject" className="text-sm font-medium">
                         Subject
                       </label>
-                      <Select>
+                      <Select name="subject">
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a subject" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="analysis_help">Analysis Help</SelectItem>
-                          <SelectItem value="game_review">Game Review Request</SelectItem>
-                          <SelectItem value="training_plan">Training Plan Support</SelectItem>
-                          <SelectItem value="opening_database">Opening Database Questions</SelectItem>
-                          <SelectItem value="technical_support">Technical Support</SelectItem>
-                          <SelectItem value="subscription">Subscription & Billing</SelectItem>
-                          <SelectItem value="feature_request">Feature Request</SelectItem>
-                          <SelectItem value="bug_report">Bug Report</SelectItem>
-                          <SelectItem value="tournament">Tournament & Events</SelectItem>
-                          <SelectItem value="coaching">Coaching Inquiries</SelectItem>
-                          <SelectItem value="partnership">Partnership & Business</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          {subjectForm.map((item, index) => {
+                            return (
+                              <SelectItem key={item.value} value={item.label}>
+                                {item.label}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                     </div>
@@ -114,12 +150,13 @@ export default function ContactPage() {
                       </label>
                       <Textarea
                         id="message"
+                        name="message"
                         placeholder="Your message"
                         className="min-h-[120px] w-full"
                       />
                     </div>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                       Send Message
@@ -142,43 +179,64 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5 mt-1 text-primary" />
                     <div>
                       <p className="font-semibold">Address</p>
-                      <p className="text-sm text-muted-foreground">Via Molinazzo 2, 6900 Lugano, Switzerland</p>
+                      <p className="text-sm text-muted-foreground">
+                        Via Molinazzo 2, 6900 Lugano, Switzerland
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <Mail className="h-5 w-5 mt-1 text-primary" />
                     <div>
                       <p className="font-semibold">Email</p>
-                      <p className="text-sm text-muted-foreground">contact@aroundchess.com</p>
+                      <p className="text-sm text-muted-foreground">
+                        contact@aroundchess.com
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <Phone className="h-5 w-5 mt-1 text-primary" />
                     <div>
                       <p className="font-semibold">Phone</p>
-                      <p className="text-sm text-muted-foreground">+41 91 291 30 22</p>
+                      <p className="text-sm text-muted-foreground">
+                        +41 91 291 30 22
+                      </p>
                     </div>
                   </div>
                   <div className="pt-4">
                     <p className="font-semibold mb-2">Follow Us</p>
                     <div className="flex space-x-4">
-                      <Link href="#" className="text-gray-400 hover:text-primary">
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-primary"
+                      >
                         <span className="sr-only">Facebook</span>
                         <Facebook className="h-6 w-6" />
                       </Link>
-                      <Link href="#" className="text-gray-400 hover:text-primary">
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-primary"
+                      >
                         <span className="sr-only">Twitter</span>
                         <Twitter className="h-6 w-6" />
                       </Link>
-                      <Link href="#" className="text-gray-400 hover:text-primary">
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-primary"
+                      >
                         <span className="sr-only">Instagram</span>
                         <Instagram className="h-6 w-6" />
                       </Link>
-                      <Link href="#" className="text-gray-400 hover:text-primary">
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-primary"
+                      >
                         <span className="sr-only">YouTube</span>
                         <Youtube className="h-6 w-6" />
                       </Link>
-                      <Link href="#" className="text-gray-400 hover:text-primary">
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-primary"
+                      >
                         <span className="sr-only">LinkedIn</span>
                         <Linkedin className="h-6 w-6" />
                       </Link>
@@ -231,27 +289,44 @@ export default function ContactPage() {
           </h2>
           <Accordion type="single" collapsible className="w-full mx-auto">
             <AccordionItem value="item-1">
-              <AccordionTrigger>How quickly can I expect a response to my inquiry?</AccordionTrigger>
+              <AccordionTrigger>
+                How quickly can I expect a response to my inquiry?
+              </AccordionTrigger>
               <AccordionContent>
-                We strive to respond to all inquiries within 24 hours. For urgent matters, our support team is available via live chat during business hours.
+                We strive to respond to all inquiries within 24 hours. For
+                urgent matters, our support team is available via live chat
+                during business hours.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>Can I request a personalized demo of the AroundChess?</AccordionTrigger>
+              <AccordionTrigger>
+                Can I request a personalized demo of the AroundChess?
+              </AccordionTrigger>
               <AccordionContent>
-                We offer personalized demos for individuals and organizations. Please contact us to schedule a demo tailored to your specific needs and interests.
+                We offer personalized demos for individuals and organizations.
+                Please contact us to schedule a demo tailored to your specific
+                needs and interests.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
-              <AccordionTrigger>Do you offer support in languages other than English?</AccordionTrigger>
+              <AccordionTrigger>
+                Do you offer support in languages other than English?
+              </AccordionTrigger>
               <AccordionContent>
-                Yes, we provide support in several languages including Spanish, French, German, and Italian. Please specify your preferred language when contacting us.
+                Yes, we provide support in several languages including Spanish,
+                French, German, and Italian. Please specify your preferred
+                language when contacting us.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-4">
-              <AccordionTrigger>How can I report a bug or suggest a new feature?</AccordionTrigger>
+              <AccordionTrigger>
+                How can I report a bug or suggest a new feature?
+              </AccordionTrigger>
               <AccordionContent>
-                We welcome your feedback! You can report bugs or suggest new features through our contact form. Select &quot;Bug Report&quot; or &quot;Feature Request&quot; in the subject dropdown to ensure it reaches the right team.
+                We welcome your feedback! You can report bugs or suggest new
+                features through our contact form. Select &quot;Bug Report&quot;
+                or &quot;Feature Request&quot; in the subject dropdown to ensure
+                it reaches the right team.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -261,10 +336,18 @@ export default function ContactPage() {
       <CTASection />
       <SiteFooter />
     </>
-  )
+  );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <motion.div
       className="flex flex-col items-center text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-primary/10"
@@ -274,10 +357,12 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode; titl
       viewport={{ once: true }}
     >
       <div className="text-primary mb-4">{icon}</div>
-      <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
+      <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">
+        {title}
+      </h3>
       <p className="text-muted-foreground">{description}</p>
     </motion.div>
-  )
+  );
 }
 
 function CTASection() {
@@ -301,7 +386,8 @@ function CTASection() {
                 Ready to Elevate Your Chess Game?
               </h2>
               <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-200">
-                Join thousands of players who are already benefiting from our AI-powered analysis.
+                Join thousands of players who are already benefiting from our
+                AI-powered analysis.
               </p>
               <motion.div
                 className="mt-10 flex items-center justify-center gap-x-6"
@@ -310,7 +396,11 @@ function CTASection() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <Button asChild size="lg" className="bg-white text-primary hover:bg-gray-100">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-primary hover:bg-gray-100"
+                >
                   <Link href="/register">Get Started Now →</Link>
                 </Button>
               </motion.div>
@@ -319,5 +409,5 @@ function CTASection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
