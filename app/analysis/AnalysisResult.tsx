@@ -21,6 +21,7 @@ import {
 import Board from "./3DBoard";
 import { usePgnStore } from "../store/zustandStore";
 import { Button } from "@/components/ui/button";
+import data from "../../json/fix_analyze_response.json";
 
 type CapturedPieces = {
   white: string[];
@@ -38,6 +39,16 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
+  const {
+    gameInfo,
+    summary,
+    movementDetails,
+    opening,
+    middleGame,
+    endGame,
+    improvementRecommendation,
+    training,
+  } = data.data;
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -294,22 +305,30 @@ const AnalysisResult: React.FC = () => {
         <div className="flex flex-col gap-4">
           <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
-              {/* <Image 
-            alt="avatar"
-            src={"/images/icons/"}/> */}
-              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <Image
+                alt="avatar"
+                src={summary.blackSide.profileInfo.photo}
+                className="w-10 h-10 rounded-full"
+                width={1000}
+                height={1000}
+              />
+              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
-                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                    Player name
+                  <span
+                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      gameInfo.whiteWin ? "text-black" : "text-[#00B427]"
+                    }`}
+                  >
+                    {summary.blackSide.profileInfo.username}
                   </span>
-                  <Image
+                  {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -318,14 +337,14 @@ const AnalysisResult: React.FC = () => {
                     alt="pawn"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                   <Image
                     src={"/icons/bishop-icon-alt-black.png"}
                     alt="bishop"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
 
                   <Image
@@ -333,15 +352,15 @@ const AnalysisResult: React.FC = () => {
                     alt="king"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                 </div>
               </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                7:00
+                {gameInfo.time}
               </span>
             </div>
           </div>
@@ -412,22 +431,28 @@ const AnalysisResult: React.FC = () => {
           </div>
           <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
-              {/* <Image 
-            alt="avatar"
-            src={"/images/icons/"}/> */}
-              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <Image
+                alt="avatar"
+                src={summary.blackSide.profileInfo.photo}
+                className="w-10 h-10 rounded-full"
+                width={1000}
+                height={1000}
+              />
+              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
-                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                    Player name
+                  <span className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      !gameInfo.whiteWin ? "text-black" : "text-[#00B427]"
+                    }`}>
+                    {summary.whiteSide.profileInfo.username}
                   </span>
-                  <Image
+                  {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -456,10 +481,10 @@ const AnalysisResult: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                7:00
+                {gameInfo.time}
               </span>
             </div>
           </div>
