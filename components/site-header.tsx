@@ -1,12 +1,11 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
 import { motion } from "framer-motion"
-import { LayoutDashboard, Menu, X, Home, Info, GraduationCap, Dumbbell, BarChart2, Gamepad2, DollarSign, Mail, Zap } from 'lucide-react'
+import { BarChart2, DollarSign, Dumbbell, Gamepad2, GraduationCap, Home, Info, LayoutDashboard, Mail, Menu, Zap } from 'lucide-react'
+import Link from "next/link"
+import * as React from "react"
 
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -15,6 +14,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { UserButton, useUser } from "@clerk/nextjs"
 
 const navItems = {
   main: [
@@ -65,6 +66,8 @@ interface SiteHeaderProps {
 export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
 
+  const {isSignedIn} = useUser()
+
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
@@ -83,7 +86,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
       <div className="container px-4 md:px-6 lg:px-8 mx-auto max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="xl:hidden"
@@ -91,7 +94,25 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Open sidebar</span>
-            </Button>
+            </Button> */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-9 w-9 p-0 xl:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="pr-0" aria-describedby="mobile-nav-description">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <div id="mobile-nav-description" className="sr-only">
+                  Mobile navigation menu for AroundChess
+                </div>
+                <MobileNav />
+              </SheetContent>
+            </Sheet>
             <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6" />
               <span className="hidden font-bold sm:inline-block">aroundchess</span>
@@ -211,33 +232,19 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
           <div className="flex items-center gap-2">
 
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-9 w-9 p-0 xl:hidden"
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="pr-0" aria-describedby="mobile-nav-description">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <div id="mobile-nav-description" className="sr-only">
-                  Mobile navigation menu for AroundChess
-                </div>
-                <MobileNav />
-              </SheetContent>
-            </Sheet>
+            
 
-            <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="text-xs px-2 py-1">
-                <Link href="/login">Sign In</Link>
+            {!isSignedIn ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild className="text-xs px-2 py-1">
+                  <Link href="/login">Sign In</Link>
               </Button>
               <Button size="sm" asChild className="text-xs px-2 py-1">
                 <Link href="/register">Try Now</Link>
               </Button>
             </div>
+              ) : (<UserButton showName={true} />)
+            }
           </div>
         </div>
       </div>
@@ -281,10 +288,10 @@ function MobileNav() {
           <LayoutDashboard className="h-6 w-6 text-primary" />
           <span className="font-bold text-xl text-primary">aroundchess</span>
         </Link>
-        <SheetClose className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted">
+        {/* <SheetClose className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
-        </SheetClose>
+        </SheetClose> */}
       </div>
 
       <nav className="flex-1">

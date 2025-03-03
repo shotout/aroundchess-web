@@ -303,3 +303,29 @@ model Stats {
 
   @@map("stats")
 }
+
+model ChessApiData {
+  id                   String   @id @default(cuid())
+  username             String   @unique
+  data_stats           Json     @default("{}")
+  data_games           Json     @default("{}")
+  data_clubs           Json     @default("{}")
+  data_games_archives  Json     @default("{}")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @default(now()) @map("updated_at")
+
+  @@map("chess_api_datas")
+}
+
+model ChessApiMonthlyGames {
+  id        String   @id @default(cuid())
+  username  String
+  year      Int
+  month     Int
+  data      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("chess_api_monthly_games")
+  @@unique([username, year, month])
+}
