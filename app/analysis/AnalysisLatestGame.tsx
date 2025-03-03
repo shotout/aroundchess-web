@@ -10,8 +10,19 @@ import EndGame from "./EndGame";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Improvement from "./Improvement";
 import Training from "./Training";
+import data from "../../json/fix_analyze_response.json";
 
 const AnalysisLatestGame: React.FC = () => {
+  const {
+    gameInfo,
+    summary,
+    movementDetails,
+    opening,
+    middleGame,
+    endGame,
+    improvementRecommendation,
+    training,
+  } = data.data;
   const [focusPage, setFocusPage] = useState<string>("summary");
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
@@ -30,7 +41,7 @@ const AnalysisLatestGame: React.FC = () => {
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
-        return <Summary next={() => setFocusPage("movement")} />;
+        return <Summary data={data.data}  next={() => setFocusPage("movement")} />;
       case "movement":
         return (
           <MovementDetails
@@ -84,14 +95,13 @@ const AnalysisLatestGame: React.FC = () => {
   };
   return (
     <div className="flex flex-col gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg">
-      
       <div className="flex flex-col px-4 gap-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
           Analysis: Latest Game
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
-          13/02/2025,blitzmystic (White -{" "}
-          <span className="text-[#00B427]">WIN</span>) vs Guest1234 (Black)
+          {gameInfo.date}, {summary.whiteSide.profileInfo.username} (White
+          <span className="text-[#00B427]">{gameInfo.whiteWin && " - WIN"}</span>) vs {summary.blackSide.profileInfo.username} (Black<span className="text-[#00B427]">{gameInfo.blackWin && " - WIN"}</span>)
         </span>
       </div>
 
@@ -103,7 +113,7 @@ const AnalysisLatestGame: React.FC = () => {
               key={index}
               onClick={() => setFocusPage(tab.name)}
               className={`flex ${
-                tab.name == "movement" && `min-w-[124px] `
+                tab.name == "movement" && `min-w-[140px] `
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
