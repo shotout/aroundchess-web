@@ -83,11 +83,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       <ScrollArea className="flex-1 py-3">
         <nav className="space-y-5 px-3">
-          {sidebarLinks.map((section) => {
+          {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
               ? pathname === section.href
-              : section.children?.some((child) => pathname === child.href);
+              : section.children?.some((child:any) => pathname === child.href);
 
             return (
               <div key={section.name}>
@@ -148,7 +148,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
                   {hasChildren && (
                     <div className="ml-6 space-y-2">
-                      {section.children.map((child) => {
+                      {section.children.map((child:any) => {
                         const isChildActive = pathname === child.href;
                         return (
                           <Link

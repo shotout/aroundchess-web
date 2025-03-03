@@ -39,7 +39,7 @@ const Board: React.FC = () => {
       }
     });
   }
-  function onDrop(sourceSquare: Square, targetSquare: Square, piece: String) {
+  function onDrop(sourceSquare: Square, targetSquare: Square, piece:any) {
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
