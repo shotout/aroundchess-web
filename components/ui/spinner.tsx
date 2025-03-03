@@ -8,7 +8,7 @@ export default function LoadingSpinner() {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => (prev < 100 ? prev + 5 : 100));
-    }, 500);
+    }, 200);
 
     return () => clearInterval(interval);
   }, []);

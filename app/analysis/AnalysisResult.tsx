@@ -71,7 +71,7 @@ const AnalysisResult: React.FC = () => {
   }, [mounted]);
 
   //jahitan
-  const { pgn: storePgn } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
@@ -96,6 +96,8 @@ const AnalysisResult: React.FC = () => {
     } else {
       setIsLoading(false);
     }
+
+    console.log(dataAnalysis);
   }, [storePgn]);
 
   // Parse PGN and extract moves
@@ -441,9 +443,11 @@ const AnalysisResult: React.FC = () => {
               {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
-                  <span className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                  <span
+                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
                       !gameInfo.whiteWin ? "text-black" : "text-[#00B427]"
-                    }`}>
+                    }`}
+                  >
                     {summary.whiteSide.profileInfo.username}
                   </span>
                   {/* <Image

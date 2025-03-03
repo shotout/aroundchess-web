@@ -3,8 +3,6 @@
 import Image from "next/image";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ChevronRight, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -15,18 +13,22 @@ const PGN_API_URL = "/api/pgn";
 export function HeroSection() {
   const router = useRouter();
   //jahitan
-  const { setPgn, isLoading, setIsLoading, setError } = usePgnStore();
+  const { setPgn, setIsLoading, setError, setDataAnalysis } = usePgnStore();
   const fetchPgn = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(PGN_API_URL);
-      setPgn(response.data.pgn);
+
+      setDataAnalysis(response.data.data);
+      setPgn(response.data.data.gameInfo.pgn);
       setError(null);
-      router.push("/analysis");
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        router.push("/analysis");
+        // setIsLoading(false);
+      }, 5000);
     }
   };
 
@@ -107,14 +109,7 @@ export function HeroSection() {
                 className="mt-2 w-full text-xs px-2 py-1"
                 onClick={fetchPgn}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  "Analyze now"
-                )}
+                Analyze now
               </Button>
             </div>
           </motion.div>
