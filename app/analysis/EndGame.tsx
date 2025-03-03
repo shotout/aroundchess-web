@@ -10,49 +10,18 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-interface EndgameProps {
+import { usePgnStore } from "../store/zustandStore";
+interface EndGameProps {
   next: () => void;
   prev: () => void;
 }
-const Endgame: React.FC<EndgameProps> = (props) => {
+const EndGame: React.FC<EndGameProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+
+  const { bestMoves, badMoves } = dataAnalysis.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
-  const [bestmoves, setBestMoves] = useState<any[]>([
-    {
-      number: 5,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Brilliant",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 2,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Great",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
-  const [badMove, setBadMove] = useState<any[]>([
-    {
-      number: 1,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 7,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -102,11 +71,17 @@ const Endgame: React.FC<EndgameProps> = (props) => {
               height={1000}
               className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
             />
-            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Best Moves</span>
-            <div className="flex flex-row gap-1">
+            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+              Best Moves
+            </span>
+            <div className="flex flex-row items-center gap-1">
               <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Endgame</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                Type:
+              </span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                Endgame
+              </span>
             </div>
           </div>
           <div onClick={() => setOpenBestMoves(!openBestMoves)}>
@@ -118,22 +93,24 @@ const Endgame: React.FC<EndgameProps> = (props) => {
           </div>
         </div>
         {openBestMoves &&
-          bestmoves.map((item: any, index: number) => {
+          bestMoves.map((item: any, index: number) => {
             return (
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg  font-normal border border-primary rounded-[4px] p-1">
-                        Move {item.number}:{" "}
-                        <span className="font-bold sm:text-sm md:text-md lg:text-lg ">{item.moves}</span>
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold sm:text-sm md:text-md lg:text-lg ">
+                          {item.moves}
+                        </span>
                       </span>
                       <span
                         className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg  text-center font-normal ${getScoreClass(
                           item.classification
                         )}`}
                       >
-                        {item.score}
+                        {item.evaluation}
                       </span>
                     </div>
                     <span
@@ -164,11 +141,17 @@ const Endgame: React.FC<EndgameProps> = (props) => {
               height={1000}
               className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
             />
-            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Bad Moves</span>
-            <div className="flex flex-row gap-1">
+            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+              Bad Moves
+            </span>
+            <div className="flex flex-row items-center gap-1">
               <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Endgame</span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                Type:
+              </span>
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                Endgame
+              </span>
             </div>
           </div>
           <div onClick={() => setopenBadMove(!openBadMove)}>
@@ -180,14 +163,14 @@ const Endgame: React.FC<EndgameProps> = (props) => {
           </div>
         </div>
         {openBadMove &&
-          badMove.map((item: any, index: number) => {
+          badMoves.map((item: any, index: number) => {
             return (
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
-                        Move {item.number}:{" "}
+                        Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.moves}</span>
                       </span>
                       <span
@@ -195,7 +178,7 @@ const Endgame: React.FC<EndgameProps> = (props) => {
                           item.classification
                         )}`}
                       >
-                        {item.score}
+                        {item.evaluation}
                       </span>
                     </div>
                     <span
@@ -210,27 +193,25 @@ const Endgame: React.FC<EndgameProps> = (props) => {
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
-                  <div className="mt-2 p-2 border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-lg bg-[#F6F9FF] rounded-md">
-                    [EXPLAIN WHY MOVE IS NOT PERFECT AND WHAT WOULD BE A BETTER
-                    MOVE]
-                  </div>
                 </div>
               </div>
             );
           })}
-        <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
-          <Image
-            alt=""
-            src={"/icons/info-banner-icon.png"}
-            width={1000}
-            height={1000}
-            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
-          />
-          <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
-            We have added Exercises to your Training Plan to improve your
-            Strategy for the analyzed weaknesses.
-          </span>
-        </div>
+        {openBadMove && (
+          <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
+            <Image
+              alt=""
+              src={"/icons/info-banner-icon.png"}
+              width={1000}
+              height={1000}
+              className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
+            />
+            <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
+              We have added Exercises to your Training Plan to improve your
+              Strategy for the analyzed weaknesses.
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-row justify-between mt-4">
@@ -242,7 +223,7 @@ const Endgame: React.FC<EndgameProps> = (props) => {
         >
           <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Openings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </Button>
         <div className="w-8" />
@@ -253,7 +234,7 @@ const Endgame: React.FC<EndgameProps> = (props) => {
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endgame
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>
         </Button>
@@ -262,4 +243,4 @@ const Endgame: React.FC<EndgameProps> = (props) => {
   );
 };
 
-export default Endgame;
+export default EndGame;

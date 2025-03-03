@@ -97,7 +97,6 @@ const AnalysisResult: React.FC = () => {
       setIsLoading(false);
     }
 
-    console.log(dataAnalysis);
   }, [storePgn]);
 
   // Parse PGN and extract moves
@@ -215,12 +214,13 @@ const AnalysisResult: React.FC = () => {
   }, [currentMoveIndex, parsedMoves]);
 
   useEffect(() => {
+
     return () => {
       if (autoPlayTimerRef.current) {
         clearInterval(autoPlayTimerRef.current);
       }
     };
-  }, []);
+  }, [dataAnalysis]);
 
   const getBoardProps = () => {
     const baseProps = {

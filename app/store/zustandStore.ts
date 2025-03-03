@@ -8,8 +8,8 @@ interface PgnState {
   setIsLoading: (isLoading: boolean) => void;
   error: Error | null;
   setError: (error: Error | null) => void;
-  dataAnalysis: AnalysisResult | null;
-  setDataAnalysis: () => void;
+  dataAnalysis: AnalysisResult | any;
+  setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
 }
 
 export const usePgnStore = create<PgnState>((set) => ({
@@ -20,5 +20,5 @@ export const usePgnStore = create<PgnState>((set) => ({
   error: null,
   setError: (error) => set({ error }),
   dataAnalysis : null,
-  setDataAnalysis : (dataAnalysis) => set({dataAnalysis})
+  setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis})
 }));
