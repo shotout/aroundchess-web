@@ -1111,7 +1111,7 @@ export async function GET() {
       { 
         success: false,
         message: 'Failed to process chess data',
-        error: error.message 
+        error: "error.message" 
       },
       { status: 500 }
     );
