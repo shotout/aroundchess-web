@@ -51,7 +51,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           onClick={props.prev}
           size="lg"
           variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-xs text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
@@ -63,7 +63,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           onClick={props.next}
           size="lg"
           variant="default"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Opening
