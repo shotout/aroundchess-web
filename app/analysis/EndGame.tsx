@@ -18,7 +18,7 @@ interface EndGameProps {
 const EndGame: React.FC<EndGameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
-  const { bestMoves, badMoves } = dataAnalysis.endGame;
+  const { bestMoves, badMoves } = dataAnalysis?.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
 

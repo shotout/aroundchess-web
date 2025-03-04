@@ -54,7 +54,7 @@ const AnalysisResult: React.FC = () => {
     endGame,
     improvementRecommendation,
     training,
-  } = dataAnalysis;
+  } = dataAnalysis ?? {};
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -327,7 +327,7 @@ const AnalysisResult: React.FC = () => {
             <div className="flex flex-row gap-2">
               <Image
                 alt="avatar"
-                src={summary.blackSide.profileInfo.photo}
+                src={summary?.blackSide?.profileInfo.photo}
                 className="w-10 h-10 rounded-full"
                 width={1000}
                 height={1000}
@@ -337,10 +337,10 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-row gap-2">
                   <span
                     className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                      gameInfo.whiteWin ? "text-black" : "text-[#00B427]"
+                      gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                     }`}
                   >
-                    {summary.blackSide.profileInfo.username}
+                    {summary?.blackSide?.profileInfo.username}
                   </span>
                   {/* <Image
                     src={"/icons/switzerland-flag.png"}
@@ -380,7 +380,7 @@ const AnalysisResult: React.FC = () => {
             <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                {gameInfo.time}
+                {gameInfo?.time}
               </span>
             </div>
           </div>
@@ -453,7 +453,7 @@ const AnalysisResult: React.FC = () => {
             <div className="flex flex-row gap-2">
               <Image
                 alt="avatar"
-                src={summary.blackSide.profileInfo.photo}
+                src={summary?.blackSide?.profileInfo.photo}
                 className="w-10 h-10 rounded-full"
                 width={1000}
                 height={1000}
@@ -463,10 +463,10 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-row gap-2">
                   <span
                     className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                      !gameInfo.whiteWin ? "text-black" : "text-[#00B427]"
+                      !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                     }`}
                   >
-                    {summary.whiteSide.profileInfo.username}
+                    {summary?.whiteSide?.profileInfo.username}
                   </span>
                   {/* <Image
                     src={"/icons/switzerland-flag.png"}
@@ -506,7 +506,7 @@ const AnalysisResult: React.FC = () => {
             <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                {gameInfo.time}
+                {gameInfo?.time}
               </span>
             </div>
           </div>

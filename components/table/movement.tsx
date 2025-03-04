@@ -18,7 +18,7 @@ export default function MovementTable() {
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
-  const { gameInfo, summary, movementDetails } = dataAnalysis;
+  const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -75,13 +75,13 @@ export default function MovementTable() {
         <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#BDD0F9]  py-2">
           White{" "}
           <span className="block text-sm sm:text-sm md:text-sm lg:text-sm font-light">
-            ({summary.whiteSide.profileInfo.username})
+            ({summary?.whiteSide?.profileInfo.username})
           </span>
         </span>
         <span className="block text-sm font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
           Black{" "}
           <span className="block text-sm sm:text-sm md:text-sm lg:text-sm font-light">
-            ({summary.blackSide.profileInfo.username})
+            ({summary?.blackSide?.profileInfo.username})
           </span>
         </span>
       </div>

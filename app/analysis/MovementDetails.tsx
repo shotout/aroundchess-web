@@ -20,7 +20,7 @@ interface MovementDetailsProps {
 const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
-  const { gameInfo, summary, movementDetails } = dataAnalysis;
+  const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
   const moves = [
     {
       whiteMove: "d4",
@@ -144,7 +144,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         <div className="flex flex-row items-center gap-2 mb-2">
           <h2 className="text-sm font-light">
             White Opening:{" "}
-            <span className="font-bold">{gameInfo.openings.white.name}</span>
+            <span className="font-bold">{gameInfo?.openings.white.name}</span>
           </h2>
           {/* <Image
             alt=""
@@ -157,7 +157,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           <h2 className="text-sm font-light">
             Black Opening:{" "}
             <span className="font-bold text-decoration-underline">
-              {gameInfo.openings.black.name}
+              {gameInfo?.openings.black.name}
             </span>
           </h2>
           {/* <Image
@@ -174,13 +174,13 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#BDD0F9]  py-2">
             White{" "}
             <span className="block text-xs sm:text-sm md:text-md lg:text-md font-light">
-              ({summary.whiteSide.profileInfo.username})
+              ({summary?.whiteSide?.profileInfo.username})
             </span>
           </span>
           <span className="block text-sm font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
             Black{" "}
             <span className="block text-xs sm:text-sm md:text-md lg:text-md font-light">
-              ({summary.blackSide.profileInfo.username})
+              ({summary?.blackSide?.profileInfo.username})
             </span>
           </span>
         </div>
