@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/popover";
 import { usePgnStore } from "../store/zustandStore";
 import { PopoverClose } from "@radix-ui/react-popover";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface MovementDetailsProps {
   next: () => void;
   prev: () => void;
 }
 const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis;
   const moves = [
     {
@@ -130,6 +132,12 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         return "text-[#364152]";
     }
   };
+  const handleOnClickMovement = (move: any, index: number, type: string) => {
+    move.index = index;
+    move.type = type;
+    console.log(move);
+    setChessMove(move);
+  };
   return (
     <div className="w-full bg-white p-4">
       <div className="flex flex-col sm:flex-row sm:justify-center gap-2">
@@ -165,13 +173,13 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#BDD0F9] py-2"></div>
           <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#BDD0F9]  py-2">
             White{" "}
-            <span className="block text-xs sm:text-sm md:text-md lg:text-lgfont-light">
+            <span className="block text-xs sm:text-sm md:text-md lg:text-md font-light">
               ({summary.whiteSide.profileInfo.username})
             </span>
           </span>
           <span className="block text-sm font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
             Black{" "}
-            <span className="block text-xs sm:text-sm md:text-md lg:text-lgfont-light">
+            <span className="block text-xs sm:text-sm md:text-md lg:text-md font-light">
               ({summary.blackSide.profileInfo.username})
             </span>
           </span>
@@ -182,7 +190,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-[9px] sm:text-sm md:text-md lg:text-lgpy-2 font-semibold border-r border-r-[#BDD0F9] "
+                className="text-[9px] sm:text-sm md:text-md lg:text-md py-2 font-semibold border-r border-r-[#BDD0F9] "
               >
                 {header}
               </span>
@@ -192,7 +200,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-[9px] sm:text-sm md:text-md lg:text-lgpy-2 font-semibold border-r border-r-[#BDD0F9] "
+                className="text-[9px] sm:text-sm md:text-md lg:text-md py-2 font-semibold border-r border-r-[#BDD0F9] "
               >
                 {header}
               </span>
@@ -216,11 +224,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-xs  sm:text-xs md:text-md lg:text-lg font-semibold">
+                        <span className="text-xs  sm:text-xs md:text-md lg:text-md font-semibold">
                           {move.move}
                         </span>
                         <span
-                          className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-lg text-center font-normal py-2 ${getScoreClass(
+                          className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
                             move.classification.toLowerCase()
                           )}`}
                         >
@@ -229,7 +237,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       </div>
                       <div className="flex flex-row items-center gap-2">
                         <span
-                          className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-lg px-2 ${getBadgeClass(
+                          className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md px-2 ${getBadgeClass(
                             move.classification
                           )}`}
                         >
@@ -263,8 +271,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   <Button
                     variant={"ghost"}
                     className="rounded-none hover:bg-[#9BB8F5]"
+                    onClick={() => handleOnClickMovement(move, index, "white")}
                   >
-                    <span className="text-xs sm:text-sm md:text-md lg:text-lgtext-center font-semibold py-2">
+                    <span className="text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2">
                       {move.move}
                     </span>
                   </Button>
@@ -272,14 +281,14 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               </Popover>
 
               <span
-                className={`text-xs sm:text-sm md:text-md lg:text-lgtext-center font-normal py-2 ${getScoreClass(
+                className={`text-xs sm:text-sm md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
                   move.classification
                 )}`}
               >
                 {move.evaluation}
               </span>
               <span
-                className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-lg${getBadgeClass(
+                className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                   move.classification
                 )}`}
               >
@@ -292,11 +301,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-xs  sm:text-xs md:text-md lg:text-lg font-semibold">
+                        <span className="text-xs  sm:text-xs md:text-md lg:text-md font-semibold">
                           {movementDetails.black[index]?.move}
                         </span>
                         <span
-                          className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-lg text-center font-normal py-2 ${getScoreClass(
+                          className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
                             movementDetails.black[
                               index
                             ]?.classification.toLowerCase()
@@ -307,7 +316,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       </div>
                       <div className="flex flex-row items-center gap-2">
                         <span
-                          className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-lg px-2 ${getBadgeClass(
+                          className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md px-2 ${getBadgeClass(
                             movementDetails.black[index]?.classification
                           )}`}
                         >
@@ -341,6 +350,13 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   <Button
                     variant={"ghost"}
                     className="rounded-none hover:bg-[#9BB8F5]"
+                    onClick={() =>
+                      handleOnClickMovement(
+                        movementDetails.black[index],
+                        index,
+                        "black"
+                      )
+                    }
                   >
                     <span className="text-xs sm:text-sm md:text-md lg:text-lgtext-center font-semibold py-2">
                       {movementDetails.black[index]?.move}
@@ -357,7 +373,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 {movementDetails.black[index]?.evaluation}
               </span>
               <span
-                className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-lg${getBadgeClass(
+                className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                   movementDetails.black[index]?.classification
                 )}`}
               >
