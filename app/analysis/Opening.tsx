@@ -59,7 +59,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
         (Black)
       </span>
       <div className="hidden sm:flex flex-row items-center justify-between gap-4 sm:gap-6">
-        <div className="w-full border border-[#00B427] bg-[#D3FFDD] p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2">
+        <div
+          className={`w-full border ${
+            whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
+          } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}
+        >
           <div className="flex flex-row items-center justify-center gap-2">
             <Image
               alt="avatar"
@@ -73,7 +77,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <div className="flex flex-row gap-2">
                 <span
                   className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                    whiteWin ? "text-black" : "text-[#00B427]"
+                    !whiteWin ? "text-black" : "text-[#00B427]"
                   }`}
                 >
                   {whiteSide.profileInfo.username}
@@ -107,7 +111,9 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </div>
           </div>
         </div>
-        <div className="w-full border border-[#00B427] bg-[#D3FFDD] p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2">
+        <div className={`w-full border ${
+            !whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
+          } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}>
           <div className="flex flex-row items-center justify-center gap-2">
             <Image
               alt="avatar"
@@ -121,7 +127,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <div className="flex flex-row gap-2">
                 <span
                   className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                    blackWin ? "text-black" : "text-[#00B427]"
+                    whiteWin ? "text-black" : "text-[#00B427]"
                   }`}
                 >
                   {blackSide.profileInfo.username}
