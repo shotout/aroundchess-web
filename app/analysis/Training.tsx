@@ -92,7 +92,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
@@ -157,7 +157,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
@@ -222,7 +222,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
@@ -311,7 +311,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
@@ -377,7 +377,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
@@ -443,7 +443,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
