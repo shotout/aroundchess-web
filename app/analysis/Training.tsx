@@ -10,11 +10,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface TrainingProps {
   next: () => void;
   prev: () => void;
 }
 const Training: React.FC<TrainingProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { criticalMistakes, weaknessIdentification } = dataAnalysis?.training;
+
   const [openCriticalMistakes, setOpenCriticalMistakes] =
     useState<boolean>(false);
   const [openWeakness, setopenWeakness] = useState<boolean>(true);
@@ -113,7 +117,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
                         <span className="font-bold">{item.moves}</span>
@@ -138,6 +142,160 @@ const Training: React.FC<TrainingProps> = (props) => {
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
+                </div>
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        {openCriticalMistakes &&
+          criticalMistakes &&
+          criticalMistakes.middleGame.length > 0 &&
+          criticalMistakes.middleGame.map((item: any, index: number) => {
+            return (
+              <div key={index} className="flex flex-col gap-2 mt-2">
+                <div className="border border-input rounded-md p-4">
+                  <div className="flex flex-row justify-between gap-2 mb-4">
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+
+                      <span
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          item.classification
+                        )}`}
+                      >
+                        {item.evaluation}
+                      </span>
+                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        MiddleGame
+                      </span>
+                    </div>
+                    <span
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        item.classification
+                      )}`}
+                    >
+                      {item.classification}
+                    </span>
+                  </div>
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="font-bold">Analysis: </span>
+                    {item.analysis}
+                  </span>
+                </div>
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        {openCriticalMistakes &&
+          criticalMistakes &&
+          criticalMistakes.endGame.length > 0 &&
+          criticalMistakes.endGame.map((item: any, index: number) => {
+            return (
+              <div key={index} className="flex flex-col gap-2 mt-2">
+                <div className="border border-input rounded-md p-4">
+                  <div className="flex flex-row justify-between gap-2 mb-4">
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+
+                      <span
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          item.classification
+                        )}`}
+                      >
+                        {item.evaluation}
+                      </span>
+                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        EndGame
+                      </span>
+                    </div>
+                    <span
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        item.classification
+                      )}`}
+                    >
+                      {item.classification}
+                    </span>
+                  </div>
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="font-bold">Analysis: </span>
+                    {item.analysis}
+                  </span>
+                </div>
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
                 </div>
               </div>
             );
@@ -172,7 +330,7 @@ const Training: React.FC<TrainingProps> = (props) => {
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row items-center gap-2">
                       <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
                         Move {item.number}:{" "}
                         <span className="font-bold">{item.moves}</span>
@@ -197,20 +355,58 @@ const Training: React.FC<TrainingProps> = (props) => {
                     <span className="font-bold">Analysis: </span>
                     {item.analysis}
                   </span>
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
-                        Recommended Training Exercise:{" "}
-                        <span className="font-semibold">
-                          Endgame Technique and Win the Game
-                        </span>
+                </div>
+
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        {openWeakness &&
+          weaknessIdentification &&
+          weaknessIdentification.middleGame.length > 0 &&
+          weaknessIdentification.middleGame.map((item: any, index: number) => {
+            return (
+              <div key={index} className="flex flex-col gap-2 mt-2">
+                <div className="border border-input rounded-md p-4">
+                  <div className="flex flex-row justify-between gap-2 mb-4">
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+
+                      <span
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          item.classification
+                        )}`}
+                      >
+                        {item.evaluation}
+                      </span>
+                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        MiddleGame
                       </span>
                     </div>
                     <Button
@@ -224,6 +420,101 @@ const Training: React.FC<TrainingProps> = (props) => {
                       </div>
                     </Button>
                   </div>
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
+                    <span className="font-bold">Analysis: </span>
+                    {item.analysis}
+                  </span>
+                </div>
+
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        {openWeakness &&
+          weaknessIdentification &&
+          weaknessIdentification.endGame.length > 0 &&
+          weaknessIdentification.endGame.map((item: any, index: number) => {
+            return (
+              <div key={index} className="flex flex-col gap-2 mt-2">
+                <div className="border border-input rounded-md p-4">
+                  <div className="flex flex-row justify-between gap-2 mb-4">
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+
+                      <span
+                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          item.classification
+                        )}`}
+                      >
+                        {item.evaluation}
+                      </span>
+                      <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        EndGame
+                      </span>
+                    </div>
+                    <span
+                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        item.classification
+                      )}`}
+                    >
+                      {item.classification}
+                    </span>
+                  </div>
+                  <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
+                    <span className="font-bold">Analysis: </span>
+                    {item.analysis}
+                  </span>
+                </div>
+
+                <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    <Image
+                      alt=""
+                      src={"/icons/recommended-training-icon.png"}
+                      width={1000}
+                      height={1000}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                    />
+                    <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-lg font-normal text-[#254B9D]">
+                      {item.recommendedTrainingExercise}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={props.next}
+                    size="lg"
+                    variant="default"
+                    className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                  >
+                    <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      Go To Exercise
+                    </div>
+                  </Button>
                 </div>
               </div>
             );

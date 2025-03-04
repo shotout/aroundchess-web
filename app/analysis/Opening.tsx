@@ -4,11 +4,17 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
 }
 const Opening: React.FC<OpeningProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
+    dataAnalysis?.summary ?? {};
+  const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
+  const { whiteOpening, blackOpening } = dataAnalysis?.opening ?? {};
   const [opening, setOpening] = React.useState<any>([
     {
       moves: "e4, c5",
@@ -48,20 +54,33 @@ const Opening: React.FC<OpeningProps> = (props) => {
   return (
     <div className="flex flex-col w-full justify-center gap-4 bg-white px-4">
       <span className="text-xs sm:hidden text-center">
-        <span className="text-[#00B427]">blitzmystic</span> (White) vs Guest1234
+        <span className="text-[#00B427]">{whiteSide?.profileInfo.username}</span>{" "}
+        (White) vs {blackSide?.profileInfo.username}
         (Black)
       </span>
       <div className="hidden sm:flex flex-row items-center justify-between gap-4 sm:gap-6">
-        <div className="w-full border border-[#00B427] bg-[#D3FFDD] p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2">
-          <div className="flex flex-row gap-2">
-            {/* <Image 
-                  alt="avatar"
-                  src={"/images/icons/"}/> */}
-            <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+        <div
+          className={`w-full border ${
+            whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
+          } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}
+        >
+          <div className="flex flex-row items-center justify-center gap-2">
+            <Image
+              alt="avatar"
+              src={blackSide?.profileInfo.photo}
+              className="w-10 h-10 rounded-full"
+              width={1000}
+              height={1000}
+            />
+            {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
             <div className="flex flex-col">
               <div className="flex flex-row gap-2">
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                  Player name
+                <span
+                  className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                    !whiteWin ? "text-black" : "text-[#00B427]"
+                  }`}
+                >
+                  {whiteSide?.profileInfo.username}
                 </span>
               </div>
 
@@ -99,16 +118,26 @@ const Opening: React.FC<OpeningProps> = (props) => {
             className="w-7 h-5"
           />
         </div>
-        <div className="w-full border border-input p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2">
-          <div className="flex flex-row gap-2">
-            {/* <Image 
-                  alt="avatar"
-                  src={"/images/icons/"}/> */}
-            <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+        <div className={`w-full border ${
+            !whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
+          } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}>
+          <div className="flex flex-row items-center justify-center gap-2">
+            <Image
+              alt="avatar"
+              src={blackSide?.profileInfo.photo}
+              className="w-10 h-10 rounded-full"
+              width={1000}
+              height={1000}
+            />
+            {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
             <div className="flex flex-col">
               <div className="flex flex-row gap-2">
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                  Player name
+                <span
+                  className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                    whiteWin ? "text-black" : "text-[#00B427]"
+                  }`}
+                >
+                  {blackSide?.profileInfo.username}
                 </span>
               </div>
 

@@ -10,11 +10,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
-const Endgame: React.FC<EndgameProps> = (props) => {
+const EndGame: React.FC<EndGameProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+
+  const { bestMoves, badMoves } = dataAnalysis?.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
   const [bestmoves, setBestMoves] = useState<any[]>([
