@@ -39,6 +39,7 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const {
     gameInfo,
     summary,
@@ -48,7 +49,7 @@ const AnalysisResult: React.FC = () => {
     endGame,
     improvementRecommendation,
     training,
-  } = data.data;
+  } = dataAnalysis;
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -71,7 +72,6 @@ const AnalysisResult: React.FC = () => {
   }, [mounted]);
 
   //jahitan
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
