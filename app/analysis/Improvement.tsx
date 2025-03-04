@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface ImprovementProps {
   next: () => void;
   prev: () => void;
 }
 const Improvement: React.FC<ImprovementProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { keyWeaknesses, gameAnalysis,nextStepImprovement } = dataAnalysis?.improvementRecommendation;
+
   const Section: React.FC<{ title: string; content: string[] }> = ({
     title,
     content,

@@ -21,6 +21,10 @@ import {
 import Board from "./3DBoard";
 import { usePgnStore } from "../store/zustandStore";
 import { Button } from "@/components/ui/button";
+import data from "../../json/fix_analyze_response.json";
+import { useChessMoveStore } from "../store/chessMoveStore";
+import { useTabFocusStore } from "../store/tabAnalysisStore";
+import MovementTable from "@/components/table/movement";
 
 type CapturedPieces = {
   white: string[];
@@ -38,16 +42,25 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
+  const { tabFocus, setTabFocus } = useTabFocusStore();
+  const {
+    gameInfo,
+    summary,
+    movementDetails,
+    opening,
+    middleGame,
+    endGame,
+    improvementRecommendation,
+    training,
+  } = dataAnalysis ?? {};
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
   const [mounted, setMounted] = useState(true);
-  const [capturedPieces, setCapturedPieces] = useState<CapturedPieces>({
-    white: [],
-    black: [],
-  });
-  const [materialAdvantage, setMaterialAdvantage] = useState(0); // positive for white advantage
+  const [showTable, setShowTable] = useState(false); // positive for white advantage
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -59,8 +72,14 @@ const AnalysisResult: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
 
-  //jahitan
-  const { pgn: storePgn } = usePgnStore(); // Get PGN from the Zustand store
+  useEffect(() => {
+    let isOpen =
+      tabFocus == "opening" ||
+      tabFocus == "middlegame" ||
+      tabFocus == "endgame";
+    setShowTable(isOpen);
+  }, [tabFocus]);
+
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
@@ -109,7 +128,7 @@ const AnalysisResult: React.FC = () => {
       } else {
         setBoardOrientation("white");
       }
-
+      console.log("history", history);
       // Reset the current game
       const newGame = new Chess();
       setGame(newGame);
@@ -190,6 +209,17 @@ const AnalysisResult: React.FC = () => {
   };
 
   useEffect(() => {
+    let color = chessMove.type == "black" ? "b" : "w";
+    let data = [];
+
+    data = parsedMoves.filter(
+      (i) => i.san == chessMove.move && i.color == color
+    );
+    setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
+    console.log("masuk");
+  }, [chessMove]);
+
+  useEffect(() => {
     const newGame = new Chess();
 
     for (let i = 0; i < currentMoveIndex; i++) {
@@ -240,12 +270,12 @@ const AnalysisResult: React.FC = () => {
   };
 
   const handleResize = () => {
-    console.log("Resizing board...");
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = 453;
+    console.log("Resizing board...", isPortrait);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -259,6 +289,7 @@ const AnalysisResult: React.FC = () => {
       const availableHeight = height - minPadding * 2;
       // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
   const fetchStockfishData = async (fen: string) => {
@@ -294,14 +325,22 @@ const AnalysisResult: React.FC = () => {
         <div className="flex flex-col gap-4">
           <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
-              {/* <Image 
-            alt="avatar"
-            src={"/images/icons/"}/> */}
-              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <Image
+                alt="avatar"
+                src={summary?.blackSide?.profileInfo.photo}
+                className="w-10 h-10 rounded-full"
+                width={1000}
+                height={1000}
+              />
+              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
-                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                    Player name
+                  <span
+                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                    }`}
+                  >
+                    {summary?.blackSide?.profileInfo.username}
                   </span>
                   <Image
                     src={"/icons/switzerland-flag.png"}
@@ -341,7 +380,7 @@ const AnalysisResult: React.FC = () => {
             <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                7:00
+                {gameInfo?.time}
               </span>
             </div>
           </div>
@@ -412,14 +451,22 @@ const AnalysisResult: React.FC = () => {
           </div>
           <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
-              {/* <Image 
-            alt="avatar"
-            src={"/images/icons/"}/> */}
-              <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+              <Image
+                alt="avatar"
+                src={summary?.blackSide?.profileInfo.photo}
+                className="w-10 h-10 rounded-full"
+                width={1000}
+                height={1000}
+              />
+              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
-                  <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium text-[#00B427]">
-                    Player name
+                  <span
+                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                    }`}
+                  >
+                    {summary?.whiteSide?.profileInfo.username}
                   </span>
                   <Image
                     src={"/icons/switzerland-flag.png"}
@@ -436,14 +483,14 @@ const AnalysisResult: React.FC = () => {
                     alt="pawn"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                   <Image
                     src={"/icons/rook-icon-alt-white.png"}
                     alt="rook"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
 
                   <Image
@@ -451,7 +498,7 @@ const AnalysisResult: React.FC = () => {
                     alt="queen"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                   />
                 </div>
               </div>
@@ -459,10 +506,11 @@ const AnalysisResult: React.FC = () => {
             <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                7:00
+                {gameInfo?.time}
               </span>
             </div>
           </div>
+          {showTable && <MovementTable />}
         </div>
       </div>
     </div>

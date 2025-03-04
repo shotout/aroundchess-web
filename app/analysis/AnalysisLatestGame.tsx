@@ -10,8 +10,23 @@ import EndGame from "./EndGame";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Improvement from "./Improvement";
 import Training from "./Training";
+import data from "../../json/fix_analyze_response.json";
+import { usePgnStore } from "../store/zustandStore";
+import { useTabFocusStore } from "../store/tabAnalysisStore";
 
 const AnalysisLatestGame: React.FC = () => {
+  const { setIsLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { setTabFocus, tabFocus } = useTabFocusStore();
+  const {
+    gameInfo,
+    summary,
+    movementDetails,
+    opening,
+    middleGame,
+    endGame,
+    improvementRecommendation,
+    training,
+  } = dataAnalysis ?? {};
   const [focusPage, setFocusPage] = useState<string>("summary");
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
@@ -24,13 +39,16 @@ const AnalysisLatestGame: React.FC = () => {
     { name: "training", label: "Training" },
   ]);
   useEffect(() => {
+    setIsLoading(false);
     renderView(focusPage);
   }, [focusPage]);
 
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
-        return <Summary next={() => setFocusPage("movement")} />;
+        return (
+          <Summary data={data.data} next={() => setFocusPage("movement")} />
+        );
       case "movement":
         return (
           <MovementDetails
@@ -83,41 +101,51 @@ const AnalysisLatestGame: React.FC = () => {
     }
   };
   return (
-    <div className="flex flex-col gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg">
-      
+    <div className="flex flex-col lg:min-w-[592px] lg:max-w-3xl gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
       <div className="flex flex-col px-4 gap-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
           Analysis: Latest Game
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
-          13/02/2025,blitzmystic (White -{" "}
-          <span className="text-[#00B427]">WIN</span>) vs Guest1234 (Black)
+          {gameInfo?.date}, {summary?.whiteSide?.profileInfo.username} (White
+          <span className="text-[#00B427]">
+            {gameInfo?.whiteWin && " - WIN"}
+          </span>
+          ) vs {summary?.blackSide?.profileInfo.username} (Black
+          <span className="text-[#00B427]">
+            {gameInfo?.blackWin && " - WIN"}
+          </span>
+          )
         </span>
       </div>
 
-      <div className="flex flex-row overflow-x-scroll sm:overflow-x-hidden gap-1 px-4 pb-2">
+      <div className="flex flex-row overflow-x-scroll gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
             <div
               key={index}
-              onClick={() => setFocusPage(tab.name)}
+              onClick={() => {
+                setTabFocus(tab.name);
+                setFocusPage(tab.name);
+              }}
               className={`flex ${
-                tab.name == "movement" && `min-w-[124px] `
+                tab.name == "movement" && `sm:min-w-[140px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md">
                 {tab.label}
               </span>
             </div>
           );
         })}
       </div>
-      {renderView(focusPage)}
-      <SiteFooterNew />
+      <div className="lg:max-h-[800px] lg:overflow-auto">
+        {renderView(focusPage)}
+      </div>
     </div>
   );
 };

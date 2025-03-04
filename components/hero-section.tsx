@@ -15,12 +15,15 @@ const PGN_API_URL = "/api/pgn";
 export function HeroSection() {
   const router = useRouter();
   //jahitan
-  const { setPgn, isLoading, setIsLoading, setError } = usePgnStore();
+  const { setPgn, isLoading, setIsLoading, setError,setDataAnalysis } = usePgnStore();
   const fetchPgn = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.get(PGN_API_URL);
-      setPgn(response.data.pgn);
+
+      setDataAnalysis(response.data.data);
+      setPgn(response.data.data.gameInfo?.pgn);
+      setIsLoading(true);
+
       setError(null);
       router.push("/analysis");
     } catch (err) {

@@ -10,11 +10,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface MiddleGameProps {
   next: () => void;
   prev: () => void;
 }
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+
+  const { bestMoves, badMoves } = dataAnalysis?.middleGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
   const [bestmoves, setBestMoves] = useState<any[]>([
