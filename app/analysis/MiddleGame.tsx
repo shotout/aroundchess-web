@@ -18,7 +18,7 @@ interface MiddleGameProps {
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
-  const { bestMoves, badMoves } = dataAnalysis.middleGame;
+  const { bestMoves, badMoves } = dataAnalysis?.middleGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
 

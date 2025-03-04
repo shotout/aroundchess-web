@@ -26,7 +26,7 @@ const AnalysisLatestGame: React.FC = () => {
     endGame,
     improvementRecommendation,
     training,
-  } = dataAnalysis;
+  } = dataAnalysis ?? {};
   const [focusPage, setFocusPage] = useState<string>("summary");
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
@@ -107,13 +107,13 @@ const AnalysisLatestGame: React.FC = () => {
           Analysis: Latest Game
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
-          {gameInfo.date}, {summary.whiteSide.profileInfo.username} (White
+          {gameInfo?.date}, {summary?.whiteSide?.profileInfo.username} (White
           <span className="text-[#00B427]">
-            {gameInfo.whiteWin && " - WIN"}
+            {gameInfo?.whiteWin && " - WIN"}
           </span>
-          ) vs {summary.blackSide.profileInfo.username} (Black
+          ) vs {summary?.blackSide?.profileInfo.username} (Black
           <span className="text-[#00B427]">
-            {gameInfo.blackWin && " - WIN"}
+            {gameInfo?.blackWin && " - WIN"}
           </span>
           )
         </span>

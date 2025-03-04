@@ -1,6 +1,6 @@
-// "use client";
+"use client";
 
-import * as React from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ import { subjectForm } from "../store/constants";
 import { toast } from "sonner";
 
 export default function ContactPage() {
-  const form = React.useRef<any|HTMLFormElement>(null);
+  const form = useRef<HTMLFormElement | any>({});
 
   const sendToEmail = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -52,7 +52,7 @@ export default function ContactPage() {
       .then(
         () => {
           toast.success("Form send successfully!");
-          form.current?.reset()
+          form.current?.reset();
 
           // window.location.reload();
           console.log("SUCCESS!");

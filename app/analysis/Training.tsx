@@ -17,7 +17,7 @@ interface TrainingProps {
 }
 const Training: React.FC<TrainingProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { criticalMistakes, weaknessIdentification } = dataAnalysis.training;
+  const { criticalMistakes, weaknessIdentification } = dataAnalysis?.training;
 
   const [openCriticalMistakes, setOpenCriticalMistakes] =
     useState<boolean>(false);

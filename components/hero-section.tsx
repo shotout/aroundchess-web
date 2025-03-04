@@ -19,7 +19,7 @@ export function HeroSection() {
       const response = await axios.get(PGN_API_URL);
 
       setDataAnalysis(response.data.data);
-      setPgn(response.data.data.gameInfo.pgn);
+      setPgn(response.data.data.gameInfo?.pgn);
       setIsLoading(true);
 
       setError(null);

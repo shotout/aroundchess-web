@@ -11,7 +11,7 @@ interface ImprovementProps {
 }
 const Improvement: React.FC<ImprovementProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { keyWeaknesses, gameAnalysis,nextStepImprovement } = dataAnalysis.improvementRecommendation;
+  const { keyWeaknesses, gameAnalysis,nextStepImprovement } = dataAnalysis?.improvementRecommendation;
 
   const Section: React.FC<{ title: string; content: string[] }> = ({
     title,
