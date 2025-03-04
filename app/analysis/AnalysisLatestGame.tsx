@@ -11,8 +11,10 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import Improvement from "./Improvement";
 import Training from "./Training";
 import data from "../../json/fix_analyze_response.json";
+import { usePgnStore } from "../store/zustandStore";
 
 const AnalysisLatestGame: React.FC = () => {
+  const { setIsLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const {
     gameInfo,
     summary,
@@ -22,7 +24,7 @@ const AnalysisLatestGame: React.FC = () => {
     endGame,
     improvementRecommendation,
     training,
-  } = data.data;
+  } = dataAnalysis;
   const [focusPage, setFocusPage] = useState<string>("summary");
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
@@ -35,13 +37,16 @@ const AnalysisLatestGame: React.FC = () => {
     { name: "training", label: "Training" },
   ]);
   useEffect(() => {
+    setIsLoading(false);
     renderView(focusPage);
   }, [focusPage]);
 
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
-        return <Summary data={data.data}  next={() => setFocusPage("movement")} />;
+        return (
+          <Summary data={data.data} next={() => setFocusPage("movement")} />
+        );
       case "movement":
         return (
           <MovementDetails
@@ -101,7 +106,14 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
           {gameInfo.date}, {summary.whiteSide.profileInfo.username} (White
-          <span className="text-[#00B427]">{gameInfo.whiteWin && " - WIN"}</span>) vs {summary.blackSide.profileInfo.username} (Black<span className="text-[#00B427]">{gameInfo.blackWin && " - WIN"}</span>)
+          <span className="text-[#00B427]">
+            {gameInfo.whiteWin && " - WIN"}
+          </span>
+          ) vs {summary.blackSide.profileInfo.username} (Black
+          <span className="text-[#00B427]">
+            {gameInfo.blackWin && " - WIN"}
+          </span>
+          )
         </span>
       </div>
 

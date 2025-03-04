@@ -15,12 +15,13 @@ export function HeroSection() {
   //jahitan
   const { setPgn, setIsLoading, setError, setDataAnalysis } = usePgnStore();
   const fetchPgn = async () => {
-    setIsLoading(true);
     try {
       const response = await axios.get(PGN_API_URL);
 
       setDataAnalysis(response.data.data);
       setPgn(response.data.data.gameInfo.pgn);
+      setIsLoading(true);
+
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));

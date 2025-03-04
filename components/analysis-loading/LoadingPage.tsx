@@ -1,20 +1,32 @@
 import Spinner from "@/components/ui/spinner";
 import React from "react";
 import PgnPlayer from "./LoadingChess";
+import { usePgnStore } from "@/app/store/zustandStore";
 
-const LoadingPage: React.FC = () => {
+const LoadingPage: React.FC = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { gameInfo, summary } = dataAnalysis!;
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen w-screen">
         <Spinner />
         <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 mt-4">
-          <span className="text-sm">13/02/2025</span>
+          <span className="text-sm">{gameInfo.date}</span>
           <span className="text-sm">
-            <span className="text-lg font-semibold text-[#00B427]">
-              blitzmystic
+            <span
+              className={`text-lg font-semibold ${
+                gameInfo.whiteWin ? "text-[#00B427]" : "text-black"
+              }`}
+            >
+              {summary.whiteSide.profileInfo.username}
             </span>{" "}
             (White)
-            <span className="text-lg font-semibold"> vs Guest1234 </span>{" "}
+            <span className={`text-lg font-semibold ${
+                gameInfo.blackWin ? "text-[#00B427]" : "text-black"
+              }`}>
+              {" "}
+              vs {summary.blackSide.profileInfo.username}{" "}
+            </span>{" "}
             (Black)
           </span>
         </div>
