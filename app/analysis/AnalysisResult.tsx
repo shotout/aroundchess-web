@@ -21,7 +21,6 @@ import {
 import Board from "./3DBoard";
 import { usePgnStore } from "../store/zustandStore";
 import { Button } from "@/components/ui/button";
-import data from "../../json/fix_analyze_response.json";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import MovementTable from "@/components/table/movement";
