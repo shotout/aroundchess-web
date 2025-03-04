@@ -17,7 +17,8 @@ interface TrainingProps {
 }
 const Training: React.FC<TrainingProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { criticalMistakes, weaknessIdentification } = dataAnalysis?.training;
+  const { criticalMistakes, weaknessIdentification } =
+    dataAnalysis?.training ?? {};
 
   const [openCriticalMistakes, setOpenCriticalMistakes] =
     useState<boolean>(false);
@@ -40,16 +41,7 @@ const Training: React.FC<TrainingProps> = (props) => {
         "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
     },
   ]);
-  const [weaknessIdentification, setweaknessIdentification] = useState<any[]>([
-    {
-      number: 1,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
+   
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -111,8 +103,9 @@ const Training: React.FC<TrainingProps> = (props) => {
             )}
           </div>
         </div>
-        {openCriticalMistakes &&
-          criticalMoves.map((item: any, index: number) => {
+        {criticalMistakes &&
+          criticalMistakes.opening.length > 0 &&
+          criticalMistakes.opening.map((item: any, index: number) => {
             return (
               <div key={index} className="flex flex-col gap-2 mt-2">
                 <div className="border border-input rounded-md p-4">

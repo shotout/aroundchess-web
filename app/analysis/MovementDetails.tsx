@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../store/zustandStore";
 interface MovementDetailsProps {
   next: () => void;
   prev: () => void;
@@ -207,7 +208,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           </div>
         </div>
 
-        {moves.map((move, index) => (
+        {moves.map((move: any, index: number) => (
           <div
             key={index}
             className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
@@ -224,23 +225,23 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
                         <span className="text-xs  sm:text-xs md:text-md lg:text-md font-semibold">
-                          {move.move}
+                          {move?.move}
                         </span>
                         <span
                           className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
-                            move.classification.toLowerCase()
+                            move?.classification.toLowerCase()
                           )}`}
                         >
-                          {move.whiteAdv}
+                          {move?.whiteAdv}
                         </span>
                       </div>
                       <div className="flex flex-row items-center gap-2">
                         <span
                           className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md px-2 ${getBadgeClass(
-                            move.classification
+                            move?.classification
                           )}`}
                         >
-                          {move.whiteClass}
+                          {move?.whiteClass}
                         </span>
                         <PopoverClose>
                           <Image
@@ -271,7 +272,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
                     <span className="text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2">
-                      {move.move}
+                      {move?.move}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -279,17 +280,17 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
 
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
-                  move.classification
+                  move?.classification
                 )}`}
               >
-                {move.whiteAdv}
+                {move?.whiteAdv}
               </span>
               <span
                 className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                  move.classification
+                  move?.classification
                 )}`}
               >
-                {move.whiteClass}
+                {move?.whiteClass}
               </span>
             </div>
             <div className="grid grid-cols-3 flex items-center h-10 border-b border-b-[#BDD0F9] ">
@@ -364,17 +365,17 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
 
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-lgtext-center font-normal py-2 ${getScoreClass(
-                  move.blackClass
+                  move?.blackClass
                 )}`}
               >
-                {move.blackAdv}
+                {move?.blackAdv}
               </span>
               <span
                 className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                   movementDetails.black[index]?.classification
                 )}`}
               >
-                {move.blackClass}
+                {move?.blackClass}
               </span>
             </div>
           </div>

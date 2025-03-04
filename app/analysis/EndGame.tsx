@@ -15,7 +15,7 @@ interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
-const EndGame: React.FC<EndGameProps> = (props) => {
+const EndGame: React.FC<EndgameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
   const { bestMoves, badMoves } = dataAnalysis?.endGame;
@@ -266,4 +266,4 @@ const EndGame: React.FC<EndGameProps> = (props) => {
   );
 };
 
-export default Endgame;
+export default EndGame;

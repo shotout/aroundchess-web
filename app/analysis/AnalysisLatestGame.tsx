@@ -10,7 +10,6 @@ import EndGame from "./EndGame";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Improvement from "./Improvement";
 import Training from "./Training";
-import data from "../../json/fix_analyze_response.json";
 import { usePgnStore } from "../store/zustandStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 
@@ -47,7 +46,7 @@ const AnalysisLatestGame: React.FC = () => {
     switch (focusPage) {
       case "summary":
         return (
-          <Summary data={data.data} next={() => setFocusPage("movement")} />
+          <Summary next={() => setFocusPage("movement")} />
         );
       case "movement":
         return (
