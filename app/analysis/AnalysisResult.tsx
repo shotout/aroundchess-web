@@ -9,6 +9,7 @@ import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
+  InfoIcon,
   PauseIcon,
   Play,
   PlayIcon,
@@ -59,8 +60,9 @@ const AnalysisResult: React.FC = () => {
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
-  const [mounted, setMounted] = useState(true);
-  const [showTable, setShowTable] = useState(false); // positive for white advantage
+  const [mounted, setMounted] = useState<boolean>(true);
+  const [showTable, setShowTable] = useState<boolean>(false);
+  const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -269,6 +271,42 @@ const AnalysisResult: React.FC = () => {
     return baseProps;
   };
 
+  const getBadgeClass = (type: string) => {
+    switch (type) {
+      case "Brilliant":
+        return "border border-[#27C2A3] text-[#0C7C65]";
+      case "Great":
+        return "border border-[#BDD0F9] text-[#134472]";
+      case "Best":
+        return "border border-[#80B64D] text-[#3A6211]";
+      case "Miss":
+        return "border border-[#FF7769] text-[#C23627]";
+      case "Blunder":
+        return "border border-[#FA402D] text-[#FA402D]";
+      case "Mistake":
+        return "border border-[#FFA459] text-[#B08503]";
+      default:
+        return "border border-[#80B64D] text-[#3A6211]";
+    }
+  };
+  const getScoreClass = (type: string) => {
+    switch (type) {
+      case "Brilliant":
+        return "text-[#01A12E]";
+      case "Great":
+        return "text-[#364152]";
+      case "Best":
+        return "text-[#364152]";
+      case "Miss":
+        return "text-[#FD0000]";
+      case "Blunder":
+        return "text-[#FD0000]";
+      case "Mistake":
+        return "text-[#FD0000]";
+      default:
+        return "text-[#364152]";
+    }
+  };
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -511,6 +549,55 @@ const AnalysisResult: React.FC = () => {
             </div>
           </div>
           {showTable && <MovementTable />}
+          {showMovementContent && chessMove.move != null && (
+            <div className="w-full p-0" style={{ maxWidth: boardSize }}>
+              <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
+                <div className="flex flex-row items-center justify-between gap-2">
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-xs  sm:text-sm md:text-md lg:text-md font-semibold">
+                      {chessMove.move}
+                    </span>
+                    <span
+                      className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
+                        chessMove?.classification.toLowerCase()
+                      )}`}
+                    >
+                      {chessMove.evaluation}
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <span
+                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md px-2 ${getBadgeClass(
+                        chessMove.classification
+                      )}`}
+                    >
+                      {chessMove.classification}
+                    </span>
+                    <button onClick={() => setChessMove({})}>
+                      <Image
+                        alt="close"
+                        src={"/icons/close-icon.png"}
+                        width={1000}
+                        height={1000}
+                        className="w-5 h-5"
+                      />
+                    </button>
+                  </div>
+                </div>
+                <span className="text-sm font-normal py-1">
+                  This move deviates from opening principles. Focus on
+                  development and center control.
+                </span>
+                <div className="flex flex-row gap-1">
+                  <InfoIcon size={16} color="#3871EC" />
+                  <span className="text-sm">Type:</span>
+                  <span className="text-sm font-semibold ">
+                    {chessMove.gamePhase}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
