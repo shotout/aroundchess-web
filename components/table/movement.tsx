@@ -48,15 +48,21 @@ export default function MovementTable() {
     switch (type) {
       case "Brilliant":
         return "text-[#01A12E]";
+      case "Excellent":
+        return "text-[#01A12E]";
       case "Great":
         return "text-[#364152]";
       case "Best":
+        return "text-[#364152]";
+      case "Good":
         return "text-[#364152]";
       case "Miss":
         return "text-[#FD0000]";
       case "Blunder":
         return "text-[#FD0000]";
       case "Mistake":
+        return "text-[#FD0000]";
+      case "Inaccuracy":
         return "text-[#FD0000]";
       default:
         return "text-[#364152]";

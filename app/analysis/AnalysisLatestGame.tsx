@@ -129,7 +129,7 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex ${
-                tab.name == "movement" && `sm:min-w-[140px]`
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
@@ -142,9 +142,9 @@ const AnalysisLatestGame: React.FC = () => {
           );
         })}
       </div>
-      <div className="lg:max-h-[800px] lg:overflow-auto">
+      {/* <div className="lg:max-h-[800px] lg:overflow-auto"> */}
         {renderView(focusPage)}
-      </div>
+      {/* </div> */}
     </div>
   );
 };

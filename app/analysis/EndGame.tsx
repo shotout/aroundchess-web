@@ -94,146 +94,160 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     }
   };
   return (
-    <div className="flex flex-col justify-center gap-4 bg-white px-4">
-      {/* best moves  */}
-      <div className="border border-primary border-t-4 rounded-md p-3">
-        <div className="flex flex-row items-center justify-between gap-2">
-          <div className="flex flex-row items-center gap-2">
-            <Image
-              alt=""
-              src={"/icons/check.png"}
-              width={1000}
-              height={1000}
-              className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
-            />
-            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Best Moves</span>
-            <div className="flex flex-row gap-1">
-              <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Endgame</span>
+    <>
+      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start lg:max-h-[800px] lg:overflow-auto">
+        {/* best moves  */}
+        <div className="border border-primary border-t-4 rounded-md p-3">
+          <div className="flex flex-row items-center justify-between gap-2">
+            <div className="flex flex-row items-center gap-2">
+              <Image
+                alt=""
+                src={"/icons/check.png"}
+                width={1000}
+                height={1000}
+                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+              />
+              <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+                Best Moves
+              </span>
+              <div className="flex flex-row items-center gap-1">
+                <InfoIcon size={16} color="#3871EC" />
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                  Type:
+                </span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                  Endgame
+                </span>
+              </div>
+            </div>
+            <div onClick={() => setOpenBestMoves(!openBestMoves)}>
+              {openBestMoves ? (
+                <ChevronUp size={24} color="black" />
+              ) : (
+                <ChevronDown size={24} color="black" />
+              )}
             </div>
           </div>
-          <div onClick={() => setOpenBestMoves(!openBestMoves)}>
-            {openBestMoves ? (
-              <ChevronUp size={24} color="black" />
-            ) : (
-              <ChevronDown size={24} color="black" />
-            )}
-          </div>
-        </div>
-        {openBestMoves &&
-          bestmoves.map((item: any, index: number) => {
-            return (
-              <div key={index} className="flex flex-col gap-2 mt-2">
-                <div className="border border-input rounded-md p-4">
-                  <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
-                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg  font-normal border border-primary rounded-[4px] p-1">
-                        Move {item.number}:{" "}
-                        <span className="font-bold sm:text-sm md:text-md lg:text-lg ">{item.moves}</span>
-                      </span>
+          {openBestMoves &&
+            bestMoves.map((item: any, index: number) => {
+              return (
+                <div key={index} className="flex flex-col gap-2 mt-2">
+                  <div className="border border-input rounded-md p-4">
+                    <div className="flex flex-row justify-between gap-2 mb-4">
+                      <div className="flex flex-row gap-2">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg  font-normal border border-primary rounded-[4px] p-1">
+                          Move {item.moveNumber}:{" "}
+                          <span className="font-bold sm:text-sm md:text-md lg:text-lg ">
+                            {item.moves}
+                          </span>
+                        </span>
+                        <span
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg  text-center font-normal ${getScoreClass(
+                            item.classification
+                          )}`}
+                        >
+                          {item.evaluation}
+                        </span>
+                      </div>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg  text-center font-normal ${getScoreClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg  ${getBadgeClass(
                           item.classification
                         )}`}
                       >
-                        {item.score}
+                        {item.classification}
                       </span>
                     </div>
-                    <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg  ${getBadgeClass(
-                        item.classification
-                      )}`}
-                    >
-                      {item.classification}
+                    <span className="text-sm sm:text-md md:text-md lg:text-lg  font-normal">
+                      <span className="font-bold">Analysis: </span>
+                      {item.analysis}
                     </span>
                   </div>
-                  <span className="text-sm sm:text-md md:text-md lg:text-lg  font-normal">
-                    <span className="font-bold">Analysis: </span>
-                    {item.analysis}
-                  </span>
                 </div>
+              );
+            })}
+        </div>
+        {/* critical mistakes moves  */}
+        <div className="border border-primary border-t-4 rounded-md p-3">
+          <div className="flex flex-row items-center justify-between gap-2">
+            <div className="flex flex-row items-center gap-2">
+              <Image
+                alt=""
+                src={"/icons/alert-triangle.png"}
+                width={1000}
+                height={1000}
+                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+              />
+              <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+                Bad Moves
+              </span>
+              <div className="flex flex-row items-center gap-1">
+                <InfoIcon size={16} color="#3871EC" />
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                  Type:
+                </span>
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                  Endgame
+                </span>
               </div>
-            );
-          })}
-      </div>
-      {/* critical mistakes moves  */}
-      <div className="border border-primary border-t-4 rounded-md p-3">
-        <div className="flex flex-row items-center justify-between gap-2">
-          <div className="flex flex-row items-center gap-2">
-            <Image
-              alt=""
-              src={"/icons/alert-triangle.png"}
-              width={1000}
-              height={1000}
-              className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
-            />
-            <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">Bad Moves</span>
-            <div className="flex flex-row gap-1">
-              <InfoIcon size={16} color="#3871EC" />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg ">Type:</span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">Endgame</span>
+            </div>
+            <div onClick={() => setopenBadMove(!openBadMove)}>
+              {openBadMove ? (
+                <ChevronUp size={24} color="black" />
+              ) : (
+                <ChevronDown size={24} color="black" />
+              )}
             </div>
           </div>
-          <div onClick={() => setopenBadMove(!openBadMove)}>
-            {openBadMove ? (
-              <ChevronUp size={24} color="black" />
-            ) : (
-              <ChevronDown size={24} color="black" />
-            )}
-          </div>
-        </div>
-        {openBadMove &&
-          badMove.map((item: any, index: number) => {
-            return (
-              <div key={index} className="flex flex-col gap-2 mt-2">
-                <div className="border border-input rounded-md p-4">
-                  <div className="flex flex-row justify-between gap-2 mb-4">
-                    <div className="flex flex-row gap-2">
-                      <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
-                        Move {item.number}:{" "}
-                        <span className="font-bold">{item.moves}</span>
-                      </span>
+          {openBadMove &&
+            badMoves.map((item: any, index: number) => {
+              return (
+                <div key={index} className="flex flex-col gap-2 mt-2">
+                  <div className="border border-input rounded-md p-4">
+                    <div className="flex flex-row justify-between gap-2 mb-4">
+                      <div className="flex flex-row gap-2">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                          Move {item.moveNumber}:{" "}
+                          <span className="font-bold">{item.moves}</span>
+                        </span>
+                        <span
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                            item.classification
+                          )}`}
+                        >
+                          {item.evaluation}
+                        </span>
+                      </div>
                       <span
-                        className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
                           item.classification
                         )}`}
                       >
-                        {item.score}
+                        {item.classification}
                       </span>
                     </div>
-                    <span
-                      className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
-                        item.classification
-                      )}`}
-                    >
-                      {item.classification}
+                    <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                      <span className="font-bold">Analysis: </span>
+                      {item.analysis}
                     </span>
                   </div>
-                  <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
-                    <span className="font-bold">Analysis: </span>
-                    {item.analysis}
-                  </span>
-                  <div className="mt-2 p-2 border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-lg bg-[#F6F9FF] rounded-md">
-                    [EXPLAIN WHY MOVE IS NOT PERFECT AND WHAT WOULD BE A BETTER
-                    MOVE]
-                  </div>
                 </div>
-              </div>
-            );
-          })}
-        <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
-          <Image
-            alt=""
-            src={"/icons/info-banner-icon.png"}
-            width={1000}
-            height={1000}
-            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
-          />
-          <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
-            We have added Exercises to your Training Plan to improve your
-            Strategy for the analyzed weaknesses.
-          </span>
+              );
+            })}
+          {openBadMove && (
+            <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
+              <Image
+                alt=""
+                src={"/icons/info-banner-icon.png"}
+                width={1000}
+                height={1000}
+                className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
+              />
+              <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
+                We have added Exercises to your Training Plan to improve your
+                Strategy for the analyzed weaknesses.
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -262,7 +276,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
           </div>
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 
