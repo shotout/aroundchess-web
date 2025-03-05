@@ -15,7 +15,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
         <div className="border w-full border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
-              alt=""
+              alt="images"
               src={"/icons/alert-triangle.png"}
               width={1000}
               height={1000}
