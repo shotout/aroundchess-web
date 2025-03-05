@@ -18,7 +18,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
     content,
   }) => {
     return (
-      <div className="border border-gray-300 rounded-lg p-3">
+      <div className="border border-gray-300 rounded-lg p-3 ">
         <h3 className="font-semibold text-sm sm:text-sm md:text-md lg:text-lg mb-2">
           {title}
         </h3>
@@ -37,7 +37,8 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
     );
   };
   return (
-    <div className="flex flex-col justify-center gap-2 bg-white mx-4 px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#3871EC]">
+    <>
+    <div className="flex flex-col justify-center gap-2 bg-white mx-4 px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#3871EC] lg:justify-start lg:max-h-[800px] lg:overflow-auto">
       <div className="flex flex-row items-center gap-2">
         <Image
           alt=""
@@ -114,6 +115,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           for the analyzed weaknesses.
         </span>
       </div>
+    </div>
       <div className="flex flex-row justify-between mt-4">
         <Button
           onClick={props.prev}
@@ -139,7 +141,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           </div>
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 
