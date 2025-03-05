@@ -220,7 +220,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             </span>
             <div className="grid grid-cols-3 flex items-center h-10 border-b border-b-[#BDD0F9] ">
               <Popover>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="lg:hidden w-auto p-0" align="start">
                   <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
@@ -297,7 +297,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             </div>
             <div className="grid grid-cols-3 flex items-center h-10 border-b border-b-[#BDD0F9] ">
               <Popover>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="lg:hidden w-auto p-0" align="start">
                   <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
