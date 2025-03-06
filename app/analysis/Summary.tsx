@@ -536,7 +536,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         onClick={props.next}
         size="lg"
         variant="default"
-        className="whitespace-nowrap sm:mt-2 text-xs sm:py-4 md:py-6 lg:py-8"
+        className="whitespace-nowrap sm:mt-2 text-xs sm:py-4 md:py-6 lg:py-8 mx-2 mb-2"
       >
         <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details

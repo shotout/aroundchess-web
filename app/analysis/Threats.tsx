@@ -48,7 +48,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between mt-2">
+      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
         <Button
           onClick={props.prev}
           size="lg"

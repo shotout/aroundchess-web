@@ -215,7 +215,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           )}
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-4">
+      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
         <Button
           onClick={props.prev}
           size="lg"
