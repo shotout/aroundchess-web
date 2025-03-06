@@ -553,11 +553,11 @@ const AnalysisResult: React.FC = () => {
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
                   <div className="flex flex-row items-center gap-2">
-                    <span className="text-xs  sm:text-sm md:text-md lg:text-md font-semibold">
+                    <span className="text-xs  sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
                       {chessMove.move}
                     </span>
                     <span
-                      className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md text-center font-normal py-2 ${getScoreClass(
+                      className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
                         chessMove?.classification.toLowerCase()
                       )}`}
                     >
@@ -566,7 +566,7 @@ const AnalysisResult: React.FC = () => {
                   </div>
                   <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md px-2 ${getBadgeClass(
+                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
                         chessMove.classification
                       )}`}
                     >

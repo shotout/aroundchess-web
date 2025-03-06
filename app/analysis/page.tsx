@@ -34,7 +34,7 @@ export default function AnalysisPage() {
     )}
 
     {/* Main content */}
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col overflow-y-auto">
       <Header onSidebarToggle={toggleSidebar} />
       <main className="flex-1">
         
