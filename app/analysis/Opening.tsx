@@ -229,7 +229,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
               {whiteOpening.explanation}
             </div>
           </div>
@@ -260,14 +260,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
               {blackOpening.explanation}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-row justify-between ">
+      <div className="flex flex-row justify-between mx-2 mb-2">
         <Button
           onClick={props.prev}
           size="lg"
