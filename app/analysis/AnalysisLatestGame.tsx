@@ -130,7 +130,7 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[170px]`
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[174px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
