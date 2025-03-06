@@ -25,7 +25,7 @@ export default function AnalysisPage() {
         setSidebarOpen(!isSidebarOpen);
       };
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex overflow-hidden">
     {/* Desktop sidebar - always visible on desktop */}
     {isDesktop && (
       <div className="w-64 border-r border-gray-200 bg-white">
@@ -34,7 +34,7 @@ export default function AnalysisPage() {
     )}
 
     {/* Main content */}
-    <div className="flex flex-1 flex-col overflow-y-auto">
+    <div className="flex flex-1 flex-col">
       <Header onSidebarToggle={toggleSidebar} />
       <main className="flex-1">
         
