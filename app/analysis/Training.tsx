@@ -80,7 +80,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start lg:max-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start lg:max-h-[800px] lg:min-h-[800px] lg:overflow-auto">
         {/* best moves  */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
@@ -154,7 +154,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -222,7 +222,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -290,7 +290,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -383,7 +383,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -453,7 +453,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                           height={1000}
                           className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                         />
-                        <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                        <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                           {item.recommendedTrainingExercise}
                         </span>
                       </div>
@@ -523,7 +523,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -543,7 +543,7 @@ const Training: React.FC<TrainingProps> = (props) => {
             })}
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-4">
+      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
         <Button
           onClick={props.prev}
           size="lg"
