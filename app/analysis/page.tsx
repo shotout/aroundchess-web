@@ -2,7 +2,6 @@
 import { SiteFooterNew } from "@/components/site-footer-new";
 import AnalysisLatestGame from "./AnalysisLatestGame";
 import AnalysisResult from "./AnalysisResult";
-import { SiteHeaderAnalysis } from "./site-header-analysis";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
@@ -52,7 +51,7 @@ export default function AnalysisPage() {
           players understand strategic strengths and weaknesses
         </div>
       </div>
-      <div className="flex flex-col lg:flex-row-reverse gap-4 bg-white px-4">
+      <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
         <AnalysisResult />
         <AnalysisLatestGame />
       </div>

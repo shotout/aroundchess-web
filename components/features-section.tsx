@@ -19,7 +19,7 @@ export function FeaturesSection() {
           <p className="md:my-2 lg:my-4 font-heading text-xl md:text-xl lg:text-3xl font-semibold text-gray-900">
           Your Personal Chess Lab
           </p>
-          <p className="lg:max-w-[496px] text-xs sm:text-md md:text-md lg:text-md xl:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="xl:max-w-[496px] text-xs sm:text-md md:text-md lg:text-md xl:text-lg text-gray-600 max-w-2xl mx-auto">
           Unlock your full potential with our comprehensive suite of Chess Analysis Tools and AI-based Training.
           </p>
         </motion.div>

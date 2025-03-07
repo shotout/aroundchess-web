@@ -39,7 +39,7 @@ export function ImproveSection() {
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">
       <div className="container px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center ">
+        <div className="flex flex-col xl:flex-row items-center ">
           <motion.div
             className="w-full"
             initial={{ opacity: 0, x: -50 }}
