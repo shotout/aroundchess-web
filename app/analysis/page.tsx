@@ -1,26 +1,9 @@
 "use client";
 import Navigation from "@/components/navigator/navigation";
-import { useEffect, useState } from "react";
 import AnalysisLatestGame from "./AnalysisLatestGame";
 import AnalysisResult from "./AnalysisResult";
 export default function AnalysisPage() {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const checkIfDesktop = () => {
-      setIsDesktop(window.innerWidth >= 1280);
-    };
-
-    checkIfDesktop();
-
-    window.addEventListener("resize", checkIfDesktop);
-    return () => window.removeEventListener("resize", checkIfDesktop);
-  }, []);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
+ 
   return (
     <Navigation>
       <div className="flex flex-col justify-center bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8">

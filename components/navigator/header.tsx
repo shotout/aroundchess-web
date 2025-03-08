@@ -11,12 +11,14 @@ import {
 import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
+  const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
 
   // Check if desktop on initial load and when window resizes
@@ -65,8 +67,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
           {/* Grouped navigation tabs */}
           <div className="flex rounded-[8px] border border-gray-200 overflow-hidden p-1">
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
-              <InfoIcon className="h-4 w-4 mr-2" />
+            <button
+              className={`flex items-center px-4 py-2 text-sm font-medium ${
+                pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
+              } hover:bg-gray-50`}
+            >
+              <InfoIcon
+                className="h-4 w-4 mr-2"
+                color={pathname == "/about-us" ? "#221AE9" : "black"}
+              />
               About
             </button>
             <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
