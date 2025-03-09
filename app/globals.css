@@ -108,3 +108,95 @@
   background-size: 24px 24px;
 }
 
+.btn-primary {
+  background-color: #221AE9;
+  color: white;
+  border: 1px solid #1B14CC;
+  box-shadow: 0 0 1px 2px rgba(34, 26, 233, 0.7),
+              inset 0 0 0 2px rgba(78, 71, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7);
+  transition: all 0.2s;
+  position: relative;
+  font-family: "Aloevera", sans-serif;
+}
+
+.btn-primary:hover {
+  background-color: #1B14CC;
+  transform: translateY(-1px);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 1px 2px rgba(34, 26, 233, 0.7),
+              inset 0 0 0 2px rgba(78, 71, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7),
+              0 0 0 3px rgba(34, 26, 233, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Updated btn-secondary class */
+.btn-secondary {
+  background-color: #81CFF3;
+  color: #221AE9; /* or a darker color for better contrast */
+  border: 1px solid #3CA0CE;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0 1px 2px rgba(129, 207, 243, 0.7),
+              inset 0 0 0 2px rgba(151, 222, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7);
+  position: relative;
+  transition: all 0.2s;
+  font-family: "Aloevera", sans-serif;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: #3CA0CE;
+  transform: translateY(-1px);
+}
+
+.btn-secondary:focus {
+  outline: none;
+  box-shadow: 0 0 1px 2px rgba(129, 207, 243, 0.7),
+              inset 0 0 0 2px rgba(151, 222, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7),
+              0 0 0 3px rgba(129, 207, 243, 0.3);
+}
+
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+
+.btn-tertiary {
+  background-color: #E6F7FE;
+  color: #2D3748; /* Using a dark color for text to ensure readability on the light background */
+  border: 1px solid #C8EEFE;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0 1px 2px rgba(230, 247, 254, 0.7),
+              inset 0 0 0 2px rgba(255, 255, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7);
+  position: relative;
+  transition: all 0.2s;
+  font-family: "Aloevera", sans-serif;
+  cursor: pointer;
+}
+
+.btn-tertiary:hover {
+  background-color: #C8EEFE;
+  transform: translateY(-1px);
+}
+
+.btn-tertiary:focus {
+  outline: none;
+  box-shadow: 0 0 1px 2px rgba(230, 247, 254, 0.7),
+              inset 0 0 0 2px rgba(255, 255, 255, 0.7),
+              inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7),
+              0 0 0 3px rgba(230, 247, 254, 0.3);
+}
+
+.btn-tertiary:active {
+  transform: translateY(1px);
+}
+

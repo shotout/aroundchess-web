@@ -1,243 +1,194 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  LayoutDashboard,
-  Users,
-  Trophy,
-  Newspaper,
-  BarChart2,
-  Clock,
-  TrendingUp,
-  FileText,
-  Upload,
-  BookOpen,
-  Gamepad2,
-  Grid,
-  Crown,
-  User,
-  CreditCard,
-  Settings,
-  HelpCircle,
-  Zap,
-  LogOut,
-  GraduationCap,
-  Target,
-  Puzzle
-} from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useUser, useClerk } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LayoutDashboard, Settings, X } from "lucide-react";
+import Image from "next/image";
 
 interface SidebarProps {
-  open: boolean
-  setOpen: (open: boolean) => void
+  onClose?: () => void;
 }
 
-const sidebarSections = [
-  {
-    title: "Quick Actions",
-    icon: Zap,
-    items: [
-      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { name: "Teams", href: "/dashboard/teams", icon: Users },
-      { name: "Tournaments", href: "/dashboard/tournaments", icon: Trophy },
-      { name: "News", href: "/dashboard/news", icon: Newspaper },
-    ]
-  },
-  {
-    title: "Analysis",
-    icon: BarChart2,
-    items: [
-      { name: "My Training Plan", href: "/dashboard/training-plan", icon: Clock },
-      { name: "My Game History", href: "/dashboard/game-history", icon: Clock },
-      { name: "My Progress", href: "/dashboard/progress", icon: TrendingUp },
-      { name: "My Report", href: "/dashboard/report", icon: FileText },
-      { name: "Import Games", href: "/dashboard/import", icon: Upload },
-    ]
-  },
-  {
-    title: "Learning",
-    icon: GraduationCap,
-    items: [
-      { name: "Chess Fundamentals", href: "/learn/chess-fundamentals", icon: BookOpen },
-      { name: "Chess Openings", href: "/dashboard/openings", icon: BookOpen },
-      { name: "Lesson Library", href: "/dashboard/library", icon: BookOpen },
-    ]
-  },
-  {
-    title: "Practice",
-    icon: Target,
-    items: [
-      { name: "Play vs AI", href: "/dashboard/play-ai", icon: Gamepad2 },
-      { name: "Puzzles", href: "/dashboard/puzzles", icon: Puzzle },
-      { name: "Board Vision", href: "/dashboard/board-vision", icon: Grid },
-      { name: "Endgame Training", href: "/dashboard/endgame", icon: Crown },
-    ]
-  }
-]
+interface SidebarLink {
+  name: string;
+  icon: React.ElementType;
+  href?: string;
+  children?: {
+    name: string;
+    href: string;
+    icon: React.ElementType;
+  }[];
+}
 
-export function Sidebar({ open, setOpen }: SidebarProps) {
-  const { user } = useUser()
-  const { signOut } = useClerk()
-  const router = useRouter()
-  const pathname = usePathname()
+const sidebarLinks: SidebarLink[] = [
+  {
+    name: "Chess News",
+    icon: Settings,
+    href: "/dashboard/settings",
+  },
+  {
+    name: "Dashboard",
+    icon: LayoutDashboard,
+    children: [
+      { name: "Analyze Game", href: "/d", icon: Settings },
+      { name: "My Game History", href: "/dashbs", icon: Settings },
+      { name: "My Training Plan", href: "/dashbo", icon: Settings },
+    ],
+  },
+  {
+    name: "Handbook : Chess Theory",
+    icon: LayoutDashboard,
+    children: [
+      { name: "Opening Theory", href: "/dashboard", icon: Settings },
+      { name: "Middlegame Strategy", href: "/da", icon: Settings },
+      { name: "Endgame Mastery", href: "/dashboard/tos", icon: Settings },
+    ],
+  },
+  {
+    name: "Playground : Practice",
+    icon: LayoutDashboard,
+    children: [
+      { name: "Play vs AI", href: "/dashbsef", icon: Settings },
+      { name: "Puzzles", href: "/dashboard/teams", icon: Settings },
+      { name: "Board Vision", href: "/dashboard/tournamen", icon: Settings },
+      { name: "Endgame Training", href: "/dadrg", icon: Settings },
+    ],
+  },
+];
 
-  const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
-  }
+export default function Sidebar({ onClose }: SidebarProps) {
+  const pathname = usePathname();
+  const isMobile = !!onClose; // If onClose is provided, we're on mobile
 
   return (
-    <AnimatePresence mode="wait">
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="h-screen border-r border-gray-200 bg-white"
-    >
-      <div className="flex h-full flex-col">
-        <motion.div
-          className="flex h-16 items-center border-b border-gray-200 px-6"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <LayoutDashboard className="h-6 w-6" />
-            </motion.div>
-            <motion.span
-              className="text-xl font-semibold text-gray-900"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              Dashboard
-            </motion.span>
-          </div>
-        </motion.div>
+    <div className="flex h-full flex-col">
+      <div className="flex h-24 items-center border-b border-gray-200 px-6 justify-between">
+        <div className="flex justify-center items-center gap-3">
+          <span className="text-xl font-semibold text-gray-900">
+            {isMobile ? (
+              "Menu"
+            ) : (
+              <Image src="/logo.png" alt="Logo" width={120} height={30} />
+            )}
+          </span>
+        </div>
 
-        <ScrollArea className="flex-1 py-3">
-          <nav className="space-y-6">
-            {sidebarSections.map((section, sectionIndex) => (
-              <div key={section.title} className="space-y-1">
-                <h2 className="flex items-center gap-2 px-6 text-sm font-semibold text-gray-500">
-                  <section.icon className="h-4 w-4" />
-                  {section.title}
-                </h2>
-                <div className="pl-10">
-                  {section.items.map((item, itemIndex) => {
-                    const isActive = pathname === item.href
-                    return (
-                      <motion.div
-                        key={item.href}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: (sectionIndex * section.items.length + itemIndex) * 0.03 }}
-                      >
-                        <Link
-                          href={item.href}
+        {/* Close button - only on mobile */}
+        {isMobile && onClose && (
+          <button
+            className="text-gray-500 hover:text-gray-700"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      <ScrollArea className="flex-1 py-3">
+        <nav className="space-y-5 px-3">
+          {sidebarLinks.map((section) => {
+            const hasChildren = section.children && section.children.length > 0;
+            const isActive = section.href
+              ? pathname === section.href
+              : section.children?.some((child) => pathname === child.href);
+
+            return (
+              <div key={section.name}>
+                <div className="space-y-2">
+                  {section.href ? (
+                    // Clickable title as a Link
+                    <Link
+                      href={section.href}
+                      className={cn(
+                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        pathname === section.href
+                          ? "bg-blue-50 text-blue-600"
+                          : "hover:bg-blue-50 hover:text-blue-500"
+                      )}
+                    >
+                      <div className="mr-3">
+                        <section.icon
                           className={cn(
-                            "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                            isActive
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                            "h-5 w-5 transition-colors",
+                            pathname === section.href
+                              ? "text-blue-600"
+                              : "text-gray-400 group-hover:text-blue-600"
                           )}
-                        >
-                          <item.icon
+                        />
+                      </div>
+                      <span className="flex-1 font-semibold">
+                        {section.name}
+                      </span>
+                      {pathname === section.href && (
+                        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-600" />
+                      )}
+                    </Link>
+                  ) : (
+                    // Non-clickable title (section header)
+                    <div
+                      className={cn(
+                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        isActive
+                          ? "bg-blue-50 text-blue-600"
+                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-r-4 hover:border-blue-600"
+                      )}
+                    >
+                      <div className="mr-3">
+                        <section.icon
+                          className={cn(
+                            "h-5 w-5 transition-colors",
+                            isActive
+                              ? "text-blue-600"
+                              : "text-gray-400 group-hover:text-blue-600"
+                          )}
+                        />
+                      </div>
+                      <span className="flex-1 font-semibold">
+                        {section.name}
+                      </span>
+                    </div>
+                  )}
+
+                  {hasChildren && (
+                    <div className="ml-6 space-y-2">
+                      {section.children.map((child) => {
+                        const isChildActive = pathname === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
                             className={cn(
-                              "mr-3 h-5 w-5",
-                              isActive
-                                ? "text-blue-600"
-                                : "text-gray-400 group-hover:text-gray-900"
+                              "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                              isChildActive
+                                ? "bg-blue-100 text-blue-600"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
                             )}
-                          />
-                          <span className="flex-1">{item.name}</span>
-                          {isActive && (
-                              <div className="h-2 w-2 rounded-full bg-blue-600" />
+                          >
+                            <child.icon
+                              className={cn(
+                                "mr-3 h-4 w-4",
+                                isChildActive
+                                  ? "text-blue-600"
+                                  : "text-gray-400 group-hover:text-blue-600"
+                              )}
+                            />
+                            <span>{child.name}</span>
+                            {isChildActive && (
+                              <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-600" />
                             )}
-                        </Link>
-                      </motion.div>
-                    )
-                  })}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </nav>
-        </ScrollArea>
-
-        <motion.div
-          className="mt-auto border-t border-gray-200 p-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <motion.button
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {user?.imageUrl && (
-                  <Image
-                    src={user.imageUrl}
-                    alt={user?.fullName || "User"}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                )}
-                <div className="flex-1 text-left">
-                  <p className="font-medium">{user?.fullName}</p>
-                  <p className="text-xs text-gray-500">{user?.primaryEmailAddress?.emailAddress}</p>
-                </div>
-              </motion.button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <HelpCircle className="mr-2 h-4 w-4" />
-                <span>Help</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </motion.div>
-      </div>
-    </motion.div>
-  </AnimatePresence>
-  )
+            );
+          })}
+        </nav>
+      </ScrollArea>
+    </div>
+  );
 }
