@@ -22,7 +22,6 @@ import {
 import Board from "./3DBoard";
 import { usePgnStore } from "../store/zustandStore";
 import { Button } from "@/components/ui/button";
-import data from "../../json/fix_analyze_response.json";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import MovementTable from "@/components/table/movement";
@@ -239,7 +238,7 @@ const AnalysisResult: React.FC = () => {
         clearInterval(autoPlayTimerRef.current);
       }
     };
-  }, [dataAnalysis]);
+  }, []);
 
   const getBoardProps = () => {
     const baseProps = {
@@ -380,13 +379,13 @@ const AnalysisResult: React.FC = () => {
                   >
                     {summary?.blackSide?.profileInfo.username}
                   </span>
-                  {/* <Image
+                  <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
-                  /> */}
+                  />
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -395,14 +394,14 @@ const AnalysisResult: React.FC = () => {
                     alt="pawn"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                   />
                   <Image
                     src={"/icons/bishop-icon-alt-black.png"}
                     alt="bishop"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                   />
 
                   <Image
@@ -410,12 +409,12 @@ const AnalysisResult: React.FC = () => {
                     alt="king"
                     width={1000}
                     height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                   />
                 </div>
               </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
+            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                 {gameInfo?.time}
@@ -506,13 +505,13 @@ const AnalysisResult: React.FC = () => {
                   >
                     {summary?.whiteSide?.profileInfo.username}
                   </span>
-                  {/* <Image
+                  <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  /> */}
+                  />
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -541,7 +540,7 @@ const AnalysisResult: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-3">
+            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
               <Watch size={16} />
               <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                 {gameInfo?.time}

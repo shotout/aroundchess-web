@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -41,6 +42,7 @@ export function HeroSection() {
       setPgn(response.data.data.gameInfo?.pgn);
 
       setError(null);
+      router.push("/analysis");
     } catch (err) {
       console.log("error", err);
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
@@ -128,7 +130,14 @@ export function HeroSection() {
                 className="mt-2 w-full text-xs px-2 py-1"
                 onClick={fetchPgn}
               >
-                Analyze now
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Analyze now"
+                )}
               </Button>
             </div>
           </motion.div>

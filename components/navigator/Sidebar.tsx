@@ -41,7 +41,7 @@ const sidebarLinks: SidebarLink[] = [
       },
       {
         name: "My Game History",
-        href: "/my-game-history",
+        href: "/game-history",
         icon: "/icons/sidebar-game-history.png",
       },
       {
