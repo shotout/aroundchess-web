@@ -31,7 +31,7 @@ const DialogButton = () => {
     setIsSubmitted(false);
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = (e:any) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -42,7 +42,7 @@ const DialogButton = () => {
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e:any) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -52,7 +52,7 @@ const DialogButton = () => {
     }
   };
 
-  const handleFileInput = (e) => {
+  const handleFileInput = (e:any) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
