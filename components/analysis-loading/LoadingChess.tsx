@@ -192,9 +192,18 @@ const PgnPlayer: React.FC = () => {
 
   // Auto-play effect
   useEffect(() => {
+    console.log(currentMoveIndex, moveHistory.length)
     // Skip if we don't have moves or are at the end
     if (moveHistory.length === 0 || currentMoveIndex >= moveHistory.length) {
       return;
+    } else if (currentMoveIndex == moveHistory.length - 1) {
+      console.log("Reached end of moves");
+        setCurrentMoveIndex(0);
+        setGame(new Chess());
+        if (autoPlayTimerRef.current) {
+      clearTimeout(autoPlayTimerRef.current);
+      autoPlayTimerRef.current = null;
+    }
     }
 
     // Clear existing timer

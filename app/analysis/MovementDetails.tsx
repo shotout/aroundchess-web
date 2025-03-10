@@ -253,7 +253,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           <span
-                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
+                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-lg px-2 ${getBadgeClass(
                               move.classification
                             )}`}
                           >
@@ -306,7 +306,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.evaluation}
                 </span>
                 <span
-                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg ${getBadgeClass(
+                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
                     move.classification
                   )}`}
                 >
@@ -337,7 +337,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           <span
-                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
+                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-lg px-2 ${getBadgeClass(
                               movementDetails.black[index]?.classification
                             )}`}
                           >
@@ -394,7 +394,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {movementDetails.black[index]?.evaluation}
                 </span>
                 <span
-                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg ${getBadgeClass(
+                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
                     movementDetails.black[index]?.classification
                   )}`}
                 >

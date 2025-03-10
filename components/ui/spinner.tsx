@@ -1,14 +1,20 @@
 "use client";
+import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
+  const { isLoading } = usePgnStore(); // Get PGN from the Zustand store
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress((prev) => (prev < 100 ? prev + 5 : 100));
-    }, 200);
+      if (isLoading && progress <=95) {
+        setProgress((prev) => (prev < 100 ? prev + 5 : 100));
+      }else if (!isLoading) {
+        setProgress(100);
+      }
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);

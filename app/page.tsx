@@ -11,17 +11,24 @@ import { ImproveSection } from "@/components/improve-section";
 import { BenefitsOf } from "@/components/benefits-of";
 import { usePgnStore } from "./store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { isLoading, dataAnalysis } = usePgnStore();
+  const { isLoading, dataAnalysis , setDataAnalysis} = usePgnStore();
+  const [loading, setLoading] = useState<boolean>(false);
+  useEffect(() => {
+    setLoading(false)
+    setDataAnalysis(null)
+  }
+  , []);
   useEffect(() => {
     console.log("listening dataAnalysis", dataAnalysis);
-  }, [dataAnalysis]);
+    setLoading(isLoading)
+  }, [dataAnalysis,isLoading]);
   return (
     
     <div>
-      {isLoading && dataAnalysis !=null ? (
+      {loading ==true ? (
         <LoadingPage />
       ) : (
         <>
