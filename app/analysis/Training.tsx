@@ -133,7 +133,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
@@ -201,7 +201,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
@@ -269,7 +269,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
@@ -361,7 +361,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
@@ -431,7 +431,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                           </span>
                         </div>
                         <span
-                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                             item.classification
                           )}`}
                         >
@@ -501,7 +501,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >

@@ -4,8 +4,8 @@ import PgnPlayer from "./LoadingChess";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 const LoadingPage: React.FC = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { gameInfo, summary } = dataAnalysis ?? {}!;
+  const { pgn: storePgn, dataAnalysis, dataGames } = usePgnStore(); // Get PGN from the Zustand store
+  const { gameInfo, summary } = dataAnalysis ?? {};
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen w-screen">
@@ -15,18 +15,18 @@ const LoadingPage: React.FC = (props) => {
           <span className="text-sm">
             <span
               className={`text-lg font-semibold ${
-                gameInfo?.whiteWin ? "text-[#00B427]" : "text-black"
+                dataGames?.white?.result == "win" ? "text-[#00B427]" : "text-black"
               }`}
             >
-              {summary?.whiteSide?.profileInfo.username}
+              {dataGames?.white?.username}
             </span>{" "}
             (White)
             <span className={`text-lg font-semibold ${
-                gameInfo?.blackWin ? "text-[#00B427]" : "text-black"
+                dataGames?.black?.result =="win" ? "text-[#00B427]" : "text-black"
               }`}>
               {" "}
-              vs {summary?.blackSide?.profileInfo.username}{" "}
-            </span>{" "}
+              vs {dataGames?.black?.username}{" "}
+            </span>{" "}  
             (Black)
           </span>
         </div>

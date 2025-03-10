@@ -379,13 +379,13 @@ const AnalysisResult: React.FC = () => {
                   >
                     {summary?.blackSide?.profileInfo.username}
                   </span>
-                  <Image
+                  {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -505,13 +505,13 @@ const AnalysisResult: React.FC = () => {
                   >
                     {summary?.whiteSide?.profileInfo.username}
                   </span>
-                  <Image
+                  {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex flex-row gap-1">
@@ -566,7 +566,7 @@ const AnalysisResult: React.FC = () => {
                   </div>
                   <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
+                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
                         chessMove.classification
                       )}`}
                     >

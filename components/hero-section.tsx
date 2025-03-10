@@ -10,14 +10,23 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 
 const AnalysisUrl = "http://103.189.234.154/api/analyze";
-// const AnalysisUrl = process.env.BASE_URL + "/analyze";
+const AnalyticsUrl = "https://ac-api.kemang.sg/api/chessdotcom/games";
+// const AnalyticsUrl = process.env.BASE_URL + "/analytic-games";
 
 export function HeroSection() {
   const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
-  const { setPgn, setIsLoading, setError, isLoading,dataAnalysis, setDataAnalysis } =
-    usePgnStore();
+  const {
+    setPgn,
+    setIsLoading,
+    setError,
+    isLoading,
+    dataAnalysis,
+    setDataAnalysis,
+    setDataGames,
+    dataGames,
+  } = usePgnStore();
   const fetcher = () =>
     fetch("http://ac-api.kemang.sg/health-check").then((res) =>
       res.json().then((data) => console.log(data))
@@ -34,10 +43,46 @@ export function HeroSection() {
           // "Access-Control-Expose-Headers": "*",
         },
       };
+      const url = AnalyticsUrl + "/" + username;
+      console.log(username, url, isLoading);
+      const response = await axios.get(url, config);
+      console.log("response", response);
+      setPgn(response.data[0].data_games?.pgn);
+      setDataGames(response.data[0].data_games);
+
       const body = { username: username };
-      console.log(username, AnalysisUrl);
+      const responseAnalysis = await axios.post(AnalysisUrl, body, config);
+      setDataAnalysis(responseAnalysis.data.data);
+
+      // setError(null);
+      // router.push("/analysis");
+    } catch (err) {
+      console.log("error", err);
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      // setTimeout(() => {
+        router.push("/analysis");
+        // setIsLoading(false);
+      // }, 5000);
+    }
+  };
+  const fetchPgn2 = async () => {
+    try {
+      setIsLoading(true);
+      const config = {
+        headers: {
+          // "Access-Control-Allow-Origin": "*",
+          // "Access-Control-Allow-Methods":"GET,OPTIONS,PATCH,DELETE,POST,PUT",
+          // "Access-Control-Allow-Credentials": "true",
+          // "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+          // "Access-Control-Expose-Headers": "*",
+        },
+      };
+      const body = { username: username };
+      console.log(username, AnalysisUrl, isLoading);
       const response = await axios.post(AnalysisUrl, body, config);
       console.log("response", response.data.data);
+      setIsLoading(false);
       setDataAnalysis(response.data.data);
       setPgn(response.data.data.gameInfo?.pgn);
 
@@ -48,12 +93,11 @@ export function HeroSection() {
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       // setTimeout(() => {
-      router.push("/analysis");
+      // router.push("/analysis");
       // setIsLoading(false);
       // }, 5000);
     }
   };
-
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
     fetcher();
