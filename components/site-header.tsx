@@ -1,12 +1,11 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
 import { motion } from "framer-motion"
-import { LayoutDashboard, Menu, X, Home, Info, GraduationCap, Dumbbell, BarChart2, Gamepad2, DollarSign, Mail, Zap } from 'lucide-react'
+import { BarChart2, DollarSign, Dumbbell, Gamepad2, GraduationCap, Home, Info, LayoutDashboard, Mail, Menu, Zap } from 'lucide-react'
+import Link from "next/link"
+import * as React from "react"
 
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -15,6 +14,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { UserButton, useUser } from "@clerk/nextjs"
 
 const navItems = {

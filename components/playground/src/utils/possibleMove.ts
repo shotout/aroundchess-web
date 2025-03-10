@@ -1,8 +1,8 @@
-import { Board, PieceType, kingCheckOrMoved, NullableLastMove, rookMoved } from "../types/chess";
-import { isKingInCheck } from "./kingCheck";
-import { isMoveValid } from "./validMove";
+import { Board, PieceType } from "../types/chess";
 import { checkCastling } from "./castle";
 import { CheckEnpassant } from "./enpassant";
+import { isKingInCheck } from "./kingCheck";
+import { isMoveValid } from "./validMove";
 
 export const isMovePossible = (
   board: Board,

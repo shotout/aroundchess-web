@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# List of all endgame topics
+topics=(
+  "advanced-pawn-endgames"
+  "basic-checkmates"
+  "basic-endgame-principles"
+  "basic-minor-piece"
+  "basic-rook-endgames"
+  "bishop-knight-mate"
+  "complex-minor-piece"
+  "complex-queen-endgames"
+  "complex-rook-endgames"
+  "drawing-techniques"
+  "endgame-calculation"
+  "endgame-principles"
+  "endgame-studies"
+  "endgame-tactics"
+  "fortress-positions"
+  "king-activity"
+  "king-and-pawn"
+  "knight-vs-bishop"
+  "minor-piece-endgames"
+  "opposite-colored-bishops"
+  "pawn-breakthroughs"
+  "pawn-endgames"
+  "practical-endgame"
+  "queen-endgame-principles"
+  "queen-endgames"
+  "queen-vs-pawn"
+  "queen-vs-rook"
+  "rook-bishop-vs-rook"
+  "rook-endgames"
+  "rook-vs-minor"
+  "rook-vs-pawns"
+  "same-colored-bishops"
+  "stalemate-patterns"
+  "technical-conversion"
+  "technical-winning"
+  "theoretical-endgames"
+  "theoretical-positions"
+  "zugzwang-positions"
+)
+
+# Create directories for each topic
+for topic in "${topics[@]}"; do
+  mkdir -p "app/dashboard/learning/endgame/$topic"
+done
+
+echo "Created directories for all endgame topics" 
