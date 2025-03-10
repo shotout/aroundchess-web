@@ -23,7 +23,7 @@ const DialogButton = () => {
 
   const fileInputRef = useRef(null);
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab:any) => {
     setActiveTab(tab);
     setPgnText("");
     setFileName("");
