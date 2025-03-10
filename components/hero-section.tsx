@@ -16,7 +16,7 @@ export function HeroSection() {
   const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
-  const { setPgn, setIsLoading, setError, dataAnalysis, setDataAnalysis } =
+  const { setPgn, setIsLoading, setError, isLoading,dataAnalysis, setDataAnalysis } =
     usePgnStore();
   const fetcher = () =>
     fetch("http://ac-api.kemang.sg/health-check").then((res) =>
