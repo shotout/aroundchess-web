@@ -10,9 +10,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { usePgnStore } from "../store/zustandStore";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../store/zustandStore";
 interface MovementDetailsProps {
   next: () => void;
   prev: () => void;
@@ -411,7 +411,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           onClick={props.prev}
           size="lg"
           variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+          className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
           <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black sm:py-4 md:py-6 lg:py-8">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />

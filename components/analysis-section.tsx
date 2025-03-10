@@ -314,5 +314,5 @@ export function AnalysisSection() {
         </div>
       </div>
     </section>
-  );
+  );
 }

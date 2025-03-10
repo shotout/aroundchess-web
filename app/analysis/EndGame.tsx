@@ -11,17 +11,52 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
-interface EndGameProps {
+interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
-const EndGame: React.FC<EndGameProps> = (props) => {
+const EndGame: React.FC<EndgameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
   const { bestMoves, badMoves } = dataAnalysis?.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
-
+  const [bestmoves, setBestMoves] = useState<any[]>([
+    {
+      number: 5,
+      score: "+0.20",
+      moves: "e4, c5",
+      classification: "Brilliant",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+    {
+      number: 2,
+      score: "+0.20",
+      moves: "f5, e5",
+      classification: "Great",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+  ]);
+  const [badMove, setBadMove] = useState<any[]>([
+    {
+      number: 1,
+      score: "+0.20",
+      moves: "e4, c5",
+      classification: "Miss",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+    {
+      number: 7,
+      score: "+0.20",
+      moves: "f5, e5",
+      classification: "Miss",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+  ]);
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -225,7 +260,7 @@ const EndGame: React.FC<EndGameProps> = (props) => {
         >
           <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Openings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </Button>
         <div className="w-8" />
@@ -236,7 +271,7 @@ const EndGame: React.FC<EndGameProps> = (props) => {
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endgame
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>
         </Button>

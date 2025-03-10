@@ -26,7 +26,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         <ul className="list-disc list-inside text-xs sm:text-sm md:text-md lg:text-lg text-gray-700">
           {content.map((item, index) => (
             <li
-              className="ml-2 mt-2"
+              className="ml-2"
               key={index}
               dangerouslySetInnerHTML={{
                 __html: item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"),
@@ -63,21 +63,31 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           ]}
         />
 
-        <Section
-          title="Current Game Analysis:"
-          content={[
-            `**Strengths:** ${gameAnalysis.strength}.`,
-            `**Weaknesses:** ${gameAnalysis.weaknesses}.`,
-          ]}
-        />
+      <Section
+        title="Past Games - Key Weaknesses:"
+        content={[
+          "**Tactical Awareness:** Frequent missed tactics, especially forks and discovered attacks.",
+          "**Opening Preparation:** Struggled with unfamiliar lines, leading to early positional disadvantages.",
+          "**Middlegame Technique:** Rushed key decisions in critical moments, leading to blunders.",
+          "**Endgame Technique:** Missed winning conversions in simplified positions.",
+        ]}
+      />
 
-        {/* <Section
+      <Section
+        title="Current Game Analysis:"
+        content={[
+          "**Strengths:** Improved decision-making in middlegame transitions, better awareness of opponent's threats.",
+          "**Weaknesses:** Still vulnerable to positional sacrifices, inaccuracies in complex positions.",
+        ]}
+      />
+
+      <Section
         title="Comparison to Past Games:"
         content={[
           "**Better:** Stronger piece coordination, fewer outright blunders.",
           "**Worse:** Slight regression in time management, hesitation in executing tactical sequences.",
         ]}
-      /> */}
+      />
 
         <div className="border border-[#3871EC] border-l-4 rounded-lg p-3 bg-[#F6F9FF]">
           <h3 className="text-[#254B9D] font-semibold mb-2">

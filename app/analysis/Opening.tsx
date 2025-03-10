@@ -166,6 +166,13 @@ const Opening: React.FC<OpeningProps> = (props) => {
               </div>
             </div>
           </div>
+          <Image
+            src={"/icons/switzerland-flag.png"}
+            alt="flag"
+            width={1000}
+            height={1000}
+            className="w-7 h-5"
+          />
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>

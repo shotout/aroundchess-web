@@ -21,7 +21,42 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const { bestMoves, badMoves } = dataAnalysis?.middleGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
-
+  const [bestmoves, setBestMoves] = useState<any[]>([
+    {
+      number: 5,
+      score: "+0.20",
+      moves: "e4, c5",
+      classification: "Brilliant",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+    {
+      number: 2,
+      score: "+0.20",
+      moves: "f5, e5",
+      classification: "Great",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+  ]);
+  const [badMove, setBadMove] = useState<any[]>([
+    {
+      number: 1,
+      score: "+0.20",
+      moves: "e4, c5",
+      classification: "Miss",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+    {
+      number: 7,
+      score: "+0.20",
+      moves: "f5, e5",
+      classification: "Miss",
+      analysis:
+        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
+    },
+  ]);
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":

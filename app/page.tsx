@@ -19,6 +19,7 @@ export default function Home() {
     console.log("listening dataAnalysis", dataAnalysis);
   }, [dataAnalysis]);
   return (
+    
     <div>
       {isLoading && dataAnalysis !=null ? (
         <LoadingPage />
@@ -36,5 +37,6 @@ export default function Home() {
         </>
       )}
     </div>
-  );
+  )
 }
+

@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AnalysisResult } from "@/types/analysis-result";
 import { ArrowRight, ChevronDown, ChevronUp, Watch } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +9,6 @@ import { usePgnStore } from "../store/zustandStore";
 
 interface SummaryProps {
   next: () => void;
-  data: AnalysisResult;
 }
 
 const Summary: React.FC<SummaryProps> = (props) => {
@@ -496,9 +494,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             height={1000}
             className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
           />
-          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
-            Critical Mistakes
-          </span>
+          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">Critical Mistakes</span>
           <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
             {openCriticalMoves ? (
               <ChevronUp size={24} color="black" />
