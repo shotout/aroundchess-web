@@ -11,9 +11,13 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "../ui/button";
+interface DialogButtonProps {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const DialogButton = () => {
-  const [open, setOpen] = useState(false);
+const DialogButton: React.FC<DialogButtonProps> = ({ open, setOpen }) => {
+  const [openit, setOpenit] = useState(false);
   const [pgnText, setPgnText] = useState("");
   const [activeTab, setActiveTab] = useState("paste");
   const [dragActive, setDragActive] = useState(false);
@@ -21,7 +25,7 @@ const DialogButton = () => {
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<any>(null);
 
   const handleTabChange = (tab:any) => {
     setActiveTab(tab);
@@ -86,7 +90,7 @@ const DialogButton = () => {
 
   const resetDialog = () => {
     setIsSubmitted(false);
-    setOpen(false);
+    setOpenit(false);
     setPgnText("");
     setFileName("");
     setFileSize(0);
@@ -98,7 +102,7 @@ const DialogButton = () => {
       {/* Dialog Trigger Button */}
       <button
         className="flex justify-center items-center lg:gap-3 py-[20px] px-1 rounded-3xl btn-primary w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
-        onClick={() => setOpen(true)}
+        onClick={() => setOpenit(true)}
       >
         <Upload className="h-[13px]" />
         <h1 className="text-xs lg:text-sm font-primary font-thin">
@@ -106,7 +110,7 @@ const DialogButton = () => {
         </h1>
       </button>
       {/* Dialog */}
-      {open && (
+      {openit || open && (
         <div className="fixed inset-0 bg-black/25 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-xl overflow-hidden">
             {/* Header */}
