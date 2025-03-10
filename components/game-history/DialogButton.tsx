@@ -58,7 +58,7 @@ const DialogButton = () => {
     }
   };
 
-  const handleFile = (file) => {
+  const handleFile = (file:any) => {
     // Check file type (simple check for .pgn extension)
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
