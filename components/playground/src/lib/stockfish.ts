@@ -6,6 +6,7 @@ declare global {
 }
 
 interface EngineMessage {
+  bestMove: any;
   positionEvaluation?: string;
   possibleMate?: string;
   pv?: string;
@@ -70,10 +71,11 @@ export class Engine {
       if (pvMatch) {
         const move = pvMatch[1];
         console.log('Found move:', move);
-        this.messageCallback({ 
+        this.messageCallback({
           pv: move,
           depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
-          positionEvaluation: scoreMatch ? scoreMatch[1] : undefined
+          positionEvaluation: scoreMatch ? scoreMatch[1] : undefined,
+          bestMove: undefined
         });
       }
     }
@@ -85,7 +87,10 @@ export class Engine {
         const move = parts[1];
         if (move && move !== '(none)' && move.length >= 4) {
           console.log('Best move found:', move);
-          this.messageCallback({ pv: move });
+          this.messageCallback({
+            pv: move,
+            bestMove: undefined
+          });
           this.stop();
         }
       }

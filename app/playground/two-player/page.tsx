@@ -6,9 +6,9 @@ import { CheckMate } from "@/components/playground/src/chess/checkmate";
 import ChessBoard from "@/components/playground/src/chess/chessboard";
 import { ChoosePiece } from "@/components/playground/src/Components/two-player/choose-piece";
 import { WhitePlayer } from "@/components/playground/src/chess/white-player";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import { Users, Palette, Clock, Flag, MessageSquare, Timer, Settings2, Undo2, Redo2, RotateCcw, ArrowLeft, Lightbulb, RotateCw } from "lucide-react";
+import { Users, Palette, Clock, Flag, Timer, Settings2, Undo2, Redo2, RotateCcw, ArrowLeft, Lightbulb, RotateCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChessStore } from "@/components/playground/src/store/playground/chess-store";
 import Link from "next/link";
@@ -16,7 +16,7 @@ import { MoveNotation } from "@/components/playground/src/chess/move-notation"
 import { CurrentPlayers } from "@/components/playground/src/chess/current-players"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useThemeStore } from "@/components/playground/src/store/playground/theme-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { GameResult } from "@/components/playground/src/chess/game-result";
@@ -105,8 +105,8 @@ export default function TwoPlayerPage() {
   const [isClient, setIsClient] = useState(false);
   const resizeRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
-  const [showHintPopup, setShowHintPopup] = useState(false)
-  const [hintArrow, setHintArrow] = useState<[Square, Square] | null>(null)
+  const [showHintPopup, setShowHintPopup] = useState(false);
+  const [hintArrow, setHintArrow] = useState<[Square, Square] | null>(null);
   const [hintElo, setHintElo] = useState(1500); // Default mid-range ELO
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const engine = getStockfishService();
@@ -120,6 +120,45 @@ export default function TwoPlayerPage() {
   const [evaluation, setEvaluation] = useState<number | null>(null);
   const [isEngineReady, setIsEngineReady] = useState(false);
   const [isTabletPortrait, setIsTabletPortrait] = useState(false);
+
+  const themes = [
+    {
+      id: 'classic',
+      name: 'Classic',
+      colors: {
+        light: '#f0d9b5',
+        dark: '#b58863',
+        selected: 'rgba(20, 85, 30, 0.5)'
+      }
+    },
+    {
+      id: 'forest',
+      name: 'Forest',
+      colors: {
+        light: '#EEEED2',
+        dark: '#769656',
+        selected: '#BACA44'
+      }
+    },
+    {
+      id: 'ocean',
+      name: 'Ocean',
+      colors: {
+        light: '#DEE3E6',
+        dark: '#4682B4',
+        selected: '#B3CFDD'
+      }
+    },
+    {
+      id: 'wooden',
+      name: 'Wooden',
+      colors: {
+        light: '#DEB887',
+        dark: '#8B4513',
+        selected: '#CD853F'
+      }
+    },
+  ];
 
   // Mount effect
   useEffect(() => {
@@ -174,13 +213,12 @@ export default function TwoPlayerPage() {
         selected: classicTheme.colors.selected
       });
     }
-  }, []);
+  }, [setBoardTheme]);
 
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
-    // Start timer after first move and when timer is active
     if (hasGameStarted && isTimerActive && !gameResult) {
       interval = setInterval(() => {
         setGameTime(prev => ({
@@ -197,7 +235,7 @@ export default function TwoPlayerPage() {
   useEffect(() => {
     if (movesCount === 1) {
       setHasGameStarted(true);
-      setIsTimerActive(true); // Automatically start timer after first move
+      setIsTimerActive(true);
     }
   }, [movesCount]);
 
@@ -386,45 +424,6 @@ export default function TwoPlayerPage() {
     setShowResignConfirm(false);
   };
 
-  const themes = [
-    { 
-      id: 'classic',
-      name: 'Classic',
-      colors: {
-        light: '#FFFFFF',
-        dark: '#B7C0D8',
-        selected: '#E2E8F0'
-      }
-    },
-    {
-      id: 'forest',
-      name: 'Forest',
-      colors: {
-        light: '#EEEED2',
-        dark: '#769656',
-        selected: '#BACA44'
-      }
-    },
-    {
-      id: 'ocean',
-      name: 'Ocean',
-      colors: {
-        light: '#DEE3E6',
-        dark: '#4682B4',
-        selected: '#B3CFDD'
-      }
-    },
-    {
-      id: 'wooden',
-      name: 'Wooden',
-      colors: {
-        light: '#DEB887',
-        dark: '#8B4513',
-        selected: '#CD853F'
-      }
-    },
-  ];
-
   const handleHintGenerated = (from: string, to: string) => {
     setHintArrow([from as Square, to as Square])
   }
@@ -602,7 +601,7 @@ export default function TwoPlayerPage() {
   }, []);
 
   // Protect window usage in resize handler
-  const handleResize = useCallback((e: MouseEvent | TouchEvent) => {
+  const handleResize = (e: MouseEvent | TouchEvent) => {
     if (typeof window === 'undefined') return;
     
     if (!isResizing.current) return;
@@ -612,7 +611,7 @@ export default function TwoPlayerPage() {
       Math.min(window.innerWidth - 48, 800)
     );
     setBoardSize(newSize);
-  }, []);
+  };
 
   // Add null checks for browser APIs
   useEffect(() => {
