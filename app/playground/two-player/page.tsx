@@ -696,9 +696,9 @@ export default function TwoPlayerPage() {
 
         {/* Game Section */}
         <div className="min-h-[calc(100vh-25vh)] flex justify-center py-8">
-          <div className="flex flex-col lg:flex-row gap-8 max-w-[1800px] mx-auto px-4">
+          <div className="flex flex-col xl:flex-row gap-8 max-w-[1800px] mx-auto px-4">
             {/* Left Column - Game Area */}
-            <div className="w-full lg:w-auto space-y-6 min-w-[350px] max-w-full lg:min-w-[600px]" 
+            <div className="w-full lg:w-auto space-y-6 min-w-[350px] max-w-full xl:min-w-[600px]" 
                  style={{ width: `${boardSize}px` }}>
               {/* Black Player Card with Timer */}
               <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">

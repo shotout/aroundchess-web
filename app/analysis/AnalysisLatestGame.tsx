@@ -100,7 +100,7 @@ const AnalysisLatestGame: React.FC = () => {
     }
   };
   return (
-    <div className="flex flex-col lg:min-w-[592px] lg:max-w-full gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
+    <div className="flex flex-col xl:min-w-[592px] xl:max-w-full gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
       <div className="flex flex-col px-4 gap-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
           Analysis: Latest Game
@@ -129,7 +129,7 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[174px]`
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] xl:min-w-[174px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
@@ -142,7 +142,7 @@ const AnalysisLatestGame: React.FC = () => {
           );
         })}
       </div>
-      {/* <div className="lg:max-h-[800px] lg:overflow-auto"> */}
+      {/* <div className="xl:max-h-[800px] lg:overflow-auto"> */}
         {renderView(focusPage)}
       {/* </div> */}
     </div>
