@@ -77,7 +77,7 @@ const DialogButton = () => {
 
   const handleButtonClick = () => {
     if (activeTab === "upload" && !fileName) {
-      fileInputRef?.current.click();
+      fileInputRef?.current?.click();
     } else {
       // Handle import logic
       setIsSubmitted(true);
