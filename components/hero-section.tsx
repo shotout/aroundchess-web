@@ -8,16 +8,30 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 
-const PGN_API_URL = "/api/pgn";
+const AnalysisUrl = "http://103.189.234.154/api/analyze";
+// const AnalysisUrl = process.env.BASE_URL + "/analyze";
 
 export function HeroSection() {
   const router = useRouter();
-  //jahitan
-  const { setPgn, setIsLoading, setError, setDataAnalysis } = usePgnStore();
+  const [username, setUsername] = useState<string>("");
+  const [width, setWidth] = useState(0);
+  const { setPgn, setIsLoading, setError, dataAnalysis, setDataAnalysis } =
+    usePgnStore();
   const fetchPgn = async () => {
     try {
-      const response = await axios.get(PGN_API_URL);
-
+      const config = {
+        headers: {
+          // "Access-Control-Allow-Origin": "*",
+          // "Access-Control-Allow-Methods":"GET,OPTIONS,PATCH,DELETE,POST,PUT",
+          // "Access-Control-Allow-Credentials": "true",
+          // "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+          // "Access-Control-Expose-Headers": "*",
+        },
+      };
+      const body = { username: username };
+      console.log(username, AnalysisUrl);
+      const response = await axios.post(AnalysisUrl, body,config);
+      console.log(response.data.data)
       setDataAnalysis(response.data.data);
       setPgn(response.data.data.gameInfo?.pgn);
       setIsLoading(true);
@@ -26,15 +40,15 @@ export function HeroSection() {
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      setTimeout(() => {
-        router.push("/analysis");
-        // setIsLoading(false);
-      }, 5000);
+      if (dataAnalysis != null) {
+        setTimeout(() => {
+          router.push("/analysis");
+          // setIsLoading(false);
+        }, 5000);
+      }
     }
   };
 
-  const [username, setUsername] = useState<string>("");
-  const [width, setWidth] = useState(0);
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
     handleResize();
