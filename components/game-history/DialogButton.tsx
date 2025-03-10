@@ -76,12 +76,13 @@ const DialogButton = () => {
   };
 
   const handleButtonClick = () => {
-    if (activeTab === "upload" && !fileName) {
-      fileInputRef?.current?.click();
-    } else {
-      // Handle import logic
-      setIsSubmitted(true);
-    }
+    // if (activeTab === "upload" && !fileName) {
+    //   fileInputRef?.current.click();
+    // } else {
+    //   // Handle import logic
+    //   setIsSubmitted(true);
+    // }
+    console.log('ada');
   };
 
   const resetDialog = () => {
