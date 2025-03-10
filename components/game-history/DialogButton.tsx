@@ -349,7 +349,7 @@ const DialogButton: React.FC<DialogButtonProps> = ({ open, setOpen }) => {
                             to{" "}
                             <span
                               className="text-blue-600 font-medium cursor-pointer"
-                              onClick={() => fileInputRef.current.click()}
+                              onClick={handleButtonClick}
                             >
                               select
                             </span>{" "}
