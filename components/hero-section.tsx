@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -15,7 +14,8 @@ const PGN_API_URL = "/api/pgn";
 export function HeroSection() {
   const router = useRouter();
   //jahitan
-  const { setPgn, isLoading, setIsLoading, setError,setDataAnalysis } = usePgnStore();
+  const { setPgn, isLoading, setIsLoading, setError, setDataAnalysis } =
+    usePgnStore();
   const fetchPgn = async () => {
     try {
       const response = await axios.get(PGN_API_URL);
