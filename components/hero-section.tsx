@@ -17,8 +17,13 @@ export function HeroSection() {
   const [width, setWidth] = useState(0);
   const { setPgn, setIsLoading, setError, dataAnalysis, setDataAnalysis } =
     usePgnStore();
+  const fetcher = () =>
+    fetch("http://ac-api.kemang.sg/health-check").then((res) =>
+      res.json().then((data) => console.log(data))
+    );
   const fetchPgn = async () => {
     try {
+      setIsLoading(true);
       const config = {
         headers: {
           // "Access-Control-Allow-Origin": "*",
@@ -30,27 +35,26 @@ export function HeroSection() {
       };
       const body = { username: username };
       console.log(username, AnalysisUrl);
-      const response = await axios.post(AnalysisUrl, body,config);
-      console.log(response.data.data)
+      const response = await axios.post(AnalysisUrl, body, config);
+      console.log("response", response.data.data);
       setDataAnalysis(response.data.data);
       setPgn(response.data.data.gameInfo?.pgn);
-      setIsLoading(true);
 
       setError(null);
     } catch (err) {
+      console.log("error", err);
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      if (dataAnalysis != null) {
-        setTimeout(() => {
-          router.push("/analysis");
-          // setIsLoading(false);
-        }, 5000);
-      }
+      // setTimeout(() => {
+      router.push("/analysis");
+      // setIsLoading(false);
+      // }, 5000);
     }
   };
 
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
+    fetcher();
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
