@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface ChessNewsState {
   isLoading: boolean;
@@ -9,7 +10,8 @@ interface ChessNewsState {
   setDetailNews: (detailNews: any) => void; 
 }
 
-export const useChessNewsStore = create<ChessNewsState>((set) => ({
+export const useChessNewsStore= create<ChessNewsState>()(
+  persist((set) => ({
     isLoading: false,
     setIsLoading: (isLoading) => set({ isLoading }),
     chessNews: [],
@@ -17,4 +19,14 @@ export const useChessNewsStore = create<ChessNewsState>((set) => ({
     detailNews: {},
     setDetailNews: (detailNews) => set({detailNews}),
    
-}));
+  }),
+  {
+    name: 'pgn-storage', // unique name for the storage
+    storage: createJSONStorage(() => localStorage), // use localStorage by default
+    partialize: (state) => ({
+      chessNews: state.chessNews,
+      detailNews: state.detailNews,
+    }),
+  }
+  )
+  );
