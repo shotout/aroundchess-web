@@ -35,9 +35,9 @@ export default function Navigation({
       )}
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-y-auto">
+      <div className="flex flex-1 flex-col">
         <Header onSidebarToggle={toggleSidebar} />
-        <main className="flex-1">
+        <main className="flex-1 pt-20 lg:pt-0">
           {children}
           <SiteFooterNew />
         </main>

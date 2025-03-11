@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import MovementTable from "@/components/table/movement";
+import { motion } from "framer-motion";
 
 type CapturedPieces = {
   white: string[];
@@ -42,7 +43,7 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const {
@@ -357,196 +358,225 @@ const AnalysisResult: React.FC = () => {
   }, [bestMove, evaluation]);
 
   return (
-    <div className="flex justify-center gap-4 bg-white pb-4">
+    <div className={`flex justify-center gap-4 bg-white pb-4`}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
-          <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-            <div className="flex flex-row gap-2">
-              <Image
-                alt="avatar"
-                src={summary?.blackSide?.profileInfo.photo}
-                className="w-10 h-10 rounded-full"
-                width={1000}
-                height={1000}
-              />
-              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-2">
-                  <span
-                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                      gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
-                    }`}
-                  >
-                    {summary?.blackSide?.profileInfo.username}
-                  </span>
-                  {/* <Image
+          <motion.div
+            animate={
+              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+            }
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            style={{ display: !hideDiv ? "block" : "none" }}
+          >
+            <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
+              <div className="flex flex-row gap-2">
+                <Image
+                  alt="avatar"
+                  src={summary?.blackSide?.profileInfo.photo}
+                  className="w-10 h-10 rounded-full"
+                  width={1000}
+                  height={1000}
+                />
+                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
+                <div className="flex flex-col">
+                  <div className="flex flex-row gap-2">
+                    <span
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                        gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                      }`}
+                    >
+                      {summary?.blackSide?.profileInfo.username}
+                    </span>
+                    {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
                   /> */}
-                </div>
+                  </div>
 
-                <div className="flex flex-row gap-1">
-                  <Image
-                    src={"/icons/pawn-icon-alt-black.png"}
-                    alt="pawn"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  />
-                  <Image
-                    src={"/icons/bishop-icon-alt-black.png"}
-                    alt="bishop"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  />
+                  <div className="flex flex-row gap-1">
+                    <Image
+                      src={"/icons/pawn-icon-alt-black.png"}
+                      alt="pawn"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    />
+                    <Image
+                      src={"/icons/bishop-icon-alt-black.png"}
+                      alt="bishop"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    />
 
-                  <Image
-                    src={"/icons/king-icon-alt-black.png"}
-                    alt="king"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  />
+                    <Image
+                      src={"/icons/king-icon-alt-black.png"}
+                      alt="king"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                    />
+                  </div>
                 </div>
               </div>
+              <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+                <Watch size={16} />
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
+                  {gameInfo?.time}
+                </span>
+              </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
-              <Watch size={16} />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                {gameInfo?.time}
-              </span>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleBoardMode}
-            title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
-            className="p-2"
+          </motion.div>
+          <motion.div
+            animate={
+              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+            }
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            style={{ display: !hideDiv ? "block" : "none" }}
           >
-            {is3DMode ? (
-              <SquareIcon className="h-5 w-5" />
-            ) : (
-              <Settings className="h-5 w-5" />
-            )}
-          </Button>
-          <Chessboard
-            boardWidth={boardSize}
-            {...getBoardProps()}
-            arePiecesDraggable={false}
-          />
-          {/* Group Button */}
-          <div className="flex flex-row justify-around gap-4">
-            <button
-              onClick={jumpToFirstMove}
-              disabled={currentMoveIndex === 0}
-              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleBoardMode}
+              title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
+              className="p-2"
             >
-              <SkipBackIcon fill="black" size={boardSize / 24} color="black" />
-            </button>
-
-            <button
-              onClick={jumpToPreviousMove}
-              disabled={currentMoveIndex === 0}
-              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-            >
-              <ChevronLeft size={boardSize / 24} color="black" />
-            </button>
-            <button
-              onClick={togglePlayPause}
-              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-            >
-              {isPlaying ? (
-                <PauseIcon size={boardSize / 24} fill="black" color="black" />
+              {is3DMode ? (
+                <SquareIcon className="h-5 w-5" />
               ) : (
-                <PlayIcon size={boardSize / 24} fill="black" color="black" />
+                <Settings className="h-5 w-5" />
               )}
-            </button>
+            </Button>
+          </motion.div>
+         
+            <Chessboard
+              boardWidth={boardSize}
+              {...getBoardProps()}
+              arePiecesDraggable={false}
+            />
+            {/* Group Button */}
+            <div className="flex flex-row justify-around gap-4">
+              <button
+                onClick={jumpToFirstMove}
+                disabled={currentMoveIndex === 0}
+                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+              >
+                <SkipBackIcon
+                  fill="black"
+                  size={boardSize / 24}
+                  color="black"
+                />
+              </button>
 
-            <button
-              onClick={jumpToNextMove}
-              disabled={currentMoveIndex >= parsedMoves.length}
-              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-            >
-              <ChevronRight size={boardSize / 24} color="black" />
-            </button>
-            <button
-              onClick={jumpToLastMove}
-              disabled={currentMoveIndex >= parsedMoves.length}
-              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-            >
-              <SkipForwardIcon
-                fill="black"
-                size={boardSize / 24}
-                color="black"
-              />
-            </button>
-          </div>
-          <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-            <div className="flex flex-row gap-2">
-              <Image
-                alt="avatar"
-                src={summary?.whiteSide?.profileInfo.photo}
-                className="w-10 h-10 rounded-full"
-                width={1000}
-                height={1000}
-              />
-              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-2">
-                  <span
-                    className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
-                      !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
-                    }`}
-                  >
-                    {summary?.whiteSide?.profileInfo.username}
-                  </span>
-                  {/* <Image
+              <button
+                onClick={jumpToPreviousMove}
+                disabled={currentMoveIndex === 0}
+                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+              >
+                <ChevronLeft size={boardSize / 24} color="black" />
+              </button>
+              <button
+                onClick={togglePlayPause}
+                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+              >
+                {isPlaying ? (
+                  <PauseIcon size={boardSize / 24} fill="black" color="black" />
+                ) : (
+                  <PlayIcon size={boardSize / 24} fill="black" color="black" />
+                )}
+              </button>
+
+              <button
+                onClick={jumpToNextMove}
+                disabled={currentMoveIndex >= parsedMoves.length}
+                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+              >
+                <ChevronRight size={boardSize / 24} color="black" />
+              </button>
+              <button
+                onClick={jumpToLastMove}
+                disabled={currentMoveIndex >= parsedMoves.length}
+                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+              >
+                <SkipForwardIcon
+                  fill="black"
+                  size={boardSize / 24}
+                  color="black"
+                />
+              </button>
+            </div> 
+          <motion.div
+            animate={
+              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+            }
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            style={{ display: !hideDiv ? "block" : "none" }}
+          >
+            <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
+              <div className="flex flex-row gap-2">
+                <Image
+                  alt="avatar"
+                  src={summary?.whiteSide?.profileInfo.photo}
+                  className="w-10 h-10 rounded-full"
+                  width={1000}
+                  height={1000}
+                />
+                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
+                <div className="flex flex-col">
+                  <div className="flex flex-row gap-2">
+                    <span
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                        !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                      }`}
+                    >
+                      {summary?.whiteSide?.profileInfo.username}
+                    </span>
+                    {/* <Image
                     src={"/icons/switzerland-flag.png"}
                     alt="flag"
                     width={1000}
                     height={1000}
                     className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
                   /> */}
-                </div>
+                  </div>
 
-                <div className="flex flex-row gap-1">
-                  <Image
-                    src={"/icons/pawn-icon-alt-white.png"}
-                    alt="pawn"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-                  <Image
-                    src={"/icons/rook-icon-alt-white.png"}
-                    alt="rook"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
+                  <div className="flex flex-row gap-1">
+                    <Image
+                      src={"/icons/pawn-icon-alt-white.png"}
+                      alt="pawn"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    />
+                    <Image
+                      src={"/icons/rook-icon-alt-white.png"}
+                      alt="rook"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    />
 
-                  <Image
-                    src={"/icons/queen-icon-alt-white.png"}
-                    alt="queen"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
+                    <Image
+                      src={"/icons/queen-icon-alt-white.png"}
+                      alt="queen"
+                      width={1000}
+                      height={1000}
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
+                    />
+                  </div>
                 </div>
               </div>
+              <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+                <Watch size={16} />
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
+                  {gameInfo?.time}
+                </span>
+              </div>
             </div>
-            <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
-              <Watch size={16} />
-              <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                {gameInfo?.time}
-              </span>
-            </div>
-          </div>
+          </motion.div>
           {showTable && <MovementTable />}
           {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>

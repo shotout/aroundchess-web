@@ -2,8 +2,30 @@
 import Navigation from "@/components/navigator/navigation";
 import AnalysisLatestGame from "./AnalysisLatestGame";
 import AnalysisResult from "./AnalysisResult";
+import { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
+import { motion } from "framer-motion";
 export default function AnalysisPage() {
-  
+  const { setHideDiv, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
+
+  const [isVisible, setIsVisible] = useState<boolean>(true);
+  let lastScrollY = 0;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY) {
+        setHideDiv(true);
+        setIsVisible(false); // Hide sidebar when scrolling down
+      } else {
+        setHideDiv(false);
+        setIsVisible(true); // Show sidebar when scrolling up
+      }
+      lastScrollY = window.scrollY;
+      console.log("scrolling", lastScrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
   return (
     <Navigation>
       <div className="flex flex-1 flex-col overflow-y-auto">
@@ -23,7 +45,13 @@ export default function AnalysisPage() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row-reverse gap-4 bg-white px-4">
-          <AnalysisResult />
+          <motion.div
+            animate={hideDiv ? { scale: 1.2 } : { scale: 1 }}
+            transition={{ duration: 0.1, ease: "easeInOut" }}
+            style={{ position: !hideDiv ? "relative" : "sticky" }}
+          >
+            <AnalysisResult />
+          </motion.div>
           <AnalysisLatestGame />
         </div>
       </div>
