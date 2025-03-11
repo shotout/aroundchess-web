@@ -12,6 +12,8 @@ interface PgnState {
   setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
   dataGames: any;
   setDataGames: (dataGames: any) => void;
+  hideDiv: boolean;
+  setHideDiv: (hideDiv: boolean) => void;
 }
 
 export const usePgnStore = create<PgnState>((set) => ({
@@ -25,4 +27,6 @@ export const usePgnStore = create<PgnState>((set) => ({
   setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis}),
   dataGames : null,
   setDataGames : (dataGames: any) => set({dataGames}),
+  hideDiv : false,
+  setHideDiv : (hideDiv: boolean) => set({hideDiv})
 }));

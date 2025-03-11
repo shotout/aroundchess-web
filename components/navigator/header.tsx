@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 lg:border-b">
+    <header className="fixed lg:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 lg:border-b">
       {/* Left section - Logo and navigation (on desktop only) */}
       <div className="flex items-center h-24">
         {/* Logo/Title - Always visible */}
