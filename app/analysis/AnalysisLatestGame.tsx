@@ -41,7 +41,6 @@ const AnalysisLatestGame: React.FC = () => {
     setIsLoading(false);
     renderView(focusPage);
   }, [focusPage]);
-
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
