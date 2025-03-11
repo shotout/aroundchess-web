@@ -39,7 +39,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
               <div className="flex flex-row gap-2">
                 <Image
                   alt="avatar"
-                  src={blackSide?.profileInfo.photo}
+                  src={whiteSide?.profileInfo.photo}
                   className="w-10 h-10 rounded-full"
                   width={1000}
                   height={1000}
