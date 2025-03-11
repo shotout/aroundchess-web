@@ -279,7 +279,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
           onClick={props.prev}
           size="lg"
           variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+          className="btn-secondary flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
@@ -293,7 +293,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
           variant="default"
           className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+          <div className="btn-primary flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Middlegame
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>

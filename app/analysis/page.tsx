@@ -45,13 +45,8 @@ export default function AnalysisPage() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row-reverse gap-4 bg-white px-4">
-          <motion.div
-            animate={hideDiv ? { scale: 1.2 } : { scale: 1 }}
-            transition={{ duration: 0.1, ease: "easeInOut" }}
-            style={{ position: !hideDiv ? "relative" : "sticky" }}
-          >
+         
             <AnalysisResult />
-          </motion.div>
           <AnalysisLatestGame />
         </div>
       </div>
