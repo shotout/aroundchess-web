@@ -28,7 +28,7 @@ export function HeroSection() {
     dataGames,
   } = usePgnStore();
   const fetcher = () =>
-    fetch("http://ac-api.kemang.sg/health-check").then((res) =>
+    fetch("https://ac-api.kemang.sg/health-check").then((res) =>
       res.json().then((data) => console.log(data))
     );
   const fetchPgn = async () => {
