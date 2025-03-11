@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 
-const AnalysisUrl = process.env.BASE_URL_IP! + "/analyze";
+const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 // const AnalyticsUrl = process.env.BASE_URL + "/analytic-games";
 
@@ -27,10 +27,12 @@ export function HeroSection() {
     setDataGames,
     dataGames,
   } = usePgnStore();
-  const fetcher = () =>
+  const fetcher = () =>{
+    console.log("health-check")
     fetch(process.env.BASE_URL! + "/health-check").then((res) =>
       res.json().then((data) => console.log(data))
     );
+  }
   const fetchPgn = async () => {
     try {
       setIsLoading(true);
