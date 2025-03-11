@@ -42,7 +42,7 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
-  const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const {
@@ -360,11 +360,7 @@ const AnalysisResult: React.FC = () => {
     <div className="flex justify-center gap-4 bg-white pb-4">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
-          <div
-            className={`transition-transform duration-300 border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2 ${
-              hideDiv ? "hidden xl:block" : "block xl:block"
-            }`}
-          >
+          <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
               <Image
                 alt="avatar"
@@ -430,9 +426,7 @@ const AnalysisResult: React.FC = () => {
             size="icon"
             onClick={toggleBoardMode}
             title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
-            className={`p-2 transition-transform duration-300 ${
-              hideDiv ? "hidden xl:block" : "block xl:block"
-            }`}
+            className="p-2"
           >
             {is3DMode ? (
               <SquareIcon className="h-5 w-5" />
@@ -440,74 +434,59 @@ const AnalysisResult: React.FC = () => {
               <Settings className="h-5 w-5" />
             )}
           </Button>
-          <div
-            className={`${
-              hideDiv ? "sticky top-0 z-10  max-h-1/2" : ""
-            } flex flex-col gap-3`}
-          >
-            <Chessboard
-              boardWidth={boardSize}
-              {...getBoardProps()}
-              arePiecesDraggable={false}
-            />
-            {/* Group Button */}
-            <div className="flex flex-row justify-around gap-4">
-              <button
-                onClick={jumpToFirstMove}
-                disabled={currentMoveIndex === 0}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <SkipBackIcon
-                  fill="black"
-                  size={boardSize / 24}
-                  color="black"
-                />
-              </button>
+          <Chessboard
+            boardWidth={boardSize}
+            {...getBoardProps()}
+            arePiecesDraggable={false}
+          />
+          {/* Group Button */}
+          <div className="flex flex-row justify-around gap-4">
+            <button
+              onClick={jumpToFirstMove}
+              disabled={currentMoveIndex === 0}
+              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            >
+              <SkipBackIcon fill="black" size={boardSize / 24} color="black" />
+            </button>
 
-              <button
-                onClick={jumpToPreviousMove}
-                disabled={currentMoveIndex === 0}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <ChevronLeft size={boardSize / 24} color="black" />
-              </button>
-              <button
-                onClick={togglePlayPause}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                {isPlaying ? (
-                  <PauseIcon size={boardSize / 24} fill="black" color="black" />
-                ) : (
-                  <PlayIcon size={boardSize / 24} fill="black" color="black" />
-                )}
-              </button>
+            <button
+              onClick={jumpToPreviousMove}
+              disabled={currentMoveIndex === 0}
+              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            >
+              <ChevronLeft size={boardSize / 24} color="black" />
+            </button>
+            <button
+              onClick={togglePlayPause}
+              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            >
+              {isPlaying ? (
+                <PauseIcon size={boardSize / 24} fill="black" color="black" />
+              ) : (
+                <PlayIcon size={boardSize / 24} fill="black" color="black" />
+              )}
+            </button>
 
-              <button
-                onClick={jumpToNextMove}
-                disabled={currentMoveIndex >= parsedMoves.length}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <ChevronRight size={boardSize / 24} color="black" />
-              </button>
-              <button
-                onClick={jumpToLastMove}
-                disabled={currentMoveIndex >= parsedMoves.length}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <SkipForwardIcon
-                  fill="black"
-                  size={boardSize / 24}
-                  color="black"
-                />
-              </button>
-            </div>
+            <button
+              onClick={jumpToNextMove}
+              disabled={currentMoveIndex >= parsedMoves.length}
+              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            >
+              <ChevronRight size={boardSize / 24} color="black" />
+            </button>
+            <button
+              onClick={jumpToLastMove}
+              disabled={currentMoveIndex >= parsedMoves.length}
+              className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
+            >
+              <SkipForwardIcon
+                fill="black"
+                size={boardSize / 24}
+                color="black"
+              />
+            </button>
           </div>
-          
-          <div
-            className={`transition-transform duration-300 border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2 ${
-              hideDiv ? "hidden xl:block" : "block xl:block"
-            }`}
-          >
+          <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
             <div className="flex flex-row gap-2">
               <Image
                 alt="avatar"
