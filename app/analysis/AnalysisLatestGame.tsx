@@ -99,9 +99,9 @@ const AnalysisLatestGame: React.FC = () => {
     }
   };
   return (
-    <div className="flex flex-col xl:min-w-[592px] xl:max-w-[full] gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
+    <div className="flex flex-col xl:min-w-[592px] xl:max-w-[full] gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
       <div className="flex flex-col px-4 gap-2">
-        <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
+        <span className="text-sm sm:text-md md:text-lg lg:text-xl font-bold">
           Analysis: Latest Game
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
