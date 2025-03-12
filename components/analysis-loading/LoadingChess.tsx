@@ -71,7 +71,7 @@ const PgnPlayer: React.FC = () => {
       setError(null);
 
       return true;
-    } catch (err) {
+    } catch (err:any) {
       setError(
         `Error parsing PGN: ${err instanceof Error ? err.message : String(err)}`
       );
