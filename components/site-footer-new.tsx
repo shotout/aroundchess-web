@@ -12,7 +12,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     <footer className={cn("bg-[#EFF5FF] py-4", className)}>
       <CookieConsent />
 
-      <div className="container mx-auto px-4 py-8 lg:py-2 lg:pt-8">
+      <div className="flex flex-col px-4 py-8 lg:py-2 lg:pt-8">
         <div className="grid gap-9 lg:grid-cols-2 sm:mb-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-2 sm:mb-8">

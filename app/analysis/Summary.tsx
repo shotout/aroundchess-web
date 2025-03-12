@@ -22,13 +22,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        <div className="flex flex-col gap-2 w-full py-2 rounded-md border-b border-b-input">
+        <div className="flex flex-col gap-2 w-full py-2 border-b border-b-input">
           <span className="text-xs sm:hidden text-center">
             <span className="text-[#00B427]">
               {whiteSide?.profileInfo.username}
             </span>{" "}
-            (White) vs
-            {whiteSide?.profileInfo.username} (Black)
+            (White) vs{" "}
+            {blackSide?.profileInfo.username} (Black)
           </span>
           <div className="hidden sm:flex flex-row items-center justify-between gap-4">
             <div
@@ -180,7 +180,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         {/* move quality */}
-        <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input">
           <span className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold text-center">
             Move Quality
           </span>
@@ -311,7 +311,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input pb-2">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <div className="flex flex-row items-center justify-center gap-4">
             <div className="flex flex-col items-end justify-around gap-2">
               <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">

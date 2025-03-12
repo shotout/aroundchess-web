@@ -54,7 +54,7 @@ export default function AnalysisPage() {
           {/* <div className="xl:w-1/3 xl:flex xl:items-start xl:justify-start"> */}
             <AnalysisResult />
           {/* </div> */}
-          <div className={`${isVisible ? "" : "mt-[64%]"} `}>
+          <div className={`${isVisible ? "" : "mt-96 sm:mt-[64%]"} `}>
             <AnalysisLatestGame />
           </div>
         </div>
