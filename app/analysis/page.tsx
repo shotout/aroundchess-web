@@ -15,10 +15,10 @@ export default function AnalysisPage() {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) {
         setHideDiv(true);
-        setIsVisible(false); // Hide sidebar when scrolling down
-      } else {
+        setIsVisible(false);
+      } else if(window.scrollY ==0) {
         setHideDiv(false);
-        setIsVisible(true); // Show sidebar when scrolling up
+        setIsVisible(true);
       }
       lastScrollY = window.scrollY;
       console.log("scrolling", lastScrollY);
@@ -29,7 +29,7 @@ export default function AnalysisPage() {
   return (
     <Navigation>
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <div className="flex flex-col justify-center bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8">
+        <div className={`flex flex-col justify-center bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${hideDiv && "hidden"}`}>
           <h2 className="text-md pt-4 text-center lg:text-left sm:text-lg md:text-xl lg:text-2xl font-bold">
             Analysis Result from{" "}
             <span className="text-[#4E7838]">Chess.com</span>
@@ -45,9 +45,10 @@ export default function AnalysisPage() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row-reverse gap-4 bg-white px-4">
-         
-            <AnalysisResult />
+          <AnalysisResult />
+          <div className={`${isVisible ? "" : "mt-[64%]"} `}>
           <AnalysisLatestGame />
+          </div>
         </div>
       </div>
     </Navigation>

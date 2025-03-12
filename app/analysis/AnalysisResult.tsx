@@ -348,17 +348,21 @@ const AnalysisResult: React.FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchStockfishData(currentFen);
-  // }, [currentFen]);
+  useEffect(() => {
+    handleResize();
+  }, [hideDiv]);
 
   useEffect(() => {
-    console.log("Best move:", bestMove);
-    console.log("Evaluation:", evaluation);
+    // console.log("Best move:", bestMove);
+    // console.log("Evaluation:", evaluation);
   }, [bestMove, evaluation]);
 
   return (
-    <div className={`flex justify-center gap-4 bg-white pb-4`}>
+    <div
+      className={`${
+        hideDiv && "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
+      } flex justify-center gap-4 bg-white pb-4`}
+    >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <motion.div
@@ -451,63 +455,59 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-         
-            <Chessboard
-              boardWidth={boardSize}
-              {...getBoardProps()}
-              arePiecesDraggable={false}
-            />
-            {/* Group Button */}
-            <div className="flex flex-row justify-around gap-4">
-              <button
-                onClick={jumpToFirstMove}
-                disabled={currentMoveIndex === 0}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <SkipBackIcon
-                  fill="black"
-                  size={boardSize / 24}
-                  color="black"
-                />
-              </button>
 
-              <button
-                onClick={jumpToPreviousMove}
-                disabled={currentMoveIndex === 0}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <ChevronLeft size={boardSize / 24} color="black" />
-              </button>
-              <button
-                onClick={togglePlayPause}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                {isPlaying ? (
-                  <PauseIcon size={boardSize / 24} fill="black" color="black" />
-                ) : (
-                  <PlayIcon size={boardSize / 24} fill="black" color="black" />
-                )}
-              </button>
+          <Chessboard
+            boardWidth={hideDiv ? boardSize - 80 : boardSize}
+            {...getBoardProps()}
+            arePiecesDraggable={false}
+          />
+          {/* Group Button */}
+          <div className="flex flex-row justify-around gap-4">
+            <button
+              onClick={jumpToFirstMove}
+              disabled={currentMoveIndex === 0}
+              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+            >
+              <SkipBackIcon fill="black" size={boardSize / 24} color="black" />
+            </button>
 
-              <button
-                onClick={jumpToNextMove}
-                disabled={currentMoveIndex >= parsedMoves.length}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <ChevronRight size={boardSize / 24} color="black" />
-              </button>
-              <button
-                onClick={jumpToLastMove}
-                disabled={currentMoveIndex >= parsedMoves.length}
-                className="w-1/5 flex justify-center items-center sm:h-12 border border-primary rounded-[4px] p-1 "
-              >
-                <SkipForwardIcon
-                  fill="black"
-                  size={boardSize / 24}
-                  color="black"
-                />
-              </button>
-            </div> 
+            <button
+              onClick={jumpToPreviousMove}
+              disabled={currentMoveIndex === 0}
+              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+            >
+              <ChevronLeft size={boardSize / 24} color="black" />
+            </button>
+            <button
+              onClick={togglePlayPause}
+              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+            >
+              {isPlaying ? (
+                <PauseIcon size={boardSize / 24} fill="black" color="black" />
+              ) : (
+                <PlayIcon size={boardSize / 24} fill="black" color="black" />
+              )}
+            </button>
+
+            <button
+              onClick={jumpToNextMove}
+              disabled={currentMoveIndex >= parsedMoves.length}
+              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+            >
+              <ChevronRight size={boardSize / 24} color="black" />
+            </button>
+            <button
+              onClick={jumpToLastMove}
+              disabled={currentMoveIndex >= parsedMoves.length}
+              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+            >
+              <SkipForwardIcon
+                fill="black"
+                size={boardSize / 24}
+                color="black"
+              />
+            </button>
+          </div>
           <motion.div
             animate={
               hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }

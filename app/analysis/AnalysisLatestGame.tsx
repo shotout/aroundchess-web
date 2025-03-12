@@ -117,7 +117,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row overflow-x-scroll gap-1 px-4 pb-2">
+      <div className="flex flex-row overflow-hidden lg:overflow-x-scroll gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
