@@ -49,7 +49,7 @@ export function CTASection() {
                       asChild
                       size="lg"
                       variant="secondary"
-                      className="whitespace-nowrap sm:mt-8"
+                      className="bg-[#E6F7FE] whitespace-nowrap sm:mt-8"
                     >
                       <Link href="/pricing#top" className="text-[#0B094E]">
                         Start Free Trial
