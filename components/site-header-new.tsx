@@ -108,7 +108,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="container px-4 md:px-6 lg:px-8 mx-auto w-full">
+      <div className="container px-4 md:px-6 lg:px-12 mx-auto w-full">
         <div className="flex h-16 items-center justify-between">
           <div className="flex md:w-full lg:w-auto items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
