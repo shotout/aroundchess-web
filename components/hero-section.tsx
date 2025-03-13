@@ -157,7 +157,7 @@ export function HeroSection() {
       </div>
       {/* <div className="hidden lg:block absolute top-80 left-20 lg:left-40 w-[50px] sm:w-[50px] md:w-[200px] h-[250px] sm:h-[50px] md:h-[200px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div> */}
       <div className="hidden lg:block absolute top-0 right-0 w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px] bg-white-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow z-1"></div>
+      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-24 animate-pulse-slow z-1"></div>
 
       <div className="z-10 absolute top-32 md:top-20 md:w-1/2 md:right-0 h-auto py-2 sm:py-16 lg:py-12">
         <Image
