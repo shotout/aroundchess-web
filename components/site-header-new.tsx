@@ -21,7 +21,7 @@ import {
   HelpCircle,
   Home,
   Info,
-  Menu
+  Menu,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -190,22 +190,12 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
           <div className="hidden xl:flex items-center gap-2">
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="w-20 h-8 text-xs px-2 py-1"
-                >
+                <button className="btn-secondary rounded-full w-20 h-8 text-xs px-2 py-1">
                   <Link href="/login">Sign In</Link>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="default"
-                  asChild
-                  className="w-20 text-xs px-2 py-1"
-                >
+                </button>
+                <button className="btn-primary rounded-full w-20 text-xs px-2 py-1">
                   <Link href="/register">Try Now</Link>
-                </Button>
+                </button>
               </div>
             ) : (
               <UserButton showName={true} />

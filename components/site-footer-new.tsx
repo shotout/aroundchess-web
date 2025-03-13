@@ -9,7 +9,7 @@ interface SiteFooterProps {
 
 export function SiteFooterNew({ className }: SiteFooterProps) {
   return (
-    <footer className={cn("bg-[#EFF5FF] py-4", className)}>
+    <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
 
       <div className="flex flex-col px-4 py-8 lg:py-2 lg:pt-8">
