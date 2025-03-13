@@ -111,7 +111,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 Best Moves
               </span>
               <div className="flex flex-row items-center gap-1">
-                <InfoIcon size={16} color="#3871EC" />
+                <InfoIcon size={16} color="#221AE9" />
                 <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
                   Type:
                 </span>
@@ -181,7 +181,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 Bad Moves
               </span>
               <div className="flex flex-row items-center gap-1">
-                <InfoIcon size={16} color="#3871EC" />
+                <InfoIcon size={16} color="#221AE9" />
                 <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
                   Type:
                 </span>
