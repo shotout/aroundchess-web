@@ -138,10 +138,8 @@ export function HeroSection() {
                 className="block w-full p-3 rounded-sm border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
 
-              <Button
-                size="sm"
-                variant="default"
-                className="mt-2 w-full text-xs px-2 py-1"
+              <button
+                className="btn-primary mt-2 w-full text-xs px-2 py-2 rounded-lg"
                 onClick={fetchPgn}
               >
                 {isLoading ? (
@@ -152,16 +150,16 @@ export function HeroSection() {
                 ) : (
                   "Analyze now"
                 )}
-              </Button>
+              </button>
             </div>
           </motion.div>
         </motion.div>
       </div>
-      <div className="hidden lg:block absolute top-80 left-20 lg:left-40 w-[50px] sm:w-[50px] md:w-[100px] h-[50px] sm:h-[50px] md:h-[100px] bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+      {/* <div className="hidden lg:block absolute top-80 left-20 lg:left-40 w-[50px] sm:w-[50px] md:w-[200px] h-[250px] sm:h-[50px] md:h-[200px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div> */}
       <div className="hidden lg:block absolute top-0 right-0 w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px] bg-white-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[200px] h-[500px] sm:h-[150px] bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow z-1"></div>
 
-      <div className="absolute top-32 md:top-20 md:w-1/2 md:right-0 h-auto py-2 sm:py-16 lg:py-12">
+      <div className="z-10 absolute top-32 md:top-20 md:w-1/2 md:right-0 h-auto py-2 sm:py-16 lg:py-12">
         <Image
           src={
             width > 572
@@ -171,7 +169,7 @@ export function HeroSection() {
           alt="herobanner"
           width={1000}
           height={1000}
-          className="w-full h-auto bg-no-repeat relative overflow-hidden rounded-lg bg-cover bg-no-repeat"
+          className="w-full h-auto z-10 relative overflow-hidden rounded-lg bg-cover bg-no-repeat"
           priority
         />
       </div>

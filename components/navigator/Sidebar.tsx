@@ -124,7 +124,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-40 h-7"
+            className="w-36 h-12"
             quality={100}
             width={1000}
             height={1000}

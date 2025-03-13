@@ -173,7 +173,7 @@ export default function MovementTable() {
                       development and center control.
                     </span>
                     <div className="flex flex-row gap-1">
-                      <InfoIcon size={16} color="#3871EC" />
+                      <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[11px]">Type:</span>
                       <span className="text-[11px] font-semibold ">
                         {move.gamePhase}
@@ -257,7 +257,7 @@ export default function MovementTable() {
                       development and center control.
                     </span>
                     <div className="flex flex-row gap-1">
-                      <InfoIcon size={16} color="#3871EC" />
+                      <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[11px]">Type:</span>
                       <span className="text-[11px] font-semibold ">
                         {movementDetails.black[index]?.gamePhase}

@@ -58,9 +58,9 @@ export default function LoadingSpinner() {
               x2="100%"
               y2="0%"
             >
-              <stop offset="0%" stopColor="#3871EC" />
+              <stop offset="0%" stopColor="#221AE9" />
               <stop offset="50%" stopColor="#9BBBFF" />
-              <stop offset="100%" stopColor="#3871EC" />
+              <stop offset="100%" stopColor="#221AE9" />
             </linearGradient>
           </defs>
           <circle
