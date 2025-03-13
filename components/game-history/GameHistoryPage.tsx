@@ -78,7 +78,7 @@ const GameHistoryPage = () => {
             </Card>
 
             {/* Average ELO Card */}
-            <Card className="p-3 h-[120px] border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
+            <Card className="p-3 h-[120px] border-[1px] bg-[#F6F9FF] border-[#221AE9] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <BarChart2 className="h-4 w-4 text-blue-500" />
                 <h1 className="text-sm font-thin">Average ELO Rating</h1>

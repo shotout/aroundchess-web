@@ -275,7 +275,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         development and center control.
                       </span>
                       <div className="flex flex-row gap-1">
-                        <InfoIcon size={16} color="#3871EC" />
+                        <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
                         <span className="text-xs font-semibold ">
                           {move.gamePhase}
@@ -359,7 +359,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         development and center control.
                       </span>
                       <div className="flex flex-row gap-1">
-                        <InfoIcon size={16} color="#3871EC" />
+                        <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
                         <span className="text-xs font-semibold ">
                           {movementDetails.black[index]?.gamePhase}

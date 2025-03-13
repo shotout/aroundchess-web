@@ -47,9 +47,9 @@ export function ImproveSection() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="flex flex-col bg-[#3871EC] rounded-lg">
+            <div className="flex flex-col bg-[#221AE9] rounded-lg">
               <div className="flex flex-row">
-                <div className="flex flex-col w-4/6 sm:w-4/6 lg:w-2/6 bg-[#2657C0] rounded-tl-lg px-2 sm:px-8 sm:pr-16 py-8">
+                <div className="flex flex-col w-4/6 sm:w-4/6 lg:w-2/6 bg-[#110D75] rounded-tl-lg px-2 sm:px-8 sm:pr-16 py-8">
                   <h2 className="font-heading text-md sm:text-xl lg:text-3xl font-bold mb-1 sm:mb-2 text-white">
                     Improve your Chess Skills with AroundChess
                   </h2>

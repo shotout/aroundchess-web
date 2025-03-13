@@ -209,7 +209,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:gap-6">
-          <div className="border border-t-4 border-[#3871EC] rounded-lg p-2 sm:p-4 bg-white shadow">
+          <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span className="text-[10px] sm:text-xs md:text-md lg:text-lg rounded-[4px] border border-primary p-1">
                 Moves:{" "}
@@ -236,11 +236,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
               {whiteOpening.explanation}
             </div>
           </div>
-          <div className="border border-t-4 border-[#3871EC] rounded-lg p-2 sm:p-4 bg-white shadow">
+          <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span className="text-[10px] sm:text-xs md:text-md lg:text-lg rounded-[4px] border border-primary p-1">
                 Moves:{" "}
@@ -267,7 +267,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#3871EC] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-lg bg-[#F6F9FF] rounded-md">
               {blackOpening.explanation}
             </div>
           </div>
