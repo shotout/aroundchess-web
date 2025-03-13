@@ -103,7 +103,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full bg-white"
+      className="sticky top-0 z-50 w-full bg-white py-2"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -115,7 +115,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <Image
                 src="/icons/logo.png"
                 alt="logo"
-                className="w-44 h-8"
+                className="w-36 h-12"
                 quality={100}
                 width={600}
                 height={600}
@@ -243,7 +243,7 @@ function MobileNav(props: { isSignedIn: any }) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-40 h-7"
+            className="w-36 h-12"
             quality={100}
             width={100}
             height={100}

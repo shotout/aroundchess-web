@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export function CTASection() {
   return (
-    <section className="py-4 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
+    <section className="py-4 px-8 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
       <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
         <motion.div
           className="bg-[#0B094E] rounded-3xl overflow-hidden shadow-2xl"
