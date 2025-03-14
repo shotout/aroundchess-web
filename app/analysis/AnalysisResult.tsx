@@ -350,7 +350,7 @@ const AnalysisResult: React.FC = () => {
 
   useEffect(() => {
     handleResize();
-  }, [hideDiv]);
+  }, [hideDiv, is3DMode]);
 
   useEffect(() => {
     // console.log("Best move:", bestMove);
@@ -360,7 +360,8 @@ const AnalysisResult: React.FC = () => {
   return (
     <div
       className={`${
-        hideDiv && "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
+        hideDiv &&
+        "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
       } flex justify-center gap-4 bg-white pb-4`}
     >
       <div className="flex flex-col gap-4">
@@ -455,12 +456,13 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-
-          <Chessboard
-            boardWidth={hideDiv ? boardSize - 80 : boardSize}
-            {...getBoardProps()}
-            arePiecesDraggable={false}
-          />
+          <div className={`${is3DMode && "m-0 xl:m-8"}`}>
+            <Chessboard
+              boardWidth={hideDiv ? boardSize - 80 : is3DMode ? boardSize -76 : boardSize}
+              {...getBoardProps()}
+              arePiecesDraggable={false}
+            />
+          </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-4">
             <button
