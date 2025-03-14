@@ -113,15 +113,26 @@ const AnalysisResult: React.FC = () => {
     try {
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
-
       // Check if the PGN was loaded successfully
       if (tempGame.pgn() === "") {
         setErrorMessage("Invalid PGN format. Please check your input.");
         return false;
       }
+      const comments = tempGame.getComments();
+      console.log("tempGame.getComments()", comments);
 
       // Extract history of moves
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
+
+      comments.forEach((c) => {
+        let index = history.findIndex(({ after }) => after==c.fen);
+        // console.log( index);
+        if (index === -1) {
+          // history.push(o);
+        } else {
+          history[index].clock = c.comment.replace("[%clk ","").replace("]","")
+        }
+      });
 
       // Determine board orientation based on the headers
       const headers = tempGame.header();
@@ -431,7 +442,8 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                  {gameInfo?.time}
+                {parsedMoves[currentMoveIndex].clock}
+
                 </span>
               </div>
             </div>
@@ -577,7 +589,7 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                  {gameInfo?.time}
+                  {parsedMoves[currentMoveIndex].clock}
                 </span>
               </div>
             </div>
