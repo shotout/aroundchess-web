@@ -93,11 +93,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       <div className="flex items-center space-x-4">
         {/* Auth buttons - visible on desktop only (xl+) */}
-        <button className="hidden xl:block rounded-md border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Sign-in
         </button>
 
-        <button className="hidden xl:block rounded-md bg-primary py-4 px-6 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
           Try Now
         </button>
 

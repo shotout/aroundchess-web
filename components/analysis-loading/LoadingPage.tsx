@@ -8,7 +8,7 @@ const LoadingPage: React.FC = (props) => {
   const { gameInfo, summary } = dataAnalysis ?? {};
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen w-screen">
+      <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
         <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 mt-4">
           <span className="text-sm">{gameInfo?.date}</span>
