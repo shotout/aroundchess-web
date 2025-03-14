@@ -5,19 +5,21 @@ import { useState, useEffect } from "react";
 
 export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
-  const { isLoading } = usePgnStore(); // Get PGN from the Zustand store
+  const { isLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (isLoading && progress <=95) {
-        setProgress((prev) => (prev < 100 ? prev + 5 : 100));
-      }else if (!isLoading) {
+      if (dataAnalysis == null && progress <= 99) {
+        setProgress((prev) =>
+          prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
+        );
+      } else if (dataAnalysis != null) {
         setProgress(100);
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [dataAnalysis]);
 
   // Calculate rotation angle for the image
   const rotationAngle = (progress / 100) * 360;
