@@ -15,18 +15,18 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
   boardOrientation,
 }) => {
   // Board size configuration
-   const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState(700); // Default size
   const boardWidth = 600;
   useEffect(() => {
-      handleResize();
-    }, [ ]);
+    handleResize();
+  }, [window.innerWidth]);
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = 453;
-    console.log("Resizing board...", isPortrait);
+    const maxSize =  window.innerWidth /3;
+    console.log("Resizing board...", window.innerWidth,isPortrait);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -71,7 +71,9 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       },
     ];
 
-    const pieceComponents: { [key: string]: React.FC<{ squareWidth: number }> } = {};
+    const pieceComponents: {
+      [key: string]: React.FC<{ squareWidth: number }>;
+    } = {};
 
     pieces.forEach(({ piece, pieceHeight }) => {
       pieceComponents[piece] = ({ squareWidth }: { squareWidth: number }) => (
@@ -111,7 +113,8 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       className="relative mx-auto"
       style={{
         width: `${boardSize + framePadding * 2}px`,
-        height: `${boardSize + framePadding + frameBottom}px`,
+        height: `${boardSize + framePadding }px`,
+        // height: `${boardSize + framePadding + frameBottom}px`,
       }}
     >
       <div
@@ -147,7 +150,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           }}
         />
       </div>
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: "5.5%",
@@ -168,7 +171,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
             margin: "0",
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
