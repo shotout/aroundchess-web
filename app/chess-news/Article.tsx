@@ -14,6 +14,7 @@ import {
   Search,
 } from "lucide-react";
 import { useChessNewsStore } from "../store/chessNewsStore";
+import Link from "next/link";
 
 const tournaments = [
   {
@@ -63,14 +64,49 @@ const articles = [
 ];
 
 export default function Article() {
-  const { isLoading, chessNews, detailNews, setDetailNews } =
-    useChessNewsStore();
+  const {
+    isLoading,
+    setIsLoading,
+    categories,
+    setCategories,
+    chessNews,
+    setChessNews,
+    detailNews,
+    setDetailNews,
+  } = useChessNewsStore();
 
-  const [selectedTab, setSelectedTab] = useState<string>("All");
+  const [selectedTab, setSelectedTab] = useState<number>(1);
   const [pagination, setPagination] = useState<number>(1);
   const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+  const fetchCategories = () => {
+    fetch(process.env.BASE_URL + "/news/categories").then((res) => {
+      res.json().then((response) => {
+        setIsLoading(true);
+        setCategories(response.data);
+        setSelectedTab(response.data[0].id);
+        fetchArticles();
+      });
+    });
+  };
+  const fetchArticles = () => {
+    fetch(
+      process.env.BASE_URL +
+        "/news/articles?page=" +
+        pagination +
+        "&limit=10&categoryId=" +
+        selectedTab
+    ).then((res) => {
+      res.json().then((response) => {
+        console.log(response.data);
+        setChessNews(response.data);
+        setIsLoading(false);
+      });
+    });
+  };
   return (
     <div className="flex flex-col p-8">
       <div className="flex items-center gap-2">
@@ -100,40 +136,36 @@ export default function Article() {
             </div>
             <div className="flex items-center mt-4 w-full min-h-[44px]">
               <div className="flex gap-2 bg-white overflow-x-auto overflow-y-hidden max-w-full">
-                {[
-                  "All",
-                  "Strategy",
-                  "Tips",
-                  "Players",
-                  "Technology",
-                  "Tips",
-                  "Players",
-                  "Technology",
-                ].map((tab: string) => (
-                  <button
-                    key={tab}
-                    onClick={() => setSelectedTab(tab)}
-                    className={`py-1 px-3 font-medium rounded-[4px] border-input border
-                  ${tab == selectedTab ? `bg-[#81CFF3] text-black` : `bg-white`}
+                {categories.length > 0 &&
+                  categories.map((tab: any, index) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSelectedTab(tab.id)}
+                      className={`py-1 px-3 font-medium rounded-[4px] border-input border
+                  ${
+                    tab.id == selectedTab
+                      ? `bg-[#81CFF3] text-black`
+                      : `bg-white`
+                  }
                 `}
-                  >
-                    <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-lg">
-                      {tab}
-                    </span>
-                  </button>
-                ))}
+                    >
+                      <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-lg">
+                        {tab.name}
+                      </span>
+                    </button>
+                  ))}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
-            {articles.map((article: any, index: number) => (
+            {chessNews.map((article: any, index: number) => (
+              <Link href={`/chess-news/${article.id}`} key={index}>
               <Card
-                key={index}
                 className="rounded-md overflow-hidden border border-input shadow-md"
               >
                 <Image
-                  src={article.image}
-                  alt={article.title}
+                  src={article.imageUrl}
+                  alt={article.imageCaption}
                   width={1000}
                   height={1000}
                   className="w-full min-h-[100px] object-cover p-2 rounded-md"
@@ -141,20 +173,27 @@ export default function Article() {
                 <CardContent className="px-2">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                      {article.date}
+                      {article.publishedAt}
                     </p>
                     <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
-                      {article.category}
+                      {article.category.name}
                     </p>
                   </div>
                   <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
                     {article.title}
                   </h2>
-                  <h2 className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2">
-                    {article.title}
-                  </h2>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: article.content.replace(
+                        /\*\*(.*?)\*\*/g,
+                        "<b>$1</b>"
+                      ),
+                    }}
+                    className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2"
+                  />
                 </CardContent>
               </Card>
+              </Link>
             ))}
           </div>
           <div className="flex justify-center items-center mt-6">

@@ -4,6 +4,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 interface ChessNewsState {
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
+  categories:any[];
+  setCategories: (categories: any[]) => void;
   chessNews: any[];
   setChessNews: (chessNews: any[]) => void; 
   detailNews: any;
@@ -14,6 +16,8 @@ export const useChessNewsStore= create<ChessNewsState>()(
   persist((set) => ({
     isLoading: false,
     setIsLoading: (isLoading) => set({ isLoading }),
+    categories: [],
+    setCategories: (categories) => set({ categories }),
     chessNews: [],
     setChessNews: (chessNews) => set({ chessNews }),
     detailNews: {},
