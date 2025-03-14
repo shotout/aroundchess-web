@@ -27,8 +27,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <span className="text-[#00B427]">
               {whiteSide?.profileInfo.username}
             </span>{" "}
-            (White) vs{" "}
-            {blackSide?.profileInfo.username} (Black)
+            (White) vs {blackSide?.profileInfo.username} (Black)
           </span>
           <div className="hidden sm:flex flex-row items-center justify-between gap-4">
             <div
@@ -528,17 +527,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
       </div> */}
       </div>
 
-      <Button
+      <button
         onClick={props.next}
-        size="lg"
-        variant="default"
-        className="btn-primary whitespace-nowrap sm:mt-2 text-xs sm:py-4 md:py-6 lg:py-8 mx-2 mb-2"
+        className="btn-primary flex w-full justify-center items-center h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
       >
-        <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+        <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details
           <ArrowRight color="#FFF" className="ml-2 h-4 w-4" />
         </div>
-      </Button>
+      </button>
     </>
   );
 };

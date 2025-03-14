@@ -112,10 +112,10 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               </span>
               <div className="flex flex-row items-center gap-1">
                 <InfoIcon size={16} color="#221AE9" />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md ">
                   Type:
                 </span>
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                   Endgame
                 </span>
               </div>
@@ -135,14 +135,14 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg  font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md  font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
-                          <span className="font-bold sm:text-sm md:text-md lg:text-lg ">
+                          <span className="font-bold sm:text-sm md:text-md lg:text-md ">
                             {item.moves}
                           </span>
                         </span>
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg  text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md  text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
@@ -150,14 +150,14 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg  ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-md md:text-md lg:text-lg  font-normal">
+                    <span className="text-sm sm:text-md md:text-md lg:text-md  font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -182,10 +182,10 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               </span>
               <div className="flex flex-row items-center gap-1">
                 <InfoIcon size={16} color="#221AE9" />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg ">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md ">
                   Type:
                 </span>
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                   Endgame
                 </span>
               </div>
@@ -205,12 +205,12 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.moves}</span>
                         </span>
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
@@ -218,14 +218,14 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -251,31 +251,28 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
-        <Button
-          onClick={props.prev}
-          size="lg"
-          variant="outline"
-          className="btn-secondary flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
-            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </div>
-        </Button>
-        <div className="w-8" />
-        <Button
-          onClick={props.next}
-          size="lg"
-          variant="default"
-          className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
-          </div>
-        </Button>
-      </div>
+      
+            <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+              <button
+                onClick={props.prev}
+                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+              >
+                <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+                  <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+                  Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+              </button>
+              <div className="w-8" />
+              <button
+                onClick={props.next}
+                className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+              >
+                <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
+                  <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+                </div>
+              </button>
+            </div>
     </>
   );
 };

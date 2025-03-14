@@ -28,18 +28,18 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           <div className="flex flex-col gap-2 mt-2">
             <div className="border border-input rounded-md p-4">
               <div className="flex flex-row justify-between gap-2 mb-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                   Move 2: <span className="font-bold">e5</span>
                 </span>
                 <span className="text-[10px] font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
                   [TYPE OF THROAT]
                 </span>
               </div>
-              <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal">
+              <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
                 [EXPLANATION OF THROAT]
               </span>
               <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-lg font-normal text-primary">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
                   [HOW THE THREAT COULD HAVE BEEN AVOIDED]
                 </span>
               </div>
@@ -49,29 +49,25 @@ const Threats: React.FC<ThreatsProps> = (props) => {
       </div>
 
       <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
-        <Button
+        <button
           onClick={props.prev}
-          size="lg"
-          variant="outline"
-          className="btn-secondary flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
+          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
             <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
             Movement Details&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
-        </Button>
+        </button>
         <div className="w-8" />
-        <Button
+        <button
           onClick={props.next}
-          size="lg"
-          variant="default"
-          className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg">
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Opening
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>
-        </Button>
+        </button>
       </div>
     </>
   );
