@@ -9,7 +9,6 @@ interface CustomChessBoardProps {
   position: string;
   boardOrientation: "white" | "black";
 }
-
 const CustomBoard: React.FC<CustomChessBoardProps> = ({
   position,
   boardOrientation,
