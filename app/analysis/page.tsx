@@ -51,12 +51,8 @@ export default function AnalysisPage() {
           </div>
         </div>
         <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
-          {/* <div className="xl:w-1/3 xl:flex xl:items-start xl:justify-start"> */}
             <AnalysisResult />
-          {/* </div> */}
-          {/* <div className={`flex ${isVisible ? "" : "mt-96 sm:mt-[64%]"} `}> */}
             <AnalysisLatestGame />
-          {/* </div> */}
         </div>
       </div>
     </Navigation>

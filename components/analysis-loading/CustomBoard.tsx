@@ -103,7 +103,6 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
 
     return pieceComponents;
   }, []);
-
   // Frame dimensions
   const framePadding = 20;
   const frameBottom = 110;
