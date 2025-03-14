@@ -70,6 +70,7 @@ export function HeroSection() {
   };
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
+    setDataAnalysis(null)
     fetcher();
     handleResize();
     window.addEventListener("resize", handleResize);
