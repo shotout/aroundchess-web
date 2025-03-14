@@ -19,7 +19,6 @@ import {
   SquareIcon,
   Watch,
 } from "lucide-react";
-import Board from "./3DBoard";
 import { usePgnStore } from "../store/zustandStore";
 import { Button } from "@/components/ui/button";
 import { useChessMoveStore } from "../store/chessMoveStore";
