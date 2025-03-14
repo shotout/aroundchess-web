@@ -130,7 +130,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           boardWidth={boardSize}
           boardOrientation={boardOrientation}
           animationDuration={100}
-          customPieces={threeDPieces}
+          // customPieces={threeDPieces}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             border: "0",
