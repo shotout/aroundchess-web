@@ -14,7 +14,7 @@ import { usePgnStore } from "../store/zustandStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 
 const AnalysisLatestGame: React.FC = () => {
-  const { setIsLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { setTabFocus, tabFocus } = useTabFocusStore();
   const {
     gameInfo,
@@ -98,8 +98,9 @@ const AnalysisLatestGame: React.FC = () => {
         );
     }
   };
+ 
   return (
-    <div className="flex flex-col xl:min-w-[592px] xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
+    <div className={` ${hideDiv && "mt-96 sm:mt-[64%]"} flex flex-col xl:min-w-[592px] xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}>
       <div className="flex flex-col px-4 gap-2 py-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-xl font-bold">
           Analysis: Latest Game
