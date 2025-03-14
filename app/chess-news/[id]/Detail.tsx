@@ -15,6 +15,9 @@ import {
   Share2Icon,
 } from "lucide-react";
 import ShareButton from "@/components/button/ShareButton";
+import { useChessNewsStore } from "@/app/store/chessNewsStore";
+import { useParams } from "next/navigation";
+import { formatDate } from "@/functions/format-date";
 
 const articles = [
   {
@@ -49,19 +52,35 @@ const articles = [
 ];
 
 export default function Detail() {
+  const {
+    isLoading,
+    setIsLoading,
+    categories,
+    chessNews,
+    setChessNews,
+    detailNews,
+    setDetailNews,
+  } = useChessNewsStore();
   const [selectedTab, setSelectedTab] = useState<string>("All");
   const [saved, setSaved] = useState<any>({});
   const [pagination, setPagination] = useState<number>(1);
   const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const [htmlContent, setHtmlContent] = useState("");
-
+  const params = useParams ();
   useEffect(() => {
-    fetch("/html/content.html") // Fetch HTML file from the 'public' folder
-      .then((response) => response.text())
-      .then((data) => setHtmlContent(data))
-      .catch((error) => console.error("Error loading HTML:", error));
+    fetchDetailNews();
   }, []);
-
+  const fetchDetailNews = () => {
+    fetch(process.env.BASE_URL + "/news/articles/" + params.id).then(
+      (res) => {
+        res.json().then((response) => {
+          setIsLoading(true);
+          setDetailNews(response.data);
+          console.log(response.data);
+        });
+      }
+    );
+  };
   const toggleSave = (id: number) => {
     setSaved((prev: any[]) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -73,19 +92,19 @@ export default function Detail() {
             <div className="flex flex-row items-center gap-2">
               <ArrowLeft size={24} />
               <span className="text-sm sm:text-sm md:text-md lg:text-md">
-                Mar 20, 2024
+                {formatDate(detailNews?.publishedAt)}
               </span>
             </div>
             <div className="flex flex-row items-center justify-between gap-2">
               <p className="text-sm sm:text-sm md:text-md lg:text-md min-w-[136px] text-center border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
-                {"Technology"}
+                {detailNews?.category.name}
               </p>
               <div className="flex flex-row items-center gap-2">
                 <ShareButton save={toggleSave} />
               </div>
             </div>
           </div>
-          <span dangerouslySetInnerHTML={{ __html: htmlContent }}></span>
+          <span dangerouslySetInnerHTML={{ __html: detailNews?.content }}></span>
           <div className="flex justify-end my-4">
             <ShareButton isFull={true} save={toggleSave} />
           </div>
