@@ -124,12 +124,14 @@ const AnalysisResult: React.FC = () => {
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
 
       comments.forEach((c) => {
-        let index = history.findIndex(({ after }) => after==c.fen);
+        let index = history.findIndex(({ after }) => after == c.fen);
         // console.log( index);
         if (index === -1) {
           // history.push(o);
         } else {
-          history[index].clock = c.comment.replace("[%clk ","").replace("]","")
+          history[index].clock = c.comment
+            .replace("[%clk ", "")
+            .replace("]", "");
         }
       });
 
@@ -438,11 +440,14 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                {parsedMoves[currentMoveIndex].clock}
-
+                  {currentMoveIndex - 1 == -1
+                    ? "0:10:00:0"
+                    : currentMoveIndex == parsedMoves.length
+                    ? parsedMoves[currentMoveIndex - 1]?.clock
+                    : parsedMoves[currentMoveIndex]?.clock}
                 </span>
               </div>
             </div>
@@ -585,10 +590,14 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
+              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                  {parsedMoves[currentMoveIndex].clock}
+                  {currentMoveIndex - 1 == -1
+                    ? "0:10:00:0"
+                    : currentMoveIndex == parsedMoves.length
+                    ? parsedMoves[currentMoveIndex - 1]?.clock
+                    : parsedMoves[currentMoveIndex]?.clock}
                 </span>
               </div>
             </div>
