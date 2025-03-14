@@ -65,7 +65,6 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
-
   const {isSignedIn} = useUser()
 
   React.useEffect(() => {
