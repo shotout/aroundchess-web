@@ -112,15 +112,26 @@ const AnalysisResult: React.FC = () => {
     try {
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
-
       // Check if the PGN was loaded successfully
       if (tempGame.pgn() === "") {
         setErrorMessage("Invalid PGN format. Please check your input.");
         return false;
       }
+      const comments = tempGame.getComments();
+      console.log("tempGame.getComments()", comments);
 
       // Extract history of moves
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
+
+      comments.forEach((c) => {
+        let index = history.findIndex(({ after }) => after==c.fen);
+        // console.log( index);
+        if (index === -1) {
+          // history.push(o);
+        } else {
+          history[index].clock = c.comment.replace("[%clk ","").replace("]","")
+        }
+      });
 
       // Determine board orientation based on the headers
       const headers = tempGame.header();
@@ -311,7 +322,8 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = 453;
+    const maxSize = window.innerWidth > 1300 ? 453 : 400;
+    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
     if (isPortrait) {
@@ -385,7 +397,7 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-col">
                   <div className="flex flex-row gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
                         gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -428,8 +440,9 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                  {gameInfo?.time}
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                {parsedMoves[currentMoveIndex].clock}
+
                 </span>
               </div>
             </div>
@@ -457,7 +470,9 @@ const AnalysisResult: React.FC = () => {
           </motion.div>
           <div className={`${is3DMode && "m-0 xl:m-8"}`}>
             <Chessboard
-              boardWidth={hideDiv ? boardSize - 80 : is3DMode ? boardSize -76 : boardSize}
+              boardWidth={
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
+              }
               {...getBoardProps()}
               arePiecesDraggable={false}
             />
@@ -529,7 +544,7 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-col">
                   <div className="flex flex-row gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
                         !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -572,8 +587,8 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input rounded-md p-2 flex flex-row items-center gap-2 sm:gap-4">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
-                  {gameInfo?.time}
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                  {parsedMoves[currentMoveIndex].clock}
                 </span>
               </div>
             </div>
