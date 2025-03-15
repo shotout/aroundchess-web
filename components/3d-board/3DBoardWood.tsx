@@ -1,53 +1,35 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
-import Navigation from "@/components/navigator/navigation";
-import Engine from "@/components/playground/src/lib/stockfish";
-import { Chess, Square } from "chess.js";
-import { useEffect, useMemo, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
+import { useMemo } from "react";
+import { Square } from "chess.js";
 
-import { CSSProperties } from "react";
+interface BoardWoodBoardProps {
+  position: string;
+  boardOrientation: "white" | "black";
+}
 
-const boardWrapper: CSSProperties = {
-  display:'flex',
-  flex:1,
-  flexDirection:"column",
-  justifyContent:"center",
-  alignItems:"center",
-  margin: "3rem auto",
-};
-const buttonStyle = {
-  cursor: "pointer",
-  padding: "10px 20px",
-  margin: "10px 10px 0px 0px",
-  borderRadius: "6px",
-  backgroundColor: "#f0d9b5",
-  border: "none",
-  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.5)",
-};
-
-export default function ChessBoard() {
-  const levels = {
-    "Easy 🤓": 2,
-    "Medium 🧐": 8,
-    "Hard 😵": 18,
-  };
-
-  const engine = useMemo(() => new Engine(), []);
-  const game = useMemo(() => new Chess(), []);
-  const [stockfishLevel, setStockfishLevel] = useState(2);
+const BoardWood: React.FC<BoardWoodBoardProps> = ({
+  position,
+  boardOrientation,
+}) => {
+  // Board size configuration
   const [boardSize, setBoardSize] = useState(700); // Default size
-
-  const [gamePosition, setGamePosition] = useState(game.fen());
   useEffect(() => {
     handleResize();
-  }, []);
+  }, [window.innerWidth]);
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = 453;
-    console.log("Resizing board...", isPortrait);
+    const maxSize =
+      window.innerWidth < 1440
+        ? window.innerWidth / 2.5
+        : window.innerWidth / 4.2;
+    console.log("Resizing board...", window.innerWidth, isPortrait);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -64,37 +46,6 @@ export default function ChessBoard() {
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
-  function findBestMove() {
-    engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        // In latest chess.js versions you can just write ```game.move(bestMove)```
-        game.move({
-          from: bestMove.substring(0, 2),
-          to: bestMove.substring(2, 4),
-          promotion: bestMove.substring(4, 5),
-        });
-        setGamePosition(game.fen());
-      }
-    });
-  }
-  function onDrop(sourceSquare: Square, targetSquare: Square, piece: string) {
-    const move = game.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: piece[1].toLowerCase() ?? "q",
-    });
-    setGamePosition(game.fen());
-
-    // illegal move
-    if (move === null) return false;
-
-    // exit if the game is over
-    if (game.isGameOver() || game.isDraw()) return false;
-    findBestMove();
-    return true;
-  }
-  const [activeSquare, setActiveSquare] = useState("");
   const threeDPieces = useMemo(() => {
     const pieces = [
       {
@@ -180,28 +131,34 @@ export default function ChessBoard() {
     });
     return pieceComponents;
   }, []);
+  // Frame dimensions
+  const framePadding = 20;
+  const frameBottom = 110;
+
   return (
-    <div style={boardWrapper}>
-      {Object.entries(levels).map(([level, depth]) => (
-        <button
-          style={{
-            ...buttonStyle,
-            backgroundColor: depth === stockfishLevel ? "#B58863" : "#f0d9b5",
-          }}
-          onClick={() => setStockfishLevel(depth)}
-        >
-          {level}
-        </button>
-      ))}
-      {/* </div> */}
+    <div
+      className="relative mx-auto"
+      style={{
+        width: `${boardSize + framePadding * 2}px`,
+        height: `${boardSize + framePadding}px`,
+        // height: `${boardSize + framePadding + frameBottom}px`,
+      }}
+    >
       <div
-        style={{ maxWidth: boardSize +40}}
+        style={{
+          position: "absolute",
+          top: `${framePadding}px`,
+          left: `${framePadding}px`,
+          width: `${boardSize}px`,
+          height: `${boardSize}px`,
+          zIndex: 5,
+        }}
       >
         <Chessboard
+          arePiecesDraggable={false}
           boardWidth={boardSize}
           id="Styled3DBoard"
-          position={gamePosition}
-          onPieceDrop={onDrop}
+          position={position}
           customBoardStyle={{
             width: boardSize + 24,
             height: boardSize + 32,
@@ -234,37 +191,11 @@ export default function ChessBoard() {
             backgroundImage: 'url("wood-pattern.png")',
             backgroundSize: "cover",
           }}
-          animationDuration={500}
-          customSquareStyles={{
-            [activeSquare]: {
-              boxShadow: "inset 0 0 1px 6px rgba(255,255,255,0.75)",
-            },
-          }}
-          onMouseOverSquare={(sq) => setActiveSquare(sq)}
-          onMouseOutSquare={(sq) => setActiveSquare("")}
+          animationDuration={100}
         />
-      </div>
-      <div className="mt-12">
-        <button
-          style={buttonStyle}
-          onClick={() => {
-            game.reset();
-            setGamePosition(game.fen());
-          }}
-        >
-          New game
-        </button>
-        <button
-          style={buttonStyle}
-          onClick={() => {
-            game.undo();
-            game.undo();
-            setGamePosition(game.fen());
-          }}
-        >
-          Undo
-        </button>
       </div>
     </div>
   );
-}
+};
+
+export default BoardWood;
