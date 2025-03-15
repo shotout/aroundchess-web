@@ -1,8 +1,8 @@
 "use client";
-import GameHistoryPage from "@/components/game-history/GameHistoryPage";
 import Header from "@/components/navigator/header";
 import Sidebar from "@/components/navigator/Sidebar";
 import { SiteFooterNew } from "@/components/site-footer-new";
+import TrainingPlanPage from "@/components/training-plan/TrainingPlanPage";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -34,7 +34,7 @@ export default function Page() {
       <div className="flex flex-col overflow-y-auto w-full">
         <Header onSidebarToggle={toggleSidebar} />
         <div className="w-full">
-          <GameHistoryPage />
+          <TrainingPlanPage />
         </div>
         <SiteFooterNew />
       </div>

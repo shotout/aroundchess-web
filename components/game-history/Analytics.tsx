@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -21,29 +21,9 @@ import {
   Trophy,
 } from "lucide-react";
 import { Card } from "../ui/card";
+import DotSpinner from "./Spinner";
 
-const OpeningData = [
-  {
-    name: "Sicilian Defense",
-    games: 45,
-    winrate: "65%",
-  },
-  {
-    name: "Queen's Gambit",
-    games: 35,
-    winrate: "60%",
-  },
-  {
-    name: "Ruy Lopez",
-    games: 30,
-    winrate: "55%",
-  },
-  {
-    name: "King's Indian Defense",
-    games: 25,
-    winrate: "50%",
-  },
-];
+const endpoint = "https://ac-api.kemang.sg/api/analytic-games/newbiepisan";
 
 // Custom tooltip content component for the Rating Progress chart
 const CustomTooltipContent = ({
@@ -66,45 +46,167 @@ const CustomTooltipContent = ({
 };
 
 const Analytics = () => {
-  // Data for Rating Progress chart - can be updated from props or API
-  const [ratingData] = useState([
-    { month: "Jan", rating: 1300 },
-    { month: "Feb", rating: 1500 },
-    { month: "Mar", rating: 1420 },
-    { month: "Apr", rating: 1820 },
-    { month: "May", rating: 1740 },
-    { month: "Jun", rating: 1880 },
-  ]);
+  // State to store data from API
+  const [loading, setLoading] = useState(true);
+  const [ratingData, setRatingData] = useState([]);
+  const [distributionData, setDistributionData] = useState<
+    { name: string; value: number; color: string }[]
+  >([]);
+  interface OpeningData {
+    name: string;
+    games: number;
+    winrate: string;
+  }
+  const [openingData, setOpeningData] = useState<OpeningData[]>([]);
+  interface PerformanceData {
+    category: string;
+    games: number;
+    winRate: number;
+  }
 
-  // Data for Result Distribution - can be updated from props or API
-  const [distributionData] = useState([
-    { name: "Win", value: 70, color: "#00B427" }, // Green
-    { name: "Draw", value: 25, color: "#fbbf24" }, // Yellow
-    { name: "Loss", value: 5, color: "#FD0000" }, // Red
-  ]);
+  const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
+  const [performanceInsights, setPerformanceInsights] = useState({
+    averageGameLength: 0,
+    accuracy: 0,
+    timeManagement: 0,
+    blunderRate: 0,
+  });
+  const [keyStats, setKeyStats] = useState({
+    totalGames: 0,
+    winRate: 0,
+    averageRating: 0,
+    longestStreak: 0,
+  });
+  const [achievements, setAchievements] = useState<string[]>([]);
 
-  const performanceData = [
-    { category: "Bullet", games: 250, winRate: 62 },
-    { category: "Blitz", games: 500, winRate: 58 },
-    { category: "Rapid", games: 150, winRate: 65 },
-    { category: "Classical", games: 50, winRate: 70 },
-  ];
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(endpoint);
+        const result = await response.json();
+
+        if (result.success) {
+          const apiData = result.data;
+
+          // Process rating progress data
+          const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+          ];
+          const processedRatingData = apiData.ratingProgress
+            .slice(0, months.length)
+            .map((rating: any, index: number) => ({
+              month: months[index],
+              rating: rating,
+            }));
+
+          // Process result distribution data
+          const resultData = [
+            {
+              name: "Win",
+              value: apiData.resultDistribution.win || 70,
+              color: "#00B427",
+            },
+            {
+              name: "Draw",
+              value: apiData.resultDistribution.draw || 25,
+              color: "#fbbf24",
+            },
+            {
+              name: "Loss",
+              value: apiData.resultDistribution.lose || 5,
+              color: "#FD0000",
+            },
+          ];
+
+          // Process opening statistics
+          const openingStats = apiData.openingStatistics.map(
+            (opening: { name: any; games: any; winRate: any }) => ({
+              name: opening.name,
+              games: opening.games,
+              winrate: `${opening.winRate}%`,
+            })
+          );
+
+          // Process time control performance
+          const timeControlData = apiData.timeControlPerformance.map(
+            (item: { type: any; games: any; winRate: any }) => ({
+              category: item.type,
+              games: item.games,
+              winRate: item.winRate,
+            })
+          );
+
+          // Process performance insights
+          const insights = {
+            averageGameLength: apiData.performanceInsights.averageGameLength,
+            accuracy: apiData.performanceInsights.accuracy,
+            timeManagement: apiData.timeManagement.efficiency,
+            blunderRate: apiData.blunderRate,
+          };
+
+          // Process key statistics
+          const stats = {
+            totalGames: apiData.keyStatistics.totalGames,
+            winRate: 65, // Use a default since it's not in the API data
+            averageRating: apiData.keyStatistics.averageRating,
+            longestStreak: 8, // Use a default since it's not directly in the API data
+          };
+
+          // Process achievements
+          const achievementsData = apiData.recentAchievements || [];
+
+          // Update state with processed data
+          setRatingData(processedRatingData);
+          setDistributionData(resultData);
+          setOpeningData(openingStats);
+          setPerformanceData(timeControlData);
+          setPerformanceInsights(insights);
+          setKeyStats(stats);
+          setAchievements(achievementsData);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Calculate the maximum number of games for scaling
-  const maxGames = Math.max(...performanceData.map((item) => item.games));
+  const maxGames = Math.max(
+    ...(performanceData.map((item) => item.games) || [500])
+  );
+
+  // If loading, show a simple loading state
+  if (loading) {
+    return <DotSpinner />;
+  }
 
   return (
     <div className="grid md:grid-cols-2 gap-3">
       {/* Left Column for mobile and tablet */}
       <div className="flex flex-col gap-4">
         {/* Rating Progress Chart with Tooltip */}
-        <div className="p-4 rounded-lg md:shadow-sm md:border">
+        <div className="md:p-4 rounded-lg md:shadow-sm md:border">
           <h1 className="text-base font-bold mb-2">Rating Progress</h1>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={ratingData}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
               >
                 <CartesianGrid
                   strokeDasharray="5 5"
@@ -142,7 +244,7 @@ const Analytics = () => {
         {/* Result Distribution and Opening Statistics side by side on desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4  md:bg-white">
           {/* Result Distribution Chart */}
-          <div className="p-4 rounded-lg md:shadow-sm md:border">
+          <div className="md:p-4 rounded-lg md:shadow-sm md:border">
             <h1 className="text-base font-medium mb-2">Result Distribution</h1>
             <div className="flex items-center justify-center h-64">
               <div className="w-48 h-48">
@@ -170,10 +272,10 @@ const Analytics = () => {
           </div>
 
           {/* Opening Statistics */}
-          <div className="p-4 rounded-lg md:shadow-sm md:border">
+          <div className="md:p-4 rounded-lg md:shadow-sm md:border">
             <h1 className="text-base font-medium mb-3">Opening Statistics</h1>
             <div className="space-y-3">
-              {OpeningData.map((data, index) => (
+              {openingData.map((data, index) => (
                 <div key={index} className="flex justify-between items-center">
                   <div>
                     <h1 className="font-bold">{data.name}</h1>
@@ -186,15 +288,17 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Performance Insights - Moved to the original position of Opening Statistics */}
-        <div className="p-4 rounded-lg md:border">
+        {/* Performance Insights */}
+        <div className="md:p-4 rounded-lg md:border">
           <h1 className="text-base font-medium mb-3">Performance Insights</h1>
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
               <h1 className="text-sm font-thin">Average Game Length</h1>
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold">35 Moves</h1>
+                  <h1 className="text-lg font-bold">
+                    {performanceInsights.averageGameLength} Moves
+                  </h1>
                 </div>
                 <span className="text-xs mt-1 font-thin">
                   +3 moves from last month
@@ -206,7 +310,9 @@ const Analytics = () => {
               <h1 className="text-sm font-thin">Time Management</h1>
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold">85%</h1>
+                  <h1 className="text-lg font-bold">
+                    {performanceInsights.timeManagement}%
+                  </h1>
                 </div>
                 <span className="text-xs mt-1 font-thin">
                   Efficient time usage
@@ -219,7 +325,9 @@ const Analytics = () => {
 
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold">92%</h1>
+                  <h1 className="text-lg font-bold">
+                    {performanceInsights.accuracy}%
+                  </h1>
                 </div>
                 <span className="text-xs mt-1 font-thin">Top moves played</span>
               </div>
@@ -230,7 +338,9 @@ const Analytics = () => {
 
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold">3.5%</h1>
+                  <h1 className="text-lg font-bold">
+                    {performanceInsights.blunderRate}%
+                  </h1>
                 </div>
                 <p className="text-xs mt-1 font-thin">
                   <span className="text-red-400">-12% </span>
@@ -245,7 +355,7 @@ const Analytics = () => {
       {/* Right Column for mobile and tablet */}
       <div className="flex flex-col gap-4">
         {/* Key Statistics */}
-        <div className="p-4 rounded-lg md:border">
+        <div className="md:p-4 rounded-lg md:border">
           <h1 className="text-base font-medium mb-3">Key Statistics</h1>
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-3 rounded-lg md:border bg-white">
@@ -258,7 +368,9 @@ const Analytics = () => {
                 </div>
                 <div className="flex flex-col space-y-1">
                   <p className="text-xs text-gray-500">Total Games</p>
-                  <h2 className="text-base font-semibold">1,234</h2>
+                  <h2 className="text-base font-semibold">
+                    {keyStats.totalGames.toLocaleString()}
+                  </h2>
                   <p className="text-[10px] text-green-500">+45 this month</p>
                 </div>
               </div>
@@ -271,7 +383,9 @@ const Analytics = () => {
                 </div>
                 <div className="flex flex-col space-y-1">
                   <p className="text-xs text-gray-500">Win Rate</p>
-                  <h2 className="text-base font-semibold">65%</h2>
+                  <h2 className="text-base font-semibold">
+                    {keyStats.winRate}%
+                  </h2>
                   <p className="text-[10px] text-game-green">+5%</p>
                 </div>
               </div>
@@ -284,7 +398,9 @@ const Analytics = () => {
                 </div>
                 <div className="flex flex-col space-y-1">
                   <p className="text-xs text-gray-500">Average Rating</p>
-                  <h2 className="text-base font-semibold">1,850</h2>
+                  <h2 className="text-base font-semibold">
+                    {keyStats.averageRating}
+                  </h2>
                   <p className="text-[10px] text-green-500">
                     +25 point this month
                   </p>
@@ -299,7 +415,9 @@ const Analytics = () => {
                 </div>
                 <div className="flex flex-col space-y-1">
                   <p className="text-xs text-gray-500">Longest Streak</p>
-                  <h2 className="text-base font-semibold">8 wins</h2>
+                  <h2 className="text-base font-semibold">
+                    {keyStats.longestStreak} wins
+                  </h2>
                 </div>
               </div>
             </Card>
@@ -307,7 +425,7 @@ const Analytics = () => {
         </div>
 
         {/* Time Control Performance */}
-        <div className="p-4 rounded-lg md:border">
+        <div className="md:p-4 rounded-lg md:border">
           <h1 className="text-base font-medium mb-3">
             Time Control Performance
           </h1>
@@ -353,36 +471,52 @@ const Analytics = () => {
         </div>
 
         {/* Recent Achievements */}
-        <div className="p-4 rounded-lg md:border">
+        <div className="md:p-4 rounded-lg md:border">
           <h1 className="text-base font-medium mb-3">Recent Achievements</h1>
           <div className="space-y-3">
-            <Card className="flex items-center gap-3 p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-              <div className="h-12 w-12 flex justify-center items-center bg-yellow-100 rounded-full">
-                <Trophy className="h-6 w-6 text-yellow-500" fill="#eab308" />
-              </div>
-              <div className="space-y-1">
-                <h1 className="font-bold">First Classical Win</h1>
-                <p className="text-xs">Won against 2,000+ rated player</p>
-              </div>
-            </Card>
-            <Card className="flex items-center gap-3 p-3 rounded-lg shadow-sm md:shadow md:border bg-white mt-3">
-              <div className="h-12 w-12 flex justify-center items-center bg-blue-100 rounded-full">
-                <Swords className="h-6 w-6 text-blue-500" fill="#3b82f6" />
-              </div>
-              <div className="space-y-1">
-                <h1 className="font-bold">Winning Streak</h1>
-                <p className="text-xs">8 consecutive wins in blitz</p>
-              </div>
-            </Card>
-            <Card className="flex items-center gap-3 p-3 rounded-lg shadow-sm md:shadow md:border bg-white mt-3">
-              <div className="h-12 w-12 flex justify-center items-center bg-green-100 rounded-full">
-                <TimerIcon className="h-6 w-6 text-green-500" />
-              </div>
-              <div className="space-y-1">
-                <h1 className="font-bold">Time Management</h1>
-                <p className="text-xs">90% time efficiency in last 10 games</p>
-              </div>
-            </Card>
+            {achievements.length > 0 ? (
+              achievements.map((achievement, index) => {
+                let icon, title, description;
+                // Parse achievement text
+                if (achievement.includes("Classical Win")) {
+                  icon = (
+                    <Trophy
+                      className="h-6 w-6 text-yellow-500"
+                      fill="#eab308"
+                    />
+                  );
+                  title = "First Classical Win";
+                  description = "Won against 2,000+ rated player";
+                } else if (achievement.includes("consecutive wins")) {
+                  icon = (
+                    <Swords className="h-6 w-6 text-blue-500" fill="#3b82f6" />
+                  );
+                  title = "Winning Streak";
+                  description = achievement;
+                } else {
+                  icon = <TimerIcon className="h-6 w-6 text-green-500" />;
+                  title = "Achievement";
+                  description = achievement;
+                }
+
+                return (
+                  <Card
+                    key={index}
+                    className="flex items-center gap-3 p-3 rounded-lg shadow-sm md:shadow md:border bg-white"
+                  >
+                    <div className="h-12 w-12 flex justify-center items-center bg-yellow-100 rounded-full">
+                      {icon}
+                    </div>
+                    <div className="space-y-1">
+                      <h1 className="font-bold">{title}</h1>
+                      <p className="text-xs">{description}</p>
+                    </div>
+                  </Card>
+                );
+              })
+            ) : (
+              <h1>no achievement to</h1>
+            )}
           </div>
         </div>
       </div>
