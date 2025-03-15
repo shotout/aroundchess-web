@@ -15,9 +15,93 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import GamesTabCard from "./GamesTabCard";
-import { chessGamesData } from "./ChessGameData";
+import useFetch from "@/app/hooks/useFetch";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import DotSpinner from "./Spinner";
+
+interface Game {
+  id: number;
+  date: string;
+  opponent: string;
+  result: string;
+  eloChange: string;
+  resultColor: string;
+  rating: string;
+  opening: string;
+  moves: string;
+  timeControl: string;
+  source: string;
+  gameType: string;
+  color: string;
+  gameFormat: string;
+  pgn: string;
+}
+
+const endpoint = "https://ac-api.kemang.sg/api/games/newbiepisan";
+
+// Function to transform API data to match the expected format in the component
+function transformApiDataToComponentFormat(apiData: any[]) {
+  if (!apiData || !Array.isArray(apiData)) return [];
+
+  return apiData.map((game, index) => {
+    // Convert date format
+    const dateObj = new Date(game.date);
+    const formattedDate = `${dateObj.getFullYear()}-${String(
+      dateObj.getMonth() + 1
+    ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+
+    // Map result to resultColor
+    const resultColorMap: Record<string, string> = {
+      WIN: "text-green-500",
+      LOSS: "text-red-500",
+      DRAW: "text-gray-500",
+    };
+
+    // Map time_control to gameType
+    let gameType = "Rapid"; // Default
+    const timeControl = parseInt(game.time_control);
+    if (timeControl < 180) gameType = "Bullet";
+    else if (timeControl < 600) gameType = "Blitz";
+    else if (timeControl >= 1800) gameType = "Classical";
+
+    return {
+      id: index + 1,
+      date: formattedDate,
+      opponent: game.opponent,
+      result: game.result,
+      eloChange: `(${game.elo_change > 0 ? "+" : ""}${
+        game.elo_change
+      } ELO Rating)`,
+      resultColor: resultColorMap[game.result] || "text-gray-500",
+      rating: game.rating.toString(),
+      opening: game.opening_name || "Unknown Opening",
+      moves: game.moves.toString(),
+      timeControl: formatTimeControl(game.time_control),
+      source: game.source,
+      gameType: gameType,
+      color: game.color,
+      gameFormat: game.source,
+      pgn: game.pgn,
+    };
+  });
+}
+
+// Helper function to format time control in a more readable way
+function formatTimeControl(timeControlStr: string) {
+  const seconds = parseInt(timeControlStr);
+  if (seconds >= 60) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return remainingSeconds > 0
+      ? `${minutes}+${remainingSeconds}`
+      : `${minutes}+0`;
+  }
+  return `${seconds}+0`;
+}
 
 const GamesTab = () => {
+  const router = useRouter(); // Initialize the router
   const [showFilters, setShowFilters] = useState(false);
   const [timeRange, setTimeRange] = useState("All Times");
   const [gameType, setGameType] = useState("All Games");
@@ -27,10 +111,29 @@ const GamesTab = () => {
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [filtersApplied, setFiltersApplied] = useState(false);
 
+  // API fetch
+  const { data, isLoading, error } = useFetch(endpoint);
+  const { setPgn } = usePgnStore();
+  const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
+
+  // Process API data when it arrives
+  useEffect(() => {
+    if (data && data.data) {
+      const transformedData = transformApiDataToComponentFormat(data.data);
+
+      setApiProcessedData(transformedData);
+    }
+  }, [data]);
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [filteredGames, setFilteredGames] = useState(chessGamesData);
+
+  const [filteredGames, setFilteredGames] = useState<Game[]>([]);
+
+  const gamesData = useMemo(() => {
+    return apiProcessedData;
+  }, [apiProcessedData]);
 
   const defaultFilters = useMemo(
     () => ({
@@ -43,7 +146,14 @@ const GamesTab = () => {
     []
   );
 
-  // Calculate active filters count
+  // Function to handle analyze button click
+  const handleAnalyzeClick = (game: Game) => {
+    // Set the pgn in the store
+    setPgn(game.pgn);
+    // Navigate to the analysis page
+    router.push("/analysis");
+  };
+
   useEffect(() => {
     let count = 0;
     if (timeRange !== defaultFilters.timeRange) count++;
@@ -56,9 +166,8 @@ const GamesTab = () => {
     setFiltersApplied(count > 0);
   }, [timeRange, gameType, color, gameFormat, results, defaultFilters]);
 
-  // Filter games based on selected filters
   useEffect(() => {
-    let filtered = [...chessGamesData];
+    let filtered = Array.isArray(gamesData) ? [...gamesData] : [];
 
     // Apply time range filter
     if (timeRange !== "All Times") {
@@ -104,12 +213,22 @@ const GamesTab = () => {
         Losses: "LOSS",
         Draws: "DRAW",
       };
-      filtered = filtered.filter((game) => game.result === resultMap[results]);
+      filtered = filtered.filter(
+        (game) => game.result === resultMap[results as keyof typeof resultMap]
+      );
     }
 
     setFilteredGames(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [timeRange, gameType, color, gameFormat, results, filtersApplied]);
+  }, [
+    timeRange,
+    gameType,
+    color,
+    gameFormat,
+    results,
+    filtersApplied,
+    gamesData,
+  ]);
 
   // Calculate pagination values
   const totalPages = Math.ceil(filteredGames.length / itemsPerPage);
@@ -157,7 +276,10 @@ const GamesTab = () => {
 
   // Function to render Elo change with appropriate color
   const renderEloChange = (change: string) => {
-    const value = parseInt(change);
+    // Extract the numeric value from the string "(+XX ELO Rating)" or "(-XX ELO Rating)"
+    const match = change.match(/\(([+-]\d+) ELO Rating\)/);
+    const value = match ? parseInt(match[1]) : 0;
+
     if (value > 0) {
       return <span className="text-green-500">+{value}</span>;
     } else if (value < 0) {
@@ -167,11 +289,21 @@ const GamesTab = () => {
     }
   };
 
+  if (isLoading) {
+    return <DotSpinner />;
+  }
+
   return (
     <div className="mx-auto ">
+      {error && (
+        <div className="text-center text-red-500 p-4">
+          Error loading games: {error.message}
+        </div>
+      )}
+
       <div className="relative w-full">
         {/* Desktop/Tablet Filter UI */}
-        <div className="hidden md:flex items-center mb-4 rounded-lg border border-primary-gray p-2 md:h-[56px]">
+        <div className="hidden md:flex items-center mb-4 rounded-lg border border-primary-gray p-2 md:p-4 md:h-[56px] lg:h-[80px]">
           <div className="flex items-center space-x-1 lg:space-x-2 flex-1 flex-nowrap overflow-x-auto">
             {/* Time Range Filter */}
             <Select
@@ -236,6 +368,7 @@ const GamesTab = () => {
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectItem value="All Formats">All Sources</SelectItem>
+                <SelectItem value="Chess.com">Chess.com</SelectItem>
                 <SelectItem value="PGN Upload">PGN Upload</SelectItem>
                 <SelectItem value="Online Games">Online Games</SelectItem>
                 <SelectItem value="Tournaments">Tournaments</SelectItem>
@@ -260,20 +393,19 @@ const GamesTab = () => {
             </Select>
           </div>
           <div className="flex items-center space-x-1 lg:space-x-2 ml-1 shrink-0">
-            <Button
+            <button
               onClick={handleApplyFilters}
               className="btn-secondary text-white flex items-center justify-center lg:w-40 gap-1 h-9 lg:h-12 px-2 rounded-3xl text-xs whitespace-nowrap"
             >
               <Filter className="h-3 w-3" />
               Apply Filters
-            </Button>
-            <Button
-              variant="outline"
+            </button>
+            <button
               onClick={handleClearFilters}
               className="btn-tertiary h-9 lg:h-12 lg:w-40 px-2 rounded-3xl text-xs whitespace-nowrap btn-secondary"
             >
               Clear Filters
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -367,6 +499,7 @@ const GamesTab = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="All Formats">All Sources</SelectItem>
+                  <SelectItem value="Chess.com">Chess.com</SelectItem>
                   <SelectItem value="PGN Upload">PGN Upload</SelectItem>
                   <SelectItem value="Online Games">Online Games</SelectItem>
                   <SelectItem value="Tournaments">Tournaments</SelectItem>
@@ -392,44 +525,40 @@ const GamesTab = () => {
             </div>
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Button
+              <button
                 onClick={handleApplyFilters}
-                className="btn-secondary  flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
+                className="btn-secondary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
               >
                 <Filter className="h-4 w-4" />
                 <h1 className="test-xs">Apply Filters</h1>
-              </Button>
-              <Button
-                variant="outline"
+              </button>
+              <button
                 onClick={handleClearFilters}
                 className="btn-tertiary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
               >
                 <Filter className="h-4 w-4" />
                 Clear Filters
-              </Button>
+              </button>
             </div>
           </Card>
         )}
       </div>
 
-      {/* Desktop Table View */}
       <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
         {currentGames.length > 0 ? (
           <>
             {/* Table Header */}
             <div className="grid grid-cols-10 bg-blue-100 py-3 text-xs font-medium text-gray-700">
-              <div className="col-span-1 px-6 text-center flex">Date</div>
-              <div className="col-span-1 px-4 text-center flex">
-                Time Control
-              </div>
-              <div className="col-span-1 px-4 text-center flex">Result</div>
-              <div className="col-span-1 px-4 text-center flex">Opponent</div>
-              <div className="col-span-1 px-4 text-center flex">Rating</div>
-              <div className="col-span-1 px-4 text-center flex">Elo Change</div>
-              <div className="col-span-1 px-4 text-center flex">Moves</div>
-              <div className="col-span-1 px-4 text-center flex">Opening</div>
-              <div className="col-span-1 px-4 text-center flex">Source</div>
-              <div className="col-span-1 px-4 text-center flex items-center justify-center"></div>
+              <div className="col-span-1 pl-14 text-left">Date</div>
+              <div className="col-span-1 px-4 text-left">Time Control</div>
+              <div className="col-span-1 px-4 text-left">Result</div>
+              <div className="col-span-1 px-4 text-left">Opponent</div>
+              <div className="col-span-1 px-4 text-left">Rating</div>
+              <div className="col-span-1 px-4 text-left">Elo Change</div>
+              <div className="col-span-1 px-4 text-left">Moves</div>
+              <div className="col-span-1 px-4 text-left">Opening</div>
+              <div className="col-span-1 px-4 text-left">Source</div>
+              <div className="col-span-1 px-4 text-left">Actions</div>
             </div>
 
             <div className="divide-y divide-gray-200 text-xs xl:text-sm">
@@ -438,47 +567,54 @@ const GamesTab = () => {
                   key={game.id}
                   className="grid grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
                 >
-                  {/* This creates a full-height vertical line at a specific position */}
+                  {/* Fixed vertical divider positioning */}
                   <div
-                    className="absolute h-full bg-gray-200 w-px"
-                    style={{ left: "2.75rem" }}
+                    className="absolute h-full w-px bg-gray-200"
+                    style={{ left: "3rem" }}
                   ></div>
 
-                  <div className="col-span-1 px-2 py-3 relative flex items-center justify-center">
-                    <span className="absolute left-3 text-gray-500">
+                  {/* Fixed date column with better alignment */}
+                  <div className="col-span-1 py-3 pl-4 flex items-center">
+                    <span className="inline-block w-6 text-right text-gray-500 mr-4">
                       {indexOfFirstGame + index + 1}
                     </span>
-                    <span className="ml-6">{game.date}</span>
+                    <span className="ml-2">{game.date}</span>
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {game.timeControl}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {renderResult(game.result)}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center truncate">
                     {game.opponent}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {game.rating}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {renderEloChange(game.eloChange)}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {game.moves}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {game.opening}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
+                  <div className="col-span-1 px-4 py-3 flex items-center">
                     {game.source}
                   </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center ">
-                    <Button className="btn-primary text-white w-[80px] h-[32px] px-10 lg:px-16 py-4 rounded-3xl text-xs flex justify-center items-center">
+
+                  {/* Fixed analyze button */}
+                  <div className="col-span-1 px-4 py-3 flex items-center">
+                    <button
+                      className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center"
+                      onClick={() => handleAnalyzeClick(game)}
+                    >
                       <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                      <h1>Analyze</h1>
-                    </Button>
+                      Analyze
+                    </button>
                   </div>
                 </div>
               ))}
@@ -493,9 +629,13 @@ const GamesTab = () => {
       {/* Mobile/Tablet Game Cards View */}
       <div className="lg:hidden">
         {currentGames.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
             {currentGames.map((game) => (
-              <GamesTabCard key={game.id} gameData={game} />
+              <GamesTabCard
+                key={game.id}
+                gameData={game}
+                onAnalyze={() => handleAnalyzeClick(game)} // Pass the onAnalyze prop
+              />
             ))}
           </div>
         ) : (

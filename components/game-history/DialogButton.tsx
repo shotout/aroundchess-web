@@ -1,14 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  CheckCircle,
-  Download,
-  FileText,
-  Import,
-  ImportIcon,
-  Trash,
-  Upload,
-  X,
-} from "lucide-react";
+import { CheckCircle, FileText, Trash, Upload, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "../ui/button";
 
@@ -21,9 +12,11 @@ const DialogButton = () => {
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleTabChange = (tab) => {
+  type TabType = "paste" | "upload";
+
+  const handleTabChange = (tab: TabType): void => {
     setActiveTab(tab);
     setPgnText("");
     setFileName("");
@@ -31,7 +24,11 @@ const DialogButton = () => {
     setIsSubmitted(false);
   };
 
-  const handleDrag = (e) => {
+  interface DragEvent extends React.DragEvent<HTMLDivElement> {
+    type: "dragenter" | "dragover" | "dragleave";
+  }
+
+  const handleDrag = (e: DragEvent): void => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -42,7 +39,7 @@ const DialogButton = () => {
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -52,13 +49,23 @@ const DialogButton = () => {
     }
   };
 
-  const handleFileInput = (e) => {
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
   };
 
-  const handleFile = (file) => {
+  interface PGNFile extends File {
+    name: string;
+    size: number;
+  }
+
+  interface FileValidationConfig {
+    maxSize: number;
+    allowedExtension: string;
+  }
+
+  const handleFile = (file: PGNFile): void => {
     // Check file type (simple check for .pgn extension)
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
@@ -76,7 +83,7 @@ const DialogButton = () => {
   };
 
   const handleButtonClick = () => {
-    if (activeTab === "upload" && !fileName) {
+    if (activeTab === "upload" && !fileName && fileInputRef.current) {
       fileInputRef.current.click();
     } else {
       // Handle import logic
@@ -344,7 +351,7 @@ const DialogButton = () => {
                             to{" "}
                             <span
                               className="text-blue-600 font-medium cursor-pointer"
-                              onClick={() => fileInputRef.current.click()}
+                              onClick={() => fileInputRef.current?.click()}
                             >
                               select
                             </span>{" "}
