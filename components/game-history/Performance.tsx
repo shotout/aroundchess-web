@@ -112,13 +112,10 @@ const Performance = () => {
       }
     };
 
-    // Set initial size
     handleResize();
 
-    // Add event listener
     window.addEventListener("resize", handleResize);
 
-    // Clean up
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   // Dummy data that matches the chart in the image
@@ -132,7 +129,7 @@ const Performance = () => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={barData}
-              margin={{ top: 10, right: 10, bottom: 5 }}
+              margin={{ top: 10, right: 10, bottom: 5, left: -25 }}
               layout="horizontal"
               className="text-[10px]"
             >
