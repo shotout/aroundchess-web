@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Chess } from "chess.js";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Chess, Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import pgnParser from "pgn-parser";
 import { getStockfishService } from "@/lib/stockfish/stockfish-service";
@@ -25,6 +25,7 @@ import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import MovementTable from "@/components/table/movement";
 import { motion } from "framer-motion";
+import BoardWood from "@/components/3d-board/3DBoardWood";
 
 type CapturedPieces = {
   white: string[];
@@ -62,6 +63,7 @@ const AnalysisResult: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -93,7 +95,91 @@ const AnalysisResult: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const threeDPieces = useMemo(() => {
+    const pieces = [
+      {
+        piece: "wP",
+        pieceHeight: 1,
+      },
+      {
+        piece: "wN",
+        pieceHeight: 1.2,
+      },
+      {
+        piece: "wB",
+        pieceHeight: 1.3,
+      },
+      {
+        piece: "wR",
+        pieceHeight: 1.2,
+      },
+      {
+        piece: "wQ",
+        pieceHeight: 1.4,
+      },
+      {
+        piece: "wK",
+        pieceHeight: 0.87,
+      },
+      {
+        piece: "bP",
+        pieceHeight: 1,
+      },
+      {
+        piece: "bN",
+        pieceHeight: 1.2,
+      },
+      {
+        piece: "bB",
+        pieceHeight: 1.3,
+      },
+      {
+        piece: "bR",
+        pieceHeight: 1.2,
+      },
+      {
+        piece: "bQ",
+        pieceHeight: 1.4,
+      },
+      {
+        piece: "bK",
+        pieceHeight: 0.8,
+      },
+    ];
+    const pieceComponents: {
+      [key: string]: ({
+        squareWidth,
+        square,
+      }: {
+        squareWidth: number;
+        square: Square;
+      }) => JSX.Element;
+    } = {};
+    pieces.forEach(({ piece, pieceHeight }) => {
+      pieceComponents[piece] = ({ squareWidth, square }) => (
+        <div
+          style={{
+            width: squareWidth * pieceHeight,
+            height: squareWidth,
+            position: "relative",
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={`/3d-pieces/${piece}.webp`}
+            width={squareWidth * pieceHeight}
+            height={squareWidth}
+            style={{
+              position: "absolute",
+              bottom: `${0.2 * squareWidth}px`,
+              objectFit: piece[1] === "K" ? "contain" : "cover",
+            }}
+          />
+        </div>
+      );
+    });
+    return pieceComponents;
+  }, []);
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
@@ -474,13 +560,40 @@ const AnalysisResult: React.FC = () => {
             </Button>
           </motion.div>
           <div className={`${is3DMode && "m-0 xl:m-8"}`}>
-            <Chessboard
-              boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
+            {/* {!is3DMode ? ( */}
+            <motion.div
+              animate={
+                is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
               }
-              {...getBoardProps()}
-              arePiecesDraggable={false}
-            />
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              style={{ display: !is3DMode ? "block" : "none" }}
+            >
+              <Chessboard
+                boardWidth={
+                  hideDiv
+                    ? boardSize - 80
+                    : is3DMode
+                    ? boardSize - 76
+                    : boardSize
+                }
+                {...getBoardProps()}
+                arePiecesDraggable={false}
+              />
+            </motion.div>
+            {/* ) : ( */}
+            <motion.div
+              animate={
+                !is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+              }
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              style={{ display: is3DMode ? "block" : "none", marginTop: -20 }}
+            >
+              <BoardWood
+                position={game.fen()}
+                boardOrientation={boardOrientation}
+              />
+            </motion.div>
+            {/* )} */}
           </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-4">

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Chess } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
 import CustomBoard from "./CustomBoard";
+import BoardWood from "../3d-board/3DBoardWood";
 
 interface ParsedMove {
   color: string;
@@ -71,7 +72,7 @@ const PgnPlayer: React.FC = () => {
       setError(null);
 
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(
         `Error parsing PGN: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -192,18 +193,18 @@ const PgnPlayer: React.FC = () => {
 
   // Auto-play effect
   useEffect(() => {
-    console.log(currentMoveIndex, moveHistory.length)
+    console.log(currentMoveIndex, moveHistory.length);
     // Skip if we don't have moves or are at the end
     if (moveHistory.length === 0 || currentMoveIndex >= moveHistory.length) {
       return;
     } else if (currentMoveIndex == moveHistory.length - 1) {
       console.log("Reached end of moves");
-        setCurrentMoveIndex(0);
-        setGame(new Chess());
-        if (autoPlayTimerRef.current) {
-      clearTimeout(autoPlayTimerRef.current);
-      autoPlayTimerRef.current = null;
-    }
+      setCurrentMoveIndex(0);
+      setGame(new Chess());
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
     }
 
     // Clear existing timer
@@ -260,23 +261,18 @@ const PgnPlayer: React.FC = () => {
   }, []);
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="mx-auto">
-          <CustomBoard
-            position={game.fen()}
-            boardOrientation={boardOrientation}
-          />
-        </div>
-
-        <div className="text-center mt-4">
-          <p>
-            Move: {currentMoveIndex} / {moveHistory.length}
-          </p>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </div>
+    <div className="space-y-4">
+      <div className="mx-auto mb-12">
+        <BoardWood position={game.fen()} boardOrientation={boardOrientation} />
       </div>
-    </>
+
+      <div className="">
+        <p className="text-sm md:text-md text-center">
+          Move: {currentMoveIndex} / {moveHistory.length}
+        </p>
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+      </div>
+    </div>
   );
 };
 

@@ -11,7 +11,7 @@ export default function LoadingSpinner() {
     const interval = setInterval(() => {
       if (dataAnalysis == null && progress <= 99) {
         setProgress((prev) =>
-          prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
+          prev < 99 ? prev + Math.floor(Math.random() * 5) + 5 : 99
         );
       } else if (dataAnalysis != null) {
         setProgress(100);
@@ -102,7 +102,7 @@ export default function LoadingSpinner() {
         </div> */}
       </div>
 
-      <p className="mt-4 text-lg font-semibold text-gray-700">
+      <p className="mt-4 sm:text-md text-sm font-semibold text-gray-700">
         AI Analyzing Now...
       </p>
     </div>
