@@ -39,7 +39,7 @@ export function ImproveSection() {
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">
       <div className="container px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center ">
+        <div className="flex flex-col xl:flex-row items-center ">
           <motion.div
             className="w-full"
             initial={{ opacity: 0, x: -50 }}
@@ -47,9 +47,9 @@ export function ImproveSection() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="flex flex-col bg-[#3871EC] rounded-lg">
+            <div className="flex flex-col bg-[#221AE9] rounded-lg">
               <div className="flex flex-row">
-                <div className="flex flex-col w-4/6 sm:w-4/6 lg:w-2/6 bg-[#2657C0] rounded-tl-lg px-2 sm:px-8 sm:pr-16 py-8">
+                <div className="flex flex-col w-4/6 sm:w-4/6 lg:w-2/6 bg-[#110D75] rounded-tl-lg px-2 sm:px-8 sm:pr-16 py-8">
                   <h2 className="font-heading text-md sm:text-xl lg:text-3xl font-bold mb-1 sm:mb-2 text-white">
                     Improve your Chess Skills with AroundChess
                   </h2>

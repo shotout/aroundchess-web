@@ -80,7 +80,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start lg:max-h-[800px] lg:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         {/* best moves  */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
@@ -116,31 +116,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
 
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
                           {item.evaluation}
                         </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                           Opening
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -154,7 +154,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -162,9 +162,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                       onClick={props.next}
                       size="lg"
                       variant="default"
-                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -184,31 +184,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
 
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
                           {item.evaluation}
                         </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                           MiddleGame
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -222,7 +222,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -230,9 +230,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                       onClick={props.next}
                       size="lg"
                       variant="default"
-                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -252,31 +252,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
 
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
                           {item.evaluation}
                         </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                           EndGame
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -290,7 +290,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -298,9 +298,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                       onClick={props.next}
                       size="lg"
                       variant="default"
-                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -344,31 +344,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
 
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
                           {item.evaluation}
                         </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                           Opening
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -383,7 +383,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -391,9 +391,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                       onClick={props.next}
                       size="lg"
                       variant="default"
-                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -414,31 +414,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                     <div className="p-1">
                       <div className="flex flex-row justify-between gap-2 mb-4">
                         <div className="flex flex-row items-center gap-2">
-                          <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                          <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                             Move {item.moveNumber}:{" "}
                             <span className="font-bold">{item.move}</span>
                           </span>
 
                           <span
-                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                               item.classification
                             )}`}
                           >
                             {item.evaluation}
                           </span>
-                          <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                          <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                             MiddleGame
                           </span>
                         </div>
                         <span
-                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                             item.classification
                           )}`}
                         >
                           {item.classification}
                         </span>
                       </div>
-                      <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
+                      <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
                         <span className="font-bold">Analysis: </span>
                         {item.analysis}
                       </span>
@@ -453,7 +453,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                           height={1000}
                           className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                         />
-                        <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                        <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                           {item.recommendedTrainingExercise}
                         </span>
                       </div>
@@ -461,9 +461,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                         onClick={props.next}
                         size="lg"
                         variant="default"
-                        className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                        className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                       >
-                        <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                        <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                           Go To Exercise
                         </div>
                       </Button>
@@ -484,31 +484,31 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-lg font-normal border border-primary rounded-[4px] p-1">
+                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
 
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-lg text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
                           {item.evaluation}
                         </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-lg font-semibold ">
+                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
                           EndGame
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-lg ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-lg  font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -523,7 +523,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                         height={1000}
                         className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
                       />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-normal text-[#254B9D]">
+                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
                         {item.recommendedTrainingExercise}
                       </span>
                     </div>
@@ -531,9 +531,9 @@ const Training: React.FC<TrainingProps> = (props) => {
                       onClick={props.next}
                       size="lg"
                       variant="default"
-                      className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
                     >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                         Go To Exercise
                       </div>
                     </Button>
@@ -543,30 +543,28 @@ const Training: React.FC<TrainingProps> = (props) => {
             })}
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
-        <Button
-          onClick={props.prev}
-          size="lg"
-          variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black">
-            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Improvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </div>
-        </Button>
-        <div className="w-8" />
-        <Button
-          onClick={props.next}
-          size="lg"
-          variant="default"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            Start your Training
-          </div>
-        </Button>
-      </div>
+     
+           <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+             <button
+               onClick={props.prev}
+               className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+             >
+               <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+                 <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+                 Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+               </div>
+             </button>
+             <div className="w-8" />
+             <button
+               onClick={props.next}
+               className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+             >
+               <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                 &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
+                 <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+               </div>
+             </button>
+           </div>
     </>
   );
 };

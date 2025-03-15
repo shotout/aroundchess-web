@@ -21,14 +21,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
   return (
     <>
-      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start lg:max-h-[800px] lg:min-h-[800px] lg:overflow-auto">
-        <div className="flex flex-col gap-2 w-full py-2 rounded-md border-b border-b-input">
+      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+        <div className="flex flex-col gap-2 w-full py-2 border-b border-b-input">
           <span className="text-xs sm:hidden text-center">
             <span className="text-[#00B427]">
               {whiteSide?.profileInfo.username}
             </span>{" "}
-            (White) vs
-            {whiteSide?.profileInfo.username} (Black)
+            (White) vs {blackSide?.profileInfo.username} (Black)
           </span>
           <div className="hidden sm:flex flex-row items-center justify-between gap-4">
             <div
@@ -39,7 +38,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
               <div className="flex flex-row gap-2">
                 <Image
                   alt="avatar"
-                  src={blackSide?.profileInfo.photo}
+                  src={whiteSide?.profileInfo.photo}
                   className="w-10 h-10 rounded-full"
                   width={1000}
                   height={1000}
@@ -180,7 +179,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         {/* move quality */}
-        <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input">
           <span className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold text-center">
             Move Quality
           </span>
@@ -311,7 +310,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 w-full rounded-md border-b border-b-input pb-2">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <div className="flex flex-row items-center justify-center gap-4">
             <div className="flex flex-col items-end justify-around gap-2">
               <span className="text-xs sm:text-sm md:text-md lg:text-lg text-right font-semibold p-1">
@@ -528,17 +527,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
       </div> */}
       </div>
 
-      <Button
+      <button
         onClick={props.next}
-        size="lg"
-        variant="default"
-        className="whitespace-nowrap sm:mt-2 text-xs sm:py-4 md:py-6 lg:py-8 mx-2 mb-2"
+        className="btn-primary flex w-full justify-center items-center h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
       >
-        <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+        <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details
           <ArrowRight color="#FFF" className="ml-2 h-4 w-4" />
         </div>
-      </Button>
+      </button>
     </>
   );
 };

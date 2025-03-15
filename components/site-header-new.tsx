@@ -21,7 +21,7 @@ import {
   HelpCircle,
   Home,
   Info,
-  Menu
+  Menu,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -103,19 +103,19 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full bg-white"
+      className="sticky top-0 z-50 w-full bg-white py-2"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="container px-4 md:px-6 lg:px-8 mx-auto w-full">
+      <div className="container px-4 md:px-6 lg:px-12 mx-auto w-full">
         <div className="flex h-16 items-center justify-between">
           <div className="flex md:w-full lg:w-auto items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/icons/logo.png"
                 alt="logo"
-                className="w-44 h-8"
+                className="w-36 h-12"
                 quality={100}
                 width={600}
                 height={600}
@@ -128,7 +128,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem className="hidden sm:flex ">
                   <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
                       <Button color="primary" variant="outlineprimary">
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analytics
@@ -190,22 +190,12 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
           <div className="hidden xl:flex items-center gap-2">
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="w-20 h-8 text-xs px-2 py-1"
-                >
+                <button className="btn-secondary rounded-full w-20 h-8 text-xs px-2 py-2">
                   <Link href="/login">Sign In</Link>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="default"
-                  asChild
-                  className="w-20 text-xs px-2 py-1"
-                >
+                </button>
+                <button className="btn-primary rounded-full w-20 text-xs px-2 py-2">
                   <Link href="/register">Try Now</Link>
-                </Button>
+                </button>
               </div>
             ) : (
               <UserButton showName={true} />
@@ -247,20 +237,20 @@ ListItem.displayName = "ListItem";
 
 function MobileNav(props: { isSignedIn: any }) {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-[240px] sm:max-w-[372px] self-center px-4">
+    <div className="flex flex-col min-h-[100dvh] max-w-[240px] sm:max-w-[372px] self-center ">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-40 h-7"
+            className="w-36 h-12"
             quality={100}
             width={100}
             height={100}
           />
         </Link>
       </div>
-      <div className="border border-primary rounded-sm px-4 py-2 sm:py-3 flex items-center gap-1 text-sm sm:text-lg">
+      <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center gap-1 text-sm sm:text-lg">
         <BarChart2 className="mr-2 h-4 w-4" />
         Analytics
       </div>
@@ -288,22 +278,17 @@ function MobileNav(props: { isSignedIn: any }) {
       <div className="flex flex-1 gap-2 mt-8">
         {!props.isSignedIn ? (
           <div className="sm:flex sm:flex-col w-full items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
+            <button
+              className="btn-secondary mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
             >
               <Link href="/login">Sign In</Link>
-            </Button>
-            <Button
-              size="sm"
-              variant="default"
-              asChild
-              className="w-full text-xs h-8 sm:h-12 px-2 py-1"
+            </button>
+            <button
+               
+              className="btn-primary w-full text-xs h-8 sm:h-12 px-2 py-1"
             >
               <Link href="/register">Try Now</Link>
-            </Button>
+            </button>
           </div>
         ) : (
           <UserButton showName={true} />

@@ -1,6 +1,6 @@
 import { AnalysisResult } from '@/types/analysis-result';
 import { create } from 'zustand';
-
+import { persist, createJSONStorage } from 'zustand/middleware';
 interface PgnState {
   pgn: string;
   setPgn: (pgn: string) => void;
@@ -10,9 +10,14 @@ interface PgnState {
   setError: (error: Error | null) => void;
   dataAnalysis: AnalysisResult | any;
   setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
-}
-
-export const usePgnStore = create<PgnState>((set) => ({
+  dataGames: any;
+  setDataGames: (dataGames: any) => void;
+  hideDiv: boolean;
+  setHideDiv: (hideDiv: boolean) => void;
+} 
+export const usePgnStore = create<PgnState>()(
+  persist(
+    (set) => ({
   pgn: '',
   setPgn: (pgn) => set({ pgn }),
   isLoading: false,
@@ -20,5 +25,20 @@ export const usePgnStore = create<PgnState>((set) => ({
   error: null,
   setError: (error) => set({ error }),
   dataAnalysis : null,
-  setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis})
-}));
+  setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis}),
+  dataGames : null,
+  setDataGames : (dataGames: any) => set({dataGames}),
+  hideDiv : false,
+  setHideDiv : (hideDiv: boolean) => set({hideDiv})
+}),
+{
+  name: 'pgn-storage', // unique name for the storage
+  storage: createJSONStorage(() => localStorage), // use localStorage by default
+  partialize: (state) => ({
+    pgn: state.pgn,
+    dataAnalysis: state.dataAnalysis,
+  }),
+}
+)
+);
+

@@ -152,7 +152,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   };
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col lg:max-h-[800px] lg:min-h-[800px] lg:overflow-auto p-4 ">
+      <div className="flex flex-col xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto p-4 ">
         <div className="flex flex-col sm:flex-row sm:justify-center gap-2">
           <div className="flex flex-row items-center gap-2 mb-2">
             <h2 className="text-sm font-light">
@@ -228,7 +228,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 index % 2 != 0 ? "bg-[#F6F9FF]" : "bg-white"
               }`}
             >
-              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-lg text-center font-semibold py-2 border-b border-b-[#BDD0F9]">
+              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#BDD0F9]">
                 {index + 1}
               </span>
               <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#BDD0F9]  ">
@@ -253,7 +253,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           <span
-                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
+                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-lg px-2 ${getBadgeClass(
                               move.classification
                             )}`}
                           >
@@ -275,7 +275,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         development and center control.
                       </span>
                       <div className="flex flex-row gap-1">
-                        <InfoIcon size={16} color="#3871EC" />
+                        <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
                         <span className="text-xs font-semibold ">
                           {move.gamePhase}
@@ -306,7 +306,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.evaluation}
                 </span>
                 <span
-                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg ${getBadgeClass(
+                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
                     move.classification
                   )}`}
                 >
@@ -337,7 +337,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           <span
-                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-md lg:text-md xl:text-lg px-2 ${getBadgeClass(
+                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-lg px-2 ${getBadgeClass(
                               movementDetails.black[index]?.classification
                             )}`}
                           >
@@ -359,7 +359,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         development and center control.
                       </span>
                       <div className="flex flex-row gap-1">
-                        <InfoIcon size={16} color="#3871EC" />
+                        <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
                         <span className="text-xs font-semibold ">
                           {movementDetails.black[index]?.gamePhase}
@@ -379,7 +379,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         )
                       }
                     >
-                      <span className="text-xs sm:text-sm md:text-md lg:text-lgtext-center font-semibold py-2">
+                      <span className="text-xs sm:text-sm md:text-md lg:text-mdtext-center font-semibold py-2">
                         {movementDetails.black[index]?.move}
                       </span>
                     </Button>
@@ -387,14 +387,14 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 </Popover>
 
                 <span
-                  className={`text-xs sm:text-sm md:text-md lg:text-lgtext-center font-normal py-2 ${getScoreClass(
+                  className={`text-xs sm:text-sm md:text-md lg:text-mdtext-center font-normal py-2 ${getScoreClass(
                     movementDetails.black[index]?.classification
                   )}`}
                 >
                   {movementDetails.black[index]?.evaluation}
                 </span>
                 <span
-                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-lg ${getBadgeClass(
+                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
                     movementDetails.black[index]?.classification
                   )}`}
                 >
@@ -407,29 +407,25 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
       </div>
 
       <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
-        <Button
+        <button
           onClick={props.prev}
-          size="lg"
-          variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm"
+          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg text-black sm:py-4 md:py-6 lg:py-8">
-            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+          <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
             Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
-        </Button>
+        </button>
         <div className="w-8" />
-        <Button
+        <button
           onClick={props.next}
-          size="lg"
-          variant="default"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Threats
             <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
           </div>
-        </Button>
+        </button>
       </div>
     </div>
   );

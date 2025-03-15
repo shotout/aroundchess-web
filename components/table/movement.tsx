@@ -75,7 +75,7 @@ export default function MovementTable() {
     setChessMove(move);
   };
   return (
-    <div className="mt-4 bg-white border border-[#BDD0F9] pb-2 rounded-sm">
+    <div className="hidden xl:block mt-4 bg-white border border-[#BDD0F9] pb-2 rounded-sm">
       <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#BDD0F9] h-14 ">
         <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#BDD0F9] py-2"></div>
         <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#BDD0F9]  py-2">
@@ -173,7 +173,7 @@ export default function MovementTable() {
                       development and center control.
                     </span>
                     <div className="flex flex-row gap-1">
-                      <InfoIcon size={16} color="#3871EC" />
+                      <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[11px]">Type:</span>
                       <span className="text-[11px] font-semibold ">
                         {move.gamePhase}
@@ -257,7 +257,7 @@ export default function MovementTable() {
                       development and center control.
                     </span>
                     <div className="flex flex-row gap-1">
-                      <InfoIcon size={16} color="#3871EC" />
+                      <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[11px]">Type:</span>
                       <span className="text-[11px] font-semibold ">
                         {movementDetails.black[index]?.gamePhase}

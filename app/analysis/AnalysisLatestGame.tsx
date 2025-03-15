@@ -14,7 +14,7 @@ import { usePgnStore } from "../store/zustandStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 
 const AnalysisLatestGame: React.FC = () => {
-  const { setIsLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { setTabFocus, tabFocus } = useTabFocusStore();
   const {
     gameInfo,
@@ -41,7 +41,6 @@ const AnalysisLatestGame: React.FC = () => {
     setIsLoading(false);
     renderView(focusPage);
   }, [focusPage]);
-
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
@@ -99,10 +98,11 @@ const AnalysisLatestGame: React.FC = () => {
         );
     }
   };
+ 
   return (
-    <div className="flex flex-col lg:min-w-[592px] lg:max-w-full gap-4 bg-white mt-2 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4">
-      <div className="flex flex-col px-4 gap-2">
-        <span className="text-sm sm:text-md md:text-lg lg:text-xl pt-4 font-bold">
+    <div className={` ${hideDiv && "mt-96 sm:mt-[64%]"} flex flex-col xl:min-w-[592px] xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}>
+      <div className="flex flex-col px-4 gap-2 py-2">
+        <span className="text-sm sm:text-md md:text-lg lg:text-xl font-bold">
           Analysis: Latest Game
         </span>
         <span className="text-xs sm:text-sm md:text-md lg:text-lg">
@@ -118,7 +118,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row overflow-x-scroll gap-1 px-4 pb-2">
+      <div className="flex flex-row overflow-hidden lg:overflow-x-scroll gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
@@ -129,7 +129,7 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[174px]`
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] xl:min-w-[174px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
@@ -142,7 +142,7 @@ const AnalysisLatestGame: React.FC = () => {
           );
         })}
       </div>
-      {/* <div className="lg:max-h-[800px] lg:overflow-auto"> */}
+      {/* <div className="xl:max-h-[800px] lg:overflow-auto"> */}
         {renderView(focusPage)}
       {/* </div> */}
     </div>

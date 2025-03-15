@@ -20,10 +20,10 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   }) => {
     return (
       <div className="border border-gray-300 rounded-lg p-3 ">
-        <h3 className="font-semibold text-sm sm:text-sm md:text-md lg:text-lg mb-2">
+        <h3 className="font-semibold text-sm sm:text-sm md:text-md lg:text-md mb-2">
           {title}
         </h3>
-        <ul className="list-disc list-inside text-xs sm:text-sm md:text-md lg:text-lg text-gray-700">
+        <ul className="list-disc list-inside text-xs sm:text-sm md:text-md lg:text-md text-gray-700">
           {content.map((item, index) => (
             <li
               className="ml-2"
@@ -39,7 +39,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-2 bg-white mx-4 px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#3871EC] lg:justify-start lg:max-h-[800px] lg:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-2 bg-white mx-4 px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="flex flex-row items-center gap-2">
           <Image
             alt=""
@@ -89,7 +89,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         ]}
       />
 
-        <div className="border border-[#3871EC] border-l-4 rounded-lg p-3 bg-[#F6F9FF]">
+        <div className="border border-[#221AE9] border-l-4 rounded-lg p-3 bg-[#F6F9FF]">
           <h3 className="text-[#254B9D] font-semibold mb-2">
             Next Steps for Improvement:
           </h3>
@@ -129,31 +129,28 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           </span>
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
-        <Button
-          onClick={props.prev}
-          size="lg"
-          variant="outline"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-xs sm:text-sm md:text-md lg:text-lg  text-black">
-            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-            Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </div>
-        </Button>
-        <div className="w-8" />
-        <Button
-          onClick={props.next}
-          size="lg"
-          variant="default"
-          className="flex w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Training
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
-          </div>
-        </Button>
-      </div>
+      
+            <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+              <button
+                onClick={props.prev}
+                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+              >
+                <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+                  <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+                  Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+              </button>
+              <div className="w-8" />
+              <button
+                onClick={props.next}
+                className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+              >
+                <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Training
+                  <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+                </div>
+              </button>
+            </div>
     </>
   );
 };
