@@ -34,6 +34,10 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
+  .recharts-wrapper {
+    margin : 0 auto;
+  }
+
   .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
@@ -137,7 +141,6 @@
 }
 
 .btn-primary:hover {
-  background-color: #1B14CC;
   transform: translateY(-1px);
 }
 
@@ -169,7 +172,6 @@
 }
 
 .btn-secondary:hover {
-  background-color: #3CA0CE;
   transform: translateY(-1px);
 }
 
@@ -200,7 +202,6 @@
 }
 
 .btn-tertiary:hover {
-  background-color: #C8EEFE;
   transform: translateY(-1px);
 }
 
@@ -215,4 +216,6 @@
 .btn-tertiary:active {
   transform: translateY(1px);
 }
+
+
 

@@ -29,6 +29,7 @@ const resultDistribution = [
   { name: "Losses", value: 100, color: "#ef4444" },
 ]
 
+
 const openingStats = [
   { name: "Sicilian Defense", games: 45, winRate: 65 },
   { name: "Queen's Gambit", games: 38, winRate: 58 },

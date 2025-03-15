@@ -15,12 +15,14 @@ module.exports = {
         heading: ["var(--font-playfair-display)", ...fontFamily.serif],
       },
       colors: {
+        
         "primary-white": "#FCFCFD",
         "primary-gray": "#DEDEDE",
         "game-green":"#00B427",
         "game-red":"#FD0000",
         "blue-base": "#221AE9",
         "blue-light": "#E6F7FE",
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
