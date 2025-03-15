@@ -17,7 +17,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import GamesTabCard from "./GamesTabCard";
 import useFetch from "@/app/hooks/useFetch";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 
 interface Game {
@@ -38,7 +38,7 @@ interface Game {
   pgn: string;
 }
 
-const endpoint = "https://ac-api.kemang.sg/api/games/newbiepisan";
+const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY || "";
 
 // Function to transform API data to match the expected format in the component
 function transformApiDataToComponentFormat(apiData: any[]) {
