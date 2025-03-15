@@ -70,7 +70,7 @@ export function AnalysisSection() {
   return (
     <section className="py-2 sm:py-4 bg-white flex items-center justify-center">
       <div className="container w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+        <div className="flex flex-col xl:flex-row items-center gap-8 lg:gap-12">
           <motion.div
             className="w-full"
             initial={{ opacity: 0, x: -50 }}
@@ -88,15 +88,15 @@ export function AnalysisSection() {
                 </span>
               </div>
               <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
-                <div className="flex flex-col lg:flex-row w-full ">
+                <div className="flex flex-col xl:flex-row w-full ">
                   <div className="flex items-center justify-center border border-input sm:border-none lg:w-1/2 max-w-3xl overflow-hidden rounded-lg bg-white">
-                    <div className="relative w-[244px] h-[240px] lg:w-[685px] md:w-[320px] lg:h-[420px] md:h-[316px] bg-white">
+                    <div className="relative w-[244px] h-[240px] md:w-[320px] md:h-[316px] lg:h-[568px] lg:w-[685px] bg-white">
                       <AnimatePresence>
                         <motion.img
                           key={current}
                           src={analysis[current].image}
                           alt={analysis[current].title}
-                          className=" w-[244px] h-[240px] lg:w-[685px] md:w-[320px] lg:h-[420px] md:h-[316px] object-contain rounded-sm bg-white"
+                          className="w-[244px] h-[240px] md:h-[316px] md:w-[320px] lg:h-[568px] lg:w-[685px] object-contain rounded-sm bg-white"
                           initial={{ opacity: 0, x: 50 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -50 }}
@@ -112,12 +112,12 @@ export function AnalysisSection() {
                     <span className="block mt-1 text-xs sm:text-md lg:text-lg font-normal text-black lg:text-left">
                       {analysis[current].description}
                     </span>
-                    <div className="flex flex-col md:flex-row lg:flex-col md:gap-2">
-                    <div className="border border-[#3871EC] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#3871EC] text-sm sm:text-md font-bold">
+                    <div className="flex flex-col md:flex-row xl:flex-col md:gap-2">
+                    <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#221AE9] text-sm sm:text-md font-bold">
                         Idea
                       </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                      <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
                         <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
@@ -165,7 +165,7 @@ export function AnalysisSection() {
                       <span className="text-[#FA402D] text-sm sm:text-md font-bold">
                         Problem
                       </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                      <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
                         <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
@@ -213,7 +213,7 @@ export function AnalysisSection() {
                       <span className="text-[#0C7C65] text-sm sm:text-md font-bold">
                         Solution
                       </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                      <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                         White want the knights:{" "}
                         <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                           &nbsp;
@@ -257,12 +257,10 @@ export function AnalysisSection() {
                       </span>
                     </div>
                   </div>
-                  </div>
-                </div>
-                <div className="flex flex-col items-center justify-center pt-6 md:pt-2 lg:pt-6">
-                  <Button className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md">
+                  <div className="flex flex-col w-full items-center justify-center pt-6 md:pt-2 lg:pt-6">
+                  <button className="btn-primary rounded-full py-2 w-full md:w-full px-7 sm:px-16 font-normal text-sm sm:text-md">
                     Analyze your most recent Game now
-                  </Button>
+                  </button>
                   <Button
                     variant="link"
                     className="w-fill text-black px-7 sm:px-16 font-normal text-sm sm:text-md"
@@ -270,6 +268,9 @@ export function AnalysisSection() {
                     No Sign-Up required
                   </Button>
                 </div>
+                  </div>
+                </div>
+                
               </div>
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
                 {/* Left Arrow */}
@@ -280,7 +281,7 @@ export function AnalysisSection() {
                 >
                   <ChevronLeft
                     size={28}
-                    color={current != 0 ? "#3871EC" : "#3871EC50"}
+                    color={current != 0 ? "#221AE9" : "#221AE950"}
                   />
                 </button>
                 {/* Dot Indicators */}
@@ -305,7 +306,7 @@ export function AnalysisSection() {
                 >
                   <ChevronRight
                     size={28}
-                    color={current != analysis.length ? "#3871EC" : "#3871EC50"}
+                    color={current != analysis.length ? "#221AE9" : "#221AE950"}
                   />
                 </button>
               </div>

@@ -113,8 +113,8 @@ export function AnalysisSection() {
                       {analysis[current].description}
                     </span>
                     <div className="flex flex-col md:flex-row lg:flex-col md:gap-2">
-                    <div className="border border-[#3871EC] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#3871EC] text-sm sm:text-md font-bold">
+                    <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#221AE9] text-sm sm:text-md font-bold">
                         Idea
                       </span>
                       <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
@@ -280,7 +280,7 @@ export function AnalysisSection() {
                 >
                   <ChevronLeft
                     size={28}
-                    color={current != 0 ? "#3871EC" : "#3871EC50"}
+                    color={current != 0 ? "#221AE9" : "#221AE950"}
                   />
                 </button>
                 {/* Dot Indicators */}
@@ -305,7 +305,7 @@ export function AnalysisSection() {
                 >
                   <ChevronRight
                     size={28}
-                    color={current != analysis.length ? "#3871EC" : "#3871EC50"}
+                    color={current != analysis.length ? "#221AE9" : "#221AE950"}
                   />
                 </button>
               </div>

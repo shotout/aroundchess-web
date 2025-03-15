@@ -28,7 +28,7 @@ const sidebarLinks: SidebarLink[] = [
   {
     name: "Chess News",
     icon: "/icons/sidebar-news-icon.png",
-    href: "/news",
+    href: "/chess-news",
   },
   {
     name: "Dashboard",
@@ -124,7 +124,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-40 h-7"
+            className="w-36 h-12"
             quality={100}
             width={1000}
             height={1000}
@@ -160,7 +160,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         pathname === section.href
-                          ? "text-[red]"
+                          ? "text-primary"
                           : "hover:bg-blue-50 hover:text-blue-500"
                       )}
                     >

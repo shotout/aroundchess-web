@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { useMemo } from "react";
 
@@ -15,8 +15,34 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
   boardOrientation,
 }) => {
   // Board size configuration
+  const [boardSize, setBoardSize] = useState(700); // Default size
   const boardWidth = 600;
+  useEffect(() => {
+    handleResize();
+  }, [window.innerWidth]);
+  const handleResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    const minPadding = 0;
+    const maxSize =  window.innerWidth /3;
+    console.log("Resizing board...", window.innerWidth,isPortrait);
 
+    if (isPortrait) {
+      // In portrait mode, use screen width as the primary constraint
+      const availableWidth = width - minPadding * 2;
+      // Use 85% of available width for mobile, 90% for tablets
+      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+    } else {
+      // In landscape, use height as the primary constraint
+      const availableHeight = height - minPadding * 2;
+      // Use 80% of available height
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
+    }
+  };
   const threeDPieces = useMemo(() => {
     const pieces = [
       {
@@ -45,7 +71,9 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       },
     ];
 
-    const pieceComponents: { [key: string]: React.FC<{ squareWidth: number }> } = {};
+    const pieceComponents: {
+      [key: string]: React.FC<{ squareWidth: number }>;
+    } = {};
 
     pieces.forEach(({ piece, pieceHeight }) => {
       pieceComponents[piece] = ({ squareWidth }: { squareWidth: number }) => (
@@ -75,7 +103,6 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
 
     return pieceComponents;
   }, []);
-
   // Frame dimensions
   const framePadding = 20;
   const frameBottom = 110;
@@ -84,8 +111,9 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
     <div
       className="relative mx-auto"
       style={{
-        width: `${boardWidth + framePadding * 2}px`,
-        height: `${boardWidth + framePadding + frameBottom}px`,
+        width: `${boardSize + framePadding * 2}px`,
+        height: `${boardSize + framePadding }px`,
+        // height: `${boardSize + framePadding + frameBottom}px`,
       }}
     >
       <div
@@ -93,18 +121,18 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           position: "absolute",
           top: `${framePadding}px`,
           left: `${framePadding}px`,
-          width: `${boardWidth}px`,
-          height: `${boardWidth}px`,
+          width: `${boardSize}px`,
+          height: `${boardSize}px`,
           zIndex: 5,
         }}
       >
         <Chessboard
           id="ThreeDimensionalBoard"
           position={position}
-          boardWidth={boardWidth}
+          boardWidth={boardSize}
           boardOrientation={boardOrientation}
           animationDuration={100}
-          customPieces={threeDPieces}
+          // customPieces={threeDPieces}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             border: "0",
@@ -121,7 +149,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           }}
         />
       </div>
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: "5.5%",
@@ -142,7 +170,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
             margin: "0",
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

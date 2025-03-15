@@ -1,17 +1,25 @@
 "use client";
+import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
+  const { isLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress((prev) => (prev < 100 ? prev + 5 : 100));
-    }, 200);
+      if (dataAnalysis == null && progress <= 99) {
+        setProgress((prev) =>
+          prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
+        );
+      } else if (dataAnalysis != null) {
+        setProgress(100);
+      }
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [dataAnalysis]);
 
   // Calculate rotation angle for the image
   const rotationAngle = (progress / 100) * 360;
@@ -52,9 +60,9 @@ export default function LoadingSpinner() {
               x2="100%"
               y2="0%"
             >
-              <stop offset="0%" stopColor="#3871EC" />
+              <stop offset="0%" stopColor="#221AE9" />
               <stop offset="50%" stopColor="#9BBBFF" />
-              <stop offset="100%" stopColor="#3871EC" />
+              <stop offset="100%" stopColor="#221AE9" />
             </linearGradient>
           </defs>
           <circle

@@ -8,10 +8,10 @@ import Link from "next/link";
 
 export function CTASection() {
   return (
-    <section className="py-4 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#EFF5FF_50%)]">
+    <section className="py-4 px-8 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
       <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
         <motion.div
-          className="bg-[#13264F] rounded-3xl overflow-hidden shadow-2xl"
+          className="bg-[#0B094E] rounded-3xl overflow-hidden shadow-2xl"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -49,11 +49,11 @@ export function CTASection() {
                       asChild
                       size="lg"
                       variant="secondary"
-                      className="whitespace-nowrap sm:mt-8"
+                      className="bg-[#E6F7FE] whitespace-nowrap sm:mt-8"
                     >
-                      <Link href="/pricing#top" className="text-[#3871EC]">
+                      <Link href="/pricing#top" className="text-[#0B094E]">
                         Start Free Trial
-                        <ArrowRight color="#3871EC" className="ml-2 h-4 w-4" />
+                        <ArrowRight color="#0B094E" className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                     </div>

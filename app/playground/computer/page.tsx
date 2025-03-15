@@ -213,9 +213,9 @@ export default function ComputerGamePage() {
         <div className="relative min-h-[calc(100vh-25vh)] py-8 sm:py-12">
           <MaxWidthWrapper>
             <div className="container mx-auto px-4">
-              <div className="flex flex-col lg:flex-row gap-8 items-start">
+              <div className="flex flex-col xl:flex-row gap-8 items-start">
                 {/* Main Game Area - Left Side */}
-                <div className="w-full lg:w-auto lg:flex-1">
+                <div className="w-full lg:w-auto xl:flex-1">
                   {/* Chess Board Container with improved styling */}
                   <div className="relative bg-white/90 rounded-2xl p-6 backdrop-blur-sm shadow-xl border border-blue-100/50">
                     {/* Computer Player Label */}

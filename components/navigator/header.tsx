@@ -11,12 +11,14 @@ import {
 import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
+  const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
 
   // Check if desktop on initial load and when window resizes
@@ -34,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b">
+    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 lg:border-b">
       {/* Left section - Logo and navigation (on desktop only) */}
       <div className="flex items-center h-24">
         {/* Logo/Title - Always visible */}
@@ -43,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             <Image
               src="/icons/logo.png"
               alt="logo"
-              className="w-40 h-7"
+              className="w-36 h-12"
               quality={100}
               width={1000}
               height={1000}
@@ -65,8 +67,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
           {/* Grouped navigation tabs */}
           <div className="flex rounded-[8px] border border-gray-200 overflow-hidden p-1">
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
-              <InfoIcon className="h-4 w-4 mr-2" />
+            <button
+              className={`flex items-center px-4 py-2 text-sm font-medium ${
+                pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
+              } hover:bg-gray-50`}
+            >
+              <InfoIcon
+                className="h-4 w-4 mr-2"
+                color={pathname == "/about-us" ? "#221AE9" : "black"}
+              />
               About
             </button>
             <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
@@ -84,11 +93,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       <div className="flex items-center space-x-4">
         {/* Auth buttons - visible on desktop only (xl+) */}
-        <button className="hidden xl:block rounded-md border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Sign-in
         </button>
 
-        <button className="hidden xl:block rounded-md bg-primary py-4 px-6 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
           Try Now
         </button>
 
