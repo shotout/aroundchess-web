@@ -38,12 +38,7 @@ const GameHistoryPage = () => {
             </div>
           </div>
 
-          <DialogButton
-            open={false}
-            setOpen={function (value: React.SetStateAction<boolean>): void {
-              throw new Error("Function not implemented.");
-            }}
-          />
+          <DialogButton />
         </div>
 
         {/* overall statistic */}
