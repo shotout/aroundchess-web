@@ -9,6 +9,7 @@ interface ThreatsProps {
   prev: () => void;
 }
 const Threats: React.FC<ThreatsProps> = (props) => {
+  
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
