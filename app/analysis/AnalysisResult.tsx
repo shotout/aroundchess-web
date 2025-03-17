@@ -433,7 +433,7 @@ const AnalysisResult: React.FC = () => {
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4 : 400;
+    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 400;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -737,6 +737,7 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </motion.div>
+          
           {showTable && <MovementTable />}
           {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
