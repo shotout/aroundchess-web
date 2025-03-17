@@ -496,7 +496,7 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          <div className={`m-0 bg-[red] ${is3DMode && "m-0 xl:m-8"}`}>
+          <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}>
             <Chessboard
               boardWidth={
                 hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
