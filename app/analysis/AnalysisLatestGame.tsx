@@ -129,13 +129,13 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] xl:min-w-[174px]`
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] xl:min-w-[140px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-lg xl:text-lg">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md">
                 {tab.label}
               </span>
             </div>
