@@ -27,7 +27,7 @@ const TrainingPlanPage = () => {
 
   return (
     <>
-      <Responsive />
+      {/* <Responsive /> */}
       <main className="w-full p-4 space-y-[16px]">
         {/* top menu */}
         <div className="flex justify-between items-center">
