@@ -448,7 +448,7 @@ const AnalysisResult: React.FC = () => {
                     ? "0:10:00:0"
                     : currentMoveIndex == parsedMoves.length
                     ? parsedMoves[currentMoveIndex - 1]?.clock
-                    : parsedMoves[currentMoveIndex]?.clock}
+                    : parsedMoves[currentMoveIndex+1]?.clock}
                 </span>
               </div>
             </div>
