@@ -151,7 +151,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           }}
         />
       </div>
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: "5.5%",
@@ -172,7 +172,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
             margin: "0",
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
