@@ -203,7 +203,7 @@ const TrainingGoals = () => {
     }
   };
 
-  const goToPage = (pageNumber :number) => {
+  const goToPage = (pageNumber: React.SetStateAction<number>) => {
     setCurrentPage(pageNumber);
   };
 
