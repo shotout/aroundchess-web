@@ -108,7 +108,7 @@ export function HeroSection() {
                 your Chess.com account.
               </p>
             </div>
-            <div className="mt-48 bg-white sm:mx-7 sm:mt-1 sm:bg-gray-100 sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-25 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
+            <div className="mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-gray-100 sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-25 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
               <p className="w-full block text-base text-start font-semibold sm:text-xl text-gray-600">
                 Analyze your most recent Game now:
               </p>

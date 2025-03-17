@@ -152,7 +152,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   };
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto p-4 ">
+      <div className="flex flex-col w-full xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto p-4 ">
         <div className="flex flex-col sm:flex-row sm:justify-center gap-2">
           <div className="flex flex-row items-center gap-2 mb-2">
             <h2 className="text-sm font-light">
@@ -203,7 +203,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
-                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-xs py-2 font-semibold border-r border-r-[#BDD0F9] "
+                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#BDD0F9] "
                 >
                   {header}
                 </span>
@@ -213,7 +213,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
-                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-xs py-2 font-semibold border-r border-r-[#BDD0F9] "
+                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#BDD0F9] "
                 >
                   {header}
                 </span>
@@ -228,7 +228,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 index % 2 != 0 ? "bg-[#F6F9FF]" : "bg-white"
               }`}
             >
-              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-4 border-b border-b-[#BDD0F9]">
+              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#BDD0F9]">
                 {index + 1}
               </span>
               <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#BDD0F9]  ">
@@ -306,7 +306,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.evaluation}
                 </span>
                 <span
-                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-sm ${getBadgeClass(
+                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
                     move.classification
                   )}`}
                 >
@@ -326,7 +326,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                             {movementDetails.black[index]?.move}
                           </span>
                           <span
-                            className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-sm xl:text-sm text-center font-normal py-2 ${getScoreClass(
+                            className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
                               movementDetails.black[
                                 index
                               ]?.classification.toLowerCase()
@@ -337,7 +337,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           <span
-                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-sm xl:text-sm px-2 ${getBadgeClass(
+                            className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-sm px-2 ${getBadgeClass(
                               movementDetails.black[index]?.classification
                             )}`}
                           >
@@ -394,8 +394,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {movementDetails.black[index]?.evaluation}
                 </span>
                 <span
-                  className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-sm ${getBadgeClass(
-                    move.classification
+                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
+                    movementDetails.black[index]?.classification
                   )}`}
                 >
                   {movementDetails.black[index]?.classification}
