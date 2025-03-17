@@ -26,7 +26,7 @@ export default function Navigation({
     setSidebarOpen(!isSidebarOpen);
   };
   return (
-    <div className="flex bg-[#FCFCFD]">
+    <div className="flex overflow-hidden bg-[#FCFCFD]">
       {/* Desktop sidebar - always visible on desktop */}
       {isDesktop && (
         <div className="w-64 border-r border-gray-200 bg-white">
@@ -37,7 +37,7 @@ export default function Navigation({
       {/* Main content */}
       <div className="flex flex-1 flex-col">
         <Header onSidebarToggle={toggleSidebar} />
-        <main className="flex-1 pt-20 xl:pt-0">
+        <main className="flex-1 pt-20 xl:pt-0 overflow-y-auto">
           {children}
           <SiteFooterNew />
         </main>
