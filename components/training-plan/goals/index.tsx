@@ -203,7 +203,7 @@ const TrainingGoals = () => {
     }
   };
 
-  const goToPage = (pageNumber) => {
+  const goToPage = (pageNumber :number) => {
     setCurrentPage(pageNumber);
   };
 

@@ -19,14 +19,14 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
   const boardWidth = 600;
   useEffect(() => {
     handleResize();
-  }, [window.innerWidth]);
+  }, [window?.innerWidth]);
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window?.innerWidth;
+    const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize =  window.innerWidth /3;
-    console.log("Resizing board...", window.innerWidth,isPortrait);
+    const maxSize = window?.innerWidth / 3;
+    console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -75,9 +75,10 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       [key: string]: React.FC<{ squareWidth: number }>;
     } = {};
 
-    pieces.forEach(({ piece, pieceHeight }) => {
+    pieces.forEach(({ piece, pieceHeight }, index) => {
       pieceComponents[piece] = ({ squareWidth }: { squareWidth: number }) => (
         <div
+          key={index}
           style={{
             width: squareWidth,
             height: squareWidth,
@@ -112,7 +113,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       className="relative mx-auto"
       style={{
         width: `${boardSize + framePadding * 2}px`,
-        height: `${boardSize + framePadding }px`,
+        height: `${boardSize + framePadding}px`,
         // height: `${boardSize + framePadding + frameBottom}px`,
       }}
     >
