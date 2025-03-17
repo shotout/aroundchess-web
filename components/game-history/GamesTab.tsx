@@ -17,8 +17,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import GamesTabCard from "./GamesTabCard";
 import useFetch from "@/app/hooks/useFetch";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
+import axios from "axios";
+const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
 interface Game {
   id: number;
@@ -38,7 +40,7 @@ interface Game {
   pgn: string;
 }
 
-const endpoint = "https://ac-api.kemang.sg/api/games/newbiepisan";
+const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY || "";
 
 // Function to transform API data to match the expected format in the component
 function transformApiDataToComponentFormat(apiData: any[]) {
@@ -113,7 +115,7 @@ const GamesTab = () => {
 
   // API fetch
   const { data, isLoading, error } = useFetch(endpoint);
-  const { setPgn } = usePgnStore();
+  const { setPgn, setDataAnalysis } = usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
 
   // Process API data when it arrives
@@ -147,9 +149,15 @@ const GamesTab = () => {
   );
 
   // Function to handle analyze button click
-  const handleAnalyzeClick = (game: Game) => {
+  const handleAnalyzeClick = async (game: Game) => {
     // Set the pgn in the store
     setPgn(game.pgn);
+    const config = {
+      headers: {}
+    };
+    const body = { pgn: game.pgn };
+    const responseAnalysis = await axios.post(AnalysisUrl, body, config);
+    setDataAnalysis(responseAnalysis.data.data);
     // Navigate to the analysis page
     router.push("/analysis");
   };

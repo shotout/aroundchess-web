@@ -32,7 +32,7 @@ export default function AnalysisPage() {
     <Navigation>
       <div className="flex flex-1 flex-col overflow-y-auto">
         <div
-          className={`flex flex-col justify-center bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
+          className={`flex flex-col bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
             hideDiv && "hidden"
           }`}
         >

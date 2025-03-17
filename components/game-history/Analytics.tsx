@@ -23,7 +23,7 @@ import {
 import { Card } from "../ui/card";
 import DotSpinner from "./Spinner";
 
-const endpoint = "https://ac-api.kemang.sg/api/analytic-games/newbiepisan";
+const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY_ANALYTICS || "";
 
 // Custom tooltip content component for the Rating Progress chart
 const CustomTooltipContent = ({
