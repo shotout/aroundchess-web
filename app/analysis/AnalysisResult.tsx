@@ -275,11 +275,10 @@ const AnalysisResult: React.FC = () => {
     }, 400);
   };
   const setCurrentMove = (index: number) => {
-    if(index == 0){
-      setCurrentMoveBlack(0)
-      setCurrentMoveWhite(0)
-    }else
-    if (parsedMoves[index].color == "w") {
+    if (index == 0) {
+      setCurrentMoveBlack(0);
+      setCurrentMoveWhite(0);
+    } else if (parsedMoves[index].color == "w") {
       setCurrentMoveWhite(parsedMoves[index].clock);
     } else {
       setCurrentMoveBlack(parsedMoves[index].clock);
@@ -315,14 +314,12 @@ const AnalysisResult: React.FC = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
     setCurrentMove(0);
-
   };
 
   const jumpToLastMove = () => {
     stopAutoPlay();
     setCurrentMoveIndex(parsedMoves.length);
-    setCurrentMove(parsedMoves.length-1);
-
+    setCurrentMove(parsedMoves.length - 1);
   };
 
   const togglePlayPause = () => {
@@ -341,7 +338,7 @@ const AnalysisResult: React.FC = () => {
       (i) => i.san == chessMove.move && i.color == color
     );
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-    setCurrentMove(parsedMoves.indexOf(data[0]) + 1)
+    setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
     console.log("masuk");
   }, [chessMove]);
 
@@ -611,6 +608,13 @@ const AnalysisResult: React.FC = () => {
               style={{ display: is3DMode ? "block" : "none", marginTop: -20 }}
             >
               <BoardWood
+                size={
+                  hideDiv
+                    ? boardSize - 80
+                    : is3DMode
+                    ? boardSize - 100
+                    : boardSize
+                }
                 position={game.fen()}
                 boardOrientation={boardOrientation}
               />

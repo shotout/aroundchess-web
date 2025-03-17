@@ -263,14 +263,14 @@ const PgnPlayer: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="mx-auto mb-12">
-        <BoardWood position={game.fen()} boardOrientation={boardOrientation} />
+        <BoardWood size={null} position={game.fen()} boardOrientation={boardOrientation} />
       </div>
 
       <div className="">
         <p className="text-sm md:text-md text-center">
           Move: {currentMoveIndex} / {moveHistory.length}
         </p>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {/* {error && <p className="text-red-500 mt-2">{error}</p>} */}
       </div>
     </div>
   );
