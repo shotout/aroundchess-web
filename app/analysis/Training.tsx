@@ -92,7 +92,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                 height={1000}
                 className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
               />
-              <span className="text-md sm:text-md md:text-lg lg:text-xl  font-bold w-full">
+              <span className="text-md sm:text-md md:text-lg lg:text-md  font-bold w-full">
                 Critical Mistakes
               </span>
             </div>
@@ -320,7 +320,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                 height={1000}
                 className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
               />
-              <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
+              <span className="text-md sm:text-md md:text-lg lg:text-md font-bold w-full">
                 Weakness Identification
               </span>
             </div>
@@ -549,7 +549,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                onClick={props.prev}
                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
              >
-               <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+               <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
                  <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
                  Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                </div>
@@ -559,7 +559,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                onClick={props.next}
                className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
              >
-               <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+               <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
                  <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
                </div>

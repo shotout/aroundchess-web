@@ -55,7 +55,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <span className="text-xs sm:hidden text-center">
-          <span className="text-[#00B427]">
+          <span className="line-clamp-1 text-[#00B427]">
             {whiteSide?.profileInfo.username}
           </span>{" "}
           (White) vs {blackSide?.profileInfo.username}
@@ -79,7 +79,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
                   <span
-                    className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                    className={`line-clamp-1 text-xs sm:text-sm md:text-md lg:text-xs font-medium ${
                       !whiteWin ? "text-black" : "text-[#00B427]"
                     }`}
                   >
@@ -131,7 +131,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
                   <span
-                    className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                    className={`line-clamp-1 text-xs sm:text-sm md:text-md lg:text-xs font-medium ${
                       whiteWin ? "text-black" : "text-[#00B427]"
                     }`}
                   >
@@ -176,11 +176,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-md text-right sm:text-left">
+            <p className="text-sm sm:text-sm md:text-md lg:text-xs text-right sm:text-left">
               White Opening:{" "}
             </p>
             <div className="flex flex-row justify-end sm:justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
+              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.white.name}
               </span>
               {/* <Image
@@ -192,11 +192,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </div>
           </div>
           <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-md text-left">
+            <p className="text-sm sm:text-sm md:text-md lg:text-xs text-left">
               Black Opening:{" "}
             </p>
             <div className="flex flex-row justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
+              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.black.name}
               </span>
               {/* <Image
@@ -211,14 +211,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
         <div className="grid grid-cols-2 gap-2 sm:gap-6">
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1">
+              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
+                <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {whiteOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
                   whiteOpening.classification
                 )}`}
               >
@@ -229,27 +229,27 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {whiteOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold sm:text-sm md:text-md lg:text-md">
+                  <span className="font-bold sm:text-sm md:text-md lg:text-xs">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-xs xl:text-md bg-[#F6F9FF] rounded-md">
               {whiteOpening.explanation}
             </div>
           </div>
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1">
+              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
+                <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {blackOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
                   blackOpening.classification
                 )}`}
               >
@@ -260,14 +260,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {blackOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold sm:text-sm md:text-md lg:text-md">
+                  <span className="font-bold sm:text-sm md:text-md lg:text-xs">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-xs xl:text-md bg-[#F6F9FF] rounded-md">
               {blackOpening.explanation}
             </div>
           </div>
