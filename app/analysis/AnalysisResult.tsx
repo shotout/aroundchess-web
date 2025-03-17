@@ -278,9 +278,9 @@ const AnalysisResult: React.FC = () => {
     if (index == 0) {
       setCurrentMoveBlack(0);
       setCurrentMoveWhite(0);
-    } else if (parsedMoves[index].color == "w") {
+    } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
       setCurrentMoveWhite(parsedMoves[index].clock);
-    } else {
+    } else if(parsedMoves[index]  && parsedMoves[index].color == "b"){
       setCurrentMoveBlack(parsedMoves[index].clock);
     }
   };
