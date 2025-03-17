@@ -10,9 +10,9 @@ const LoadingPage: React.FC = (props) => {
     <>
       <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
-        <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 mt-4">
-          <span className="text-sm">{gameInfo?.date}</span>
-          <span className="text-sm">
+        <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 mt-4 mx-4">
+          <span className="text-sm text-center">{gameInfo?.date}</span>
+          <span className="text-sm text-center">
             <span
               className={`text-lg font-semibold ${
                 dataGames?.white?.result == "win" ? "text-[#00B427]" : "text-black"
