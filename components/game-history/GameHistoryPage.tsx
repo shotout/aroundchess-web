@@ -25,7 +25,7 @@ const GameHistoryPage = () => {
 
   return (
     <>
-      <Responsive />
+      {/* <Responsive /> */}
       <main className="w-full px-4 py-4 space-y-[16px]">
         {/* top menu */}
         <div className="flex justify-between items-center">
