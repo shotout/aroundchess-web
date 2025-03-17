@@ -27,7 +27,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth / 3;
+    const maxSize = window.innerWidth / 2;
     console.log("Resizing board...", window.innerWidth, isPortrait);
 
     if (isPortrait) {

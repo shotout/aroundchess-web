@@ -59,7 +59,6 @@ const PGNAnalyzer: React.FC = () => {
     }
   };
   
-
   const fetchStockfishData = async (fen: string) => {
     const stockfishService = getStockfishService();
 
