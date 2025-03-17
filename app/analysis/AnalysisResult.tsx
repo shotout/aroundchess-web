@@ -581,8 +581,7 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          <div className={`${is3DMode && "m-0 xl:m-8"}`}>
-            {/* {!is3DMode ? ( */}
+          <div className={`${is3DMode && "mb-8 xl:m-8"}`}>
             <motion.div
               animate={
                 is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
