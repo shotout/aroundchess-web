@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
 }
 const Threats: React.FC<ThreatsProps> = (props) => {
+    const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   
   return (
     <>
