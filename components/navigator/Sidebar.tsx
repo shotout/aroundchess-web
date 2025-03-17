@@ -222,12 +222,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
                         return (
                           <Link
                             key={child.href}
-                            href={child.href}
+                            href={
+                              child.href == "/training-plan"
+                                ? "javascript:void(0);"
+                                : child.href
+                            }
                             className={cn(
                               "min-h-[52px] group flex items-center rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
                                 ? "bg-blue-100 text-primary border-primary border-r-4 "
                                 : child.disabled
+                                ? "text-[#AAA4A4]"
+                                : child.href == "/training-plan"
                                 ? "text-[#AAA4A4]"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-primary"
                             )}
@@ -241,6 +247,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 "mr-3 h-5 w-5",
                                 isChildActive
                                   ? "text-primary"
+                                  : child.href == "/training-plan"
+                                  ? "text-[#AAA4A4]"
                                   : "text-gray-400 group-hover:text-primary"
                               )}
                             />

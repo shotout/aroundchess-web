@@ -48,7 +48,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             height={1000}
             className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:w-10"
           />
-          <h3 className="text-lg sm:text-lg md:text-xl lg:text-xl  font-semibold flex items-center">
+          <h3 className="text-lg sm:text-lg md:text-xl lg:text-md  font-semibold flex items-center">
             Improvement Recommendation
           </h3>
         </div>
@@ -123,7 +123,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             height={1000}
             className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
           />
-          <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
+          <span className="text-xs sm:text-md md:text-lg lg:text-md font-normal text-primary ml-4">
             We have added Exercises to your Training Plan to improve your
             Strategy for the analyzed weaknesses.
           </span>
