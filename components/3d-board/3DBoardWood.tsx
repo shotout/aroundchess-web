@@ -7,24 +7,34 @@ import { useMemo } from "react";
 import { Square } from "chess.js";
 
 interface BoardWoodBoardProps {
+  size: number | any;
   position: string;
   boardOrientation: "white" | "black";
 }
 
 const BoardWood: React.FC<BoardWoodBoardProps> = ({
+  size,
   position,
   boardOrientation,
 }) => {
   // Board size configuration
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
   useEffect(() => {
-    handleResize();
+    // handleResize();
   }, [window?.innerWidth]);
+  useEffect(() => {
+    if (size) {
+      setBoardSize(size);
+    } else {
+      handleResize();
+    }
+  }, [size]);
   const handleResize = () => {
     const width = window?.innerWidth;
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
+    // const maxSize = window.innerWidth > 1300 ? window.innerWidth / 5 : 400;
     const maxSize =
       window?.innerWidth < 1440
         ? window?.innerWidth / 2.5
