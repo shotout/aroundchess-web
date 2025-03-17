@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { usePgnStore } from "../store/zustandStore";
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
 }
 const Threats: React.FC<ThreatsProps> = (props) => {
+  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { threats } = dataAnalysis ?? {};
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -26,24 +29,28 @@ const Threats: React.FC<ThreatsProps> = (props) => {
             </span>
           </div>
           <div className="flex flex-col gap-2 mt-2">
-            <div className="border border-input rounded-md p-4">
-              <div className="flex flex-row justify-between items-center gap-2 mb-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
-                  Move 2: <span className="font-bold">e5</span>
-                </span>
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
-                  [TYPE OF THROAT]
-                </span>
-              </div>
-              <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal">
-                [EXPLANATION OF THROAT]
-              </span>
-              <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
-                  [HOW THE THREAT COULD HAVE BEEN AVOIDED]
-                </span>
-              </div>
-            </div>
+            {threats.map((item: any, index: number) => {
+              return (
+                <div key={index} className="border border-input rounded-md p-4">
+                  <div className="flex flex-row justify-between items-center gap-2 mb-2">
+                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
+                      Move {item?.moveNumber}: <span className="font-bold">{item?.move}</span>
+                    </span>
+                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
+                      {item?.threatType}
+                    </span>
+                  </div>
+                  <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal">
+                    {item?.explanation}
+                  </span>
+                  <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                    <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                      {item?.solution}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

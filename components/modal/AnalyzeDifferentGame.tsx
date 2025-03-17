@@ -136,7 +136,7 @@ export function AnalyzeDifferentGame() {
           Analyze a different game
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm">
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
