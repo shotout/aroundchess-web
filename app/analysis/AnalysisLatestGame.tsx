@@ -142,9 +142,7 @@ const AnalysisLatestGame: React.FC = () => {
           );
         })}
       </div>
-      {/* <div className="xl:max-h-[800px] lg:overflow-auto"> */}
         {renderView(focusPage)}
-      {/* </div> */}
     </div>
   );
 };

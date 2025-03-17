@@ -195,7 +195,7 @@ const AnalysisResult: React.FC = () => {
       setCurrentMoveWhite(0);
     } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
       setCurrentMoveWhite(parsedMoves[index].clock);
-    } else if(parsedMoves[index]  && parsedMoves[index].color == "b"){
+    } else if (parsedMoves[index] && parsedMoves[index].color == "b") {
       setCurrentMoveBlack(parsedMoves[index].clock);
     }
   };
@@ -229,14 +229,12 @@ const AnalysisResult: React.FC = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
     setCurrentMove(0);
-
   };
 
   const jumpToLastMove = () => {
     stopAutoPlay();
     setCurrentMoveIndex(parsedMoves.length);
-    setCurrentMove(parsedMoves.length-1);
-
+    setCurrentMove(parsedMoves.length - 1);
   };
 
   const togglePlayPause = () => {
@@ -255,7 +253,7 @@ const AnalysisResult: React.FC = () => {
       (i) => i.san == chessMove.move && i.color == color
     );
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-    setCurrentMove(parsedMoves.indexOf(data[0]) + 1)
+    setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
     console.log("masuk");
   }, [chessMove]);
 
@@ -350,7 +348,10 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 400;
+    const maxSize =
+      window.innerWidth > 1300
+        ? window.innerWidth / 4.5
+        : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -495,7 +496,7 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          <div className={`${is3DMode && "m-0 xl:m-8"}`}>
+          <div className={`m-0 bg-[red] ${is3DMode && "m-0 xl:m-8"}`}>
             <Chessboard
               boardWidth={
                 hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
@@ -620,7 +621,7 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </motion.div>
-          
+
           {showTable && <MovementTable />}
           {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
