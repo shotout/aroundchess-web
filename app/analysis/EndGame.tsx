@@ -107,7 +107,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                 height={1000}
                 className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
               />
-              <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+              <span className="text-md sm:text-lg md:text-xl lg:text-md  font-bold w-full">
                 Best Moves
               </span>
               <div className="flex flex-row items-center gap-1">
@@ -177,7 +177,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                 height={1000}
                 className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
               />
-              <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
+              <span className="text-md sm:text-lg md:text-xl lg:text-md  font-bold w-full">
                 Bad Moves
               </span>
               <div className="flex flex-row items-center gap-1">
@@ -242,7 +242,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                 height={1000}
                 className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
               />
-              <span className="text-xs sm:text-md md:text-lg lg:text-xl font-normal text-primary ml-4">
+              <span className="text-xs sm:text-md md:text-lg lg:text-md font-normal text-primary ml-4">
                 We have added Exercises to your Training Plan to improve your
                 Strategy for the analyzed weaknesses.
               </span>

@@ -83,6 +83,8 @@ const AnalysisResult: React.FC = () => {
   }, [tabFocus]);
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
+  const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
+  const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
   const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -148,6 +150,8 @@ const AnalysisResult: React.FC = () => {
       const newGame = new Chess();
       setGame(newGame);
       setParsedMoves(history);
+      setCurrentMoveWhite(0);
+      setCurrentMoveBlack(0);
       setCurrentMoveIndex(0);
       setErrorMessage("");
 
@@ -176,6 +180,7 @@ const AnalysisResult: React.FC = () => {
     autoPlayTimerRef.current = setInterval(() => {
       setCurrentMoveIndex((prevIndex) => {
         if (prevIndex < parsedMoves.length) {
+          setCurrentMove(prevIndex + 1);
           return prevIndex + 1;
         } else {
           stopAutoPlay();
@@ -184,7 +189,17 @@ const AnalysisResult: React.FC = () => {
       });
     }, 400);
   };
-
+  const setCurrentMove = (index: number) => {
+    if(index == 0){
+      setCurrentMoveBlack(0)
+      setCurrentMoveWhite(0)
+    }else
+    if (parsedMoves[index].color == "w") {
+      setCurrentMoveWhite(parsedMoves[index].clock);
+    } else {
+      setCurrentMoveBlack(parsedMoves[index].clock);
+    }
+  };
   const stopAutoPlay = () => {
     setIsPlaying(false);
     if (autoPlayTimerRef.current) {
@@ -195,24 +210,34 @@ const AnalysisResult: React.FC = () => {
 
   const jumpToPreviousMove = () => {
     stopAutoPlay();
-    setCurrentMoveIndex((prevIndex) => Math.max(0, prevIndex - 1));
+    setCurrentMoveIndex((prevIndex) => {
+      setCurrentMove(Math.max(0, prevIndex - 1));
+      return Math.max(0, prevIndex - 1);
+    });
   };
 
   const jumpToNextMove = () => {
     stopAutoPlay();
-    setCurrentMoveIndex((prevIndex) =>
-      Math.min(parsedMoves.length, prevIndex + 1)
-    );
+
+    setCurrentMoveIndex((prevIndex) => {
+      setCurrentMove(Math.max(0, prevIndex + 1));
+
+      return Math.min(parsedMoves.length, prevIndex + 1);
+    });
   };
 
   const jumpToFirstMove = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
+    setCurrentMove(0);
+
   };
 
   const jumpToLastMove = () => {
     stopAutoPlay();
     setCurrentMoveIndex(parsedMoves.length);
+    setCurrentMove(parsedMoves.length-1);
+
   };
 
   const togglePlayPause = () => {
@@ -231,6 +256,7 @@ const AnalysisResult: React.FC = () => {
       (i) => i.san == chessMove.move && i.color == color
     );
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
+    setCurrentMove(parsedMoves.indexOf(data[0]) + 1)
     console.log("masuk");
   }, [chessMove]);
 
@@ -325,7 +351,7 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? 453 : 400;
+    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4 : 400;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -397,7 +423,7 @@ const AnalysisResult: React.FC = () => {
                   height={1000}
                 />
                 {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col">
+                <div className="flex flex-col line-clamp-1 ">
                   <div className="flex flex-row gap-2">
                     <span
                       className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
@@ -444,11 +470,7 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                  {currentMoveIndex - 1 == -1
-                    ? "0:10:00:0"
-                    : currentMoveIndex == parsedMoves.length
-                    ? parsedMoves[currentMoveIndex - 1]?.clock
-                    : parsedMoves[currentMoveIndex]?.clock}
+                  {currentMoveBlack == 0 ? "0:10:00:0" : currentMoveBlack}
                 </span>
               </div>
             </div>
@@ -547,7 +569,7 @@ const AnalysisResult: React.FC = () => {
                   height={1000}
                 />
                 {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col">
+                <div className="flex flex-col line-clamp-1 ">
                   <div className="flex flex-row gap-2">
                     <span
                       className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
@@ -594,11 +616,7 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
-                  {currentMoveIndex - 1 == -1
-                    ? "0:10:00:0"
-                    : currentMoveIndex == parsedMoves.length
-                    ? parsedMoves[currentMoveIndex - 1]?.clock
-                    : parsedMoves[currentMoveIndex]?.clock}
+                  {currentMoveWhite == 0 ? "0:10:00:0" : currentMoveWhite}
                 </span>
               </div>
             </div>
