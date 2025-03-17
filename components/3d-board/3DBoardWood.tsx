@@ -19,17 +19,17 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
   const [boardSize, setBoardSize] = useState(700); // Default size
   useEffect(() => {
     handleResize();
-  }, [window.innerWidth]);
+  }, [window?.innerWidth]);
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window?.innerWidth;
+    const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize =
-      window.innerWidth < 1440
-        ? window.innerWidth / 2.5
-        : window.innerWidth / 4.2;
-    console.log("Resizing board...", window.innerWidth, isPortrait);
+      window?.innerWidth < 1440
+        ? window?.innerWidth / 2.5
+        : window?.innerWidth / 4.2;
+    console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -106,9 +106,10 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
         square: Square;
       }) => JSX.Element;
     } = {};
-    pieces.forEach(({ piece, pieceHeight }) => {
+    pieces.forEach(({ piece, pieceHeight }, index) => {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
+          key={index}
           style={{
             width: squareWidth * pieceHeight,
             height: squareWidth,

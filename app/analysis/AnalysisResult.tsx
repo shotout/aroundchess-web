@@ -71,8 +71,8 @@ const AnalysisResult: React.FC = () => {
     handleResize();
 
     // Add event listeners
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
   }, [mounted]);
 
   useEffect(() => {
@@ -406,12 +406,12 @@ const AnalysisResult: React.FC = () => {
     }
   };
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window?.innerWidth;
+    const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? 453 : 400;
-    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
+    const maxSize = window?.innerWidth > 1300 ? 453 : 400;
+    // const maxSize = window?.innerWidth > 1300 ? 453 : window?.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
     if (isPortrait) {

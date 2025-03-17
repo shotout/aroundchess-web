@@ -13,20 +13,20 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerWidth <= 1024) {
-        if (window.scrollY > lastScrollY) {
+      if (window?.innerWidth <= 1024) {
+        if (window?.scrollY > lastScrollY) {
           setHideDiv(true);
           setIsVisible(false);
-        } else if (window.scrollY == 0) {
+        } else if (window?.scrollY == 0) {
           setHideDiv(false);
           setIsVisible(true);
         }
       }
-      lastScrollY = window.scrollY;
+      lastScrollY = window?.scrollY;
       console.log("scrolling", lastScrollY);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window?.addEventListener("scroll", handleScroll);
+    return () => window?.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
   return (
     <Navigation>

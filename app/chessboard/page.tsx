@@ -8,11 +8,11 @@ import { Chessboard } from "react-chessboard";
 import { CSSProperties } from "react";
 
 const boardWrapper: CSSProperties = {
-  display:'flex',
-  flex:1,
-  flexDirection:"column",
-  justifyContent:"center",
-  alignItems:"center",
+  display: "flex",
+  flex: 1,
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
   margin: "3rem auto",
 };
 const buttonStyle = {
@@ -42,8 +42,8 @@ export default function ChessBoard() {
     handleResize();
   }, []);
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window?.innerWidth;
+    const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = 453;
@@ -184,6 +184,7 @@ export default function ChessBoard() {
     <div style={boardWrapper}>
       {Object.entries(levels).map(([level, depth]) => (
         <button
+          key={depth}
           style={{
             ...buttonStyle,
             backgroundColor: depth === stockfishLevel ? "#B58863" : "#f0d9b5",
@@ -194,9 +195,7 @@ export default function ChessBoard() {
         </button>
       ))}
       {/* </div> */}
-      <div
-        style={{ maxWidth: boardSize +40}}
-      >
+      <div style={{ maxWidth: boardSize + 40 }}>
         <Chessboard
           boardWidth={boardSize}
           id="Styled3DBoard"
