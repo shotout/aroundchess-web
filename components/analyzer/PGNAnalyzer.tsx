@@ -58,6 +58,7 @@ const PGNAnalyzer: React.FC = () => {
       setCurrentFen(game.fen());
     }
   };
+  
 
   const fetchStockfishData = async (fen: string) => {
     const stockfishService = getStockfishService();
