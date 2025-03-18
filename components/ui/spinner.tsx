@@ -9,9 +9,10 @@ export default function LoadingSpinner() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (dataAnalysis == null && progress <= 99) {
+      if (dataAnalysis == null && progress <= 95) {
         setProgress((prev) =>
-          prev < 99 ? prev + Math.floor(Math.random() * 5) + 5 : 99
+          prev < 95 ? prev + 5 : 95
+        // prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
         );
       } else if (dataAnalysis != null) {
         setProgress(100);

@@ -15,7 +15,7 @@ import {
   SkipBackIcon,
   SkipForwardIcon,
   SquareIcon,
-  Watch
+  Watch,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -278,8 +278,18 @@ const AnalysisResult: React.FC = () => {
       setCurrentMoveWhite(0);
     } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
       setCurrentMoveWhite(parsedMoves[index].clock);
+      if (parsedMoves[index + 1]) {
+        setCurrentMoveBlack(parsedMoves[index + 1].clock);
+      } else {
+        setCurrentMoveBlack(parsedMoves[index].clock);
+      }
     } else if (parsedMoves[index] && parsedMoves[index].color == "b") {
       setCurrentMoveBlack(parsedMoves[index].clock);
+      if (parsedMoves[index + 1]) {
+        setCurrentMoveWhite(parsedMoves[index + 1].clock);
+      } else {
+        setCurrentMoveWhite(parsedMoves[index].clock);
+      }
     }
   };
   const stopAutoPlay = () => {
@@ -312,6 +322,7 @@ const AnalysisResult: React.FC = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
     setCurrentMove(0);
+    setChessMove({});
   };
 
   const jumpToLastMove = () => {

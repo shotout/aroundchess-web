@@ -8,12 +8,13 @@ import { motion } from "framer-motion";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading } = usePgnStore(); // Get PGN from the Zustand store
+  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore(); // Get PGN from the Zustand store
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   let lastScrollY = 0;
 
   useEffect(() => {
+    setIsLoading(false)
     const handleScroll = () => {
       if (window?.innerWidth <= 1024) {
         if (window?.scrollY > lastScrollY) {
@@ -42,14 +43,14 @@ export default function AnalysisPage() {
                 hideDiv && "hidden"
               }`}
             >
-              <h2 className="text-md pt-4 text-center lg:text-left sm:text-lg md:text-xl lg:text-2xl font-bold">
+              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-2xl font-bold">
                 Analysis Result from{" "}
                 <span className="text-[#4E7838]">Chess.com</span>
               </h2>
               <div className="xl:hidden flex items-center justify-center mt-2">
                 <AnalyzeDifferentGame />
               </div>
-              <span className="hidden lg:block text-xs sm:text-sm md:text-md lg:text-lg">
+              <span className="hidden xl:block text-xs sm:text-sm md:text-md lg:text-lg">
                 Discover an Analysis of your latest Chess.com Game.
               </span>
               <div className="hidden xl:flex flex-row items-center justify-between">

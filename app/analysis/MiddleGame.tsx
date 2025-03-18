@@ -11,12 +11,14 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface MiddleGameProps {
   next: () => void;
   prev: () => void;
 }
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
 
   const { bestMoves, badMoves } = dataAnalysis?.middleGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
@@ -93,6 +95,9 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         return "text-[#364152]";
     }
   };
+  const handleOnClickMovement = (move: any) => {
+    setChessMove(move);
+  };
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -135,7 +140,8 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-xs  font-normal border border-primary rounded-[4px] p-1">
+                        <span onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs  font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold sm:text-sm md:text-md lg:text-xs ">
                             {item.moves}
@@ -205,7 +211,8 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
+                        <span onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.moves}</span>
                         </span>
