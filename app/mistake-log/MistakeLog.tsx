@@ -15,9 +15,17 @@ import {
 } from "@/components/ui/select";
 import { Filter } from "lucide-react";
 
+const history = [
+  { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
+  { value: "2", data: "", label: "VS Hikaru (03/03/25)" },
+  { value: "3", data: "", label: "VS Hikaru (03/03/25)" },
+  { value: "4", data: "", label: "VS Hikaru (03/03/25)" },
+];
+
 const MistakeLog = () => {
   const [MistakeType, setMistakeType] = useState<string>("");
   const [GamePhase, setGamePhase] = useState<string>("");
+  const [selectedHistory, setSelectedHistory] = useState<string>("1");
 
   const handleApplyFilters = () => {};
 
@@ -37,13 +45,13 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="auto" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
+      <Tabs defaultValue="saved" className="w-full">
+        <TabsList className="grid w-full h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger value="saved">
-            <span className="text-xs">Saved Mistakes</span>
+            <span className="text-xs py-2">Saved Mistakes</span>
           </TabsTrigger>
           <TabsTrigger value="previous">
-            <span className="text-xs">Previous Analysis</span>
+            <span className="text-xs py-2">Previous Analysis</span>
           </TabsTrigger>
         </TabsList>
 
@@ -58,6 +66,23 @@ const MistakeLog = () => {
         </TabsContent>
 
         <TabsContent value="previous" className="space-y-4">
+          <div className="hidden md:flex bg-[#F2FBFE] items-center mb-4 mt-8 rounded-lg border border-primary-gray py-2 md:p-2 md:h-[36px] lg:h-[48px]">
+            <div className="flex items-center space-x-1 lg:space-x-1 flex-1 flex-nowrap mx-2">
+              {history.map((hist: any, i: number) => {
+                return (
+                  <div
+                    key={i}
+                    className={`rounded-[2px] py-1 px-2 ${
+                      selectedHistory != hist.value ? `` : `bg-white shadow-md`
+                    }`}
+                  >
+                    <span className="text-xs">{hist.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="hidden md:flex items-center mb-4 rounded-lg border border-primary-gray gap-2 p-2 md:p-4 md:h-[56px] lg:h-[80px]">
             <div className="flex items-center space-x-1 lg:space-x-1 flex-1 flex-nowrap mx-2">
               <Select
