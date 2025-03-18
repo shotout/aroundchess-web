@@ -348,10 +348,7 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize =
-      window.innerWidth > 1300
-        ? window.innerWidth / 4.5
-        : 453;
+    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
