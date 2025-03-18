@@ -267,6 +267,7 @@ export function AnalyzeDifferentGame() {
     }
   };
   const processAnalyze = async (pgn: string | any) => {
+    let arr = null;
     try {
       setDataAnalysis(null);
       setIsLoading(true);
@@ -278,6 +279,7 @@ export function AnalyzeDifferentGame() {
       });
       setDataAnalysis(responseAnalysis.data.data);
       setIsLoading(false);
+      arr = responseAnalysis.data.data;
 
       console.log("responseAnalysis:", responseAnalysis);
       console.log("Analysis depth:", depthChoosed || "Not selected");
@@ -288,20 +290,15 @@ export function AnalyzeDifferentGame() {
       console.log("error", err);
       toast.error(err + "");
       router.push("/");
-      setIsLoading(false)
+      setIsLoading(false);
 
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      checkIfSuccess();
-    }
-  };
-  const checkIfSuccess = () => {
-    if (dataAnalysis != null) {
-      router.push("/analysis");
-    } else {
-      //show error message
-      setIsLoading(false)
-      router.push("/");
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
     }
   };
   const handleGameSelect = (value: string) => {
