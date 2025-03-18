@@ -79,7 +79,7 @@ export function HeroSection() {
     } else {
       //show error message
       setIsLoading(false)
-      router.push("/");
+      // router.push("/");
     }
   };
   const handleResize = () => setWidth(window.innerWidth);

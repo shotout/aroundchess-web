@@ -180,7 +180,7 @@ const GamesTab = () => {
       router.push("/analysis");
     } else {
       setIsLoading(false)
-      router.push("/");
+      // router.push("/");
     }
   };
   useEffect(() => {
