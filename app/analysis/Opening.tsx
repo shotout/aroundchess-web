@@ -5,12 +5,15 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
 }
 const Opening: React.FC<OpeningProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
+
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
@@ -50,6 +53,10 @@ const Opening: React.FC<OpeningProps> = (props) => {
       default:
         return "border border-[#80B64D] text-[#3A6211]";
     }
+  };
+  const handleOnClickMovement = (move: any) => {
+    console.log(move);
+    setChessMove(move);
   };
   return (
     <>
@@ -211,7 +218,8 @@ const Opening: React.FC<OpeningProps> = (props) => {
         <div className="grid grid-cols-2 gap-2 sm:gap-6">
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
+              <span onClick={() => handleOnClickMovement(whiteOpening)}
+                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {whiteOpening.moves}
@@ -242,7 +250,10 @@ const Opening: React.FC<OpeningProps> = (props) => {
           </div>
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
+              <span
+                onClick={() => handleOnClickMovement(blackOpening)}
+                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+              >
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {blackOpening.moves}

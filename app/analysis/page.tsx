@@ -8,12 +8,13 @@ import { motion } from "framer-motion";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading } = usePgnStore(); // Get PGN from the Zustand store
+  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore(); // Get PGN from the Zustand store
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   let lastScrollY = 0;
 
   useEffect(() => {
+    setIsLoading(false)
     const handleScroll = () => {
       if (window.innerWidth <= 1024) {
         if (window.scrollY > lastScrollY) {

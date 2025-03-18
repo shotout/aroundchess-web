@@ -5,13 +5,19 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
 }
 const Threats: React.FC<ThreatsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+    const { chessMove, setChessMove } = useChessMoveStore();
+  
   const { threats } = dataAnalysis ?? {};
+  const handleOnClickMovement = (move: any) => {
+    setChessMove(move);
+  };
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -33,7 +39,8 @@ const Threats: React.FC<ThreatsProps> = (props) => {
               return (
                 <div key={index} className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between items-center gap-2 mb-2">
-                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
+                    <span onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
                       Move {item?.moveNumber}: <span className="font-bold">{item?.move}</span>
                     </span>
                     <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
