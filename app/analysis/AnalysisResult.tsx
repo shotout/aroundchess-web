@@ -747,7 +747,7 @@ const AnalysisResult: React.FC = () => {
           </motion.div>
 
           {showTable && <MovementTable />}
-          {showMovementContent && chessMove.move != null && (
+          {showMovementContent && !showTable&& chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">

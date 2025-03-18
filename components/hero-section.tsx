@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
+import { toast } from "sonner";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
@@ -27,12 +28,12 @@ export function HeroSection() {
     setDataGames,
     dataGames,
   } = usePgnStore();
-  const fetcher = () =>{
-    console.log("health-check")
+  const fetcher = () => {
+    console.log("health-check");
     fetch(process.env.BASE_URL! + "/health-check").then((res) =>
       res.json().then((data) => console.log(data))
     );
-  }
+  };
   const fetchPgn = async () => {
     try {
       setIsLoading(true);
@@ -60,17 +61,30 @@ export function HeroSection() {
       // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
+      toast.error(err + "");
+      router.push("/");
+      setIsLoading(false)
+
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       // setTimeout(() => {
-      router.push("/analysis");
+      checkIfSuccess();
       // setIsLoading(false);
       // }, 5000);
     }
   };
+  const checkIfSuccess = () => {
+    if (dataAnalysis != null) {
+      router.push("/analysis");
+    } else {
+      //show error message
+      setIsLoading(false)
+      router.push("/");
+    }
+  };
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    setDataAnalysis(null)
+    setDataAnalysis(null);
     fetcher();
     handleResize();
     window.addEventListener("resize", handleResize);
