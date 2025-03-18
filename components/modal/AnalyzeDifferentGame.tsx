@@ -300,7 +300,7 @@ export function AnalyzeDifferentGame() {
     } else {
       //show error message
       setIsLoading(false)
-      router.push("/");
+      // router.push("/");
     }
   };
   const handleGameSelect = (value: string) => {
