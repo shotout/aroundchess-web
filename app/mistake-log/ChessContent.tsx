@@ -1,28 +1,30 @@
 "use client";
 
-import MovementTable from "@/components/table/movement";
-import { Button } from "@/components/ui/button";
-import { getStockfishService } from "@/lib/stockfish/stockfish-service";
+import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { motion } from "framer-motion";
+import { Chessboard } from "react-chessboard";
+import pgnParser from "pgn-parser";
+import { getStockfishService } from "@/lib/stockfish/stockfish-service";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
   InfoIcon,
   PauseIcon,
+  Play,
   PlayIcon,
   Settings,
   SkipBackIcon,
   SkipForwardIcon,
   SquareIcon,
-  Watch
+  Watch,
 } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import { Chessboard } from "react-chessboard";
+import { usePgnStore } from "../store/zustandStore";
+import { Button } from "@/components/ui/button";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { usePgnStore } from "../store/zustandStore";
+import MovementTable from "@/components/table/movement";
+import { motion } from "framer-motion";
 
 type CapturedPieces = {
   white: string[];
@@ -39,7 +41,7 @@ interface ParsedMove {
   [key: string]: any;
 }
 
-const AnalysisResult: React.FC = () => {
+const ChessContent: React.FC = () => {
   const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -675,4 +677,4 @@ const AnalysisResult: React.FC = () => {
   );
 };
 
-export default AnalysisResult;
+export default ChessContent;
