@@ -12,6 +12,7 @@ interface ChessExampleProps {
   description: string
 }
 
+
 export function ChessExample({ initialFen, title, description }: ChessExampleProps) {
   const [game, setGame] = useState<Chess>(new Chess(initialFen))
   const [currentPosition, setCurrentPosition] = useState(initialFen)
