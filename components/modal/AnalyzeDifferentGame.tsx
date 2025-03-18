@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, SetStateAction } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -18,29 +17,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Brain,
-  Wand,
-  Settings,
-  Search,
-  Plus,
-  Clipboard,
-  FileText,
-  Upload,
-  UploadCloud,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Clipboard, UploadCloud, Check, X } from "lucide-react";
 import Image from "next/image";
+
+const mockData = {
+  success: true,
+  message: "Game options retrieved successfully",
+  data: [
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.09 newbiepisan vs hharo70",
+      color: "White",
+      result: "1-0",
+      opponent: "hharo70",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.12 newbiepisan vs timmytim3",
+      color: "White",
+      result: "1-0",
+      opponent: "timmytim3",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.12 honvan04 vs newbiepisan",
+      color: "Black",
+      result: "0-1",
+      opponent: "honvan04",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.12 newbiepisan vs jayjays66",
+      color: "White",
+      result: "1-0",
+      opponent: "jayjays66",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.13 sertkaya500 vs newbiepisan",
+      color: "Black",
+      result: "0-1",
+      opponent: "sertkaya500",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.13 1a2ii vs newbiepisan",
+      color: "Black",
+      result: "1-0",
+      opponent: "1a2ii",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.14 newbiepisan vs socrateskaiser",
+      color: "White",
+      result: "1-0",
+      opponent: "socrateskaiser",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.14 newbiepisan vs shuchi4203",
+      color: "White",
+      result: "1-0",
+      opponent: "shuchi4203",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.14 Rodi_00 vs newbiepisan",
+      color: "Black",
+      result: "1-0",
+      opponent: "Rodi_00",
+    },
+    {
+      value: '[Event "Live Chess"]...',
+      text: "2024.08.15 tf2011 vs newbiepisan",
+      color: "Black",
+      result: "1-0",
+      opponent: "tf2011",
+    },
+  ],
+};
 
 export function AnalyzeDifferentGame() {
   const depths = [
@@ -66,17 +122,67 @@ export function AnalyzeDifferentGame() {
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
     },
   ];
-  const [username, setUsername] = useState<string>("");
-  const [pgnText, setPgnText] = useState<string>("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [username, setUsername] = useState("");
+  const [pgnText, setPgnText] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [dragActive, setDragActive] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState("");
+  const [open, setOpen] = useState(false);
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>): void => {
+  // New states for username validation
+  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
+  interface GameOption {
+    value: string;
+    text: string;
+    color: string;
+    result: string;
+    opponent: string;
+  }
+
+  const [availableGames, setAvailableGames] = useState<GameOption[]>([]);
+  const [selectedGame, setSelectedGame] = useState<string | undefined>(
+    undefined
+  );
+
+  // Handle username change and validation
+  useEffect(() => {
+    let timeoutId: string | number | NodeJS.Timeout | undefined;
+
+    if (username.trim().length > 0) {
+      setUsernameStatus("loading");
+
+      // Simulate API call delay
+      timeoutId = setTimeout(() => {
+        if (username.toLowerCase() === "newbiepisan") {
+          setUsernameStatus("found");
+          setAvailableGames(mockData.data);
+        } else {
+          setUsernameStatus("not-found");
+          setAvailableGames([]);
+          setSelectedGame(undefined);
+        }
+      }, 1000);
+    } else {
+      setUsernameStatus("idle");
+      setAvailableGames([]);
+      setSelectedGame(undefined);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [username]);
+
+  const handleDrag = (e: {
+    preventDefault: () => void;
+    stopPropagation: () => void;
+    type: string;
+  }) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -103,7 +209,7 @@ export function AnalyzeDifferentGame() {
     }
   };
 
-  const handleFile = (file: File): void => {
+  const handleFile = (file: { name: string; size: number }) => {
     // Check file type (simple check for .pgn extension)
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
@@ -129,8 +235,28 @@ export function AnalyzeDifferentGame() {
     }
   };
 
+  const handleAnalyzeGame = () => {
+    console.log("Analyzing game with the following data:");
+    if (selectedGame) {
+      console.log("Selected game:", selectedGame);
+    } else if (pgnText) {
+      console.log("PGN text provided");
+    } else if (fileName) {
+      console.log("File uploaded:", fileName);
+    }
+
+    console.log("Analysis depth:", depthChoosed || "Not selected");
+
+    // Close the dialog
+    setOpen(false);
+  };
+
+  const handleGameSelect = (value: string) => {
+    setSelectedGame(value);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="w-fill px-5 py-2 btn-primary rounded-full">
           Analyze a different game
@@ -140,7 +266,7 @@ export function AnalyzeDifferentGame() {
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
-            Select your Games from Chess.com or upload your previous Game’s{" "}
+            Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
           </DialogDescription>
@@ -172,44 +298,69 @@ export function AnalyzeDifferentGame() {
                     Chess.com Username
                   </p>
                 </div>
-                <div className="flex flex-row items-center w-full p-3 rounded-sm border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <input
                     type="text"
                     id="username"
                     value={username}
                     placeholder="Enter your Chess.com Username"
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent h-[24px]"
+                    className="w-full bg-transparent h-[24px] focus:outline-none"
                   />
-                  <span className="text-xs">{"message"}</span>
+                  <div className="flex items-center">
+                    {usernameStatus === "loading" && (
+                      <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    )}
+                    {usernameStatus === "found" && (
+                      <div className="flex items-center text-green-500 whitespace-nowrap">
+                        <Check className="h-4 w-4 mr-1" />
+                        <span className="text-xs">Username found</span>
+                      </div>
+                    )}
+                    {usernameStatus === "not-found" && (
+                      <div className="flex items-center text-red-500 whitespace-nowrap">
+                        <X className="h-4 w-4 mr-1" />
+                        <span className="text-xs">Username not found</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
-                <Select name="subject">
-                  <SelectTrigger className="w-full">
+                <Select
+                  name="game"
+                  disabled={usernameStatus !== "found"}
+                  value={selectedGame}
+                  onValueChange={handleGameSelect}
+                >
+                  <SelectTrigger
+                    className={`w-full ${
+                      usernameStatus !== "found"
+                        ? "bg-gray-100 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
                     <SelectValue placeholder="Select your game" />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* {subjectForm.map((item, index) => {
-                    return (
-                      <SelectItem key={item.value} value={item.label}>
-                        {item.label}
+                    {availableGames.map((game, index) => (
+                      <SelectItem key={index} value={game.value}>
+                        {game.text} ({game.result})
                       </SelectItem>
-                    );
-                  })} */}
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 grid grid-cols-1 md:grid-cols-3 md:gap-4 items-center">
-                {depths.map((depth: any, index: number) => {
+              <div className="space-y-2 grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
+                {depths.map((depth, index) => {
                   return (
                     <div
                       onClick={() => setDepthChoosed(depth.value)}
                       key={index}
-                      className={`flex flex-col relative px-2 py-2 md:min-h-[210px] gap-2 items-center shadow-md border ${
+                      className={`flex flex-col relative px-3 py-3 md:h-[230px] gap-2 items-center shadow-md border ${
                         depthChoosed == depth.value
                           ? `border-[#221AE9]`
                           : `border-input`
@@ -231,7 +382,7 @@ export function AnalyzeDifferentGame() {
                         } `}
                       />
                       <span className="font-normal text-sm">{depth.title}</span>
-                      <span className="font-light text-center text-[11px]">
+                      <span className="font-light text-center text-[11px] px-2">
                         {depth.description}
                       </span>
                     </div>
@@ -304,7 +455,23 @@ export function AnalyzeDifferentGame() {
                 </div>
               </div>
             </TabsContent>
-            <button className="btn-primary w-full text-sm rounded-full py-2 my-4">
+            <button
+              onClick={handleAnalyzeGame}
+              className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+                usernameStatus !== "found" &&
+                !selectedGame &&
+                !pgnText &&
+                !fileName
+                  ? "opacity-70 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={
+                usernameStatus !== "found" &&
+                !selectedGame &&
+                !pgnText &&
+                !fileName
+              }
+            >
               Analyze Game
             </button>
           </Tabs>
