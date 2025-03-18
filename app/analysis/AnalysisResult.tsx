@@ -226,6 +226,7 @@ const AnalysisResult: React.FC = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
     setCurrentMove(0);
+    setChessMove({})
   };
 
   const jumpToLastMove = () => {
