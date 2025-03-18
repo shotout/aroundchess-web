@@ -20,6 +20,8 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 import axios from "axios";
+import { toast } from "sonner";
+
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
 interface Game {
@@ -115,7 +117,7 @@ const GamesTab = () => {
 
   // API fetch
   const { data, isLoading, error } = useFetch(endpoint);
-  const { setPgn, setDataAnalysis } = usePgnStore();
+  const { setPgn, setDataAnalysis, dataAnalysis, setIsLoading } = usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
 
   // Process API data when it arrives
@@ -150,18 +152,37 @@ const GamesTab = () => {
 
   // Function to handle analyze button click
   const handleAnalyzeClick = async (game: Game) => {
-    // Set the pgn in the store
-    setPgn(game.pgn);
-    const config = {
-      headers: {}
-    };
-    const body = { pgn: game.pgn };
-    const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-    setDataAnalysis(responseAnalysis.data.data);
-    // Navigate to the analysis page
-    router.push("/analysis");
-  };
+    try {
+      setIsLoading(true);
+      // Set the pgn in the store
+      setPgn(game.pgn);
+      const config = {
+        headers: {},
+      };
+      setDataAnalysis(null);
+      const body = { pgn: game.pgn };
+      const responseAnalysis = await axios.post(AnalysisUrl, body, config);
+      setDataAnalysis(responseAnalysis.data.data);
+      // Navigate to the analysis page
+      router.push("/analysis");
+    } catch (err) {
+      setIsLoading(false)
+      console.log("error", err);
+      toast.error(err + "");
+      router.push("/");
 
+    } finally {
+      checkIfSuccess();
+    }
+  };
+  const checkIfSuccess = () => {
+    if (dataAnalysis != null) {
+      router.push("/analysis");
+    } else {
+      setIsLoading(false)
+      router.push("/");
+    }
+  };
   useEffect(() => {
     let count = 0;
     if (timeRange !== defaultFilters.timeRange) count++;

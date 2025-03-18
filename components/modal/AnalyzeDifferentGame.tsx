@@ -23,6 +23,8 @@ import Image from "next/image";
 import axios from "axios";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const mockData = {
@@ -117,24 +119,24 @@ export function AnalyzeDifferentGame() {
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: "low",
-      title: "Low Analysis",
+      value: "basic",
+      title: "Basic Analysis",
       description:
-        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
+        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: "middle",
-      title: "Middle Analysis",
+      value: "standard",
+      title: "Standard Analysi",
       description:
-        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
+        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: "high",
-      title: "High Analysis",
+      value: "deep",
+      title: "Deep Analysis",
       description:
-        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
+        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
     },
   ];
 
@@ -184,7 +186,7 @@ export function AnalyzeDifferentGame() {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
       setSelectedGame(response.data.data[0].value);
-      setPgn(response.data.data[0].value)
+      setPgn(response.data.data[0].value);
       setDataGames(response.data.data[0].data_games);
     } else {
       setUsernameStatus("idle");
@@ -255,22 +257,21 @@ export function AnalyzeDifferentGame() {
     console.log("Analyzing game with the following data:");
     if (selectedGame) {
       console.log("Selected game:", selectedGame);
-      processAnalyze(selectedGame)
+      processAnalyze(selectedGame);
     } else if (pgnText) {
       console.log("PGN text provided");
-      processAnalyze(selectedGame)
+      processAnalyze(selectedGame);
     } else if (fileName) {
       console.log("File uploaded:", fileName);
     }
-    
   };
-  const processAnalyze =async (pgn:string|any)=>{
+  const processAnalyze = async (pgn: string | any) => {
     try {
       setDataAnalysis(null);
       setIsLoading(true);
 
-      const body = { username: username, pgn:pgn, depth:depthChoosed };
-      console.log("body", body)
+      const body = { username: username, pgn: pgn, depth: depthChoosed };
+      console.log("body", body);
       const responseAnalysis = await axios.post(AnalysisUrl, body, {
         headers: {},
       });
@@ -284,11 +285,24 @@ export function AnalyzeDifferentGame() {
       setOpen(false);
     } catch (err) {
       console.log("error", err);
+      toast.error(err + "");
+      router.push("/");
+      setIsLoading(false)
+
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      router.push("/analysis");
+      checkIfSuccess();
     }
-  }
+  };
+  const checkIfSuccess = () => {
+    if (dataAnalysis != null) {
+      router.push("/analysis");
+    } else {
+      //show error message
+      setIsLoading(false)
+      router.push("/");
+    }
+  };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
   };
