@@ -5,6 +5,7 @@ import AnalysisResult from "./AnalysisResult";
 import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { motion } from "framer-motion";
+import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 export default function AnalysisPage() {
   const { setHideDiv, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
 
@@ -49,6 +50,7 @@ export default function AnalysisPage() {
             structure, king safety, and overall positional advantages, helping
             players understand strategic strengths and weaknesses
           </div>
+          <AnalyzeDifferentGame />
         </div>
         <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
           <AnalysisResult />
