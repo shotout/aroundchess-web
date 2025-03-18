@@ -82,7 +82,7 @@ const AnalysisResult: React.FC = () => {
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
   const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
-  const [, setPgn] = useState<string>("");
+  const [pgn, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(

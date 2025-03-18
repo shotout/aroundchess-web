@@ -20,7 +20,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clipboard, UploadCloud, Check, X } from "lucide-react";
 import Image from "next/image";
-
+import axios from "axios";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { useRouter } from "next/navigation";
+const getDataUsername = process.env.BASE_URL + "/games/get-data/";
+const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const mockData = {
   success: true,
   message: "Game options retrieved successfully",
@@ -97,8 +101,19 @@ const mockData = {
     },
   ],
 };
-
 export function AnalyzeDifferentGame() {
+  const router = useRouter();
+
+  const {
+    setPgn,
+    setIsLoading,
+    setError,
+    isLoading,
+    dataAnalysis,
+    setDataAnalysis,
+    setDataGames,
+    dataGames,
+  } = usePgnStore();
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
@@ -148,35 +163,36 @@ export function AnalyzeDifferentGame() {
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
     undefined
   );
+  const [debouncedQuery, setDebouncedQuery] = useState(username);
 
-  // Handle username change and validation
   useEffect(() => {
-    let timeoutId: string | number | NodeJS.Timeout | undefined;
+    const timer = setTimeout(() => setDebouncedQuery(username), 500);
+    return () => clearTimeout(timer); // Cleanup
+  }, [username]);
 
-    if (username.trim().length > 0) {
+  useEffect(() => {
+    if (debouncedQuery) {
       setUsernameStatus("loading");
+      getByUsername();
+    }
+  }, [debouncedQuery]);
 
-      // Simulate API call delay
-      timeoutId = setTimeout(() => {
-        if (username.toLowerCase() === "newbiepisan") {
-          setUsernameStatus("found");
-          setAvailableGames(mockData.data);
-        } else {
-          setUsernameStatus("not-found");
-          setAvailableGames([]);
-          setSelectedGame(undefined);
-        }
-      }, 1000);
+  const getByUsername = async () => {
+    const url = getDataUsername + username;
+    const response = await axios.get(url, { headers: {} });
+    if (response.status == 200) {
+      setUsernameStatus("found");
+      setAvailableGames(response.data.data);
+      setSelectedGame(response.data.data[0].value);
+      setPgn(response.data.data[0].value)
+      setDataGames(response.data.data[0].data_games);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
       setSelectedGame(undefined);
     }
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [username]);
+    console.log("response", url, response);
+  };
 
   const handleDrag = (e: {
     preventDefault: () => void;
@@ -235,22 +251,44 @@ export function AnalyzeDifferentGame() {
     }
   };
 
-  const handleAnalyzeGame = () => {
+  const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
     if (selectedGame) {
       console.log("Selected game:", selectedGame);
+      processAnalyze(selectedGame)
     } else if (pgnText) {
       console.log("PGN text provided");
+      processAnalyze(selectedGame)
     } else if (fileName) {
       console.log("File uploaded:", fileName);
     }
-
-    console.log("Analysis depth:", depthChoosed || "Not selected");
-
-    // Close the dialog
-    setOpen(false);
+    
   };
+  const processAnalyze =async (pgn:string|any)=>{
+    try {
+      setDataAnalysis(null);
+      setIsLoading(true);
 
+      const body = { username: username, pgn:pgn, depth:depthChoosed };
+      console.log("body", body)
+      const responseAnalysis = await axios.post(AnalysisUrl, body, {
+        headers: {},
+      });
+      setDataAnalysis(responseAnalysis.data.data);
+      setIsLoading(false);
+
+      console.log("responseAnalysis:", responseAnalysis);
+      console.log("Analysis depth:", depthChoosed || "Not selected");
+
+      // Close the dialog
+      setOpen(false);
+    } catch (err) {
+      console.log("error", err);
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      router.push("/analysis");
+    }
+  }
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
   };
@@ -326,7 +364,7 @@ export function AnalyzeDifferentGame() {
                   </div>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 mx-1">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
