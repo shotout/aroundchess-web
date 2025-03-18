@@ -152,6 +152,7 @@ const GamesTab = () => {
 
   // Function to handle analyze button click
   const handleAnalyzeClick = async (game: Game) => {
+    let arr = null;
     try {
       setIsLoading(true);
       // Set the pgn in the store
@@ -163,24 +164,20 @@ const GamesTab = () => {
       const body = { pgn: game.pgn };
       const responseAnalysis = await axios.post(AnalysisUrl, body, config);
       setDataAnalysis(responseAnalysis.data.data);
+      arr = responseAnalysis.data.data;
       // Navigate to the analysis page
       router.push("/analysis");
     } catch (err) {
-      setIsLoading(false)
+      setIsLoading(false);
       console.log("error", err);
       toast.error(err + "");
       router.push("/");
-
     } finally {
-      checkIfSuccess();
-    }
-  };
-  const checkIfSuccess = () => {
-    if (dataAnalysis != null) {
-      router.push("/analysis");
-    } else {
-      setIsLoading(false)
-      router.push("/");
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
     }
   };
   useEffect(() => {

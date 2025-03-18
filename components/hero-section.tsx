@@ -35,6 +35,7 @@ export function HeroSection() {
     );
   };
   const fetchPgn = async () => {
+    let arr = null;
     try {
       setIsLoading(true);
       const config = {
@@ -56,32 +57,25 @@ export function HeroSection() {
       const body = { username: username };
       const responseAnalysis = await axios.post(AnalysisUrl, body, config);
       setDataAnalysis(responseAnalysis.data.data);
-
+      arr = responseAnalysis.data.data;
       // setError(null);
       // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
       toast.error(err + "");
       router.push("/");
-      setIsLoading(false)
+      setIsLoading(false);
 
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      // setTimeout(() => {
-      checkIfSuccess();
-      // setIsLoading(false);
-      // }, 5000);
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
     }
   };
-  const checkIfSuccess = () => {
-    if (dataAnalysis != null) {
-      router.push("/analysis");
-    } else {
-      //show error message
-      setIsLoading(false)
-      router.push("/");
-    }
-  };
+
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
     setDataAnalysis(null);
