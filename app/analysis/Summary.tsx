@@ -312,14 +312,14 @@ const Summary: React.FC<SummaryProps> = (props) => {
         </div>
         <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <div className="flex flex-row items-center justify-center gap-4">
-            <div className="flex flex-col items-end justify-around gap-2">
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+            <div className="flex flex-col items-end justify-around gap-2 ">
+              <span className="text-xs text-center sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Opening:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Middlegame:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Endgame:
               </span>
             </div>
