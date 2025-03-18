@@ -14,21 +14,20 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { isLoading, dataAnalysis , setDataAnalysis} = usePgnStore();
+  const { isLoading, dataAnalysis, setDataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    setLoading(false)
-    setDataAnalysis(null)
-  }
-  , []);
+    setLoading(false);
+    setDataAnalysis(null);
+  }, []);
   useEffect(() => {
     console.log("listening dataAnalysis", dataAnalysis);
-    setLoading(isLoading)
-  }, [dataAnalysis,isLoading]);
+    setLoading(isLoading);
+  }, [dataAnalysis, isLoading]);
+
   return (
-    
     <div>
-      {loading ==true ? (
+      {loading == true ? (
         <LoadingPage />
       ) : (
         <>
@@ -44,6 +43,5 @@ export default function Home() {
         </>
       )}
     </div>
-  )
+  );
 }
-
