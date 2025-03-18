@@ -193,7 +193,7 @@ const PgnPlayer: React.FC = () => {
 
   // Auto-play effect
   useEffect(() => {
-    console.log(currentMoveIndex, moveHistory.length);
+    // console.log(currentMoveIndex, moveHistory.length)
     // Skip if we don't have moves or are at the end
     if (moveHistory.length === 0 || currentMoveIndex >= moveHistory.length) {
       return;
@@ -226,11 +226,11 @@ const PgnPlayer: React.FC = () => {
         setGame(newGame);
         setCurrentMoveIndex((prev) => prev + 1);
 
-        console.log(
-          `Made move ${currentMoveIndex + 1}/${moveHistory.length}: ${
-            moveData.san
-          }`
-        );
+        // console.log(
+        //   `Made move ${currentMoveIndex + 1}/${moveHistory.length}: ${
+        //     moveData.san
+        //   }`
+        // );
       } catch (err) {
         console.error("Error making move:", err);
         setError(

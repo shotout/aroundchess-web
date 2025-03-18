@@ -1,29 +1,30 @@
 "use client";
 
-import MovementTable from "@/components/table/movement";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useRef, useState } from "react";
+import { Chess } from "chess.js";
+import { Chessboard } from "react-chessboard";
+import pgnParser from "pgn-parser";
 import { getStockfishService } from "@/lib/stockfish/stockfish-service";
-import { Chess, Square } from "chess.js";
-import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
   InfoIcon,
   PauseIcon,
+  Play,
   PlayIcon,
   Settings,
   SkipBackIcon,
   SkipForwardIcon,
   SquareIcon,
-  Watch
+  Watch,
 } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Chessboard } from "react-chessboard";
+import { usePgnStore } from "../store/zustandStore";
+import { Button } from "@/components/ui/button";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { usePgnStore } from "../store/zustandStore";
-import BoardWood from "@/components/3d-board/3DBoardWood";
+import MovementTable from "@/components/table/movement";
+import { motion } from "framer-motion";
 
 type CapturedPieces = {
   white: string[];
@@ -40,7 +41,7 @@ interface ParsedMove {
   [key: string]: any;
 }
 
-const AnalysisResult: React.FC = () => {
+const ChessContent: React.FC = () => {
   const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -61,7 +62,6 @@ const AnalysisResult: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
-
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -69,8 +69,8 @@ const AnalysisResult: React.FC = () => {
     handleResize();
 
     // Add event listeners
-    window?.addEventListener("resize", handleResize);
-    return () => window?.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ const AnalysisResult: React.FC = () => {
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
   const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
-  const [pgn, setPgn] = useState<string>("");
+  const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
@@ -95,91 +95,7 @@ const AnalysisResult: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const threeDPieces = useMemo(() => {
-    const pieces = [
-      {
-        piece: "wP",
-        pieceHeight: 1,
-      },
-      {
-        piece: "wN",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "wB",
-        pieceHeight: 1.3,
-      },
-      {
-        piece: "wR",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "wQ",
-        pieceHeight: 1.4,
-      },
-      {
-        piece: "wK",
-        pieceHeight: 0.87,
-      },
-      {
-        piece: "bP",
-        pieceHeight: 1,
-      },
-      {
-        piece: "bN",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "bB",
-        pieceHeight: 1.3,
-      },
-      {
-        piece: "bR",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "bQ",
-        pieceHeight: 1.4,
-      },
-      {
-        piece: "bK",
-        pieceHeight: 0.8,
-      },
-    ];
-    const pieceComponents: {
-      [key: string]: ({
-        squareWidth,
-        square,
-      }: {
-        squareWidth: number;
-        square: Square;
-      }) => JSX.Element;
-    } = {};
-    pieces.forEach(({ piece, pieceHeight }) => {
-      pieceComponents[piece] = ({ squareWidth, square }) => (
-        <div
-          style={{
-            width: squareWidth * pieceHeight,
-            height: squareWidth,
-            position: "relative",
-            pointerEvents: "none",
-          }}
-        >
-          <img
-            src={`/3d-pieces/${piece}.webp`}
-            width={squareWidth * pieceHeight}
-            height={squareWidth}
-            style={{
-              position: "absolute",
-              bottom: `${0.2 * squareWidth}px`,
-              objectFit: piece[1] === "K" ? "contain" : "cover",
-            }}
-          />
-        </div>
-      );
-    });
-    return pieceComponents;
-  }, []);
+
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
@@ -427,11 +343,14 @@ const AnalysisResult: React.FC = () => {
     }
   };
   const handleResize = () => {
-    const width = window?.innerWidth;
-    const height = window?.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 453;
+    const maxSize =
+      window.innerWidth > 1300
+        ? window.innerWidth / 4.5
+        : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -576,47 +495,14 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          <div className={`${is3DMode && "mb-8 xl:m-8"}`}>
-            <motion.div
-              animate={
-                is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+          <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}>
+            <Chessboard
+              boardWidth={
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
               }
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{ display: !is3DMode ? "block" : "none" }}
-            >
-              <Chessboard
-                boardWidth={
-                  hideDiv
-                    ? boardSize - 80
-                    : is3DMode
-                    ? boardSize - 76
-                    : boardSize
-                }
-                {...getBoardProps()}
-                arePiecesDraggable={false}
-              />
-            </motion.div>
-            {/* ) : ( */}
-            <motion.div
-              animate={
-                !is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
-              }
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{ display: is3DMode ? "block" : "none", marginTop: -20 }}
-            >
-              <BoardWood
-                size={
-                  hideDiv
-                    ? boardSize - 80
-                    : is3DMode
-                    ? boardSize - 100
-                    : boardSize
-                }
-                position={game.fen()}
-                boardOrientation={boardOrientation}
-              />
-            </motion.div>
-            {/* )} */}
+              {...getBoardProps()}
+              arePiecesDraggable={false}
+            />
           </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-4">
@@ -791,4 +677,4 @@ const AnalysisResult: React.FC = () => {
   );
 };
 
-export default AnalysisResult;
+export default ChessContent;
