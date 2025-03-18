@@ -103,6 +103,7 @@ const mockData = {
     },
   ],
 };
+
 export function AnalyzeDifferentGame() {
   const router = useRouter();
 
