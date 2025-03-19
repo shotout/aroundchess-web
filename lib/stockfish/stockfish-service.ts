@@ -3,7 +3,7 @@ import { Chess } from 'chess.js';
 class StockfishService {
   private worker: Worker | null = null;
   private isReady = false;
-  private readonly DEFAULT_DEPTH = 19;
+  private readonly DEFAULT_DEPTH = 20;
   private readonly DEFAULT_RANDOMNESS = 0;
   private initPromise: Promise<void>;
 
@@ -13,7 +13,7 @@ class StockfishService {
         try {
           // Use single-threaded version of Stockfish
           this.worker = new Worker('/stockfish/Stockfish.js');
-          
+
           this.worker.onmessage = (e) => {
             if (e.data === 'uciok') {
               this.isReady = true;
@@ -23,11 +23,11 @@ class StockfishService {
               // Ready to accept commands
             }
           };
-          
+
           this.worker.onerror = (error) => {
             console.error('Stockfish worker error:', error);
           };
-          
+
           this.worker.postMessage('uci');
         } catch (error) {
           console.error('Error initializing Stockfish:', error);
@@ -64,12 +64,12 @@ class StockfishService {
   }
 
   async getBestMove(
-    fen: string, 
-    depth: number = this.DEFAULT_DEPTH, 
+    fen: string,
+    depth: number = this.DEFAULT_DEPTH,
     randomness: number = this.DEFAULT_RANDOMNESS
   ): Promise<string> {
     await this.waitReady();
-    
+
     if (!this.worker || !this.isReady) {
       throw new Error('Stockfish not initialized');
     }
@@ -86,15 +86,15 @@ class StockfishService {
         // Create a chess instance to get all legal moves
         const chess = new Chess(fen);
         const moves = chess.moves({ verbose: true });
-        
+
         // Categorize moves
         const captures = moves.filter(m => m.flags.includes('c')); // Capture moves
         const checks = moves.filter(m => m.flags.includes('k')); // Check moves
         const normalMoves = moves.filter(m => !m.flags.includes('c') && !m.flags.includes('k')); // Non-capture, non-check moves
-        
+
         const moveChoice = Math.random();
         let selectedMove;
-        
+
         // Decide which type of move to make based on weights
         if (moveChoice < weights.normal && normalMoves.length > 0) {
           selectedMove = normalMoves[Math.floor(Math.random() * normalMoves.length)];
@@ -116,7 +116,9 @@ class StockfishService {
           this.worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
           this.worker.postMessage(`setoption name MultiPV value 1`);
           this.worker.postMessage(`setoption name Contempt value 0`);
-          
+          this.worker.postMessage(`setoption name Threads value 2`);
+          this.worker.postMessage(`setoption name Hash value 1024`);
+
           this.worker.postMessage(`position fen ${fen}`);
           this.worker.postMessage(`go depth ${depth}`);
           return;
@@ -124,7 +126,7 @@ class StockfishService {
           // If all else fails, make a random legal move
           selectedMove = moves[Math.floor(Math.random() * moves.length)];
         }
-        
+
         resolve(selectedMove.from + selectedMove.to);
         return;
       }
@@ -142,7 +144,7 @@ class StockfishService {
       this.worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
       this.worker.postMessage(`setoption name MultiPV value 1`);
       this.worker.postMessage(`setoption name Contempt value ${Math.min(skillLevel * 5, 50)}`);
-      
+
       this.worker.postMessage(`position fen ${fen}`);
       this.worker.postMessage(`go depth ${depth}`);
     });
@@ -166,6 +168,91 @@ class StockfishService {
 
       this.worker.postMessage(`position fen ${fen}`);
       this.worker.postMessage(`go depth ${depth}`);
+    });
+  }
+
+  async getMoveAndEval(
+    fen: string,
+    depth: number = this.DEFAULT_DEPTH,
+    moveTime: number = 60000
+  ): Promise<{
+    fen: string;
+    depth: number;
+    bestMove: string;
+    alternativeBestMove: string;
+    evaluationCentiPawns: number;
+    evaluationPawns: number;
+  }> {
+    await this.waitReady();
+
+    if (!this.worker || !this.isReady) {
+      throw new Error('Stockfish not initialized');
+    }
+
+    return new Promise((resolve) => {
+      if (!this.worker) return;
+
+      let bestMove = '';
+      let alternativeBestMove = '';
+      let evalCp: number | null = null;
+      let actualDepth = 0;
+      const moves: { move: string, score: number }[] = [];
+
+      this.worker.onmessage = (e) => {
+        const msg = e.data;
+
+        if (msg.startsWith('info') && msg.includes('score cp')) {
+          try {
+            const multipvMatch = msg.match(/multipv (\d+)/);
+            const scoreMatch = msg.match(/score cp (-?\d+)/);
+            const pv = msg.match(/pv ([a-h][1-8][a-h][1-8])/);
+            const depthMatch = msg.match(/depth (\d+)/);
+
+            if (multipvMatch && scoreMatch && pv) {
+              const index = parseInt(multipvMatch[1]);
+              const score = parseInt(scoreMatch[1]);
+              const move = pv[1];
+
+              moves[index - 1] = { move, score };
+
+              if (index === 1) {
+                evalCp = score;
+                if (depthMatch) {
+                  const currentDepth = parseInt(depthMatch[1]);
+                  actualDepth = Math.max(actualDepth, currentDepth);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error parsing evaluation:', error);
+          }
+        }
+
+        if (msg.startsWith('bestmove')) {
+          bestMove = msg.split(' ')[1];
+
+          if (moves.length >= 2) {
+            alternativeBestMove = moves[1].move;
+          } else {
+            alternativeBestMove = bestMove;
+          }
+
+          const evaluationCentiPawns = evalCp !== null ? evalCp : 0;
+
+          resolve({
+            fen,
+            depth: actualDepth,
+            bestMove,
+            alternativeBestMove,
+            evaluationCentiPawns,
+            evaluationPawns: evaluationCentiPawns / 100
+          });
+        }
+      };
+
+      this.worker.postMessage(`setoption name MultiPV value 2`);
+      this.worker.postMessage(`position fen ${fen}`);
+      this.worker.postMessage(`go depth ${depth} movetime ${moveTime}`);
     });
   }
 
