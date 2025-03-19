@@ -109,7 +109,7 @@ export function AnalysisSection() {
                     <span className="block text-sm sm:text-md lg:text-lg font-semibold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-xs sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                    <span className="block mt-1 text-xs sm:text-md lg:text-lg font-normal text-[#585858] lg:text-left">
                       {analysis[current].description}
                     </span>
                     <div className="flex flex-col md:flex-row xl:flex-col md:gap-2">
@@ -209,8 +209,8 @@ export function AnalysisSection() {
                       </span>
                     </div>
 
-                    <div className="border border-[#0C7C65] border-l-4 bg-[#0C7C6508] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#0C7C65] text-sm sm:text-md font-bold">
+                    <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
                         Solution
                       </span>
                       <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">

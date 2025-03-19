@@ -62,19 +62,19 @@ const EndGame: React.FC<EndgameProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#0C7C65]";
+        return "border border-[#27C2A3] text-[#27C2A3]";
       case "Great":
-        return "border border-[#BDD0F9] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472]";
       case "Best":
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
       case "Miss":
-        return "border border-[#FF7769] text-[#C23627]";
+        return "border border-[#FF7769] text-[#FF7769]";
       case "Blunder":
         return "border border-[#FA402D] text-[#FA402D]";
       case "Mistake":
-        return "border border-[#FFA459] text-[#B08503]";
+        return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
     }
   };
   const getScoreClass = (type: string) => {
