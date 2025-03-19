@@ -1,3 +1,4 @@
+import { useLoadingNumber } from '@/app/store/loadingNumber';
 import { Chess } from 'chess.js';
 
 /**
@@ -17,7 +18,6 @@ export async function batchStockfishAnalysis(
     const { getStockfishService } = await import(
         "@/lib/stockfish/stockfish-service"
     );
-
     const stockfishService = getStockfishService();
     await stockfishService.waitReady();
 
@@ -99,7 +99,7 @@ export async function proceedAnalysis(
         const fenPositions = pgnToFenList(pgn);
         console.log("Generated FEN positions:", fenPositions.length);
 
-        const analysisResults = await batchStockfishAnalysis(
+        const analysisResults: any[] = await batchStockfishAnalysis(
             fenPositions,
             depth,
             moveTime

@@ -13,13 +13,13 @@ import { proceedAnalysis } from "@/utils/stockfish-utils";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
-// const AnalyticsUrl = process.env.BASE_URL + "/analytic-games";
 
 export function HeroSection() {
   const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const {
+    setUsername: setUsernamePlayer,
     setPgn,
     setIsLoading,
     setError,
@@ -55,10 +55,6 @@ export function HeroSection() {
       setPgn(response.data[0].data_games?.pgn);
       setDataGames(response.data[0].data_games);
 
-      // V1 Flow
-      // const body = { username: username };
-      // const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-
       // V2 Flow
       const responseAnalysis = await proceedAnalysis(
         response.data[0].data_games?.pgn,
@@ -69,7 +65,7 @@ export function HeroSection() {
 
       setDataAnalysis(responseAnalysis.data);
       arr = responseAnalysis.data;
-      // setError(null);
+      setError(null);
       // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
@@ -154,7 +150,10 @@ export function HeroSection() {
                 id="username"
                 value={username}
                 placeholder="Enter your Chess.com Username"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setUsernamePlayer(e.target.value);
+                }}
                 className="block w-full p-3 rounded-sm border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
 
