@@ -85,7 +85,7 @@ export function BenefitsOf() {
                   <span className="text-black text-sm md:text-md md:text-center lg:text-xl font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-black text-xs md:mt-1 lg:mt-2 md:text-sm md:text-center lg:text-lg font-light">
+                  <span className="text-[#585858] text-xs md:mt-1 lg:mt-2 md:text-sm md:text-center lg:text-lg font-light">
                     {item.description}
                   </span>
                 </div>
