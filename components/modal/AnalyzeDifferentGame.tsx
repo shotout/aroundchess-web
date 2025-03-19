@@ -404,13 +404,13 @@ export function AnalyzeDifferentGame() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
                 {depths.map((depth, index) => {
                   return (
                     <div
                       onClick={() => setDepthChoosed(depth.value)}
                       key={index}
-                      className={`flex flex-col relative px-3 py-3 md:h-[230px] gap-2 items-center shadow-md border ${
+                      className={`flex flex-col justify-between relative px-3 py-3 md:h-[230px] gap-2 items-center shadow-md border ${
                         depthChoosed == depth.value
                           ? `border-[#221AE9]`
                           : `border-input`
@@ -421,7 +421,7 @@ export function AnalyzeDifferentGame() {
                         alt={depth.title}
                         width={1000}
                         height={1000}
-                        className="w-[80px] h-[80px] object-contain relative z-10"
+                        className="w-[80px] h-[80px] object-cover relative"
                         priority
                       />
                       <div
@@ -432,7 +432,7 @@ export function AnalyzeDifferentGame() {
                         } `}
                       />
                       <span className="font-normal text-sm">{depth.title}</span>
-                      <span className="font-light text-center text-[11px] px-2">
+                      <span className="font-light text-[#585858] text-center text-[11px] px-2">
                         {depth.description}
                       </span>
                     </div>

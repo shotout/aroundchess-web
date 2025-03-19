@@ -99,23 +99,23 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#0C7C65] bg-white";
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Excellent":
-        return "border border-[#27C2A3] text-[#0C7C65] bg-white";
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Great":
-        return "border border-[#BDD0F9] text-[#134472] bg-white";
+        return "border border-[#749BBF] text-[#134472] bg-white";
       case "Good":
-        return "border border-[#BDD0F9] text-[#134472] bg-white";
+        return "border border-[#749BBF] text-[#134472] bg-white";
       case "Best":
-        return "border border-[#80B64D] text-[#3A6211] bg-white";
+        return "border border-[#80B64D] text-[#80B64D] bg-white";
       case "Miss":
-        return "border border-[#FF7769] text-[#C23627] bg-white";
+        return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
         return "border border-[#FA402D] text-[#FA402D] bg-white ";
       case "Mistake":
-        return "border border-[#FFA459] text-[#B08503] bg-white";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       case "Inaccuracy":
-        return "border border-[#FFA459] text-[#B08503] bg-white";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       default:
         return "";
     }
@@ -181,10 +181,10 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           /> */}
           </div>
         </div>
-        <div className="flex flex-col mt-4 bg-white border border-[#BDD0F9] pb-2 rounded-sm">
-          <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#BDD0F9] h-14 ">
-            <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#BDD0F9] py-2"></div>
-            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#BDD0F9]  py-2">
+        <div className="flex flex-col mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
+          <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
+            <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
+            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#749BBF]  py-2">
               White{" "}
               <span className="block text-xs sm:text-sm md:text-md lg:text-md xl:text-sm font-light">
                 ({summary?.whiteSide?.profileInfo.username})
@@ -198,12 +198,12 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             </span>
           </div>
           <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%]">
-            <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#BDD0F9] py-2"></div>
+            <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
             <div className="grid grid-cols-3 text-center border-b bg-[#D7E3FB]">
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
-                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#BDD0F9] "
+                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#749BBF] "
                 >
                   {header}
                 </span>
@@ -213,7 +213,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
-                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#BDD0F9] "
+                  className="text-[9px] sm:text-sm md:text-md lg:text-md xl:text-sm py-2 font-semibold border-r border-r-[#749BBF] "
                 >
                   {header}
                 </span>
@@ -228,10 +228,10 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 index % 2 != 0 ? "bg-[#F6F9FF]" : "bg-white"
               }`}
             >
-              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#BDD0F9]">
+              <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#BDD0F9]  ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF]  ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -313,7 +313,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.classification}
                 </span>
               </div>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#BDD0F9] ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"

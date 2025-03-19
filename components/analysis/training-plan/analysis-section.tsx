@@ -209,8 +209,8 @@ export function AnalysisSection() {
                       </span>
                     </div>
 
-                    <div className="border border-[#0C7C65] border-l-4 bg-[#0C7C6508] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#0C7C65] text-sm sm:text-md font-bold">
+                    <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
+                      <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
                         Solution
                       </span>
                       <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">

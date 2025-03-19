@@ -464,7 +464,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                           Move {middle.moveNumber}:{" "}
                           <span className="font-bold">{middle.move}</span>
                         </span>
-                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
+                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
                           {middle.classification}
                         </span>
                       </div>
@@ -509,7 +509,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                   Move 2: <span className="font-bold">e5</span>
                 </span>
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#B08503] border border-[#B08503] rounded-[4px] p-1">
+                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
                   [TYPE OF THROAT]
                 </span>
               </div>
