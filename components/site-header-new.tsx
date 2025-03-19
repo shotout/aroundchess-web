@@ -237,7 +237,7 @@ ListItem.displayName = "ListItem";
 
 function MobileNav(props: { isSignedIn: any }) {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-[240px] sm:max-w-[372px] self-center ">
+    <div className="flex flex-col ml-4 self-center ">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
@@ -250,7 +250,7 @@ function MobileNav(props: { isSignedIn: any }) {
           />
         </Link>
       </div>
-      <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center gap-1 text-sm sm:text-lg">
+      <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
         <BarChart2 className="mr-2 h-4 w-4" />
         Analytics
       </div>
@@ -279,13 +279,13 @@ function MobileNav(props: { isSignedIn: any }) {
         {!props.isSignedIn ? (
           <div className="sm:flex sm:flex-col w-full items-center gap-2">
             <button
-              className="btn-secondary mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
+              className="btn-secondary rounded-full mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
             >
               <Link href="/login">Sign In</Link>
             </button>
             <button
                
-              className="btn-primary w-full text-xs h-8 sm:h-12 px-2 py-1"
+              className="btn-primary rounded-full w-full text-xs h-8 sm:h-12 px-2 py-1"
             >
               <Link href="/register">Try Now</Link>
             </button>
