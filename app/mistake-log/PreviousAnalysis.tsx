@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import Link from "next/link";
 const PreviousAnalysis: React.FC = () => {
+  const [indexOpen, setIndexOpen] = useState<number | undefined>(0);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any[]>([
     {
@@ -127,22 +128,33 @@ const PreviousAnalysis: React.FC = () => {
             key={index}
             className="border border-t-4 border-[#221AE9] rounded-lg p-2 lg:p-4"
           >
-            <div className="flex flex-row items-center gap-2 mb-4">
-              <Image
-                alt=""
-                src={"/icons/alert-triangle.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
-              />
-              <span className="text-xs sm:text-lg">
-                Mistake Type:
-              </span>
-              <span className="text-xs sm:text-lg font-bold">
-                {i?.type}
-              </span>
+            <div className="flex flex-row justify-between items-center gap-2">
+              <div className="flex flex-row items-center gap-2">
+                <Image
+                  alt=""
+                  src={"/icons/alert-triangle.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                />
+                <span className="text-xs sm:text-lg">Mistake Type:</span>
+                <span className="text-xs sm:text-lg font-bold">{i?.type}</span>
+              </div>
+              <div
+                onClick={
+                  index == indexOpen
+                    ? () => setIndexOpen(undefined)
+                    : () => setIndexOpen(index)
+                }
+              >
+                {index == indexOpen ? (
+                  <ChevronUp size={24} color="black" />
+                ) : (
+                  <ChevronDown size={24} color="black" />
+                )}
+              </div>
             </div>
-            {i.mistakes.map((item: any, key: number) => {
+            {indexOpen == index&&i.mistakes.map((item: any, key: number) => {
               return (
                 <div
                   key={index}
@@ -162,7 +174,7 @@ const PreviousAnalysis: React.FC = () => {
                   <div
                     className={`border ${
                       selectedMistakes.id == item?.id
-                        ? `border-[#221AE9] border-2`
+                        ? `border-[#221AE9] border-1`
                         : `border-input`
                     } rounded-md p-2 lg:p-4`}
                   >
