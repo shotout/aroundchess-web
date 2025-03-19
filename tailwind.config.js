@@ -11,8 +11,18 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", ...fontFamily.sans],
-        heading: ["var(--font-playfair-display)", ...fontFamily.serif],
+        "black": ["AloeveraDisplay-Black", ...fontFamily.sans],
+        "bold": ["AloeveraDisplay-Bold", ...fontFamily.sans],
+        "extrabold": ["AloeveraDisplay-ExtraBold", ...fontFamily.sans],
+        "extralight": ["AloeveraDisplay-ExtraLight", ...fontFamily.sans],
+        "medium": ["AloeveraDisplay-Medium", ...fontFamily.sans],
+        "light": ["AloeveraDisplay-Light", ...fontFamily.sans],
+        "normal": ["AloeveraDisplay-Regular", ...fontFamily.sans],
+        "semibold": ["AloeveraDisplay-SemiBold", ...fontFamily.sans],
+        "thin": ["AloeveraDisplay-Thin", ...fontFamily.sans],
+        
+        sans: ["AloeveraDisplay-Regular", ...fontFamily.sans],
+        heading: ["AloeveraDisplay-bold", ...fontFamily.serif],
       },
       colors: {
         
