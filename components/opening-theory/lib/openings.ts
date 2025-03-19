@@ -29,13 +29,9 @@ export interface Opening {
       strategicIdeas: [
         "Control the center with e4/d4 pawns",
         "Develop knights before bishops",
-        "Castle early to protect your king",
-        "Connect your rooks"
       ],
       tacticalIdeas: [
         "Watch for early tactical opportunities on f2/f7",
-        "Be aware of fork possibilities with knights",
-        "Control the center with pawns and pieces"
       ],
       learningObjectives: [
         "Understand core opening principles",
