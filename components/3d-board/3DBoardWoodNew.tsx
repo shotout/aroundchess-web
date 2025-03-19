@@ -143,12 +143,13 @@ const BoardWoodNew: React.FC<BoardWoodNewNewProps> = ({
     return pieceComponents;
   }, []);
   // Frame dimensions
-  const framePadding = 20;
+  const framePadding = 60;
+  const frameTop = 10;
   const frameBottom = 110;
 
   return (
     <div
-      className="relative mx-auto"
+      className="relative mx-auto flex items-center justify-center mt-4 lg:mt-0"
       style={{
         width: `${boardSize + framePadding * 2}px`,
         height: `${boardSize + framePadding}px`,
@@ -158,22 +159,33 @@ const BoardWoodNew: React.FC<BoardWoodNewNewProps> = ({
       <div
         style={{
           position: "absolute",
-          top: `${framePadding}px`,
-          left: `${framePadding + 43}px`,
-          width: `${boardSize - 142}px`,
-          height: `${boardSize -20}px`,
+          top: "41%",
+          left: "48%",
+          transform:"translate(-50%, -50%)",
+          width: `${boardSize}px`,
+          height: `${boardSize}px`,
           zIndex: 5,
         }}
       >
-        {/* <Chessboard
+        <Chessboard
           arePiecesDraggable={false}
-          boardWidth={boardSize - 142}
-          // id="Styled3DBoard"
+          boardWidth={boardSize+20}
+          // boardWidth={
+          //   window.innerWidth >= 1024 && window.innerWidth < 1440
+          //     ? boardSize 
+          //     : window.innerWidth > 425
+          //     ? boardSize - (boardSize + framePadding) / 26
+          //     : boardSize + 10
+          // }
+          id="Styled3DBoard"
           // position={position}
           customBoardStyle={{
-            width: boardSize - 142,
-            height: boardSize-20 ,
-            transform: "rotateX(27.5deg) rotateY(0deg) scale(1.2)",
+            // width: window.innerWidth > 425? boardSize-((boardSize + framePadding)/25):boardSize+10,
+            // height: window.innerWidth > 425? boardSize-((boardSize + framePadding)/25):boardSize+10,
+            // transform: `${
+            //   window.innerWidth > 425 ? `rotateX(30deg)` : `rotateX(32.5deg)`
+            // }`,
+            transform:"rotateX(27.5deg)",
             transformOrigin: "center",
             // border: "16px solid #b8836f",
             // borderStyle: "outset",
@@ -187,44 +199,47 @@ const BoardWoodNew: React.FC<BoardWoodNewNewProps> = ({
             // borderTopLeftRadius: "8px",
             // borderTopRightRadius: "8px",
             // padding: "8px 8px 12px",
-            // background: "#e0c094",
+            // background: "#fff",
             // backgroundImage: 'url("wood-pattern.png")',
             // backgroundSize: "contain",
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
-            backgroundColor: "#fff",
+            // backgroundColor: "transparent",
+            backgroundColor: "#ff000025",
             // backgroundImage: 'url("wood-pattern.png")',
             // backgroundSize: "cover",
           }}
           customDarkSquareStyle={{
-            backgroundColor: "#000",
+            // backgroundColor: "transparent",
+            backgroundColor: "#0000ff25",
             // backgroundImage: 'url("wood-pattern.png")',
             // backgroundSize: "cover",
           }}
           animationDuration={100}
-        /> */}
+        />
       </div>
       <div
         style={{
           position: "absolute",
-          top: "7.8%",
-          left: "-14%",
-          width: `${boardSize + 120}px`,
-          height: `${boardSize - 100}px`,
+          top: "50%",
+          left: "50%",
+          transform:"translate(-50%, -50%)",
+          width: boardSize + 160,
+          height: boardSize + 160,
           // width: "39.188rem",
           // height: "27.063rem",
           pointerEvents: "none", // Allow clicking through to the board
         }}
       >
         <img
-          src="/3d-wood-pieces/board.svg"
+          src="/3d-wood-pieces/board.png"
           alt="Chess board frame"
           style={{
             // transform: "rotateX(27.5deg) rotateY(0deg) scale(1)",
             width: "100%",
             height: "100%",
-            objectFit: "fill", // Changed from "cover" to maintain aspect ratio
+            objectFit: "contain", // Changed from "cover" to maintain aspect ratio
             padding: "0",
             margin: "0",
           }}
