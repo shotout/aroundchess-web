@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 import axios from "axios";
 import { toast } from "sonner";
+import { proceedAnalysis } from "@/utils/stockfish-utils";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
@@ -117,7 +118,8 @@ const GamesTab = () => {
 
   // API fetch
   const { data, isLoading, error } = useFetch(endpoint);
-  const { setPgn, setDataAnalysis, dataAnalysis, setIsLoading } = usePgnStore();
+  const { username, setPgn, setDataAnalysis, dataAnalysis, setIsLoading } =
+    usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
 
   // Process API data when it arrives
@@ -157,17 +159,18 @@ const GamesTab = () => {
       setIsLoading(true);
       // Set the pgn in the store
       setPgn(game.pgn);
-      const config = {
-        headers: {},
-      };
-      setDataAnalysis(null);
-      const body = { pgn: game.pgn };
-      const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-      setDataAnalysis(responseAnalysis.data.data);
-      arr = responseAnalysis.data.data;
+      const responseAnalysis = await proceedAnalysis(
+        game.pgn,
+        username,
+        15,
+        60000
+      );
+      setDataAnalysis(responseAnalysis.data);
+      arr = responseAnalysis.data;
       // Navigate to the analysis page
       router.push("/analysis");
     } catch (err) {
+      setDataAnalysis(null);
       setIsLoading(false);
       console.log("error", err);
       toast.error(err + "");

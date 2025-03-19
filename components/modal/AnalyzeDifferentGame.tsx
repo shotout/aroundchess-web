@@ -24,6 +24,7 @@ import axios from "axios";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { proceedAnalysis } from "@/utils/stockfish-utils";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -120,21 +121,21 @@ export function AnalyzeDifferentGame() {
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: "basic",
+      value: 15,
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: "standard",
+      value: 19,
       title: "Standard Analysi",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: "deep",
+      value: 25,
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
@@ -149,7 +150,7 @@ export function AnalyzeDifferentGame() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState("");
+  const [depthChoosed, setDepthChoosed] = useState(15);
   const [open, setOpen] = useState(false);
 
   // New states for username validation
@@ -269,17 +270,17 @@ export function AnalyzeDifferentGame() {
   const processAnalyze = async (pgn: string | any) => {
     let arr = null;
     try {
-      setDataAnalysis(null);
       setIsLoading(true);
 
-      const body = { username: username, pgn: pgn, depth: depthChoosed };
-      console.log("body", body);
-      const responseAnalysis = await axios.post(AnalysisUrl, body, {
-        headers: {},
-      });
-      setDataAnalysis(responseAnalysis.data.data);
+      const responseAnalysis = await proceedAnalysis(
+        pgn,
+        username,
+        depthChoosed,
+        60000
+      );
+      setDataAnalysis(responseAnalysis.data);
       setIsLoading(false);
-      arr = responseAnalysis.data.data;
+      arr = responseAnalysis.data;
 
       console.log("responseAnalysis:", responseAnalysis);
       console.log("Analysis depth:", depthChoosed || "Not selected");
@@ -289,13 +290,12 @@ export function AnalyzeDifferentGame() {
     } catch (err) {
       console.log("error", err);
       toast.error(err + "");
-      router.push("/");
       setIsLoading(false);
 
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       if (arr != null) {
-        router.push("/analysis");
+        setIsLoading(false);
       } else {
         setIsLoading(false);
       }
