@@ -41,27 +41,9 @@ const OpeningTheoryPage: React.FC = () => {
     "Expert",
   ];
 
-  // Custom styling for the button based on difficulty
-  const getDifficultyColor = (
-    difficulty: (typeof openings)[0]["difficulty"]
-  ) => {
-    switch (difficulty) {
-      case "Beginner":
-        return "text-blue-600";
-      case "Intermediate":
-        return "text-indigo-600";
-      case "Advanced":
-        return "text-purple-600";
-      case "Expert":
-        return "text-gray-600";
-      default:
-        return "text-blue-600";
-    }
-  };
-
   return (
-    <main className="w-full p-4 md:p-6">
-      <div className="mx-auto">
+    <main className="w-full p-4 md:p-6 lg:pt-32 xl:p-6">
+      <div className="mx-auto px-1">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Opening Theory</h1>
@@ -73,8 +55,9 @@ const OpeningTheoryPage: React.FC = () => {
 
         {/* Search and filters */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative w-full md:max-w-md">
+          <div className="flex flex-col md:flex-row md:items-center gap-y-4 gap-x-2">
+            {/* Search input - 60% width on tablet and desktop */}
+            <div className="relative w-full md:w-[60%]">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Search className="h-4 w-4" />
               </div>
@@ -85,18 +68,20 @@ const OpeningTheoryPage: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            {/* Difficulty buttons container - 40% width on tablet and desktop */}
+            <div className="w-full md:w-[40%] flex justify-between md:flex-row mt-2 md:mt-0">
               {difficulties.map((difficulty) => (
                 <Button
                   key={difficulty}
                   variant={
                     selectedDifficulty === difficulty ? "default" : "outline"
                   }
-                  className={
+                  className={`w-[23%] min-w-0 h-10 px-1 flex items-center justify-center text-[10px] sm:text-xs lg:text-sm whitespace-nowrap overflow-hidden text-ellipsis ${
                     selectedDifficulty === difficulty
                       ? "bg-blue-600 text-white"
                       : ""
-                  }
+                  }`}
                   onClick={() =>
                     setSelectedDifficulty(
                       selectedDifficulty === difficulty ? null : difficulty
@@ -110,8 +95,8 @@ const OpeningTheoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Opening cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Opening cards grid - adjusted for taller cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           <AnimatePresence>
             {filteredOpenings.map((opening) => (
               <Link key={opening.id} href={`/opening-theory/${opening.slug}`}>
@@ -119,36 +104,54 @@ const OpeningTheoryPage: React.FC = () => {
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.9,
+                  }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 >
-                  <Card className="overflow-hidden border border-gray-200 rounded-md shadow-sm">
-                    <div className="bg-white flex items-center justify-center p-4">
-                      <Chessboard
-                        id={`board-${opening.slug}`}
-                        key={`board-${opening.slug}`}
-                        position={opening.fen}
-                        arePiecesDraggable={false}
-                        customDarkSquareStyle={{ backgroundColor: "#5C9DFF" }}
-                        customLightSquareStyle={{ backgroundColor: "#fff" }}
-                      />
+                  <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col">
+                    {/* Chess board visualization with tag */}
+                    <div className="relative">
+                      {/* Taller container with maintained aspect ratio */}
+                      <div className="aspect-ratio-1 bg-white flex items-center justify-center overflow-hidden max-h-96">
+                        {/* Increased size with larger max constraints */}
+                        <div className="w-full h-full max-w-md max-h-md p-4 2xl:p-10">
+                          <Chessboard
+                            id={`board-${opening.slug}`}
+                            key={`board-${opening.slug}`}
+                            position={opening.fen}
+                            arePiecesDraggable={false}
+                            customDarkSquareStyle={{
+                              backgroundColor: "#5C9DFF",
+                            }}
+                            customLightSquareStyle={{ backgroundColor: "#fff" }}
+                          />
+                        </div>
+                      </div>
+                      <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-md">
+                        Opening
+                      </span>
+                      <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
+                        <BookOpen className="h-5 w-5 text-green-500" />
+                      </span>
                     </div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-medium text-gray-900 text-sm">
-                          {opening.title}
-                        </h3>
-                        <span
-                          className={`text-xs px-2 py-1 rounded bg-blue-50 ${getDifficultyColor(
-                            opening.difficulty
-                          )}`}
-                        >
+
+                    {/* Info container with additional padding for balance */}
+                    <div className="p-5 flex flex-col justify-between flex-grow">
+                      <div className="flex flex-col gap-3 mb-5">
+                        <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
                           {opening.difficulty}
                         </span>
+                        <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                          {opening.title}
+                        </h3>
                       </div>
-                      <div className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 rounded-md h-10 px-4 py-2 cursor-pointer">
+                      <div className="w-full btn-tertiary text-blue-base flex items-center justify-center gap-2 rounded-full h-10 px-4 py-2 cursor-pointer mt-auto">
                         <BookOpen className="h-4 w-4" />
-                        <span>Start Learning</span>
+                        <span className="text-xs md:text-sm">
+                          Start Learning
+                        </span>
                       </div>
                     </div>
                   </Card>

@@ -34,7 +34,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       )}
       <div className="flex flex-col overflow-y-auto w-full">
         <Header onSidebarToggle={toggleSidebar} />
-        <div className="w-full">
+        <div className="w-full mt-16 lg:mt-0">
           <OpeningDetailPage params={params} />
         </div>
         <SiteFooterNew />
