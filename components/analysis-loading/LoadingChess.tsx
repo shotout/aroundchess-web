@@ -264,8 +264,8 @@ const PgnPlayer: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-row mx-auto mb-12">
-        {/* <BoardWoodNew size={null} position={game.fen()} boardOrientation={boardOrientation} /> */}
-        <BoardWood size={null} position={game.fen()} boardOrientation={boardOrientation} />
+        <BoardWoodNew size={null} position={game.fen()} boardOrientation={boardOrientation} />
+        {/* <BoardWood size={null} position={game.fen()} boardOrientation={boardOrientation} /> */}
       </div>
 
       <div className="">

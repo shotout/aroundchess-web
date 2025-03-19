@@ -24,6 +24,7 @@ import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
 import BoardWood from "@/components/3d-board/3DBoardWood";
+import BoardWoodNew from "@/components/3d-board/3DBoardWoodNew";
 
 type CapturedPieces = {
   white: string[];
@@ -615,13 +616,20 @@ const AnalysisResult: React.FC = () => {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               style={{ display: is3DMode ? "block" : "none", marginTop: -20 }}
             >
-              <BoardWood
+              {/* <BoardWood
                 size={
                   hideDiv
                     ? boardSize - 80
                     : is3DMode
                     ? boardSize - 100
                     : boardSize
+                }
+                position={game.fen()}
+                boardOrientation={boardOrientation}
+              /> */}
+               <BoardWoodNew
+                size={
+                 boardSize
                 }
                 position={game.fen()}
                 boardOrientation={boardOrientation}

@@ -33,7 +33,7 @@ export default function AnalysisPage() {
   }, [lastScrollY]);
   return (
     <>
-      {isLoading == true ? (
+      {isLoading == false ? (
         <LoadingPage />
       ) : (
         <Navigation>
