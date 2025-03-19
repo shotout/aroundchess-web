@@ -13,6 +13,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import Link from "next/link";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 const SavedMistakes: React.FC = () => {
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [savedMistakes, setSavedMistakes] = useState<any[]>([
@@ -108,7 +109,7 @@ const SavedMistakes: React.FC = () => {
               } rounded-md p-2 lg:p-4`}
             >
               <div className="flex flex-row justify-between gap-2 mb-4">
-                <div className="flex rounded-full bg-[#25CEDA] py-1 px-3 justify-center items-center font-semibold text-sm">
+                <div className="flex rounded-full bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-semibold text-xs lg:text-sm">
                   VS{" "}
                   {item?.game_result.opponent +
                     " " +
@@ -119,10 +120,13 @@ const SavedMistakes: React.FC = () => {
                   </span>
                 </div>
                 <div className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] py-2 px-3 items-center font-semibold">
-                  <Bookmark className="w-6 h-6" color="#221AE9" />
+                  <BookmarkFilledIcon
+                    className="w-4 h-4 lg:w-6 lg:h-6"
+                    color="#221AE9"
+                  />
                 </div>
               </div>
-              <div className="flex flex-col lg:flex-row justify-between gap-2 mb-4">
+              <div className="flex flex-col md:flex-row justify-between gap-2 mb-1 lg:mb-4">
                 <div className="flex flex-row items-center gap-3 mb-2 sm:mb-0">
                   <div className="flex flex-row items-center gap-1">
                     <Image
@@ -152,7 +156,7 @@ const SavedMistakes: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-row items-center justify-between lg:justify-start gap-3">
+                <div className="flex flex-row items-center lg:justify-start gap-3">
                   <span className="flex items-center text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                     Move {item?.mistake.move}:{" "}
                     <span className="font-bold sm:text-sm md:text-md lg:text-md ">
@@ -196,12 +200,12 @@ const SavedMistakes: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                 {item?.resources.map((resource: any, index: number) => {
                   return (
                     <div
                       key={index}
-                      className="rounded-sm border border-input gap-2 p-2"
+                      className="rounded-sm flex flex-col justify-between border border-input p-2"
                     >
                       <span className="block my-1 font-bold text-xs sm:text-sm">
                         {resource.title}
