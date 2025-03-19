@@ -179,7 +179,6 @@ class StockfishService {
     fen: string;
     depth: number;
     bestMove: string;
-    alternativeBestMove: string;
     evaluationCentiPawns: number;
     evaluationPawns: number;
   }> {
@@ -193,34 +192,22 @@ class StockfishService {
       if (!this.worker) return;
 
       let bestMove = '';
-      let alternativeBestMove = '';
       let evalCp: number | null = null;
       let actualDepth = 0;
-      const moves: { move: string, score: number }[] = [];
 
       this.worker.onmessage = (e) => {
         const msg = e.data;
 
         if (msg.startsWith('info') && msg.includes('score cp')) {
           try {
-            const multipvMatch = msg.match(/multipv (\d+)/);
             const scoreMatch = msg.match(/score cp (-?\d+)/);
-            const pv = msg.match(/pv ([a-h][1-8][a-h][1-8])/);
             const depthMatch = msg.match(/depth (\d+)/);
 
-            if (multipvMatch && scoreMatch && pv) {
-              const index = parseInt(multipvMatch[1]);
-              const score = parseInt(scoreMatch[1]);
-              const move = pv[1];
-
-              moves[index - 1] = { move, score };
-
-              if (index === 1) {
-                evalCp = score;
-                if (depthMatch) {
-                  const currentDepth = parseInt(depthMatch[1]);
-                  actualDepth = Math.max(actualDepth, currentDepth);
-                }
+            if (scoreMatch) {
+              evalCp = parseInt(scoreMatch[1]);
+              if (depthMatch) {
+                const currentDepth = parseInt(depthMatch[1]);
+                actualDepth = Math.max(actualDepth, currentDepth);
               }
             }
           } catch (error) {
@@ -230,27 +217,26 @@ class StockfishService {
 
         if (msg.startsWith('bestmove')) {
           bestMove = msg.split(' ')[1];
-
-          if (moves.length >= 2) {
-            alternativeBestMove = moves[1].move;
-          } else {
-            alternativeBestMove = bestMove;
-          }
-
           const evaluationCentiPawns = evalCp !== null ? evalCp : 0;
+
+          console.log('Stockfish analysis result:', {
+            fen,
+            depth: actualDepth,
+            bestMove,
+            evaluationCentiPawns,
+            evaluationPawns: evaluationCentiPawns / 100
+          });
 
           resolve({
             fen,
             depth: actualDepth,
             bestMove,
-            alternativeBestMove,
             evaluationCentiPawns,
             evaluationPawns: evaluationCentiPawns / 100
           });
         }
       };
 
-      this.worker.postMessage(`setoption name MultiPV value 2`);
       this.worker.postMessage(`position fen ${fen}`);
       this.worker.postMessage(`go depth ${depth} movetime ${moveTime}`);
     });

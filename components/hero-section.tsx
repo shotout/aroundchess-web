@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 import { toast } from "sonner";
+import { proceedAnalysis } from "@/utils/stockfish-utils";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
@@ -54,10 +55,20 @@ export function HeroSection() {
       setPgn(response.data[0].data_games?.pgn);
       setDataGames(response.data[0].data_games);
 
-      const body = { username: username };
-      const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-      setDataAnalysis(responseAnalysis.data.data);
-      arr = responseAnalysis.data.data;
+      // V1 Flow
+      // const body = { username: username };
+      // const responseAnalysis = await axios.post(AnalysisUrl, body, config);
+
+      // V2 Flow
+      const responseAnalysis = await proceedAnalysis(
+        response.data[0].data_games?.pgn,
+        username,
+        15,
+        60000
+      );
+
+      setDataAnalysis(responseAnalysis.data);
+      arr = responseAnalysis.data;
       // setError(null);
       // router.push("/analysis");
     } catch (err) {

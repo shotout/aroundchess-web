@@ -38,7 +38,6 @@ export async function batchStockfishAnalysis(
             colorName: colorName,
             evaluation: analysis.evaluationPawns,
             bestMove: analysis.bestMove,
-            alternativeBestMove: analysis.alternativeBestMove,
             depth: analysis.depth,
             evaluationCentiPawns: analysis.evaluationCentiPawns,
         });
@@ -110,7 +109,7 @@ export async function proceedAnalysis(
         try {
             const { default: axios } = await import('axios');
             const response = await axios.post(
-                "http://localhost:8080/api/v2/analyze",
+                `${process.env.BASE_URL}/v2/analyze`,
                 {
                     pgn: pgn,
                     username: username,
@@ -119,7 +118,7 @@ export async function proceedAnalysis(
             );
 
             console.log("API response:", response.data);
-            return analysisResults;
+            return response.data;
         } catch (apiError) {
             console.error("Error sending analysis to API:", apiError);
             throw apiError;
