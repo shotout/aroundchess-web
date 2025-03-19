@@ -179,7 +179,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         {/* move quality */}
-        <div className="flex flex-col gap-2 w-full border-b border-b-input">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input pb-3">
           <span className="text-sm sm:text-sm md:text-md lg:text-md font-semibold text-center">
             Move Quality
           </span>

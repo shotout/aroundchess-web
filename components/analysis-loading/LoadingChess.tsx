@@ -5,6 +5,7 @@ import { Chess } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
 import CustomBoard from "./CustomBoard";
 import BoardWood from "../3d-board/3DBoardWood";
+import BoardWoodNew from "../3d-board/3DBoardWoodNew";
 
 interface ParsedMove {
   color: string;
@@ -262,7 +263,8 @@ const PgnPlayer: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="mx-auto mb-12">
+      <div className="flex flex-row mx-auto mb-12">
+        {/* <BoardWoodNew size={null} position={game.fen()} boardOrientation={boardOrientation} /> */}
         <BoardWood size={null} position={game.fen()} boardOrientation={boardOrientation} />
       </div>
 
