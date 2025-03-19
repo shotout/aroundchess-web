@@ -1,4 +1,5 @@
 "use client";
+import { useLoadingNumber } from "@/app/store/loadingNumber";
 import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -6,6 +7,7 @@ import { useState, useEffect } from "react";
 export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
   const { isLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { length, workingOn } = useLoadingNumber(); // Get PGN from the Zustand store
 
   useEffect(() => {
     const interval = setInterval(() => {
