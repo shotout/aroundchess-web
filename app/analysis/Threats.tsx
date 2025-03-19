@@ -43,7 +43,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                           className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
                       Move {item?.moveNumber}: <span className="font-bold">{item?.move}</span>
                     </span>
-                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#B08503] border border-[#B08503] rounded-[4px] p-1 sm:p-2">
+                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
                       {item?.threatType}
                     </span>
                   </div>

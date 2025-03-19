@@ -95,7 +95,7 @@ export default function About() {
                 <h3 className="text-md sm:text-lg lg:text-xl font-semibold text-gray-900">
                   {value.title}
                 </h3>
-                <p className="text-xs sm:text-md lg:text-lg text-gray-700">
+                <p className="text-xs sm:text-md lg:text-lg text-[#585858]">
                   {value.description}
                 </p>
               </div>
