@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { useMemo } from "react";
 import { Square } from "chess.js";
+import Image from "next/image";
 
 interface BoardWoodBoardProps {
   size: number | any;
@@ -19,9 +20,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
 }) => {
   // Board size configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
-  useEffect(() => {
-    // handleResize();
-  }, [window?.innerWidth]);
+  
   useEffect(() => {
     if (size) {
       setBoardSize(size);
@@ -35,10 +34,10 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window.innerWidth > 1300 ? window.innerWidth / 5 : 400;
-    const maxSize =
-      window?.innerWidth < 1440
-        ? window?.innerWidth / 2.5
-        : window?.innerWidth / 4.2;
+    const maxSize = window?.innerWidth / 3;
+    // window?.innerWidth < 1440
+    // ? window?.innerWidth / 2.5
+    // : window?.innerWidth / 4;
     console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
@@ -142,94 +141,46 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     });
     return pieceComponents;
   }, []);
-  // Frame dimensions
-  const framePadding = 20;
-  const frameBottom = 110;
+  // Frame dimensions 
 
   return (
-    <div
-      className="relative mx-auto"
-      style={{
-        width: `${boardSize + framePadding * 2}px`,
-        height: `${boardSize + framePadding}px`,
-        // height: `${boardSize + framePadding + frameBottom}px`,
-      }}
-    >
-      <div
+    <div className="relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
+      <Image
+        src="/3d-wood-pieces/habi.png"
+        alt="Chess board frame"
+        width={1000}
+        height={1000}
         style={{
-          position: "absolute",
-          top: `${framePadding}px`,
-          left: `${framePadding}px`,
-          width: `${boardSize}px`,
-          height: `${boardSize}px`,
-          zIndex: 5,
+          width: "100%",
+          height: "100%",
+          objectFit: "contain", // Changed from "cover" to maintain aspect ratio
+          padding: "0",
+          margin: "0",
         }}
+      />
+      <div
+        className={`absolute left-[69px] sm:left-[81px] top-[47px] sm:top-[53px]`}
       >
         <Chessboard
           arePiecesDraggable={false}
-          boardWidth={boardSize}
+          boardWidth={window.innerWidth > 425 ? 334 : 250}
           id="Styled3DBoard"
-          position={position}
+          // position={position}
           customBoardStyle={{
-            // width: boardSize + 24,
-            // height: boardSize + 32,
             transform: "rotateX(27.5deg)",
-            // transformOrigin: "center",
-            // border: "16px solid #b8836f",
-            // borderStyle: "outset",
-            // borderRightColor: " #b27c67",
-            // borderRadius: "4px",
-            // boxShadow: "rgba(0, 0, 0, 0.5) 2px 4px 24px 8px",
-            // borderRightWidth: "2px",
-            // borderLeftWidth: "2px",
-            // borderTopWidth: "0px",
-            // borderBottomWidth: "18px",
-            // borderTopLeftRadius: "8px",
-            // borderTopRightRadius: "8px",
-            // padding: "8px 8px 12px",
-            // background: "#e0c094",
-            // backgroundImage: 'url("wood-pattern.png")',
-            // backgroundSize: "contain",
+            transformOrigin: "center",
+            // background:"black"
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
-            backgroundColor: "#e0c09480",
-            // backgroundImage: 'url("wood-pattern.png")',
-            // backgroundSize: "cover",
+            // backgroundColor: "transparent",
+            backgroundColor: "#ff000080",
           }}
           customDarkSquareStyle={{
-            backgroundColor: "#86574580",
-            // backgroundImage: 'url("wood-pattern.png")',
-            // backgroundSize: "cover",
+            // backgroundColor: "transparent",
+            backgroundColor: "#0000ff80",
           }}
           animationDuration={100}
-        />
-      </div>
-      
-      <div
-        style={{
-          position: "absolute",
-          top: "60%",
-          left: "50%",
-          transform:"translate(-50%, -50%)",
-          width: boardSize + 160,
-          height: boardSize + 160,
-          // width: "39.188rem",
-          // height: "27.063rem",
-          pointerEvents: "none", // Allow clicking through to the board
-        }}
-      >
-        <img
-          src="/3d-wood-pieces/habi.png"
-          alt="Chess board frame"
-          style={{
-            // transform: "rotateX(27.5deg) rotateY(0deg) scale(1)",
-            width: "100%",
-            height: "100%",
-            objectFit: "contain", // Changed from "cover" to maintain aspect ratio
-            padding: "0",
-            margin: "0",
-          }}
         />
       </div>
     </div>
@@ -237,4 +188,3 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
 };
 
 export default BoardWood;
- 
