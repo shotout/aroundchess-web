@@ -41,6 +41,8 @@ export const usePgnStore = create<PgnState>()(
   partialize: (state) => ({
     pgn: state.pgn,
     dataAnalysis: state.dataAnalysis,
+    username:state.username,
+    dataGames:state.dataGames,
   }),
 }
 )

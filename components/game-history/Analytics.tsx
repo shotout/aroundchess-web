@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Card } from "../ui/card";
 import DotSpinner from "./Spinner";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY_ANALYTICS || "";
 
@@ -46,6 +47,7 @@ const CustomTooltipContent = ({
 };
 
 const Analytics = () => {
+  const { username } = usePgnStore();
   // State to store data from API
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState([]);
@@ -83,7 +85,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(endpoint);
+        const response = await fetch(endpoint + "/" + username);
         const result = await response.json();
 
         if (result.success) {

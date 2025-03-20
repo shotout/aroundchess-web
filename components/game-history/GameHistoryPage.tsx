@@ -1,5 +1,6 @@
 "use client";
 
+import { usePgnStore } from "@/app/store/zustandStore";
 import Analytics from "@/components/game-history/Analytics";
 import DialogButton from "@/components/game-history/DialogButton";
 import GamesTab from "@/components/game-history/GamesTab";
@@ -17,12 +18,14 @@ import {
   Download,
 } from "lucide-react";
 import React, { useState } from "react";
+import LoadingPage from "../analysis-loading/LoadingPage";
 
 const Tabs = ["Games", "Analytics", "Performance"] as const;
 
 const GameHistoryPage = () => {
+  const { isLoading, username } = usePgnStore();
   const [tab, setTab] = useState<string>("Games");
-
+  
   return (
     <>
       {/* <Responsive /> */}
@@ -32,9 +35,7 @@ const GameHistoryPage = () => {
           <div className="flex flex-row items-end gap-2">
             <h1 className="text-base lg:text-3xl font-bold">My Game History</h1>
             <div className="flex justify-center items-end h-full">
-              <p className="text-xs text-gray-500 lg:text-lg">
-                {"(Blitzmystic)"}
-              </p>
+              <p className="text-xs text-gray-500 lg:text-lg">{"("+username+")"}</p>
             </div>
           </div>
 
