@@ -216,7 +216,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   height={1000}
                   className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                 />
-                <span className="text-xs sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p- min-w-[32px]1">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p- min-w-[32px]">
                   {blackSide?.analysis.moveQuality.brilliant}
                 </span>
               </div>
