@@ -13,14 +13,16 @@ import {
   Clock,
   Check,
 } from "lucide-react";
-import {
-  getOpeningBySlug,
-  getRelatedOpenings,
-  Opening,
-  openings,
-} from "@/components/opening-theory/lib/openings";
-import Responsive from "../game-history/Responsive";
 import { motion, AnimatePresence } from "framer-motion";
+import Responsive from "../game-history/Responsive";
+import {
+  useOpeningsStore,
+  getFenFromMoves,
+  getIdFromSlug,
+  getSlugFromId,
+} from "./lib/openingMapper";
+import { useChessLessonStore } from "./store/OpeningStore";
+import DotSpinner from "../game-history/Spinner";
 
 export default function OpeningDetailWithNextTopics({
   params,
@@ -28,81 +30,99 @@ export default function OpeningDetailWithNextTopics({
   params: { slug: string };
 }) {
   const router = useRouter();
-  const [opening, setOpening] = useState<Opening | null>(null);
-  const [relatedOpenings, setRelatedOpenings] = useState<Opening[]>([]);
   const [activeTab, setActiveTab] = useState<"overview" | "variations">(
     "overview"
   );
 
-  // Use the getRelatedOpenings function to dynamically get next topics
-  const [nextTopics, setNextTopics] = useState<Opening[]>([]);
+  const { completeLesson, isLessonCompleted } = useChessLessonStore();
+  const {
+    allOpenings,
+    openingDetails,
+    isLoading,
+    error,
+    initialized,
+    fetchAllOpenings,
+    fetchOpeningDetails,
+  } = useOpeningsStore();
+
+  const [lessonFinished, setLessonFinished] = useState(false);
+
+  const openingId = getIdFromSlug(params.slug);
+  const opening = openingDetails[openingId];
+  const relatedOpenings = allOpenings
+    .filter((o) => o.id !== openingId)
+    .slice(0, 3);
 
   useEffect(() => {
-    // When the current opening is loaded, also load related openings
-    if (opening) {
-      // Get related openings (limited to 3)
-      const related = getRelatedOpenings(opening.slug, 3);
-      setNextTopics(related);
-
-      // If we don't have enough related openings, add some popular ones
-      if (related.length < 3) {
-        const popularOpenings = openings
-          .filter(
-            (o) =>
-              o.slug !== opening.slug && !related.some((r) => r.slug === o.slug)
-          )
-          .slice(0, 3 - related.length);
-
-        setNextTopics([...related, ...popularOpenings]);
+    const loadData = async () => {
+      if (!initialized) {
+        await fetchAllOpenings();
       }
-    }
-  }, [opening]);
+      await fetchOpeningDetails(openingId);
+    };
+
+    loadData();
+  }, [openingId, fetchOpeningDetails, initialized, fetchAllOpenings]);
 
   useEffect(() => {
-    const currentOpening = getOpeningBySlug(params.slug);
-
-    if (currentOpening) {
-      setOpening(currentOpening);
-      setRelatedOpenings(getRelatedOpenings(params.slug));
-    } else {
-      console.log("Opening not found for slug:", params.slug);
+    if (opening) {
+      setLessonFinished(isLessonCompleted(params.slug));
     }
-  }, [params, params.slug, router]);
+  }, [opening, isLessonCompleted, params.slug]);
 
-  // Function to handle smoother navigation to another opening
   const handleOpeningNavigation = (slug: string) => {
-    // Use framer-motion animation before navigation
     const navigateToOpening = () => {
       router.push(`/opening-theory/${slug}`);
     };
-
-    // Delay navigation slightly to allow for animation
     setTimeout(navigateToOpening, 200);
   };
 
-  if (!opening) {
+  const handleFinishLesson = () => {
+    if (opening) {
+      completeLesson(params.slug);
+      setLessonFinished(true);
+    }
+  };
+
+  if (isLoading || !opening) {
+    return <DotSpinner />;
+  }
+
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <h2 className="text-xl font-bold mb-4">Error Loading Opening</h2>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <Button onClick={() => router.push("/opening-theory")}>
+          Back to Opening Theory
+        </Button>
       </div>
     );
   }
+
+  const strategicIdeas =
+    opening.variations && opening.variations.length > 0
+      ? opening.variations[0].keyIdeas.map((ki) => ki.idea)
+      : ["Strategic analysis coming soon"];
+
+  const tacticalIdeas =
+    opening.variations && opening.variations.length > 1
+      ? opening.variations[1].keyIdeas.map((ki) => ki.idea)
+      : ["Tactical analysis coming soon"];
 
   return (
     <AnimatePresence mode="wait">
       <Responsive />
       <motion.div
-        key={opening.slug}
+        key={params.slug}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="flex flex-col"
       >
-        {/* Complete fix for full-width border */}
         <div className="mb-4">
-          {/* Content with padding */}
-          <div className="px-4 pt-6 pb-3 md:px-6 md:pt-6 md:pb-4 lg:pt-28 xl:pt-6">
+          <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6">
             <div className="flex">
               <div className="flex items-center">
                 <button
@@ -114,30 +134,23 @@ export default function OpeningDetailWithNextTopics({
                 <h1 className="font-bold text-lg">{opening.title}</h1>
               </div>
 
-              <div className="hidden">
-                {/* This is a placeholder to maintain layout but not display */}
-              </div>
+              <div className="hidden"></div>
             </div>
 
-            {/* Description moved outside the arrow/title container */}
             <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8">
               {opening.description}
             </p>
           </div>
-          {/* Border outside of padded container */}
           <div className="border-b xl:border-b-0"></div>
         </div>
         <div className="px-4 md:px-6">
-          {/* Modified grid layout with new breakpoints */}
-          <div className="grid grid-cols-1 xl:grid-cols-5 2xl:grid-cols-10 gap-6 ">
-            {/* Main content - full width on mobile/tablet, 3/5 on xl screens, 7/10 on 2xl screens */}
-            <div className="xl:col-span-3 2xl:col-span-7 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
-              {/* Chessboard */}
-              <div className="rounded-lg p-2 bg-white">
+          <div className="grid grid-cols-1 xl:grid-cols-10 2xl:grid-cols-10 gap-6">
+            <div className="xl:col-span-7 2xl:col-span-7 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
+              <div className="rounded-lg p-2">
                 <div className="w-full max-w-md mx-auto">
                   <Chessboard
-                    id={`board-${opening.slug}`}
-                    position={opening.fen}
+                    id={`board-${params.slug}`}
+                    position={getFenFromMoves(opening.variations?.[0]?.moves)}
                     customDarkSquareStyle={{ backgroundColor: "#5C9DFF" }}
                     customLightSquareStyle={{ backgroundColor: "#fff" }}
                   />
@@ -149,12 +162,21 @@ export default function OpeningDetailWithNextTopics({
                   {opening.difficulty}
                 </span>
                 <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
-                  <Clock className="w-3 h-3" />
-                  <h1>3 hours learning</h1>
+                  <Clock className="w-3 h-3 mr-1" />
+                  <h1>{opening.estimatedTime} learning</h1>
                 </div>
               </div>
 
-              {/* Opening Analysis */}
+              {lessonFinished && (
+                <div className="bg-green-100 border-green-300 border rounded-lg p-4 flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <span className="text-green-800 font-medium">
+                    Great, you finished this exercise! Make sure you use your
+                    Learnings in your next Game.
+                  </span>
+                </div>
+              )}
+
               <div className="flex flex-col gap-4">
                 <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[71px]">
                   <div className="flex items-center">
@@ -175,7 +197,7 @@ export default function OpeningDetailWithNextTopics({
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 list-disc pl-4">
-                        {opening.strategicIdeas.map((idea, index) => (
+                        {strategicIdeas.map((idea, index) => (
                           <li key={index} className="text-xs">
                             {idea}
                           </li>
@@ -190,7 +212,7 @@ export default function OpeningDetailWithNextTopics({
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 list-disc pl-4">
-                        {opening.tacticalIdeas.map((idea, index) => (
+                        {tacticalIdeas.map((idea, index) => (
                           <li key={index} className="text-xs">
                             {idea}
                           </li>
@@ -201,7 +223,6 @@ export default function OpeningDetailWithNextTopics({
                 </div>
               </div>
 
-              {/* Tabs */}
               <div className="overflow-hidden bg-white flex flex-col gap-6">
                 <div className="p-2 flex bg-gray-200 rounded-lg border h-[52px] items-center">
                   {[
@@ -213,7 +234,7 @@ export default function OpeningDetailWithNextTopics({
                       className={`flex-1 p-2 font-medium text-center rounded-lg transition-all ${
                         activeTab === tab.id
                           ? "bg-white shadow-sm text-black"
-                          : "text-gray-600 hover:bg-gray-100"
+                          : "text-gray-600"
                       }`}
                       onClick={() =>
                         setActiveTab(tab.id as "overview" | "variations")
@@ -234,66 +255,77 @@ export default function OpeningDetailWithNextTopics({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div className="border p-4">
-                          <h3 className="font-semibold mb-2">
-                            Learning Objectives:
-                          </h3>
-                          <div className="flex">
-                            <div className="w-1/2 pr-2">
-                              <ul className="space-y-2 list-disc pl-5">
-                                {opening.learningObjectives
-                                  .slice(0, 3)
-                                  .map((objective, index) => (
-                                    <li key={index} className="text-xs">
-                                      {objective}
-                                    </li>
-                                  ))}
-                              </ul>
-                            </div>
-                            <div className="w-1/2 pl-2">
-                              <ul className="space-y-2 list-disc pl-5">
-                                {opening.learningObjectives
-                                  .slice(3)
-                                  .map((objective, index) => (
-                                    <li
-                                      key={`additional-${index}`}
-                                      className="text-xs"
-                                    >
-                                      {objective}
-                                    </li>
-                                  ))}
-                              </ul>
+                        <div className="flex flex-col xl:flex-row xl:gap-6">
+                          <div className="border p-4 xl:w-[70%]">
+                            <h3 className="font-semibold mb-2">
+                              Learning Objectives:
+                            </h3>
+                            <div className="flex">
+                              <div className="w-1/2 pr-2">
+                                <ul className="space-y-2 list-disc pl-5">
+                                  {opening.objectives
+                                    .slice(
+                                      0,
+                                      Math.ceil(opening.objectives.length / 2)
+                                    )
+                                    .map((objective, index) => (
+                                      <li key={index} className="text-xs">
+                                        {objective.objective}
+                                      </li>
+                                    ))}
+                                </ul>
+                              </div>
+                              <div className="w-1/2 pl-2">
+                                <ul className="space-y-2 list-disc pl-5">
+                                  {opening.objectives
+                                    .slice(
+                                      Math.ceil(opening.objectives.length / 2)
+                                    )
+                                    .map((objective, index) => (
+                                      <li
+                                        key={`additional-${index}`}
+                                        className="text-xs"
+                                      >
+                                        {objective.objective}
+                                      </li>
+                                    ))}
+                                </ul>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="border p-4 mt-6">
-                          <h3 className="font-semibold mb-2">Prerequisites:</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {opening.prerequisites.length > 0 ? (
-                              opening.prerequisites.map((prereq) => (
-                                <span
-                                  key={prereq}
-                                  className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm cursor-pointer hover:bg-gray-200"
-                                  onClick={() =>
-                                    router.push(`/opening-theory/${prereq}`)
-                                  }
-                                >
-                                  {prereq
-                                    .split("-")
-                                    .map(
-                                      (word) =>
-                                        word.charAt(0).toUpperCase() +
-                                        word.slice(1)
-                                    )
-                                    .join(" ")}
-                                </span>
-                              ))
-                            ) : (
-                              <div className="text-blue-base border px-1 border-blue-base">
-                                No prerequisites
-                              </div>
-                            )}
+                          <div className="border p-4 mt-6 xl:mt-0 xl:w-[30%]">
+                            <h3 className="font-semibold mb-2">
+                              Prerequisites:
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {opening.prerequisites.length > 0 ? (
+                                opening.prerequisites.map((prereq) => (
+                                  <span
+                                    key={prereq.prerequisite}
+                                    className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
+                                    onClick={() =>
+                                      router.push(
+                                        `/opening-theory/${prereq.prerequisite}`
+                                      )
+                                    }
+                                  >
+                                    {prereq.prerequisite
+                                      .split("-")
+                                      .map(
+                                        (word) =>
+                                          word.charAt(0).toUpperCase() +
+                                          word.slice(1)
+                                      )
+                                      .join(" ")}
+                                  </span>
+                                ))
+                              ) : (
+                                <div className="text-blue-base border px-1 border-blue-base">
+                                  No prerequisites
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -304,33 +336,74 @@ export default function OpeningDetailWithNextTopics({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="text-gray-600 p-4 border"
                       >
-                        <p>
-                          Common variations and alternative move orders for this
-                          opening will be displayed here.
-                        </p>
-                        {/* You can add variations content here */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {opening.variations &&
+                          opening.variations.length > 0 ? (
+                            opening.variations.map((variation, index) => (
+                              <div
+                                key={index}
+                                className="border rounded-lg shadow-sm overflow-hidden"
+                              >
+                                <div className="p-4 pb-2">
+                                  <h3 className="text-sm md:text-base font-bold">
+                                    {variation.name}
+                                  </h3>
+                                  <p className="text-xs text-gray-600">
+                                    {variation.description}
+                                  </p>
+                                </div>
+                                <div className="p-4 pt-2">
+                                  <ul className="space-y-2">
+                                    {variation.keyIdeas.map(
+                                      (keyIdea, pointIndex) => (
+                                        <li
+                                          key={pointIndex}
+                                          className="flex items-start gap-2"
+                                        >
+                                          <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-base text-white flex items-center justify-center text-xs">
+                                            ✓
+                                          </div>
+                                          <span className="text-xs md:text-sm">
+                                            {keyIdea.idea}
+                                          </span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="col-span-1 md:col-span-3 text-gray-600 p-4 border">
+                              <p>
+                                No variations data available for this opening.
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               </div>
 
-              {/* Practice */}
               <div className="border rounded-lg p-4 bg-white">
                 <h3 className="font-semibold text-sm mb-4">
                   Practice your Learnings to finish this Lesson:
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {opening.externalResources.map((resource, index) => (
-                    <div key={index} className="border rounded-lg p-4">
+                  {opening.resources.map((resource, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 flex flex-col h-40"
+                    >
                       <h4 className="font-medium text-sm">{resource.title}</h4>
-                      <p className="text-xs text-gray-600 mt-2">
+                      <p className="text-xs text-gray-600 mt-2 line-clamp-3">
                         {resource.description}
                       </p>
-                      <div className="flex justify-center items-center w-full mt-4">
+                      <div className="flex justify-center items-center w-full mt-auto pt-4">
                         <a
                           href={resource.url}
                           target="_blank"
@@ -338,7 +411,7 @@ export default function OpeningDetailWithNextTopics({
                           className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
                         >
                           <h1 className="text-center">
-                            Visit {resource.siteName}
+                            Visit {resource.platform.replace("_", ".")}
                           </h1>
                         </a>
                       </div>
@@ -347,28 +420,27 @@ export default function OpeningDetailWithNextTopics({
                 </div>
               </div>
 
-              {/* Finish Lesson Button and Border */}
               <div className="flex flex-col gap-4">
                 <Button
-                  className="w-full bg-blue-base py-3 text-white rounded-full"
-                  onClick={() => router.push("/opening-theory")}
+                  className={`w-full py-3 text-white rounded-full ${
+                    lessonFinished ? "bg-green-500" : "bg-blue-base"
+                  }`}
+                  onClick={handleFinishLesson}
+                  disabled={lessonFinished}
                 >
                   <Check className="mr-2 h-5 w-5" />
-                  Finish Lesson
+                  {lessonFinished ? "Lesson Finished" : "Finish Lesson"}
                 </Button>
               </div>
             </div>
 
-            {/* Next Topics Section - Bottom on all sizes until xl breakpoint, 
-                Right side (2/5 width) on xl screens, 3/10 width on 2xl screens */}
-            <div className="xl:col-span-2 2xl:col-span-3 xl:border xl:p-4 xl:rounded-md">
-              {/* Full-width top border wrapper for mobile and tablet */}
+            <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md">
               <div className="xl:hidden -mx-4 md:-mx-6 w-screen">
                 <div className="border-t w-full"></div>
               </div>
 
-              <div className="pt-4 xl:pt-0 px-4 md:px-6 xl:px-0">
-                <div className="rounded-lg p-4 bg-white xl:sticky xl:top-4">
+              <div className="p-4">
+                <div className="rounded-lg">
                   <div>
                     <h2 className="text-xl font-bold">Next Topics</h2>
                     <p className="text-sm text-gray-600 mt-1">
@@ -377,64 +449,86 @@ export default function OpeningDetailWithNextTopics({
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 mt-4">
-                    {nextTopics.map((topic, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleOpeningNavigation(topic.slug)}
-                        className="cursor-pointer"
-                      >
-                        <Card className="border rounded-lg overflow-hidden shadow-sm">
-                          {/* Chess board visualization with tag */}
-                          <div className="relative">
-                            {/* For mobile/tablet */}
-                            <div className="h-40 xl:h-[332px] bg-white flex items-center justify-center">
-                              <div className="w-36 h-36 xl:h-full xl:w-full xl:p-6">
-                                <Chessboard
-                                  id={`next-topic-${topic.slug}`}
-                                  position={topic.fen}
-                                  arePiecesDraggable={false}
-                                  customDarkSquareStyle={{
-                                    backgroundColor: "#5C9DFF",
-                                  }}
-                                  customLightSquareStyle={{
-                                    backgroundColor: "#fff",
-                                  }}
-                                />
+                    {relatedOpenings.map((topic, index) => {
+                      const topicSlug = getSlugFromId(topic.id);
+                      const isTopicCompleted = isLessonCompleted(topicSlug);
+
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => handleOpeningNavigation(topicSlug)}
+                          className="cursor-pointer w-full xl:mx-auto"
+                        >
+                          <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
+                            <div className="relative">
+                              <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
+                                <div className="w-full h-full p-2 md:p-3 xl:p-4">
+                                  <Chessboard
+                                    id={`next-topic-${topicSlug}`}
+                                    position={getFenFromMoves(
+                                      topic.variations?.[0]?.moves
+                                    )}
+                                    arePiecesDraggable={false}
+                                    customDarkSquareStyle={{
+                                      backgroundColor: "#5C9DFF",
+                                    }}
+                                    customLightSquareStyle={{
+                                      backgroundColor: "#fff",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-md">
+                                Opening
+                              </span>
+                              <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
+                                {isTopicCompleted ? (
+                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                ) : (
+                                  <BookOpen className="h-5 w-5 text-blue-base" />
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="p-4 flex flex-col flex-grow space-y-3">
+                              <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
+                                {topic.difficulty}
+                              </span>
+                              <h3 className="font-medium text-gray-900 text-xs h-8 line-clamp-2">
+                                {topic.title}
+                              </h3>
+                              <div
+                                className={`w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto ${
+                                  isTopicCompleted
+                                    ? "btn-tertiary text-green-500 border border-green-500"
+                                    : "btn-primary"
+                                }`}
+                              >
+                                {isTopicCompleted ? (
+                                  <>
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    <span className="text-xs md:text-sm">
+                                      Continue Learning
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <BookOpen className="h-4 w-4" />
+                                    <span className="text-xs md:text-sm">
+                                      Start Learning
+                                    </span>
+                                  </>
+                                )}
                               </div>
                             </div>
-                            <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-md">
-                              Opening
-                            </span>
-                            <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
-                              <BookOpen className="h-5 w-5 text-green-500" />
-                            </span>
-                          </div>
-
-                          {/* Topic info */}
-                          <div className="p-2 flex flex-col justify-between h-28">
-                            <div className="flex flex-col gap-2">
-                              <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
-                                {topic.difficulty || opening.difficulty}
-                              </span>
-                              <h3 className="font-medium text-gray-900 text-xs md:text-sm lg:text-sm line-clamp-2">
-                                {topic.title || opening.title}
-                              </h3>
-                            </div>
-                            <div className="w-full btn-tertiary text-blue-base flex items-center justify-center gap-2 rounded-full h-10 px-4 py-2 cursor-pointer mt-auto">
-                              <BookOpen className="h-4 w-4" />
-                              <span className="text-xs md:text-sm">
-                                Start Learning
-                              </span>
-                            </div>
-                          </div>
-                        </Card>
-                      </div>
-                    ))}
+                          </Card>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
-              {/* Full-width bottom border wrapper for mobile and tablet */}
               <div className="xl:hidden -mx-4 md:-mx-6 w-screen">
                 <div className="border-b w-full"></div>
               </div>
