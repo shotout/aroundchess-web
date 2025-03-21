@@ -59,19 +59,19 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "wN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "wR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wQ",
@@ -79,23 +79,23 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
       },
       {
         piece: "wK",
-        pieceHeight: 0.87,
+        pieceHeight: 1.4,
       },
       {
         piece: "bP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "bN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "bR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bQ",
@@ -103,7 +103,7 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
       },
       {
         piece: "bK",
-        pieceHeight: 0.8,
+        pieceHeight: 1.4,
       },
     ];
     const pieceComponents: {
@@ -127,7 +127,7 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
           }}
         >
           <img
-            src={`/3d-wood-pieces/${piece}.webp`}
+            src={`/3d-wood-pieces-new/${piece}.png`}
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
@@ -146,7 +146,7 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
   return (
     <div className="-mt-4 relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
       <Image
-        src={window.innerWidth > 425 ? "/3d-wood-pieces/habi.png":"/3d-wood-pieces/habi_mobile.png"}
+        src={window.innerWidth > 425 ? "/3d-wood-pieces-new/md-board.png":"/3d-wood-pieces-new/sm-board.png"}
         alt="Chess board frame"
         width={1000}
         height={1000}
