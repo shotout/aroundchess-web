@@ -169,8 +169,22 @@
   50% {
     opacity: 0.5;
   }
+} 
+span {
+  font-family:'AloeveraDisplay-Regular' ;
 }
-
+h1{
+  font-family:'AloeveraDisplay-Regular' ;
+}
+h2{
+  font-family:'AloeveraDisplay-Regular' ;
+}
+div{
+  font-family:'AloeveraDisplay-Regular' ;
+};
+p{
+  font-family:'AloeveraDisplay-Regular' ;
+}
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
