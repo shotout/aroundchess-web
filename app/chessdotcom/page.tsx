@@ -23,6 +23,7 @@ export default function Home() {
       return
     }
 
+    
     let apiEndpoint = ''
     if (apiType === 'monthlyGames') {
       if (!year || !month) {
