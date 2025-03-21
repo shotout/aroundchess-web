@@ -185,22 +185,22 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </span>
           <div className="flex flex-row items-center justify-center gap-4">
             <div className="flex flex-col items-end justify-around gap-2">
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Brilliant:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Great:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Best:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Mistake:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Miss:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                 Blunder:
               </span>
             </div>
@@ -313,13 +313,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
         <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <div className="flex flex-row items-center justify-center gap-4">
             <div className="flex flex-col items-end justify-around gap-2 ">
-              <span className="text-xs text-center sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
+              <span className="text-xs text-center sm:text-sm md:text-md lg:text-md text-right font-normal p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Opening:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Middlegame:
               </span>
-              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-semibold p-1 h-8 sm:h-8 md:h-10 lg:h-12">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md text-right font-normal p-1 h-8 sm:h-8 md:h-10 lg:h-12">
                 Endgame:
               </span>
             </div>
@@ -333,7 +333,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {whiteSide?.analysis.opening}
                   </span>
                 </div>
@@ -345,7 +345,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis.opening}
                   </span>
                 </div>
@@ -359,7 +359,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {whiteSide?.analysis.middleGame}
                   </span>
                 </div>
@@ -371,7 +371,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis.middleGame}
                   </span>
                 </div>
@@ -385,7 +385,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {whiteSide?.analysis.endGame}
                   </span>
                 </div>
@@ -397,7 +397,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     height={1000}
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7"
                   />
-                  <span className="text-xs sm:text-sm md:text-md lg:text-md text-center p-1">
+                  <span className="text-xs font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis.endGame}
                   </span>
                 </div>
