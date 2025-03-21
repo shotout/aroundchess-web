@@ -14,14 +14,14 @@ const LoadingPage: React.FC = (props) => {
           <span className="text-sm text-center">{gameInfo?.date}</span>
           <span className="text-sm text-center">
             <span
-              className={`text-lg font-semibold ${
+              className={`text-sm lg:text:lg font-semibold ${
                 dataGames?.white?.result == "win" ? "text-[#00B427]" : "text-black"
               }`}
             >
               {dataGames?.white?.username}
             </span>{" "}
             (White)
-            <span className={`text-lg font-semibold ${
+            <span className={`text-sm lg:text:lg font-semibold ${
                 dataGames?.black?.result =="win" ? "text-[#00B427]" : "text-black"
               }`}>
               {" "}

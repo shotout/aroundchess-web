@@ -6,6 +6,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import CustomBoard from "./CustomBoard";
 import BoardWood from "../3d-board/3DBoardWood";
 import BoardWoodNew from "../3d-board/3DBoardWoodNew";
+import BoardWoodHabi from "../3d-board/3DBoardWoodHabi";
 
 interface ParsedMove {
   color: string;
@@ -264,7 +265,8 @@ const PgnPlayer: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-row mx-auto mb-2">
-        <BoardWoodNew size={null} position={game.fen()} boardOrientation={boardOrientation} />
+        <BoardWoodHabi size={null} position={game.fen()} boardOrientation={boardOrientation} />
+        {/* <BoardWoodNew size={null} position={game.fen()} boardOrientation={boardOrientation} /> */}
         {/* <BoardWood size={null} position={game.fen()} boardOrientation={boardOrientation} /> */}
       </div>
 
