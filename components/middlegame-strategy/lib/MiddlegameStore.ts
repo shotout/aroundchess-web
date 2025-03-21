@@ -22,7 +22,7 @@ interface ChessLessonState {
   initializeLessonsCount: (count: number) => void;
 }
 
-export const useChessLessonStore = create<ChessLessonState>()(
+export const useMiddleGameStore = create<ChessLessonState>()(
   persist(
     (set, get) => ({
       // Core state
