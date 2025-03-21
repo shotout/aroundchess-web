@@ -50,7 +50,7 @@ const MistakeLog = () => {
   const renderFilters = () => {
     return (
       <>
-        <div className="flex flex-row w-full max-w-sm md:max-w-3xl overflow-x-scroll bg-[#F2FBFE] items-center mb-4 lg:mt-8 rounded-lg border border-primary-gray p-2 md:p-3 ">
+        <div className="flex flex-row w-full max-w-sm md:max-w-full overflow-x-scroll bg-[#F2FBFE] items-center mb-4 lg:mt-8 rounded-lg border border-primary-gray p-2 md:p-3 ">
           {history.map((hist: any, i: number) => {
             return (
               <div
