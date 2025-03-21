@@ -127,7 +127,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
           }}
         >
           <img
-            src={`/3d-pieces/${piece}.webp`}
+            src={`/3d-wood-pieces/${piece}.webp`}
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
@@ -144,9 +144,9 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
   // Frame dimensions 
 
   return (
-    <div className="relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
+    <div className="-mt-12 relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
       <Image
-        src="/3d-wood-pieces/habi.png"
+        src="/3d-wood-pieces/board-new.png"
         alt="Chess board frame"
         width={1000}
         height={1000}
@@ -159,13 +159,13 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
         }}
       />
       <div
-        className={`absolute left-[69px] sm:left-[81px] top-[47px] sm:top-[53px]`}
+        className={`absolute left-[65px] top-[45px] sm:left-[79px] sm:top-[50px]`}
       >
         <Chessboard
           arePiecesDraggable={false}
-          boardWidth={window.innerWidth > 425 ? 334 : 250}
+          boardWidth={window.innerWidth > 425 ? 339 : 257}
           id="Styled3DBoard"
-          // position={position}
+          position={position}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             transformOrigin: "center",
@@ -173,12 +173,12 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
-            // backgroundColor: "transparent",
-            backgroundColor: "#ff000080",
+            backgroundColor: "transparent",
+            // backgroundColor: "#ff000080",
           }}
           customDarkSquareStyle={{
-            // backgroundColor: "transparent",
-            backgroundColor: "#0000ff80",
+            backgroundColor: "transparent",
+            // backgroundColor: "#0000ff80",
           }}
           animationDuration={100}
         />
