@@ -1,15 +1,17 @@
 "use client";
 
-import MovementTable from "@/components/table/movement";
-import { Button } from "@/components/ui/button";
-import { getStockfishService } from "@/lib/stockfish/stockfish-service";
+import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { motion } from "framer-motion";
+import { Chessboard } from "react-chessboard";
+import pgnParser from "pgn-parser";
+import { getStockfishService } from "@/lib/stockfish/stockfish-service";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
   InfoIcon,
   PauseIcon,
+  Play,
   PlayIcon,
   Settings,
   SkipBackIcon,
@@ -17,12 +19,12 @@ import {
   SquareIcon,
   Watch,
 } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import { Chessboard } from "react-chessboard";
+import { usePgnStore } from "../store/zustandStore";
+import { Button } from "@/components/ui/button";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { usePgnStore } from "../store/zustandStore";
+import MovementTable from "@/components/table/movement";
+import { motion } from "framer-motion";
 
 type CapturedPieces = {
   white: string[];
@@ -39,7 +41,7 @@ interface ParsedMove {
   [key: string]: any;
 }
 
-const AnalysisResult: React.FC = () => {
+const ChessContent: React.FC = () => {
   const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -82,7 +84,7 @@ const AnalysisResult: React.FC = () => {
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
   const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
-  const [pgn, setPgn] = useState<string>("");
+  const [, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
@@ -192,18 +194,8 @@ const AnalysisResult: React.FC = () => {
       setCurrentMoveWhite(0);
     } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
       setCurrentMoveWhite(parsedMoves[index].clock);
-      if (parsedMoves[index + 1]) {
-        setCurrentMoveBlack(parsedMoves[index + 1].clock);
-      } else {
-        setCurrentMoveBlack(parsedMoves[index].clock);
-      }
     } else if (parsedMoves[index] && parsedMoves[index].color == "b") {
       setCurrentMoveBlack(parsedMoves[index].clock);
-      if (parsedMoves[index + 1]) {
-        setCurrentMoveWhite(parsedMoves[index + 1].clock);
-      } else {
-        setCurrentMoveWhite(parsedMoves[index].clock);
-      }
     }
   };
   const stopAutoPlay = () => {
@@ -236,7 +228,6 @@ const AnalysisResult: React.FC = () => {
     stopAutoPlay();
     setCurrentMoveIndex(0);
     setCurrentMove(0);
-    setChessMove({});
   };
 
   const jumpToLastMove = () => {
@@ -356,7 +347,10 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 453;
+    const maxSize =
+      window.innerWidth > 1300
+        ? window.innerWidth / 4
+        : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -628,7 +622,7 @@ const AnalysisResult: React.FC = () => {
           </motion.div>
 
           {showTable && <MovementTable />}
-          {showMovementContent && !showTable&& chessMove.move != null && (
+          {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
@@ -683,4 +677,4 @@ const AnalysisResult: React.FC = () => {
   );
 };
 
-export default AnalysisResult;
+export default ChessContent;

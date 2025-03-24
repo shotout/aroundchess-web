@@ -2,6 +2,8 @@ import { AnalysisResult } from '@/types/analysis-result';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 interface PgnState {
+  username: string;
+  setUsername: (pgn: string) => void;
   pgn: string;
   setPgn: (pgn: string) => void;
   isLoading: boolean;
@@ -20,6 +22,8 @@ export const usePgnStore = create<PgnState>()(
     (set) => ({
   pgn: '',
   setPgn: (pgn) => set({ pgn }),
+  username: '',
+  setUsername: (username) => set({ username }),
   isLoading: false,
   setIsLoading: (isLoading) => set({ isLoading }),
   error: null,
@@ -37,6 +41,8 @@ export const usePgnStore = create<PgnState>()(
   partialize: (state) => ({
     pgn: state.pgn,
     dataAnalysis: state.dataAnalysis,
+    username:state.username,
+    dataGames:state.dataGames,
   }),
 }
 )

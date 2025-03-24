@@ -18,10 +18,13 @@ import DailyPlan from "./daily/DailyPlan";
 import DialogPlan from "./dialog/DialogPlan";
 import WeeklyPlan from "./weekly/WeeklyPlan";
 import TrainingGoals from "./goals";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const Tabs = ["Daily Plan", "Weekly Plan", "Goals", "Statistics"] as const;
 
 const TrainingPlanPage = () => {
+  const { username } = usePgnStore();
+
   const [tab, setTab] = useState<string>("Statistics");
   const [open, setOpen] = useState(false);
 
@@ -34,7 +37,7 @@ const TrainingPlanPage = () => {
           <div className="flex flex-row items-end gap-2">
             <h1 className="text-base font-bold">My Training Plan</h1>
             <div className="flex justify-center items-end h-full">
-              <p className="text-xs text-gray-500">{"(Blitzmystic)"}</p>
+              <p className="text-xs text-gray-500">{username}</p>
             </div>
           </div>
 

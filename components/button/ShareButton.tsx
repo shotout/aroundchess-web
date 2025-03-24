@@ -62,6 +62,7 @@ const ShareButton = (props: any) => {
       </div>
     );
   };
+  
   const renderIcon = () => {
     return (
       <div className="flex flex-row gap-4 p-3">
@@ -129,5 +130,6 @@ const ShareButton = (props: any) => {
     </div>
   );
 };
+
 
 export default ShareButton;

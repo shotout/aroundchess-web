@@ -8,16 +8,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
+import { toast } from "sonner";
+import { proceedAnalysis } from "@/utils/stockfish-utils";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
-// const AnalyticsUrl = process.env.BASE_URL + "/analytic-games";
 
 export function HeroSection() {
   const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const {
+    setUsername: setUsernamePlayer,
     setPgn,
     setIsLoading,
     setError,
@@ -27,13 +29,14 @@ export function HeroSection() {
     setDataGames,
     dataGames,
   } = usePgnStore();
-  const fetcher = () =>{
-    console.log("health-check")
+  const fetcher = () => {
+    console.log("health-check");
     fetch(process.env.BASE_URL! + "/health-check").then((res) =>
       res.json().then((data) => console.log(data))
     );
-  }
+  };
   const fetchPgn = async () => {
+    let arr = null;
     try {
       setIsLoading(true);
       const config = {
@@ -52,25 +55,37 @@ export function HeroSection() {
       setPgn(response.data[0].data_games?.pgn);
       setDataGames(response.data[0].data_games);
 
-      const body = { username: username };
-      const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-      setDataAnalysis(responseAnalysis.data.data);
+      // V2 Flow
+      const responseAnalysis = await proceedAnalysis(
+        response.data[0].data_games?.pgn,
+        username,
+        15,
+        60000
+      );
 
-      // setError(null);
+      setDataAnalysis(responseAnalysis.data);
+      arr = responseAnalysis.data;
+      setError(null);
       // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
+      toast.error(err + "");
+      router.push("/");
+      setIsLoading(false);
+
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      // setTimeout(() => {
-      router.push("/analysis");
-      // setIsLoading(false);
-      // }, 5000);
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
     }
   };
+
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    setDataAnalysis(null)
+    setDataAnalysis(null);
     fetcher();
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -135,7 +150,10 @@ export function HeroSection() {
                 id="username"
                 value={username}
                 placeholder="Enter your Chess.com Username"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setUsernamePlayer(e.target.value);
+                }}
                 className="block w-full p-3 rounded-sm border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
 

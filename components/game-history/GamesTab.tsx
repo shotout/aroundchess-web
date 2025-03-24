@@ -20,6 +20,9 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 import axios from "axios";
+import { toast } from "sonner";
+import { proceedAnalysis } from "@/utils/stockfish-utils";
+
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
 interface Game {
@@ -114,9 +117,10 @@ const GamesTab = () => {
   const [filtersApplied, setFiltersApplied] = useState(false);
 
   // API fetch
-  const { data, isLoading, error } = useFetch(endpoint);
-  const { setPgn, setDataAnalysis } = usePgnStore();
+  const { username, setPgn, setDataAnalysis, dataAnalysis, setIsLoading } =
+    usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
+  const { data, isLoading, error } = useFetch(endpoint+"/"+username);
 
   // Process API data when it arrives
   useEffect(() => {
@@ -150,18 +154,35 @@ const GamesTab = () => {
 
   // Function to handle analyze button click
   const handleAnalyzeClick = async (game: Game) => {
-    // Set the pgn in the store
-    setPgn(game.pgn);
-    const config = {
-      headers: {}
-    };
-    const body = { pgn: game.pgn };
-    const responseAnalysis = await axios.post(AnalysisUrl, body, config);
-    setDataAnalysis(responseAnalysis.data.data);
-    // Navigate to the analysis page
-    router.push("/analysis");
+    let arr = null;
+    try {
+      setIsLoading(true);
+      // Set the pgn in the store
+      setPgn(game.pgn);
+      const responseAnalysis = await proceedAnalysis(
+        game.pgn,
+        username,
+        15,
+        60000
+      );
+      setDataAnalysis(responseAnalysis.data);
+      arr = responseAnalysis.data;
+      // Navigate to the analysis page
+      router.push("/analysis");
+    } catch (err) {
+      setDataAnalysis(null);
+      setIsLoading(false);
+      console.log("error", err);
+      toast.error(err + "");
+      router.push("/");
+    } finally {
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
+    }
   };
-
   useEffect(() => {
     let count = 0;
     if (timeRange !== defaultFilters.timeRange) count++;

@@ -5,12 +5,15 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
 }
 const Opening: React.FC<OpeningProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
+
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
@@ -36,20 +39,24 @@ const Opening: React.FC<OpeningProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#0C7C65]";
+        return "border border-[#27C2A3] text-[#27C2A3]";
       case "Great":
-        return "border border-[#BDD0F9] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472]";
       case "Best":
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
       case "Miss":
-        return "border border-[#FF7769] text-[#C23627]";
+        return "border border-[#FF7769] text-[#FF7769]";
       case "Blunder":
         return "border border-[#FA402D] text-[#FA402D]";
       case "Mistake":
-        return "border border-[#FFA459] text-[#B08503]";
+        return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
     }
+  };
+  const handleOnClickMovement = (move: any) => {
+    console.log(move);
+    setChessMove(move);
   };
   return (
     <>
@@ -211,7 +218,8 @@ const Opening: React.FC<OpeningProps> = (props) => {
         <div className="grid grid-cols-2 gap-2 sm:gap-6">
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
+              <span onClick={() => handleOnClickMovement(whiteOpening)}
+                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {whiteOpening.moves}
@@ -229,7 +237,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {whiteOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold sm:text-sm md:text-md lg:text-xs">
+                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-xs">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
@@ -242,7 +250,10 @@ const Opening: React.FC<OpeningProps> = (props) => {
           </div>
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span className="text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
+              <span
+                onClick={() => handleOnClickMovement(blackOpening)}
+                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+              >
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {blackOpening.moves}
@@ -260,7 +271,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {blackOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold sm:text-sm md:text-md lg:text-xs">
+                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-xs">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
