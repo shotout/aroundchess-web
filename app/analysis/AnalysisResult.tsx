@@ -292,7 +292,7 @@ const AnalysisResult: React.FC = () => {
       position: game.fen(),
       boardOrientation,
       animationDuration: 1000,
-    }; 
+    };
     return baseProps;
   };
 
@@ -337,9 +337,15 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1440 ? window.innerWidth / 3 : 453;
+    // const maxSize = window?.innerWidth *0.25;
+    const maxSize =
+      window.innerWidth > 1440
+        ? window.innerWidth *0.27
+        : window.innerWidth <= 1024
+        ? 453
+        : window.innerWidth *0.27;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
-    console.log("Resizing board...", isPortrait,window.innerWidth);
+    console.log("Resizing board...", maxSize, window.innerWidth);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -376,7 +382,7 @@ const AnalysisResult: React.FC = () => {
 
   useEffect(() => {
     handleResize();
-  }, [hideDiv, is3DMode]);
+  }, [hideDiv, is3DMode, window?.innerWidth]);
 
   useEffect(() => {
     // console.log("Best move:", bestMove);
@@ -482,9 +488,9 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          
+
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
-          {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
+            {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
             <GlassBoard
               boardWidth={
                 hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
@@ -653,7 +659,7 @@ const AnalysisResult: React.FC = () => {
                   This move deviates from opening principles. Focus on
                   development and center control.
                 </span>
-                {chessMove?.gamePhase&&(
+                {chessMove?.gamePhase && (
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />
                     <span className="text-sm">Type:</span>

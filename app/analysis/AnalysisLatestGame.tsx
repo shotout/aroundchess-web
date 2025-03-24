@@ -26,7 +26,10 @@ const AnalysisLatestGame: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
+  const [widthContainer, setWidthContainer] = useState<number>(700);
+  const [mounted, setMounted] = useState<boolean>(true);
   const [focusPage, setFocusPage] = useState<string>("summary");
+
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
     { name: "movement", label: "Movement Details" },
@@ -38,15 +41,28 @@ const AnalysisLatestGame: React.FC = () => {
     { name: "training", label: "Training" },
   ]);
   useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
+  const handleResize = () => {
+    let widthC = window?.innerWidth * 0.5;
+    console.log("widthC", widthC);
+    setWidthContainer(widthC)
+  };
+  useEffect(() => {
     setIsLoading(false);
     renderView(focusPage);
-  }, [focusPage]);
+  }, [focusPage, window.innerWidth]);
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
-        return (
-          <Summary next={() => setFocusPage("movement")} />
-        );
+        return <Summary next={() => setFocusPage("movement")} />;
       case "movement":
         return (
           <MovementDetails
@@ -98,9 +114,14 @@ const AnalysisLatestGame: React.FC = () => {
         );
     }
   };
- 
+
   return (
-    <div className={` ${hideDiv && "mt-96 sm:mt-[64%]"} flex flex-col xl:min-w-[592px] xl:max-w-[700px] 2xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}>
+    <div
+      style={{ maxWidth: widthContainer }}
+      className={`${
+        hideDiv && "mt-96 sm:mt-[64%]"
+      } flex flex-col gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}
+    >
       <div className="flex flex-col px-4 gap-2 py-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-lg font-bold">
           Analysis: Latest Game
@@ -129,7 +150,8 @@ const AnalysisLatestGame: React.FC = () => {
                 setFocusPage(tab.name);
               }}
               className={`flex cursor-pointer ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[170px]`
+                tab.name == "movement" &&
+                `min-w-[120px] sm:min-w-[140px] lg:min-w-[170px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg border border-[#f0f0f0] rounded-md bg-[#FFF] font-semibold `
@@ -142,7 +164,7 @@ const AnalysisLatestGame: React.FC = () => {
           );
         })}
       </div>
-        {renderView(focusPage)}
+      {renderView(focusPage)}
     </div>
   );
 };
