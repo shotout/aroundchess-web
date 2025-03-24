@@ -12,6 +12,7 @@ import { InfoIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
+import { useEffect } from "react";
 
 export default function MovementTable() {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
@@ -19,7 +20,9 @@ export default function MovementTable() {
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
-
+  useEffect(()=>{
+console.log("movementDetails",movementDetails)
+  },[])
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -119,7 +122,7 @@ export default function MovementTable() {
           <div
             key={index}
             className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-              tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '')
+              tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '') || chessMove.move == move.move
                 ? "bg-[#9BB8F5]"
                 : index % 2 != 0
                 ? "bg-[#F6F9FF]"
@@ -196,7 +199,7 @@ export default function MovementTable() {
 
               <span
                 className={`text-[7px] lg:text-[8px] text-center ${
-                  tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '')
+                  tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '') || chessMove.move == move.move
                     ? "font-bold"
                     : "font-normal"
                 } py-2 ${getScoreClass(move.classification)}`}
@@ -286,7 +289,7 @@ export default function MovementTable() {
 
               <span
                 className={`text-[7px] lg:text-[8px] text-center  ${
-                  tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '')
+                  tabFocus == (move.gamePhase.toLowerCase()).replace(/ /g, '')|| chessMove.move == move.move
                     ? "font-bold"
                     : "font-normal"
                 } py-2 ${getScoreClass(

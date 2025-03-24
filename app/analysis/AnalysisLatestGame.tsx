@@ -118,7 +118,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row max-w-sm md:max-w-3xl lg:overflow-x-scroll gap-1 px-4 pb-2">
+      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full lg:overflow-x-scroll gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
@@ -128,14 +128,14 @@ const AnalysisLatestGame: React.FC = () => {
                 setTabFocus(tab.name);
                 setFocusPage(tab.name);
               }}
-              className={`flex ${
-                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] xl:min-w-[140px]`
+              className={`flex cursor-pointer ${
+                tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[170px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-lg rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md">
+              <span className="text-xs sm:text-sm md:text-md lg:text-lg xl:text-lg">
                 {tab.label}
               </span>
             </div>

@@ -561,7 +561,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
              >
                <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
-                 <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+                 <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
                  Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                </div>
              </button>
@@ -572,7 +572,7 @@ const Training: React.FC<TrainingProps> = (props) => {
              >
                <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
-                 <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+                 <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
                </div>
              </button>
            </div>
