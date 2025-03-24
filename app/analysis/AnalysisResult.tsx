@@ -23,6 +23,7 @@ import { Chessboard } from "react-chessboard";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
+import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 
 type CapturedPieces = {
   white: string[];
@@ -504,12 +505,11 @@ const AnalysisResult: React.FC = () => {
           </motion.div>
           
           <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}>
-            <Chessboard
+            <GlassBoard
               boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize - 76 : boardSize
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
               }
               {...getBoardProps()}
-              arePiecesDraggable={false}
             />
           </div>
           {/* Group Button */}

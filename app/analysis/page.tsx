@@ -66,7 +66,9 @@ export default function AnalysisPage() {
             </div>
             <div className="flex flex-col max-w-full xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
               <AnalysisResult />
+              <div className="xl:w-3/5">
               <AnalysisLatestGame />
+              </div>
             </div>
           </div>
         </Navigation>
