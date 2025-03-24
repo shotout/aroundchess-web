@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Chessboard } from "react-chessboard";
+import { useState, useEffect, RefAttributes } from "react";
+import { Chessboard, ClearPremoves } from "react-chessboard";
 import {
   Eye,
   Check,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ChessboardProps } from "react-chessboard/dist/chessboard/types";
 
 interface QuestionData {
   id: number;
@@ -53,7 +54,7 @@ const BoardVisionPage: React.FC = () => {
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [highlightedSquares, setHighlightedSquares] =
     useState<HighlightedSquares>({});
-  const [arrows, setArrows] = useState<Arrow[]>([]);
+  const [arrows, setArrows] = useState<any & Omit<ChessboardProps, "ref"> & RefAttributes<ClearPremoves>>([]);
 
   const questions: QuestionData[] = [
     {
