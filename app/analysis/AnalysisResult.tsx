@@ -357,7 +357,7 @@ const AnalysisResult: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 453;
+    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 3 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait);
 
@@ -420,7 +420,7 @@ const AnalysisResult: React.FC = () => {
             style={{ display: !hideDiv ? "block" : "none" }}
           >
             <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
                   src={summary?.blackSide?.profileInfo.photo}
@@ -430,9 +430,9 @@ const AnalysisResult: React.FC = () => {
                 />
                 {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
                 <div className="flex flex-col line-clamp-1 ">
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
                         gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -453,14 +453,14 @@ const AnalysisResult: React.FC = () => {
                       alt="pawn"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
                     <Image
                       src={"/icons/bishop-icon-alt-black.png"}
                       alt="bishop"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
 
                     <Image
@@ -468,14 +468,14 @@ const AnalysisResult: React.FC = () => {
                       alt="king"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
                   </div>
                 </div>
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveBlack == 0 ? "0:10:00:0" : currentMoveBlack}
                 </span>
               </div>
@@ -566,7 +566,7 @@ const AnalysisResult: React.FC = () => {
             style={{ display: !hideDiv ? "block" : "none" }}
           >
             <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
                   src={summary?.whiteSide?.profileInfo.photo}
@@ -578,7 +578,7 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-col line-clamp-1 ">
                   <div className="flex flex-row gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
                         !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -621,7 +621,7 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveWhite == 0 ? "0:10:00:0" : currentMoveWhite}
                 </span>
               </div>
