@@ -29,7 +29,7 @@ export default function Navigation({
     <div className="flex overflow-hidden bg-[#FCFCFD]">
       {/* Desktop sidebar - always visible on desktop */}
       {isDesktop && (
-        <div className="w-64 border-r border-gray-200 bg-white">
+        <div className="border-r border-gray-200 bg-white">
           <Sidebar />
         </div>
       )}

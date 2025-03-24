@@ -123,8 +123,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const isMobile = !!onClose; // If onClose is provided, we're on mobile
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex h-24 items-center border-b border-gray-200 px-6 justify-center">
+    <div className="flex w-[240px] h-full flex-col">
+      <div className="flex h-[70px] lg:h-[100px] items-center border-b border-gray-200 px-6 justify-center">
         <Link href="/" className="flex items-center justify-center">
           <Image
             src="/icons/logo.png"
