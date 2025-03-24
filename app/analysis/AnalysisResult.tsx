@@ -23,8 +23,7 @@ import { Chessboard } from "react-chessboard";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
-import BoardWood from "@/components/3d-board/3DBoardWood";
-import BoardWoodNew from "@/components/3d-board/3DBoardWoodNew";
+import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 
 type CapturedPieces = {
   white: string[];
@@ -444,9 +443,9 @@ const AnalysisResult: React.FC = () => {
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1300 ? window.innerWidth / 4.5 : 453;
+    const maxSize = window.innerWidth > 1440 ? window.innerWidth / 3 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
-    console.log("Resizing board...", isPortrait);
+    console.log("Resizing board...", isPortrait,window.innerWidth);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -507,7 +506,7 @@ const AnalysisResult: React.FC = () => {
             style={{ display: !hideDiv ? "block" : "none" }}
           >
             <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
                   src={summary?.blackSide?.profileInfo.photo}
@@ -517,9 +516,9 @@ const AnalysisResult: React.FC = () => {
                 />
                 {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
                 <div className="flex flex-col line-clamp-1 ">
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
                         gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -540,14 +539,14 @@ const AnalysisResult: React.FC = () => {
                       alt="pawn"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
                     <Image
                       src={"/icons/bishop-icon-alt-black.png"}
                       alt="bishop"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
 
                     <Image
@@ -555,14 +554,14 @@ const AnalysisResult: React.FC = () => {
                       alt="king"
                       width={1000}
                       height={1000}
-                      className="w-3 h-4 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
+                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
                     />
                   </div>
                 </div>
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveBlack == 0 ? "0:10:00:0" : currentMoveBlack}
                 </span>
               </div>
@@ -589,54 +588,14 @@ const AnalysisResult: React.FC = () => {
               )}
             </Button>
           </motion.div>
-          <div className={`${is3DMode && "mb-8 xl:m-8"}`}>
-            <motion.div
-              animate={
-                is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+          
+          <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}>
+            <GlassBoard
+              boardWidth={
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
               }
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{ display: !is3DMode ? "block" : "none" }}
-            >
-              <Chessboard
-                boardWidth={
-                  hideDiv
-                    ? boardSize - 80
-                    : is3DMode
-                    ? boardSize - 76
-                    : boardSize
-                }
-                {...getBoardProps()}
-                arePiecesDraggable={false}
-              />
-            </motion.div>
-            {/* ) : ( */}
-            <motion.div
-              animate={
-                !is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
-              }
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{ display: is3DMode ? "block" : "none", marginTop: -20 }}
-            >
-              {/* <BoardWood
-                size={
-                  hideDiv
-                    ? boardSize - 80
-                    : is3DMode
-                    ? boardSize - 100
-                    : boardSize
-                }
-                position={game.fen()}
-                boardOrientation={boardOrientation}
-              /> */}
-               <BoardWoodNew
-                size={
-                 boardSize
-                }
-                position={game.fen()}
-                boardOrientation={boardOrientation}
-              />
-            </motion.div>
-            {/* )} */}
+              {...getBoardProps()}
+            />
           </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-4">
@@ -693,7 +652,7 @@ const AnalysisResult: React.FC = () => {
             style={{ display: !hideDiv ? "block" : "none" }}
           >
             <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
                   src={summary?.whiteSide?.profileInfo.photo}
@@ -705,7 +664,7 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-col line-clamp-1 ">
                   <div className="flex flex-row gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-md font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
                         !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
@@ -748,7 +707,7 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-md font-medium">
+                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveWhite == 0 ? "0:10:00:0" : currentMoveWhite}
                 </span>
               </div>

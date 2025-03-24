@@ -14,7 +14,7 @@ export default function AnalysisPage() {
   let lastScrollY = 0;
 
   useEffect(() => {
-    setIsLoading(false)
+    setIsLoading(false);
     const handleScroll = () => {
       if (window?.innerWidth <= 1024) {
         if (window?.scrollY > lastScrollY) {
@@ -43,18 +43,18 @@ export default function AnalysisPage() {
                 hideDiv && "hidden"
               }`}
             >
-              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-2xl font-bold">
+              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-xl font-bold">
                 Analysis Result from{" "}
                 <span className="text-[#4E7838]">Chess.com</span>
               </h2>
               <div className="xl:hidden flex items-center justify-center mt-2">
                 <AnalyzeDifferentGame />
               </div>
-              <span className="hidden xl:block text-xs sm:text-sm md:text-md lg:text-lg">
+              <span className="hidden xl:block text-xs sm:text-sm md:text-md lg:text-md">
                 Discover an Analysis of your latest Chess.com Game.
               </span>
               <div className="hidden xl:flex flex-row items-center justify-between">
-                <div className="hidden lg:block w-3/4 text-xs sm:text-sm md:text-md lg:text-lg">
+                <div className="hidden lg:block w-3/5 text-xs sm:text-sm md:text-md lg:text-md">
                   AI-powered chess analysis provides deep insights into
                   positional and tactical aspects of a game. It evaluates piece
                   coordination, pawn structure, king safety, and overall
@@ -64,12 +64,10 @@ export default function AnalysisPage() {
                 <AnalyzeDifferentGame />
               </div>
             </div>
-            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
-              <div className="lg:w-2/5">
+            <div className="flex flex-col max-w-full xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
               <AnalysisResult />
-              </div>
-              <div className="lg:w-3/5">
-                <AnalysisLatestGame />
+              <div className="xl:w-3/5">
+              <AnalysisLatestGame />
               </div>
             </div>
           </div>

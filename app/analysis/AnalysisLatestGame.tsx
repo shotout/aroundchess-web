@@ -98,12 +98,8 @@ const AnalysisLatestGame: React.FC = () => {
   };
 
   return (
-    <div
-      className={`${
-        hideDiv && "mt-96 sm:mt-[64%]"
-      } xl:min-w-[592px] xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}
-    >
-      <div className="hidden lg:block flex flex-col px-4 gap-2 py-2">
+    <div className={` ${hideDiv && "mt-96 sm:mt-[64%]"} flex flex-col xl:min-w-[592px] xl:max-w-[700px] 2xl:max-w-full gap-4 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4`}>
+      <div className="flex flex-col px-4 gap-2 py-2">
         <span className="text-sm sm:text-md md:text-lg lg:text-lg font-bold">
           Analysis: Latest Game
         </span>
@@ -120,7 +116,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full lg:overflow-x-scroll gap-1 px-4 pb-2">
+      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full xl:overflow-x-scroll gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
@@ -134,7 +130,7 @@ const AnalysisLatestGame: React.FC = () => {
                 tab.name == "movement" && `min-w-[120px] sm:min-w-[140px] lg:min-w-[170px]`
               } p-2 ${
                 focusPage == tab.name &&
-                `shadow-lg rounded-md bg-[#FFF] font-semibold `
+                `shadow-lg border border-[#f0f0f0] rounded-md bg-[#FFF] font-semibold `
               }`}
             >
               <span className="text-xs sm:text-sm md:text-md lg:text-lg xl:text-lg">
