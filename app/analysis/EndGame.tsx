@@ -252,7 +252,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                 </div>
               );
             })}
-          {openBadMove && (
+          {openBadMove && badMoves&&badMoves.length > 0 && (
             <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
               <Image
                 alt=""
