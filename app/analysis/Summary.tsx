@@ -179,7 +179,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         {/* move quality */}
-        <div className="flex flex-col gap-2 w-full border-b border-b-input">
+        <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <span className="text-sm sm:text-sm md:text-md lg:text-md font-semibold text-center">
             Move Quality
           </span>
@@ -531,9 +531,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
         onClick={props.next}
         className="btn-primary flex w-full justify-center items-center h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
       >
-        <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
+        <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
           Movement Details
-          <ArrowRight color="#FFF" className="ml-2 h-4 w-4" />
+          <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
         </div>
       </button>
     </>

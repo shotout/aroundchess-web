@@ -74,6 +74,7 @@ const AnalysisResult: React.FC = () => {
   useEffect(() => {
     let isOpen =
       tabFocus == "opening" ||
+      tabFocus == "threats" ||
       tabFocus == "middlegame" ||
       tabFocus == "endgame";
     setShowTable(isOpen);
@@ -628,7 +629,7 @@ const AnalysisResult: React.FC = () => {
           </motion.div>
 
           {showTable && <MovementTable />}
-          {showMovementContent && !showTable&& chessMove.move != null && (
+          {showMovementContent && !showTable && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
@@ -636,22 +637,26 @@ const AnalysisResult: React.FC = () => {
                     <span className="text-xs  sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
                       {chessMove.move}
                     </span>
-                    <span
-                      className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
-                        chessMove?.classification.toLowerCase()
-                      )}`}
-                    >
-                      {chessMove.evaluation}
-                    </span>
+                    {chessMove?.evaluation && (
+                      <span
+                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
+                          chessMove?.classification.toLowerCase()
+                        )}`}
+                      >
+                        {chessMove.evaluation}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-row items-center gap-2">
-                    <span
-                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
-                        chessMove.classification
-                      )}`}
-                    >
-                      {chessMove.classification}
-                    </span>
+                    {chessMove?.classification && (
+                      <span
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                          chessMove.classification
+                        )}`}
+                      >
+                        {chessMove.classification}
+                      </span>
+                    )}
                     <button onClick={() => setChessMove({})}>
                       <Image
                         alt="close"
@@ -667,13 +672,15 @@ const AnalysisResult: React.FC = () => {
                   This move deviates from opening principles. Focus on
                   development and center control.
                 </span>
-                <div className="flex flex-row gap-1">
-                  <InfoIcon size={16} color="#221AE9" />
-                  <span className="text-sm">Type:</span>
-                  <span className="text-sm font-semibold ">
-                    {chessMove.gamePhase}
-                  </span>
-                </div>
+                {chessMove?.gamePhase&&(
+                  <div className="flex flex-row gap-1">
+                    <InfoIcon size={16} color="#221AE9" />
+                    <span className="text-sm">Type:</span>
+                    <span className="text-sm font-semibold ">
+                      {chessMove.gamePhase}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
