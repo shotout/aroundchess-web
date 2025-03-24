@@ -11,12 +11,14 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
 const EndGame: React.FC<EndgameProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
 
   const { bestMoves, badMoves } = dataAnalysis?.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
@@ -60,19 +62,19 @@ const EndGame: React.FC<EndgameProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#0C7C65]";
+        return "border border-[#27C2A3] text-[#27C2A3]";
       case "Great":
-        return "border border-[#BDD0F9] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472]";
       case "Best":
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
       case "Miss":
-        return "border border-[#FF7769] text-[#C23627]";
+        return "border border-[#FF7769] text-[#FF7769]";
       case "Blunder":
         return "border border-[#FA402D] text-[#FA402D]";
       case "Mistake":
-        return "border border-[#FFA459] text-[#B08503]";
+        return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#3A6211]";
+        return "border border-[#80B64D] text-[#80B64D]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -92,6 +94,9 @@ const EndGame: React.FC<EndgameProps> = (props) => {
       default:
         return "text-[#364152]";
     }
+  };
+  const handleOnClickMovement = (move: any) => {
+    setChessMove(move);
   };
   return (
     <>
@@ -135,7 +140,10 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md  font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md  font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold sm:text-sm md:text-md lg:text-md ">
                             {item.moves}
@@ -205,7 +213,8 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span className="text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.moves}</span>
                         </span>
@@ -251,28 +260,27 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         </div>
       </div>
 
-      
-            <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
-              <button
-                onClick={props.prev}
-                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-              >
-                <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
-                  <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
-                  Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                </div>
-              </button>
-              <div className="w-8" />
-              <button
-                onClick={props.next}
-                className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-              >
-                <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
-                  <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
-                </div>
-              </button>
-            </div>
+      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+        <button
+          onClick={props.prev}
+          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+            Middlegame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+        </button>
+        <div className="w-8" />
+        <button
+          onClick={props.next}
+          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improvement
+            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+          </div>
+        </button>
+      </div>
     </>
   );
 };

@@ -4,10 +4,13 @@ import Header from "@/components/navigator/header";
 import Sidebar from "@/components/navigator/Sidebar";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
+import { usePgnStore } from "../store/zustandStore";
+import LoadingPage from "@/components/analysis-loading/LoadingPage";
 
 export default function Page() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const { isLoading, username } = usePgnStore();
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -23,6 +26,10 @@ export default function Page() {
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className="flex overflow-hidden bg-primary-white">
       {/* Desktop sidebar - always visible on desktop */}

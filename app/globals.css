@@ -2,6 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'AloeveraDisplay-Black';
+  src: url('/fonts/AloeveraDisplay-Black.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-Bold';
+  src: 
+  url('/fonts/AloeveraDisplay-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-ExtraBold';
+  src: 
+  url('/fonts/AloeveraDisplay-ExtraBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-ExtraLight';
+  src: 
+  url('/fonts/AloeveraDisplay-ExtraLight.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-Light';
+  src: 
+  url('/fonts/AloeveraDisplay-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-Medium';
+  src: 
+  url('/fonts/AloeveraDisplay-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-Regular';
+  src: 
+  url('/fonts/AloeveraDisplay-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-SemiBold';
+  src: 
+  url('/fonts/AloeveraDisplay-SemiBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AloeveraDisplay-Thin';
+  src: 
+  url('/fonts/AloeveraDisplay-Thin.ttf') format('truetype'),
+       ;
+  font-weight: normal;
+  font-style: normal;
+}
 @layer base {
   :root {
     --background: 220 33% 98%;
@@ -68,8 +139,22 @@
   50% {
     opacity: 0.5;
   }
+} 
+span {
+  font-family:'AloeveraDisplay-Regular' ;
 }
-
+h1{
+  font-family:'AloeveraDisplay-Regular' ;
+}
+h2{
+  font-family:'AloeveraDisplay-Regular' ;
+}
+div{
+  font-family:'AloeveraDisplay-Regular' ;
+};
+p{
+  font-family:'AloeveraDisplay-Regular' ;
+}
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }

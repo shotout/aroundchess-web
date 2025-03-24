@@ -13,6 +13,7 @@ export default function Home() {
   const handleApiTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setApiType(e.target.value)
   }
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,6 +23,7 @@ export default function Home() {
       return
     }
 
+    
     let apiEndpoint = ''
     if (apiType === 'monthlyGames') {
       if (!year || !month) {
