@@ -21,7 +21,7 @@ import {
   getIdFromSlug,
   getSlugFromId,
 } from "./lib/openingMapper";
-import { useChessLessonStore } from "./store/OpeningStore";
+import { useOpeningClearStore } from "./store/OpeningStore";
 import DotSpinner from "../game-history/Spinner";
 
 export default function OpeningDetailWithNextTopics({
@@ -34,7 +34,7 @@ export default function OpeningDetailWithNextTopics({
     "overview"
   );
 
-  const { completeLesson, isLessonCompleted } = useChessLessonStore();
+  const { completeLesson, isLessonCompleted } = useOpeningClearStore();
   const {
     allOpenings,
     openingDetails,

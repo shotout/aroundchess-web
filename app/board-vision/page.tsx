@@ -1,11 +1,11 @@
 "use client";
-import MiddlegameStrategyDetail from "@/components/middlegame-strategy/MiddlegameDetail";
+import BoardVisionPage from "@/components/board-vision/BoardVisionPage";
 import Header from "@/components/navigator/header";
 import Sidebar from "@/components/navigator/Sidebar";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
 
-export default function Page({ params }: { params: { slug: string } }) {
+export default function Page() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -23,7 +23,6 @@ export default function Page({ params }: { params: { slug: string } }) {
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
-
   return (
     <div className="flex overflow-hidden bg-primary-white">
       {/* Desktop sidebar - always visible on desktop */}
@@ -35,7 +34,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div className="flex flex-col overflow-y-auto w-full">
         <Header onSidebarToggle={toggleSidebar} />
         <div className="w-full">
-          <MiddlegameStrategyDetail params={params} />
+          <BoardVisionPage />
         </div>
         <SiteFooterNew />
       </div>

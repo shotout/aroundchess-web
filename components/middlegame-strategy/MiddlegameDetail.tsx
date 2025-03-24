@@ -15,14 +15,15 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Responsive from "../game-history/Responsive";
+
+import DotSpinner from "../game-history/Spinner";
+import { useMiddlegameClearStore } from "@/components/middlegame-strategy/store/MiddlegameStore";
 import {
   useMiddlegameStore,
   getFenFromMoves,
   getIdFromSlug,
   getSlugFromId,
-} from "./lib/MiddlegameMapper";
-import DotSpinner from "../game-history/Spinner";
-import { useMiddleGameStore } from "./lib/MiddlegameStore";
+} from "./lib/middlegameMapper2"; // Fixed import path
 
 export default function MiddlegameDetailWithNextTopics({
   params,
@@ -34,7 +35,7 @@ export default function MiddlegameDetailWithNextTopics({
     "overview"
   );
 
-  const { completeLesson, isLessonCompleted } = useMiddleGameStore();
+  const { completeLesson, isLessonCompleted } = useMiddlegameClearStore();
   const {
     allMiddlegames,
     middlegameDetails,
@@ -49,9 +50,10 @@ export default function MiddlegameDetailWithNextTopics({
 
   const middlegameId = getIdFromSlug(params.slug);
   const middlegame = middlegameDetails[middlegameId];
-  const relatedMiddlegames = allMiddlegames
-    .filter((o) => o.id !== middlegameId)
-    .slice(0, 3);
+  const relatedMiddlegames =
+    allMiddlegames && allMiddlegames.length
+      ? allMiddlegames.filter((m) => m.id !== middlegameId).slice(0, 3)
+      : [];
 
   useEffect(() => {
     const loadData = async () => {
@@ -100,6 +102,7 @@ export default function MiddlegameDetailWithNextTopics({
     );
   }
 
+  // Ensure properties exist with fallbacks
   const tacticalMotifs =
     middlegame.tacticalMotifs && middlegame.tacticalMotifs.length > 0
       ? middlegame.tacticalMotifs.map((tm) => tm.motif)
@@ -114,6 +117,12 @@ export default function MiddlegameDetailWithNextTopics({
     middlegame.strategicConcepts && middlegame.strategicConcepts.length > 0
       ? middlegame.strategicConcepts.map((sc) => sc.concept)
       : ["Strategic concepts coming soon"];
+
+  // Ensure objectives, prerequisites, resources, and patterns have defaults
+  const objectives = middlegame.objectives || [];
+  const prerequisites = middlegame.prerequisites || [];
+  const resources = middlegame.resources || [];
+  const patterns = middlegame.patterns || [];
 
   return (
     <AnimatePresence mode="wait">
@@ -155,7 +164,7 @@ export default function MiddlegameDetailWithNextTopics({
                 <div className="w-full max-w-md mx-auto">
                   <Chessboard
                     id={`board-${params.slug}`}
-                    position={getFenFromMoves(null)}
+                    position={getFenFromMoves(middlegame.moves)}
                     customDarkSquareStyle={{ backgroundColor: "#5C9DFF" }}
                     customLightSquareStyle={{ backgroundColor: "#fff" }}
                   />
@@ -168,7 +177,7 @@ export default function MiddlegameDetailWithNextTopics({
                 </span>
                 <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
                   <Clock className="w-3 h-3 mr-1" />
-                  <h1>{middlegame.estimatedTime} learning</h1>
+                  <h1>{middlegame.estimatedTime || "15 min"} learning</h1>
                 </div>
               </div>
 
@@ -270,13 +279,8 @@ export default function MiddlegameDetailWithNextTopics({
                             <div className="flex">
                               <div className="w-1/2 pr-2">
                                 <ul className="space-y-2 list-disc pl-5">
-                                  {middlegame.objectives
-                                    .slice(
-                                      0,
-                                      Math.ceil(
-                                        middlegame.objectives.length / 2
-                                      )
-                                    )
+                                  {objectives
+                                    .slice(0, Math.ceil(objectives.length / 2))
                                     .map((objective, index) => (
                                       <li key={index} className="text-xs">
                                         {objective.objective}
@@ -286,12 +290,8 @@ export default function MiddlegameDetailWithNextTopics({
                               </div>
                               <div className="w-1/2 pl-2">
                                 <ul className="space-y-2 list-disc pl-5">
-                                  {middlegame.objectives
-                                    .slice(
-                                      Math.ceil(
-                                        middlegame.objectives.length / 2
-                                      )
-                                    )
+                                  {objectives
+                                    .slice(Math.ceil(objectives.length / 2))
                                     .map((objective, index) => (
                                       <li
                                         key={`additional-${index}`}
@@ -310,8 +310,8 @@ export default function MiddlegameDetailWithNextTopics({
                               Prerequisites:
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                              {middlegame.prerequisites.length > 0 ? (
-                                middlegame.prerequisites.map((prereq) => (
+                              {prerequisites.length > 0 ? (
+                                prerequisites.map((prereq) => (
                                   <span
                                     key={prereq.prerequisite}
                                     className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
@@ -388,9 +388,8 @@ export default function MiddlegameDetailWithNextTopics({
                         transition={{ duration: 0.2 }}
                       >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {middlegame.patterns &&
-                          middlegame.patterns.length > 0 ? (
-                            middlegame.patterns.map((pattern, index) => (
+                          {patterns.length > 0 ? (
+                            patterns.map((pattern, index) => (
                               <div
                                 key={index}
                                 className="border rounded-lg shadow-sm overflow-hidden"
@@ -427,7 +426,7 @@ export default function MiddlegameDetailWithNextTopics({
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {middlegame.resources.map((resource, index) => (
+                  {resources.map((resource, index) => (
                     <div
                       key={index}
                       className="border rounded-lg p-4 flex flex-col h-40"
@@ -444,7 +443,10 @@ export default function MiddlegameDetailWithNextTopics({
                           className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
                         >
                           <h1 className="text-center">
-                            Visit {resource.platform.replace("_", ".")}
+                            Visit{" "}
+                            {resource.platform
+                              ? resource.platform.replace("_", ".")
+                              : "resource"}
                           </h1>
                         </a>
                       </div>
@@ -498,7 +500,7 @@ export default function MiddlegameDetailWithNextTopics({
                                 <div className="w-full h-full p-2 md:p-3 xl:p-4">
                                   <Chessboard
                                     id={`next-topic-${topicSlug}`}
-                                    position={getFenFromMoves(null)}
+                                    position={getFenFromMoves(topic.moves)}
                                     arePiecesDraggable={false}
                                     customDarkSquareStyle={{
                                       backgroundColor: "#5C9DFF",

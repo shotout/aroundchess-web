@@ -1,5 +1,4 @@
-"use client";
-
+// Fix in OpeningTheoryPage.tsx
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,35 +15,30 @@ import { Chessboard } from "react-chessboard";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useInView } from "react-intersection-observer";
-import { useChessLessonStore } from "./store/OpeningStore";
+import { useOpeningClearStore } from "./store/OpeningStore";
+
+import debounce from "lodash/debounce";
+import { ApiOpening, DifficultyFilter } from "./lib/opening";
 import {
-  useOpeningsStore,
   getFenFromMoves,
   getSlugFromId,
-  DifficultyFilter,
-  ApiOpening,
+  useOpeningsStore,
 } from "./lib/openingMapper";
-import debounce from "lodash/debounce";
 
-// Constants
 const INITIAL_PAGE_SIZE = 6;
 const PAGE_INCREMENT = 6;
 
-// Types
 interface OpeningCardProps {
   opening: ApiOpening;
   slug: string;
   lessonCompleted: boolean;
 }
 
-// Optimized chess opening card component
 const OpeningCard = React.memo(
   ({ opening, slug, lessonCompleted }: OpeningCardProps) => {
     return (
       <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col">
-        {/* Chess board visualization with tag */}
         <div className="relative">
-          {/* Fixed aspect ratio for the chessboard */}
           <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
             <div className="w-full h-full p-4 2xl:p-6">
               <Chessboard
@@ -61,7 +55,6 @@ const OpeningCard = React.memo(
               />
             </div>
           </div>
-          {/* Status indicator based on completion */}
           <span
             className={`absolute top-2 right-2 ${
               lessonCompleted ? "bg-green-100" : "bg-yellow-100"
@@ -75,7 +68,6 @@ const OpeningCard = React.memo(
           </span>
         </div>
 
-        {/* Info container with uniform padding and fixed height on mobile */}
         <div className="p-4 flex flex-col h-36 sm:h-auto">
           <div className="flex flex-col space-y-2">
             <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
@@ -114,17 +106,14 @@ const OpeningCard = React.memo(
 
 OpeningCard.displayName = "OpeningCard";
 
-// Spinner component
 const Spinner: React.FC<{ className?: string }> = ({ className = "" }) => (
   <div
     className={`animate-spin rounded-full h-6 w-6 border-b-2 border-blue-base ${className}`}
   ></div>
 );
 
-// Main component
 const OpeningTheoryPage: React.FC = () => {
-  // Zustand stores
-  const { isLessonCompleted, initializeLessonsCount } = useChessLessonStore();
+  const { isLessonCompleted, initializeLessonsCount } = useOpeningClearStore();
   const {
     filteredOpenings,
     pagination,
@@ -136,38 +125,38 @@ const OpeningTheoryPage: React.FC = () => {
     fetchAllOpenings,
     setDifficultyFilter,
     setSearchTerm,
+    applyFilters,
   } = useOpeningsStore();
 
-  // Local state
   const [isFiltering, setIsFiltering] = useState(false);
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const [showNoResults, setShowNoResults] = useState(false);
   const [displayCount, setDisplayCount] = useState(INITIAL_PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Load more trigger ref
   const { ref, inView } = useInView({
     threshold: 0.1,
     triggerOnce: false,
   });
 
-  // Fetch all openings on initial load
+  // This effect now forces a filter application when the component mounts
+  // even if the store is already initialized
   useEffect(() => {
     if (!initialized) {
       fetchAllOpenings();
+    } else {
+      // This is the key fix - force apply filters when component mounts
+      applyFilters();
     }
-  }, [initialized, fetchAllOpenings]);
+  }, [initialized, fetchAllOpenings, applyFilters]);
 
-  // Initialize lessons count
   useEffect(() => {
     if (pagination?.total) {
       initializeLessonsCount(pagination.total);
     }
   }, [pagination, initializeLessonsCount]);
 
-  // Update no results state
   useEffect(() => {
-    // Only show no results message if we've finished loading and have filters set
     if (!isLoading && !isFiltering && (difficultyFilter || searchTerm)) {
       setShowNoResults(filteredOpenings.length === 0);
     } else {
@@ -181,50 +170,42 @@ const OpeningTheoryPage: React.FC = () => {
     searchTerm,
   ]);
 
-  // Reset display count when filters change
   useEffect(() => {
     setDisplayCount(INITIAL_PAGE_SIZE);
   }, [difficultyFilter, searchTerm]);
 
-  // Handle load more when user scrolls to the trigger
   useEffect(() => {
     if (inView && filteredOpenings.length > displayCount && !isLoadingMore) {
       loadMoreItems();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, displayCount, filteredOpenings.length, isLoadingMore]);
 
-  // Debounced search handler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setIsFiltering(true);
       setSearchTerm(value);
-      // Small delay to allow for rendering
       setTimeout(() => setIsFiltering(false), 300);
     }, 300),
     [setSearchTerm]
   );
 
-  // Handle search input changes
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearchTerm(value);
     debouncedSearch(value);
   };
 
-  // Handle difficulty filter changes
   const handleDifficultyChange = (difficulty: DifficultyFilter) => {
     setIsFiltering(true);
-    // Toggle difficulty filter
     const newFilter = difficultyFilter === difficulty ? null : difficulty;
     setDifficultyFilter(newFilter);
-    // Small delay to allow for rendering
     setTimeout(() => setIsFiltering(false), 300);
   };
 
-  // Load more items handler
   const loadMoreItems = () => {
     setIsLoadingMore(true);
-    // Use setTimeout to allow for UI updates
     setTimeout(() => {
       setDisplayCount((prev) =>
         Math.min(prev + PAGE_INCREMENT, filteredOpenings.length)
@@ -233,7 +214,6 @@ const OpeningTheoryPage: React.FC = () => {
     }, 300);
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setIsFiltering(true);
     setLocalSearchTerm("");
@@ -244,12 +224,10 @@ const OpeningTheoryPage: React.FC = () => {
     }, 300);
   };
 
-  // Get paginated openings
   const paginatedOpenings = useMemo(() => {
     return filteredOpenings.slice(0, displayCount);
   }, [filteredOpenings, displayCount]);
 
-  // Difficulty options
   const difficulties: DifficultyFilter[] = [
     "Beginner",
     "Intermediate",
@@ -257,12 +235,9 @@ const OpeningTheoryPage: React.FC = () => {
     "Expert",
   ];
 
-  // Determine if more results are available
   const hasMoreResults = filteredOpenings.length > displayCount;
 
-  // Content to show based on current state
   const renderContent = () => {
-    // Initial loading
     if (isLoading && filteredOpenings.length === 0) {
       return (
         <div className="flex justify-center p-12">
@@ -271,7 +246,6 @@ const OpeningTheoryPage: React.FC = () => {
       );
     }
 
-    // Error state
     if (error) {
       return (
         <div className="p-12 text-center">
@@ -290,7 +264,6 @@ const OpeningTheoryPage: React.FC = () => {
       );
     }
 
-    // Filtering in progress
     if (isFiltering) {
       return (
         <div className="flex flex-col items-center justify-center py-8">
@@ -300,7 +273,6 @@ const OpeningTheoryPage: React.FC = () => {
       );
     }
 
-    // No results
     if (showNoResults) {
       return (
         <div className="py-12 text-center">
@@ -314,16 +286,12 @@ const OpeningTheoryPage: React.FC = () => {
       );
     }
 
-    // Normal content - opening cards
     return (
       <>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <AnimatePresence>
             {paginatedOpenings.map((opening) => {
-              // Create slug from ID
               const slug = getSlugFromId(opening.id);
-
-              // Check if this lesson is completed
               const lessonCompleted = isLessonCompleted(slug);
 
               return (
@@ -351,7 +319,6 @@ const OpeningTheoryPage: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Show load more trigger if more results available */}
         {hasMoreResults && (
           <div ref={ref} className="w-full flex justify-center py-8">
             {isLoadingMore ? (
@@ -372,11 +339,8 @@ const OpeningTheoryPage: React.FC = () => {
   };
 
   return (
-    // Main wrapper with uniform padding
     <main className="w-full p-6 xl:-mt-16">
-      {/* Content container with uniform spacing */}
       <div className="mx-auto space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Opening Theory</h1>
           <p className="text-gray-600">
@@ -385,10 +349,8 @@ const OpeningTheoryPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Search and filters */}
         <div>
           <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
-            {/* Search input - 60% width on tablet and desktop */}
             <div className="relative w-full md:w-[60%]">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Search className="h-4 w-4" />
@@ -401,7 +363,6 @@ const OpeningTheoryPage: React.FC = () => {
               />
             </div>
 
-            {/* Difficulty buttons container - 40% width on tablet and desktop */}
             <div className="w-full md:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
               {difficulties.map((difficulty) => (
                 <Button
@@ -424,10 +385,8 @@ const OpeningTheoryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Main content area */}
         {renderContent()}
 
-        {/* Pagination info */}
         {pagination && filteredOpenings.length > 0 && !isFiltering && (
           <div className="text-center text-sm text-gray-500">
             Showing {paginatedOpenings.length} of {filteredOpenings.length}{" "}

@@ -22,7 +22,7 @@ interface ChessLessonState {
   initializeLessonsCount: (count: number) => void;
 }
 
-export const useChessLessonStore = create<ChessLessonState>()(
+export const useOpeningClearStore = create<ChessLessonState>()(
   persist(
     (set, get) => ({
       // Core state
@@ -151,7 +151,7 @@ export const useChessLessonStore = create<ChessLessonState>()(
       }
     }),
     {
-      name: 'chess-lessons-storage',
+      name: 'opening-lessons-storage',
       // Only persist necessary data
       partialize: (state) => ({
         completedLessons: state.completedLessons,

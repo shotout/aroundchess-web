@@ -1,9 +1,10 @@
-// lib/middlegameMapper.ts - Optimization for local filtering
+// lib/middlegameMapper.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Chess } from 'chess.js';
+import { DifficultyFilter } from './middlegame';
 
-// Types for API data
+// Import ApiMiddlegame interface for proper typing
 export interface ApiMiddlegame {
   id: string;
   title: string;
@@ -49,26 +50,20 @@ export interface ApiMiddlegame {
   }[];
 }
 
-// Types for pagination
-export interface Pagination {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-// Filter types
-export type DifficultyFilter = "Beginner" | "Intermediate" | "Advanced" | "Expert" | null;
-
-// Store state interface
-interface MiddlegameState {
+// Define the proper store state type
+export interface MiddlegameState {
   // Data
   allMiddlegames: ApiMiddlegame[]; // All fetched middlegames
   filteredMiddlegames: ApiMiddlegame[]; // Filtered middlegames for display
   middlegameDetails: Record<string, ApiMiddlegame>; // Indexed by id
-  pagination: Pagination | null;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  } | null;
 
   // Filter states
   difficultyFilter: DifficultyFilter;
@@ -89,11 +84,9 @@ interface MiddlegameState {
   applyFilters: () => void;
 }
 
-// Create Zustand store with persistence
 export const useMiddlegameStore = create<MiddlegameState>()(
   persist(
     (set, get) => ({
-      // Initial state
       allMiddlegames: [],
       filteredMiddlegames: [],
       middlegameDetails: {},
@@ -105,64 +98,51 @@ export const useMiddlegameStore = create<MiddlegameState>()(
       error: null,
       initialized: false,
 
-      // Apply filters to update filteredMiddlegames - now optimized for performance
       applyFilters: () => {
         const { allMiddlegames, difficultyFilter, searchTerm } = get();
         
-        // If no filters, return all middlegames
         if (!difficultyFilter && !searchTerm) {
           set({ filteredMiddlegames: allMiddlegames });
           return;
         }
         
-        // Prepare search term for case-insensitive search
         const searchTermLower = searchTerm.toLowerCase();
         
-        // Apply filters efficiently in a single pass
         const filtered = allMiddlegames.filter((middlegame) => {
-          // Apply difficulty filter if selected
           const difficultyMatch = !difficultyFilter || middlegame.difficulty === difficultyFilter;
           
-          // Skip search filter if no search term or difficulty already failed
           if (!difficultyMatch || !searchTermLower) {
             return difficultyMatch;
           }
           
-          // Apply search filter to title
           return middlegame.title.toLowerCase().includes(searchTermLower);
         });
 
         set({ filteredMiddlegames: filtered });
       },
 
-      // Set difficulty filter
       setDifficultyFilter: (difficulty: DifficultyFilter) => {
         set({ difficultyFilter: difficulty });
         get().applyFilters();
       },
 
-      // Set search term
       setSearchTerm: (term: string) => {
         set({ searchTerm: term });
         get().applyFilters();
       },
 
-      // Fetch all middlegames for local filtering - optimized to handle large datasets
       fetchAllMiddlegames: async () => {
-        // Check if we've already initialized
         if (get().initialized && get().allMiddlegames.length > 0) {
-          console.log('Using cached middlegames');
           get().applyFilters();
           return;
         }
 
         try {
           set({ isLoading: true, error: null });
-
-          // Fetch with a large limit to reduce number of requests
-          const initialUrl = `https://ac-api.kemang.sg/api/handbooks?page=1&limit=100&category=middlegame`;
           
-          console.log(`Fetching all middlegames, starting with: ${initialUrl}`);
+          const apiBaseUrl = process.env.BASE_URL;
+          const initialUrl = `${apiBaseUrl}/handbooks?page=1&limit=100&category=middlegame`;
+          
           const initialResponse = await fetch(initialUrl);
 
           if (!initialResponse.ok) {
@@ -172,16 +152,14 @@ export const useMiddlegameStore = create<MiddlegameState>()(
           const initialData = await initialResponse.json();
           let allData = [...initialData.data];
           
-          // Get pagination info
           const totalPages = initialData.pagination.totalPages;
           
-          // Fetch remaining pages in parallel if needed
           if (totalPages > 1) {
             set({ isLoadingMore: true });
             
             const remainingRequests = [];
             for (let page = 2; page <= totalPages; page++) {
-              const url = `https://ac-api.kemang.sg/api/handbooks?page=${page}&limit=100&category=middlegame`;
+              const url = `${apiBaseUrl}/handbooks?page=${page}&limit=100&category=middlegame`;
               remainingRequests.push(
                 fetch(url)
                   .then(response => {
@@ -199,19 +177,16 @@ export const useMiddlegameStore = create<MiddlegameState>()(
               allData = [...allData, ...remainingData.flat()];
             } catch (fetchError) {
               console.error('Error fetching additional pages:', fetchError);
-              // Continue with what we have so far
             }
             
             set({ isLoadingMore: false });
           }
           
-          // Sort data by difficulty level for better UX
           allData.sort((a, b) => {
             const difficultyOrder = ["Beginner", "Intermediate", "Advanced", "Expert"];
             return difficultyOrder.indexOf(a.difficulty) - difficultyOrder.indexOf(b.difficulty);
           });
           
-          // Update state with all middlegames
           set({ 
             allMiddlegames: allData,
             filteredMiddlegames: allData,
@@ -233,18 +208,14 @@ export const useMiddlegameStore = create<MiddlegameState>()(
         }
       },
 
-      // Fetch a single middlegame's details
       fetchMiddlegameDetails: async (id: string) => {
         try {
-          // Check if we already have this middlegame in the store
           const existingMiddlegame = get().middlegameDetails[id];
           if (existingMiddlegame) {
-            console.log(`Using cached details for middlegame: ${id}`);
             return existingMiddlegame;
           }
 
-          // Check in allMiddlegames
-          const middlegameFromAll = get().allMiddlegames.find(o => o.id === id);
+          const middlegameFromAll = get().allMiddlegames.find(m => m.id === id);
           if (middlegameFromAll) {
             set(state => ({
               middlegameDetails: { ...state.middlegameDetails, [id]: middlegameFromAll }
@@ -254,10 +225,9 @@ export const useMiddlegameStore = create<MiddlegameState>()(
 
           set({ isLoading: true, error: null });
 
-          // Not found locally, fetch from API
-          const apiUrl = `https://ac-api.kemang.sg/api/handbooks/${id}`;
+          const apiBaseUrl = process.env.BASE_URL;
+          const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
 
-          console.log(`Fetching middlegame detail from API: ${apiUrl}`);
           const response = await fetch(apiUrl);
 
           if (!response.ok) {
@@ -280,7 +250,6 @@ export const useMiddlegameStore = create<MiddlegameState>()(
         }
       },
 
-      // Reset the store
       reset: () => {
         set({
           filteredMiddlegames: get().allMiddlegames,
@@ -292,8 +261,7 @@ export const useMiddlegameStore = create<MiddlegameState>()(
       }
     }),
     {
-      name: 'middlegame-store', // Storage key
-      // Don't persist loading states and errors
+      name: 'middlegames-store',
       partialize: (state) => ({
         allMiddlegames: state.allMiddlegames,
         middlegameDetails: state.middlegameDetails,
@@ -303,35 +271,29 @@ export const useMiddlegameStore = create<MiddlegameState>()(
   )
 );
 
-// Helper to get FEN string from moves - optimized for memoization
 const fenCache = new Map<string, string>();
-const DEFAULT_FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1";
+const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export function getFenFromMoves(moves: string | null): string {
-  // Default FEN if no moves provided
   if (!moves) {
     return DEFAULT_FEN;
   }
 
-  // Check cache first
   if (fenCache.has(moves)) {
     return fenCache.get(moves)!;
   }
 
   try {
-    // Create a new chess instance
     const chess = new Chess();
     
-    // Clean the moves string and split into individual moves
     const moveList = moves
-      .replace(/\d+\./g, '') // Remove move numbers (like "1.", "2.", etc.)
-      .replace(/\s+/g, ' ')   // Normalize whitespace
+      .replace(/\d+\./g, '')
+      .replace(/\s+/g, ' ')
       .trim()
       .split(' ');
     
-    // Apply each move
     for (const move of moveList) {
-      if (move && move.length > 1) { // Make sure it's a valid move
+      if (move && move.length > 1) {
         try {
           chess.move(move);
         } catch (moveError) {
@@ -340,23 +302,19 @@ export function getFenFromMoves(moves: string | null): string {
       }
     }
     
-    // Cache and return the FEN string
     const fen = chess.fen();
     fenCache.set(moves, fen);
     return fen;
   } catch (error) {
     console.error("Error generating FEN from moves:", error);
-    // Return default FEN position if there's an error
     return DEFAULT_FEN;
   }
 }
 
-// Helper to get slug from middlegame ID
 export function getSlugFromId(id: string): string {
   return id.replace('middlegame_', '');
 }
 
-// Helper to get ID from slug
 export function getIdFromSlug(slug: string): string {
   return slug.startsWith('middlegame_') ? slug : `middlegame_${slug}`;
 }
