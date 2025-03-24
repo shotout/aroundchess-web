@@ -21,6 +21,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
+  useEffect(()=>{
+    console.log("movementDetails",movementDetails)
+  },[])
   const moves = [
     {
       whiteMove: "d4",
@@ -412,7 +415,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
-          <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+          <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
             Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
@@ -423,7 +426,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Threats
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
         </button>
       </div>
