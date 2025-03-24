@@ -39,7 +39,7 @@ export default function AnalysisPage() {
         <Navigation>
           <div className="flex flex-col overflow-y-auto">
             <div
-              className={`flex flex-col bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
+              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
                 hideDiv && "hidden"
               }`}
             >
@@ -64,11 +64,9 @@ export default function AnalysisPage() {
                 <AnalyzeDifferentGame />
               </div>
             </div>
-            <div className="flex flex-col max-w-full xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
+            <div className="flex flex-col xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
               <AnalysisResult />
-              <div className="xl:w-3/5">
               <AnalysisLatestGame />
-              </div>
             </div>
           </div>
         </Navigation>

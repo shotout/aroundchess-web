@@ -23,7 +23,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const [openCriticalMistakes, setOpenCriticalMistakes] =
-    useState<boolean>(false);
+    useState<boolean>(true);
   const [openWeakness, setopenWeakness] = useState<boolean>(true);
   const [criticalMoves, setCriticalMoves] = useState<any[]>([
     {

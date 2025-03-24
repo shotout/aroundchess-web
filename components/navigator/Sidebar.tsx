@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LayoutDashboard, Settings, X } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -122,8 +123,25 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const isMobile = !!onClose; // If onClose is provided, we're on mobile
 
+  const [widthContainer, setWidthContainer] = useState<number>(240);
+  const [mounted, setMounted] = useState<boolean>(true);
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
+  const handleResize = () => {
+    let widthC = window?.innerWidth * 0.2;
+    console.log("widthC", widthC);
+    setWidthContainer(widthC);
+  };
   return (
-    <div className="flex w-[240px] h-full flex-col">
+    <div style={{ width: widthContainer }} className="flex h-full flex-col">
       <div className="flex h-[70px] lg:h-[100px] items-center border-b border-gray-200 px-6 justify-center">
         <Link href="/" className="flex items-center justify-center">
           <Image

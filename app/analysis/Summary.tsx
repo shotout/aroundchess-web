@@ -176,10 +176,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
               className={`w-full pl-2 flex flex-row justify-between items-center `}
             >
               <div className="flex flex-col items-start justify-center gap-2">
-                <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-primary border border-primary rounded-sm p-1">
+                <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-primary border border-primary rounded-sm p-1">
                   {whiteSide?.profileInfo.gameRating}
                 </span>
-                <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
+                <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
                   {blackSide?.profileInfo.gameRating}
                 </span>
               </div>
@@ -200,7 +200,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Brilliant:
                   </span>
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.brilliant}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Great:
                   </span>
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#749BBF] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#749BBF] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.great}
                   </span>
                 </div>
@@ -216,7 +216,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Best:
                   </span>
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#80B64D] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#80B64D] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.best}
                   </span>
                 </div>
@@ -224,7 +224,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Mistake:
                   </span>
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FFA459] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FFA459] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.mistake}
                   </span>
                 </div>
@@ -232,7 +232,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Miss:
                   </span>
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.miss}
                   </span>
                 </div>
@@ -242,13 +242,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     Blunder:
                   </span>
 
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
                     {whiteSide?.analysis?.moveQuality.blunder}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-start justify-center gap-2">
+            <div className="flex flex-col items-start justify-center gap-2 pb-1 w-[40px]">
               <Image
                 alt=""
                 src={"/icons/brilliant-moves-icon.png"}
@@ -295,20 +295,20 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <div className={`w-full pl-2 flex flex-row items-center`}>
               <div className="flex flex-col items-start justify-center gap-2">
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p-1 min-w-[32px]">
                     {blackSide?.analysis?.moveQuality.brilliant}
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
                   <div className="flex flex-row items-center justify-around gap-2">
-                    <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#749BBF] p-1 min-w-[32px]">
+                    <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#749BBF] p-1 min-w-[32px]">
                       {blackSide?.analysis?.moveQuality.great}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
                   <div className="flex flex-row items-center justify-around gap-2">
-                    <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#80B64D] p-1 min-w-[32px]">
+                    <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#80B64D] p-1 min-w-[32px]">
                       {blackSide?.analysis?.moveQuality.best}
                     </span>
                   </div>
@@ -316,7 +316,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
                 <div className="flex flex-row items-center justify-around gap-2">
                   <div className="flex flex-row items-center justify-around gap-2">
-                    <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FFA459] p-1 min-w-[32px]">
+                    <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FFA459] p-1 min-w-[32px]">
                       {blackSide?.analysis?.moveQuality.mistake}
                     </span>
                   </div>
@@ -324,13 +324,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
                 <div className="flex flex-row items-center justify-around gap-2">
                   <div className="flex flex-row items-center justify-around gap-2">
-                    <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
+                    <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
                       {blackSide?.analysis?.moveQuality.miss}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
+                  <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
                     {blackSide?.analysis?.moveQuality.blunder}
                   </span>
                 </div>
@@ -348,13 +348,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] text-center sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Opening:
                   </span>
-                  <div className="flex max-w-[50px] flex-col items-center w-16">
+                  <div className="flex max-w-[44px] flex-col items-center w-16">
                     <Image
                       alt=""
                       src={`/icons/${whiteSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
                       width={1000}
                       height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                     <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.opening}
@@ -365,13 +365,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Middlegame:
                   </span>
-                  <div className="flex max-w-[50px] flex-col items-center w-16">
+                  <div className="flex max-w-[44px] flex-col items-center w-16">
                     <Image
                       alt=""
                       src={`/icons/${whiteSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
                       width={1000}
                       height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                     <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.middleGame}
@@ -382,13 +382,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Endgame:
                   </span>
-                  <div className="flex max-w-[50px] flex-col items-center w-16">
+                  <div className="flex max-w-[44px] flex-col items-center w-16">
                     <Image
                       alt=""
                       src={`/icons/${whiteSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
                       width={1000}
                       height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                     <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.endGame}
@@ -400,13 +400,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
             <div className={`w-full pl-2 flex flex-col items-start gap-2`}>
               <div className="flex flex-row items-center justify-around gap-2">
-                <div className="flex max-w-[50px] flex-col items-center w-16">
+                <div className="flex max-w-[44px] flex-col items-center w-16">
                   <Image
                     alt=""
                     src={`/icons/${blackSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
                     width={1000}
                     height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                   />
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.opening}
@@ -414,13 +414,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
               </div>
               <div className="flex flex-row items-center justify-around gap-2">
-                <div className="flex max-w-[50px] flex-col items-center w-16">
+                <div className="flex max-w-[44px] flex-col items-center w-16">
                   <Image
                     alt=""
                     src={`/icons/${blackSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
                     width={1000}
                     height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                   />
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.middleGame}
@@ -428,13 +428,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
               </div>
               <div className="flex flex-row items-center justify-around gap-2">
-                <div className="flex max-w-[50px] flex-col items-center w-16">
+                <div className="flex max-w-[44px] flex-col items-center w-16">
                   <Image
                     alt=""
                     src={`/icons/${blackSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
                     width={1000}
                     height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 object-contain"
+                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                   />
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.endGame}
