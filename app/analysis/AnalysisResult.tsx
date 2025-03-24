@@ -291,29 +291,8 @@ const AnalysisResult: React.FC = () => {
     const baseProps = {
       position: game.fen(),
       boardOrientation,
-      animationDuration: 200,
-    };
-
-    if (is3DMode) {
-      return {
-        ...baseProps,
-        customBoardStyle: {
-          transform: "rotateX(27.5deg)",
-          border: "0",
-          margin: "0",
-          padding: "0",
-          background: "#e0c094",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
-        },
-        customLightSquareStyle: {
-          backgroundColor: "#f0d9b5",
-        },
-        customDarkSquareStyle: {
-          backgroundColor: "#b58863",
-        },
-      };
-    }
-
+      animationDuration: 1000,
+    }; 
     return baseProps;
   };
 
@@ -476,7 +455,7 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveBlack == 0 ? "0:10:00:0" : currentMoveBlack}
                 </span>
               </div>
@@ -504,7 +483,8 @@ const AnalysisResult: React.FC = () => {
             </Button>
           </motion.div>
           
-          <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}>
+          <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
+          {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
             <GlassBoard
               boardWidth={
                 hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
@@ -622,7 +602,7 @@ const AnalysisResult: React.FC = () => {
               </div>
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveWhite == 0 ? "0:10:00:0" : currentMoveWhite}
                 </span>
               </div>
