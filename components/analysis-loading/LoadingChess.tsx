@@ -5,6 +5,7 @@ import { Chess } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
 import CustomBoard from "./CustomBoard";
 import GlassBoard from "../chessboard/glass/GlassBoard";
+import WoodBoard from "../chessboard/wood/WoodBoard";
 
 interface ParsedMove {
   color: string;
@@ -73,7 +74,7 @@ const PgnPlayer: React.FC = () => {
       setError(null);
 
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(
         `Error parsing PGN: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -200,12 +201,12 @@ const PgnPlayer: React.FC = () => {
       return;
     } else if (currentMoveIndex == moveHistory.length - 1) {
       console.log("Reached end of moves");
-        setCurrentMoveIndex(0);
-        setGame(new Chess());
-        if (autoPlayTimerRef.current) {
-      clearTimeout(autoPlayTimerRef.current);
-      autoPlayTimerRef.current = null;
-    }
+      setCurrentMoveIndex(0);
+      setGame(new Chess());
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
     }
 
     // Clear existing timer
@@ -253,7 +254,7 @@ const PgnPlayer: React.FC = () => {
 
   // Clean up on unmount
   useEffect(() => {
-    handleResize()
+    handleResize();
     return () => {
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
@@ -268,7 +269,7 @@ const PgnPlayer: React.FC = () => {
     const minPadding = 0;
     const maxSize = window.innerWidth > 1440 ? window.innerWidth / 3 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
-    console.log("Resizing board...", isPortrait,window.innerWidth);
+    console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -289,10 +290,11 @@ const PgnPlayer: React.FC = () => {
     <>
       <div className="space-y-4">
         <div className="mx-auto">
-          <GlassBoard
+          {/* <GlassBoard
           boardWidth={boardSize}
             position={game.fen()}
-          />
+          /> */}
+          <WoodBoard boardWidth={boardSize} position={game.fen()} />
         </div>
 
         {/* <div className="text-center mt-4">
