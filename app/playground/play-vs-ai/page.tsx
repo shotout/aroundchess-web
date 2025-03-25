@@ -1,4 +1,5 @@
 "use client";
+import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 import Navigation from "@/components/navigator/navigation";
 import Image from "next/image";
 export default function PlayVSAI() {
@@ -14,7 +15,7 @@ export default function PlayVSAI() {
             className="w-full min-h-[489px] sm:max-h-[617px] xl:min-w-[1077px] xl:h-[709px] xl:rounded-[32px] xl:mx-8 object-cover bg-cover"
           />
         </div>
-        <div className="absolute inset-0 flex items-center justify-center xl:m-4">
+        <div className="absolute inset-0 flex items-center justify-center m-4">
           <div className="w-full p-8 xl:max-w-[643px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border border-2 border-[#fff] rounded-md p-4 flex flex-col gap-2 items-center justify-center ">
             <Image
               src={"/images/play-vs-ai/play-vs-ai.png"}
@@ -28,7 +29,7 @@ export default function PlayVSAI() {
               Challenge AI to improve your accuracy and enhance your chess
               skills.
             </span>
-            <button className="w-full h-[48px] btn-primary rounded-full mt-2">Start Now</button>
+           <StartPlayVSAI/>
           </div>
         </div>
       </div>
