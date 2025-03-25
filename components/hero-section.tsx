@@ -94,7 +94,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="flex flex-1 relative overflow-hidden bg-primary py-4 sm:bg-white lg:pb-32 lg:pt-24 w-full">
+    <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-32 lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
         <motion.div
           className="flex flex-col sm:flex-row items-center"
@@ -107,23 +107,23 @@ export function HeroSection() {
             variants={fadeInUp}
           >
             <div className="bg-[black] sm:bg-transparent rounded-lg p-4 sm:p-8">
-              <h1 className="font-heading text-lg text-white sm:text-black sm:text-xl tracking-tight ">
+              <h1 className="font-heading text-lg text-white sm:text-black sm:text-xl xl:text-4xl tracking-tight ">
                 <span className="block sm:mb-0">
                   Understand your{" "}
                   <span className="text-primary font-bold">Chess</span> Game
                   with our
                 </span>
-                <span className="font-heading text-lg sm:text-xl font-bold tracking-tight text-black-900">
+                <span className="font-heading text-lg sm:text-xl xl:text-4xl font-bold tracking-tight text-black-900">
                   Advanced Game Analysis
                 </span>
               </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-white sm:text-black font-light max-w-2xl mx-auto lg:mx-0">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-lg text-white sm:text-black font-light max-w-2xl mx-auto lg:mx-0">
                 Experience an in-depth analysis of every move with our
                 cutting-edge tools and AI-driven insights - simply by looking up
                 your Chess.com account.
               </p>
             </div>
-            <div className="mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-gray-100 sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-25 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
+            <div className="max-w-[668px] mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
               <p className="w-full block text-base text-start font-semibold sm:text-xl text-gray-600">
                 Analyze your most recent Game now:
               </p>
@@ -175,20 +175,19 @@ export function HeroSection() {
         </motion.div>
       </div>
       {/* <div className="hidden lg:block absolute top-80 left-20 lg:left-40 w-[50px] sm:w-[50px] md:w-[200px] h-[250px] sm:h-[50px] md:h-[200px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div> */}
-      <div className="hidden lg:block absolute top-0 right-0 w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px] bg-white-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-24 animate-pulse-slow z-1"></div>
+      {/* <div className="hidden lg:block absolute top-0 right-0 w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px] bg-white-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+      <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-24 animate-pulse-slow z-1"></div> */}
 
-      <div className="z-10 absolute top-32 md:top-20 md:w-1/2 md:right-0 h-auto py-2 sm:py-16 lg:py-12">
+      <div className="block z-2 absolute  w-[100%] h-[620px] lg:h-auto">
         <Image
-          src={
-            width > 572
-              ? "/images/homepage/hero-banner.png"
-              : "/images/homepage/hero-banner-mobile.png"
-          }
+          src={"/images/homepage/hero-banner-homepage.png"}
+          // src={ width > 572
+          //   ? "/images/homepage/hero-banner-homepage.png"
+          //   : "/images/homepage/hero-banner-mobile.png"}
           alt="herobanner"
           width={1000}
           height={1000}
-          className="w-full h-auto z-10 relative overflow-hidden rounded-lg bg-cover bg-no-repeat"
+          className="w-[100%] h-[620px] lg:h-auto object-cover z-2 relative overflow-hidden"
           priority
         />
       </div>

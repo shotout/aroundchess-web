@@ -167,7 +167,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     Game Rating:
                   </span>
                   <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
-                    {blackSide?.analysis?.accuracy}
+                    {whiteSide?.profileInfo.gameRating}
                   </span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             >
               <div className="flex flex-col items-start justify-center gap-2">
                 <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-primary border border-primary rounded-sm p-1">
-                  {whiteSide?.profileInfo.gameRating}
+                  {blackSide?.analysis?.accuracy}
                 </span>
                 <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
                   {blackSide?.profileInfo.gameRating}

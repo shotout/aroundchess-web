@@ -25,6 +25,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { proceedAnalysis } from "@/utils/stockfish-utils";
+import { Chess } from "chess.js";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -116,7 +117,6 @@ export function AnalyzeDifferentGame() {
     dataAnalysis,
     setDataAnalysis,
     setDataGamesImport,
-    
   } = usePgnStore();
   const depths = [
     {
@@ -153,6 +153,7 @@ export function AnalyzeDifferentGame() {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(15);
   const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
@@ -225,6 +226,20 @@ export function AnalyzeDifferentGame() {
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      console.log("PGN file:", file);
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const pgnText = e.target.result;
+        setPgn(pgnText);
+        setPgnText(pgnText);
+        console.log("PGN loaded:", pgnText);
+      };
+      reader.readAsText(file);
+
       handleFile(e.target.files[0]);
     }
   };
@@ -241,7 +256,7 @@ export function AnalyzeDifferentGame() {
       alert("File size exceeds 5MB limit.");
       return;
     }
-    setFile(file)
+    setFile(file);
     setFileName(file.name);
     setFileSize(file.size);
   };
@@ -262,14 +277,15 @@ export function AnalyzeDifferentGame() {
       setDataGamesImport(availableGames[0]?.data_games);
       processAnalyze(selectedGame);
     } else if (pgnText) {
-      console.log("PGN text provided",pgnText);
+      console.log("PGN text provided", pgnText);
       processAnalyze(pgnText);
       setDataGamesImport(null);
-    } else if (fileName) {
-      console.log("File uploaded:", file);
-      setDataGamesImport(null);
-      processAnalyze(file);
     }
+    // else if (fileName) {
+    //   console.log("File uploaded:", file);
+    //   setDataGamesImport(null);
+    //   processAnalyze(file);
+    // }
   };
   const processAnalyze = async (pgn: string | any) => {
     let arr = null;

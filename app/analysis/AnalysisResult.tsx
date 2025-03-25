@@ -24,6 +24,7 @@ import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
 import GlassBoard from "@/components/chessboard/glass/GlassBoard";
+import { unixFormatDate } from "@/functions/unix-format-date";
 
 type CapturedPieces = {
   white: string[];
@@ -90,10 +91,10 @@ const AnalysisResult: React.FC = () => {
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     "white"
   );
-  const [, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -136,7 +137,7 @@ const AnalysisResult: React.FC = () => {
             .replace("]", "");
         }
       });
-
+      getStartTime(comments[0].comment.replace("[%clk ", "").replace("]", ""));
       // Determine board orientation based on the headers
       const headers = tempGame.header();
       if (headers.Black && headers.Black.toLowerCase() === "you") {
@@ -165,7 +166,16 @@ const AnalysisResult: React.FC = () => {
       return false;
     }
   };
-
+  const getStartTime = (time: string) => {
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    let totalMinutes = hours * 60 + minutes;
+    if (seconds >= 30) {
+      totalMinutes += 1;
+    }
+    let minuteFormat = totalMinutes <= 9 ?"0"+totalMinutes:totalMinutes
+    let result = "0:" + minuteFormat + ":00";
+    setStartTime(result)
+  };
   const toggleBoardMode = () => {
     setIs3DMode((prev) => !prev);
   };
@@ -340,10 +350,10 @@ const AnalysisResult: React.FC = () => {
     // const maxSize = window?.innerWidth *0.25;
     const maxSize =
       window.innerWidth > 1440
-        ? window.innerWidth *0.27
+        ? window.innerWidth * 0.27
         : window.innerWidth <= 1024
         ? 453
-        : window.innerWidth *0.27;
+        : window.innerWidth * 0.27;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
@@ -461,7 +471,7 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-                  {currentMoveBlack == 0 ? "0:10:00:0" : currentMoveBlack}
+                  {currentMoveBlack == 0 ? startTime : currentMoveBlack}
                 </span>
               </div>
             </div>
@@ -608,7 +618,7 @@ const AnalysisResult: React.FC = () => {
               <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
                 <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-                  {currentMoveWhite == 0 ? "0:10:00:0" : currentMoveWhite}
+                  {currentMoveWhite == 0 ? startTime : currentMoveWhite}
                 </span>
               </div>
             </div>
