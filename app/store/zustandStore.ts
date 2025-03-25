@@ -12,6 +12,8 @@ interface PgnState {
   setError: (error: Error | null) => void;
   dataAnalysis: AnalysisResult | any;
   setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
+  dataGamesImport: any;
+  setDataGamesImport: (dataGamesImport: any) => void;
   dataGames: any;
   setDataGames: (dataGames: any) => void;
   hideDiv: boolean;
@@ -32,6 +34,8 @@ export const usePgnStore = create<PgnState>()(
   setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis}),
   dataGames : null,
   setDataGames : (dataGames: any) => set({dataGames}),
+  dataGamesImport : null,
+  setDataGamesImport : (dataGamesImport: any) => set({dataGamesImport}),
   hideDiv : false,
   setHideDiv : (hideDiv: boolean) => set({hideDiv})
 }),
