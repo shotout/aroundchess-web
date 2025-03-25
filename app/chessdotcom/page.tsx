@@ -14,7 +14,6 @@ export default function Home() {
     setApiType(e.target.value)
   }
   
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
