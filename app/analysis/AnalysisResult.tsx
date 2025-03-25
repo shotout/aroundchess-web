@@ -345,7 +345,6 @@ const AnalysisResult: React.FC = () => {
         ? 453
         : window.innerWidth *0.27;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
-    console.log("Resizing board...", maxSize, window.innerWidth);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint

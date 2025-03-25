@@ -58,7 +58,7 @@ const AnalysisLatestGame: React.FC = () => {
   useEffect(() => {
     setIsLoading(false);
     renderView(focusPage);
-  }, [focusPage, window.innerWidth]);
+  }, [focusPage]);
   const renderView = (focusPage: string) => {
     switch (focusPage) {
       case "summary":
