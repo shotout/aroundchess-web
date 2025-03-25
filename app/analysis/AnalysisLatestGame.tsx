@@ -139,7 +139,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full xl:overflow-x-scroll gap-1 px-4 pb-2">
+      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full xl:overflow-x-auto gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
