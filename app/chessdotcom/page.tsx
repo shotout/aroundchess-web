@@ -57,7 +57,6 @@ export default function Home() {
     }
   }
 
-  
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
       <h1 className="text-3xl font-bold text-center mb-6">chess.com Fetcher</h1>
