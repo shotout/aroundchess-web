@@ -180,7 +180,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                     // Clickable title as a Link
                     <Link
                       href={section.href}
-                      style={{ width: widthContainer -100 }} 
+                      style={{ width: widthContainer -50 }} 
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         pathname === section.href
@@ -210,7 +210,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   ) : (
                     // Non-clickable title (section header)
                     <div
-                    style={{ width: widthContainer -100 }} 
+                    style={{ width: widthContainer -50 }} 
                     className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
@@ -252,7 +252,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 ? "javascript:void(0);"
                                 : child.href
                             }
-                            style={{ width: widthContainer -100 }} 
+                            style={{ width: widthContainer -50 }} 
                             className={cn(
                               "min-h-[52px] group flex items-center rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
