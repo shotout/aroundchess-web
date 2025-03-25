@@ -382,7 +382,7 @@ const AnalysisResult: React.FC = () => {
 
   useEffect(() => {
     handleResize();
-  }, [hideDiv, is3DMode, window?.innerWidth]);
+  }, [hideDiv, is3DMode]);
 
   useEffect(() => {
     // console.log("Best move:", bestMove);

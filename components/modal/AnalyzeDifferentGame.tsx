@@ -115,8 +115,8 @@ export function AnalyzeDifferentGame() {
     isLoading,
     dataAnalysis,
     setDataAnalysis,
-    setDataGames,
-    dataGames,
+    setDataGamesImport,
+    
   } = usePgnStore();
   const depths = [
     {
@@ -149,6 +149,7 @@ export function AnalyzeDifferentGame() {
   const [dragActive, setDragActive] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(15);
   const [open, setOpen] = useState(false);
@@ -163,7 +164,7 @@ export function AnalyzeDifferentGame() {
     opponent: string;
   }
 
-  const [availableGames, setAvailableGames] = useState<GameOption[]>([]);
+  const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
     undefined
   );
@@ -189,7 +190,6 @@ export function AnalyzeDifferentGame() {
       setAvailableGames(response.data.data);
       setSelectedGame(response.data.data[0].value);
       setPgn(response.data.data[0].value);
-      setDataGames(response.data.data[0].data_games);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -241,7 +241,7 @@ export function AnalyzeDifferentGame() {
       alert("File size exceeds 5MB limit.");
       return;
     }
-
+    setFile(file)
     setFileName(file.name);
     setFileSize(file.size);
   };
@@ -259,18 +259,23 @@ export function AnalyzeDifferentGame() {
     console.log("Analyzing game with the following data:");
     if (selectedGame) {
       console.log("Selected game:", selectedGame);
+      setDataGamesImport(availableGames[0]?.data_games);
       processAnalyze(selectedGame);
     } else if (pgnText) {
-      console.log("PGN text provided");
-      processAnalyze(selectedGame);
+      console.log("PGN text provided",pgnText);
+      processAnalyze(pgnText);
+      setDataGamesImport(null);
     } else if (fileName) {
-      console.log("File uploaded:", fileName);
+      console.log("File uploaded:", file);
+      setDataGamesImport(null);
+      processAnalyze(file);
     }
   };
   const processAnalyze = async (pgn: string | any) => {
     let arr = null;
     try {
       setIsLoading(true);
+      setDataAnalysis(arr);
 
       const responseAnalysis = await proceedAnalysis(
         pgn,
