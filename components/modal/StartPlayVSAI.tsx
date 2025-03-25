@@ -1,6 +1,6 @@
 "use client";
 
-import { usePgnStore } from "@/app/store/zustandStore";
+import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import {
   Dialog,
   DialogContent,
@@ -11,18 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function StartPlayVSAI() {
   const {
-    setPgn,
-    setIsLoading,
-    setError,
-    isLoading,
-    dataAnalysis,
-    setDataAnalysis,
-    setDataGamesImport,
-  } = usePgnStore();
+    AIChoosed, setAIChoosed
+  } = usePlayVSAIStore();
+  const router = useRouter()
   const [selectedColor, setSelectedColor] = useState<string>("white");
   const [selectedOpponent, setSelectedOpponent] = useState<number>(0);
   const [selectedElo, setSelectedElo] = useState<number>(200);
@@ -101,7 +97,8 @@ export function StartPlayVSAI() {
       difficulty: difficulty,
       opponent:opponentData ,
     };
-    console.log(body);
+    setAIChoosed(body);
+    router.push("/playground/play-vs-ai/playing")
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
