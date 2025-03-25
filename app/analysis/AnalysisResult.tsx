@@ -25,6 +25,7 @@ import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
 import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 import { unixFormatDate } from "@/functions/unix-format-date";
+import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 
 type CapturedPieces = {
   white: string[];
@@ -500,7 +501,7 @@ const AnalysisResult: React.FC = () => {
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
             {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
-            <GlassBoard
+            <WoodBoard
               boardWidth={
                 hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
               }
