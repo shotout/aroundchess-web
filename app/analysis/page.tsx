@@ -31,6 +31,7 @@ export default function AnalysisPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+  
   return (
     <>
       {isLoading == true ? (
