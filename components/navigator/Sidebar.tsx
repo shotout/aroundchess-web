@@ -84,7 +84,7 @@ const sidebarLinks: SidebarLink[] = [
     children: [
       {
         name: "Play vs AI",
-        href: "/play-vs-ai",
+        href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
       },
       {
