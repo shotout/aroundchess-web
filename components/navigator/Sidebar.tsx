@@ -48,7 +48,7 @@ const sidebarLinks: SidebarLink[] = [
       {
         name: "Mistake Log",
         href: "/mistake-log",
-        icon: "/icons/sidebar-training-plan-icon.png",
+        icon: "/icons/sidebar-mistake-log-icon.png",
       },
       {
         name: "My Training Plan",

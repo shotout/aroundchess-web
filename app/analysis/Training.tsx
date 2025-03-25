@@ -12,6 +12,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import NoData from "@/components/NoData/NoData";
 interface TrainingProps {
   next: () => void;
   prev: () => void;
@@ -43,7 +44,7 @@ const Training: React.FC<TrainingProps> = (props) => {
         "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
     },
   ]);
-   
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -109,6 +110,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
+          {(criticalMistakes.opening.length == 0 ||
+            criticalMistakes.middleGame.length == 0 ||
+            criticalMistakes.endGame.length == 0) && (
+            <NoData>Critical Mistakes Empty</NoData>
+          )}
           {openCriticalMistakes &&
             criticalMistakes &&
             criticalMistakes.opening.length > 0 &&
@@ -121,8 +127,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
@@ -190,8 +198,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
@@ -259,8 +269,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
@@ -340,6 +352,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
+          {(weaknessIdentification.opening.length == 0 ||
+            weaknessIdentification.middleGame.length == 0 ||
+            weaknessIdentification.endGame.length == 0) && (
+            <NoData>Weakness Identification Empty</NoData>
+          )}
           {openWeakness &&
             weaknessIdentification &&
             weaknessIdentification.opening.length > 0 &&
@@ -352,8 +369,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
@@ -423,8 +442,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                     <div className="p-1">
                       <div className="flex flex-row justify-between gap-2 mb-4">
                         <div className="flex flex-row items-center gap-2">
-                          <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                          <span
+                            onClick={() => handleOnClickMovement(item)}
+                            className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                          >
                             Move {item.moveNumber}:{" "}
                             <span className="font-bold">{item.move}</span>
                           </span>
@@ -494,8 +515,10 @@ const Training: React.FC<TrainingProps> = (props) => {
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row items-center gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.move}</span>
                         </span>
@@ -554,28 +577,28 @@ const Training: React.FC<TrainingProps> = (props) => {
             })}
         </div>
       </div>
-     
-           <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
-             <button
-               onClick={props.prev}
-               className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-             >
-               <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
-                 <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
-                 Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-               </div>
-             </button>
-             <div className="w-8" />
-             <button
-               onClick={props.next}
-               className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-             >
-               <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                 &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
-                 <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
-               </div>
-             </button>
-           </div>
+
+      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+        <button
+          onClick={props.prev}
+          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
+            <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
+            Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+        </button>
+        <div className="w-8" />
+        <button
+          onClick={props.next}
+          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
+            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
+          </div>
+        </button>
+      </div>
     </>
   );
 };

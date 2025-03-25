@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import NoData from "@/components/NoData/NoData";
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
@@ -36,6 +37,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
             </span>
           </div>
           <div className="flex flex-col gap-2 mt-2">
+            {threats.length==0&&(<NoData/>)}
             {threats.map((item: any, index: number) => {
               return (
                 <div key={index} className="border border-input rounded-md p-4">

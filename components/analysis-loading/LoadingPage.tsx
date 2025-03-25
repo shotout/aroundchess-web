@@ -1,8 +1,9 @@
 import Spinner from "@/components/ui/spinner";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PgnPlayer from "./LoadingChess";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { unixFormatDate } from "@/functions/unix-format-date";
+import { Chess } from "chess.js";
 
 const LoadingPage: React.FC = (props) => {
   const {
@@ -10,15 +11,48 @@ const LoadingPage: React.FC = (props) => {
     dataAnalysis,
     dataGames,
     dataGamesImport,
+    setDataGamesImport,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { gameInfo, summary } = dataAnalysis ?? {};
   const dataGame = dataGamesImport != null ? dataGamesImport : dataGames;
+  const [headerPGN, setHeaderPGN] = useState<any>({});
+  useEffect(() => {
+    getHeaders();
+  }, [storePgn]);
+  const getHeaders = () => {
+    const tempGame = new Chess();
+    tempGame.loadPgn(storePgn);
+    // Check if the PGN was loaded successfully
+    if (tempGame.pgn() === "") {
+      return false;
+    }
+    let headers = tempGame.getHeaders();
+    setHeaderPGN(headers);
+    let dataGames = {
+      white: {
+        result: headers.Result == "0-1" ? "lose" : "win",
+        username: headers.White,
+      },
+      black: {
+        result: headers.Result == "0-1" ? "win" : "lose",
+        username: headers.Black,
+      },
+      date: headers.Date,
+    };
+    setDataGamesImport(dataGames);
+    console.log("tempGame.getHeaders()", headers);
+  };
   return (
     <>
       <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
         {dataGame && (
           <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 my-4 mx-4">
+           {dataGame?.date && gameInfo == null && (
+              <span className="text-sm text-center">
+                {dataGame?.date}
+              </span>
+            )}
             {dataGame?.end_time && gameInfo == null && (
               <span className="text-sm text-center">
                 {unixFormatDate(dataGame?.end_time, "Y-m-d")}
