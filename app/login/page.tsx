@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -12,9 +11,9 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import Responsive from "@/components/game-history/Responsive";
+import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
+import { usePgnStore } from "@/app/store/zustandStore";
 
-// Define CSS variables for background image positioning
-// These can be adjusted as needed
 const backgroundStyles = {
   "--bg-position-x": "center",
   "--bg-position-y": "top",
@@ -27,6 +26,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { signIn, isLoaded } = useSignIn();
+  const { setSessionId, setIsAuthenticated, isAuthenticated } = useAuthStore();
+  const { chessComUsername } = usePgnStore();
+
+  // Check if already authenticated and redirect if needed
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("User is already authenticated, redirecting to game history");
+      router.push("/game-history");
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +50,23 @@ export default function LoginPage() {
       });
 
       if (result.status === "complete") {
+        // Extract the session ID and save it in the auth store
+        if (result.createdSessionId) {
+          const sessionId = result.createdSessionId;
+          console.log(
+            "Login successful. Saving session ID:",
+            sessionId.substring(0, 10) + "..."
+          );
+
+          // Save to zustand store
+          setSessionId(sessionId);
+          setIsAuthenticated(true);
+        }
+
         toast.success("Logged in successfully!");
-        router.push("/analysis");
+
+        // Always redirect to game-history after login
+        router.push("/game-history");
       } else {
         console.error("Sign in result:", result);
         toast.error("Failed to sign in");
@@ -60,7 +84,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -74,7 +98,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -88,7 +112,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
