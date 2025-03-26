@@ -101,7 +101,7 @@ export default function MovementTable() {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[9px] py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-sm lg:text-[8px] py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
@@ -111,7 +111,7 @@ export default function MovementTable() {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[9px]  py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-sm lg:text-[8px]  py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
