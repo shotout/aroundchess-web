@@ -81,14 +81,14 @@ export default function MovementTable() {
     <div className="hidden xl:block mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
       <div className="max-h-[496px] overflow-y-auto">
         <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
-          <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-          <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#749BBF]  py-2">
+          <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+          <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
             White{" "}
             <span className="block text-xs font-light">
               ({summary?.whiteSide?.profileInfo.username})
             </span>
           </span>
-          <span className="block text-xs font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
+          <span className="block text-xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
             Black{" "}
             <span className="block text-xs font-light">
               ({summary?.blackSide?.profileInfo.username})
@@ -96,8 +96,8 @@ export default function MovementTable() {
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%]">
-          <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#D7E3FB]">
+          <div className="hidden sm:block bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#BDD0F9]">
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
@@ -107,7 +107,7 @@ export default function MovementTable() {
               </span>
             ))}
           </div>
-          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#D7E3FB]">
+          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#BDD0F9]">
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
@@ -121,7 +121,9 @@ export default function MovementTable() {
         {movementDetails.white.map((move: any, index: number) => (
           <div
             key={index}
-            className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${"bg-white"}`}
+            className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
+              index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
+            }`}
           >
             <span className="hidden sm:block text-sm text-center font-semibold py-2 border-b border-b-[#749BBF]">
               {index + 1}
@@ -130,9 +132,9 @@ export default function MovementTable() {
               className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
                 chessMove.move == move.move
-                  ? "bg-[#9BB8F5]"
+                  ? "bg-[#81CFF3]"
                   : index % 2 != 0
-                  ? "bg-[#F6F9FF]"
+                  ? "bg-[#81]"
                   : "bg-white"
               }`}
             >
@@ -190,7 +192,7 @@ export default function MovementTable() {
                 <PopoverTrigger asChild>
                   <Button
                     variant={"ghost"}
-                    className="rounded-none hover:bg-[#9BB8F5]"
+                    className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
                     <span className="text-[11px] text-center font-semibold py-2">
@@ -221,9 +223,9 @@ export default function MovementTable() {
             <div className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
                 chessMove.move == movementDetails.black[index]?.move
-                  ? "bg-[#9BB8F5]"
+                  ? "bg-[#81CFF3]"
                   : index % 2 != 0
-                  ? "bg-[#F6F9FF]"
+                  ? "bg-[#81]"
                   : "bg-white"
               }`}>
               <Popover>
@@ -282,7 +284,7 @@ export default function MovementTable() {
                 <PopoverTrigger asChild>
                   <Button
                     variant={"ghost"}
-                    className="rounded-none hover:bg-[#9BB8F5]"
+                    className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() =>
                       handleOnClickMovement(
                         movementDetails.black[index],

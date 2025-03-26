@@ -186,14 +186,14 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         </div>
         <div className="flex flex-col mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
           <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
-            <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#749BBF]  py-2">
+            <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
               White{" "}
               <span className="block text-xs sm:text-sm md:text-md lg:text-md xl:text-sm font-light">
                 ({summary?.whiteSide?.profileInfo.username})
               </span>
             </span>
-            <span className="block text-sm font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
+            <span className="block text-sm font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
               Black{" "}
               <span className="block text-xs sm:text-sm md:text-md lg:text-md xl:text-sm font-light">
                 ({summary?.blackSide?.profileInfo.username})
@@ -201,8 +201,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             </span>
           </div>
           <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%]">
-            <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-            <div className="grid grid-cols-3 text-center border-b bg-[#D7E3FB]">
+            <div className="hidden sm:block bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+            <div className="grid grid-cols-3 text-center border-b bg-[#BDD0F9]">
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
@@ -212,7 +212,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 </span>
               ))}
             </div>
-            <div className="grid grid-cols-3 text-center border-b bg-[#D7E3FB]">
+            <div className="grid grid-cols-3 text-center border-b bg-[#BDD0F9]">
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
@@ -228,13 +228,13 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             <div
               key={index}
               className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-                index % 2 != 0 ? "bg-[#F6F9FF]" : "bg-white"
+                index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
               }`}
             >
               <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF]  ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -287,9 +287,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     </div>
                   </PopoverContent>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant={"ghost"}
-                      className="rounded-none hover:bg-[#9BB8F5]"
+                    <button
+                      className="rounded-none"
                       onClick={() =>
                         handleOnClickMovement(move, index, "white")
                       }
@@ -297,7 +296,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-semibold py-2">
                         {move.move}
                       </span>
-                    </Button>
+                    </button>
                   </PopoverTrigger>
                 </Popover>
 
@@ -316,7 +315,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.classification}
                 </span>
               </div>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -371,9 +370,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     </div>
                   </PopoverContent>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant={"ghost"}
-                      className="rounded-none hover:bg-[#9BB8F5]"
+                    <button
+                       
+                      className="rounded-none"
                       onClick={() =>
                         handleOnClickMovement(
                           movementDetails.black[index],
@@ -385,7 +384,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       <span className="text-xs sm:text-sm md:text-md lg:text-mdtext-center font-semibold py-2">
                         {movementDetails.black[index]?.move}
                       </span>
-                    </Button>
+                    </button>
                   </PopoverTrigger>
                 </Popover>
 
