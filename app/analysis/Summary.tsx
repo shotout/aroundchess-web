@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
+import ReactCountryFlag from "react-country-flag";
 
 interface SummaryProps {
   next: () => void;
@@ -17,6 +18,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
+  const blackCountry =
+    blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+
+  const whiteCountry =
+    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
   return (
@@ -93,13 +99,12 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
               </div>
-              {/* <Image
-              src={"/icons/switzerland-flag.png"}
-              alt="flag"
-              width={1000}
-              height={1000}
-              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
-            /> */}
+              <ReactCountryFlag
+                countryCode={whiteCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={whiteCountry}
+              />
             </div>
             <div
               className={`w-full border ${
@@ -152,13 +157,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
               </div>
-              {/* <Image
-              src={"/icons/switzerland-flag.png"}
-              alt="flag"
-              width={1000}
-              height={1000}
-              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
-            /> */}
+
+              <ReactCountryFlag
+                countryCode={blackCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={blackCountry}
+              />
             </div>
           </div>
           <div className="flex flex-row items-center justify-start py-2">

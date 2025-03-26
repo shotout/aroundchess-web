@@ -8,12 +8,13 @@ import { motion } from "framer-motion";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore(); // Get PGN from the Zustand store
+  const { setHideDiv, hideDiv, isLoading, setIsLoading , dataAnalysis} = usePgnStore(); // Get PGN from the Zustand store
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   let lastScrollY = 0;
 
   useEffect(() => {
+    console.log("dataAnalysis",dataAnalysis)
     setIsLoading(false);
     const handleScroll = () => {
       if (window.innerWidth <= 1024) {
@@ -24,6 +25,12 @@ export default function AnalysisPage() {
           setHideDiv(false);
           setIsVisible(true);
         }
+      } else {
+        if (window.scrollY > lastScrollY) {
+          setIsVisible(false);
+        } else if (window.scrollY == 0) {
+          setIsVisible(true);
+        }
       }
       lastScrollY = window.scrollY;
       console.log("scrolling", lastScrollY);
@@ -31,7 +38,7 @@ export default function AnalysisPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
-  
+
   return (
     <>
       {isLoading == true ? (
@@ -66,7 +73,9 @@ export default function AnalysisPage() {
               </div>
             </div>
             <div className="flex flex-col xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
+              {/* <div className={`${!isVisible && `bg-white fixed top-[10%] -right-2`}`}> */}
               <AnalysisResult />
+              {/* </div> */}
               <AnalysisLatestGame />
             </div>
           </div>
