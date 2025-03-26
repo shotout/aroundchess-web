@@ -117,10 +117,16 @@ const GamesTab = () => {
   const [filtersApplied, setFiltersApplied] = useState(false);
 
   // API fetch
-  const { username, setPgn, setDataAnalysis, dataAnalysis, setIsLoading } =
-    usePgnStore();
+  const {
+    username,
+    setPgn,
+    setDataAnalysis,
+    dataAnalysis,
+    setIsLoading,
+    chessComUsername,
+  } = usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
-  const { data, isLoading, error } = useFetch(endpoint+"/"+username);
+  const { data, isLoading, error } = useFetch(endpoint + chessComUsername);
 
   // Process API data when it arrives
   useEffect(() => {
