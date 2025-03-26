@@ -469,9 +469,9 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveBlack == 0 ? startTime : currentMoveBlack}
                 </span>
               </div>
@@ -616,9 +616,9 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveWhite == 0 ? startTime : currentMoveWhite}
                 </span>
               </div>
