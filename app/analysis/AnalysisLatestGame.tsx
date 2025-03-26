@@ -51,7 +51,7 @@ const AnalysisLatestGame: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
   const handleResize = () => {
-    let widthC = window?.innerWidth * 0.5;
+    let widthC =window?.innerWidth<1024?window?.innerWidth: window?.innerWidth * 0.5;
     console.log("widthC", widthC);
     setWidthContainer(widthC)
   };
@@ -139,7 +139,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full xl:overflow-x-auto gap-1 px-4 pb-2">
+      <div style={{ maxWidth: widthContainer }} className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 px-4 pb-2">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (

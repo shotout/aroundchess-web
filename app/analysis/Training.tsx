@@ -110,8 +110,8 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(criticalMistakes.opening.length == 0 ||
-            criticalMistakes.middleGame.length == 0 ||
+          {(criticalMistakes.opening.length == 0 &&
+            criticalMistakes.middleGame.length == 0 &&
             criticalMistakes.endGame.length == 0) && (
             <NoData>Critical Mistakes Empty</NoData>
           )}
@@ -352,8 +352,8 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(weaknessIdentification.opening.length == 0 ||
-            weaknessIdentification.middleGame.length == 0 ||
+          {(weaknessIdentification.opening.length == 0 &&
+            weaknessIdentification.middleGame.length == 0 &&
             weaknessIdentification.endGame.length == 0) && (
             <NoData>Weakness Identification Empty</NoData>
           )}
