@@ -3,11 +3,14 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
+
 export default function Navigation({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) {
+  children,
+  isDialogOpen = false,
+}: {
+  children: React.ReactNode;
+  isDialogOpen?: boolean;
+}) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -25,25 +28,45 @@ export default function Navigation({
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
+
   return (
     <div className="flex overflow-hidden bg-[#FCFCFD]">
-      {/* Desktop sidebar - always visible on desktop */}
       {isDesktop && (
-        <div className="w-64 border-r border-gray-200 bg-white">
+        <div className="w-64 border-r border-gray-200 bg-white z-50 relative">
           <Sidebar />
         </div>
       )}
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        <Header onSidebarToggle={toggleSidebar} />
-        <main className="flex-1 pt-20 xl:pt-0 overflow-y-auto">
-          {children}
-          <SiteFooterNew />
+        {/* Header - always stays on top */}
+        <div className="z-50 relative">
+          <Header onSidebarToggle={toggleSidebar} />
+        </div>
+
+        <main className="flex-1 pt-20 xl:pt-0 overflow-y-auto relative">
+          {/* Overlay that darkens only the main content when dialog is open */}
+          {isDialogOpen && (
+            <div
+              className="fixed inset-x-0 top-20 bottom-16 md:bottom-20 bg-black/10 z-10"
+              style={{
+                top: isDesktop ? "0" : "5rem",
+                bottom: "0",
+                marginBottom: "50px", // Leave space for footer
+              }}
+            />
+          )}
+
+          {/* Main content container */}
+          <div className="relative z-20">{children}</div>
+
+          {/* Footer - always stays on top */}
+          <div className="z-50 relative">
+            <SiteFooterNew />
+          </div>
         </main>
       </div>
 
-      {/* Mobile sidebar - only visible when toggled */}
       {!isDesktop && isSidebarOpen && (
         <>
           <div
@@ -51,7 +74,6 @@ export default function Navigation({
             onClick={() => setSidebarOpen(false)}
           />
 
-          {/* Mobile sidebar */}
           <div className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
