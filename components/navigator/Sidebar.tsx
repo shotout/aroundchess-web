@@ -15,12 +15,14 @@ interface SidebarProps {
 interface SidebarLink {
   name: string;
   icon: string;
+  iconActive: string;
   href?: string;
   disabled?: boolean;
   children?: {
     name: string;
     href: string;
     icon: string;
+    iconActive: string;
     disabled?: boolean;
   }[];
 }
@@ -29,90 +31,107 @@ const sidebarLinks: SidebarLink[] = [
   {
     name: "Chess News",
     icon: "/icons/sidebar-news-icon.png",
+    iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",
   },
   {
     name: "Dashboard",
     icon: "/icons/sidebar-dashboard-icon.png",
+    iconActive: "/icons/sidebar-dashboard-icon-active.png",
     children: [
       {
         name: "Analyze Game",
         href: "/analysis",
         icon: "/icons/sidebar-analyze-icon.png",
+        iconActive: "/icons/sidebar-analyze-icon-active.png",
       },
       {
         name: "My Game History",
         href: "/game-history",
         icon: "/icons/sidebar-game-history.png",
+        iconActive: "/icons/sidebar-game-history-active.png",
       },
       {
         name: "Mistake Log",
         href: "/mistake-log",
         icon: "/icons/sidebar-mistake-log-icon.png",
+        iconActive: "/icons/sidebar-mistake-log-icon-active.png",
       },
       {
         name: "My Training Plan",
         href: "/training-plan",
         icon: "/icons/sidebar-training-plan-icon.png",
+        iconActive: "/icons/sidebar-training-plan-icon-active.png",
       },
     ],
   },
   {
     name: "Handbook : Chess Theory",
     icon: "/icons/sidebar-theory-icon.png",
+    iconActive: "/icons/sidebar-theory-icon-active.png",
     children: [
       {
         name: "Opening Theory",
         href: "/opening-theory",
         icon: "/icons/sidebar-opening-theory-icon.png",
+        iconActive: "/icons/sidebar-opening-theory-icon-active.png",
       },
       {
         name: "Middlegame Strategy",
         href: "/middlegame-strategy",
         icon: "/icons/sidebar-middlegame-strategy-icon.png",
+        iconActive: "/icons/sidebar-middlegame-strategy-icon-active.png",
       },
       {
         name: "Endgame Mastery",
         href: "/endgame-mastery",
         icon: "/icons/sidebar-endgame-mastery-icon.png",
+        iconActive: "/icons/sidebar-endgame-mastery-icon-active.png",
       },
     ],
   },
   {
     name: "Playground : Practice",
     icon: "/icons/sidebar-playground-practice-icon.png",
+    iconActive: "/icons/sidebar-playground-practice-icon-active.png",
     children: [
       {
         name: "Play vs AI",
         href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
+        iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
       },
       {
         name: "Puzzles",
         href: "/puzzles",
         icon: "/icons/sidebar-puzzle-icon.png",
+        iconActive: "/icons/sidebar-puzzle-icon-active.png",
       },
       {
         name: "Board Vision",
         href: "/board-vision",
         icon: "/icons/sidebar-board-vision-icon.png",
+        iconActive: "/icons/sidebar-board-vision-icon-active.png",
       },
       {
         name: "Endgame Training",
         href: "/endgame-training",
         icon: "/icons/sidebar-endgame-training-icon.png",
+        iconActive: "/icons/sidebar-endgame-training-icon-active.png",
       },
     ],
   },
   {
     name: "Tournaments : (Coming Soon)",
     icon: "/icons/sidebar-tournaments-icon.png",
+    iconActive: "/icons/sidebar-tournaments-icon-active.png",
     disabled: true,
     children: [
       {
         name: "My Teams (Coming Soon)",
         href: "#",
         icon: "/icons/sidebar-teams-icon.png",
+        iconActive: "/icons/sidebar-teams-icon-active.png",
         disabled: true,
       },
     ],
@@ -180,12 +199,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
                     // Clickable title as a Link
                     <Link
                       href={section.href}
-                      style={{ width: widthContainer -50 }} 
+                      style={{ width: widthContainer - 50 }}
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         pathname === section.href
-                          ? "text-primary"
-                          : "hover:bg-blue-50 hover:text-blue-500"
+                          ? "text-[#221AE9]"
+                          : "hover:bg-[#221AE950] hover:text-[#221AE9]"
                       )}
                     >
                       <div className="mr-3">
@@ -193,12 +212,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           width={1000}
                           height={1000}
                           alt={section.href}
-                          src={section.icon}
+                          src={
+                            pathname === section.href
+                              ? section.iconActive
+                              : section.icon
+                          }
                           className={cn(
                             "h-5 w-5 transition-colors",
                             pathname === section.href
-                              ? "text-primary"
-                              : "text-gray-400 group-hover:text-primary"
+                              ? "text-[#221AE9]"
+                              : "text-gray-400 group-hover:text-[#221AE9]"
                           )}
                         />
                       </div>
@@ -210,14 +233,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   ) : (
                     // Non-clickable title (section header)
                     <div
-                    style={{ width: widthContainer -50 }} 
-                    className={cn(
+                      style={{ width: widthContainer - 50 }}
+                      className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
-                          ? "text-primary"
+                          ? "text-[#221AE9]"
                           : section.disabled
                           ? "text-[#AAA4A4]"
-                          : "text-gray-700 hover:bg-blue-50 hover:text-primary hover:border-r-4 hover:border-primary"
+                          : "text-gray-700 hover:bg-[#221AE950] hover:text-[#221AE9] hover:border-r-4 hover:border-[#221AE9]"
                       )}
                     >
                       <div className="mr-3">
@@ -225,12 +248,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           width={1000}
                           height={1000}
                           alt={section.href}
-                          src={section.icon}
+                          src={isActive ? section.iconActive : section.icon}
                           className={cn(
                             "h-5 w-5 transition-colors",
                             isActive
-                              ? "text-primary"
-                              : "text-gray-400 group-hover:text-primary"
+                              ? "text-[#221AE9]"
+                              : "text-gray-400 group-hover:text-[#221AE9]"
                           )}
                         />
                       </div>
@@ -252,30 +275,32 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 ? "javascript:void(0);"
                                 : child.href
                             }
-                            style={{ width: widthContainer -50 }} 
+                            style={{ width: widthContainer - 50 }}
                             className={cn(
                               "min-h-[52px] group flex items-center rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
-                                ? "bg-blue-100 text-primary border-primary border-r-4 "
+                                ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
                                 : child.disabled
                                 ? "text-[#AAA4A4]"
                                 : child.href == "/training-plan"
                                 ? "text-[#AAA4A4]"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-primary"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
                             )}
                           >
                             <Image
                               width={1000}
                               height={1000}
                               alt={child.href}
-                              src={child.icon}
+                              src={
+                                isChildActive ? child.iconActive : child.icon
+                              }
                               className={cn(
                                 "mr-3 h-5 w-5",
                                 isChildActive
-                                  ? "text-primary"
+                                  ? "text-[#221AE9]"
                                   : child.href == "/training-plan"
                                   ? "text-[#AAA4A4]"
-                                  : "text-gray-400 group-hover:text-primary"
+                                  : "text-gray-400 group-hover:text-[#221AE9]"
                               )}
                             />
 
