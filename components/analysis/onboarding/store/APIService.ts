@@ -11,7 +11,6 @@ export const ChessApiService = {
       console.log("Making request to set username:", username);
       console.log("Using session ID (truncated):", `${sessionId.substring(0, 10)}...`);
 
-
       const response = await fetch("https://ac-api.kemang.sg/api/profile/set-username", {
         method: "POST",
         headers: {
@@ -50,7 +49,6 @@ export const ChessApiService = {
       throw error;
     }
   },
-
 
   async getGames(sessionId: string): Promise<any> {
     try {
@@ -93,6 +91,52 @@ export const ChessApiService = {
         throw new Error("Server returned an invalid response. Please try again later.");
       }
       throw error;
+    }
+  },
+
+  // New method to check if user has a Chess.com account connected
+  async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string}> {
+    try {
+      if (!sessionId) {
+        throw new Error("Session ID is required");
+      }
+
+      console.log("Checking chess connection with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
+
+      const response = await fetch("https://ac-api.kemang.sg/api/profile", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${sessionId}`
+        }
+      });
+
+      if (!response.ok) {
+        console.log("Error checking chess connection, status:", response.status);
+        return { isConnected: false };
+      }
+      
+      const responseText = await response.text();
+      let responseData;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        console.error("Failed to parse connection check response as JSON:", e);
+        return { isConnected: false };
+      }
+
+      // Check if username exists in the profile
+      if (responseData && responseData.username) {
+        console.log("Found existing Chess.com username:", responseData.username);
+        return { 
+          isConnected: true, 
+          username: responseData.username 
+        };
+      }
+
+      return { isConnected: false };
+    } catch (error) {
+      console.error("Chess connection check error:", error);
+      return { isConnected: false };
     }
   }
 };

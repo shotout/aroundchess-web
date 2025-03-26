@@ -1,6 +1,8 @@
 "use client";
 
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
+import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
 import Analytics from "@/components/game-history/Analytics";
 import DialogButton from "@/components/game-history/DialogButton";
 import GamesTab from "@/components/game-history/GamesTab";
@@ -8,6 +10,7 @@ import Performance from "@/components/game-history/Performance";
 import Responsive from "@/components/game-history/Responsive";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 
 import {
   Star,
@@ -17,25 +20,116 @@ import {
   BarChart2,
   Download,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoadingPage from "../analysis-loading/LoadingPage";
+import { useRouter } from "next/navigation";
+import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
 
 const Tabs = ["Games", "Analytics", "Performance"] as const;
 
 const GameHistoryPage = () => {
-  const { isLoading, username } = usePgnStore();
+  const {
+    isLoading,
+    setIsLoading,
+    username,
+    chessComUsername,
+    isChessConnected,
+    setIsChessConnected,
+    setChessComUsername,
+  } = usePgnStore();
+
+  const { sessionId, isAuthenticated } = useAuthStore();
   const [tab, setTab] = useState<string>("Games");
-  
+  const [showConnectDialog, setShowConnectDialog] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !sessionId) {
+      toast.error("You must be logged in to access this page");
+      router.push("/login");
+      return;
+    }
+
+    // Check if user has already connected to Chess.com
+    const checkChessConnection = async () => {
+      // If already connected, don't show dialog
+      if (isChessConnected && chessComUsername) {
+        console.log("User already connected to Chess.com:", chessComUsername);
+        // No need to show the dialog
+        return;
+      }
+
+      // Try to fetch user profile to see if they have a username set
+      try {
+        setIsLoading(true);
+        const profileData = await ChessApiService.getGames(sessionId);
+
+        if (profileData?.username) {
+          // User has a username set, update store
+          console.log(
+            "Found existing Chess.com username:",
+            profileData.username
+          );
+          setChessComUsername(profileData.username);
+          setIsChessConnected(true);
+        } else {
+          // No username found, show dialog
+          console.log("No Chess.com username found, showing dialog");
+          setShowConnectDialog(true);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // If there was an error, show the dialog to set username
+        setShowConnectDialog(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkChessConnection();
+  }, [
+    isAuthenticated,
+    sessionId,
+    isChessConnected,
+    chessComUsername,
+    router,
+    setChessComUsername,
+    setIsChessConnected,
+    setIsLoading,
+  ]);
+
+  const handleConnectSuccess = (username: string) => {
+    setShowConnectDialog(false);
+    toast.success(`Successfully connected to Chess.com as ${username}`);
+    // No need to refresh the page, the components will automatically fetch data
+  };
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   return (
     <>
       {/* <Responsive /> */}
       <main className="w-full px-4 py-4 space-y-[16px]">
+        {/* Chess.com Connection Dialog */}
+        <ChessConnectDialog
+          open={showConnectDialog}
+          onOpenChange={setShowConnectDialog}
+          onSuccess={handleConnectSuccess}
+        />
+
         {/* top menu */}
         <div className="flex justify-between items-center">
           <div className="flex flex-row items-end gap-2">
             <h1 className="text-base lg:text-3xl font-bold">My Game History</h1>
             <div className="flex justify-center items-end h-full">
-              <p className="text-xs text-gray-500 lg:text-lg">{"("+username+")"}</p>
+              <p className="text-xs text-gray-500 lg:text-lg">
+                {chessComUsername
+                  ? `(${chessComUsername})`
+                  : "(No username set)"}
+              </p>
             </div>
           </div>
 
