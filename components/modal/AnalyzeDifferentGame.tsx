@@ -121,21 +121,21 @@ export function AnalyzeDifferentGame() {
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: 15,
+      value: 10,
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: 19,
+      value: 20,
       title: "Standard Analysi",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: 25,
+      value: 30,
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
