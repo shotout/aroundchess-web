@@ -7,7 +7,6 @@ import Analytics from "@/components/game-history/Analytics";
 import DialogButton from "@/components/game-history/DialogButton";
 import GamesTab from "@/components/game-history/GamesTab";
 import Performance from "@/components/game-history/Performance";
-import Responsive from "@/components/game-history/Responsive";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -21,7 +20,6 @@ import {
   Download,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import LoadingPage from "../analysis-loading/LoadingPage";
 import { useRouter } from "next/navigation";
 import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
 
@@ -29,7 +27,6 @@ const Tabs = ["Games", "Analytics", "Performance"] as const;
 
 const GameHistoryPage = () => {
   const {
-    isLoading,
     setIsLoading,
     username,
     chessComUsername,
@@ -105,9 +102,9 @@ const GameHistoryPage = () => {
     // No need to refresh the page, the components will automatically fetch data
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
+  // if (isLoading) {
+  //   return <LoadingPage />;
+  // }
 
   return (
     <>
