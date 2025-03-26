@@ -12,6 +12,7 @@ import Improvement from "./Improvement";
 import Training from "./Training";
 import { usePgnStore } from "../store/zustandStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
+import { useChessMoveStore } from "../store/chessMoveStore";
 
 const AnalysisLatestGame: React.FC = () => {
   const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
@@ -29,6 +30,7 @@ const AnalysisLatestGame: React.FC = () => {
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [focusPage, setFocusPage] = useState<string>("summary");
+  const { chessMove, setChessMove } = useChessMoveStore();
 
   const [tabsMenu, setTabsMenu] = useState<any[]>([
     { name: "summary", label: "Summary" },
@@ -51,9 +53,10 @@ const AnalysisLatestGame: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
   const handleResize = () => {
-    let widthC =window?.innerWidth<1024?window?.innerWidth: window?.innerWidth * 0.5;
+    let widthC =
+      window?.innerWidth < 1024 ? window?.innerWidth : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
-    setWidthContainer(widthC)
+    setWidthContainer(widthC);
   };
   useEffect(() => {
     setIsLoading(false);
@@ -139,7 +142,10 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div style={{ maxWidth: widthContainer }} className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 px-4 pb-2">
+      <div
+        style={{ maxWidth: widthContainer }}
+        className="flex flex-row max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 px-4 pb-2"
+      >
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
@@ -148,6 +154,7 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => {
                 setTabFocus(tab.name);
                 setFocusPage(tab.name);
+                setChessMove({});
               }}
               className={`flex cursor-pointer ${
                 tab.name == "movement" &&
