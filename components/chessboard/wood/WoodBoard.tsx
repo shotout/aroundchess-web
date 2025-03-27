@@ -111,8 +111,8 @@ const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * 0.7,
-            height: squareWidth * 0.8,
+            width: squareWidth * 0.8,
+            height: squareWidth * 0.85,
             position: "relative",
             pointerEvents: "none",
           }}

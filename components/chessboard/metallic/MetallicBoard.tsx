@@ -6,14 +6,16 @@ import { SetStateAction, useMemo, useState } from "react";
 
 import { CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
- 
 
-interface GlassBoardProps {
+interface MetallicBoardProps {
   position: string;
   boardWidth: number;
 }
 
-const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
+const MetallicBoard: React.FC<MetallicBoardProps> = ({
+  position,
+  boardWidth,
+}) => {
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [gamePosition, setGamePosition] = useState(game.fen());
@@ -113,18 +115,18 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
         <div
           style={{
             width: squareWidth * 1,
-            height: squareWidth * 0.9,
+            height: squareWidth * 0.95,
             position: "relative",
             pointerEvents: "none",
           }}
         >
           <img
-            src={`/pieces/glass/${piece}.png`}
+            src={`/pieces/metallic/${piece}.png`}
             width={squareWidth}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0* squareWidth}px`,
+              bottom: `${0 * squareWidth}px`,
               objectFit: "contain",
             }}
           />
@@ -137,19 +139,23 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
       {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
-        src={"/boards/blueglass.png"}
-        alt="blueglass"
+        src={"/boards/metallic.png"}
+        alt="metallic"
         width={1000}
         height={1000}
         className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}]`}
       />
 
       <div
-        style={{ width: boardWidth, height: boardWidth, padding:(Math.round(boardWidth/18)) }}
+        style={{
+          width: boardWidth,
+          height: boardWidth,
+          padding: Math.round(boardWidth / 16.5),
+        }}
         className={`z-10 flex`}
       >
         <Chessboard
-          boardWidth={Math.round(boardWidth - boardWidth / 9)}
+          boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
           arePiecesDraggable={false}
           position={position}
           customBoardStyle={{
@@ -170,4 +176,4 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     </div>
   );
 };
-export default GlassBoard;
+export default MetallicBoard;
