@@ -41,7 +41,7 @@ export default function AnalysisPage() {
 
   return (
     <>
-      {isLoading == false ? (
+      {isLoading == true ? (
         <LoadingPage />
       ) : (
         <Navigation>

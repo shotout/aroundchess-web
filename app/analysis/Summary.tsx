@@ -18,11 +18,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
-  const blackCountry =
-    blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const blackCountry =blackSide?.profileInfo?.chessAccountInfo?.country?
+    blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2):"XX";
 
-  const whiteCountry =
-    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const whiteCountry =whiteSide?.profileInfo?.chessAccountInfo?.country?
+    whiteSide?.profileInfo?.chessAccountInfo?.country?.substr(-2):"XX";
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
   return (
