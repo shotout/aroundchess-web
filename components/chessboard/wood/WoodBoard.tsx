@@ -1,4 +1,4 @@
-import { Engine } from "@/components/playground/src/lib/stockfish";
+import Engine from "@/components/playground/src/lib/stockfish";
 import { Chess, Piece, Square } from "chess.js";
 import Image from "next/image";
 import React from "react";

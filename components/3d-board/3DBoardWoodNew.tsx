@@ -20,7 +20,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
 }) => {
   // Board size configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
-  
+
   useEffect(() => {
     if (size) {
       setBoardSize(size);
@@ -59,19 +59,19 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "wN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "wR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wQ",
@@ -79,23 +79,23 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
       },
       {
         piece: "wK",
-        pieceHeight: 0.87,
+        pieceHeight: 1.4,
       },
       {
         piece: "bP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "bN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "bR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bQ",
@@ -103,7 +103,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
       },
       {
         piece: "bK",
-        pieceHeight: 0.8,
+        pieceHeight: 1.4,
       },
     ];
     const pieceComponents: {
@@ -127,13 +127,13 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
           }}
         >
           <img
-            src={`/3d-wood-pieces/${piece}.webp`}
+            src={`/3d-pieces/wood/${piece}.png`}
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0.2 * squareWidth}px`,
-              objectFit: piece[1] === "K" ? "contain" : "cover",
+              bottom: `${0 * squareWidth}px`,
+              // objectFit: piece[1] === "K" ? "contain" : "cover",
             }}
           />
         </div>
@@ -141,31 +141,34 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     });
     return pieceComponents;
   }, []);
-  // Frame dimensions 
-
+  // Frame dimensions
+  let paddingTop = Math.round(size / 16);
   return (
-    <div className="-mt-12 relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size, background: "blue" }}
+    >
       <Image
-        src="/3d-wood-pieces/board-new.png"
+        src="/boards/3d-wood.png"
         alt="Chess board frame"
         width={1000}
         height={1000}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain", // Changed from "cover" to maintain aspect ratio
-          padding: "0",
-          margin: "0",
-        }}
+        className={`absolute z-2 bg-[green] w-[${size}] h-[${size}]`}
       />
       <div
-        className={`absolute left-[65px] top-[45px] sm:left-[79px] sm:top-[50px]`}
+        style={{
+          // width: size,
+          height: size,
+          // paddingLeft: Math.round(size / 10.5),
+          top: -paddingTop,
+        }}
+        className={`z-10 absolute flex items-center justify-center`}
       >
         <Chessboard
           arePiecesDraggable={false}
-          boardWidth={window.innerWidth > 425 ? 339 : 257}
+          boardWidth={Math.round(size - size / 4)}
           id="Styled3DBoard"
-          position={position}
+          // position={position}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             transformOrigin: "center",
@@ -173,12 +176,12 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#ff000080",
+            // backgroundColor: "transparent",
+            backgroundColor: "#ff000080",
           }}
           customDarkSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#0000ff80",
+            // backgroundColor: "transparent",
+            backgroundColor: "#0000ff80",
           }}
           animationDuration={100}
         />

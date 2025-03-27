@@ -8,6 +8,7 @@ import GlassBoard from "../chessboard/glass/GlassBoard";
 import WoodBoard from "../chessboard/wood/WoodBoard";
 import PlasticBoard from "../chessboard/plastic/PlasticBoard";
 import MetallicBoard from "../chessboard/metallic/MetallicBoard";
+import BoardWood from "../3d-board/3DBoardWoodNew";
 
 interface ParsedMove {
   color: string;
@@ -295,7 +296,7 @@ const PgnPlayer: React.FC = () => {
           boardWidth={boardSize}
             position={game.fen()}
           /> */}
-        <WoodBoard boardWidth={boardSize} position={game.fen()} />
+        <BoardWood size={boardSize} boardOrientation="white" position={game.fen()} />
         {/* <PlasticBoard boardWidth={boardSize} position={game.fen()} /> */}
         {/* <MetallicBoard boardWidth={boardSize} position={game.fen()} /> */}
       </div>
