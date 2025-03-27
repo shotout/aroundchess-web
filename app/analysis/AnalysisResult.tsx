@@ -617,7 +617,7 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </motion.div>
-          <motion.div
+          {/* <motion.div
             animate={
               hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
             }
@@ -647,7 +647,7 @@ const AnalysisResult: React.FC = () => {
                 />
               )}
             </button>
-          </motion.div>
+          </motion.div> */}
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
             {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
