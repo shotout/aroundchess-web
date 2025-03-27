@@ -7,13 +7,13 @@ import { useMemo } from "react";
 import { Square } from "chess.js";
 import Image from "next/image";
 
-interface BoardWoodBoardProps {
+interface ThreeDBoardWoodProps {
   size: number | any;
   position: string;
   boardOrientation: "white" | "black";
 }
 
-const BoardWood: React.FC<BoardWoodBoardProps> = ({
+const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
   size,
   position,
   boardOrientation,
@@ -132,7 +132,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0 * squareWidth}px`,
+              bottom: `${0.12 * squareWidth}px`,
               // objectFit: piece[1] === "K" ? "contain" : "cover",
             }}
           />
@@ -142,33 +142,34 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     return pieceComponents;
   }, []);
   // Frame dimensions
-  let paddingTop = Math.round(size / 16);
+  let paddingTop = size > 356 ? Math.round(size / 15) : Math.round(size / 22);
+  let paddingLeft = size > 356 ? Math.round(size / 7.9) : Math.round(size / 9);
   return (
     <div
       className="relative flex items-center justify-center"
-      style={{ width: size, height: size, background: "blue" }}
+      style={{ width: size, height: size }}
     >
       <Image
         src="/boards/3d-wood.png"
         alt="Chess board frame"
         width={1000}
         height={1000}
-        className={`absolute z-2 bg-[green] w-[${size}] h-[${size}]`}
+        className={`absolute z-2 w-[${size}px] h-[${size}px] object-contain`}
       />
       <div
         style={{
           // width: size,
-          height: size,
-          // paddingLeft: Math.round(size / 10.5),
-          top: -paddingTop,
+          // height: size,
+          left: 84,
+          top: 40,
         }}
         className={`z-10 absolute flex items-center justify-center`}
       >
         <Chessboard
           arePiecesDraggable={false}
-          boardWidth={Math.round(size - size / 4)}
+          boardWidth={Math.round(size * 0.75)}
           id="Styled3DBoard"
-          // position={position}
+          position={position}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             transformOrigin: "center",
@@ -190,4 +191,4 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
   );
 };
 
-export default BoardWood;
+export default ThreeDBoardWood;

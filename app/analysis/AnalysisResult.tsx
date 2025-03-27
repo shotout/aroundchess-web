@@ -27,6 +27,7 @@ import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 import { unixFormatDate } from "@/functions/unix-format-date";
 import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import ReactCountryFlag from "react-country-flag";
+import ThreeDBoardWood from "@/components/3d-board/3DBoardWoodNew";
 
 type CapturedPieces = {
   white: string[];
@@ -63,11 +64,15 @@ const AnalysisResult: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
-  const blackCountry =
-    summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2)
+    : "XX";
 
-  const whiteCountry =
-    summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country?.substr(-2)
+    : "xx";
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -617,19 +622,22 @@ const AnalysisResult: React.FC = () => {
               </div>
             </div>
           </motion.div>
-          {/* <motion.div
+          <motion.div
             animate={
               hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: !hideDiv ? "flex" : "none", justifyContent:"end"  }}
+            style={{
+              display: !hideDiv ? "flex" : "none",
+              justifyContent: "end",
+            }}
           >
             <button
-            className="flex items-end justify-end"
+              className="flex items-end justify-end"
               onClick={toggleBoardMode}
               title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
             >
-              {is3DMode ? (
+              {!is3DMode ? (
                 <Image
                   alt="3d"
                   src={"/icons/3d-icon.png"}
@@ -647,16 +655,41 @@ const AnalysisResult: React.FC = () => {
                 />
               )}
             </button>
-          </motion.div> */}
+          </motion.div>
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
-            {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
-            <WoodBoard
-              boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-              }
-              {...getBoardProps()}
-            />
+            {!is3DMode ? (
+              <motion.div
+                animate={
+                  is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+                }
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{
+                  display: !is3DMode ? "flex" : "none",
+                  justifyContent: "end",
+                }}
+              >
+                <ThreeDBoardWood size={boardSize} {...getBoardProps()} />
+              </motion.div>
+            ) : (
+              <motion.div
+                animate={
+                  is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+                }
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{
+                  display: !is3DMode ? "flex" : "none",
+                  justifyContent: "end",
+                }}
+              >
+                <WoodBoard
+                  boardWidth={
+                    hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                  }
+                  {...getBoardProps()}
+                />
+              </motion.div>
+            )}
           </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-2 ">
@@ -820,10 +853,11 @@ const AnalysisResult: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <span className="text-sm font-normal py-1">
-                  This move deviates from opening principles. Focus on
-                  development and center control.
-                </span>
+                {chessMove.analysis && (
+                  <span className="text-xs font-normal py-1">
+                    {chessMove.analysis}
+                  </span>
+                )}
                 {chessMove?.gamePhase && (
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />
