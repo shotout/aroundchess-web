@@ -44,7 +44,13 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
-  const { pgn: storePgn, dataAnalysis, hideDiv, setCapturedBlack, setCapturedWhite } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    hideDiv,
+    setCapturedBlack,
+    setCapturedWhite,
+  } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const {
@@ -176,8 +182,8 @@ const AnalysisResult: React.FC = () => {
           }
         }
       });
-      setCapturedBlack(capturedPiecesBlack)
-      setCapturedWhite(capturedPiecesWhite)
+      setCapturedBlack(capturedPiecesBlack);
+      setCapturedWhite(capturedPiecesWhite);
       console.log("capturedPiecesWhite", capturedPiecesWhite);
       console.log("capturedPiecesBlack", capturedPiecesBlack);
 
@@ -531,21 +537,31 @@ const AnalysisResult: React.FC = () => {
               hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: !hideDiv ? "block" : "none" }}
+            style={{ display: !hideDiv ? "flex" : "none", justifyContent:"end"  }}
           >
-            <Button
-              variant="outline"
-              size="icon"
+            <button
+            className="flex items-end justify-end"
               onClick={toggleBoardMode}
               title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
-              className="p-2"
             >
               {is3DMode ? (
-                <SquareIcon className="h-5 w-5" />
+                <Image
+                  alt="3d"
+                  src={"/icons/3d-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="h-[27px] w-[22px] object-contain"
+                />
               ) : (
-                <Settings className="h-5 w-5" />
+                <Image
+                  alt="2d"
+                  src={"/icons/2d-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="h-[27px] w-[22px] object-contain"
+                />
               )}
-            </Button>
+            </button>
           </motion.div>
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
