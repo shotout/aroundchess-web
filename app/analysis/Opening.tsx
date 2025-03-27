@@ -17,11 +17,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
-  const blackCountry =
-    blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+    const blackCountry =blackSide?.profileInfo?.chessAccountInfo?.country?
+    blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2):"XX";
 
-  const whiteCountry =
-    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const whiteCountry =whiteSide?.profileInfo?.chessAccountInfo?.country?
+    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2):"XX";
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
   const { whiteOpening, blackOpening } = dataAnalysis?.opening ?? {};
   const [opening, setOpening] = React.useState<any>([

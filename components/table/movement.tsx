@@ -176,10 +176,11 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    <span className="text-sm text-left lg:text-md font-normal py-1">
-                      This move deviates from opening principles. Focus on
-                      development and center control.
-                    </span>
+                    {move.analysis && (
+                      <span className="text-sm text-left lg:text-md font-normal py-1">
+                        {move.analysis}
+                      </span>
+                    )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-sm ">Type:</span>
@@ -220,14 +221,16 @@ export default function MovementTable() {
                 {move.classification}
               </span>
             </div>
-            <div className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
+            <div
+              className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
                 chessMove.move == movementDetails.black[index]?.move
                   ? "bg-[#81CFF3]"
                   : index % 2 != 0
                   ? "bg-[#81]"
                   : "bg-white"
-              }`}>
+              }`}
+            >
               <Popover>
                 <PopoverContent
                   className="w-auto p-0 bg-white rounded-md"
@@ -268,10 +271,11 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    <span className="text-[7px] font-normal py-1">
-                      This move deviates from opening principles. Focus on
-                      development and center control.
-                    </span>
+                    {movementDetails.black[index]?.analysis && (
+                      <span className="text-[7px] font-normal py-1">
+                        {movementDetails.black[index]?.analysis}
+                      </span>
+                    )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[7px]">Type:</span>
