@@ -54,7 +54,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         </div>
 
         <Section
-          title="Past Games - Key Weaknesses:"
+          title="Current Games - Key Weaknesses:"
           content={[
             `**Tactical Awareness:** ${keyWeaknesses.tacticalAwareness}.`,
             `**Opening Preparation:** ${keyWeaknesses.openingPreparation}.`,
