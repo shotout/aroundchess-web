@@ -12,10 +12,17 @@ interface PgnState {
   setError: (error: Error | null) => void;
   dataAnalysis: AnalysisResult | any;
   setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
+  dataGamesImport: any;
+  setDataGamesImport: (dataGamesImport: any) => void;
   dataGames: any;
   setDataGames: (dataGames: any) => void;
   hideDiv: boolean;
   setHideDiv: (hideDiv: boolean) => void;
+  
+  capturedWhite:any[];
+  setCapturedWhite: (capturedWhite: any[]) => void;
+  capturedBlack:any[]
+  setCapturedBlack: (capturedBlack: any[]) => void;
 } 
 export const usePgnStore = create<PgnState>()(
   persist(
@@ -32,8 +39,15 @@ export const usePgnStore = create<PgnState>()(
   setDataAnalysis : (dataAnalysis: any) => set({dataAnalysis}),
   dataGames : null,
   setDataGames : (dataGames: any) => set({dataGames}),
+  dataGamesImport : null,
+  setDataGamesImport : (dataGamesImport: any) => set({dataGamesImport}),
   hideDiv : false,
-  setHideDiv : (hideDiv: boolean) => set({hideDiv})
+  setHideDiv : (hideDiv: boolean) => set({hideDiv}),
+  
+  capturedWhite:[],
+  setCapturedWhite: (capturedWhite: any[]) => set({capturedWhite}),
+  capturedBlack:[],
+  setCapturedBlack: (capturedBlack: any[]) => set({capturedBlack}),
 }),
 {
   name: 'pgn-storage', // unique name for the storage

@@ -120,10 +120,11 @@ const GamesTab = () => {
   const { username, setPgn, setDataAnalysis, dataAnalysis, setIsLoading } =
     usePgnStore();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
-  const { data, isLoading, error } = useFetch(endpoint+"/"+username);
+  const { data, isLoading, error } = useFetch(endpoint + "/" + username);
 
   // Process API data when it arrives
   useEffect(() => {
+    console.log("username",username)
     if (data && data.data) {
       const transformedData = transformApiDataToComponentFormat(data.data);
 
@@ -156,7 +157,9 @@ const GamesTab = () => {
   const handleAnalyzeClick = async (game: Game) => {
     let arr = null;
     try {
+      console.log("game", game);
       setIsLoading(true);
+      setDataAnalysis(arr)
       // Set the pgn in the store
       setPgn(game.pgn);
       const responseAnalysis = await proceedAnalysis(

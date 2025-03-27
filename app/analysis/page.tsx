@@ -8,12 +8,13 @@ import { motion } from "framer-motion";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore(); // Get PGN from the Zustand store
+  const { setHideDiv, hideDiv, isLoading, setIsLoading , dataAnalysis} = usePgnStore(); // Get PGN from the Zustand store
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   let lastScrollY = 0;
 
   useEffect(() => {
+    console.log("dataAnalysis",dataAnalysis)
     setIsLoading(false);
     const handleScroll = () => {
       if (window?.innerWidth <= 1024) {
@@ -24,6 +25,12 @@ export default function AnalysisPage() {
           setHideDiv(false);
           setIsVisible(true);
         }
+      } else {
+        if (window.scrollY > lastScrollY) {
+          setIsVisible(false);
+        } else if (window.scrollY == 0) {
+          setIsVisible(true);
+        }
       }
       lastScrollY = window?.scrollY;
       console.log("scrolling", lastScrollY);
@@ -31,6 +38,7 @@ export default function AnalysisPage() {
     window?.addEventListener("scroll", handleScroll);
     return () => window?.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
   return (
     <>
       {isLoading == false ? (
@@ -39,7 +47,7 @@ export default function AnalysisPage() {
         <Navigation>
           <div className="flex flex-col overflow-y-auto">
             <div
-              className={`flex flex-col bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
+              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
                 hideDiv && "hidden"
               }`}
             >
@@ -64,11 +72,11 @@ export default function AnalysisPage() {
                 <AnalyzeDifferentGame />
               </div>
             </div>
-            <div className="flex flex-col max-w-full xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
+            <div className="flex flex-col xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
+              {/* <div className={`${!isVisible && `bg-white fixed top-[10%] -right-2`}`}> */}
               <AnalysisResult />
-              <div className="xl:w-3/5">
+              {/* </div> */}
               <AnalysisLatestGame />
-              </div>
             </div>
           </div>
         </Navigation>

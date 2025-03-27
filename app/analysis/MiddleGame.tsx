@@ -111,7 +111,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 src={"/icons/check.png"}
                 width={1000}
                 height={1000}
-                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                className="w-[18px] h-[18px] sm:w-[18px] sm:h-[18px] lg:w-[20px] lg:h-[20px]"
               />
               <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
                 Best Moves
@@ -185,7 +185,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 src={"/icons/alert-triangle.png"}
                 width={1000}
                 height={1000}
-                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                className="w-[18px] h-[18px] sm:w-[18px] sm:h-[18px] lg:w-[20px] lg:h-[20px]"
               />
               <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
                 Bad Moves
@@ -247,7 +247,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 </div>
               );
             })}
-          {openBadMove && (
+          {/* {openBadMove && (
             <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
               <Image
                 alt=""
@@ -261,7 +261,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 Strategy for the analyzed weaknesses.
               </span>
             </div>
-          )}
+          )} */}
         </div>
       </div>
       <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
