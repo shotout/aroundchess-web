@@ -14,7 +14,6 @@ export default function Home() {
     setApiType(e.target.value)
   }
   
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -23,7 +22,6 @@ export default function Home() {
       return
     }
 
-    
     let apiEndpoint = ''
     if (apiType === 'monthlyGames') {
       if (!year || !month) {
@@ -58,6 +56,7 @@ export default function Home() {
       setResult(null) 
     }
   }
+
   
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">

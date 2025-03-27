@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import ReactCountryFlag from "react-country-flag";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
@@ -16,6 +17,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
+  const blackCountry =
+    blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+
+  const whiteCountry =
+    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
   const { whiteOpening, blackOpening } = dataAnalysis?.opening ?? {};
   const [opening, setOpening] = React.useState<any>([
@@ -120,6 +126,13 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </div>
               </div>
             </div>
+
+            <ReactCountryFlag
+              countryCode={whiteCountry}
+              svg
+              className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+              title={whiteCountry}
+            />
           </div>
           <div
             className={`w-full border ${
@@ -172,14 +185,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </div>
               </div>
             </div>
+            
+          <ReactCountryFlag
+            countryCode={blackCountry}
+            svg
+            className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+            title={blackCountry}
+          />
           </div>
-          {/* <Image
-            src={"/icons/switzerland-flag.png"}
-            alt="flag"
-            width={1000}
-            height={1000}
-            className="w-7 h-5"
-          /> */}
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>
@@ -190,12 +203,13 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.white.name}
               </span>
-              {/* <Image
-              alt=""
-              src={"/icons/brilliant-moves-icon.png"}
-              width={20}
-              height={20}
-            /> */}
+              <Image
+                alt=""
+                src={`/icons/${whiteOpening.classification.toLowerCase()}-moves-icon.png`}
+                width={20}
+                height={20}
+              />
+              {whiteOpening.classification}
             </div>
           </div>
           <div>
@@ -206,20 +220,23 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.black.name}
               </span>
-              {/* <Image
-              alt=""
-              src={"/icons/great-moves-icon.png"}
-              width={20}
-              height={20}
-            /> */}
+              <Image
+                alt=""
+                src={`/icons/${blackOpening.classification.toLowerCase()}-moves-icon.png`}
+                width={20}
+                height={20}
+              />
+              {blackOpening.classification}
             </div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:gap-6">
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
-              <span onClick={() => handleOnClickMovement(whiteOpening)}
-                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1">
+              <span
+                onClick={() => handleOnClickMovement(whiteOpening)}
+                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+              >
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
                   {whiteOpening.moves}

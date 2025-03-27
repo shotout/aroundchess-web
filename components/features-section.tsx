@@ -6,7 +6,7 @@ import { Button } from './ui/button'
 
 export function FeaturesSection() {
   return (
-    <section className="pt-8 pb-1 sm:pt-12 lg:pt-12 bg-white">
+    <section className="pt-8 pb-1 sm:pt-12 lg:pt-12 bg-white rounded-t-[32px]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-2"

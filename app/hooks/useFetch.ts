@@ -39,7 +39,6 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
 
     try {
       const { method = 'GET', headers = {}, body } = options;
-
       const fetchOptions: RequestInit = {
         method,
         headers: {
@@ -48,6 +47,7 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
         },
         credentials: 'include',
       };
+      console.log(url, fetchOptions)
 
       // Only add body for non-GET requests
       if (method !== 'GET' && body) {
@@ -67,6 +67,7 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
         error: null,
       });
     } catch (error) {
+      console.log(error)
       setState({
         data: null,
         isLoading: false,
