@@ -63,11 +63,15 @@ const AnalysisResult: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
-  const blackCountry =
-    summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
 
-  const whiteCountry =
-    summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -735,10 +739,11 @@ const AnalysisResult: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <span className="text-sm font-normal py-1">
-                  This move deviates from opening principles. Focus on
-                  development and center control.
-                </span>
+                {chessMove?.analysis && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.analysis}
+                  </span>
+                )}
                 {chessMove?.gamePhase && (
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />

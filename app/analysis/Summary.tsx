@@ -15,14 +15,21 @@ interface SummaryProps {
 const Summary: React.FC<SummaryProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
 
-  const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
-    dataAnalysis?.summary ?? {};
+  const {
+    whiteSide,
+    blackSide,
+    overallGameAssessment,
+    bestMoves,
+    criticalMistakes,
+  } = dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
-  const blackCountry =
-    blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const blackCountry = blackSide?.profileInfo?.chessAccountInfo?.country
+    ? blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
 
-  const whiteCountry =
-    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2);
+  const whiteCountry = whiteSide?.profileInfo?.chessAccountInfo?.country
+    ? whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
   return (
@@ -552,47 +559,56 @@ const Summary: React.FC<SummaryProps> = (props) => {
           )}
         </div>
         {/* critical mistakes moves  */}
-        {/* <div className="border border-primary border-t-4 rounded-md p-3">
-        <div className="flex flex-row items-center gap-2">
-          <Image
-            alt=""
-            src={"/icons/alert-triangle.png"}
-            width={1000}
-            height={1000}
-            className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-          />
-          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">Critical Mistakes</span>
-          <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
-            {openCriticalMoves ? (
-              <ChevronUp size={24} color="black" />
-            ) : (
-              <ChevronDown size={24} color="black" />
-            )}
-          </div>
-        </div>
-        {openCriticalMoves && (
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="border border-input rounded-md p-4">
-              <div className="flex flex-row justify-between gap-2 mb-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
-                  Move 2: <span className="font-bold">e5</span>
-                </span>
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
-                  [TYPE OF THROAT]
-                </span>
-              </div>
-              <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
-                [EXPLANATION OF THROAT]
-              </span>
-              <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
-                  [HOW THE THREAT COULD HAVE BEEN AVOIDED]
-                </span>
-              </div>
+        <div className="border border-primary border-t-4 rounded-md p-3">
+          <div className="flex flex-row items-center gap-2">
+            <Image
+              alt=""
+              src={"/icons/alert-triangle.png"}
+              width={1000}
+              height={1000}
+              className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+            />
+            <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
+              Critical Mistakes
+            </span>
+            <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
+              {openCriticalMoves ? (
+                <ChevronUp size={24} color="black" />
+              ) : (
+                <ChevronDown size={24} color="black" />
+              )}
             </div>
           </div>
-        )}
-      </div> */}
+          {openCriticalMoves &&
+            criticalMistakes.length > 0 &&
+            criticalMistakes.map((item: any, index: number) => {
+              return (
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="border border-input rounded-md p-4">
+                    <div className="flex flex-row justify-between gap-2 mb-2">
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
+                        {item.type}
+                      </span>
+                    </div>
+                    {item.analysis && (
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
+                        {item.analysis}
+                      </span>
+                    )}
+                    <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
+                        {item.solution}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
       </div>
 
       <button
