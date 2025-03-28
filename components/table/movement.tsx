@@ -181,7 +181,6 @@ export default function MovementTable() {
                         {move.analysis}
                       </span>
                     )}
-
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-sm ">Type:</span>
@@ -272,10 +271,11 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    <span className="text-[7px] font-normal py-1">
-                      This move deviates from opening principles. Focus on
-                      development and center control.
-                    </span>
+                    {movementDetails.black[index]?.analysis && (
+                      <span className="text-[7px] font-normal py-1">
+                        {movementDetails.black[index]?.analysis}
+                      </span>
+                    )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[7px]">Type:</span>
