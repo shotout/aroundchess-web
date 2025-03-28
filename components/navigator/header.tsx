@@ -12,7 +12,8 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useClerk, UserButton, useUser } from "@clerk/nextjs";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -105,7 +106,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             </button>
           </div>
         ) : (
-          <UserButton showName={true} />
+          <>
+            <UserButton showName={true} />
+            <LogoutButton />
+          </>
         )}
 
         {/* Tablet view - Analytics button next to hamburger */}
@@ -134,3 +138,21 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 };
 
 export default Header;
+
+function LogoutButton() {
+  const { signOut } = useClerk();
+  const clearAll = usePgnStore((state) => state.clearAll);
+
+  const handleLogout = async () => {
+    // Clear Zustand store first
+    clearAll();
+
+    // Then sign out with Clerk
+    await signOut();
+
+    // Optional: redirect to login page or home page
+    // window.location.href = '/';
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+}

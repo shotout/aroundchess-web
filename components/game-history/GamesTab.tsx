@@ -12,10 +12,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ChartNoAxesColumn,
+  RefreshCw,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import GamesTabCard from "./GamesTabCard";
-import { usePgnStore } from "@/app/store/zustandStore";
+import { usePgnStore, Game } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 import axios from "axios";
@@ -25,29 +26,14 @@ import { useAuth } from "@clerk/nextjs";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
-interface Game {
-  id: number;
-  date: string;
-  opponent: string;
-  result: string;
-  eloChange: string;
-  resultColor: string;
-  rating: string;
-  opening: string;
-  moves: string;
-  timeControl: string;
-  source: string;
-  gameType: string;
-  color: string;
-  gameFormat: string;
-  pgn: string;
-}
-
 // Define the API URL - use your working API endpoint
 const API_BASE_URL = "https://ac-api.kemang.sg/api";
 
+// Define a constant for cache expiration (in milliseconds)
+const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+
 // Function to transform API data to match the expected format in the component
-function transformApiDataToComponentFormat(apiData: any[]) {
+function transformApiDataToComponentFormat(apiData: any[]): Game[] {
   if (!apiData || !Array.isArray(apiData)) return [];
 
   return apiData.map((game, index) => {
@@ -124,7 +110,11 @@ const GamesTab = () => {
     setDataAnalysis,
     setIsLoading,
     lastFetchTimestamp,
+    gamesData: cachedGames,
+    gamesLastFetched,
+    setGamesData,
   } = usePgnStore();
+
   const { sessionId, isLoaded: authIsLoaded } = useAuth();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
   const [isLoading, setDataLoading] = useState(true);
@@ -139,6 +129,16 @@ const GamesTab = () => {
   // Track API calls with a ref to avoid duplicates
   const fetchRef = React.useRef(false);
 
+  // Check if cache is valid
+  const isCacheValid = useMemo(() => {
+    if (!gamesLastFetched || !cachedGames.length) return false;
+
+    // Check if cache has expired
+    const now = Date.now();
+    const cacheAge = now - gamesLastFetched;
+    return cacheAge < CACHE_EXPIRATION && cachedGames.length > 0;
+  }, [gamesLastFetched, cachedGames]);
+
   // Direct API fetch using axios
   useEffect(() => {
     const fetchGames = async () => {
@@ -147,6 +147,17 @@ const GamesTab = () => {
         if (authIsLoaded && !username) {
           setDataLoading(false);
         }
+        return;
+      }
+
+      // Use cached data if available and valid
+      if (isCacheValid) {
+        console.log(
+          "Using cached games data from",
+          new Date(gamesLastFetched!).toLocaleTimeString()
+        );
+        setApiProcessedData(cachedGames);
+        setDataLoading(false);
         return;
       }
 
@@ -195,10 +206,16 @@ const GamesTab = () => {
             const transformedData = transformApiDataToComponentFormat(
               response.data.data
             );
+
+            // Update local state
             setApiProcessedData(transformedData);
+
+            // Save to the store for caching
+            setGamesData(transformedData);
           } else {
             console.log("API response has unexpected format:", response.data);
             setApiProcessedData([]);
+            setGamesData([]);
           }
         }
       } catch (err) {
@@ -219,7 +236,16 @@ const GamesTab = () => {
     if (authIsLoaded) {
       fetchGames();
     }
-  }, [username, authIsLoaded, sessionId, lastFetchTimestamp]);
+  }, [
+    username,
+    authIsLoaded,
+    sessionId,
+    lastFetchTimestamp,
+    setGamesData,
+    isCacheValid,
+    cachedGames,
+    gamesLastFetched,
+  ]);
 
   const gamesData = useMemo(() => {
     return apiProcessedData;
@@ -268,6 +294,16 @@ const GamesTab = () => {
     }
   };
 
+  // Force refresh games data
+  const handleForceRefresh = () => {
+    fetchRef.current = false;
+    // Clear the cached data and force refetch
+    const { resetFetchState, clearGamesData } = usePgnStore.getState();
+    clearGamesData();
+    resetFetchState();
+    toast.info("Refreshing games data...");
+  };
+
   useEffect(() => {
     let count = 0;
     if (timeRange !== defaultFilters.timeRange) count++;
@@ -282,33 +318,6 @@ const GamesTab = () => {
 
   useEffect(() => {
     let filtered = Array.isArray(gamesData) ? [...gamesData] : [];
-
-    // Apply time range filter
-    if (timeRange !== "All Times") {
-      const today = new Date();
-
-      const cutoffDate = new Date();
-
-      if (timeRange === "Last 30 Days") {
-        cutoffDate.setDate(today.getDate() - 30);
-      } else if (timeRange === "Last 90 Days") {
-        cutoffDate.setDate(today.getDate() - 90);
-      } else if (timeRange === "Last 6 Months") {
-        cutoffDate.setMonth(today.getMonth() - 6);
-      } else if (timeRange === "Last Year") {
-        cutoffDate.setFullYear(today.getFullYear() - 1);
-      }
-
-      filtered = filtered.filter((game) => {
-        const gameDate = new Date(game.date);
-        return gameDate >= cutoffDate;
-      });
-    }
-
-    // Apply game type filter
-    if (gameType !== "All Games") {
-      filtered = filtered.filter((game) => game.gameType === gameType);
-    }
 
     // Apply color filter
     if (color !== "All Colors") {
@@ -377,10 +386,12 @@ const GamesTab = () => {
     setFiltersApplied(false);
   };
 
-  // Function to retry fetching games
+  // Function to manually retry the fetch - reset fetch reference and trigger a refetch
   const handleRetryFetch = () => {
-    setFetchAttempted(false);
-    setError(null);
+    fetchRef.current = false;
+    // Force component to refetch by updating lastFetchTimestamp in the store
+    const { resetFetchState } = usePgnStore.getState();
+    resetFetchState();
   };
 
   // Function to render result with appropriate color
@@ -414,11 +425,31 @@ const GamesTab = () => {
     return <DotSpinner />;
   }
 
+  // Show information when no username is set
+  if (!username) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="text-xl font-semibold mb-4">
+          No Chess.com Username Set
+        </div>
+        <p className="mb-4 text-gray-600">
+          Please connect your Chess.com account to view your games.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto ">
+    <div className="mx-auto">
       {error && (
         <div className="text-center text-red-500 p-4">
-          Error loading games: {error.message}
+          <p>Error loading games: {error.message}</p>
+          <Button
+            onClick={handleRetryFetch}
+            className="mt-2 bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Retry
+          </Button>
         </div>
       )}
 
@@ -426,42 +457,6 @@ const GamesTab = () => {
         {/* Desktop/Tablet Filter UI */}
         <div className="hidden md:flex items-center mb-4 rounded-lg border border-primary-gray p-2 md:p-4 md:h-[56px] lg:h-[80px]">
           <div className="flex items-center space-x-1 lg:space-x-2 flex-1 flex-nowrap overflow-x-auto">
-            {/* Time Range Filter */}
-            <Select
-              value={timeRange}
-              onValueChange={setTimeRange}
-              defaultValue="Last 30 Days"
-            >
-              <SelectTrigger className="h-9 w-24 lg:w-32 lg:h-12 border rounded-lg bg-white text-xs">
-                <SelectValue placeholder="Last 30 Days" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="Last 30 Days">Last 30 Days</SelectItem>
-                <SelectItem value="Last 90 Days">Last 90 Days</SelectItem>
-                <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
-                <SelectItem value="Last Year">Last Year</SelectItem>
-                <SelectItem value="All Times">All Times</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Game Type Filter */}
-            <Select
-              value={gameType}
-              onValueChange={setGameType}
-              defaultValue="All Games"
-            >
-              <SelectTrigger className="h-9 w-24 lg:w-32 lg:h-12 border rounded-md bg-white text-xs shrink-0">
-                <SelectValue placeholder="All Games" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All Games">All Games</SelectItem>
-                <SelectItem value="Bullet">Bullet</SelectItem>
-                <SelectItem value="Blitz">Blitz</SelectItem>
-                <SelectItem value="Rapid">Rapid</SelectItem>
-                <SelectItem value="Classical">Classical</SelectItem>
-              </SelectContent>
-            </Select>
-
             {/* Color Filter */}
             <Select
               value={color}
@@ -527,72 +522,61 @@ const GamesTab = () => {
             >
               Clear Filters
             </button>
+
+            {/* Refresh button for cached data */}
+            {isCacheValid && (
+              <button
+                onClick={handleForceRefresh}
+                className="h-9 lg:h-12 lg:w-12 px-2 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50"
+                title="Refresh data from server"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Filter Button */}
-        <Button
-          variant="outline"
-          className={`md:hidden w-full flex items-center justify-center gap-2 py-5 rounded-lg mb-4 ${
-            filtersApplied ? "text-blue-base border-blue-base" : ""
-          }`}
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <Filter className="h-4 w-4" />
-          {filtersApplied ? (
-            <>
-              Filters Applied
-              {activeFiltersCount > 0 && (
-                <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </>
-          ) : (
-            "Add Filters"
+        <div className="md:hidden flex w-full items-center justify-between gap-2 mb-4">
+          <Button
+            variant="outline"
+            className={`flex-1 flex items-center justify-center gap-2 py-5 rounded-lg ${
+              filtersApplied ? "text-blue-base border-blue-base" : ""
+            }`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="h-4 w-4" />
+            {filtersApplied ? (
+              <>
+                Filters Applied
+                {activeFiltersCount > 0 && (
+                  <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </>
+            ) : (
+              "Add Filters"
+            )}
+          </Button>
+
+          {/* Mobile refresh button */}
+          {isCacheValid && (
+            <Button
+              variant="outline"
+              onClick={handleForceRefresh}
+              className="h-10 w-10 rounded-full flex items-center justify-center"
+              title="Refresh data from server"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           )}
-        </Button>
+        </div>
 
         {/* Mobile Filter Panel */}
         {showFilters && (
           <Card className="md:hidden p-2 border rounded-lg mb-4 absolute top-full left-0 right-0 z-10 bg-white shadow-lg">
             <div className="flex flex-wrap gap-2 mb-4">
-              {/* Time Range Filter */}
-              <Select
-                value={timeRange}
-                onValueChange={setTimeRange}
-                defaultValue="Last 30 Days"
-              >
-                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                  <SelectValue className="text-xs" placeholder="Last 30 Days" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="Last 30 Days">Last 30 Days</SelectItem>
-                  <SelectItem value="Last 90 Days">Last 90 Days</SelectItem>
-                  <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
-                  <SelectItem value="Last Year">Last Year</SelectItem>
-                  <SelectItem value="All Times">All Times</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Game Type Filter */}
-              <Select
-                value={gameType}
-                onValueChange={setGameType}
-                defaultValue="All Games"
-              >
-                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                  <SelectValue className="text-xs" placeholder="All Games" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="All Games">All Games</SelectItem>
-                  <SelectItem value="Bullet">Bullet</SelectItem>
-                  <SelectItem value="Blitz">Blitz</SelectItem>
-                  <SelectItem value="Rapid">Rapid</SelectItem>
-                  <SelectItem value="Classical">Classical</SelectItem>
-                </SelectContent>
-              </Select>
-
               {/* Color Filter */}
               <Select
                 value={color}
@@ -651,7 +635,7 @@ const GamesTab = () => {
                 className="btn-secondary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
               >
                 <Filter className="h-4 w-4" />
-                <h1 className="test-xs">Apply Filters</h1>
+                <h1 className="text-xs">Apply Filters</h1>
               </button>
               <button
                 onClick={handleClearFilters}
@@ -665,191 +649,220 @@ const GamesTab = () => {
         )}
       </div>
 
-      <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
-        {currentGames.length > 0 ? (
-          <>
-            {/* Table Header */}
-            <div className="grid grid-cols-10 bg-blue-100 py-3 text-xs font-medium text-gray-700">
-              <div className="col-span-1 pl-14 text-left">Date</div>
-              <div className="col-span-1 px-4 text-left">Time Control</div>
-              <div className="col-span-1 px-4 text-left">Result</div>
-              <div className="col-span-1 px-4 text-left">Opponent</div>
-              <div className="col-span-1 px-4 text-left">Rating</div>
-              <div className="col-span-1 px-4 text-left">Elo Change</div>
-              <div className="col-span-1 px-4 text-left">Moves</div>
-              <div className="col-span-1 px-4 text-left">Opening</div>
-              <div className="col-span-1 px-4 text-left">Source</div>
-              <div className="col-span-1 px-4 text-left">Actions</div>
-            </div>
+      {/* Cache status indicator - only show in development */}
+      {process.env.NODE_ENV === "development" && isCacheValid && (
+        <div className="mb-2 text-xs text-gray-500 flex items-center">
+          <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+          Using cached data from{" "}
+          {new Date(gamesLastFetched!).toLocaleTimeString()}
+          <button
+            onClick={handleForceRefresh}
+            className="ml-2 text-blue-500 hover:text-blue-700 underline text-xs"
+          >
+            Refresh
+          </button>
+        </div>
+      )}
 
-            <div className="divide-y divide-gray-200 text-xs xl:text-sm">
-              {currentGames.map((game, index) => (
-                <div
-                  key={game.id}
-                  className="grid grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
-                >
-                  {/* Fixed vertical divider positioning */}
-                  <div
-                    className="absolute h-full w-px bg-gray-200"
-                    style={{ left: "3rem" }}
-                  ></div>
-
-                  {/* Fixed date column with better alignment */}
-                  <div className="col-span-1 py-3 pl-4 flex items-center">
-                    <span className="inline-block w-6 text-right text-gray-500 mr-4">
-                      {indexOfFirstGame + index + 1}
-                    </span>
-                    <span className="ml-2">{game.date}</span>
-                  </div>
-
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.timeControl}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {renderResult(game.result)}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center truncate">
-                    {game.opponent}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.rating}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {renderEloChange(game.eloChange)}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.moves}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.opening}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.source}
-                  </div>
-
-                  {/* Fixed analyze button */}
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    <button
-                      className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center"
-                      onClick={() => handleAnalyzeClick(game)}
-                    >
-                      <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                      Analyze
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="p-4 text-center text-gray-500">
+      {currentGames.length === 0 && !isLoading && !error ? (
+        <div className="p-8 text-center border rounded-lg">
+          <p className="text-gray-500">
             No games found with the current filters.
+          </p>
+          <Button
+            onClick={handleRetryFetch}
+            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Refresh Games
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
+            {currentGames.length > 0 ? (
+              <>
+                {/* Table Header */}
+                <div className="grid grid-cols-10 bg-blue-100 py-3 text-xs font-medium text-gray-700">
+                  <div className="col-span-1 pl-14 text-left">Date</div>
+                  <div className="col-span-1 px-4 text-left">Time Control</div>
+                  <div className="col-span-1 px-4 text-left">Result</div>
+                  <div className="col-span-1 px-4 text-left">Opponent</div>
+                  <div className="col-span-1 px-4 text-left">Rating</div>
+                  <div className="col-span-1 px-4 text-left">Elo Change</div>
+                  <div className="col-span-1 px-4 text-left">Moves</div>
+                  <div className="col-span-1 px-4 text-left">Opening</div>
+                  <div className="col-span-1 px-4 text-left">Source</div>
+                  <div className="col-span-1 px-4 text-left">Actions</div>
+                </div>
+
+                <div className="divide-y divide-gray-200 text-xs xl:text-sm">
+                  {currentGames.map((game, index) => (
+                    <div
+                      key={game.id}
+                      className="grid grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
+                    >
+                      {/* Fixed vertical divider positioning */}
+                      <div
+                        className="absolute h-full w-px bg-gray-200"
+                        style={{ left: "3rem" }}
+                      ></div>
+
+                      {/* Fixed date column with better alignment */}
+                      <div className="col-span-1 py-3 pl-4 flex items-center">
+                        <span className="inline-block w-6 text-right text-gray-500 mr-4">
+                          {indexOfFirstGame + index + 1}
+                        </span>
+                        <span className="ml-2">{game.date}</span>
+                      </div>
+
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {game.timeControl}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {renderResult(game.result)}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center truncate">
+                        {game.opponent}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {game.rating}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {renderEloChange(game.eloChange)}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {game.moves}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {game.opening}
+                      </div>
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        {game.source}
+                      </div>
+
+                      {/* Fixed analyze button */}
+                      <div className="col-span-1 px-4 py-3 flex items-center">
+                        <button
+                          className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center"
+                          onClick={() => handleAnalyzeClick(game)}
+                        >
+                          <ChartNoAxesColumn className="h-4 w-4 mr-1" />
+                          Analyze
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                No games found with the current filters.
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {/* Mobile/Tablet Game Cards View */}
-      <div className="lg:hidden">
-        {currentGames.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-            {currentGames.map((game) => (
-              <GamesTabCard
-                key={game.id}
-                gameData={game}
-                onAnalyze={() => handleAnalyzeClick(game)} // Pass the onAnalyze prop
-              />
-            ))}
-          </div>
-        ) : (
-          <Card className="p-4 border rounded-lg mb-4 text-center">
-            <p className="text-gray-500">
-              No games found with the current filters.
-            </p>
-          </Card>
-        )}
-      </div>
-
-      {/* Pagination Controls */}
-      {currentGames.length > 0 && (
-        <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
-          {/* Games per page selector - Always centered on mobile/tablet, right on desktop */}
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
-            <span>Games per Page</span>
-            <Select
-              value={String(itemsPerPage)}
-              onValueChange={(value) => setItemsPerPage(Number(value))}
-              defaultValue="10"
-            >
-              <SelectTrigger className="w-16 h-8 border rounded-md bg-white">
-                <SelectValue className="text-sm" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-              </SelectContent>
-            </Select>
-            <ChevronRight className="h-4 w-4 text-gray-400" />
+          {/* Mobile/Tablet Game Cards View */}
+          <div className="lg:hidden">
+            {currentGames.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                {currentGames.map((game) => (
+                  <GamesTabCard
+                    key={game.id}
+                    gameData={game}
+                    onAnalyze={() => handleAnalyzeClick(game)} // Pass the onAnalyze prop
+                  />
+                ))}
+              </div>
+            ) : (
+              <Card className="p-4 border rounded-lg mb-4 text-center">
+                <p className="text-gray-500">
+                  No games found with the current filters.
+                </p>
+              </Card>
+            )}
           </div>
 
-          {/* Page navigation - Always centered */}
-          <div className="flex items-center justify-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToPreviousPage}
-              disabled={currentPage === 1}
-              className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
+          {/* Pagination Controls */}
+          {currentGames.length > 0 && (
+            <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
+              {/* Games per page selector - Always centered on mobile/tablet, right on desktop */}
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
+                <span>Games per Page</span>
+                <Select
+                  value={String(itemsPerPage)}
+                  onValueChange={(value) => setItemsPerPage(Number(value))}
+                  defaultValue="10"
+                >
+                  <SelectTrigger className="w-16 h-8 border rounded-md bg-white">
+                    <SelectValue className="text-sm" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </div>
 
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Calculate page numbers to show based on current page
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
+              {/* Page navigation - Always centered */}
+              <div className="flex items-center justify-center">
                 <Button
-                  key={i}
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`h-8 w-8 p-0 flex items-center justify-center mx-1 ${
-                    currentPage === pageNum
-                      ? "bg-blue-50 border border-blue-base text-blue-base rounded-md"
-                      : "text-gray-600 hover:bg-gray-100 border "
-                  }`}
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 1}
+                  className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
                 >
-                  {pageNum}
+                  <ChevronLeft className="h-5 w-5" />
                 </Button>
-              );
-            })}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToNextPage}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  // Calculate page numbers to show based on current page
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <Button
+                      key={i}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`h-8 w-8 p-0 flex items-center justify-center mx-1 ${
+                        currentPage === pageNum
+                          ? "bg-blue-50 border border-blue-base text-blue-base rounded-md"
+                          : "text-gray-600 hover:bg-gray-100 border "
+                      }`}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 };
 
 export default GamesTab;
-function setFetchAttempted(arg0: boolean) {
-  throw new Error("Function not implemented.");
-}

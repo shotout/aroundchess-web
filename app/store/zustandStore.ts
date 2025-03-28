@@ -1,6 +1,6 @@
-// Updated zustandStore.ts with game data caching
+// Updated zustandStore.ts using sessionStorage instead of localStorage
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 // Define a Game interface for type safety
 export interface Game {
@@ -26,26 +26,24 @@ interface PgnState {
   // Data
   pgn: string;
   username: string;
-  dataAnalysis: any | null; // Replace 'any' with a more specific type if available
+  dataAnalysis: any | null; 
   isLoading: boolean;
   lastFetchTimestamp: number;
+  hideDiv: boolean;
   
-  // Game data cache
   gamesData: Game[];
   gamesLastFetched: number | null;
   
-  // Actions
   setPgn: (pgn: string) => void;
   setUsername: (username: string) => void;
   setDataAnalysis: (dataAnalysis: any) => void;
   setIsLoading: (isLoading: boolean) => void;
   resetFetchState: () => void;
+  setHideDiv: (hideDiv: boolean) => void
   
-  // Game data actions
   setGamesData: (games: Game[]) => void;
   clearGamesData: () => void;
   
-  // Clear everything
   clearAll: () => void;
 }
 
@@ -58,6 +56,7 @@ export const usePgnStore = create<PgnState>()(
       dataAnalysis: null,
       isLoading: false,
       lastFetchTimestamp: 0,
+      hideDiv: false,
       
       // Game data cache - initially empty
       gamesData: [],
@@ -71,6 +70,8 @@ export const usePgnStore = create<PgnState>()(
         // Only update timestamp if username actually changed
         lastFetchTimestamp: username !== state.username ? Date.now() : state.lastFetchTimestamp
       })),
+
+      setHideDiv: (hideDiv:boolean) => set({hideDiv}),
       
       setDataAnalysis: (dataAnalysis: any) => set({ dataAnalysis }),
       
@@ -89,7 +90,7 @@ export const usePgnStore = create<PgnState>()(
         gamesLastFetched: null
       }),
       
-      // Clear everything for logout
+      // Clear everything (still available but not needed for session expiration)
       clearAll: () => set({ 
         pgn: "",
         username: "",
@@ -101,14 +102,13 @@ export const usePgnStore = create<PgnState>()(
       }),
     }),
     {
-      name: 'pgn-storage', // Name for localStorage
+      name: 'pgn-session-storage', // Changed name to indicate session storage
+      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
       partialize: (state) => ({
-        // Only persist these fields to localStorage
         username: state.username,
         pgn: state.pgn,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
-        // Don't persist loading state or volatile data
       }),
     }
   )

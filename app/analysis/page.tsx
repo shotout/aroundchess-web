@@ -6,50 +6,19 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { toast } from "sonner";
-import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
-import { PremiumSubscriptionDialog } from "@/components/analysis/onboarding/PremiumSubscription";
-import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
-import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
 
 export default function AnalysisPage() {
-  const {
-    setHideDiv,
-    hideDiv,
-    isLoading,
-    setIsLoading,
-    isChessConnected,
-    setIsChessConnected,
-    chessComUsername,
-    setChessComUsername,
-    setDataGames,
-  } = usePgnStore();
-
-  const { sessionId, isAuthenticated } = useAuthStore();
+  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore();
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [showChessConnect, setShowChessConnect] = useState<boolean>(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
-  const [connectedUsername, setConnectedUsername] = useState<string>("");
   let lastScrollY = 0;
 
   const isAnyDialogOpen = showChessConnect || showPremiumDialog;
 
   useEffect(() => {
     setIsLoading(false);
-
-    if (isAuthenticated && sessionId) {
-      if (chessComUsername) {
-        setConnectedUsername(chessComUsername);
-        setIsChessConnected(true);
-      } else if (!isChessConnected) {
-        setShowChessConnect(true);
-      }
-
-      if (isChessConnected && chessComUsername) {
-        fetchGames();
-      }
-    }
 
     if (isAnyDialogOpen) {
       document.body.style.overflow = "hidden";
@@ -79,68 +48,7 @@ export default function AnalysisPage() {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [
-    lastScrollY,
-    setHideDiv,
-    setIsLoading,
-    isAnyDialogOpen,
-    isAuthenticated,
-    sessionId,
-    isChessConnected,
-    chessComUsername,
-    setIsChessConnected,
-  ]);
-
-  // Fetch games from API
-  const fetchGames = async () => {
-    if (!sessionId) return;
-
-    try {
-      setIsLoading(true);
-      const gamesData = await ChessApiService.getGames(sessionId);
-      setDataGames(gamesData);
-    } catch (error) {
-      console.error("Failed to fetch games:", error);
-      toast.error("Failed to load your Chess.com games");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSuccessfulConnection = (username: string) => {
-    console.log("Successful connection for user:", username);
-    setConnectedUsername(username);
-    setChessComUsername(username);
-    setIsChessConnected(true);
-
-    setShowChessConnect(false);
-
-    setShowPremiumDialog(true);
-  };
-
-  const handleGetPremium = () => {
-    toast.success("Redirecting to premium checkout...");
-    completeOnboarding();
-  };
-
-  const handleClosePremium = () => {
-    completeOnboarding();
-  };
-
-  const completeOnboarding = () => {
-    // Make sure both dialogs are closed
-    setShowPremiumDialog(false);
-    setShowChessConnect(false);
-
-    // Enable scrolling
-    document.body.style.overflow = "auto";
-
-    // Show success toast
-    toast.success(`Connected to Chess.com account: ${connectedUsername}`);
-
-    // Fetch games after connection is complete
-    fetchGames();
-  };
+  }, [lastScrollY, setHideDiv, setIsLoading, isAnyDialogOpen]);
 
   return (
     <>
@@ -161,11 +69,7 @@ export default function AnalysisPage() {
               <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-2xl font-bold">
                 Analysis Result from{" "}
                 <span className="text-[#4E7838]">Chess.com</span>
-                {isChessConnected && chessComUsername && (
-                  <span className="text-sm font-normal ml-2">
-                    (Connected as: {chessComUsername})
-                  </span>
-                )}
+                <span className="text-sm font-normal ml-2">dummy data</span>
               </h2>
               <div className="xl:hidden flex items-center justify-center mt-2">
                 <AnalyzeDifferentGame />
@@ -185,20 +89,18 @@ export default function AnalysisPage() {
               </div>
             </div>
             <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
-              {/* Chess Connect Dialog */}
-              <ChessConnectDialog
+              {/* <ChessConnectDialog
                 open={showChessConnect}
                 onOpenChange={setShowChessConnect}
                 onSuccess={handleSuccessfulConnection}
               />
 
-              {/* Premium Subscription Dialog */}
               <PremiumSubscriptionDialog
                 open={showPremiumDialog}
                 onOpenChange={setShowPremiumDialog}
                 onClose={handleClosePremium}
                 onGetPremium={handleGetPremium}
-              />
+              /> */}
 
               {/* Overlay that darkens only the main content */}
               {isAnyDialogOpen && (
