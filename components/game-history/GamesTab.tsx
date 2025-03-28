@@ -43,7 +43,7 @@ interface Game {
   pgn: string;
 }
 
-// Set the direct API endpoint
+// Define the API URL - use your working API endpoint
 const API_BASE_URL = "https://ac-api.kemang.sg/api";
 
 // Function to transform API data to match the expected format in the component
@@ -118,59 +118,66 @@ const GamesTab = () => {
   const [filtersApplied, setFiltersApplied] = useState(false);
 
   // API fetch-related states
-  const { username, setPgn, setDataAnalysis, setIsLoading } = usePgnStore();
+  const {
+    username,
+    setPgn,
+    setDataAnalysis,
+    setIsLoading,
+    lastFetchTimestamp,
+  } = usePgnStore();
   const { sessionId, isLoaded: authIsLoaded } = useAuth();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
   const [isLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [data, setData] = useState<any>(null);
-  const [fetchAttempted, setFetchAttempted] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
 
+  // Track API calls with a ref to avoid duplicates
+  const fetchRef = React.useRef(false);
+
   // Direct API fetch using axios
   useEffect(() => {
     const fetchGames = async () => {
-      // Only fetch if we have both username and auth is loaded
-      if (!username || !authIsLoaded) {
-        console.log("Missing username or auth not loaded, skipping fetch");
-        if (authIsLoaded) {
+      // Check if already fetching or missing username
+      if (!username || fetchRef.current) {
+        if (authIsLoaded && !username) {
           setDataLoading(false);
         }
         return;
       }
 
-      // Prevent multiple fetch attempts
-      if (fetchAttempted) return;
-      setFetchAttempted(true);
-
+      // Mark as fetching
+      fetchRef.current = true;
       setDataLoading(true);
       setError(null);
 
-      try {
-        console.log("Fetching games for user:", username);
+      console.log(
+        "Fetching games for user:",
+        username,
+        "timestamp:",
+        lastFetchTimestamp
+      );
 
+      try {
         // Use the direct API endpoint from your Postman tests
         const apiUrl = `${API_BASE_URL}/games/${username}`;
 
         console.log("Making request to:", apiUrl);
 
-        // Make a simple GET request with authentication if available
-        const config: any = {};
+        // Make a request with authentication if session ID is available
+        const config: any = {
+          headers: {
+            Accept: "application/json",
+          },
+        };
 
         if (sessionId) {
-          config.headers = {
-            Authorization: `Bearer ${sessionId}`,
-            Accept: "application/json",
-          };
-          console.log("Using auth token for request");
-        } else {
-          console.log(
-            "No auth token available, making unauthenticated request"
-          );
+          config.headers.Authorization = `Bearer ${sessionId}`;
+          console.log("Using auth token");
         }
 
         const response = await axios.get(apiUrl, config);
@@ -201,11 +208,18 @@ const GamesTab = () => {
         );
       } finally {
         setDataLoading(false);
+        // Allow refetching after a delay
+        setTimeout(() => {
+          fetchRef.current = false;
+        }, 3000);
       }
     };
 
-    fetchGames();
-  }, [username, authIsLoaded, sessionId, fetchAttempted]);
+    // Only fetch when auth is loaded
+    if (authIsLoaded) {
+      fetchGames();
+    }
+  }, [username, authIsLoaded, sessionId, lastFetchTimestamp]);
 
   const gamesData = useMemo(() => {
     return apiProcessedData;
@@ -836,3 +850,6 @@ const GamesTab = () => {
 };
 
 export default GamesTab;
+function setFetchAttempted(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
