@@ -588,7 +588,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
               )}
             </div>
           </div>
-          {openCriticalMoves &&
+          {openCriticalMoves &&criticalMistakes&&
             criticalMistakes.length > 0 &&
             criticalMistakes.map((item: any, index: number) => {
               return (
