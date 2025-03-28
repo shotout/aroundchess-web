@@ -357,10 +357,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                           </PopoverClose>
                         </div>
                       </div>
-                      <span className="text-xs font-normal py-1">
-                        This move deviates from opening principles. Focus on
-                        development and center control.
-                      </span>
+                      {move.analysis && (
+                        <span className="text-xs font-normal py-1">
+                          {move.analysis}
+                        </span>
+                      )}
                       <div className="flex flex-row gap-1">
                         <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>

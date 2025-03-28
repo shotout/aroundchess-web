@@ -66,13 +66,13 @@ const AnalysisResult: React.FC = () => {
   } = dataAnalysis ?? {};
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
     ?.country
-    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2)
+    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
     : "XX";
 
   const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
     ?.country
-    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country?.substr(-2)
-    : "xx";
+    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -461,7 +461,7 @@ const AnalysisResult: React.FC = () => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#FFA459] text-[#FFA459]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -842,6 +842,15 @@ const AnalysisResult: React.FC = () => {
                         {chessMove.classification}
                       </span>
                     )}
+                     {chessMove?.type && (
+                      <span
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                          chessMove.type
+                        )}`}
+                      >
+                        {chessMove.type}
+                      </span>
+                    )}
                     <button onClick={() => setChessMove({})}>
                       <Image
                         alt="close"
@@ -853,9 +862,14 @@ const AnalysisResult: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                {chessMove.analysis && (
-                  <span className="text-xs font-normal py-1">
-                    {chessMove.analysis}
+                {chessMove?.analysis && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.analysis}
+                  </span>
+                )}
+                {chessMove?.solution && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.solution}
                   </span>
                 )}
                 {chessMove?.gamePhase && (
