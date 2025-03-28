@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         toast.success("Logged in successfully!");
-        router.push("/my-game-history");
+        window.location.href = "/my-game-history";
       } else {
         console.error("Sign in result:", result);
         toast.error("Failed to sign in");
