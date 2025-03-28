@@ -7,6 +7,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import ReactCountryFlag from "react-country-flag";
+import { useChessMoveStore } from "../store/chessMoveStore";
 
 interface SummaryProps {
   next: () => void;
@@ -14,6 +15,7 @@ interface SummaryProps {
 
 const Summary: React.FC<SummaryProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
 
   const {
     whiteSide,
@@ -30,8 +32,12 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const whiteCountry = whiteSide?.profileInfo?.chessAccountInfo?.country
     ? whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
     : "XX";
-  const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
-  const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
+  const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
+  const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(true);
+  const handleOnClickMovement = (move: any) => {
+    console.log(move);
+    setChessMove(move);
+  };
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -535,7 +541,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   return (
                     <div className="border border-input rounded-md p-4" key={i}>
                       <div className="flex flex-row justify-between gap-2 mb-2">
-                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(middle)}
+                          className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {middle.moveNumber}:{" "}
                           <span className="font-bold">{middle.move}</span>
                         </span>
@@ -586,7 +595,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 <div className="flex flex-col gap-2 mt-2">
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-2">
-                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                      <span
+                        onClick={() => handleOnClickMovement(item)}
+                        className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                      >
                         Move {item.moveNumber}:{" "}
                         <span className="font-bold">{item.move}</span>
                       </span>
