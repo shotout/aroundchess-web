@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
         ) : (
           <>
-            <UserButton showName={true} />
+            {/* <UserButton showName={true} /> */}
             <LogoutButton />
           </>
         )}

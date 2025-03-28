@@ -33,6 +33,7 @@ export const theme = {
       // light
       "light-10": "#fafdff",
       "light-40": "#eefafe",
+      "light-60": "#C0CED4",
       "light-base": "e6f7fe",
       // dark
       "dark-30": "#585858",
@@ -48,6 +49,8 @@ export const theme = {
       //to be deleted
       "primary-white": "#FCFCFD",
       "primary-gray": "#DEDEDE",
+      "gray-placeholder": "#F8F9FC",
+      "gray-placeholder-text": "#717375",
       "game-green": "#00B427",
       "game-red": "#FD0000",
       "blue-light": "#E6F7FE",

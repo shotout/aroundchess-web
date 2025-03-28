@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -19,12 +19,21 @@ import {
   TimerIcon,
   TrendingUp,
   Trophy,
+  RefreshCw,
 } from "lucide-react";
-import { Card } from "../ui/card";
 import DotSpinner from "./Spinner";
 import { usePgnStore } from "@/app/store/zustandStore";
+import axios from "axios";
+import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
-const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY_ANALYTICS || "";
+// Define the API URL - use your working API endpoint
+const API_BASE_URL = "https://ac-api.kemang.sg/api";
+
+// Define a constant for cache expiration (in milliseconds)
+const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
 
 // Custom tooltip content component for the Rating Progress chart
 const CustomTooltipContent = ({
@@ -47,19 +56,30 @@ const CustomTooltipContent = ({
 };
 
 const Analytics = () => {
-  const { username } = usePgnStore();
+  const {
+    username,
+    analyticsData: cachedAnalytics,
+    analyticsLastFetched,
+    setAnalyticsData,
+  } = usePgnStore();
+
+  const { sessionId, isLoaded: authIsLoaded } = useAuth();
+
   // State to store data from API
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [ratingData, setRatingData] = useState([]);
   const [distributionData, setDistributionData] = useState<
     { name: string; value: number; color: string }[]
   >([]);
+
   interface OpeningData {
     name: string;
     games: number;
     winrate: string;
   }
   const [openingData, setOpeningData] = useState<OpeningData[]>([]);
+
   interface PerformanceData {
     category: string;
     games: number;
@@ -81,111 +101,207 @@ const Analytics = () => {
   });
   const [achievements, setAchievements] = useState<string[]>([]);
 
+  // Track API calls with a ref to avoid duplicates
+  const fetchRef = React.useRef(false);
+
+  // Check if cache is valid
+  const isCacheValid = useMemo(() => {
+    if (!analyticsLastFetched || !cachedAnalytics) return false;
+
+    // Check if cache has expired
+    const now = Date.now();
+    const cacheAge = now - analyticsLastFetched;
+    return (
+      cacheAge < CACHE_EXPIRATION && Object.keys(cachedAnalytics).length > 0
+    );
+  }, [analyticsLastFetched, cachedAnalytics]);
+
+  // Process and populate UI state from data
+  const processApiData = (apiData: any) => {
+    // Process rating progress data
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+    ];
+    const processedRatingData = apiData.ratingProgress
+      .slice(0, months.length)
+      .map((rating: any, index: number) => ({
+        month: months[index],
+        rating: rating,
+      }));
+
+    // Process result distribution data
+    const resultData = [
+      {
+        name: "Win",
+        value: apiData.resultDistribution.win || 70,
+        color: "#00B427",
+      },
+      {
+        name: "Draw",
+        value: apiData.resultDistribution.draw || 25,
+        color: "#fbbf24",
+      },
+      {
+        name: "Loss",
+        value: apiData.resultDistribution.lose || 5,
+        color: "#FD0000",
+      },
+    ];
+
+    // Process opening statistics
+    const openingStats = apiData.openingStatistics.map(
+      (opening: { name: any; games: any; winRate: any }) => ({
+        name: opening.name,
+        games: opening.games,
+        winrate: `${opening.winRate}%`,
+      })
+    );
+
+    // Process time control performance
+    const timeControlData = apiData.timeControlPerformance.map(
+      (item: { type: any; games: any; winRate: any }) => ({
+        category: item.type,
+        games: item.games,
+        winRate: item.winRate,
+      })
+    );
+
+    // Process performance insights
+    const insights = {
+      averageGameLength: apiData.performanceInsights.averageGameLength,
+      accuracy: apiData.performanceInsights.accuracy,
+      timeManagement: apiData.timeManagement.efficiency,
+      blunderRate: apiData.blunderRate,
+    };
+
+    // Process key statistics
+    const stats = {
+      totalGames: apiData.keyStatistics.totalGames,
+      winRate: 65, // Use a default since it's not in the API data
+      averageRating: apiData.keyStatistics.averageRating,
+      longestStreak: 8, // Use a default since it's not directly in the API data
+    };
+
+    // Process achievements
+    const achievementsData = apiData.recentAchievements || [];
+
+    // Update state with processed data
+    setRatingData(processedRatingData);
+    setDistributionData(resultData);
+    setOpeningData(openingStats);
+    setPerformanceData(timeControlData);
+    setPerformanceInsights(insights);
+    setKeyStats(stats);
+    setAchievements(achievementsData);
+  };
+
   // Fetch data from API
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(endpoint + "/" + username);
-        const result = await response.json();
-
-        if (result.success) {
-          const apiData = result.data;
-
-          // Process rating progress data
-          const months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-          ];
-          const processedRatingData = apiData.ratingProgress
-            .slice(0, months.length)
-            .map((rating: any, index: number) => ({
-              month: months[index],
-              rating: rating,
-            }));
-
-          // Process result distribution data
-          const resultData = [
-            {
-              name: "Win",
-              value: apiData.resultDistribution.win || 70,
-              color: "#00B427",
-            },
-            {
-              name: "Draw",
-              value: apiData.resultDistribution.draw || 25,
-              color: "#fbbf24",
-            },
-            {
-              name: "Loss",
-              value: apiData.resultDistribution.lose || 5,
-              color: "#FD0000",
-            },
-          ];
-
-          // Process opening statistics
-          const openingStats = apiData.openingStatistics.map(
-            (opening: { name: any; games: any; winRate: any }) => ({
-              name: opening.name,
-              games: opening.games,
-              winrate: `${opening.winRate}%`,
-            })
-          );
-
-          // Process time control performance
-          const timeControlData = apiData.timeControlPerformance.map(
-            (item: { type: any; games: any; winRate: any }) => ({
-              category: item.type,
-              games: item.games,
-              winRate: item.winRate,
-            })
-          );
-
-          // Process performance insights
-          const insights = {
-            averageGameLength: apiData.performanceInsights.averageGameLength,
-            accuracy: apiData.performanceInsights.accuracy,
-            timeManagement: apiData.timeManagement.efficiency,
-            blunderRate: apiData.blunderRate,
-          };
-
-          // Process key statistics
-          const stats = {
-            totalGames: apiData.keyStatistics.totalGames,
-            winRate: 65, // Use a default since it's not in the API data
-            averageRating: apiData.keyStatistics.averageRating,
-            longestStreak: 8, // Use a default since it's not directly in the API data
-          };
-
-          // Process achievements
-          const achievementsData = apiData.recentAchievements || [];
-
-          // Update state with processed data
-          setRatingData(processedRatingData);
-          setDistributionData(resultData);
-          setOpeningData(openingStats);
-          setPerformanceData(timeControlData);
-          setPerformanceInsights(insights);
-          setKeyStats(stats);
-          setAchievements(achievementsData);
+    const fetchAnalytics = async () => {
+      // Check if already fetching or missing username
+      if (!username || fetchRef.current) {
+        if (authIsLoaded && !username) {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+        return;
+      }
+
+      // Use cached data if available and valid
+      if (isCacheValid && cachedAnalytics) {
+        console.log(
+          "Using cached analytics data from",
+          new Date(analyticsLastFetched!).toLocaleTimeString()
+        );
+        processApiData(cachedAnalytics);
+        setLoading(false);
+        return;
+      }
+
+      // Mark as fetching
+      fetchRef.current = true;
+      setLoading(true);
+      setError(null);
+
+      console.log("Fetching analytics for user:", username);
+
+      try {
+        // Use the direct API endpoint
+        const apiUrl = `${API_BASE_URL}/analytic-games/${username}`;
+
+        console.log("Making request to:", apiUrl);
+
+        // Make a request with authentication if session ID is available
+        const config: any = {
+          headers: {
+            Accept: "application/json",
+          },
+        };
+
+        if (sessionId) {
+          config.headers.Authorization = `Bearer ${sessionId}`;
+          console.log("Using auth token");
+        }
+
+        const response = await axios.get(apiUrl, config);
+
+        console.log("Analytics API response status:", response.status);
+
+        if (response.data && response.data.success) {
+          const apiData = response.data.data;
+
+          // Save to the store for caching
+          setAnalyticsData(apiData);
+
+          // Process the data
+          processApiData(apiData);
+        } else {
+          console.log("API response has unexpected format:", response.data);
+          setError(new Error("Invalid data format received from server"));
+        }
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch analytics")
+        );
       } finally {
         setLoading(false);
+        // Allow refetching after a delay
+        setTimeout(() => {
+          fetchRef.current = false;
+        }, 3000);
       }
     };
 
-    fetchData();
-  }, []);
+    // Only fetch when auth is loaded
+    if (authIsLoaded) {
+      fetchAnalytics();
+    }
+  }, [
+    username,
+    authIsLoaded,
+    sessionId,
+    isCacheValid,
+    cachedAnalytics,
+    analyticsLastFetched,
+    setAnalyticsData,
+  ]);
+
+  // Force refresh analytics data
+  const handleForceRefresh = () => {
+    fetchRef.current = false;
+    // Clear the cached data and force refetch
+    toast.info("Refreshing analytics data...");
+  };
 
   // Calculate the maximum number of games for scaling
   const maxGames = Math.max(
@@ -197,13 +313,69 @@ const Analytics = () => {
     return <DotSpinner />;
   }
 
+  // Show error state
+  if (error) {
+    return (
+      <div className="text-center text-red-500 p-4">
+        <p>Error loading analytics: {error.message}</p>
+        <Button
+          onClick={handleForceRefresh}
+          className="mt-2 bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  // Show information when no username is set
+  if (!username) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="text-xl font-semibold mb-4">
+          No Chess.com Username Set
+        </div>
+        <p className="mb-4 text-gray-600">
+          Please connect your Chess.com account to view your analytics.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid md:grid-cols-2 gap-3">
+      {/* Cache status indicator - only show in development */}
+      {process.env.NODE_ENV === "development" && isCacheValid && (
+        <div className="md:col-span-2 mb-2 text-xs text-gray-500 flex items-center">
+          <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+          Using cached analytics data from{" "}
+          {new Date(analyticsLastFetched!).toLocaleTimeString()}
+          <button
+            onClick={handleForceRefresh}
+            className="ml-2 text-blue-500 hover:text-blue-700 underline text-xs flex items-center"
+          >
+            <RefreshCw className="h-3 w-3 mr-1" /> Refresh
+          </button>
+        </div>
+      )}
+
       {/* Left Column for mobile and tablet */}
       <div className="flex flex-col gap-4">
         {/* Rating Progress Chart with Tooltip */}
         <div className="md:p-4 rounded-lg md:shadow-sm md:border">
-          <h1 className="text-base font-bold mb-2">Rating Progress</h1>
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-base font-bold">Rating Progress</h1>
+            {!isCacheValid && (
+              <button
+                onClick={handleForceRefresh}
+                className="text-blue-500 hover:text-blue-700 flex items-center text-xs"
+                title="Refresh data"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Refresh
+              </button>
+            )}
+          </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
@@ -517,7 +689,9 @@ const Analytics = () => {
                 );
               })
             ) : (
-              <h1>no achievement to</h1>
+              <div className="text-center text-gray-500 p-4">
+                No achievements yet
+              </div>
             )}
           </div>
         </div>

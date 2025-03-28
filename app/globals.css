@@ -189,6 +189,10 @@ p{
   background-size: 24px 24px;
 }
 
+.shadow-card {
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.1);
+}
+
 .btn-primary {
   background-color: #221AE9;
   color: white;
