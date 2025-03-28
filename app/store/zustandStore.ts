@@ -1,54 +1,114 @@
-// store/zustandStore.ts
-"use client";
-
-import { AnalysisResult } from '@/types/analysis-result';
+// Updated zustandStore.ts with game data caching
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-interface PgnState {
-  username: string;
-  setUsername: (username: string) => void;
+// Define a Game interface for type safety
+export interface Game {
+  id: number;
+  date: string;
+  opponent: string;
+  result: string;
+  eloChange: string;
+  resultColor: string;
+  rating: string;
+  opening: string;
+  moves: string;
+  timeControl: string;
+  source: string;
+  gameType: string;
+  color: string;
+  gameFormat: string;
   pgn: string;
-  setPgn: (pgn: string) => void;
+}
+
+// Define the shape of your store state
+interface PgnState {
+  // Data
+  pgn: string;
+  username: string;
+  dataAnalysis: any | null; // Replace 'any' with a more specific type if available
   isLoading: boolean;
+  lastFetchTimestamp: number;
+  
+  // Game data cache
+  gamesData: Game[];
+  gamesLastFetched: number | null;
+  
+  // Actions
+  setPgn: (pgn: string) => void;
+  setUsername: (username: string) => void;
+  setDataAnalysis: (dataAnalysis: any) => void;
   setIsLoading: (isLoading: boolean) => void;
-  error: Error | null;
-  setError: (error: Error | null) => void;
-  dataAnalysis: AnalysisResult | any;
-  setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
-  dataGames: any;
-  setDataGames: (dataGames: any) => void;
-  hideDiv: boolean;
-  setHideDiv: (hideDiv: boolean) => void;
-} 
+  resetFetchState: () => void;
+  
+  // Game data actions
+  setGamesData: (games: Game[]) => void;
+  clearGamesData: () => void;
+  
+  // Clear everything
+  clearAll: () => void;
+}
 
 export const usePgnStore = create<PgnState>()(
   persist(
     (set) => ({
-      pgn: '',
-      setPgn: (pgn) => set({ pgn }),
-      username: '',
-      setUsername: (username) => set({ username }),
-      isLoading: false,
-      setIsLoading: (isLoading) => set({ isLoading }),
-      error: null,
-      setError: (error) => set({ error }),
+      // Initial state
+      pgn: "",
+      username: "",
       dataAnalysis: null,
-      setDataAnalysis: (dataAnalysis: any) => set({dataAnalysis}),
-      dataGames: null,
-      setDataGames: (dataGames: any) => set({dataGames}),
-      hideDiv: false,
-      setHideDiv: (hideDiv: boolean) => set({hideDiv}),
+      isLoading: false,
+      lastFetchTimestamp: 0,
       
+      // Game data cache - initially empty
+      gamesData: [],
+      gamesLastFetched: null,
       
+      // Actions
+      setPgn: (pgn: string) => set({ pgn }),
+      
+      setUsername: (username: string) => set((state) => ({ 
+        username,
+        // Only update timestamp if username actually changed
+        lastFetchTimestamp: username !== state.username ? Date.now() : state.lastFetchTimestamp
+      })),
+      
+      setDataAnalysis: (dataAnalysis: any) => set({ dataAnalysis }),
+      
+      setIsLoading: (isLoading: boolean) => set({ isLoading }),
+      
+      resetFetchState: () => set({ lastFetchTimestamp: Date.now() }),
+      
+      // Game data actions
+      setGamesData: (games: Game[]) => set({ 
+        gamesData: games,
+        gamesLastFetched: Date.now()
+      }),
+      
+      clearGamesData: () => set({ 
+        gamesData: [],
+        gamesLastFetched: null
+      }),
+      
+      // Clear everything for logout
+      clearAll: () => set({ 
+        pgn: "",
+        username: "",
+        dataAnalysis: null,
+        isLoading: false,
+        lastFetchTimestamp: 0,
+        gamesData: [],
+        gamesLastFetched: null
+      }),
     }),
     {
-      name: 'pgn-storage', // unique name for the storage
-      storage: createJSONStorage(() => localStorage), // use localStorage by default
+      name: 'pgn-storage', // Name for localStorage
       partialize: (state) => ({
+        // Only persist these fields to localStorage
+        username: state.username,
         pgn: state.pgn,
-        dataAnalysis: state.dataAnalysis,
-        dataGames: state.dataGames,
+        gamesData: state.gamesData,
+        gamesLastFetched: state.gamesLastFetched,
+        // Don't persist loading state or volatile data
       }),
     }
   )
