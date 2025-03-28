@@ -1,8 +1,5 @@
 "use client";
 
-import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
-import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
 import Analytics from "@/components/game-history/Analytics";
 import DialogButton from "@/components/game-history/DialogButton";
 import GamesTab from "@/components/game-history/GamesTab";
@@ -19,96 +16,90 @@ import {
   BarChart2,
   Download,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
+import { useAuth } from "@clerk/nextjs";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { ChessApiService } from "../analysis/onboarding/store/APIService";
 
 const Tabs = ["Games", "Analytics", "Performance"] as const;
+type TabType = (typeof Tabs)[number];
 
 const GameHistoryPage = () => {
-  const {
-    setIsLoading,
-    username,
-    chessComUsername,
-    isChessConnected,
-    setIsChessConnected,
-    setChessComUsername,
-  } = usePgnStore();
-
-  const { sessionId, isAuthenticated } = useAuthStore();
-  const [tab, setTab] = useState<string>("Games");
+  const [tab, setTab] = useState<TabType>("Games");
+  const { sessionId } = useAuth();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Use Zustand store for username state
+  const { setUsername, username } = usePgnStore();
+
+  const handleConnectSuccess = (username: string) => {
+    setShowConnectDialog(false);
+
+    setUsername(username);
+
+    toast.success(`Successfully connected to Chess.com as ${username}`);
+  };
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!isAuthenticated || !sessionId) {
-      toast.error("You must be logged in to access this page");
-      router.push("/login");
-      return;
-    }
+    const fetchProfileData = async () => {
+      setIsLoading(true);
 
-    // Check if user has already connected to Chess.com
-    const checkChessConnection = async () => {
-      // If already connected, don't show dialog
-      if (isChessConnected && chessComUsername) {
-        console.log("User already connected to Chess.com:", chessComUsername);
-        // No need to show the dialog
+      if (!sessionId) {
+        setIsLoading(false);
         return;
       }
 
-      // Try to fetch user profile to see if they have a username set
       try {
-        setIsLoading(true);
-        const profileData = await ChessApiService.getGames(sessionId);
+        console.log(
+          "Fetching profile with session ID:",
+          sessionId.substring(0, 10) + "..."
+        );
+        const profileData = await ChessApiService.getProfile(sessionId);
 
-        if (profileData?.username) {
-          // User has a username set, update store
-          console.log(
-            "Found existing Chess.com username:",
-            profileData.username
-          );
-          setChessComUsername(profileData.username);
-          setIsChessConnected(true);
+        // Check for username in the response
+        if (
+          profileData &&
+          (profileData.username ||
+            (profileData.data && profileData.data.username))
+        ) {
+          // Extract username from the appropriate location in the response
+          const username = profileData.username || profileData.data.username;
+          console.log("Found username in API response:", username);
+
+          // Update Zustand store with just the username
+          setUsername(username);
+
+          // Don't show dialog since we found a username
+          setShowConnectDialog(false);
         } else {
-          // No username found, show dialog
-          console.log("No Chess.com username found, showing dialog");
+          console.log(
+            "No username found in profile - will show connect dialog"
+          );
           setShowConnectDialog(true);
         }
       } catch (error) {
-        console.error("Error fetching user profile:", error);
-        // If there was an error, show the dialog to set username
+        console.error("Failed to fetch profile:", error);
         setShowConnectDialog(true);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkChessConnection();
-  }, [
-    isAuthenticated,
-    sessionId,
-    isChessConnected,
-    chessComUsername,
-    router,
-    setChessComUsername,
-    setIsChessConnected,
-    setIsLoading,
-  ]);
+    fetchProfileData();
+  }, [sessionId, setUsername]);
 
-  const handleConnectSuccess = (username: string) => {
-    setShowConnectDialog(false);
-    toast.success(`Successfully connected to Chess.com as ${username}`);
-    // No need to refresh the page, the components will automatically fetch data
-  };
-
-  // if (isLoading) {
-  //   return <LoadingPage />;
-  // }
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* <Responsive /> */}
       <main className="w-full px-4 py-4 space-y-[16px]">
         {/* Chess.com Connection Dialog */}
         <ChessConnectDialog
@@ -123,9 +114,7 @@ const GameHistoryPage = () => {
             <h1 className="text-base lg:text-3xl font-bold">My Game History</h1>
             <div className="flex justify-center items-end h-full">
               <p className="text-xs text-gray-500 lg:text-lg">
-                {chessComUsername
-                  ? `(${chessComUsername})`
-                  : "(No username set)"}
+                {username ? `(${username})` : "(No username set)"}
               </p>
             </div>
           </div>
@@ -148,11 +137,13 @@ const GameHistoryPage = () => {
 
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold lg:text-[28px]">2,100</h1>
+                  <h1 className="text-lg font-bold lg:text-[28px]">
+                    {"2,100"}
+                  </h1>
                   <Star fill="white" />
                 </div>
                 <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                  vs IM_ChessMaster
+                  vs {"IM_ChessMaster"}
                 </span>
               </div>
             </Card>
@@ -167,11 +158,11 @@ const GameHistoryPage = () => {
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
                   <h1 className="text-lg font-bold lg:text-[28px] bg-gradient-to-b from-[#029A46]  to-[#42F993] inline-block text-transparent bg-clip-text">
-                    90%
+                    {"90%"}
                   </h1>
                 </div>
                 <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                  +5% this month
+                  {"+5% this month"}
                 </span>
               </div>
             </Card>
@@ -188,11 +179,11 @@ const GameHistoryPage = () => {
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
                   <h1 className="text-lg font-bold lg:text-[28px] bg-gradient-to-b from-[#3871EC]  to-[#80A8FF] inline-block text-transparent bg-clip-text">
-                    1,850
+                    {"1,850"}
                   </h1>
                 </div>
                 <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                  +25 points this month
+                  {"+25 points this month"}
                 </span>
               </div>
             </Card>
@@ -206,10 +197,12 @@ const GameHistoryPage = () => {
 
               <div className="flex flex-col">
                 <div className="flex gap-1 items-center">
-                  <h1 className="text-lg font-bold lg:text-[28px]">1,234</h1>
+                  <h1 className="text-lg font-bold lg:text-[28px]">
+                    {"1,234"}
+                  </h1>
                 </div>
                 <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                  +45 this month
+                  {"+45 this month"}
                 </span>
               </div>
             </Card>

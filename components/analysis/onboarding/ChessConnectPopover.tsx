@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Cat } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useAuthStore } from "./store/AuthStore";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
 
@@ -31,10 +31,10 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { sessionId } = useAuth();
 
-  const { sessionId } = useAuthStore();
-
-  const { setIsChessConnected, setChessComUsername } = usePgnStore();
+  // Access the Zustand store to directly update the username
+  const { setUsername: setStoreUsername } = usePgnStore();
 
   const handleSave = async () => {
     setErrorMessage("");
@@ -46,31 +46,61 @@ export const ChessConnectDialog = ({
     }
 
     if (!sessionId) {
-      setErrorMessage("Authentication required. Please sign in again.");
-      toast.error("Authentication required. Please sign in again.");
+      setErrorMessage(
+        "You must be logged in to connect your Chess.com account"
+      );
+      toast.error("Authentication error. Please log in again.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      console.log("Connecting with username:", username);
-      console.log("Using session ID:", sessionId);
+      console.log("Setting username:", username);
 
-      await ChessApiService.setUsername(username, sessionId);
+      // Call the API to set the username
+      const result = await ChessApiService.setUsername(username, sessionId);
+      console.log("API response:", result);
 
-      setChessComUsername(username);
-      setIsChessConnected(true);
+      // Update the Zustand store
+      setStoreUsername(username);
 
+      // Call the success callback
       onSuccess(username);
+
+      // Show success message
+      toast.success(`Successfully connected to Chess.com as ${username}`);
     } catch (error: any) {
       console.error("Chess.com connection error:", error);
-      const errorMsg =
-        error.message || "Failed to connect to Chess.com. Please try again.";
-      setErrorMessage(errorMsg);
-      toast.error(errorMsg);
+
+      // If the error contains "already exists" it likely means this username is already set
+      // for this user, which we can treat as a success.
+      if (error.message && error.message.includes("already exists")) {
+        console.log("Username already exists in database, treating as success");
+
+        // Update the Zustand store
+        setStoreUsername(username);
+
+        // Call the success callback
+        onSuccess(username);
+
+        toast.success(`Connected to Chess.com as ${username}`);
+      } else {
+        // For other errors, show the error message
+        const errorMsg =
+          error.message || "Failed to connect to Chess.com. Please try again.";
+        setErrorMessage(errorMsg);
+        toast.error(errorMsg);
+      }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !isSubmitting) {
+      handleSave();
     }
   };
 
@@ -116,6 +146,8 @@ export const ChessConnectDialog = ({
               className="w-full h-12 px-4 rounded-lg border-gray-200 focus:border-blue-500"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isSubmitting}
             />
 
             {errorMessage && (
@@ -125,16 +157,10 @@ export const ChessConnectDialog = ({
             <Button
               className="w-full h-12 btn-primary text-white font-medium rounded-full"
               onClick={handleSave}
-              disabled={isSubmitting || !sessionId}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "Connecting..." : "Save"}
             </Button>
-
-            {!sessionId && (
-              <p className="text-sm text-red-500 text-center">
-                Session not found. Please sign in again.
-              </p>
-            )}
           </div>
         </div>
       </DialogContent>

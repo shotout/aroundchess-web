@@ -3,14 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import {
-  Mail,
-  Lock,
-  Apple,
-  ArrowLeft,
-  SendHorizonal,
-  CheckCircle,
-} from "lucide-react";
+import { Mail, Lock, Apple, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useSignUp } from "@clerk/nextjs";
 import { useState, useRef } from "react";
@@ -18,13 +11,6 @@ import Image from "next/image";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Responsive from "@/components/game-history/Responsive";
-import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
-
-const backgroundStyles = {
-  "--bg-position-x": "center",
-  "--bg-position-y": "top",
-  "--bg-size": "cover",
-} as React.CSSProperties;
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -35,10 +21,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const router = useRouter();
-  const { signUp, isLoaded, setActive } = useSignUp();
+  const { signUp, isLoaded } = useSignUp();
   const codeInputRef = useRef<HTMLInputElement>(null);
-
-  const { setSessionId, setIsAuthenticated } = useAuthStore();
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -96,26 +80,26 @@ export default function RegisterPage() {
         return;
       }
 
-      // IMPORTANT: Store the session ID in Zustand store
-      if (completeSignUp.createdSessionId) {
-        // Extract the token from the session
-        const sessionId = completeSignUp.createdSessionId;
-        console.log("Raw session ID captured:", sessionId);
+      // // IMPORTANT: Store the session ID in Zustand store
+      // if (completeSignUp.createdSessionId) {
+      //   // Extract the token from the session
+      //   const sessionId = completeSignUp.createdSessionId;
+      //   console.log("Raw session ID captured:", sessionId);
 
-        // Save to zustand store
-        setSessionId(sessionId);
-        setIsAuthenticated(true);
+      //   // Save to zustand store
+      //   setSessionId(sessionId);
+      //   setIsAuthenticated(true);
 
-        console.log("Session ID saved to auth store:", sessionId);
-      }
+      //   console.log("Session ID saved to auth store:", sessionId);
+      // }
 
-      // Set the user session active with Clerk
-      await setActive({ session: completeSignUp.createdSessionId });
+      // // Set the user session active with Clerk
+      // await setActive({ session: completeSignUp.createdSessionId });
 
       toast.success("Account verified successfully!");
 
       // Redirect to dashboard after successful verification
-      router.push("/analysis");
+      router.push("/my-game-history");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Verification failed";
@@ -155,7 +139,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/my-game-history",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -169,7 +153,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/my-game-history",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -183,7 +167,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+        redirectUrlComplete: "/my-game-history",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -196,7 +180,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex flex-col relative">
         <Responsive />
         {/* Background with adjustable positioning */}
-        <div className="absolute inset-0 -z-10" style={backgroundStyles}>
+        <div className="absolute inset-0 -z-10">
           <Image
             src="/images/auth-background.png"
             fill

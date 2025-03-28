@@ -11,7 +11,7 @@ export const ChessApiService = {
       console.log("Making request to set username:", username);
       console.log("Using session ID (truncated):", `${sessionId.substring(0, 10)}...`);
 
-      const response = await fetch("https://ac-api.kemang.sg/api/profile/set-username", {
+      const response = await fetch("https://ac-api-dev.kemang.sg/api/profile/set-username", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,86 +50,64 @@ export const ChessApiService = {
     }
   },
 
-  async getGames(sessionId: string): Promise<any> {
+  async getProfile(sessionId: string): Promise<any> {
     try {
       if (!sessionId) {
         throw new Error("Session ID is required");
       }
 
-      console.log("Fetching games with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
+      console.log("Fetching profile with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
 
-      const response = await fetch("https://ac-api.kemang.sg/api/profile", {
+      const response = await fetch("https://ac-api-dev.kemang.sg/api/profile", {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${sessionId}`
         }
       });
 
-      console.log("Games response status:", response.status);
+      console.log("Profile API response status:", response.status);
+      
+      if (!response.ok) {
+        console.log("Error in profile API, status:", response.status);
+        throw new Error(`Failed to get profile: ${response.status}`);
+      }
       
       const responseText = await response.text();
-      console.log("Raw games response (preview):", responseText.substring(0, 100) + "...");
+      console.log("Profile data retrieved:", responseText.substring(0, 100) + "...");
       
       let responseData;
       try {
         responseData = responseText ? JSON.parse(responseText) : {};
       } catch (e) {
-        console.error("Failed to parse games response as JSON:", e);
-        throw new Error("Server returned an invalid response. Please check console for details.");
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          responseData?.message || `Failed to get games: ${response.status}`
-        );
+        console.error("Failed to parse profile response as JSON:", e);
+        console.log("Raw response text:", responseText);
+        throw new Error("Invalid JSON response from server");
       }
 
       return responseData;
     } catch (error) {
-      console.error("Chess API error:", error);
-      if (error instanceof SyntaxError) {
-        throw new Error("Server returned an invalid response. Please try again later.");
-      }
+      console.error("Chess API getProfile error:", error);
       throw error;
     }
   },
 
-  // New method to check if user has a Chess.com account connected
-  async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string}> {
+  /**
+   * Check if user has a Chess.com account connected
+   * @param sessionId The user's session ID
+   * @returns Object containing connection status and username if connected
+   */
+  async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string, profile?: any}> {
     try {
-      if (!sessionId) {
-        throw new Error("Session ID is required");
-      }
-
-      console.log("Checking chess connection with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
-
-      const response = await fetch("https://ac-api.kemang.sg/api/profile", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${sessionId}`
-        }
-      });
-
-      if (!response.ok) {
-        console.log("Error checking chess connection, status:", response.status);
-        return { isConnected: false };
-      }
+      const profileData = await this.getProfile(sessionId);
       
-      const responseText = await response.text();
-      let responseData;
-      try {
-        responseData = responseText ? JSON.parse(responseText) : {};
-      } catch (e) {
-        console.error("Failed to parse connection check response as JSON:", e);
-        return { isConnected: false };
-      }
-
-      // Check if username exists in the profile
-      if (responseData && responseData.username) {
-        console.log("Found existing Chess.com username:", responseData.username);
+      // Check username in the appropriate location based on API response structure
+      const username = profileData?.username || (profileData?.data && profileData.data.username);
+      
+      if (username) {
         return { 
           isConnected: true, 
-          username: responseData.username 
+          username,
+          profile: profileData
         };
       }
 

@@ -12,7 +12,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-  persist(
+  // persist(
     (set) => ({
       sessionId: '',
       isAuthenticated: false,
@@ -20,9 +20,9 @@ export const useAuthStore = create<AuthState>()(
       setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
       clearAuth: () => set({ sessionId: '', isAuthenticated: false }),
     }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
+    // {
+    //   name: 'auth-storage',
+    //   storage: createJSONStorage(() => localStorage),
+    // }
+  // )
 );
