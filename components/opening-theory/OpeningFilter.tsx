@@ -26,7 +26,7 @@ const OpeningFilters: React.FC<OpeningFiltersProps> = ({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
+    <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2 mb-4 xl:mb-0">
       <div className="relative w-full md:w-[60%]">
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
           <Search className="h-4 w-4" />

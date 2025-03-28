@@ -10,8 +10,8 @@ import {
   Info,
   CheckCircle2,
   ArrowLeft,
-  Clock,
   Check,
+  Target,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Responsive from "../game-history/Responsive";
@@ -22,6 +22,7 @@ import {
   getSlugFromId,
 } from "./lib/openingMapper";
 import DotSpinner from "../game-history/Spinner";
+import Image from "next/image";
 
 export default function OpeningDetailWithNextTopics({
   params,
@@ -110,10 +111,10 @@ export default function OpeningDetailWithNextTopics({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="flex flex-col"
+        className="flex flex-col "
       >
         <div className="mb-4">
-          <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6">
+          <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6 xl:gap-y-2">
             <div className="flex">
               <div className="flex items-center">
                 <button
@@ -122,13 +123,15 @@ export default function OpeningDetailWithNextTopics({
                 >
                   <ArrowLeft className="h-6 w-6 mr-2 font-bold" />
                 </button>
-                <h1 className="font-bold text-lg">{opening.title}</h1>
+                <h1 className="font-bold text-lg xl:text-[32px]">
+                  {opening.title}
+                </h1>
               </div>
 
               <div className="hidden"></div>
             </div>
 
-            <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8">
+            <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8 xl:text-lg">
               {opening.description}
             </p>
           </div>
@@ -155,22 +158,36 @@ export default function OpeningDetailWithNextTopics({
               </div>
 
               {lessonFinished && (
-                <div className="bg-green-100 border-green-300 border rounded-lg p-4 flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  <span className="text-green-800 font-medium">
+                <div className="relative bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100% border rounded-lg p-4 pl-10 flex items-center gap-2">
+                  <Image
+                    width={20}
+                    height={20}
+                    alt="check icon"
+                    src={"/handbooks/check.png"}
+                    className="h-5 w-5 text-green-500"
+                  />
+                  <h1 className="text-black font-medium">
                     Great, you finished this exercise! Make sure you use your
                     Learnings in your next Game.
-                  </span>
+                  </h1>
+
+                  <Image
+                    width={200}
+                    height={200}
+                    alt="sparks"
+                    src={"/handbooks/sparks.png"}
+                    className="absolute top-0 right-12"
+                  />
                 </div>
               )}
 
               <div className="flex flex-col gap-4">
-                <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[71px]">
+                <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[78px] xl:gap-y-1">
                   <div className="flex items-center">
                     <Info className="h-5 w-5 mr-2 text-blue-600" />
-                    <h2 className="text-sm font-semibold">Opening Analysis</h2>
+                    <h2 className="text-base">Opening Analysis</h2>
                   </div>
-                  <p className="text-gray-600 text-xs">
+                  <p className="text-[#364152] text-sm">
                     Key strategic and tactical ideas in this opening
                   </p>
                 </div>
@@ -210,18 +227,18 @@ export default function OpeningDetailWithNextTopics({
                 </div>
               </div>
 
-              <div className="overflow-hidden bg-white flex flex-col gap-6">
-                <div className="p-2 flex bg-gray-200 rounded-lg border h-[52px] items-center">
+              <div className="overflow-hidden  flex flex-col gap-6">
+                <div className="p-2 flex bg-[#F9FAFC] rounded-lg border h-auto items-center">
                   {[
                     { id: "overview", label: "Overview" },
                     { id: "variations", label: "Variations" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
-                      className={`flex-1 p-2 font-medium text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] font-medium  text-center rounded-lg transition-all ${
                         activeTab === tab.id
-                          ? "bg-white shadow-sm text-black"
-                          : "text-gray-600"
+                          ? "bg-white shadow-md text-black font-bold"
+                          : "text-gray-600 font-normal"
                       }`}
                       onClick={() =>
                         setActiveTab(tab.id as "overview" | "variations")
@@ -232,7 +249,7 @@ export default function OpeningDetailWithNextTopics({
                   ))}
                 </div>
 
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 bg-white">
                   <AnimatePresence mode="wait">
                     {activeTab === "overview" ? (
                       <motion.div
@@ -346,12 +363,10 @@ export default function OpeningDetailWithNextTopics({
                                       (keyIdea, pointIndex) => (
                                         <li
                                           key={pointIndex}
-                                          className="flex items-start gap-2"
+                                          className="flex items-center gap-2"
                                         >
-                                          <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-base text-white flex items-center justify-center text-xs">
-                                            ✓
-                                          </div>
-                                          <span className="text-xs md:text-sm">
+                                          <Target className="w-5 h-5 text-blue-base" />
+                                          <span className="text-xs ">
                                             {keyIdea.idea}
                                           </span>
                                         </li>
@@ -375,16 +390,16 @@ export default function OpeningDetailWithNextTopics({
                 </div>
               </div>
 
-              <div className="border rounded-lg p-4 bg-white">
+              <div className="border rounded-lg p-4 bg-light-40">
                 <h3 className="font-semibold text-sm mb-4">
                   Practice your Learnings to finish this Lesson:
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
                   {opening.resources.map((resource, index) => (
                     <div
                       key={index}
-                      className="border rounded-lg p-4 flex flex-col h-40"
+                      className="border rounded-lg p-4 flex flex-col h-40 bg-white"
                     >
                       <h4 className="font-medium text-sm">{resource.title}</h4>
                       <p className="text-xs text-gray-600 mt-2 line-clamp-3">
@@ -397,7 +412,7 @@ export default function OpeningDetailWithNextTopics({
                           rel="noopener noreferrer"
                           className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
                         >
-                          <h1 className="text-center">
+                          <h1 className="text-center text-md font-semibold">
                             Visit {resource.platform.replace("_", ".")}
                           </h1>
                         </a>
@@ -421,14 +436,14 @@ export default function OpeningDetailWithNextTopics({
               </div>
             </div>
 
-            <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md">
+            <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md xl:mb-6">
               <div className="xl:hidden -mx-4 md:-mx-6 w-screen">
                 <div className="border-t w-full"></div>
               </div>
 
               <div className="p-4">
                 <div className="rounded-lg">
-                  <div>
+                  <div className="">
                     <h2 className="text-xl font-bold">Next Topics</h2>
                     <p className="text-sm text-gray-600 mt-1">
                       Discover other lessons now!
