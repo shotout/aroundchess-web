@@ -23,6 +23,7 @@ import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
+import Image from "next/image";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -135,8 +136,8 @@ const GameHistoryPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {/* Best Win Card */}
               <Card className="p-3 h-[120px] lg:h-[147px] bg-gradient-to-br from-[#A855F7] to-[#CF9DFF] text-white rounded-lg overflow-hidden relative flex flex-col justify-between">
-                <div className="flex items-center">
-                  <Swords className="h-4 w-4" fill="white" />
+                <div className="flex items-center ">
+                  <Swords className="h-4 w-4 mr-1" fill="white" />
                   <h1 className="text-sm lg:text-lg">Best Win (rating)</h1>
                 </div>
 
@@ -151,6 +152,21 @@ const GameHistoryPage = () => {
                     vs {"IM_ChessMaster"}
                   </span>
                 </div>
+
+                <Image
+                  width={200}
+                  height={200}
+                  alt=""
+                  src={"/my-game-history/background.png"}
+                  className="top-5 right-0 absolute "
+                />
+                <Image
+                  width={30}
+                  height={30}
+                  alt=""
+                  src={"/my-game-history/star.png"}
+                  className="top-10 right-[150px] absolute "
+                />
               </Card>
 
               {/* Win Rate Card */}
@@ -191,6 +207,21 @@ const GameHistoryPage = () => {
                     {"+25 points this month"}
                   </span>
                 </div>
+
+                <Image
+                  width={200}
+                  height={200}
+                  alt=""
+                  src={"/my-game-history/background-b.png"}
+                  className="top-5 right-0 absolute text-black "
+                />
+                <Image
+                  width={20}
+                  height={20}
+                  alt=""
+                  src={"/my-game-history/rectangle.png"}
+                  className="top-10 right-[150px] absolute "
+                />
               </Card>
 
               {/* Total Games Card */}
