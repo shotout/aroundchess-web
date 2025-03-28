@@ -375,7 +375,7 @@ const AnalysisResult: React.FC = () => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#FFA459] text-[#FFA459]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -728,6 +728,15 @@ const AnalysisResult: React.FC = () => {
                         {chessMove.classification}
                       </span>
                     )}
+                     {chessMove?.type && (
+                      <span
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                          chessMove.type
+                        )}`}
+                      >
+                        {chessMove.type}
+                      </span>
+                    )}
                     <button onClick={() => setChessMove({})}>
                       <Image
                         alt="close"
@@ -742,6 +751,11 @@ const AnalysisResult: React.FC = () => {
                 {chessMove?.analysis && (
                   <span className="text-sm font-normal py-1">
                     {chessMove?.analysis}
+                  </span>
+                )}
+                {chessMove?.solution && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.solution}
                   </span>
                 )}
                 {chessMove?.gamePhase && (
