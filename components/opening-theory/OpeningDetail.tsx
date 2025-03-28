@@ -145,8 +145,12 @@ export default function OpeningDetailWithNextTopics({
                   <Chessboard
                     id={`board-${params.slug}`}
                     position={getFenFromMoves(opening.variations?.[0]?.moves)}
-                    customDarkSquareStyle={{ backgroundColor: "#5C9DFF" }}
-                    customLightSquareStyle={{ backgroundColor: "#fff" }}
+                    customDarkSquareStyle={{
+                      backgroundColor: "#9E7555",
+                    }}
+                    customLightSquareStyle={{
+                      backgroundColor: "#F0DFC7",
+                    }}
                   />
                 </div>
               </div>
@@ -441,7 +445,7 @@ export default function OpeningDetailWithNextTopics({
                 <div className="border-t w-full"></div>
               </div>
 
-              <div className="p-4">
+              <div className="xl:p-4 py-4">
                 <div className="rounded-lg">
                   <div className="">
                     <h2 className="text-xl font-bold">Next Topics</h2>
@@ -460,7 +464,7 @@ export default function OpeningDetailWithNextTopics({
                           onClick={() => handleOpeningNavigation(topicSlug)}
                           className="cursor-pointer w-full xl:mx-auto"
                         >
-                          <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
+                          <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-auto">
                             <div className="relative">
                               <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
                                 <div className="w-full h-full p-2 md:p-3 xl:p-4">
@@ -471,27 +475,32 @@ export default function OpeningDetailWithNextTopics({
                                     )}
                                     arePiecesDraggable={false}
                                     customDarkSquareStyle={{
-                                      backgroundColor: "#5C9DFF",
+                                      backgroundColor: "#9E7555",
                                     }}
                                     customLightSquareStyle={{
-                                      backgroundColor: "#fff",
+                                      backgroundColor: "#F0DFC7",
                                     }}
                                   />
                                 </div>
                               </div>
-                              <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-md">
+                              <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
                                 Opening
                               </span>
-                              <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                              </span>
+                              <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full">
+                                <Image
+                                  src={"/handbooks/finished.png"}
+                                  alt="finish lesson icon"
+                                  fill
+                                  className="p-1"
+                                />
+                              </div>
                             </div>
 
-                            <div className="p-4 flex flex-col flex-grow space-y-3">
+                            <div className="p-4 xl:py-0 flex flex-col flex-grow space-y-3 xl:space-y-2 xl:mb-4">
                               <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
                                 {topic.difficulty}
                               </span>
-                              <h3 className="font-medium text-gray-900 text-xs h-8 line-clamp-2">
+                              <h3 className="font-medium text-gray-900 text-xs h-auto line-clamp-2">
                                 {topic.title}
                               </h3>
                               <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto btn-primary">
