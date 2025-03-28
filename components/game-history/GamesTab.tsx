@@ -44,7 +44,7 @@ interface Game {
   pgn: string;
 }
 
-const endpoint = process.env.NEXT_PUBLIC_GAME_HISTORY || "";
+const endpoint = "helo";
 
 // Function to transform API data to match the expected format in the component
 function transformApiDataToComponentFormat(apiData: any[]) {
@@ -152,7 +152,7 @@ const GamesTab = () => {
       setApiProcessedData(transformedData);
     }
   }, [data]);
-
+  //
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);

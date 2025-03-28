@@ -6,7 +6,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface PgnState {
-  // Existing properties
   username: string;
   setUsername: (username: string) => void;
   pgn: string;
@@ -21,18 +20,11 @@ interface PgnState {
   setDataGames: (dataGames: any) => void;
   hideDiv: boolean;
   setHideDiv: (hideDiv: boolean) => void;
-  
-  // New properties for chess connection
-  isChessConnected: boolean;
-  setIsChessConnected: (isConnected: boolean) => void;
-  chessComUsername: string;
-  setChessComUsername: (username: string) => void;
 } 
 
 export const usePgnStore = create<PgnState>()(
   persist(
     (set) => ({
-      // Existing state
       pgn: '',
       setPgn: (pgn) => set({ pgn }),
       username: '',
@@ -48,11 +40,7 @@ export const usePgnStore = create<PgnState>()(
       hideDiv: false,
       setHideDiv: (hideDiv: boolean) => set({hideDiv}),
       
-      // New state for chess connection
-      isChessConnected: false,
-      setIsChessConnected: (isConnected: boolean) => set({ isChessConnected: isConnected }),
-      chessComUsername: '',
-      setChessComUsername: (username: string) => set({ chessComUsername: username }),
+      
     }),
     {
       name: 'pgn-storage', // unique name for the storage
@@ -60,11 +48,7 @@ export const usePgnStore = create<PgnState>()(
       partialize: (state) => ({
         pgn: state.pgn,
         dataAnalysis: state.dataAnalysis,
-        username: state.username,
         dataGames: state.dataGames,
-        // Include new state in persistence
-        isChessConnected: state.isChessConnected,
-        chessComUsername: state.chessComUsername,
       }),
     }
   )

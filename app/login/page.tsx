@@ -1,24 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useSignIn } from "@clerk/nextjs";
+import { useAuth, useSignIn } from "@clerk/nextjs";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import Responsive from "@/components/game-history/Responsive";
-import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
-import { usePgnStore } from "@/app/store/zustandStore";
-
-const backgroundStyles = {
-  "--bg-position-x": "center",
-  "--bg-position-y": "top",
-  "--bg-size": "cover",
-} as React.CSSProperties;
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,16 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { signIn, isLoaded } = useSignIn();
-  const { setSessionId, setIsAuthenticated, isAuthenticated } = useAuthStore();
-  const { chessComUsername } = usePgnStore();
-
-  // Check if already authenticated and redirect if needed
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log("User is already authenticated, redirecting to game history");
-      router.push("/game-history");
-    }
-  }, [isAuthenticated, router]);
+  const { sessionId } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,23 +33,8 @@ export default function LoginPage() {
       });
 
       if (result.status === "complete") {
-        // Extract the session ID and save it in the auth store
-        if (result.createdSessionId) {
-          const sessionId = result.createdSessionId;
-          console.log(
-            "Login successful. Saving session ID:",
-            sessionId.substring(0, 10) + "..."
-          );
-
-          // Save to zustand store
-          setSessionId(sessionId);
-          setIsAuthenticated(true);
-        }
-
         toast.success("Logged in successfully!");
-
-        // Always redirect to game-history after login
-        router.push("/game-history");
+        router.push("/my-game-history");
       } else {
         console.error("Sign in result:", result);
         toast.error("Failed to sign in");
@@ -84,7 +52,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -98,7 +66,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -112,7 +80,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -124,8 +92,7 @@ export default function LoginPage() {
     <>
       <div className="min-h-screen flex flex-col relative">
         <Responsive />
-        {/* Background with adjustable positioning */}
-        <div className="absolute inset-0 -z-10" style={backgroundStyles}>
+        <div className="absolute inset-0 -z-10">
           <Image
             src="/images/auth-background.png"
             fill

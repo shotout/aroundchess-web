@@ -1,4 +1,5 @@
 "use client";
+
 import GameHistoryPage from "@/components/game-history/GameHistoryPage";
 import Navigation from "@/components/navigator/navigation";
 

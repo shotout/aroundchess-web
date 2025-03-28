@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -20,6 +21,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
+  const { isSignedIn } = useUser();
 
   // Check if desktop on initial load and when window resizes
   useEffect(() => {
@@ -93,13 +95,18 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       <div className="flex items-center space-x-4">
         {/* Auth buttons - visible on desktop only (xl+) */}
-        <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-          Sign-in
-        </button>
-
-        <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-          Try Now
-        </button>
+        {!isSignedIn ? (
+          <div className="hidden sm:flex items-center gap-2">
+            <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <Link href="/login">Sign In</Link>
+            </button>
+            <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+              Try Now
+            </button>
+          </div>
+        ) : (
+          <UserButton showName={true} />
+        )}
 
         {/* Tablet view - Analytics button next to hamburger */}
         {!isDesktop && (
