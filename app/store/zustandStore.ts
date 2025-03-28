@@ -1,4 +1,4 @@
-// Updated zustandStore.ts using sessionStorage instead of localStorage
+// Updated zustandStore.ts with Performance data support
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -31,19 +31,41 @@ interface PgnState {
   lastFetchTimestamp: number;
   hideDiv: boolean;
   
+  // Games data cache
   gamesData: Game[];
   gamesLastFetched: number | null;
   
+  // Analytics data cache
+  analyticsData: any | null;
+  analyticsLastFetched: number | null;
+  
+  // Performance data cache
+  performanceData: any | null;
+  performanceLastFetched: number | null;
+  
+  // Actions for PGN and state
   setPgn: (pgn: string) => void;
   setUsername: (username: string) => void;
   setDataAnalysis: (dataAnalysis: any) => void;
   setIsLoading: (isLoading: boolean) => void;
   resetFetchState: () => void;
-  setHideDiv: (hideDiv: boolean) => void
+  setHideDiv: (hideDiv: boolean) => void;
   
+  // Actions for games data
   setGamesData: (games: Game[]) => void;
   clearGamesData: () => void;
   
+  // Actions for analytics data
+  setAnalyticsData: (data: any) => void;
+  clearAnalyticsData: () => void;
+  resetAnalyticsState: () => void;
+  
+  // Actions for performance data
+  setPerformanceData: (data: any) => void;
+  clearPerformanceData: () => void;
+  resetPerformanceState: () => void;
+  
+  // Clear everything
   clearAll: () => void;
 }
 
@@ -62,6 +84,14 @@ export const usePgnStore = create<PgnState>()(
       gamesData: [],
       gamesLastFetched: null,
       
+      // Analytics data cache - initially empty
+      analyticsData: null,
+      analyticsLastFetched: null,
+      
+      // Performance data cache - initially empty
+      performanceData: null,
+      performanceLastFetched: null,
+      
       // Actions
       setPgn: (pgn: string) => set({ pgn }),
       
@@ -71,7 +101,7 @@ export const usePgnStore = create<PgnState>()(
         lastFetchTimestamp: username !== state.username ? Date.now() : state.lastFetchTimestamp
       })),
 
-      setHideDiv: (hideDiv:boolean) => set({hideDiv}),
+      setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
       
       setDataAnalysis: (dataAnalysis: any) => set({ dataAnalysis }),
       
@@ -90,6 +120,36 @@ export const usePgnStore = create<PgnState>()(
         gamesLastFetched: null
       }),
       
+      // Analytics data actions
+      setAnalyticsData: (data: any) => set({
+        analyticsData: data,
+        analyticsLastFetched: Date.now()
+      }),
+      
+      clearAnalyticsData: () => set({
+        analyticsData: null,
+        analyticsLastFetched: null
+      }),
+      
+      resetAnalyticsState: () => set({
+        analyticsLastFetched: Date.now()
+      }),
+      
+      // Performance data actions
+      setPerformanceData: (data: any) => set({
+        performanceData: data,
+        performanceLastFetched: Date.now()
+      }),
+      
+      clearPerformanceData: () => set({
+        performanceData: null,
+        performanceLastFetched: null
+      }),
+      
+      resetPerformanceState: () => set({
+        performanceLastFetched: Date.now()
+      }),
+      
       // Clear everything (still available but not needed for session expiration)
       clearAll: () => set({ 
         pgn: "",
@@ -98,7 +158,11 @@ export const usePgnStore = create<PgnState>()(
         isLoading: false,
         lastFetchTimestamp: 0,
         gamesData: [],
-        gamesLastFetched: null
+        gamesLastFetched: null,
+        analyticsData: null,
+        analyticsLastFetched: null,
+        performanceData: null,
+        performanceLastFetched: null
       }),
     }),
     {
@@ -109,6 +173,10 @@ export const usePgnStore = create<PgnState>()(
         pgn: state.pgn,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
+        analyticsData: state.analyticsData,
+        analyticsLastFetched: state.analyticsLastFetched,
+        performanceData: state.performanceData,
+        performanceLastFetched: state.performanceLastFetched,
       }),
     }
   )

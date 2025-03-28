@@ -88,13 +88,11 @@ const DialogButton: React.FC = () => {
     <div>
       {/* Dialog Trigger Button */}
       <button
-        className="flex justify-center items-center lg:gap-3 py-[20px] px-1 rounded-3xl btn-primary w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
+        className="flex justify-center items-center lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
         onClick={() => setOpenDialog(true)}
       >
-        <Upload className="h-[13px]" />
-        <h1 className="text-xs lg:text-sm font-primary font-thin">
-          Import Games
-        </h1>
+        <Upload className="h-[20px]" />
+        <h1 className="text-xs lg:text-sm font-primary">Import Games</h1>
       </button>
 
       {/* Dialog */}
