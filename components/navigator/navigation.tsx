@@ -41,7 +41,7 @@ export default function Navigation({
       {/* Main content wrapper with header */}
       <div className={`flex flex-col w-full ${isDesktop ? "ml-64" : ""}`}>
         {/* Fixed header */}
-        <div className="fixed top-0 right-0 z-40 bg-white border-b border-gray-200 left-0 xl:left-64">
+        <div className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0 xl:left-64">
           <Header onSidebarToggle={toggleSidebar} />
         </div>
 
