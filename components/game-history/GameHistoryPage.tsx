@@ -7,6 +7,7 @@ import Performance from "@/components/game-history/Performance";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import axios from "axios";
 
 import {
   Star,
@@ -20,67 +21,78 @@ import React, { useEffect, useState } from "react";
 import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
 import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { ChessApiService } from "../analysis/onboarding/store/APIService";
+import DotSpinner from "./Spinner";
 
 const Tabs = ["Games", "Analytics", "Performance"] as const;
 type TabType = (typeof Tabs)[number];
 
+// API base URL - use the one that works in your Postman
+const API_BASE_URL = "https://ac-api-dev.kemang.sg/api";
+
 const GameHistoryPage = () => {
   const [tab, setTab] = useState<TabType>("Games");
-  const { sessionId } = useAuth();
+  const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchAttempted, setFetchAttempted] = useState(false);
 
-  // Use Zustand store for username state
   const { setUsername, username } = usePgnStore();
 
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
-
     setUsername(username);
-
     toast.success(`Successfully connected to Chess.com as ${username}`);
   };
 
+  // Fetch profile as soon as authentication is loaded
   useEffect(() => {
     const fetchProfileData = async () => {
-      setIsLoading(true);
-
-      if (!sessionId) {
-        setIsLoading(false);
+      // Only proceed if auth is loaded and user is signed in
+      if (!authIsLoaded || !isSignedIn || !sessionId) {
+        if (authIsLoaded) {
+          setIsLoading(false);
+        }
         return;
       }
 
+      // Prevent multiple fetch attempts
+      if (fetchAttempted) return;
+      setFetchAttempted(true);
+
+      setIsLoading(true);
+      console.log("Fetching profile data...");
+
       try {
-        console.log(
-          "Fetching profile with session ID:",
-          sessionId.substring(0, 10) + "..."
-        );
-        const profileData = await ChessApiService.getProfile(sessionId);
+        console.log("Using sessionId:", sessionId.substring(0, 10) + "...");
 
-        // Check for username in the response
-        if (
-          profileData &&
-          (profileData.username ||
-            (profileData.data && profileData.data.username))
-        ) {
-          // Extract username from the appropriate location in the response
-          const username = profileData.username || profileData.data.username;
-          console.log("Found username in API response:", username);
+        // Make direct API request with authentication token
+        const response = await axios.get(`${API_BASE_URL}/profile`, {
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+            Accept: "application/json",
+          },
+        });
 
-          // Update Zustand store with just the username
-          setUsername(username);
+        console.log("Profile API response:", response.data);
 
-          // Don't show dialog since we found a username
-          setShowConnectDialog(false);
-        } else {
-          console.log(
-            "No username found in profile - will show connect dialog"
-          );
-          setShowConnectDialog(true);
+        // Extract username from response data
+        if (response.data) {
+          const profileData = response.data;
+          const extractedUsername =
+            profileData.username ||
+            (profileData.data && profileData.data.username);
+
+          if (extractedUsername) {
+            console.log("Found username:", extractedUsername);
+            setUsername(extractedUsername);
+            setShowConnectDialog(false);
+          } else {
+            console.log("No username found in profile");
+            setShowConnectDialog(true);
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch profile:", error);
+        console.error("Error fetching profile:", error);
         setShowConnectDialog(true);
       } finally {
         setIsLoading(false);
@@ -88,14 +100,11 @@ const GameHistoryPage = () => {
     };
 
     fetchProfileData();
-  }, [sessionId, setUsername]);
+  }, [authIsLoaded, isSignedIn, sessionId, setUsername, fetchAttempted]);
 
+  // Show loading state if we're still loading
   if (isLoading) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-      </div>
-    );
+    return <DotSpinner />;
   }
 
   return (

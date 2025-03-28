@@ -15,14 +15,13 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import GamesTabCard from "./GamesTabCard";
-import useFetch from "@/app/hooks/useFetch";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuthStore } from "@/components/analysis/onboarding/store/AuthStore";
 import { useRouter } from "next/navigation";
 import DotSpinner from "./Spinner";
 import axios from "axios";
 import { toast } from "sonner";
 import { proceedAnalysis } from "@/utils/stockfish-utils";
+import { useAuth } from "@clerk/nextjs";
 
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
@@ -44,7 +43,8 @@ interface Game {
   pgn: string;
 }
 
-const endpoint = "helo";
+// Set the direct API endpoint
+const API_BASE_URL = "https://ac-api.kemang.sg/api";
 
 // Function to transform API data to match the expected format in the component
 function transformApiDataToComponentFormat(apiData: any[]) {
@@ -117,47 +117,95 @@ const GamesTab = () => {
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [filtersApplied, setFiltersApplied] = useState(false);
 
-  // API fetch
-  const {
-    username,
-    setPgn,
-    setDataAnalysis,
-    dataAnalysis,
-    setIsLoading,
-    chessComUsername,
-    isChessConnected,
-  } = usePgnStore();
-
-  const { sessionId } = useAuthStore();
+  // API fetch-related states
+  const { username, setPgn, setDataAnalysis, setIsLoading } = usePgnStore();
+  const { sessionId, isLoaded: authIsLoaded } = useAuth();
   const [apiProcessedData, setApiProcessedData] = useState<Game[]>([]);
+  const [isLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<any>(null);
+  const [fetchAttempted, setFetchAttempted] = useState(false);
 
-  // Modify useFetch to include the dynamic username
-  const apiUrl = chessComUsername ? `${endpoint}${chessComUsername}` : "";
-  const { data, isLoading, error } = useFetch(apiUrl);
-
-  // Don't make the API call if username is empty
-  useEffect(() => {
-    if (!chessComUsername) {
-      console.log("No Chess.com username set, skipping data fetch");
-    } else {
-      console.log("Fetching data for Chess.com username:", chessComUsername);
-    }
-  }, [chessComUsername]);
-
-  // Process API data when it arrives
-  useEffect(() => {
-    if (data && data.data) {
-      console.log("Processing API data...");
-      const transformedData = transformApiDataToComponentFormat(data.data);
-      setApiProcessedData(transformedData);
-    }
-  }, [data]);
-  //
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
+
+  // Direct API fetch using axios
+  useEffect(() => {
+    const fetchGames = async () => {
+      // Only fetch if we have both username and auth is loaded
+      if (!username || !authIsLoaded) {
+        console.log("Missing username or auth not loaded, skipping fetch");
+        if (authIsLoaded) {
+          setDataLoading(false);
+        }
+        return;
+      }
+
+      // Prevent multiple fetch attempts
+      if (fetchAttempted) return;
+      setFetchAttempted(true);
+
+      setDataLoading(true);
+      setError(null);
+
+      try {
+        console.log("Fetching games for user:", username);
+
+        // Use the direct API endpoint from your Postman tests
+        const apiUrl = `${API_BASE_URL}/games/${username}`;
+
+        console.log("Making request to:", apiUrl);
+
+        // Make a simple GET request with authentication if available
+        const config: any = {};
+
+        if (sessionId) {
+          config.headers = {
+            Authorization: `Bearer ${sessionId}`,
+            Accept: "application/json",
+          };
+          console.log("Using auth token for request");
+        } else {
+          console.log(
+            "No auth token available, making unauthenticated request"
+          );
+        }
+
+        const response = await axios.get(apiUrl, config);
+
+        console.log("Games API response status:", response.status);
+
+        if (response.data) {
+          setData(response.data);
+
+          // Process the data immediately
+          if (response.data.data && Array.isArray(response.data.data)) {
+            console.log(
+              `Processing ${response.data.data.length} games from API...`
+            );
+            const transformedData = transformApiDataToComponentFormat(
+              response.data.data
+            );
+            setApiProcessedData(transformedData);
+          } else {
+            console.log("API response has unexpected format:", response.data);
+            setApiProcessedData([]);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching games:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch games")
+        );
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    fetchGames();
+  }, [username, authIsLoaded, sessionId, fetchAttempted]);
 
   const gamesData = useMemo(() => {
     return apiProcessedData;
@@ -315,6 +363,12 @@ const GamesTab = () => {
     setFiltersApplied(false);
   };
 
+  // Function to retry fetching games
+  const handleRetryFetch = () => {
+    setFetchAttempted(false);
+    setError(null);
+  };
+
   // Function to render result with appropriate color
   const renderResult = (result: string) => {
     if (result === "WIN") {
@@ -344,20 +398,6 @@ const GamesTab = () => {
   // Show loading spinner when loading data
   if (isLoading) {
     return <DotSpinner />;
-  }
-
-  // Show message if no username is set
-  if (!chessComUsername && !isChessConnected) {
-    return (
-      <div className="text-center p-8">
-        <h2 className="text-xl font-semibold mb-2">
-          No Chess.com Account Connected
-        </h2>
-        <p className="text-gray-600 mb-4">
-          Please connect your Chess.com account to view your game history.
-        </p>
-      </div>
-    );
   }
 
   return (
