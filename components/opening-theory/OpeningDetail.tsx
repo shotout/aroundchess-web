@@ -21,7 +21,6 @@ import {
   getIdFromSlug,
   getSlugFromId,
 } from "./lib/openingMapper";
-import { useOpeningClearStore } from "./store/OpeningStore";
 import DotSpinner from "../game-history/Spinner";
 
 export default function OpeningDetailWithNextTopics({
@@ -34,7 +33,6 @@ export default function OpeningDetailWithNextTopics({
     "overview"
   );
 
-  const { completeLesson, isLessonCompleted } = useOpeningClearStore();
   const {
     allOpenings,
     openingDetails,
@@ -64,12 +62,6 @@ export default function OpeningDetailWithNextTopics({
     loadData();
   }, [openingId, fetchOpeningDetails, initialized, fetchAllOpenings]);
 
-  useEffect(() => {
-    if (opening) {
-      setLessonFinished(isLessonCompleted(params.slug));
-    }
-  }, [opening, isLessonCompleted, params.slug]);
-
   const handleOpeningNavigation = (slug: string) => {
     const navigateToOpening = () => {
       router.push(`/opening-theory/${slug}`);
@@ -79,7 +71,6 @@ export default function OpeningDetailWithNextTopics({
 
   const handleFinishLesson = () => {
     if (opening) {
-      completeLesson(params.slug);
       setLessonFinished(true);
     }
   };
@@ -161,10 +152,6 @@ export default function OpeningDetailWithNextTopics({
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
                   {opening.difficulty}
                 </span>
-                <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
-                  <Clock className="w-3 h-3 mr-1" />
-                  <h1>{opening.estimatedTime} learning</h1>
-                </div>
               </div>
 
               {lessonFinished && (
@@ -451,7 +438,6 @@ export default function OpeningDetailWithNextTopics({
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 mt-4">
                     {relatedOpenings.map((topic, index) => {
                       const topicSlug = getSlugFromId(topic.id);
-                      const isTopicCompleted = isLessonCompleted(topicSlug);
 
                       return (
                         <div
@@ -482,11 +468,7 @@ export default function OpeningDetailWithNextTopics({
                                 Opening
                               </span>
                               <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
-                                {isTopicCompleted ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                ) : (
-                                  <BookOpen className="h-5 w-5 text-blue-base" />
-                                )}
+                                <CheckCircle2 className="h-5 w-5 text-green-500" />
                               </span>
                             </div>
 
@@ -497,28 +479,13 @@ export default function OpeningDetailWithNextTopics({
                               <h3 className="font-medium text-gray-900 text-xs h-8 line-clamp-2">
                                 {topic.title}
                               </h3>
-                              <div
-                                className={`w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto ${
-                                  isTopicCompleted
-                                    ? "btn-tertiary text-green-500 border border-green-500"
-                                    : "btn-primary"
-                                }`}
-                              >
-                                {isTopicCompleted ? (
-                                  <>
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    <span className="text-xs md:text-sm">
-                                      Continue Learning
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <BookOpen className="h-4 w-4" />
-                                    <span className="text-xs md:text-sm">
-                                      Start Learning
-                                    </span>
-                                  </>
-                                )}
+                              <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto btn-primary">
+                                <>
+                                  <BookOpen className="h-4 w-4" />
+                                  <span className="text-xs md:text-sm">
+                                    Start Learning
+                                  </span>
+                                </>
                               </div>
                             </div>
                           </Card>
