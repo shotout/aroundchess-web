@@ -13,7 +13,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
-import { PremiumSubscriptionDialog } from "../analysis/onboarding/PremiumSubscription";
+import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -21,10 +21,13 @@ const GameHistoryPage = () => {
   const Section = ["Blitzmystic", "Other Games"];
   const [sect, setSect] = useState(Section[0]);
   const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
-  const [showConnectDialog, setShowConnectDialog] = useState(false);
+
+  // DEV: Temporary state for development to control dialogs
+  const [devMode] = useState(true); // Set to true for development mode
+  const [showConnectDialog, setShowConnectDialog] = useState(devMode);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchAttempted, setFetchAttempted] = useState(false);
-  // const isAnyDialogOpen = showChessConnect || showPremiumDialog;
 
   const { setUsername, username } = usePgnStore();
 
@@ -32,6 +35,24 @@ const GameHistoryPage = () => {
     setShowConnectDialog(false);
     setUsername(username);
     toast.success(`Successfully connected to Chess.com as ${username}`);
+    // Show Premium dialog after successful connection
+    setShowPremiumDialog(true);
+  };
+
+  const handleConnectClose = () => {
+    setShowConnectDialog(false);
+    // Show Premium dialog even if they close without connecting
+    setShowPremiumDialog(true);
+  };
+
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
+
+  const handleGetPremium = () => {
+    // Handle premium subscription logic here
+    setShowPremiumDialog(false);
+    toast.success("Thank you for subscribing to Premium!");
   };
 
   useEffect(() => {
@@ -48,6 +69,7 @@ const GameHistoryPage = () => {
 
       setIsLoading(true);
       setShowConnectDialog(false);
+      setShowPremiumDialog(false);
 
       try {
         const response = await axios.get(`${API_BASE_URL}/profile`, {
@@ -96,21 +118,50 @@ const GameHistoryPage = () => {
 
   return (
     <>
-      <main className="w-full px-4 py-4 space-y-[16px] bg-primary-white">
-        {/* {isAnyDialogOpen && (
-          <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
-        )} */}
+      <main className="w-full px-4 py-4 space-y-[16px] bg-primary-white relative">
+        {/* DEV: Toggle buttons for dialogs */}
+        {devMode && (
+          <div className="flex gap-2 mb-4 bg-yellow-100 p-2 rounded-md border border-yellow-300">
+            <button
+              onClick={() => setShowConnectDialog(!showConnectDialog)}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+            >
+              {showConnectDialog ? "Close" : "Open"} Chess Connect
+            </button>
+            <button
+              onClick={() => setShowPremiumDialog(!showPremiumDialog)}
+              className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm"
+            >
+              {showPremiumDialog ? "Close" : "Open"} Premium Dialog
+            </button>
+            <span className="text-xs self-center text-yellow-800">
+              DEV MODE
+            </span>
+          </div>
+        )}
+
+        {/* Chess Connect Dialog */}
         <ChessConnectDialog
-          open={showConnectDialog && !isLoading && !username}
-          onOpenChange={setShowConnectDialog}
+          open={
+            devMode
+              ? showConnectDialog
+              : showConnectDialog && !isLoading && !username
+          }
+          onOpenChange={(open) => {
+            setShowConnectDialog(open);
+            if (!open) {
+              handleConnectClose();
+            }
+          }}
           onSuccess={handleConnectSuccess}
         />
-        {/* <PremiumSubscriptionDialog
-          open={showPremiumDialog && !isLoading}
-          onOpenChange={setShowPremiumDialog}
+
+        {/* Premium Subscription Component - Now directly in the page */}
+        <PremiumSubscription
+          visible={showPremiumDialog && !isLoading}
           onClose={handleClosePremium}
           onGetPremium={handleGetPremium}
-        /> */}
+        />
 
         <div className="">
           <div className="flex justify-between items-center mb-4">
