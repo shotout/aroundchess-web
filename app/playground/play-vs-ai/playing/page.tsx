@@ -1,16 +1,22 @@
 "use client";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import ThreeDChessboard from "@/components/chessboard/3d/ThreeDChessboard";
 import WoodBoard from "@/components/chessboard/wood/WoodBoard";
+import { SettingBoard } from "@/components/modal/SettingBoard";
 import Navigation from "@/components/navigator/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chess } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 export default function Playing() {
   const [game, setGame] = useState<Chess>(new Chess());
 
-  const [selectedTab, setSelectedTab] = useState("current"); // Default size
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
+  const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
+  const [is3DMode, setIs3DMode] = useState<boolean>(true); // Default size
+  const [boardSize, setBoardSize] = useState<number>(700); // Default size
   useEffect(() => {
     handleResize();
   }, []);
@@ -19,7 +25,7 @@ export default function Playing() {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >1024 ? window.innerWidth / 2.9 : 453;
+    const maxSize = window.innerWidth > 1024 ? window.innerWidth / 2.9 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
@@ -39,9 +45,19 @@ export default function Playing() {
     }
   };
 
-  const handleSwitch = () => {};
+  const handleSwitch = () => {
+    setOrientation((prev) => {
+      if (prev == "white") {
+        return "black";
+      } else {
+        return "white";
+      }
+    });
+  };
   const handleSetting = () => {};
-  const handleThreeD = () => {};
+  const handleThreeD = () => {
+    setIs3DMode(!is3DMode);
+  };
   const handleHint = () => {};
   const handleResign = () => {};
   const handleNewGame = () => {};
@@ -61,15 +77,7 @@ export default function Playing() {
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
         </button>
-        <button onClick={handleSetting}>
-          <Image
-            src={"/images/play-vs-ai/setting.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[20px] h-[20px] object-contain"
-          />
-        </button>
+        <SettingBoard />
         <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
@@ -97,15 +105,8 @@ export default function Playing() {
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
         </button>
-        <button onClick={handleSetting}>
-          <Image
-            src={"/images/play-vs-ai/setting.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[20px] h-[20px] object-contain"
-          />
-        </button>
+        <SettingBoard />
+
         <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
@@ -148,7 +149,7 @@ export default function Playing() {
             </div>
           </div>
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
-            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 xl:mb-2">
+            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
               <Image
                 src={"/images/play-vs-ai/thomas.png"}
                 alt="icon"
@@ -160,7 +161,19 @@ export default function Playing() {
             </div>
             <div className="flex flex-col justify-center items-center gap-3 ">
               {buttonBoard()}
-              <WoodBoard boardWidth={boardSize} position={game.fen()} />
+              {is3DMode ? (
+                <ThreeDChessboard
+                  orientation={orientation}
+                  boardWidth={boardSize}
+                  position={game.fen()}
+                />
+              ) : (
+                <TwoDChessboard
+                  orientation={orientation}
+                  boardWidth={boardSize}
+                  position={game.fen()}
+                />
+              )}
               <div className="flex flex-row flex-wrap items-center justify-center gap-2 xl:mb-2">
                 <div className="flex flex-row items-center justify-center gap-1">
                   <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
@@ -188,7 +201,7 @@ export default function Playing() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2">
+            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mt-2">
               <Image
                 src={"/images/play-vs-ai/thomas.png"}
                 alt="icon"
