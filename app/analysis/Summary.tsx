@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
+import ReactCountryFlag from "react-country-flag";
+import { useChessMoveStore } from "../store/chessMoveStore";
 
 interface SummaryProps {
   next: () => void;
@@ -13,21 +15,50 @@ interface SummaryProps {
 
 const Summary: React.FC<SummaryProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
 
-  const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
-    dataAnalysis?.summary ?? {};
+  const {
+    whiteSide,
+    blackSide,
+    overallGameAssessment,
+    bestMoves,
+    criticalMistakes,
+  } = dataAnalysis?.summary ?? {};
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
-  const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
-  const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(false);
+  const blackCountry = blackSide?.profileInfo?.chessAccountInfo?.country
+    ? blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
+
+  const whiteCountry = whiteSide?.profileInfo?.chessAccountInfo?.country
+    ? whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
+  const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
+  const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(true);
+  const handleOnClickMovement = (move: any) => {
+    console.log(move);
+    setChessMove(move);
+  };
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="flex flex-col gap-2 w-full py-2 border-b border-b-input">
-          <span className="text-xs sm:hidden text-center">
-            <span className="text-xs text-[#00B427] line-clamp-1">
+          <span className="text-xs sm:hidden text-center line-clamp-1">
+            <span
+              className={`text-xs ${
+                whiteWin ? `text-[#00B427]` : `text-black`
+              } `}
+            >
               {whiteSide?.profileInfo.username}
             </span>{" "}
-            (White) vs {blackSide?.profileInfo.username} (Black)
+            (White) vs{" "}
+            <span
+              className={`text-xs ${
+                blackWin ? `text-[#00B427]` : `text-black`
+              }`}
+            >
+              {blackSide?.profileInfo.username}{" "}
+            </span>
+            (Black)
           </span>
           <div className="hidden sm:flex flex-row items-center justify-between gap-4">
             <div
@@ -81,13 +112,12 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
               </div>
-              {/* <Image
-              src={"/icons/switzerland-flag.png"}
-              alt="flag"
-              width={1000}
-              height={1000}
-              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
-            /> */}
+              <ReactCountryFlag
+                countryCode={whiteCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={whiteCountry}
+              />
             </div>
             <div
               className={`w-full border ${
@@ -140,30 +170,30 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
               </div>
-              {/* <Image
-              src={"/icons/switzerland-flag.png"}
-              alt="flag"
-              width={1000}
-              height={1000}
-              className="w-7 h-5 sm:w-8 sm:h-6 lg:w-10 lg:h-8"
-            /> */}
+
+              <ReactCountryFlag
+                countryCode={blackCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={blackCountry}
+              />
             </div>
           </div>
           <div className="flex flex-row items-center justify-start py-2">
             <div
-              className={`w-full pr-3 rounded-md flex flex-row justify-end items-center`}
+              className={`w-full xl:pr-3 rounded-md flex flex-row justify-end items-center`}
             >
               <div className="flex flex-col items-end justify-around gap-2">
-                <div className="flex flex-row items-center justify-center min-w-[132px] gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+                <div className="flex flex-row items-center justify-center min-w-[80px] xl:min-w-[132px] gap-2">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
                     Accuracy:
                   </span>
                   <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-primary border border-primary rounded-sm p-1">
                     {whiteSide?.analysis?.accuracy}
                   </span>
                 </div>
-                <div className="flex flex-row items-center justify-center min-w-[132px] gap-2">
-                  <span className="text-xs min-w-[182px] sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
+                <div className="flex flex-row items-center justify-center min-w-[80px] xl:min-w-[132px] gap-2">
+                  <span className="text-xs min-w-[40px] xl:min-w-[182px] sm:text-sm md:text-md lg:text-md text-right font-semibold p-1">
                     Game Rating:
                   </span>
                   <span className="text-xs min-w-[50px] sm:text-sm md:text-md lg:text-md text-center text-[#F65240] border border-[#F65240] bg-[#FFE5E2] rounded-sm p-1">
@@ -197,7 +227,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             >
               <div className="flex flex-col items-end justify-around gap-2">
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Brilliant:
                   </span>
                   <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#27C2A3] p-1 min-w-[32px]">
@@ -205,7 +235,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Great:
                   </span>
                   <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#749BBF] p-1 min-w-[32px]">
@@ -213,7 +243,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Best:
                   </span>
                   <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#80B64D] p-1 min-w-[32px]">
@@ -221,7 +251,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Mistake:
                   </span>
                   <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FFA459] p-1 min-w-[32px]">
@@ -229,7 +259,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Miss:
                   </span>
                   <span className="text-xs min-w-[44px] sm:text-sm md:text-md lg:text-md text-center text-[#FF7769] p-1 min-w-[32px]">
@@ -238,7 +268,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
 
                 <div className="flex flex-row items-center justify-around gap-2 ">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1">
                     Blunder:
                   </span>
 
@@ -248,49 +278,61 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-start justify-center gap-2 pb-1 w-[40px]">
-              <Image
-                alt=""
-                src={"/icons/brilliant-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
-              <Image
-                alt=""
-                src={"/icons/great-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
-              <Image
-                alt=""
-                src={"/icons/best-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
-              <Image
-                alt=""
-                src={"/icons/mistake-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
-              <Image
-                alt=""
-                src={"/icons/miss-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
-              <Image
-                alt=""
-                src={"/icons/blunder-moves-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-              />
+            <div className="flex flex-col items-start justify-around gap-2 pt-1 w-[40px]">
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/brilliant-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/great-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/best-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/mistake-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/miss-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
+              <div className="h-6">
+                <Image
+                  alt=""
+                  src={"/icons/blunder-moves-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+                />
+              </div>
             </div>
             <div className={`w-full pl-2 flex flex-row items-center`}>
               <div className="flex flex-col items-start justify-center gap-2">
@@ -345,7 +387,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             >
               <div className="flex flex-col items-end justify-around gap-2 ">
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] text-center sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] text-center sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Opening:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -362,7 +404,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Middlegame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -379,7 +421,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
                     Endgame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -499,7 +541,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   return (
                     <div className="border border-input rounded-md p-4" key={i}>
                       <div className="flex flex-row justify-between gap-2 mb-2">
-                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(middle)}
+                          className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {middle.moveNumber}:{" "}
                           <span className="font-bold">{middle.move}</span>
                         </span>
@@ -523,47 +568,60 @@ const Summary: React.FC<SummaryProps> = (props) => {
           )}
         </div>
         {/* critical mistakes moves  */}
-        {/* <div className="border border-primary border-t-4 rounded-md p-3">
-        <div className="flex flex-row items-center gap-2">
-          <Image
-            alt=""
-            src={"/icons/alert-triangle.png"}
-            width={1000}
-            height={1000}
-            className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-          />
-          <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">Critical Mistakes</span>
-          <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
-            {openCriticalMoves ? (
-              <ChevronUp size={24} color="black" />
-            ) : (
-              <ChevronDown size={24} color="black" />
-            )}
-          </div>
-        </div>
-        {openCriticalMoves && (
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="border border-input rounded-md p-4">
-              <div className="flex flex-row justify-between gap-2 mb-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
-                  Move 2: <span className="font-bold">e5</span>
-                </span>
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
-                  [TYPE OF THROAT]
-                </span>
-              </div>
-              <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
-                [EXPLANATION OF THROAT]
-              </span>
-              <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
-                  [HOW THE THREAT COULD HAVE BEEN AVOIDED]
-                </span>
-              </div>
+        <div className="border border-primary border-t-4 rounded-md p-3">
+          <div className="flex flex-row items-center gap-2">
+            <Image
+              alt=""
+              src={"/icons/alert-triangle.png"}
+              width={1000}
+              height={1000}
+              className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+            />
+            <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
+              Critical Mistakes
+            </span>
+            <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
+              {openCriticalMoves ? (
+                <ChevronUp size={24} color="black" />
+              ) : (
+                <ChevronDown size={24} color="black" />
+              )}
             </div>
           </div>
-        )}
-      </div> */}
+          {openCriticalMoves &&
+            criticalMistakes &&
+            criticalMistakes.length > 0 &&
+            criticalMistakes.map((item: any, index: number) => {
+              return (
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="border border-input rounded-md p-4">
+                    <div className="flex flex-row justify-between gap-2 mb-2">
+                      <span
+                        onClick={() => handleOnClickMovement(item)}
+                        className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                      >
+                        Move {item.moveNumber}:{" "}
+                        <span className="font-bold">{item.move}</span>
+                      </span>
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
+                        {item.type}
+                      </span>
+                    </div>
+                    {item.analysis && (
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
+                        {item.analysis}
+                      </span>
+                    )}
+                    <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
+                        {item.solution}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
       </div>
 
       <button

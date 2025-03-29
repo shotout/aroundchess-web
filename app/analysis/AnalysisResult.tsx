@@ -3,7 +3,7 @@
 import MovementTable from "@/components/table/movement";
 import { Button } from "@/components/ui/button";
 import { getStockfishService } from "@/lib/stockfish/stockfish-service";
-import { Chess } from "chess.js";
+import { Chess, PieceSymbol, Square } from "chess.js";
 import { motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -26,6 +26,7 @@ import { usePgnStore } from "../store/zustandStore";
 import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 import { unixFormatDate } from "@/functions/unix-format-date";
 import WoodBoard from "@/components/chessboard/wood/WoodBoard";
+import ReactCountryFlag from "react-country-flag";
 
 type CapturedPieces = {
   white: string[];
@@ -43,7 +44,13 @@ interface ParsedMove {
 }
 
 const AnalysisResult: React.FC = () => {
-  const { pgn: storePgn, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    hideDiv,
+    setCapturedBlack,
+    setCapturedWhite,
+  } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const {
@@ -56,6 +63,15 @@ const AnalysisResult: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
+  const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
+
+  const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const [game, setGame] = useState(new Chess());
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<number | null>(null);
@@ -138,6 +154,43 @@ const AnalysisResult: React.FC = () => {
             .replace("]", "");
         }
       });
+      let capturedPiecesBlack: {
+        piece: PieceSymbol; // Type of piece captured (p, n, b, r, q)
+        color: string; // Opponent's color
+        from: Square;
+        to: Square;
+      }[] = [];
+      let capturedPiecesWhite: {
+        piece: PieceSymbol; // Type of piece captured (p, n, b, r, q)
+        color: string; // Opponent's color
+        from: Square;
+        to: Square;
+      }[] = [];
+      // Replay moves and check for captures
+      tempGame.history({ verbose: true }).forEach((move) => {
+        if (move.captured) {
+          if (move.color == "w") {
+            capturedPiecesWhite.push({
+              piece: move.captured, // Type of piece captured (p, n, b, r, q)
+              color: "white", // Opponent's color
+              from: move.from,
+              to: move.to,
+            });
+          } else {
+            capturedPiecesBlack.push({
+              piece: move.captured, // Type of piece captured (p, n, b, r, q)
+              color: "black", // Opponent's color
+              from: move.from,
+              to: move.to,
+            });
+          }
+        }
+      });
+      setCapturedBlack(capturedPiecesBlack);
+      setCapturedWhite(capturedPiecesWhite);
+      console.log("capturedPiecesWhite", capturedPiecesWhite);
+      console.log("capturedPiecesBlack", capturedPiecesBlack);
+
       getStartTime(comments[0].comment.replace("[%clk ", "").replace("]", ""));
       // Determine board orientation based on the headers
       const headers = tempGame.header();
@@ -173,9 +226,9 @@ const AnalysisResult: React.FC = () => {
     if (seconds >= 30) {
       totalMinutes += 1;
     }
-    let minuteFormat = totalMinutes <= 9 ?"0"+totalMinutes:totalMinutes
+    let minuteFormat = totalMinutes <= 9 ? "0" + totalMinutes : totalMinutes;
     let result = "0:" + minuteFormat + ":00";
-    setStartTime(result)
+    setStartTime(result);
   };
   const toggleBoardMode = () => {
     setIs3DMode((prev) => !prev);
@@ -322,7 +375,7 @@ const AnalysisResult: React.FC = () => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#FFA459] text-[#FFA459]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -354,7 +407,7 @@ const AnalysisResult: React.FC = () => {
         ? window.innerWidth * 0.27
         : window.innerWidth <= 1024
         ? 453
-        : window.innerWidth * 0.27;
+        : window.innerWidth * 0.26;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
@@ -415,7 +468,13 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
+            <div
+              className={`w-full border ${
+                gameInfo?.blackWin
+                  ? "border-[#00B427] bg-[#D3FFDD]"
+                  : "bg-white"
+              } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+            >
               <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
@@ -428,19 +487,19 @@ const AnalysisResult: React.FC = () => {
                 <div className="flex flex-col line-clamp-1 ">
                   <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
                         gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
                       {summary?.blackSide?.profileInfo.username}
                     </span>
-                    {/* <Image
-                    src={"/icons/switzerland-flag.png"}
-                    alt="flag"
-                    width={1000}
-                    height={1000}
-                    className="w-5 h-3 sm:w-7 sm:h-5 lg:w-10 lg:h-7"
-                  /> */}
+
+                    <ReactCountryFlag
+                      countryCode={blackCountry}
+                      svg
+                      className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                      title={blackCountry}
+                    />
                   </div>
 
                   <div className="flex flex-row gap-1">
@@ -469,35 +528,45 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveBlack == 0 ? startTime : currentMoveBlack}
                 </span>
               </div>
             </div>
           </motion.div>
-          <motion.div
+          {/* <motion.div
             animate={
               hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: !hideDiv ? "block" : "none" }}
+            style={{ display: !hideDiv ? "flex" : "none", justifyContent:"end"  }}
           >
-            <Button
-              variant="outline"
-              size="icon"
+            <button
+            className="flex items-end justify-end"
               onClick={toggleBoardMode}
               title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
-              className="p-2"
             >
               {is3DMode ? (
-                <SquareIcon className="h-5 w-5" />
+                <Image
+                  alt="3d"
+                  src={"/icons/3d-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="h-[27px] w-[22px] object-contain"
+                />
               ) : (
-                <Settings className="h-5 w-5" />
+                <Image
+                  alt="2d"
+                  src={"/icons/2d-icon.png"}
+                  width={1000}
+                  height={1000}
+                  className="h-[27px] w-[22px] object-contain"
+                />
               )}
-            </Button>
-          </motion.div>
+            </button>
+          </motion.div> */}
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
             {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
@@ -509,48 +578,48 @@ const AnalysisResult: React.FC = () => {
             />
           </div>
           {/* Group Button */}
-          <div className="flex flex-row justify-around gap-4">
+          <div className="flex flex-row justify-around gap-2 ">
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
-              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <SkipBackIcon fill="black" size={boardSize / 24} color="black" />
+              <SkipBackIcon fill="black" size={boardSize / 20} color="black" />
             </button>
 
             <button
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
-              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronLeft size={boardSize / 24} color="black" />
+              <ChevronLeft size={boardSize / 20} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
-              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               {isPlaying ? (
-                <PauseIcon size={boardSize / 24} fill="black" color="black" />
+                <PauseIcon size={boardSize / 20} fill="black" color="black" />
               ) : (
-                <PlayIcon size={boardSize / 24} fill="black" color="black" />
+                <PlayIcon size={boardSize / 20} fill="black" color="black" />
               )}
             </button>
 
             <button
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronRight size={boardSize / 24} color="black" />
+              <ChevronRight size={boardSize / 20} color="black" />
             </button>
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              className="w-1/5 flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] p-1 "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipForwardIcon
                 fill="black"
-                size={boardSize / 24}
+                size={boardSize / 20}
                 color="black"
               />
             </button>
@@ -562,7 +631,13 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            <div className="border border-input p-1 rounded-md flex flex-row justify-between items-center gap-2">
+            <div
+              className={`w-full border ${
+                gameInfo?.whiteWin
+                  ? "border-[#00B427] bg-[#D3FFDD]"
+                  : "bg-white"
+              } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+            >
               <div className="flex flex-row items-center gap-2">
                 <Image
                   alt="avatar"
@@ -573,21 +648,20 @@ const AnalysisResult: React.FC = () => {
                 />
                 {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
                 <div className="flex flex-col line-clamp-1 ">
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-row items-center gap-2">
                     <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-lg font-medium ${
+                      className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
                         !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                       }`}
                     >
                       {summary?.whiteSide?.profileInfo.username}
                     </span>
-                    {/* <Image
-                    src={"/icons/switzerland-flag.png"}
-                    alt="flag"
-                    width={1000}
-                    height={1000}
-                    className="w-4 h-3 sm:w-5 sm:h-4 lg:w-7 lg:h-5"
-                  /> */}
+                    <ReactCountryFlag
+                      countryCode={whiteCountry}
+                      svg
+                      className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                      title={whiteCountry}
+                    />
                   </div>
 
                   <div className="flex flex-row gap-1">
@@ -616,9 +690,9 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="border border-input min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
                 <Watch size={16} />
-                <span className="text-xs w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
                   {currentMoveWhite == 0 ? startTime : currentMoveWhite}
                 </span>
               </div>
@@ -654,6 +728,15 @@ const AnalysisResult: React.FC = () => {
                         {chessMove.classification}
                       </span>
                     )}
+                     {chessMove?.type && (
+                      <span
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                          chessMove.type
+                        )}`}
+                      >
+                        {chessMove.type}
+                      </span>
+                    )}
                     <button onClick={() => setChessMove({})}>
                       <Image
                         alt="close"
@@ -665,10 +748,16 @@ const AnalysisResult: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <span className="text-sm font-normal py-1">
-                  This move deviates from opening principles. Focus on
-                  development and center control.
-                </span>
+                {chessMove?.analysis && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.analysis}
+                  </span>
+                )}
+                {chessMove?.solution && (
+                  <span className="text-sm font-normal py-1">
+                    {chessMove?.solution}
+                  </span>
+                )}
                 {chessMove?.gamePhase && (
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />

@@ -87,7 +87,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        {/* best moves  */}
+        {/* Critical Mistakes  */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-3">
@@ -110,8 +110,8 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(criticalMistakes.opening.length == 0 ||
-            criticalMistakes.middleGame.length == 0 ||
+          {(criticalMistakes.opening.length == 0 &&
+            criticalMistakes.middleGame.length == 0 &&
             criticalMistakes.endGame.length == 0) && (
             <NoData>Critical Mistakes Empty</NoData>
           )}
@@ -352,8 +352,8 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(weaknessIdentification.opening.length == 0 ||
-            weaknessIdentification.middleGame.length == 0 ||
+          {(weaknessIdentification.opening.length == 0 &&
+            weaknessIdentification.middleGame.length == 0 &&
             weaknessIdentification.endGame.length == 0) && (
             <NoData>Weakness Identification Empty</NoData>
           )}
