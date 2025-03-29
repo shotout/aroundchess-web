@@ -1,3 +1,4 @@
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Piece, Square } from "chess.js";
 import Image from "next/image";
@@ -6,14 +7,27 @@ import { SetStateAction, useMemo, useState } from "react";
 
 import { CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
- 
+import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 
-interface GlassBoardProps {
+interface ThreeDChessboardProps {
   position: string;
   boardWidth: number;
+  orientation: BoardOrientation | undefined;
 }
 
-const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
+const ThreeDChessboard: React.FC<ThreeDChessboardProps> = ({
+  position,
+  boardWidth,
+  orientation,
+}) => {
+  const {
+    StyleChoosed,
+    setStyleChoosed,
+    BoardChoosed,
+    setBoardChoosed,
+    PieceChoosed,
+    setPieceChoosed,
+  } = useChessBoardThemeStore();
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [gamePosition, setGamePosition] = useState(game.fen());
@@ -52,23 +66,23 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1,
+        pieceHeight: 1.6,
       },
       {
         piece: "wN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wB",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.6,
       },
       {
         piece: "wK",
@@ -76,23 +90,23 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       },
       {
         piece: "bP",
-        pieceHeight: 1,
+        pieceHeight: 1.6,
       },
       {
         piece: "bN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bB",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.6,
       },
       {
         piece: "bK",
@@ -112,19 +126,20 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * 1,
-            height: squareWidth * 0.9,
+            width: squareWidth,
+            height: squareWidth,
             position: "relative",
             pointerEvents: "none",
           }}
         >
           <img
-            src={`/pieces/glass/${piece}.png`}
+            src={`/3d-pieces/wood/${piece}.png`}
+            // src={`/pieces/${PieceChoosed}/${piece}.png`}
             width={squareWidth}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0* squareWidth}px`,
+              bottom: `${0.2 * squareWidth}px`,
               objectFit: "contain",
             }}
           />
@@ -132,37 +147,44 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       );
     });
     return pieceComponents;
-  }, []);
+  }, [PieceChoosed]);
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
       {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
-        src={"/boards/glass.png"}
-        alt="blueglass"
+        src={`/boards/3d-${BoardChoosed}-board.png`}
+        alt="wood"
         width={1000}
         height={1000}
-        className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}]`}
+        style={{ top: Math.round(boardWidth / 36) }}
+        className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}] object-contain`}
       />
 
       <div
-        style={{ width: boardWidth, height: boardWidth, padding:(Math.round(boardWidth/18)) }}
+        style={{
+          width: boardWidth,
+          height: boardWidth,
+          paddingLeft: Math.round(boardWidth / 7.7),
+        }}
         className={`z-10 flex`}
       >
         <Chessboard
-          boardWidth={Math.round(boardWidth - boardWidth / 9)}
+          boardOrientation={orientation}
+          boardWidth={Math.round(boardWidth - boardWidth / 4.1)}
           arePiecesDraggable={false}
           position={position}
           customBoardStyle={{
+            transform: "rotateX(27.5deg)",
             transformOrigin: "center",
           }}
           customPieces={twoDPieces}
           customLightSquareStyle={{
-            // backgroundColor: "#ff000070",
-            backgroundColor: "transparent",
+            backgroundColor: "#ff000070",
+            // backgroundColor: "transparent",
           }}
           customDarkSquareStyle={{
-            // backgroundColor: "#00ff0080",
-            backgroundColor: "transparent",
+            backgroundColor: "#00ff0080",
+            // backgroundColor: "transparent",
           }}
           animationDuration={100}
         />
@@ -170,4 +192,4 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     </div>
   );
 };
-export default GlassBoard;
+export default ThreeDChessboard;

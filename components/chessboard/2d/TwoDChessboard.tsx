@@ -1,3 +1,4 @@
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Piece, Square } from "chess.js";
 import Image from "next/image";
@@ -6,14 +7,27 @@ import { SetStateAction, useMemo, useState } from "react";
 
 import { CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
- 
+import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 
-interface GlassBoardProps {
+interface TwoDChessboardProps {
   position: string;
   boardWidth: number;
+  orientation: BoardOrientation | undefined;
 }
 
-const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
+const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
+  position,
+  boardWidth ,
+  orientation,
+}) => {
+  const {
+    StyleChoosed,
+    setStyleChoosed,
+    BoardChoosed,
+    setBoardChoosed,
+    PieceChoosed,
+    setPieceChoosed,
+  } = useChessBoardThemeStore();
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [gamePosition, setGamePosition] = useState(game.fen());
@@ -112,19 +126,19 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * 1,
-            height: squareWidth * 0.9,
+            width: squareWidth * 0.8,
+            height: squareWidth * 0.85,
             position: "relative",
             pointerEvents: "none",
           }}
         >
           <img
-            src={`/pieces/glass/${piece}.png`}
+            src={`/pieces/${PieceChoosed}/${piece}.png`}
             width={squareWidth}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0* squareWidth}px`,
+              bottom: `${0 * squareWidth}px`,
               objectFit: "contain",
             }}
           />
@@ -132,24 +146,29 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       );
     });
     return pieceComponents;
-  }, []);
+  }, [PieceChoosed]);
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
       {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
-        src={"/boards/glass.png"}
-        alt="blueglass"
+        src={`/boards/${BoardChoosed}.png`}
+        alt="wood"
         width={1000}
         height={1000}
         className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}]`}
       />
 
       <div
-        style={{ width: boardWidth, height: boardWidth, padding:(Math.round(boardWidth/18)) }}
+        style={{
+          width: boardWidth,
+          height: boardWidth,
+          padding: Math.round(boardWidth / 16.5),
+        }}
         className={`z-10 flex`}
       >
         <Chessboard
-          boardWidth={Math.round(boardWidth - boardWidth / 9)}
+          boardOrientation={orientation}
+          boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
           arePiecesDraggable={false}
           position={position}
           customBoardStyle={{
@@ -170,4 +189,4 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     </div>
   );
 };
-export default GlassBoard;
+export default TwoDChessboard;
