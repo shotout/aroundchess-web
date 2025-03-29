@@ -1,22 +1,11 @@
 "use client";
 
-import Analytics from "@/components/game-history/Analytics";
 import DialogButton from "@/components/game-history/DialogButton";
-import GamesTab from "@/components/game-history/GamesTab/GamesTab";
-import Performance from "@/components/game-history/Performance";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import axios from "axios";
 
-import {
-  Star,
-  Target,
-  Trophy,
-  Swords,
-  BarChart2,
-  Download,
-} from "lucide-react";
+import { Star, Target, Trophy, Swords, BarChart2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
 import { useAuth } from "@clerk/nextjs";
@@ -24,6 +13,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
+import { PremiumSubscriptionDialog } from "../analysis/onboarding/PremiumSubscription";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -34,6 +24,7 @@ const GameHistoryPage = () => {
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchAttempted, setFetchAttempted] = useState(false);
+  // const isAnyDialogOpen = showChessConnect || showPremiumDialog;
 
   const { setUsername, username } = usePgnStore();
 
@@ -43,10 +34,8 @@ const GameHistoryPage = () => {
     toast.success(`Successfully connected to Chess.com as ${username}`);
   };
 
-  // Fetch profile as soon as authentication is loaded
   useEffect(() => {
     const fetchProfileData = async () => {
-      // Only proceed if auth is loaded and user is signed in
       if (!authIsLoaded || !isSignedIn || !sessionId) {
         if (authIsLoaded) {
           setIsLoading(false);
@@ -54,17 +43,13 @@ const GameHistoryPage = () => {
         return;
       }
 
-      // Prevent multiple fetch attempts
       if (fetchAttempted) return;
       setFetchAttempted(true);
 
       setIsLoading(true);
-      console.log("Fetching profile data...");
+      setShowConnectDialog(false);
 
       try {
-        console.log("Using sessionId:", sessionId.substring(0, 10) + "...");
-
-        // Make direct API request with authentication token
         const response = await axios.get(`${API_BASE_URL}/profile`, {
           headers: {
             Authorization: `Bearer ${sessionId}`,
@@ -72,9 +57,6 @@ const GameHistoryPage = () => {
           },
         });
 
-        console.log("Profile API response:", response.data);
-
-        // Extract username from response data
         if (response.data) {
           const profileData = response.data;
           const extractedUsername =
@@ -82,36 +64,54 @@ const GameHistoryPage = () => {
             (profileData.data && profileData.data.username);
 
           if (extractedUsername) {
-            console.log("Found username:", extractedUsername);
             setUsername(extractedUsername);
-            setShowConnectDialog(false);
           } else {
-            console.log("No username found in profile");
-            setShowConnectDialog(true);
+            setTimeout(() => {
+              if (!username) {
+                setShowConnectDialog(true);
+              }
+            }, 3000);
           }
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
-        setShowConnectDialog(true);
+        setTimeout(() => {
+          if (!username) {
+            setShowConnectDialog(true);
+          }
+        }, 3000);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [authIsLoaded, isSignedIn, sessionId, setUsername, fetchAttempted]);
+  }, [
+    authIsLoaded,
+    isSignedIn,
+    sessionId,
+    setUsername,
+    fetchAttempted,
+    username,
+  ]);
 
   return (
     <>
       <main className="w-full px-4 py-4 space-y-[16px] bg-primary-white">
-        {/* Chess.com Connection Dialog */}
+        {/* {isAnyDialogOpen && (
+          <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
+        )} */}
         <ChessConnectDialog
-          open={showConnectDialog}
+          open={showConnectDialog && !isLoading && !username}
           onOpenChange={setShowConnectDialog}
           onSuccess={handleConnectSuccess}
         />
+        {/* <PremiumSubscriptionDialog
+          open={showPremiumDialog && !isLoading}
+          onOpenChange={setShowPremiumDialog}
+          onClose={handleClosePremium}
+          onGetPremium={handleGetPremium}
+        /> */}
 
-        {/* top menu */}
         <div className="">
           <div className="flex justify-between items-center mb-4">
             <div className="flex flex-row items-end gap-2">
@@ -128,13 +128,11 @@ const GameHistoryPage = () => {
             <DialogButton />
           </div>
 
-          {/* overall statistic */}
-          <div className="xl:block xl:p-3 xl:border xl:border-primary-gray xl:rounded-md bg-transparent xl:bg-white shadow-card">
+          <div className="xl:block xl:p-3 xl:border xl:border-primary-gray  xl:rounded-md bg-transparent xl:bg-white xl:shadow-card">
             <div className="font-semibold text-sm py-2 lg:text-xl">
               Overall Statistic
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {/* Best Win Card */}
               <Card className="p-3 h-[120px] lg:h-[147px] bg-gradient-to-br from-[#A855F7] to-[#CF9DFF] text-white rounded-lg overflow-hidden relative flex flex-col justify-between">
                 <div className="flex items-center ">
                   <Swords className="h-4 w-4 mr-1" fill="white" />
@@ -169,7 +167,6 @@ const GameHistoryPage = () => {
                 />
               </Card>
 
-              {/* Win Rate Card */}
               <Card className="p-3 h-[120px] lg:h-[147px] bg-[#F6FFFA] border-[1px] border-[#029A46] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-green-500" />
@@ -186,9 +183,22 @@ const GameHistoryPage = () => {
                     {"+5% this month"}
                   </span>
                 </div>
+                <Image
+                  width={200}
+                  height={200}
+                  alt=""
+                  src={"/my-game-history/background-g.png"}
+                  className="-top-3 left-0 absolute text-black "
+                />
+                <Image
+                  width={20}
+                  height={20}
+                  alt=""
+                  src={"/my-game-history/rectangle-g.png"}
+                  className="top-10 left-[80px] absolute "
+                />
               </Card>
 
-              {/* Average ELO Card */}
               <Card className="p-3 h-[120px] lg:h-[147px] border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
                 <div className="flex items-center gap-2">
                   <BarChart2 className="h-4 w-4 text-blue-500" />
@@ -219,12 +229,11 @@ const GameHistoryPage = () => {
                   width={20}
                   height={20}
                   alt=""
-                  src={"/my-game-history/rectangle.png"}
+                  src={"/my-game-history/rectangle-b.png"}
                   className="top-10 right-[150px] absolute "
                 />
               </Card>
 
-              {/* Total Games Card */}
               <Card className="p-3 h-[120px] lg:h-[147px] border-[1px] border-[#DEDEDE] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-4 w-4 text-yellow-500" fill="#eab308" />
@@ -246,10 +255,8 @@ const GameHistoryPage = () => {
           </div>
         </div>
 
-        {/* Tab navigation */}
         <div className="lg:border-2 lg:p-4 xl:p-0 lg:rounded-md bg-white">
           <div className="flex justify-center flex-col">
-            {/* Tab navigation */}
             <div className="xl:flex justify-center hidden">
               {Section.map((t, index) => (
                 <button

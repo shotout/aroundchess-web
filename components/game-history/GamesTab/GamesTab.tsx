@@ -183,7 +183,7 @@ const GamesTab = () => {
                   {currentGames.map((game, index) => (
                     <div
                       key={game.id}
-                      className="grid grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
+                      className="grid text-xs grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
                     >
                       <div
                         className="absolute h-full w-px bg-gray-200"

@@ -6,9 +6,12 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
+import { PremiumSubscriptionDialog } from "@/components/analysis/onboarding/PremiumSubscription";
+import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading, setIsLoading } = usePgnStore();
+  const { setHideDiv, hideDiv, isLoading, setIsLoading, username } =
+    usePgnStore();
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [showChessConnect, setShowChessConnect] = useState<boolean>(false);
@@ -17,8 +20,21 @@ export default function AnalysisPage() {
 
   const isAnyDialogOpen = showChessConnect || showPremiumDialog;
 
+  const handleSuccessfulConnection = (username: string) => {
+    setShowChessConnect(false);
+  };
+
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
+
+  const handleGetPremium = () => {
+    setShowPremiumDialog(false);
+  };
+
   useEffect(() => {
     setIsLoading(false);
+    setShowChessConnect(false);
 
     if (isAnyDialogOpen) {
       document.body.style.overflow = "hidden";
@@ -36,7 +52,6 @@ export default function AnalysisPage() {
           setIsVisible(true);
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       lastScrollY = window.scrollY;
     };
 
@@ -89,20 +104,18 @@ export default function AnalysisPage() {
               </div>
             </div>
             <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
-              {/* <ChessConnectDialog
-                open={showChessConnect}
+              Uncomment and modify these dialogs when needed
+              <ChessConnectDialog
+                open={showChessConnect && !isLoading && !username}
                 onOpenChange={setShowChessConnect}
                 onSuccess={handleSuccessfulConnection}
               />
-
               <PremiumSubscriptionDialog
-                open={showPremiumDialog}
+                open={showPremiumDialog && !isLoading}
                 onOpenChange={setShowPremiumDialog}
                 onClose={handleClosePremium}
                 onGetPremium={handleGetPremium}
-              /> */}
-
-              {/* Overlay that darkens only the main content */}
+              />
               {isAnyDialogOpen && (
                 <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
               )}

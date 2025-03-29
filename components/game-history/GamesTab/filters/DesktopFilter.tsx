@@ -35,7 +35,7 @@ const DesktopFilter = ({
   return (
     <div className="hidden md:flex items-center justify-evenly mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
       {/* Dropdowns container - 70% width */}
-      <div className="flex items-center space-x-2 w-[70%]">
+      <div className="flex items-center space-x-2 w-[70%] 2xl:w-[75%]">
         <Select
           value={filters.color}
           onValueChange={setFilters.setColor}
@@ -86,7 +86,7 @@ const DesktopFilter = ({
       </div>
 
       {/* Buttons container - 30% width */}
-      <div className="flex items-center space-x-1 w-[30%] justify-evenly">
+      <div className="flex items-center space-x-1 w-[30%] justify-evenly 2xl:w-[25%]">
         <Button
           onClick={handleApplyFilters}
           className="bg-blue-600 text-white w-[156px] rounded-full h-12 px-1 flex items-center gap-2 hover:bg-blue-700"

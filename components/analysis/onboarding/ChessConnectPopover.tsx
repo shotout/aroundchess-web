@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Cat } from "lucide-react";
+import { AlertCircle, Cat, Icon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
@@ -33,7 +33,6 @@ export const ChessConnectDialog = ({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { sessionId } = useAuth();
 
-  // Access the Zustand store to directly update the username
   const { setUsername: setStoreUsername } = usePgnStore();
 
   const handleSave = async () => {
@@ -106,9 +105,9 @@ export const ChessConnectDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[358px] mx-auto rounded-md p-0 overflow-hidden [&>button]:hidden md:w-[640px] xl:w-[600px] xl:h-[613px]">
+      <DialogContent className="w-[358px] mx-auto rounded-md p-4 overflow-hidden [&>button]:hidden md:w-[640px] xl:w-[600px] h-auto">
         {/* Top section - Image */}
-        <div className="w-full bg-blue-50 flex items-center justify-center p-6">
+        <div className="w-full  flex items-center justify-center p-4">
           <div className="w-full h-48 relative">
             <Image
               src="/icons/onboarding-popup.png"
@@ -125,25 +124,36 @@ export const ChessConnectDialog = ({
             <DialogTitle className="text-2xl font-bold text-center">
               Welcome on Board!
             </DialogTitle>
-            <DialogDescription className="text-center">
+            <DialogDescription className="text-center text-black">
               Enter your Chess.com Username and find your previously played
               Games right away.
             </DialogDescription>
+            <div className=" text-blue-base text-xs border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
+              <AlertCircle className="w-10 h-10" />
+              <div>
+                Enter the Chess.com Username that you would like to connect to
+                your AroundChess Account (Once you save it, it cannot be
+                changed)
+              </div>
+            </div>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-1 rounded-md">
-                <Cat className="text-blue-base" />
-              </div>
+            <div className="flex items-center gap-x-2">
+              <Image
+                src={"/my-game-history/knight.png"}
+                width={18}
+                height={18}
+                alt="knight icon"
+              />
               <p className="text-sm text-left text-gray-700">
-                Enter the Chess.com Username that you would like to connect
+                Chess.com Username
               </p>
             </div>
 
             <Input
               placeholder="Enter your Chess.com Username"
-              className="w-full h-12 px-4 rounded-lg border-gray-200 focus:border-blue-500"
+              className="w-full h-12 px-4 rounded-lg border-light-60 bg-[#F2FBFE]"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -154,13 +164,13 @@ export const ChessConnectDialog = ({
               <p className="text-sm text-red-500">{errorMessage}</p>
             )}
 
-            <Button
+            <button
               className="w-full h-12 btn-primary text-white font-medium rounded-full"
               onClick={handleSave}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Connecting..." : "Save"}
-            </Button>
+            </button>
           </div>
         </div>
       </DialogContent>
