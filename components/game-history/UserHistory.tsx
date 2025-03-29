@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import GamesTab from "./GamesTab/GamesTab";
-import Analytics from "./Analytics";
-import Performance from "./Performance";
+import Analytics from "./Analytics/Analytics";
+import Performance from "./Performance/Performance";
 
 const UserHistory = () => {
   const Tabs = ["Games", "Analytics", "Performance"] as const;
@@ -14,7 +14,7 @@ const UserHistory = () => {
       <div className="w-full xl:border-b-2 border-[#DEDEDE] mb-4">
         {/* Tabs container */}
         <div className="flex justify-between items-center mb-2 px-4">
-          <div className="mb-4 w-full overflow-hidden border-[1px] lg:border-none border-[#DEDEDE]">
+          <div className="mb-4 w-full overflow-hidden rounded-md bg-[#F9FAFC] md:bg-transparent border-[1px] md:border-none border-[#DEDEDE]">
             <div className="flex justify-center items-center h-12 text-xs lg:text-sm px-2">
               {Tabs.map((t, index) => (
                 <button

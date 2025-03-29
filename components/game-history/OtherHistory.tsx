@@ -3,8 +3,8 @@ import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
 import GamesTab from "./GamesTab/GamesTab";
-import Analytics from "./Analytics";
-import Performance from "./Performance";
+import Analytics from "./Analytics/Analytics";
+import Performance from "./Performance/Performance";
 
 const OtherHistory = () => {
   const Tabs = ["Games", "Analytics", "Performance"] as const;
@@ -31,12 +31,6 @@ const OtherHistory = () => {
             ))}
           </div>
         </Card>
-        {/* <button className="hidden btn-secondary lg:flex items-center lg:gap-3 py-[20px] rounded-3xl justify-center px-5 lg:h-12 lg:w-52">
-          <Download className="h-[13px]" />
-          <h1 className="text-xs lg:text-sm font-primary font-thin">
-            Export Games
-          </h1>
-        </button> */}
       </div>
       {tab === "Games" && <GamesTab />}
       {tab === "Analytics" && <Analytics />}

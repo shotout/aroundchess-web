@@ -1,7 +1,8 @@
 import { Game } from "@/app/store/zustandStore";
-import { ApiResponse, EloChangeResult, FilterState } from "../types/GamesTabType";
+import { FilterState } from "../types/GamesTabType";
 
-export const API_BASE_URL = "https://ac-api.kemang.sg/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 export const CACHE_EXPIRATION = 5 * 60 * 1000;
 export const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 
