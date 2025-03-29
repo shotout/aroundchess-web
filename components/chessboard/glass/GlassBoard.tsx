@@ -6,21 +6,7 @@ import { SetStateAction, useMemo, useState } from "react";
 
 import { CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
-
-const boardWrapper: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100vh",
-};
-
-const buttonStyle: CSSProperties = {
-  margin: "10px",
-  padding: "10px 20px",
-  fontSize: "16px",
-  cursor: "pointer",
-};
+ 
 
 interface GlassBoardProps {
   position: string;
@@ -126,7 +112,7 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * 0.9,
+            width: squareWidth * 1,
             height: squareWidth * 0.9,
             position: "relative",
             pointerEvents: "none",
@@ -138,7 +124,7 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0.02 * squareWidth}px`,
+              bottom: `${0* squareWidth}px`,
               objectFit: "contain",
             }}
           />

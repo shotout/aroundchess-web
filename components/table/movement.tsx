@@ -80,38 +80,38 @@ export default function MovementTable() {
   return (
     <div className="hidden xl:block mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
       <div className="max-h-[496px] overflow-y-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
-        <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-        <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#749BBF]  py-2">
-          White{" "}
-          <span className="block text-xs font-light">
-            ({summary?.whiteSide?.profileInfo.username})
+        <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
+          <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+          <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
+            White{" "}
+            <span className="block text-xs font-light">
+              ({summary?.whiteSide?.profileInfo.username})
+            </span>
           </span>
-        </span>
-        <span className="block text-xs font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
-          Black{" "}
-          <span className="block text-xs font-light">
-            ({summary?.blackSide?.profileInfo.username})
+          <span className="block text-xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
+            Black{" "}
+            <span className="block text-xs font-light">
+              ({summary?.blackSide?.profileInfo.username})
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%]">
-          <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#D7E3FB]">
+          <div className="hidden sm:block bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#BDD0F9]">
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[10px] py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-sm lg:text-[8px] py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
             ))}
           </div>
-          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#D7E3FB]">
+          <div className="grid grid-cols-[30%_30%_40%]  text-center border-b bg-[#BDD0F9]">
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[10px]  py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-sm lg:text-[8px]  py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
@@ -122,18 +122,22 @@ export default function MovementTable() {
           <div
             key={index}
             className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-              tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-              chessMove.move == move.move
-                ? "bg-[#9BB8F5]"
-                : index % 2 != 0
-                ? "bg-[#F6F9FF]"
-                : "bg-white"
+              index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
             }`}
           >
             <span className="hidden sm:block text-sm text-center font-semibold py-2 border-b border-b-[#749BBF]">
               {index + 1}
             </span>
-            <div className="grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ">
+            <div
+              className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
+                tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
+                chessMove.move == move.move
+                  ? "bg-[#81CFF3]"
+                  : index % 2 != 0
+                  ? "bg-[#81]"
+                  : "bg-white"
+              }`}
+            >
               <Popover>
                 <PopoverContent
                   className="w-auto p-0 bg-white rounded-md"
@@ -172,10 +176,11 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    <span className="text-sm text-left lg:text-md font-normal py-1">
-                      This move deviates from opening principles. Focus on
-                      development and center control.
-                    </span>
+                    {move.analysis && (
+                      <span className="text-sm text-left lg:text-md font-normal py-1">
+                        {move.analysis}
+                      </span>
+                    )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-sm ">Type:</span>
@@ -188,10 +193,10 @@ export default function MovementTable() {
                 <PopoverTrigger asChild>
                   <Button
                     variant={"ghost"}
-                    className="rounded-none hover:bg-[#9BB8F5]"
+                    className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
-                    <span className="text-sm text-center font-semibold py-2">
+                    <span className="text-[11px] text-center font-semibold py-2">
                       {move.move}
                     </span>
                   </Button>
@@ -199,7 +204,7 @@ export default function MovementTable() {
               </Popover>
 
               <span
-                className={`text-sm text-center ${
+                className={`text-xs text-center ${
                   tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
                   chessMove.move == move.move
                     ? "font-bold"
@@ -209,14 +214,23 @@ export default function MovementTable() {
                 {move.evaluation}
               </span>
               <span
-                className={`mx-1 py-1 rounded-[4px] text-[11px]  ${getBadgeClass(
+                className={`mx-1 rounded-[4px] text-[11px]  ${getBadgeClass(
                   move.classification
                 )}`}
               >
                 {move.classification}
               </span>
             </div>
-            <div className="grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ">
+            <div
+              className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
+                tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
+                chessMove.move == movementDetails.black[index]?.move
+                  ? "bg-[#81CFF3]"
+                  : index % 2 != 0
+                  ? "bg-[#81]"
+                  : "bg-white"
+              }`}
+            >
               <Popover>
                 <PopoverContent
                   className="w-auto p-0 bg-white rounded-md"
@@ -257,10 +271,11 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    <span className="text-[7px] font-normal py-1">
-                      This move deviates from opening principles. Focus on
-                      development and center control.
-                    </span>
+                    {movementDetails.black[index]?.analysis && (
+                      <span className="text-[7px] font-normal py-1">
+                        {movementDetails.black[index]?.analysis}
+                      </span>
+                    )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[7px]">Type:</span>
@@ -273,7 +288,7 @@ export default function MovementTable() {
                 <PopoverTrigger asChild>
                   <Button
                     variant={"ghost"}
-                    className="rounded-none hover:bg-[#9BB8F5]"
+                    className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() =>
                       handleOnClickMovement(
                         movementDetails.black[index],
@@ -282,7 +297,7 @@ export default function MovementTable() {
                       )
                     }
                   >
-                    <span className="text-sm text-center font-semibold py-2">
+                    <span className="text-[11px] text-center font-semibold py-2">
                       {movementDetails.black[index]?.move}
                     </span>
                   </Button>
@@ -290,7 +305,7 @@ export default function MovementTable() {
               </Popover>
 
               <span
-                className={`text-sm text-center  ${
+                className={`text-[11px] text-center  ${
                   tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
                   chessMove.move == move.move
                     ? "font-bold"
@@ -302,7 +317,7 @@ export default function MovementTable() {
                 {movementDetails.black[index]?.evaluation}
               </span>
               <span
-                className={`mx-1 py-1 rounded-[4px] text-[11px] ${getBadgeClass(
+                className={`mx-1 rounded-[4px] text-[11px] ${getBadgeClass(
                   movementDetails.black[index]?.classification
                 )}`}
               >

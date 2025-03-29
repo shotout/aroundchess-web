@@ -54,7 +54,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         </div>
 
         <Section
-          title="Past Games - Key Weaknesses:"
+          title="Current Games - Key Weaknesses:"
           content={[
             `**Tactical Awareness:** ${keyWeaknesses.tacticalAwareness}.`,
             `**Opening Preparation:** ${keyWeaknesses.openingPreparation}.`,
@@ -63,31 +63,21 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           ]}
         />
 
-      <Section
-        title="Past Games - Key Weaknesses:"
-        content={[
-          "**Tactical Awareness:** Frequent missed tactics, especially forks and discovered attacks.",
-          "**Opening Preparation:** Struggled with unfamiliar lines, leading to early positional disadvantages.",
-          "**Middlegame Technique:** Rushed key decisions in critical moments, leading to blunders.",
-          "**Endgame Technique:** Missed winning conversions in simplified positions.",
-        ]}
-      />
-
-      <Section
-        title="Current Game Analysis:"
-        content={[
-          "**Strengths:** Improved decision-making in middlegame transitions, better awareness of opponent's threats.",
-          "**Weaknesses:** Still vulnerable to positional sacrifices, inaccuracies in complex positions.",
-        ]}
-      />
-
-      <Section
-        title="Comparison to Past Games:"
-        content={[
-          "**Better:** Stronger piece coordination, fewer outright blunders.",
-          "**Worse:** Slight regression in time management, hesitation in executing tactical sequences.",
-        ]}
-      />
+        <Section
+          title="Current Game Analysis:"
+          content={[
+            `**Strengths:** ${gameAnalysis.strength}`,
+            `**Weaknesses:** ${gameAnalysis.weaknesses}`,
+          ]}
+        />
+        {/* 
+        <Section
+          title="Comparison to Past Games:"
+          content={[
+            "**Better:** Stronger piece coordination, fewer outright blunders.",
+            "**Worse:** Slight regression in time management, hesitation in executing tactical sequences.",
+          ]}
+        /> */}
 
         <div className="border border-[#221AE9] border-l-4 rounded-lg p-3 bg-[#F6F9FF]">
           <h3 className="text-[#254B9D] font-semibold mb-2">
@@ -96,26 +86,8 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           <span className="text-sm md:text-md text-[#254B9D] whitespace-pre-line">
             {nextStepImprovement}
           </span>
-          {/* <ul className="list-decimal list-inside text-sm text-[#254B9D]">
-          <li>
-            <b>Tactical Drills:</b> Solve puzzles daily focusing on forks, pins,
-            and discovered attacks.
-          </li>
-          <li>
-            <b>Opening Study:</b> Deepen understanding of recurring problem
-            openings with targeted practice.
-          </li>
-          <li>
-            <b>Middlegame Practice:</b> Allocate more time for complex
-            positions, especially in critical middlegame transitions.
-          </li>
-          <li>
-            <b>Endgame Practice:</b> Review key theoretical endgames and
-            practice conversions.
-          </li>
-        </ul> */}
         </div>
-        <div className="flex flex-row bg-gradient rounded-md p-2 sm:p-4">
+        {/* <div className="flex flex-row bg-gradient rounded-md p-2 sm:p-4">
           <Image
             alt=""
             src={"/icons/info-banner-icon.png"}
@@ -127,30 +99,30 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             We have added Exercises to your Training Plan to improve your
             Strategy for the analyzed weaknesses.
           </span>
-        </div>
+        </div> */}
       </div>
-      
-            <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
-              <button
-                onClick={props.prev}
-                className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-              >
-                <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
-                  <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
-                  Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                </div>
-              </button>
-              <div className="w-8" />
-              <button
-                onClick={props.next}
-                className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
-              >
-                <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-                  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Training
-                  <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
-                </div>
-              </button>
-            </div>
+
+      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+        <button
+          onClick={props.prev}
+          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
+            <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
+            Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+        </button>
+        <div className="w-8" />
+        <button
+          onClick={props.next}
+          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Training
+            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
+          </div>
+        </button>
+      </div>
     </>
   );
 };
