@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Card } from "../ui/card";
-import { Button } from "../ui/button";
-import { Download } from "lucide-react";
 import GamesTab from "./GamesTab/GamesTab";
 import Analytics from "./Analytics/Analytics";
 import Performance from "./Performance/Performance";
+import OtherGamesTab from "./OtherHistory/OtherGameTab";
 
 const OtherHistory = () => {
   const Tabs = ["Games", "Analytics", "Performance"] as const;
@@ -32,7 +31,7 @@ const OtherHistory = () => {
           </div>
         </Card>
       </div>
-      {tab === "Games" && <GamesTab />}
+      {tab === "Games" && <OtherGamesTab />}
       {tab === "Analytics" && <Analytics />}
       {tab === "Performance" && <Performance />}
     </div>
