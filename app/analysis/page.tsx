@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { PremiumSubscriptionDialog } from "@/components/analysis/onboarding/PremiumSubscription";
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
+import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 
 export default function AnalysisPage() {
   const { setHideDiv, hideDiv, isLoading, setIsLoading, username } =
@@ -104,18 +104,17 @@ export default function AnalysisPage() {
               </div>
             </div>
             <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
-              Uncomment and modify these dialogs when needed
               <ChessConnectDialog
                 open={showChessConnect && !isLoading && !username}
                 onOpenChange={setShowChessConnect}
                 onSuccess={handleSuccessfulConnection}
               />
-              <PremiumSubscriptionDialog
+              {/* <PremiumSubscription
                 open={showPremiumDialog && !isLoading}
                 onOpenChange={setShowPremiumDialog}
                 onClose={handleClosePremium}
                 onGetPremium={handleGetPremium}
-              />
+              /> */}
               {isAnyDialogOpen && (
                 <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
               )}

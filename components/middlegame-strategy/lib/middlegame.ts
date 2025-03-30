@@ -1,4 +1,5 @@
 export interface ApiMiddlegame {
+  variations: any;
   id: string;
   title: string;
   description: string;

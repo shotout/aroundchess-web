@@ -14,6 +14,7 @@ import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
 import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
+import LoadingPage from "../analysis-loading/LoadingPage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -23,7 +24,7 @@ const GameHistoryPage = () => {
   const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
 
   // DEV: Temporary state for development to control dialogs
-  const [devMode] = useState(true); // Set to true for development mode
+  const [devMode] = useState(false); // Set to true for development mode
   const [showConnectDialog, setShowConnectDialog] = useState(devMode);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

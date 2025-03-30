@@ -1,5 +1,5 @@
 "use client";
-import MiddlegameDetailWithNextTopics from "@/components/middlegame-strategy/MiddlegameDetail";
+import EndgameDetailWithNextTopics from "@/components/endgame-mastery/EndgameDetail";
 import Navigation from "@/components/navigator/navigation";
 
 export default function Page({ params }: { params: { slug: string } }) {
@@ -8,7 +8,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
           <div className="w-full -mt-16 sm:-mt-16 md:-mt-20 lg:-mt-20 xl:mt-0">
-            <MiddlegameDetailWithNextTopics params={params} />
+            <EndgameDetailWithNextTopics params={params} />
           </div>
         </Navigation>
       </div>
