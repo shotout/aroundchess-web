@@ -5,95 +5,99 @@ import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Info, ArrowLeft, Check, Target } from "lucide-react";
+import { BookOpen, Info, ArrowLeft, Check, Target, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Responsive from "../game-history/Responsive";
 import {
-  useOpeningsStore,
+  useEndgameStore,
   getFenFromMoves,
   getIdFromSlug,
   getSlugFromId,
-} from "./lib/openingMapper";
+} from "./lib/endgameMapper";
 import DotSpinner from "../game-history/Spinner";
 import Image from "next/image";
 
-export default function OpeningDetailWithNextTopics({
+export default function EndgameDetailWithNextTopics({
   params,
 }: {
   params: { slug: string };
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "variations">(
+  const [activeTab, setActiveTab] = useState<"overview" | "techniques">(
     "overview"
   );
 
   const {
-    allOpenings,
-    openingDetails,
+    allEndgames,
+    endgameDetails,
     isLoading,
     error,
     initialized,
-    fetchAllOpenings,
-    fetchOpeningDetails,
-  } = useOpeningsStore();
+    fetchAllEndgames,
+    fetchEndgameDetails,
+  } = useEndgameStore();
 
-  const [lessonFinished, setLessonFinished] = useState(false);
-
-  const openingId = getIdFromSlug(params.slug);
-  const opening = openingDetails[openingId];
-  const relatedOpenings = allOpenings
-    .filter((o) => o.id !== openingId)
+  const endgameId = getIdFromSlug(params.slug);
+  const endgame = endgameDetails[endgameId];
+  const relatedEndgames = allEndgames
+    .filter((e) => e.id !== endgameId)
     .slice(0, 3);
 
   useEffect(() => {
     const loadData = async () => {
       if (!initialized) {
-        await fetchAllOpenings();
+        await fetchAllEndgames();
       }
-      await fetchOpeningDetails(openingId);
+      await fetchEndgameDetails(endgameId);
     };
 
     loadData();
-  }, [openingId, fetchOpeningDetails, initialized, fetchAllOpenings]);
+  }, [endgameId, fetchEndgameDetails, initialized, fetchAllEndgames]);
 
-  const handleOpeningNavigation = (slug: string) => {
-    const navigateToOpening = () => {
-      router.push(`/opening-theory/${slug}`);
+  const handleEndgameNavigation = (slug: string) => {
+    const navigateToEndgame = () => {
+      router.push(`/endgame-mastery/${slug}`);
     };
-    setTimeout(navigateToOpening, 200);
+    setTimeout(navigateToEndgame, 200);
   };
 
-  const handleFinishLesson = () => {
-    if (opening) {
-      setLessonFinished(true);
-    }
-  };
-
-  if (isLoading || !opening) {
+  if (isLoading || !endgame) {
     return <DotSpinner />;
   }
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <h2 className="text-xl font-bold mb-4">Error Loading Opening</h2>
+        <h2 className="text-xl font-bold mb-4">Error Loading Endgame</h2>
         <p className="text-gray-600 mb-4">{error}</p>
-        <Button onClick={() => router.push("/opening-theory")}>
-          Back to Opening Theory
+        <Button onClick={() => router.push("/endgame-mastery")}>
+          Back to Endgame Mastery
         </Button>
       </div>
     );
   }
 
-  const strategicIdeas =
-    opening.variations && opening.variations.length > 0
-      ? opening.variations[0].keyIdeas.map((ki) => ki.idea)
-      : ["Strategic analysis coming soon"];
+  // Ensure properties exist with fallbacks
+  const keyPrinciples =
+    endgame.keyPrinciples && endgame.keyPrinciples.length > 0
+      ? endgame.keyPrinciples.map((kp) => kp.principle)
+      : ["Key principles coming soon"];
 
-  const tacticalIdeas =
-    opening.variations && opening.variations.length > 1
-      ? opening.variations[1].keyIdeas.map((ki) => ki.idea)
-      : ["Tactical analysis coming soon"];
+  const winningIdeas =
+    endgame.winningIdeas && endgame.winningIdeas.length > 0
+      ? endgame.winningIdeas.map((wi) => wi.idea)
+      : ["Winning ideas coming soon"];
+
+  const theoreticalConcepts =
+    endgame.theoreticalConcepts && endgame.theoreticalConcepts.length > 0
+      ? endgame.theoreticalConcepts.map((tc) => tc.concept)
+      : ["Theoretical concepts coming soon"];
+
+  // Ensure objectives, prerequisites, resources, and techniques have defaults
+  const objectives = endgame.objectives || [];
+  const prerequisites = endgame.prerequisites || [];
+  const resources = endgame.resources || [];
+  const techniques = endgame.techniques || [];
 
   return (
     <AnimatePresence mode="wait">
@@ -104,20 +108,20 @@ export default function OpeningDetailWithNextTopics({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="flex flex-col "
+        className="flex flex-col"
       >
         <div className="mb-4">
           <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6 xl:gap-y-2">
             <div className="flex">
               <div className="flex items-center">
                 <button
-                  onClick={() => router.push("/opening-theory")}
+                  onClick={() => router.push("/endgame-mastery")}
                   className="flex-shrink-0"
                 >
                   <ArrowLeft className="h-6 w-6 mr-2 font-bold" />
                 </button>
                 <h1 className="font-bold text-lg xl:text-[32px]">
-                  {opening.title}
+                  {endgame.title}
                 </h1>
               </div>
 
@@ -125,7 +129,7 @@ export default function OpeningDetailWithNextTopics({
             </div>
 
             <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8 xl:text-lg">
-              {opening.description}
+              {endgame.description}
             </p>
           </div>
           <div className="border-b xl:border-b-0"></div>
@@ -137,7 +141,7 @@ export default function OpeningDetailWithNextTopics({
                 <div className="w-full max-w-md mx-auto">
                   <Chessboard
                     id={`board-${params.slug}`}
-                    position={getFenFromMoves(opening.variations?.[0]?.moves)}
+                    position={getFenFromMoves(endgame.moves)}
                     customDarkSquareStyle={{
                       backgroundColor: "#9E7555",
                     }}
@@ -150,57 +154,35 @@ export default function OpeningDetailWithNextTopics({
 
               <div className="w-full flex justify-center items-center gap-x-3">
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
-                  {opening.difficulty}
+                  {endgame.difficulty}
                 </span>
-              </div>
-
-              {lessonFinished && (
-                <div className="relative bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100% border rounded-lg p-4 pl-10 flex items-center gap-2">
-                  <Image
-                    width={20}
-                    height={20}
-                    alt="check icon"
-                    src={"/handbooks/check.png"}
-                    className="h-5 w-5 text-green-500"
-                  />
-                  <h1 className="text-black font-medium">
-                    Great, you finished this exercise! Make sure you use your
-                    Learnings in your next Game.
-                  </h1>
-
-                  <Image
-                    width={200}
-                    height={200}
-                    alt="sparks"
-                    src={"/handbooks/sparks.png"}
-                    className="absolute top-0 right-12"
-                  />
+                <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
+                  <Clock className="w-3 h-3 mr-1" />
+                  <h1>{endgame.estimatedTime || "15 min"} learning</h1>
                 </div>
-              )}
+              </div>
 
               <div className="flex flex-col gap-4">
                 <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[78px] xl:gap-y-1">
                   <div className="flex items-center">
                     <Info className="h-5 w-5 mr-2 text-blue-600" />
-                    <h2 className="text-base">Opening Analysis</h2>
+                    <h2 className="text-base">Endgame Analysis</h2>
                   </div>
                   <p className="text-[#364152] text-sm">
-                    Key strategic and tactical ideas in this opening
+                    Key principles and winning ideas in this endgame
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Card className="shadow-sm">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">
-                        Strategic Ideas:
-                      </CardTitle>
+                      <CardTitle className="text-sm">Key Principles:</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 list-disc pl-4">
-                        {strategicIdeas.map((idea, index) => (
+                        {keyPrinciples.map((principle, index) => (
                           <li key={index} className="text-xs">
-                            {idea}
+                            {principle}
                           </li>
                         ))}
                       </ul>
@@ -209,11 +191,11 @@ export default function OpeningDetailWithNextTopics({
 
                   <Card className="shadow-sm">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Tactical Ideas:</CardTitle>
+                      <CardTitle className="text-sm">Winning Ideas:</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 list-disc pl-4">
-                        {tacticalIdeas.map((idea, index) => (
+                        {winningIdeas.map((idea, index) => (
                           <li key={index} className="text-xs">
                             {idea}
                           </li>
@@ -224,21 +206,21 @@ export default function OpeningDetailWithNextTopics({
                 </div>
               </div>
 
-              <div className="overflow-hidden  flex flex-col gap-6">
+              <div className="overflow-hidden flex flex-col gap-6">
                 <div className="p-2 flex bg-[#F9FAFC] rounded-lg border h-auto items-center">
                   {[
                     { id: "overview", label: "Overview" },
-                    { id: "variations", label: "Variations" },
+                    { id: "techniques", label: "Techniques" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
-                      className={`flex-1 p-[10px] font-medium  text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
                         activeTab === tab.id
                           ? "bg-white shadow-md text-black font-bold"
                           : "text-gray-600 font-normal"
                       }`}
                       onClick={() =>
-                        setActiveTab(tab.id as "overview" | "variations")
+                        setActiveTab(tab.id as "overview" | "techniques")
                       }
                     >
                       {tab.label}
@@ -264,11 +246,8 @@ export default function OpeningDetailWithNextTopics({
                             <div className="flex">
                               <div className="w-1/2 pr-2">
                                 <ul className="space-y-2 list-disc pl-5">
-                                  {opening.objectives
-                                    .slice(
-                                      0,
-                                      Math.ceil(opening.objectives.length / 2)
-                                    )
+                                  {objectives
+                                    .slice(0, Math.ceil(objectives.length / 2))
                                     .map((objective, index) => (
                                       <li key={index} className="text-xs">
                                         {objective.objective}
@@ -278,10 +257,8 @@ export default function OpeningDetailWithNextTopics({
                               </div>
                               <div className="w-1/2 pl-2">
                                 <ul className="space-y-2 list-disc pl-5">
-                                  {opening.objectives
-                                    .slice(
-                                      Math.ceil(opening.objectives.length / 2)
-                                    )
+                                  {objectives
+                                    .slice(Math.ceil(objectives.length / 2))
                                     .map((objective, index) => (
                                       <li
                                         key={`additional-${index}`}
@@ -300,14 +277,14 @@ export default function OpeningDetailWithNextTopics({
                               Prerequisites:
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                              {opening.prerequisites.length > 0 ? (
-                                opening.prerequisites.map((prereq) => (
+                              {prerequisites.length > 0 ? (
+                                prerequisites.map((prereq) => (
                                   <span
                                     key={prereq.prerequisite}
                                     className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
                                     onClick={() =>
                                       router.push(
-                                        `/opening-theory/${prereq.prerequisite}`
+                                        `/endgame-mastery/${prereq.prerequisite}`
                                       )
                                     }
                                   >
@@ -329,54 +306,75 @@ export default function OpeningDetailWithNextTopics({
                             </div>
                           </div>
                         </div>
+
+                        {/* Theoretical Concepts Section */}
+                        <div className="border p-4 mt-6">
+                          <h3 className="font-semibold mb-2">
+                            Theoretical Concepts:
+                          </h3>
+                          <div className="flex">
+                            <div className="w-1/2 pr-2">
+                              <ul className="space-y-2 list-disc pl-5">
+                                {theoreticalConcepts
+                                  .slice(
+                                    0,
+                                    Math.ceil(theoreticalConcepts.length / 2)
+                                  )
+                                  .map((concept, index) => (
+                                    <li key={index} className="text-xs">
+                                      {concept}
+                                    </li>
+                                  ))}
+                              </ul>
+                            </div>
+                            <div className="w-1/2 pl-2">
+                              <ul className="space-y-2 list-disc pl-5">
+                                {theoreticalConcepts
+                                  .slice(
+                                    Math.ceil(theoreticalConcepts.length / 2)
+                                  )
+                                  .map((concept, index) => (
+                                    <li
+                                      key={`theoretical-${index}`}
+                                      className="text-xs"
+                                    >
+                                      {concept}
+                                    </li>
+                                  ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
                       </motion.div>
                     ) : (
                       <motion.div
-                        key="variations"
+                        key="techniques"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {opening.variations &&
-                          opening.variations.length > 0 ? (
-                            opening.variations.map((variation, index) => (
+                          {techniques && techniques.length > 0 ? (
+                            techniques.map((technique, index) => (
                               <div
                                 key={index}
                                 className="border rounded-lg shadow-sm overflow-hidden"
                               >
-                                <div className="p-4 pb-2">
-                                  <h3 className="text-sm md:text-base font-bold">
-                                    {variation.name}
-                                  </h3>
-                                  <p className="text-xs text-gray-600">
-                                    {variation.description}
-                                  </p>
-                                </div>
-                                <div className="p-4 pt-2">
-                                  <ul className="space-y-2">
-                                    {variation.keyIdeas.map(
-                                      (keyIdea, pointIndex) => (
-                                        <li
-                                          key={pointIndex}
-                                          className="flex items-center gap-2"
-                                        >
-                                          <Target className="w-5 h-5 text-blue-base" />
-                                          <span className="text-xs ">
-                                            {keyIdea.idea}
-                                          </span>
-                                        </li>
-                                      )
-                                    )}
-                                  </ul>
+                                <div className="p-4">
+                                  <div className="flex items-start gap-2">
+                                    <Target className="w-5 h-5 mt-0.5 text-blue-base" />
+                                    <span className="text-xs md:text-sm">
+                                      {technique.technique}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             ))
                           ) : (
                             <div className="col-span-1 md:col-span-3 text-gray-600 p-4 border">
                               <p>
-                                No variations data available for this opening.
+                                No techniques data available for this endgame.
                               </p>
                             </div>
                           )}
@@ -389,11 +387,11 @@ export default function OpeningDetailWithNextTopics({
 
               <div className="border rounded-lg p-4 bg-light-40">
                 <h3 className="font-semibold text-sm mb-4">
-                  Practice your Learnings to finish this Lesson:
+                  Practice your Learnings:
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
-                  {opening.resources.map((resource, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {resources.map((resource, index) => (
                     <div
                       key={index}
                       className="border rounded-lg p-4 flex flex-col h-40 bg-white"
@@ -410,7 +408,10 @@ export default function OpeningDetailWithNextTopics({
                           className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
                         >
                           <h1 className="text-center text-md font-semibold">
-                            Visit {resource.platform.replace("_", ".")}
+                            Visit{" "}
+                            {resource.platform
+                              ? resource.platform.replace("_", ".")
+                              : "resource"}
                           </h1>
                         </a>
                       </div>
@@ -421,14 +422,11 @@ export default function OpeningDetailWithNextTopics({
 
               <div className="flex flex-col gap-4">
                 <Button
-                  className={`w-full py-3 text-white rounded-full ${
-                    lessonFinished ? "bg-green-500" : "bg-blue-base"
-                  }`}
-                  onClick={handleFinishLesson}
-                  disabled={lessonFinished}
+                  className="w-full py-3 text-white rounded-full bg-blue-base"
+                  onClick={() => router.push("/endgame-mastery")}
                 >
-                  <Check className="mr-2 h-5 w-5" />
-                  {lessonFinished ? "Lesson Finished" : "Finish Lesson"}
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Learn More Endgames
                 </Button>
               </div>
             </div>
@@ -448,24 +446,22 @@ export default function OpeningDetailWithNextTopics({
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 mt-4">
-                    {relatedOpenings.map((topic, index) => {
+                    {relatedEndgames.map((topic, index) => {
                       const topicSlug = getSlugFromId(topic.id);
 
                       return (
                         <div
                           key={index}
-                          onClick={() => handleOpeningNavigation(topicSlug)}
+                          onClick={() => handleEndgameNavigation(topicSlug)}
                           className="cursor-pointer w-full xl:mx-auto"
                         >
-                          <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-auto">
+                          <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
                             <div className="relative">
                               <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
                                 <div className="w-full h-full p-2 md:p-3 xl:p-4">
                                   <Chessboard
                                     id={`next-topic-${topicSlug}`}
-                                    position={getFenFromMoves(
-                                      topic.variations?.[0]?.moves
-                                    )}
+                                    position={getFenFromMoves(topic.moves)}
                                     arePiecesDraggable={false}
                                     customDarkSquareStyle={{
                                       backgroundColor: "#9E7555",
@@ -477,19 +473,14 @@ export default function OpeningDetailWithNextTopics({
                                 </div>
                               </div>
                               <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
-                                Opening
+                                Endgame
                               </span>
                               <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full">
-                                <Image
-                                  src={"/handbooks/finished.png"}
-                                  alt="finish lesson icon"
-                                  fill
-                                  className="p-1"
-                                />
+                                <BookOpen className="h-5 w-5 xl:h-8 xl:w-8 text-white p-1" />
                               </div>
                             </div>
 
-                            <div className="p-4 xl:py-0 flex flex-col flex-grow space-y-3 xl:space-y-2 xl:mb-4">
+                            <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2 xl:mb-4">
                               <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
                                 {topic.difficulty}
                               </span>
@@ -497,12 +488,10 @@ export default function OpeningDetailWithNextTopics({
                                 {topic.title}
                               </h3>
                               <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto btn-primary">
-                                <>
-                                  <BookOpen className="h-4 w-4" />
-                                  <span className="text-xs md:text-sm">
-                                    Start Learning
-                                  </span>
-                                </>
+                                <BookOpen className="h-4 w-4" />
+                                <span className="text-xs md:text-sm">
+                                  Start Learning
+                                </span>
                               </div>
                             </div>
                           </Card>

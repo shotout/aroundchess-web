@@ -1,6 +1,6 @@
 // useAnalyzeGame.ts
 import { useRouter } from "next/navigation";
-import { Game} from "@/app/store/zustandStore";
+import { Game, usePgnStore} from "@/app/store/zustandStore";
 import { toast } from "sonner";
 import { proceedAnalysis } from "@/utils/stockfish-utils";
 
@@ -15,11 +15,13 @@ export function useAnalyzeGame(
   setIsLoading: (loading: boolean) => void
 ): UseAnalyzeGameResult {
   const router = useRouter();
+  const {setIsLoading : ZustandSetIsLoading} = usePgnStore()
 
   const handleAnalyzeClick = async (game: Game) => {
     let arr = null;
     try {
       setIsLoading(true);
+      ZustandSetIsLoading(true)
       setPgn(game.pgn);
       const responseAnalysis = await proceedAnalysis(
         game.pgn,
@@ -33,6 +35,7 @@ export function useAnalyzeGame(
     } catch (err) {
       setDataAnalysis(null);
       setIsLoading(false);
+      ZustandSetIsLoading(false)
       toast.error(err + "");
       router.push("/");
     } finally {
@@ -40,6 +43,7 @@ export function useAnalyzeGame(
         router.push("/analysis");
       } else {
         setIsLoading(false);
+        ZustandSetIsLoading(false)
       }
     }
   };

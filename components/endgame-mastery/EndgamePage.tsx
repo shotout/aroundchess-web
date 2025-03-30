@@ -1,46 +1,46 @@
 import React, { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { getSlugFromId, useMiddlegameStore } from "./lib/middlegameMapper";
+import { getSlugFromId, useEndgameStore } from "./lib/endgameMapper";
 
 // Import components
-import MiddlegameCard from "./MiddlegameCard";
-import MiddlegameFilters from "./MiddlegameFilter";
+import EndgameCard from "./EndgameCard";
+import EndgameFilters from "./EndgameFilter";
 import {
   LoadingState,
   ErrorState,
   FilteringState,
   NoResultsState,
   LoadMoreState,
-} from "./LoadingState"; // Reusing the same loading states
+} from "@/components/opening-theory/LoadingState"; // Reusing the same loading states
 
 // Import custom hooks
-import { useMiddlegamePagination } from "./lib/hooks/useMiddlegamePagination";
-import { useMiddlegameFilters } from "./lib/hooks/useMiddlegameFilter";
+import { useEndgamePagination } from "./lib/hooks/useEndgamePagination";
+import { useEndgameFilters } from "./lib/hooks/useEndgameFilter";
 
-const MiddlegamePage: React.FC = () => {
+const EndgamePage: React.FC = () => {
   const {
-    filteredMiddlegames,
+    filteredEndgames,
     pagination,
     isLoading,
     error,
     difficultyFilter,
     searchTerm,
     initialized,
-    fetchAllMiddlegames,
+    fetchAllEndgames,
     setDifficultyFilter,
     setSearchTerm,
     applyFilters,
-  } = useMiddlegameStore();
+  } = useEndgameStore();
 
   // Initialize pagination hook
   const {
-    paginatedMiddlegames,
+    paginatedEndgames,
     hasMoreResults,
     isLoadingMore,
     loadMoreItems,
     displayCount,
     ref,
-  } = useMiddlegamePagination(filteredMiddlegames);
+  } = useEndgamePagination(filteredEndgames);
 
   // Initialize filters hook
   const {
@@ -49,32 +49,32 @@ const MiddlegamePage: React.FC = () => {
     showNoResults,
     handleSearchChange,
     handleDifficultyChange,
-  } = useMiddlegameFilters(
+  } = useEndgameFilters(
     searchTerm,
     setSearchTerm,
     difficultyFilter,
     setDifficultyFilter,
-    filteredMiddlegames
+    filteredEndgames
   );
 
-  // Fetch middlegames on mount if not already initialized
+  // Fetch endgames on mount if not already initialized
   useEffect(() => {
     if (!initialized) {
-      fetchAllMiddlegames();
+      fetchAllEndgames();
     } else {
       // Force apply filters when component mounts
       applyFilters();
     }
-  }, [initialized, fetchAllMiddlegames, applyFilters]);
+  }, [initialized, fetchAllEndgames, applyFilters]);
 
   // Render the content based on current state
   const renderContent = () => {
-    if (isLoading && filteredMiddlegames.length === 0) {
+    if (isLoading && filteredEndgames.length === 0) {
       return <LoadingState isLoading={true} />;
     }
 
     if (error) {
-      return <ErrorState error={error} onRetry={fetchAllMiddlegames} />;
+      return <ErrorState error={error} onRetry={fetchAllEndgames} />;
     }
 
     if (isFiltering) {
@@ -89,14 +89,10 @@ const MiddlegamePage: React.FC = () => {
       <>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <AnimatePresence>
-            {paginatedMiddlegames.map((middlegame) => {
-              const slug = getSlugFromId(middlegame.id);
+            {paginatedEndgames.map((endgame) => {
+              const slug = getSlugFromId(endgame.id);
               return (
-                <MiddlegameCard
-                  key={middlegame.id}
-                  middlegame={middlegame}
-                  slug={slug}
-                />
+                <EndgameCard key={endgame.id} endgame={endgame} slug={slug} />
               );
             })}
           </AnimatePresence>
@@ -116,17 +112,15 @@ const MiddlegamePage: React.FC = () => {
     <main className="w-full p-6 xl:-mt-16">
       <div className="mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Middlegame Strategy
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Endgame Mastery</h1>
           <p className="text-gray-600">
-            Master the critical middle phase of the game with our comprehensive
-            strategy lessons
+            Master the crucial final phase of the game with our comprehensive
+            endgame lessons
           </p>
         </div>
 
         <div className="xl:p-4 xl:border xl:rounded-md xl:flex xl:flex-col xl:gap-y-4">
-          <MiddlegameFilters
+          <EndgameFilters
             localSearchTerm={localSearchTerm}
             handleSearchChange={handleSearchChange}
             difficultyFilter={difficultyFilter}
@@ -137,12 +131,12 @@ const MiddlegamePage: React.FC = () => {
           {renderContent()}
         </div>
 
-        {pagination && filteredMiddlegames.length > 0 && !isFiltering && (
+        {pagination && filteredEndgames.length > 0 && !isFiltering && (
           <div className="text-center text-sm text-gray-500">
-            Showing {paginatedMiddlegames.length} of{" "}
-            {filteredMiddlegames.length} strategies
-            {filteredMiddlegames.length < pagination.total &&
-              ` (${filteredMiddlegames.length} matching your filters out of ${pagination.total} total)`}
+            Showing {paginatedEndgames.length} of {filteredEndgames.length}{" "}
+            endgames
+            {filteredEndgames.length < pagination.total &&
+              ` (${filteredEndgames.length} matching your filters out of ${pagination.total} total)`}
           </div>
         )}
       </div>
@@ -150,4 +144,4 @@ const MiddlegamePage: React.FC = () => {
   );
 };
 
-export default MiddlegamePage;
+export default EndgamePage;
