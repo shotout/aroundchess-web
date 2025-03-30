@@ -6,6 +6,7 @@ import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import Navigation from "@/components/navigator/navigation";
 import { Engine } from "@/components/playground/src/lib/stockfish";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chess, Square } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
@@ -17,6 +18,8 @@ export default function Playing() {
 
   const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
+  const [myColor, setMyColor] = useState<string>("white"); // Default size
+  const [currentTurn, setCurrentTurn] = useState<string>("White"); // Default size
   const [is3DMode, setIs3DMode] = useState<boolean>(false); // Default size
   const [boardSize, setBoardSize] = useState<number>(700); // Default size
   const engine = useMemo(() => new Engine(), []);
@@ -69,7 +72,7 @@ export default function Playing() {
   };
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
-
+    console.log("onSquareClick", square);
     // from square
     if (!moveFrom) {
       const hasMoveOptions = getMoveOptions(square);
@@ -113,8 +116,7 @@ export default function Playing() {
       }
 
       // is normal move
-      const gameCopy = new Chess(game.fen());
-      const move = gameCopy.move({
+      const move = game.move({
         from: moveFrom,
         to: square,
         promotion: "q",
@@ -126,8 +128,12 @@ export default function Playing() {
         if (hasMoveOptions) setMoveFrom(square);
         return;
       }
-      setGamePosition(gameCopy.fen());
-      findBestMove()
+      setGamePosition(game.fen());
+      setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+
+      setTimeout(() => {
+        findBestMove();
+      }, 300);
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
@@ -140,16 +146,22 @@ export default function Playing() {
     promoteToSquare?: Square
   ) => {
     // if no piece passed then user has cancelled dialog, don't make move and reset
+    console.log(
+      "onPromotionPieceSelect",
+      piece,
+      promoteFromSquare,
+      promoteToSquare
+    );
     if (piece) {
-      const gameCopy = new Chess(game.fen());
-      gameCopy.move({
+      game.move({
         from: promoteFromSquare || moveFrom,
         to: promoteToSquare || moveTo!,
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
-      setGamePosition(gameCopy.fen());
-
-      findBestMove()
+      setGamePosition(game.fen());
+      setTimeout(() => {
+        findBestMove();
+      }, 300);
     }
     setMoveFrom("");
     setMoveTo(null);
@@ -168,9 +180,9 @@ export default function Playing() {
     });
   };
   const findBestMove = () => {
+    console.log("stockfishLevel", stockfishLevel);
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove }) => {
-      console.log("bestMove",bestMove)
       if (bestMove) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
         game.move({
@@ -179,33 +191,34 @@ export default function Playing() {
           promotion: bestMove.substring(4, 5),
         });
         setGamePosition(game.fen());
+        setCurrentTurn((turnColor) =>
+          turnColor != "White" ? "White" : "Black"
+        );
       }
     });
   };
-  const onDrop = (
-    sourceSquare: Square,
-    targetSquare: Square,
-    piece: string
-  ) => {
-    const move = game.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: piece[1].toLowerCase() ?? "q",
-    });
-    setGamePosition(game.fen());
-
-    // illegal move
-    if (move === null) return false;
-
-    // exit if the game is over
-    if (game.isGameOver() || game.isDraw()) return false;
-    findBestMove();
-    return true;
-  };
 
   useEffect(() => {
+    setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
+    setMyColor(AIChoosed.color);
     handleResize();
   }, []);
+  const getStockfishDepth = (elo: number) => {
+    if (elo < 250) return 1;
+    if (elo < 500) return 2;
+    if (elo < 800) return 4;
+    if (elo < 1000) return 6;
+    if (elo < 1200) return 8;
+    if (elo < 1400) return 10;
+    if (elo < 1600) return 12;
+    if (elo < 1800) return 14;
+    if (elo < 2000) return 16;
+    if (elo < 2200) return 18;
+    if (elo < 2400) return 20;
+    if (elo < 2600) return 22;
+    if (elo < 2800) return 24;
+    return 26; // 2800+ players (Super GM strength)
+  };
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -308,6 +321,38 @@ export default function Playing() {
       </div>
     );
   };
+  const blackPlayer = () => {
+    return (
+      <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+        <Image
+          src={"/images/play-vs-ai/thomas.png"}
+          alt="icon"
+          width={1000}
+          height={1000}
+          className="w-[22px] h-[22px] rounded-full object-contain"
+        />
+        <span className="text-[16px] font-medium">
+          {myColor != "white" ? "You" : AIChoosed.opponent.name}
+        </span>
+      </div>
+    );
+  };
+  const whitePlayer = () => {
+    return (
+      <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+        <Image
+          src={"/images/play-vs-ai/thomas.png"}
+          alt="icon"
+          width={1000}
+          height={1000}
+          className="w-[22px] h-[22px] rounded-full object-contain"
+        />
+        <span className="text-[16px] font-medium">
+          {myColor == "white" ? "You" : AIChoosed.opponent.name}
+        </span>
+      </div>
+    );
+  };
   return (
     <Navigation>
       <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
@@ -333,21 +378,12 @@ export default function Playing() {
             <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
               <span className="text-xs font-normal">
                 Current Turn:{" "}
-                <span className="text-[14px] font-medium">White</span>
+                <span className="text-[14px] font-medium">{currentTurn}</span>
               </span>
             </div>
           </div>
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
-            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
-              <Image
-                src={"/images/play-vs-ai/thomas.png"}
-                alt="icon"
-                width={1000}
-                height={1000}
-                className="w-[22px] h-[22px] rounded-full object-contain"
-              />
-              <span className="text-[16px] font-medium">You</span>
-            </div>
+            {orientation != "white" ? whitePlayer() : blackPlayer()}
             <div className="flex flex-col justify-center items-center gap-3 ">
               {buttonBoard()}
               <TwoDChessboard
@@ -408,16 +444,7 @@ export default function Playing() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mt-2">
-              <Image
-                src={"/images/play-vs-ai/thomas.png"}
-                alt="icon"
-                width={1000}
-                height={1000}
-                className="w-[22px] h-[22px] object-contain"
-              />
-              <span className="text-[16px] font-medium">AI</span>
-            </div>
+            {orientation == "white" ? whitePlayer() : blackPlayer()}
           </div>
         </div>
         {buttonBoardColumn()}
@@ -572,7 +599,9 @@ export default function Playing() {
             </div>
           </TabsContent>
 
-          <TabsContent value="past" className="gap-2"></TabsContent>
+          <TabsContent value="past" className="gap-2">
+            
+          </TabsContent>
         </Tabs>
       </div>
     </Navigation>
