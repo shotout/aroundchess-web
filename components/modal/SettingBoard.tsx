@@ -226,6 +226,7 @@ export function SettingBoard() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
+        <button>
         <Image
           src={"/images/play-vs-ai/setting.png"}
           alt="icon"
@@ -233,6 +234,7 @@ export function SettingBoard() {
           height={1000}
           className="w-[20px] h-[20px] object-contain"
         />
+        </button>
       </DialogTrigger>
       <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl">
         <DialogHeader className="gap-2 mb-2 flex flex-col items-center justify-center">
