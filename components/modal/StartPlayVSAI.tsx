@@ -21,7 +21,6 @@ export function StartPlayVSAI() {
   const router = useRouter()
   const [selectedColor, setSelectedColor] = useState<string>("white");
   const [selectedOpponent, setSelectedOpponent] = useState<number>(0);
-  const [selectedElo, setSelectedElo] = useState<number>(200);
   const [difficulty, setDifficulty] = useState<string>("beginner");
 
   const difficulties = [
@@ -104,7 +103,7 @@ export function StartPlayVSAI() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="w-full px-4 py-2 btn-primary rounded-full">
+        <button onClick={()=>setOpen(true)} className="w-full px-4 py-2 btn-primary rounded-full">
           Start Now
         </button>
       </DialogTrigger>

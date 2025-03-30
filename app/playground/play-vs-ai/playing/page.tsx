@@ -27,6 +27,10 @@ export default function Playing() {
 
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
+  const [bestLine, setBestline] = useState<string>("");
+  const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
+  const [depth, setDepth] = useState<number>(10);
+  const [possibleMate, setPossibleMate] = useState<string>("");
 
   const [moveFrom, setMoveFrom] = useState<string>("");
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -65,7 +69,7 @@ export default function Playing() {
       return move;
     });
     newSquares[square] = {
-      background: "rgba(255, 255, 0, 0.4)",
+      background: "#F5F682",
     };
     setOptionSquares(newSquares);
     return true;
@@ -130,10 +134,10 @@ export default function Playing() {
       }
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
-
+      setBestline("")
       setTimeout(() => {
         findBestMove();
-      }, 300);
+      }, 1000);
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
@@ -159,9 +163,10 @@ export default function Playing() {
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
       setGamePosition(game.fen());
+      setBestline("")
       setTimeout(() => {
         findBestMove();
-      }, 300);
+      }, 1000);
     }
     setMoveFrom("");
     setMoveTo(null);
@@ -180,7 +185,6 @@ export default function Playing() {
     });
   };
   const findBestMove = () => {
-    console.log("stockfishLevel", stockfishLevel);
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove }) => {
       if (bestMove) {
@@ -190,11 +194,27 @@ export default function Playing() {
           to: bestMove.substring(2, 4),
           promotion: bestMove.substring(4, 5),
         });
+        setBestline("");
         setGamePosition(game.fen());
         setCurrentTurn((turnColor) =>
           turnColor != "White" ? "White" : "Black"
         );
       }
+    });
+  };
+  const handleHint = () => {
+    console.log("handleHint")
+    let depthHint = 18;
+    engine.evaluatePosition(game.fen(), depthHint);
+    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
+      if (depth && depth < 10) return;
+      positionEvaluation &&
+        setPositionEvaluation(
+          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+        );
+      possibleMate && setPossibleMate(possibleMate);
+      depth && setDepth(depth);
+      pv && setBestline(pv);
     });
   };
 
@@ -257,7 +277,6 @@ export default function Playing() {
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
   };
-  const handleHint = () => {};
   const handleResign = () => {};
   const handleNewGame = () => {
     game.reset();
@@ -325,7 +344,7 @@ export default function Playing() {
     return (
       <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
         <Image
-          src={"/images/play-vs-ai/thomas.png"}
+          src={AIChoosed.opponent.img}
           alt="icon"
           width={1000}
           height={1000}
@@ -352,7 +371,8 @@ export default function Playing() {
         </span>
       </div>
     );
-  };
+  }; 
+
   return (
     <Navigation>
       <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
@@ -378,7 +398,7 @@ export default function Playing() {
             <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
               <span className="text-xs font-normal">
                 Current Turn:{" "}
-                <span className="text-[14px] font-medium">{currentTurn}</span>
+                <span className="text-[14px] font-medium">{game.turn() == "w"?"White":"Black"}</span>
               </span>
             </div>
           </div>
@@ -399,6 +419,17 @@ export default function Playing() {
                   ...optionSquares,
                   ...rightClickedSquares,
                 }}
+                customArrows={
+                  bestLine?.split(" ")?.[0]
+                    ? [
+                        [
+                          bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                          bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                          "#1C16C2",
+                        ],
+                      ]
+                    : undefined
+                }
                 promotionToSquare={moveTo}
                 showPromotionDialog={showPromotionDialog}
               />
@@ -555,6 +586,7 @@ export default function Playing() {
               </div>
               <div className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
                 <button
+                  disabled={currentTurn.toLowerCase() != myColor}
                   onClick={handleHint}
                   className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
                 >
@@ -599,9 +631,7 @@ export default function Playing() {
             </div>
           </TabsContent>
 
-          <TabsContent value="past" className="gap-2">
-            
-          </TabsContent>
+          <TabsContent value="past" className="gap-2"></TabsContent>
         </Tabs>
       </div>
     </Navigation>
