@@ -6,7 +6,16 @@ interface PlayVSAIState {
 }
 
 export const usePlayVSAIStore = create<PlayVSAIState>((set) => ({
-  AIChoosed: {},
+  AIChoosed: {
+    "color": "white",
+    "difficulty": "beginner",
+    "opponent": {
+        "id": 0,
+        "name": "Thomas De",
+        "elo": 250,
+        "img": "/images/play-vs-ai/thomas.png"
+    }
+},
   setAIChoosed: (AIChoosed) => set({ AIChoosed }),
    
 }));

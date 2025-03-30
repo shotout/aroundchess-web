@@ -89,7 +89,7 @@ export class Engine {
           console.log('Best move found:', move);
           this.messageCallback({
             pv: move,
-            bestMove: undefined
+            bestMove: move
           });
           this.stop();
         }
@@ -113,7 +113,7 @@ export class Engine {
     });
   }
 
-  evaluatePosition(fen: string) {
+  evaluatePosition(fen: string, stockfishLevel: number) {
     if (!this.worker) return;
     
     // Stop any ongoing analysis
@@ -122,6 +122,7 @@ export class Engine {
     // Set position and start analysis
     console.log('Evaluating position:', fen);
     this.worker.postMessage('position fen ' + fen);
+    this.worker.postMessage(`go depth ${stockfishLevel}`);
     this.worker.postMessage('go movetime 2000'); // Just use movetime for faster response
   }
 

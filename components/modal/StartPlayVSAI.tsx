@@ -97,6 +97,7 @@ export function StartPlayVSAI() {
       difficulty: difficulty,
       opponent:opponentData ,
     };
+    console.log("body",body)
     setAIChoosed(body);
     router.push("/playground/play-vs-ai/playing")
   };

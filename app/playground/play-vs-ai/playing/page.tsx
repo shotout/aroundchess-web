@@ -1,22 +1,208 @@
 "use client";
+import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import ThreeDChessboard from "@/components/chessboard/3d/ThreeDChessboard";
 import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import Navigation from "@/components/navigator/navigation";
+import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Chess } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 export default function Playing() {
-  const [game, setGame] = useState<Chess>(new Chess());
+  const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
 
   const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
-  const [is3DMode, setIs3DMode] = useState<boolean>(true); // Default size
+  const [is3DMode, setIs3DMode] = useState<boolean>(false); // Default size
   const [boardSize, setBoardSize] = useState<number>(700); // Default size
+  const engine = useMemo(() => new Engine(), []);
+  const game = useMemo(() => new Chess(), []);
+
+  const [gamePosition, setGamePosition] = useState(game.fen());
+  const [stockfishLevel, setStockfishLevel] = useState<number>(2);
+
+  const [moveFrom, setMoveFrom] = useState<string>("");
+  const [moveTo, setMoveTo] = useState<Square | null>(null);
+  const [showPromotionDialog, setShowPromotionDialog] = useState(false);
+  const [rightClickedSquares, setRightClickedSquares] = useState<
+    Record<string, CSSProperties>
+  >({});
+  const [moveSquares, setMoveSquares] = useState<Record<string, CSSProperties>>(
+    {}
+  );
+  const [optionSquares, setOptionSquares] = useState<
+    Record<string, CSSProperties>
+  >({});
+
+  const getMoveOptions = (square: Square) => {
+    const moves = game.moves({
+      square,
+      verbose: true,
+    });
+    if (moves.length === 0) {
+      setOptionSquares({});
+      return false;
+    }
+    const newSquares: {
+      [key in Square]?: { background: string; borderRadius?: string };
+    } = {};
+    moves.map((move) => {
+      newSquares[move.to] = {
+        background:
+          game.get(move.to) &&
+          game?.get(move.to)?.color !== game?.get(square)?.color
+            ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)"
+            : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
+        borderRadius: "50%",
+      };
+      return move;
+    });
+    newSquares[square] = {
+      background: "rgba(255, 255, 0, 0.4)",
+    };
+    setOptionSquares(newSquares);
+    return true;
+  };
+  const onSquareClick = (square: Square) => {
+    setRightClickedSquares({} as Record<string, CSSProperties>);
+
+    // from square
+    if (!moveFrom) {
+      const hasMoveOptions = getMoveOptions(square);
+      if (hasMoveOptions) setMoveFrom(square);
+      return;
+    }
+
+    // to square
+    if (!moveTo) {
+      // check if valid move before showing dialog
+      const moves = game.moves({
+        square: moveFrom as Square,
+        verbose: true,
+      }) as Array<{ from: string; to: string; color: string; piece: string }>;
+      const foundMove = moves.find(
+        (m) => m.from === moveFrom && m.to === square
+      );
+      // not a valid move
+      if (!foundMove) {
+        // check if clicked on new piece
+        const hasMoveOptions = getMoveOptions(square);
+        // if new piece, setMoveFrom, otherwise clear moveFrom
+        setMoveFrom(hasMoveOptions ? square : "");
+        return;
+      }
+
+      // valid move
+      setMoveTo(square);
+
+      // if promotion move
+      if (
+        (foundMove.color === "w" &&
+          foundMove.piece === "p" &&
+          square[1] === "8") ||
+        (foundMove.color === "b" &&
+          foundMove.piece === "p" &&
+          square[1] === "1")
+      ) {
+        setShowPromotionDialog(true);
+        return;
+      }
+
+      // is normal move
+      const gameCopy = new Chess(game.fen());
+      const move = gameCopy.move({
+        from: moveFrom,
+        to: square,
+        promotion: "q",
+      });
+
+      // if invalid, setMoveFrom and getMoveOptions
+      if (move === null) {
+        const hasMoveOptions = getMoveOptions(square);
+        if (hasMoveOptions) setMoveFrom(square);
+        return;
+      }
+      setGamePosition(gameCopy.fen());
+      findBestMove()
+      setMoveFrom("");
+      setMoveTo(null);
+      setOptionSquares({});
+      return;
+    }
+  };
+  const onPromotionPieceSelect = (
+    piece?: string,
+    promoteFromSquare?: Square,
+    promoteToSquare?: Square
+  ) => {
+    // if no piece passed then user has cancelled dialog, don't make move and reset
+    if (piece) {
+      const gameCopy = new Chess(game.fen());
+      gameCopy.move({
+        from: promoteFromSquare || moveFrom,
+        to: promoteToSquare || moveTo!,
+        promotion: piece?.[1]?.toLowerCase() ?? "q",
+      });
+      setGamePosition(gameCopy.fen());
+
+      findBestMove()
+    }
+    setMoveFrom("");
+    setMoveTo(null);
+    setShowPromotionDialog(false);
+    setOptionSquares({});
+    return true;
+  };
+  const onSquareRightClick = (square: Square) => {
+    const colour = "rgba(0, 0, 255, 0.4)";
+    setRightClickedSquares({
+      ...rightClickedSquares,
+      [square]: {
+        backgroundColor:
+          rightClickedSquares[square]?.backgroundColor === colour ? "" : colour,
+      },
+    });
+  };
+  const findBestMove = () => {
+    engine.evaluatePosition(game.fen(), stockfishLevel);
+    engine.onMessage(({ bestMove }) => {
+      console.log("bestMove",bestMove)
+      if (bestMove) {
+        // In latest chess.js versions you can just write ```game.move(bestMove)```
+        game.move({
+          from: bestMove.substring(0, 2),
+          to: bestMove.substring(2, 4),
+          promotion: bestMove.substring(4, 5),
+        });
+        setGamePosition(game.fen());
+      }
+    });
+  };
+  const onDrop = (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ) => {
+    const move = game.move({
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: piece[1].toLowerCase() ?? "q",
+    });
+    setGamePosition(game.fen());
+
+    // illegal move
+    if (move === null) return false;
+
+    // exit if the game is over
+    if (game.isGameOver() || game.isDraw()) return false;
+    findBestMove();
+    return true;
+  };
+
   useEffect(() => {
     handleResize();
   }, []);
@@ -60,7 +246,10 @@ export default function Playing() {
   };
   const handleHint = () => {};
   const handleResign = () => {};
-  const handleNewGame = () => {};
+  const handleNewGame = () => {
+    game.reset();
+    setGamePosition(game.fen());
+  };
 
   const buttonBoard = () => {
     return (
@@ -78,7 +267,7 @@ export default function Playing() {
           />
         </button>
         <SettingBoard />
-        <button onClick={handleThreeD}>
+        {/* <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -86,7 +275,7 @@ export default function Playing() {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -107,7 +296,7 @@ export default function Playing() {
         </button>
         <SettingBoard />
 
-        <button onClick={handleThreeD}>
+        {/* <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -115,7 +304,7 @@ export default function Playing() {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -161,19 +350,37 @@ export default function Playing() {
             </div>
             <div className="flex flex-col justify-center items-center gap-3 ">
               {buttonBoard()}
-              {is3DMode ? (
+              <TwoDChessboard
+                arePiecesDraggable={false}
+                orientation={orientation}
+                boardWidth={boardSize}
+                position={gamePosition}
+                onSquareClick={onSquareClick}
+                onSquareRightClick={onSquareRightClick}
+                onPromotionPieceSelect={onPromotionPieceSelect}
+                customSquareStyles={{
+                  ...moveSquares,
+                  ...optionSquares,
+                  ...rightClickedSquares,
+                }}
+                promotionToSquare={moveTo}
+                showPromotionDialog={showPromotionDialog}
+              />
+              {/* {is3DMode ? (
                 <ThreeDChessboard
+                  onPieceDrop={onDrop}
                   orientation={orientation}
                   boardWidth={boardSize}
-                  position={game.fen()}
+                  position={gamePosition}
                 />
               ) : (
                 <TwoDChessboard
                   orientation={orientation}
                   boardWidth={boardSize}
-                  position={game.fen()}
+                  position={gamePosition}
+                  onPieceDrop={onDrop}
                 />
-              )}
+              )} */}
               <div className="flex flex-row flex-wrap items-center justify-center gap-2 xl:mb-2">
                 <div className="flex flex-row items-center justify-center gap-1">
                   <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
