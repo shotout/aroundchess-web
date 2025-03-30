@@ -1,11 +1,21 @@
-import React, { useState, useRef } from "react";
-import { Cat, CheckCircle, FileText, Trash, Upload, X } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "../ui/button";
-import Image from "next/image";
-import DotSpinner from "./Spinner";
+// DialogButton.tsx
+import React, { useState, useRef, useCallback, ChangeEvent } from "react";
+import { Upload } from "lucide-react";
+import {
+  DialogHeader,
+  DialogInstructions,
+  TabSelector,
+  PasteTab,
+  DragDropArea,
+  UploadProgress,
+  UploadedFile,
+  FileFormatInfo,
+  SubmitButton,
+  SuccessView,
+} from "./Dialog/DialogComponents";
 
 const DialogButton = () => {
+  // State variables
   const [openDialog, setOpenDialog] = useState(false);
   const [pgnText, setPgnText] = useState("");
   const [activeTab, setActiveTab] = useState("paste");
@@ -15,10 +25,25 @@ const DialogButton = () => {
   const [fileSize, setFileSize] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [fileContent, setFileContent] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleTabChange = (tab: React.SetStateAction<string>) => {
+  // Reset all state
+  const resetDialog = useCallback(() => {
+    setIsSubmitted(false);
+    setOpenDialog(false);
+    setPgnText("");
+    setFileName("");
+    setFileSize(0);
+    setActiveTab("paste");
+    setIsUploading(false);
+    setUploadProgress(0);
+    setFileContent("");
+  }, []);
+
+  // Handle tab change
+  const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     setPgnText("");
     setFileName("");
@@ -26,13 +51,11 @@ const DialogButton = () => {
     setIsSubmitted(false);
     setIsUploading(false);
     setUploadProgress(0);
-  };
+    setFileContent("");
+  }, []);
 
-  const handleDrag = (e: {
-    preventDefault: () => void;
-    stopPropagation: () => void;
-    type: string;
-  }) => {
+  // Handle drag events
+  const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement> | any) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -41,9 +64,10 @@ const DialogButton = () => {
     } else if (e.type === "dragleave") {
       setDragActive(false);
     }
-  };
+  }, []);
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  // Handle file drop
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -51,15 +75,18 @@ const DialogButton = () => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
-  };
+  }, []);
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
+  // Handle file input change
+  const handleFileInput = useCallback((e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+      handleFile(target.files[0]);
     }
-  };
+  }, []);
 
-  const handleFile = (file: { name: string; size: number }) => {
+  // Handle file selection
+  const handleFile = useCallback((file: File) => {
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
       return;
@@ -73,11 +100,21 @@ const DialogButton = () => {
     setFileName(file.name);
     setFileSize(file.size);
 
+    // Read file content
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target && typeof e.target.result === "string") {
+        setFileContent(e.target.result);
+      }
+    };
+    reader.readAsText(file);
+
     setIsUploading(true);
     simulateFileUpload();
-  };
+  }, []);
 
-  const simulateFileUpload = () => {
+  // Simulate file upload progress
+  const simulateFileUpload = useCallback(() => {
     setUploadProgress(0);
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
@@ -92,9 +129,10 @@ const DialogButton = () => {
         return prev + 10;
       });
     }, 300);
-  };
+  }, []);
 
-  const handleButtonClick = () => {
+  // Handle import button click
+  const handleButtonClick = useCallback(() => {
     if (activeTab === "upload" && !fileName && fileInputRef.current) {
       fileInputRef.current.click();
     } else if (
@@ -107,21 +145,49 @@ const DialogButton = () => {
         simulateFileUpload();
       }
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, fileName, isUploading, pgnText]);
 
-  const resetDialog = () => {
-    setIsSubmitted(false);
-    setOpenDialog(false);
-    setPgnText("");
+  // Handle analyze button click
+  const handleAnalyzeButtonClick = useCallback(() => {
+    // Prepare form data
+    const formData = new FormData();
+
+    if (activeTab === "paste") {
+      formData.append("pgn", pgnText);
+      formData.append("type", "text");
+    } else if (activeTab === "upload") {
+      formData.append("pgn", fileContent);
+      formData.append("fileName", fileName);
+      formData.append("fileSize", fileSize.toString());
+      formData.append("type", "file");
+    }
+
+    // Log form data to console
+    console.log("Submitting PGN data:");
+    Array.from(formData.entries()).forEach(([key, value]) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    // In a real implementation, you would send this data to your analysis endpoint
+    resetDialog();
+  }, [activeTab, fileContent, fileName, fileSize, pgnText, resetDialog]);
+
+  // Handle removing a file
+  const handleRemoveFile = useCallback(() => {
     setFileName("");
     setFileSize(0);
-    setActiveTab("paste");
-    setIsUploading(false);
-    setUploadProgress(0);
-  };
+    setFileContent("");
+  }, []);
+
+  // Assign the fileInputRef.current.onchange handler
+  if (fileInputRef.current) {
+    fileInputRef.current.onchange = handleFileInput;
+  }
 
   return (
     <div>
+      {/* Button to open dialog */}
       <button
         className="flex justify-center items-center lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
         onClick={() => setOpenDialog(true)}
@@ -130,268 +196,78 @@ const DialogButton = () => {
         <h1 className="text-xs lg:text-sm font-primary">Import Games</h1>
       </button>
 
+      {/* Dialog overlay */}
       {openDialog && (
         <div className="fixed inset-0 bg-black/25 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-xl overflow-hidden">
-            <div
-              style={isSubmitted ? { display: "none" } : { display: "flex" }}
-              className="flex justify-between items-center p-4"
-            >
-              <div className="w-6"></div>
-              <h2 className="text-xl font-semibold text-center flex-1">
-                Import a Game
-              </h2>
-              <button
-                onClick={resetDialog}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            {/* Dialog header */}
+            {!isSubmitted && <DialogHeader resetDialog={resetDialog} />}
 
+            {/* Dialog content */}
             <div className="px-6 py-4">
               {isSubmitted ? (
-                <div className="flex flex-col items-center">
-                  <div className="relative">
-                    <Image
-                      src={"/my-game-history/pawn.png"}
-                      width={200}
-                      height={200}
-                      alt=""
-                    />
-                  </div>
-
-                  <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                    Your Import was successful!
-                  </h3>
-                  <p className="text-gray-600 text-center mb-6">
-                    Your PGN was successfully uploaded. You can now analyze your
-                    Game with our Advanced Chess Engine!
-                  </p>
-
-                  <div className="flex w-full gap-3">
-                    <button
-                      className="flex-1 py-3 btn-secondary font-medium rounded-full"
-                      onClick={resetDialog}
-                    >
-                      Back to Game History
-                    </button>
-                    <button
-                      className="flex-1 py-3 btn-primary text-white font-medium rounded-full"
-                      onClick={resetDialog}
-                    >
-                      Analyze Game
-                    </button>
-                  </div>
-                </div>
+                <SuccessView
+                  resetDialog={resetDialog}
+                  handleAnalyzeButtonClick={handleAnalyzeButtonClick}
+                />
               ) : (
                 <>
-                  <p className="text-sm text-center max-w-2xl mx-auto text-gray-700 mb-6">
-                    Upload your previous Game's{" "}
-                    <span className="font-bold">PGN</span> for a detailed
-                    analysis. You can either paste your{" "}
-                    <span className="font-bold">PGN</span> directly or upload a{" "}
-                    <span className="font-bold">PGN</span> file.
-                  </p>
+                  <DialogInstructions />
 
-                  <Card className="flex gap-3 mt-5 bg-[#F9FAFC] border-2 border-gray-100 p-1">
-                    <button
-                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-sm ${
-                        activeTab === "paste"
-                          ? "bg-white border shadow-sm border-gray-300"
-                          : ""
-                      }`}
-                      onClick={() => handleTabChange("paste")}
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span>Paste PGN</span>
-                    </button>
-                    <button
-                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-sm ${
-                        activeTab === "upload"
-                          ? "bg-white border shadow-sm border-gray-300"
-                          : ""
-                      }`}
-                      onClick={() => handleTabChange("upload")}
-                    >
-                      <Upload className="h-4 w-4" />
-                      Upload File
-                    </button>
-                  </Card>
+                  {/* Tab selector */}
+                  <TabSelector
+                    activeTab={activeTab}
+                    handleTabChange={handleTabChange}
+                  />
 
+                  {/* Content area */}
                   <div className="mt-5 h-[200px]">
+                    {/* Paste tab */}
                     {activeTab === "paste" && (
-                      <div className="h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50 p-2">
-                        <textarea
-                          className="w-full h-full bg-transparent p-2 resize-none outline-none text-gray-700 placeholder-gray-400"
-                          placeholder="Paste your PGN here..."
-                          value={pgnText}
-                          onChange={(e) => setPgnText(e.target.value)}
-                        />
-                      </div>
+                      <PasteTab pgnText={pgnText} setPgnText={setPgnText} />
                     )}
 
+                    {/* Upload tab - empty state */}
                     {activeTab === "upload" && !fileName && (
-                      <div
-                        className={`h-full border-2 border-dashed ${
-                          dragActive
-                            ? "border-blue-base bg-blue-base/10"
-                            : "border-blue-base bg-blue-base/10"
-                        } rounded-lg flex flex-col items-center justify-center`}
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                      >
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          className="hidden"
-                          accept=".pgn"
-                          onChange={handleFileInput}
-                        />
-                        <div className="text-center flex flex-col items-center justify-center">
-                          <Image
-                            width={64}
-                            height={64}
-                            alt=""
-                            src={"/my-game-history/upload.png"}
-                          />
-                          <p className="text-gray-700 mb-1">
-                            <span className="underline">
-                              Drag & drop or click
-                            </span>
-                          </p>
-                          <p className="text-gray-700">
-                            to{" "}
-                            <span
-                              className="text-blue-base font-medium cursor-pointer underline"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              select
-                            </span>{" "}
-                            a file
-                          </p>
-                        </div>
-                      </div>
+                      <DragDropArea
+                        dragActive={dragActive}
+                        handleDrag={handleDrag}
+                        handleDrop={handleDrop}
+                        fileInputRef={fileInputRef}
+                      />
                     )}
 
+                    {/* Upload tab - file selected state */}
                     {activeTab === "upload" && fileName && (
                       <div className="h-full border-2 border-dashed border-blue-base bg-blue-base/5 rounded-lg p-4 flex flex-col justify-center items-center">
                         {isUploading ? (
-                          <div className="flex w-full h-auto justify-between items-center bg-primary-white border shadow-md p-2">
-                            <div className="bg-blue-100 rounded-md p-4 mb-3">
-                              <div className="text-blue-500 font-bold text-lg">
-                                PGN
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="text-gray-800 mb-1">
-                                {fileName}
-                              </div>
-                              <div className="text-gray-500 text-sm mb-4">
-                                {(fileSize / 1024).toFixed(1)} KB
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-center">
-                              <div className="relative w-16 h-16">
-                                <svg
-                                  className="w-full h-full"
-                                  viewBox="0 0 100 100"
-                                >
-                                  <circle
-                                    className="text-gray-200"
-                                    strokeWidth="10"
-                                    stroke="currentColor"
-                                    fill="transparent"
-                                    r="40"
-                                    cx="50"
-                                    cy="50"
-                                  />
-                                  <circle
-                                    className="text-blue-base"
-                                    strokeWidth="10"
-                                    strokeDasharray="251.2"
-                                    strokeDashoffset={
-                                      251.2 - (251.2 * uploadProgress) / 100
-                                    }
-                                    strokeLinecap="round"
-                                    stroke="currentColor"
-                                    fill="transparent"
-                                    r="40"
-                                    cx="50"
-                                    cy="50"
-                                    transform="rotate(-90 50 50)"
-                                  />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <span className="text-blue-base font-semibold text-sm">
-                                    {uploadProgress}%
-                                  </span>
-                                </div>
-                                <div className="text-[10px] text-nowrap mt-2">
-                                  uploading file...
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <UploadProgress
+                            fileName={fileName}
+                            fileSize={fileSize}
+                            uploadProgress={uploadProgress}
+                          />
                         ) : (
-                          <div className="flex items-center w-full">
-                            <div className="bg-blue-100 rounded-md p-4 mr-3">
-                              <div className="text-blue-500 font-bold text-lg">
-                                PGN
-                              </div>
-                            </div>
-                            <div className="flex-1">
-                              <div className="text-gray-800">{fileName}</div>
-                              <div className="text-gray-500 text-sm">
-                                {(fileSize / 1024).toFixed(1)} KB
-                              </div>
-                            </div>
-                            <button
-                              className="text-red-500 hover:text-red-700"
-                              onClick={() => {
-                                setFileName("");
-                                setFileSize(0);
-                              }}
-                            >
-                              <Trash className="h-5 w-5" />
-                            </button>
-                          </div>
+                          <UploadedFile
+                            fileName={fileName}
+                            fileSize={fileSize}
+                            handleRemoveFile={handleRemoveFile}
+                          />
                         )}
                       </div>
                     )}
                   </div>
 
-                  {activeTab === "upload" && (
-                    <div className="flex justify-between mt-2 text-sm">
-                      <span>
-                        Supported Format: <span className="font-bold">PGN</span>
-                      </span>
-                      <span>
-                        Max Size: <span className="font-bold">5MB</span>
-                      </span>
-                    </div>
-                  )}
+                  {/* File format info */}
+                  {activeTab === "upload" && <FileFormatInfo />}
 
-                  <button
-                    className={`w-full mt-5 py-4 rounded-3xl flex items-center justify-center ${
-                      (activeTab === "paste" && pgnText.trim()) ||
-                      (activeTab === "upload" && fileName && !isUploading)
-                        ? "btn-primary text-white"
-                        : isUploading
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "btn-primary text-white"
-                    }`}
-                    onClick={handleButtonClick}
-                    disabled={isUploading}
-                  >
-                    {activeTab === "upload" && !fileName
-                      ? "Select File"
-                      : isUploading
-                      ? "Uploading..."
-                      : "Import Game"}
-                  </button>
+                  {/* Submit button */}
+                  <SubmitButton
+                    activeTab={activeTab}
+                    pgnText={pgnText}
+                    fileName={fileName}
+                    isUploading={isUploading}
+                    handleButtonClick={handleButtonClick}
+                  />
                 </>
               )}
             </div>
