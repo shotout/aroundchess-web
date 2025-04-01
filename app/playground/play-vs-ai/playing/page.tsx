@@ -8,17 +8,19 @@ import Navigation from "@/components/navigator/navigation";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Chess, Square } from "chess.js";
+import { Chess, PieceSymbol, Square } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 export default function Playing() {
+  const router = useRouter();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
 
   const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
-  const [myColor, setMyColor] = useState<string>("white"); // Default size
+  const [myColor, setMyColor] = useState<string>(AIChoosed.color); // Default size
   const [currentTurn, setCurrentTurn] = useState<string>("White"); // Default size
   const [is3DMode, setIs3DMode] = useState<boolean>(false); // Default size
   const [boardSize, setBoardSize] = useState<number>(700); // Default size
@@ -31,7 +33,8 @@ export default function Playing() {
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
   const [depth, setDepth] = useState<number>(10);
   const [possibleMate, setPossibleMate] = useState<string>("");
-
+  const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
+  const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveFrom, setMoveFrom] = useState<string>("");
   const [moveTo, setMoveTo] = useState<Square | null>(null);
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
@@ -76,6 +79,7 @@ export default function Playing() {
   };
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
+    setBestline("");
     console.log("onSquareClick", square);
     // from square
     if (!moveFrom) {
@@ -134,7 +138,6 @@ export default function Playing() {
       }
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
-      setBestline("")
       setTimeout(() => {
         findBestMove();
       }, 1000);
@@ -150,6 +153,7 @@ export default function Playing() {
     promoteToSquare?: Square
   ) => {
     // if no piece passed then user has cancelled dialog, don't make move and reset
+    setBestline("");
     console.log(
       "onPromotionPieceSelect",
       piece,
@@ -163,7 +167,6 @@ export default function Playing() {
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
       setGamePosition(game.fen());
-      setBestline("")
       setTimeout(() => {
         findBestMove();
       }, 1000);
@@ -185,6 +188,9 @@ export default function Playing() {
     });
   };
   const findBestMove = () => {
+    let isYourTurn = myColor == "white" ? "w" : "b";
+    console.log("game.turn() == isYourTurn",game.turn() == isYourTurn)
+    if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove }) => {
       if (bestMove) {
@@ -203,7 +209,7 @@ export default function Playing() {
     });
   };
   const handleHint = () => {
-    console.log("handleHint")
+    console.log("handleHint");
     let depthHint = 18;
     engine.evaluatePosition(game.fen(), depthHint);
     engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
@@ -217,10 +223,95 @@ export default function Playing() {
       pv && setBestline(pv);
     });
   };
+  useEffect(() => {
+    fillMovement();
+  }, [gamePosition]);
+  const fillMovement = () => {
+    let capturedPiecesBlack: {
+      captured: string | null;
+      piece: string | null;
+      color: string;
+      from: Square;
+      to: Square;
+      lan: string;
+      san: string;
+    }[] = [];
+    let capturedPiecesWhite: {
+      captured: string | null;
+      piece: string | null;
+      color: string;
+      from: Square;
+      to: Square;
+      lan: string;
+      san: string;
+    }[] = [];
+    game.history({ verbose: true }).forEach((move) => {
+      console.log(move);
+      if (move.color == "w") {
+        capturedPiecesWhite.push({
+          captured: changeNamePiece(move.captured ?? null),
+          piece: changeNamePiece(move.piece),
+          color: "white",
+          from: move.from,
+          to: move.to,
+          lan: move.lan,
+          san: move.san,
+        });
+      } else {
+        capturedPiecesBlack.push({
+          captured: changeNamePiece(move.captured ?? null),
+          piece: changeNamePiece(move.piece),
+          color: "black",
+          from: move.from,
+          to: move.to,
+          lan: move.lan,
+          san: move.san,
+        });
+      }
+    });
+    console.log("capturedPiecesWhite", capturedPiecesWhite);
+    console.log("capturedPiecesBlack", capturedPiecesBlack);
+    setCapturedBlack(capturedPiecesBlack);
+    setCapturedWhite(capturedPiecesWhite);
+  };
+  const changeNamePiece = (piece: string | null) => {
+    switch (piece) {
+      case "p":
+        return "pawn";
+        break;
+      case "n":
+        return "knight";
+        break;
+      case "b":
+        return "bishop";
+        break;
 
+      case "r":
+        return "rook";
+        break;
+
+      case "q":
+        return "queen";
+        break;
+
+      case "k":
+        return "king";
+        break;
+
+      default:
+        return null;
+        break;
+    }
+  };
   useEffect(() => {
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
+    console.log("AIChoosed.color", AIChoosed.color);
+    if (AIChoosed.color == "black") {
+      setTimeout(() => {
+        findBestMove();
+      }, 1000);
+    }
     handleResize();
   }, []);
   const getStockfishDepth = (elo: number) => {
@@ -277,7 +368,9 @@ export default function Playing() {
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
   };
-  const handleResign = () => {};
+  const handleResign = () => {
+    router.replace("/playground/play-vs-ai");
+  };
   const handleNewGame = () => {
     game.reset();
     setGamePosition(game.fen());
@@ -371,7 +464,7 @@ export default function Playing() {
         </span>
       </div>
     );
-  }; 
+  };
 
   return (
     <Navigation>
@@ -398,7 +491,9 @@ export default function Playing() {
             <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
               <span className="text-xs font-normal">
                 Current Turn:{" "}
-                <span className="text-[14px] font-medium">{game.turn() == "w"?"White":"Black"}</span>
+                <span className="text-[14px] font-medium">
+                  {game.turn() == "w" ? "White" : "Black"}
+                </span>
               </span>
             </div>
           </div>
@@ -538,49 +633,69 @@ export default function Playing() {
               <span className="font-semibold text-[16px] my-1">
                 Movement Details
               </span>
-              <div className="px-2 w-full xl:max-h-[70vh] xl:overflow-y-auto">
+              <div
+                style={{ height: window.innerHeight * 0.8 }}
+                className="px-2 w-full xl:max-h-[70vh] xl:overflow-y-auto"
+              >
                 <table className="w-full border-collapse rounded-[4px] border-[#BDD0F9]">
                   <thead>
                     <tr className="bg-[#D7E3FB]">
                       <th className="p-2 border font-normal text-xs">#</th>
                       <th className="p-2 border font-normal text-xs">
-                        You (White)
+                        {myColor == "white" ? "You" : "Computer"} (White)
                       </th>
                       <th className="p-2 border font-normal text-xs">
-                        Computer (Black)
+                        {myColor != "white" ? "You" : "Computer"} (Black)
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="text-center">
-                      <td className="p-2 border font-normal text-xs">1</td>
-                      <td className="text-center align-middle p-2 border ">
-                        <Image
-                          src={"/images/play-vs-ai/pawn-white.png"}
-                          alt="icon"
-                          width={1000}
-                          height={1000}
-                          className="w-[8.37px] h-[16px] object-contain inline-block"
-                        />
-                        <span className="h-[16px] font-normal text-xs">
-                          {" "}
-                          b3
-                        </span>
-                      </td>
-                      <td className="text-center align-middle p-2 border  ">
-                        <Image
-                          src={"/images/play-vs-ai/pawn-black.png"}
-                          alt="icon"
-                          width={1000}
-                          height={1000}
-                          className="w-[8.37px] h-[16px] object-contain inline-block"
-                        />
-                        <span className="h-[16px] font-normal text-xs">
-                          {" "}
-                          g5
-                        </span>
-                      </td>
-                    </tr>
+                    {capturedWhite &&
+                      capturedWhite.length > 0 &&
+                      capturedWhite.map((captured, index) => {
+                        let move = captured.san;
+                        let icon = captured.captured;
+                        return (
+                          <tr className="text-center" key={index}>
+                            <td className="p-2 border font-normal text-xs">
+                              {index + 1}
+                            </td>
+                            <td className="text-center align-middle p-2 border ">
+                              {icon && (
+                                <Image
+                                  src={`/images/play-vs-ai/${icon}-white.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[16px] h-[16px] object-contain inline-block"
+                                />
+                              )}
+                              <span className="h-[16px] font-normal text-xs">
+                                {" "}
+                                {move}
+                              </span>
+                            </td>
+                            <td className="text-center align-middle p-2 border  ">
+                              {capturedBlack[index] != null &&
+                                capturedBlack[index].captured != null && (
+                                  <Image
+                                    src={`/images/play-vs-ai/${capturedBlack[index].captured}-black.png`}
+                                    alt="icon"
+                                    width={1000}
+                                    height={1000}
+                                    className="w-[16px] h-[16px] object-contain inline-block"
+                                  />
+                                )}
+                              {capturedBlack[index] != null && (
+                                <span className="h-[16px] font-normal text-xs">
+                                  {" "}
+                                  {capturedBlack[index].san}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
