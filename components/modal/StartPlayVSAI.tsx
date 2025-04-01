@@ -159,7 +159,7 @@ export function StartPlayVSAI() {
               <button
                 key={diff.key}
                 onClick={() => setDifficulty(diff.key)}
-                className={`flex flex-col items-center justify-center px-1 py-1 min-w-[120px] md:min-w-[25%] rounded-[6px] gap-1 ${
+                className={`flex flex-col items-center justify-center px-1 py-1 min-w-[120px] md:min-w-[24%] rounded-[6px] gap-1 ${
                   difficulty === diff.key
                     ? "text-[#221AE9] shadow-md border border-input"
                     : ""
