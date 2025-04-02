@@ -635,7 +635,7 @@ export default function Playing() {
               </span>
               <div
                 style={{ height: window.innerHeight * 0.8 }}
-                className="px-2 w-full xl:max-h-[70vh] xl:overflow-y-auto"
+                className="px-2 w-full xl:max-h-[70vh] overflow-y-auto"
               >
                 <table className="w-full border-collapse rounded-[4px] border-[#BDD0F9]">
                   <thead>
