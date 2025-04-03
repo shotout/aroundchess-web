@@ -593,7 +593,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             criticalMistakes.length > 0 &&
             criticalMistakes.map((item: any, index: number) => {
               return (
-                <div className="flex flex-col gap-2 mt-2">
+                <div className="flex flex-col gap-2 mt-2" key={index}>
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-2">
                       <span

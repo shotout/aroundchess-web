@@ -26,7 +26,8 @@ interface TwoDChessboardProps {
   promotionToSquare: Square | null;
   showPromotionDialog: boolean;
   customSquareStyles?: Record<string, React.CSSProperties>;
-  customArrows:any
+  customArrows:any;
+  areArrowsAllowed:boolean;
 }
 
 const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
@@ -41,7 +42,8 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   promotionToSquare,
   showPromotionDialog,
   customSquareStyles,
-  customArrows
+  customArrows,
+  areArrowsAllowed
 }) => {
   const {
     StyleChoosed,
@@ -174,6 +176,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
           }}
           customArrows={customArrows}
+          areArrowsAllowed={areArrowsAllowed}
           customSquareStyles={customSquareStyles}
           promotionToSquare={promotionToSquare}
           showPromotionDialog={showPromotionDialog}
