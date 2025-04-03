@@ -27,6 +27,7 @@ export default function Playing() {
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
 
+  const [heightScreen,setHeightScreen] = useState<number>(0)
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
   const [bestLine, setBestline] = useState<string>("");
@@ -313,6 +314,7 @@ export default function Playing() {
         findBestMove();
       }, 1000);
     }
+    setHeightScreen(window?.innerHeight)
     handleResize();
   }, []);
   const getStockfishDepth = (elo: number) => {
@@ -636,7 +638,7 @@ export default function Playing() {
                 Movement Details
               </span>
               <div
-                style={{ height: window.innerHeight * 0.8 }}
+                style={{ height: heightScreen * 0.8 }}
                 className="px-2 w-full xl:max-h-[70vh] overflow-y-auto"
               >
                 <table className="w-full border-collapse rounded-[4px] border-[#BDD0F9]">
