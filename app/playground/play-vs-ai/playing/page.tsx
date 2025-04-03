@@ -65,14 +65,15 @@ export default function Playing() {
         background:
           game.get(move.to) &&
           game?.get(move.to)?.color !== game?.get(square)?.color
-            ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)"
-            : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
+            ? "radial-gradient(circle, rgba(34,26,233) 30%, transparent 30%)"
+            : "radial-gradient(circle, rgba(34,26,233) 25%, transparent 25%)",
         borderRadius: "50%",
       };
       return move;
     });
     newSquares[square] = {
       background: "#F5F682",
+      // background:"#25CEDA"
     };
     setOptionSquares(newSquares);
     return true;
@@ -189,7 +190,7 @@ export default function Playing() {
   };
   const findBestMove = () => {
     let isYourTurn = myColor == "white" ? "w" : "b";
-    console.log("game.turn() == isYourTurn",game.turn() == isYourTurn)
+    console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove }) => {
@@ -210,7 +211,7 @@ export default function Playing() {
   };
   const handleHint = () => {
     console.log("handleHint");
-    let depthHint = 18;
+    let depthHint = depth;
     engine.evaluatePosition(game.fen(), depthHint);
     engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
       if (depth && depth < 10) return;
@@ -514,20 +515,21 @@ export default function Playing() {
                   ...optionSquares,
                   ...rightClickedSquares,
                 }}
+                areArrowsAllowed={bestLine.length > 0}
                 customArrows={
-                  bestLine?.split(" ")?.[0]
-                    ? [
-                        [
-                          bestLine?.split(" ")?.[0].substring(0, 2) as Square,
-                          bestLine?.split(" ")?.[0].substring(2, 4) as Square,
-                          "#1C16C2",
-                        ],
-                      ]
-                    : undefined
+                  bestLine.length > 0 &&
+                  bestLine?.split(" ")?.[0] && [
+                    [
+                      bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                      bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                      "#1C16C250",
+                    ],
+                  ]
                 }
                 promotionToSquare={moveTo}
                 showPromotionDialog={showPromotionDialog}
               />
+
               {/* {is3DMode ? (
                 <ThreeDChessboard
                   onPieceDrop={onDrop}
