@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
 import { Chessboard } from "react-chessboard";
@@ -31,9 +31,7 @@ const EndgameCard = React.memo(({ endgame, slug }: EndgameCardProps) => {
                 <Chessboard
                   id={`board-${slug}`}
                   key={`board-${slug}`}
-                  position={getFenFromMoves(
-                    endgame.variations?.[0]?.moves || endgame.moves
-                  )}
+                  position={getFenFromMoves(endgame.moves)}
                   arePiecesDraggable={false}
                   customDarkSquareStyle={{
                     backgroundColor: "#9E7555",

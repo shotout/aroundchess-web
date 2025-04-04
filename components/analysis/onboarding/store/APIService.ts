@@ -1,5 +1,7 @@
 "use client";
 
+const endpoint = process.env.NEXT_PUBLIC_BASE_AUTH
+
 export const ChessApiService = {
  
   async setUsername(username: string, sessionId: string): Promise<any> {
@@ -11,7 +13,7 @@ export const ChessApiService = {
       console.log("Making request to set username:", username);
       console.log("Using session ID (truncated):", `${sessionId.substring(0, 10)}...`);
 
-      const response = await fetch("https://ac-api-dev.kemang.sg/api/profile/set-username", {
+      const response = await fetch(`${endpoint}/profile/set-username`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +60,7 @@ export const ChessApiService = {
 
       console.log("Fetching profile with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
 
-      const response = await fetch("https://ac-api-dev.kemang.sg/api/profile", {
+      const response = await fetch(`${endpoint}/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${sessionId}`
@@ -91,16 +93,11 @@ export const ChessApiService = {
     }
   },
 
-  /**
-   * Check if user has a Chess.com account connected
-   * @param sessionId The user's session ID
-   * @returns Object containing connection status and username if connected
-   */
+
   async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string, profile?: any}> {
     try {
       const profileData = await this.getProfile(sessionId);
       
-      // Check username in the appropriate location based on API response structure
       const username = profileData?.username || (profileData?.data && profileData.data.username);
       
       if (username) {

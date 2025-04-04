@@ -15,8 +15,6 @@ interface MiddlegameCardProps {
 
 const MiddlegameCard = React.memo(
   ({ middlegame, slug }: MiddlegameCardProps) => {
-    console.log(middlegame);
-
     return (
       <Link href={`/middlegame-strategy/${slug}`}>
         <motion.div

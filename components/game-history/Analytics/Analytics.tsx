@@ -151,11 +151,11 @@ const Analytics: React.FC = () => {
     return <DotSpinner />;
   }
 
-  if (error) {
-    return (
-      <LoadingError error={error} handleForceRefresh={handleForceRefresh} />
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <LoadingError error={error} handleForceRefresh={handleForceRefresh} />
+  //   );
+  // }
 
   if (!username) {
     return <NoUsername />;

@@ -13,174 +13,13 @@ import {
   ChartNoAxesColumn,
   RefreshCw,
   Download,
+  AlertCircle,
 } from "lucide-react";
-import React, { useState } from "react";
-import GamesTabCard from "../GamesTabCard";
-import DotSpinner from "../Spinner";
+import React, { useState, useEffect } from "react";
+import useGameStore, { Game, initializeGameStore } from "../Dialog/DialogStore";
+import { dummyOtherGames } from "./DummyGame";
 
 // Dummy data for Other Games
-const dummyOtherGames = [
-  {
-    id: "og-1",
-    date: "2024-03-20",
-    timeControl: "10+0",
-    result: "WIN",
-    opponent: "FritzEngine",
-    rating: "1850",
-    eloChange: "(+15 ELO Rating)",
-    moves: "42",
-    opening: "Sicilian Defense",
-    source: "Lichess",
-    color: "White",
-    gameFormat: "Lichess",
-    pgn: '[Event "Casual Game"]\n[Site "Lichess"]\n[Date "2024.03.20"]\n[Result "1-0"]\n[White "User"]\n[Black "FritzEngine"]\n[TimeControl "10+0"]\n1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6',
-    gameType: "standard",
-  },
-  {
-    id: "og-2",
-    date: "2024-03-18",
-    timeControl: "5+3",
-    result: "LOSS",
-    opponent: "GrandMaster64",
-    rating: "1920",
-    eloChange: "(-8 ELO Rating)",
-    moves: "38",
-    opening: "French Defense",
-    source: "Lichess",
-    color: "Black",
-    gameFormat: "Lichess",
-    pgn: '[Event "Rated Game"]\n[Site "Lichess"]\n[Date "2024.03.18"]\n[Result "0-1"]\n[White "GrandMaster64"]\n[Black "User"]\n[TimeControl "5+3"]\n1. e4 e6 2. d4 d5 3. Nc3 Bb4',
-    gameType: "standard",
-  },
-  {
-    id: "og-3",
-    date: "2024-03-15",
-    timeControl: "15+10",
-    result: "WIN",
-    opponent: "ChessWizard",
-    rating: "1780",
-    eloChange: "(+12 ELO Rating)",
-    moves: "56",
-    opening: "Ruy Lopez",
-    source: "Lichess",
-    color: "White",
-    gameFormat: "Lichess",
-    pgn: '[Event "Tournament Game"]\n[Site "Lichess"]\n[Date "2024.03.15"]\n[Result "1-0"]\n[White "User"]\n[Black "ChessWizard"]\n[TimeControl "15+10"]\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6',
-    gameType: "standard",
-  },
-  {
-    id: "og-4",
-    date: "2024-03-12",
-    timeControl: "30+0",
-    result: "DRAW",
-    opponent: "TacticalPlayer",
-    rating: "1830",
-    eloChange: "(0 ELO Rating)",
-    moves: "67",
-    opening: "Queen's Gambit",
-    source: "Tournament",
-    color: "Black",
-    gameFormat: "Tournament",
-    pgn: '[Event "Local Tournament"]\n[Site "Chess Club"]\n[Date "2024.03.12"]\n[Result "1/2-1/2"]\n[White "TacticalPlayer"]\n[Black "User"]\n[TimeControl "30+0"]\n1. d4 d5 2. c4 e6 3. Nc3 Nf6',
-    gameType: "standard",
-  },
-  {
-    id: "og-5",
-    date: "2024-03-10",
-    timeControl: "3+2",
-    result: "WIN",
-    opponent: "BlitzMaster",
-    rating: "1750",
-    eloChange: "(+7 ELO Rating)",
-    moves: "32",
-    opening: "Caro-Kann Defense",
-    source: "Lichess",
-    color: "Black",
-    gameFormat: "Lichess",
-    pgn: '[Event "Blitz Game"]\n[Site "Lichess"]\n[Date "2024.03.10"]\n[Result "0-1"]\n[White "BlitzMaster"]\n[Black "User"]\n[TimeControl "3+2"]\n1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Bf5',
-    gameType: "blitz",
-  },
-  {
-    id: "og-6",
-    date: "2024-03-08",
-    timeControl: "5+5",
-    result: "LOSS",
-    opponent: "EndgameExpert",
-    rating: "1890",
-    eloChange: "(-10 ELO Rating)",
-    moves: "45",
-    opening: "King's Indian Defense",
-    source: "Lichess",
-    color: "White",
-    gameFormat: "Lichess",
-    pgn: '[Event "Casual Game"]\n[Site "Lichess"]\n[Date "2024.03.08"]\n[Result "0-1"]\n[White "User"]\n[Black "EndgameExpert"]\n[TimeControl "5+5"]\n1. d4 Nf6 2. c4 g6 3. Nc3 Bg7',
-    gameType: "standard",
-  },
-  {
-    id: "og-7",
-    date: "2024-03-05",
-    timeControl: "10+5",
-    result: "WIN",
-    opponent: "OpeningTheory",
-    rating: "1800",
-    eloChange: "(+9 ELO Rating)",
-    moves: "38",
-    opening: "English Opening",
-    source: "Lichess",
-    color: "White",
-    gameFormat: "Lichess",
-    pgn: '[Event "Rated Game"]\n[Site "Lichess"]\n[Date "2024.03.05"]\n[Result "1-0"]\n[White "User"]\n[Black "OpeningTheory"]\n[TimeControl "10+5"]\n1. c4 e5 2. Nc3 Nf6 3. g3 d5',
-    gameType: "standard",
-  },
-  {
-    id: "og-8",
-    date: "2024-03-01",
-    timeControl: "15+0",
-    result: "WIN",
-    opponent: "TacticalMaster",
-    rating: "1770",
-    eloChange: "(+11 ELO Rating)",
-    moves: "42",
-    opening: "Nimzo-Indian Defense",
-    source: "PGN Upload",
-    color: "Black",
-    gameFormat: "PGN Upload",
-    pgn: '[Event "Club Match"]\n[Site "Local Chess Club"]\n[Date "2024.03.01"]\n[Result "0-1"]\n[White "TacticalMaster"]\n[Black "User"]\n[TimeControl "15+0"]\n1. d4 Nf6 2. c4 e6 3. Nc3 Bb4',
-    gameType: "standard",
-  },
-  {
-    id: "og-9",
-    date: "2024-02-25",
-    timeControl: "3+0",
-    result: "LOSS",
-    opponent: "SpeedDemon",
-    rating: "1920",
-    eloChange: "(-12 ELO Rating)",
-    moves: "28",
-    opening: "Scandinavian Defense",
-    source: "Lichess",
-    color: "White",
-    gameFormat: "Lichess",
-    pgn: '[Event "Bullet Game"]\n[Site "Lichess"]\n[Date "2024.02.25"]\n[Result "0-1"]\n[White "User"]\n[Black "SpeedDemon"]\n[TimeControl "3+0"]\n1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5',
-    gameType: "bullet",
-  },
-  {
-    id: "og-10",
-    date: "2024-02-20",
-    timeControl: "30+30",
-    result: "DRAW",
-    opponent: "PositionalPlayer",
-    rating: "1850",
-    eloChange: "(0 ELO Rating)",
-    moves: "78",
-    opening: "Queen's Indian Defense",
-    source: "Tournament",
-    color: "Black",
-    gameFormat: "Tournament",
-    pgn: '[Event "Regional Tournament"]\n[Site "Chess Hall"]\n[Date "2024.02.20"]\n[Result "1/2-1/2"]\n[White "PositionalPlayer"]\n[Black "User"]\n[TimeControl "30+30"]\n1. d4 Nf6 2. c4 e6 3. Nf3 b6',
-    gameType: "classical",
-  },
-];
 
 // Helper functions
 const getResultData = (result: string) => {
@@ -215,6 +54,15 @@ const getEloChangeData = (change: string) => {
 };
 
 const OtherGamesTab = () => {
+  // Initialize the store with dummy games if it hasn't been done
+  useEffect(() => {
+    initializeGameStore(dummyOtherGames as Game[]);
+  }, []);
+
+  // Get games from the Zustand store
+  const { getAllGames, importedGames, isLoading, error } = useGameStore();
+  const allGames = getAllGames();
+
   // State variables
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -225,9 +73,16 @@ const OtherGamesTab = () => {
     results: "All Results",
   });
 
+  // Reset to first page when importing new games
+  useEffect(() => {
+    if (importedGames.length > 0) {
+      setCurrentPage(1);
+    }
+  }, [importedGames.length]);
+
   // Apply filters
   const filteredGames = React.useMemo(() => {
-    let filtered = [...dummyOtherGames];
+    let filtered = [...allGames];
 
     if (filters.color !== "All Colors") {
       filtered = filtered.filter((game) => game.color === filters.color);
@@ -246,12 +101,13 @@ const OtherGamesTab = () => {
         Draws: "DRAW",
       };
       filtered = filtered.filter(
-        (game) => game.result === resultMap[filters.results]
+        (game) =>
+          game.result === resultMap[filters.results as keyof typeof resultMap]
       );
     }
 
     return filtered;
-  }, [filters]);
+  }, [filters, allGames]);
 
   // Pagination
   const totalPages = Math.ceil(filteredGames.length / itemsPerPage);
@@ -285,22 +141,7 @@ const OtherGamesTab = () => {
     });
   };
 
-  const handleAnalyzeClick = (game: {
-    id?: string;
-    date?: string;
-    timeControl?: string;
-    result?: string;
-    opponent: any;
-    rating?: string;
-    eloChange?: string;
-    moves?: string;
-    opening?: string;
-    source: any;
-    color?: string;
-    gameFormat?: string;
-    pgn?: string;
-    gameType?: string;
-  }) => {
+  const handleAnalyzeClick = (game: Game) => {
     // In a real implementation, this would invoke analysis functionality
     console.log("Analyze game:", game);
     alert(`Analyzing game against ${game.opponent} from ${game.source}`);
@@ -315,8 +156,33 @@ const OtherGamesTab = () => {
 
   const filtersApplied = activeFiltersCount > 0;
 
+  // Function to check if a game is newly imported
+  const isNewlyImported = (gameId: string) => {
+    return importedGames.some((game) => game.id === gameId);
+  };
+
   return (
     <div className="mx-auto">
+      {isLoading && (
+        <div className="flex justify-center items-center py-4">
+          <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
+          <AlertCircle className="h-5 w-5 mr-2" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {importedGames.length > 0 && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md flex items-center mb-4">
+          <span>Successfully imported {importedGames.length} game(s)!</span>
+        </div>
+      )}
+
       <div className="relative w-full">
         {/* Desktop Filter */}
         <div className="hidden md:flex items-center justify-evenly mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
@@ -528,134 +394,167 @@ const OtherGamesTab = () => {
             </div>
 
             <div className="divide-y divide-gray-200 text-xs xl:text-sm">
-              {currentGames.map((game, index) => (
-                <div
-                  key={game.id}
-                  className="grid text-xs grid-cols-10 relative even:bg-blue-50 odd:bg-white hover:bg-blue-50"
-                >
+              {currentGames.map((game, index) => {
+                const isNewGame = isNewlyImported(game.id);
+
+                return (
                   <div
-                    className="absolute h-full w-px bg-gray-200"
-                    style={{ left: "3rem" }}
-                  ></div>
+                    key={game.id}
+                    className={`grid text-xs grid-cols-10 relative ${
+                      isNewGame ? "bg-green-50" : "even:bg-blue-50 odd:bg-white"
+                    } hover:bg-blue-50`}
+                  >
+                    <div
+                      className="absolute h-full w-px bg-gray-200"
+                      style={{ left: "3rem" }}
+                    ></div>
 
-                  <div className="col-span-1 py-3 pl-4 flex items-center">
-                    <span className="inline-block w-6 text-center text-gray-500 mr-4">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
-                    </span>
-                    <span className="ml-2">{game.date}</span>
-                  </div>
+                    <div className="col-span-1 py-3 pl-4 flex items-center">
+                      <span className="inline-block w-6 text-center text-gray-500 mr-4">
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </span>
+                      {isNewGame && (
+                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                      )}
+                      <span className="ml-2">{game.date}</span>
+                    </div>
 
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.timeControl}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {(() => {
-                      const resultData = getResultData(game.result);
-                      return (
-                        <span className={resultData.className}>
-                          {resultData.text}
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {game.timeControl}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {(() => {
+                        const resultData = getResultData(game.result);
+                        return (
+                          <span className={resultData.className}>
+                            {resultData.text}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center truncate">
+                      {game.opponent}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {game.rating}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {(() => {
+                        const eloData = getEloChangeData(game.eloChange);
+                        return (
+                          <span className={eloData.className}>
+                            {eloData.text}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {game.moves}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {game.opening}
+                    </div>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      {game.source}
+                      {isNewGame && (
+                        <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
+                          New
                         </span>
-                      );
-                    })()}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center truncate">
-                    {game.opponent}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.rating}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {(() => {
-                      const eloData = getEloChangeData(game.eloChange);
-                      return (
-                        <span className={eloData.className}>
-                          {eloData.text}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.moves}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.opening}
-                  </div>
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    {game.source}
-                  </div>
+                      )}
+                    </div>
 
-                  <div className="col-span-1 px-4 py-3 flex items-center">
-                    <button
-                      className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center"
-                      onClick={() => handleAnalyzeClick(game)}
-                    >
-                      <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                      Analyze
-                    </button>
+                    <div className="col-span-1 px-4 py-3 flex items-center">
+                      <button
+                        className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center"
+                        onClick={() => handleAnalyzeClick(game)}
+                      >
+                        <ChartNoAxesColumn className="h-4 w-4 mr-1" />
+                        Analyze
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           {/* Mobile view - Card layout */}
           <div className="lg:hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-              {currentGames.map((game) => (
-                <Card key={game.id} className="p-4 border rounded-lg mb-4">
-                  <div className="flex justify-between mb-2">
-                    <div className="text-sm font-medium">{game.date}</div>
-                    <div className={getResultData(game.result).className}>
-                      {getResultData(game.result).text}
-                    </div>
-                  </div>
+              {currentGames.map((game) => {
+                const isNewGame = isNewlyImported(game.id);
 
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3">
-                    <div>
-                      <span className="text-gray-500">Opponent</span>
-                      <div className="font-semibold truncate">
-                        {game.opponent}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Rating</span>
-                      <div className="font-semibold">{game.rating}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Elo Change</span>
-                      <div
-                        className={getEloChangeData(game.eloChange).className}
-                      >
-                        {getEloChangeData(game.eloChange).text}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Time Control</span>
-                      <div className="font-semibold">{game.timeControl}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Moves</span>
-                      <div className="font-semibold">{game.moves}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Source</span>
-                      <div className="font-semibold">{game.source}</div>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-500">Opening</span>
-                      <div className="font-semibold">{game.opening}</div>
-                    </div>
-                  </div>
-
-                  <button
-                    className="btn-primary text-white w-full py-2 rounded-3xl text-xs flex justify-center items-center mt-2"
-                    onClick={() => handleAnalyzeClick(game)}
+                return (
+                  <Card
+                    key={game.id}
+                    className={`p-4 border rounded-lg mb-4 ${
+                      isNewGame ? "bg-green-50 border-green-200" : ""
+                    }`}
                   >
-                    <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                    Analyze Game
-                  </button>
-                </Card>
-              ))}
+                    <div className="flex justify-between mb-2">
+                      <div className="text-sm font-medium flex items-center">
+                        {isNewGame && (
+                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        )}
+                        {game.date}
+                        {isNewGame && (
+                          <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
+                            New
+                          </span>
+                        )}
+                      </div>
+                      <div className={getResultData(game.result).className}>
+                        {getResultData(game.result).text}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3">
+                      <div>
+                        <span className="text-gray-500">Opponent</span>
+                        <div className="font-semibold truncate">
+                          {game.opponent}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Rating</span>
+                        <div className="font-semibold">{game.rating}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Elo Change</span>
+                        <div
+                          className={getEloChangeData(game.eloChange).className}
+                        >
+                          {getEloChangeData(game.eloChange).text}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Time Control</span>
+                        <div className="font-semibold">{game.timeControl}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Moves</span>
+                        <div className="font-semibold">{game.moves}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Source</span>
+                        <div className="font-semibold">{game.source}</div>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-500">Opening</span>
+                        <div className="font-semibold">{game.opening}</div>
+                      </div>
+                    </div>
+
+                    <button
+                      className="btn-primary text-white w-full py-2 rounded-3xl text-xs flex justify-center items-center mt-2"
+                      onClick={() => handleAnalyzeClick(game)}
+                    >
+                      <ChartNoAxesColumn className="h-4 w-4 mr-1" />
+                      Analyze Game
+                    </button>
+                  </Card>
+                );
+              })}
             </div>
           </div>
 
@@ -721,6 +620,16 @@ const OtherGamesTab = () => {
                     </Button>
                   );
                 })}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
               </div>
             </div>
           )}
