@@ -34,6 +34,10 @@ interface PgnState {
   // Games data cache
   gamesData: Game[];
   gamesLastFetched: number | null;
+
+  otherGamesData: Game[];
+  otherGamesLastFetched: number | null;
+
   
   // Analytics data cache
   analyticsData: any | null;
@@ -53,7 +57,10 @@ interface PgnState {
   
   // Actions for games data
   setGamesData: (games: Game[]) => void;
+  setOtherGamesData: (games: Game[]) => void;
+
   clearGamesData: () => void;
+  clearOtherGamesData: () => void;
   
   // Actions for analytics data
   setAnalyticsData: (data: any) => void;
@@ -83,6 +90,9 @@ export const usePgnStore = create<PgnState>()(
       // Game data cache - initially empty
       gamesData: [],
       gamesLastFetched: null,
+
+      otherGamesData: [],
+      otherGamesLastFetched: null,
       
       // Analytics data cache - initially empty
       analyticsData: null,
@@ -114,10 +124,20 @@ export const usePgnStore = create<PgnState>()(
         gamesData: games,
         gamesLastFetched: Date.now()
       }),
+
+      setOtherGamesData: (games: Game[]) => set({
+        otherGamesData: games,
+        otherGamesLastFetched: Date.now()
+      }),
       
       clearGamesData: () => set({ 
         gamesData: [],
         gamesLastFetched: null
+      }),
+
+      clearOtherGamesData: () => set({
+        otherGamesData: [],
+        otherGamesLastFetched: null
       }),
       
       // Analytics data actions
