@@ -16,11 +16,9 @@ import Image from "next/image";
 import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
 import LoadingPage from "../analysis-loading/LoadingPage";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_AUTH;
 
 const GameHistoryPage = () => {
-  const Section = ["Blitzmystic", "Other Games"];
-  const [sect, setSect] = useState(Section[0]);
   const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
 
   // DEV: Temporary state for development to control dialogs
@@ -31,6 +29,8 @@ const GameHistoryPage = () => {
   const [fetchAttempted, setFetchAttempted] = useState(false);
 
   const { setUsername, username } = usePgnStore();
+  const Section = [username, "Other Games"];
+  const [sect, setSect] = useState(Section[0]);
 
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
@@ -334,7 +334,7 @@ const GameHistoryPage = () => {
               ))}
             </div>
             <div className="mt-4">
-              <div>{sect === "Blitzmystic" && <UserHistory />}</div>
+              <div>{sect === username && <UserHistory />}</div>
               <div>{sect === "Other Games" && <OtherHistory />}</div>
             </div>
           </div>

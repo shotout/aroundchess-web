@@ -6,6 +6,10 @@ import {
 } from '../types/AnalyticsTypes';
 
 export const processApiData = (apiData: ApiData): ProcessedData => {
+
+
+ 
+
   const processedRatingData = apiData.ratingProgress
     .slice(0, MONTHS.length)
     .map((rating, index) => ({

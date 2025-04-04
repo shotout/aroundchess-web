@@ -9,7 +9,7 @@ export const fetchAnalyticsData = async (
   setAnalyticsData: (data: ApiData) => void
 ): Promise<ProcessedData> => {
   try {
-    const apiUrl = `${API_BASE_URL}/analytic-games/${username}`;
+    const apiUrl = `${API_BASE_URL}/analytic-games/my-game-analytic-history`;
     
     const config: AxiosRequestConfig = {
       headers: {

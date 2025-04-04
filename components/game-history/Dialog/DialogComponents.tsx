@@ -4,10 +4,12 @@ import { FileText, Trash, Upload, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 
-// TypeScript interfaces for component props
+// TypeScript interfaces for component props - updated with new props
 interface SuccessViewProps {
   resetDialog: () => void;
   handleAnalyzeButtonClick: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 interface TabSelectorProps {
@@ -22,9 +24,10 @@ interface PasteTabProps {
 
 interface DragDropAreaProps {
   dragActive: boolean;
-  handleDrag: (e: DragEvent<HTMLDivElement> | any) => void;
+  handleDrag: (e: DragEvent<HTMLDivElement>) => void;
   handleDrop: (e: DragEvent<HTMLDivElement>) => void;
   fileInputRef: RefObject<HTMLInputElement>;
+  handleFileInput: (e: ChangeEvent<HTMLInputElement>) => void; // Added this prop
 }
 
 interface UploadProgressProps {
@@ -49,12 +52,15 @@ interface SubmitButtonProps {
   fileName: string;
   isUploading: boolean;
   handleButtonClick: () => void;
+  isLoading?: boolean; // Added this prop
 }
 
 // Component for the success screen after submission
 export const SuccessView: React.FC<SuccessViewProps> = ({
   resetDialog,
   handleAnalyzeButtonClick,
+  isLoading,
+  error,
 }) => {
   return (
     <div className="flex flex-col items-center">
@@ -75,18 +81,22 @@ export const SuccessView: React.FC<SuccessViewProps> = ({
         our Advanced Chess Engine!
       </p>
 
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
       <div className="flex w-full gap-3">
         <button
           className="flex-1 py-3 btn-secondary font-medium rounded-full"
           onClick={resetDialog}
+          disabled={isLoading}
         >
           Back to Game History
         </button>
         <button
           className="flex-1 py-3 btn-primary text-white font-medium rounded-full"
           onClick={handleAnalyzeButtonClick}
+          disabled={isLoading}
         >
-          Analyze Game
+          {isLoading ? "Analyzing..." : "Analyze Game"}
         </button>
       </div>
     </div>
@@ -140,19 +150,20 @@ export const PasteTab: React.FC<PasteTabProps> = ({ pgnText, setPgnText }) => {
   );
 };
 
-// Component for the drag and drop area
+// Component for the drag and drop area - FIXED
 export const DragDropArea: React.FC<DragDropAreaProps> = ({
   dragActive,
   handleDrag,
   handleDrop,
   fileInputRef,
+  handleFileInput, // Using the passed handler directly
 }) => {
   return (
     <div
       className={`h-full border-2 border-dashed ${
         dragActive
           ? "border-blue-base bg-blue-base/10"
-          : "border-blue-base bg-blue-base/10"
+          : "border-blue-base bg-blue-base/5"
       } rounded-lg flex flex-col items-center justify-center`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
@@ -164,17 +175,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
         type="file"
         className="hidden"
         accept=".pgn"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0];
-            if (
-              fileInputRef.current &&
-              typeof fileInputRef.current.onchange === "function"
-            ) {
-              fileInputRef.current.onchange(e);
-            }
-          }
-        }}
+        onChange={handleFileInput} // FIXED: Using the passed handler directly
       />
       <div className="text-center flex flex-col items-center justify-center">
         <Image
@@ -190,7 +191,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
           to{" "}
           <span
             className="text-blue-base font-medium cursor-pointer underline"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => fileInputRef.current?.click()} // This triggers the file input directly
           >
             select
           </span>{" "}
@@ -277,6 +278,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({
         </div>
       </div>
       <button
+        type="button"
         className="text-red-500 hover:text-red-700"
         onClick={handleRemoveFile}
       >
@@ -295,6 +297,7 @@ export const DialogHeader: React.FC<DialogHeaderProps> = ({ resetDialog }) => {
         Import a Game
       </h2>
       <button
+        type="button"
         onClick={resetDialog}
         className="text-gray-500 hover:text-gray-700"
       >
@@ -330,31 +333,35 @@ export const FileFormatInfo: React.FC = () => {
   );
 };
 
-// Component for submit button
+// Component for submit button - updated with isLoading
 export const SubmitButton: React.FC<SubmitButtonProps> = ({
   activeTab,
   pgnText,
   fileName,
   isUploading,
   handleButtonClick,
+  isLoading,
 }) => {
   return (
     <button
+      type="button"
       className={`w-full mt-5 py-4 rounded-3xl flex items-center justify-center ${
         (activeTab === "paste" && pgnText.trim()) ||
         (activeTab === "upload" && fileName && !isUploading)
           ? "btn-primary text-white"
-          : isUploading
+          : isUploading || isLoading
           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
           : "btn-primary text-white"
       }`}
       onClick={handleButtonClick}
-      disabled={isUploading}
+      disabled={isUploading || isLoading}
     >
       {activeTab === "upload" && !fileName
         ? "Select File"
         : isUploading
         ? "Uploading..."
+        : isLoading
+        ? "Processing..."
         : "Import Game"}
     </button>
   );

@@ -60,7 +60,7 @@ export const useEndgameStore = create<EndgameState>()(
         try {
           set({ isLoading: true, error: null });
           
-          const apiBaseUrl = process.env.BASE_URL;
+          const apiBaseUrl = process.env.BASE_URL
           const initialUrl = `${apiBaseUrl}/handbooks?page=1&limit=100&category=endgame`;
           
           const initialResponse = await fetch(initialUrl);
@@ -194,20 +194,43 @@ export const useEndgameStore = create<EndgameState>()(
 const fenCache = new Map<string, string>();
 const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-export function getFenFromMoves(moves: string | null): string {
-  if (!moves) {
+/**
+ * Checks if a string appears to be in FEN notation
+ * @param input String to check
+ * @returns boolean indicating if the string looks like a FEN position
+ */
+function isFenString(input: string): boolean {
+  // A valid FEN has slashes and typically contains numbers and piece letters
+  return input.includes('/') && /[1-8prnbqkPRNBQK]/.test(input) && input.split('/').length === 8;
+}
+
+/**
+ * Gets a FEN position from either moves or a FEN string
+ * @param input String containing either chess moves or a FEN position
+ * @returns FEN string representation of the position
+ */
+export function getFenFromMoves(input: string | null): string {
+  if (!input) {
     return DEFAULT_FEN;
   }
 
-  if (fenCache.has(moves)) {
-    return fenCache.get(moves)!;
+  // First check if the input is already cached
+  if (fenCache.has(input)) {
+    return fenCache.get(input)!;
   }
 
+  // Check if the input is already a FEN string
+  if (isFenString(input)) {
+    fenCache.set(input, input);
+    return input;
+  }
+
+  // Otherwise, treat the input as chess moves
   try {
     const chess = new Chess();
     
     // Improved preprocessing of moves string
-    const moveList = moves
+    const moveList = input
       .replace(/\d+\./g, '') // Remove move numbers like "1."
       .replace(/\s+/g, ' ')  // Normalize whitespace
       .trim()
@@ -219,16 +242,16 @@ export function getFenFromMoves(moves: string | null): string {
         try {
           chess.move(move);
         } catch (moveError) {
-          console.warn(`Skipping invalid move: ${move} in sequence ${moves}`);
+          console.warn(`Skipping invalid move: ${move} in sequence ${input}`);
         }
       }
     }
     
     const fen = chess.fen();
-    fenCache.set(moves, fen);
+    fenCache.set(input, fen);
     return fen;
   } catch (error) {
-    console.error("Error generating FEN from moves:", error, "Moves:", moves);
+    console.error("Error generating FEN from moves:", error, "Input:", input);
     return DEFAULT_FEN;
   }
 }

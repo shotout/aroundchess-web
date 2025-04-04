@@ -274,39 +274,54 @@ export const useMiddlegameStore = create<MiddlegameState>()(
 const fenCache = new Map<string, string>();
 const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-export function getFenFromMoves(moves: string | null): string {
-  if (!moves) {
+function isFenString(input: string): boolean {
+  // A valid FEN has slashes and typically contains numbers and piece letters
+  return input.includes('/') && /[1-8prnbqkPRNBQK]/.test(input) && input.split('/').length === 8;
+}
+
+export function getFenFromMoves(input: string | null): string {
+  if (!input) {
     return DEFAULT_FEN;
   }
 
-  if (fenCache.has(moves)) {
-    return fenCache.get(moves)!;
+  // First check if the input is already cached
+  if (fenCache.has(input)) {
+    return fenCache.get(input)!;
   }
 
+  // Check if the input is already a FEN string
+  if (isFenString(input)) {
+    fenCache.set(input, input);
+    return input;
+  }
+
+  // Otherwise, treat the input as chess moves
   try {
     const chess = new Chess();
     
-    const moveList = moves
-      .replace(/\d+\./g, '')
-      .replace(/\s+/g, ' ')
+    // Improved preprocessing of moves string
+    const moveList = input
+      .replace(/\d+\./g, '') // Remove move numbers like "1."
+      .replace(/\s+/g, ' ')  // Normalize whitespace
       .trim()
-      .split(' ');
+      .split(' ')
+      .filter(move => move.length > 0); // Remove empty moves
     
     for (const move of moveList) {
       if (move && move.length > 1) {
         try {
           chess.move(move);
         } catch (moveError) {
-          console.warn(`Skipping invalid move: ${move}`);
+          console.warn(`Skipping invalid move: ${move} in sequence ${input}`);
         }
       }
     }
     
     const fen = chess.fen();
-    fenCache.set(moves, fen);
+    fenCache.set(input, fen);
     return fen;
   } catch (error) {
-    console.error("Error generating FEN from moves:", error);
+    console.error("Error generating FEN from moves:", error, "Input:", input);
     return DEFAULT_FEN;
   }
 }
