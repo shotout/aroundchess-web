@@ -1,9 +1,8 @@
-// useGamesData.ts
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Game, usePgnStore } from "@/app/store/zustandStore";
 import { toast } from "sonner";
-import { isCacheValid, transformApiDataToComponentFormat } from "../GamesTabHelper";
+import { isCacheValid, transformApiDataToComponentFormat } from "../GamesTab/utils/GamesTabHelper";
 
 const endpoint = process.env.NEXT_PUBLIC_BASE_AUTH
 
@@ -15,7 +14,7 @@ interface UseGamesDataResult {
   handleForceRefresh: () => void;
 }
 
-export function useGamesData(
+export function useOtherGamesData(
   username: string | null, 
   sessionId: string | null, 
   authIsLoaded: boolean,
@@ -51,7 +50,8 @@ export function useGamesData(
       setError(null);
 
       try {
-        const apiUrl = `${endpoint}/games/my-game-history?type=chessdotcom`
+        // Changed the endpoint to use "other" type instead of "chessdotcom"
+        const apiUrl = `${endpoint}/games/my-game-history?type=other`
         const config = {
           headers: {
             Accept: "application/json",
@@ -66,8 +66,6 @@ export function useGamesData(
             const transformedData = transformApiDataToComponentFormat(
               response.data.data
             );
-
-            
 
             setApiProcessedData(transformedData);
             setGamesData(transformedData);
@@ -111,8 +109,8 @@ export function useGamesData(
 
   const handleForceRefresh = () => {
     fetchRef.current = false;
-    const { resetFetchState, clearGamesData } = usePgnStore.getState();
-    clearGamesData();
+    const { resetFetchState, clearOtherGamesData } = usePgnStore.getState();
+    clearOtherGamesData(); // Changed from clearGamesData to clearOtherGamesData
     resetFetchState();
     toast.info("Refreshing games data...");
   };

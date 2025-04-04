@@ -15,171 +15,117 @@ import {
   Download,
   AlertCircle,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import useGameStore, { Game, initializeGameStore } from "../Dialog/DialogStore";
-import { dummyOtherGames } from "./DummyGame";
+import React from "react";
+import { useAuth } from "@clerk/nextjs";
+import { usePgnStore } from "@/app/store/zustandStore";
+import DotSpinner from "../Spinner";
 
-// Dummy data for Other Games
-
-// Helper functions
-const getResultData = (result: string) => {
-  if (!result || typeof result !== "string") {
-    return { text: "UNKNOWN", className: "text-gray-500 font-semibold" };
-  }
-
-  if (result === "WIN") {
-    return { text: "WIN", className: "text-game-green font-semibold" };
-  } else if (result === "LOSS") {
-    return { text: "LOSS", className: "text-game-red font-semibold" };
-  } else {
-    return { text: "DRAW", className: "text-gray-500 font-semibold" };
-  }
-};
-
-const getEloChangeData = (change: string) => {
-  if (!change || typeof change !== "string") {
-    return { value: 0, text: "0", className: "text-gray-500" };
-  }
-
-  const match = change.match(/\(([+-]\d+) ELO Rating\)/);
-  const value = match ? parseInt(match[1]) : 0;
-
-  if (value > 0) {
-    return { value, text: `+${value}`, className: "text-green-500" };
-  } else if (value < 0) {
-    return { value, text: `${value}`, className: "text-red-500" };
-  } else {
-    return { value, text: "0", className: "text-gray-500" };
-  }
-};
+import GamesTabCard from "../GamesTabCard";
+import { usePagination } from "../GamesTab/utils/hook/usePagination";
+import { useFilters } from "../GamesTab/utils/hook/useFilters";
+import { useAnalyzeGame } from "../GamesTab/utils/hook/useAnalyzeGame";
+import {
+  getEloChangeData,
+  getResultData,
+  isCacheValid,
+} from "../GamesTab/utils/GamesTabHelper";
+import { useOtherGamesData } from "./useOtherGameData";
 
 const OtherGamesTab = () => {
-  // Initialize the store with dummy games if it hasn't been done
-  useEffect(() => {
-    initializeGameStore(dummyOtherGames as Game[]);
-  }, []);
+  const {
+    username,
+    setPgn,
+    setDataAnalysis,
+    setIsLoading,
+    lastFetchTimestamp,
+    otherGamesData: cachedGames,
+    otherGamesLastFetched,
+    setOtherGamesData,
+  } = usePgnStore();
 
-  // Get games from the Zustand store
-  const { getAllGames, importedGames, isLoading, error } = useGameStore();
-  const allGames = getAllGames();
+  const { sessionId: rawSessionId, isLoaded: authIsLoaded } = useAuth();
+  const sessionId = rawSessionId ?? null;
 
-  // State variables
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    color: "All Colors",
-    gameFormat: "All Formats",
-    results: "All Results",
-  });
+  // Custom hooks for handling different aspects of the component
+  const { isLoading, error, gamesData, handleRetryFetch, handleForceRefresh } =
+    useOtherGamesData(
+      username,
+      sessionId,
+      authIsLoaded,
+      lastFetchTimestamp,
+      cachedGames,
+      otherGamesLastFetched,
+      setOtherGamesData
+    );
 
-  // Reset to first page when importing new games
-  useEffect(() => {
-    if (importedGames.length > 0) {
-      setCurrentPage(1);
-    }
-  }, [importedGames.length]);
+  const {
+    filters,
+    setFilters,
+    showFilters,
+    setShowFilters,
+    activeFiltersCount,
+    filtersApplied,
+    filteredGames,
+    handleApplyFilters,
+    handleClearFilters,
+  } = useFilters(gamesData);
 
-  // Apply filters
-  const filteredGames = React.useMemo(() => {
-    let filtered = [...allGames];
+  const {
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
+    setItemsPerPage,
+    currentGames,
+    totalPages,
+    goToNextPage,
+    goToPreviousPage,
+  } = usePagination(filteredGames);
 
-    if (filters.color !== "All Colors") {
-      filtered = filtered.filter((game) => game.color === filters.color);
-    }
+  const { handleAnalyzeClick } = useAnalyzeGame(
+    username,
+    setPgn,
+    setDataAnalysis,
+    setIsLoading
+  );
 
-    if (filters.gameFormat !== "All Formats") {
-      filtered = filtered.filter(
-        (game) => game.gameFormat === filters.gameFormat
-      );
-    }
-
-    if (filters.results !== "All Results") {
-      const resultMap = {
-        Wins: "WIN",
-        Losses: "LOSS",
-        Draws: "DRAW",
-      };
-      filtered = filtered.filter(
-        (game) =>
-          game.result === resultMap[filters.results as keyof typeof resultMap]
-      );
-    }
-
-    return filtered;
-  }, [filters, allGames]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredGames.length / itemsPerPage);
-  const indexOfLastGame = currentPage * itemsPerPage;
-  const indexOfFirstGame = indexOfLastGame - itemsPerPage;
-  const currentGames = filteredGames.slice(indexOfFirstGame, indexOfLastGame);
-
-  // Navigation functions
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  // Handlers
-  const handleApplyFilters = () => {
-    setShowFilters(false);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      color: "All Colors",
-      gameFormat: "All Formats",
-      results: "All Results",
-    });
-  };
-
-  const handleAnalyzeClick = (game: Game) => {
-    // In a real implementation, this would invoke analysis functionality
-    console.log("Analyze game:", game);
-    alert(`Analyzing game against ${game.opponent} from ${game.source}`);
-  };
-
-  const activeFiltersCount = Object.values(filters).filter(
-    (value) =>
-      value !== "All Colors" &&
-      value !== "All Formats" &&
-      value !== "All Results"
-  ).length;
-
-  const filtersApplied = activeFiltersCount > 0;
+  // Cache validity check for UI rendering
+  const cacheIsValid = isCacheValid(otherGamesLastFetched, cachedGames);
 
   // Function to check if a game is newly imported
   const isNewlyImported = (gameId: string) => {
-    return importedGames.some((game) => game.id === gameId);
+    // This function would need to be implemented based on how you track newly imported games
+    return false;
   };
+
+  if (isLoading) {
+    return <DotSpinner />;
+  }
+
+  if (!username) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="text-xl font-semibold mb-4">
+          No Chess.com Username Set
+        </div>
+        <p className="mb-4 text-gray-600">
+          Please connect your Chess.com account to view your games.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto">
-      {isLoading && (
-        <div className="flex justify-center items-center py-4">
-          <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
-          <span>Loading...</span>
-        </div>
-      )}
-
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
           <AlertCircle className="h-5 w-5 mr-2" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {importedGames.length > 0 && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md flex items-center mb-4">
-          <span>Successfully imported {importedGames.length} game(s)!</span>
+          <span>{error.message}</span>
+          <Button
+            onClick={handleRetryFetch}
+            className="ml-4 bg-red-600 hover:bg-red-700 text-white"
+          >
+            Retry
+          </Button>
         </div>
       )}
 
@@ -189,9 +135,7 @@ const OtherGamesTab = () => {
           <div className="flex items-center space-x-2 w-[70%] 2xl:w-[75%]">
             <Select
               value={filters.color}
-              onValueChange={(value) =>
-                setFilters({ ...filters, color: value })
-              }
+              onValueChange={(value) => setFilters.setColor(value)}
               defaultValue="All Colors"
             >
               <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
@@ -206,9 +150,7 @@ const OtherGamesTab = () => {
 
             <Select
               value={filters.gameFormat}
-              onValueChange={(value) =>
-                setFilters({ ...filters, gameFormat: value })
-              }
+              onValueChange={(value) => setFilters.setGameFormat(value)}
               defaultValue="All Formats"
             >
               <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
@@ -224,9 +166,7 @@ const OtherGamesTab = () => {
 
             <Select
               value={filters.results}
-              onValueChange={(value) =>
-                setFilters({ ...filters, results: value })
-              }
+              onValueChange={(value) => setFilters.setResults(value)}
               defaultValue="All Results"
             >
               <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
@@ -298,9 +238,7 @@ const OtherGamesTab = () => {
             <div className="flex flex-wrap gap-2 mb-4">
               <Select
                 value={filters.color}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, color: value })
-                }
+                onValueChange={(value) => setFilters.setColor(value)}
                 defaultValue="All Colors"
               >
                 <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
@@ -315,9 +253,7 @@ const OtherGamesTab = () => {
 
               <Select
                 value={filters.gameFormat}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, gameFormat: value })
-                }
+                onValueChange={(value) => setFilters.setGameFormat(value)}
                 defaultValue="All Formats"
               >
                 <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
@@ -333,9 +269,7 @@ const OtherGamesTab = () => {
 
               <Select
                 value={filters.results}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, results: value })
-                }
+                onValueChange={(value) => setFilters.setResults(value)}
                 defaultValue="All Results"
               >
                 <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
@@ -370,11 +304,17 @@ const OtherGamesTab = () => {
         )}
       </div>
 
-      {currentGames.length === 0 ? (
+      {currentGames.length === 0 && !isLoading && !error ? (
         <div className="p-8 text-center border rounded-lg">
           <p className="text-gray-500">
             No games found with the current filters.
           </p>
+          <Button
+            onClick={handleRetryFetch}
+            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Refresh Games
+          </Button>
         </div>
       ) : (
         <>
@@ -395,7 +335,7 @@ const OtherGamesTab = () => {
 
             <div className="divide-y divide-gray-200 text-xs xl:text-sm">
               {currentGames.map((game, index) => {
-                const isNewGame = isNewlyImported(game.id);
+                const isNewGame = isNewlyImported(game.id.toString());
 
                 return (
                   <div
@@ -481,80 +421,13 @@ const OtherGamesTab = () => {
           {/* Mobile view - Card layout */}
           <div className="lg:hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-              {currentGames.map((game) => {
-                const isNewGame = isNewlyImported(game.id);
-
-                return (
-                  <Card
-                    key={game.id}
-                    className={`p-4 border rounded-lg mb-4 ${
-                      isNewGame ? "bg-green-50 border-green-200" : ""
-                    }`}
-                  >
-                    <div className="flex justify-between mb-2">
-                      <div className="text-sm font-medium flex items-center">
-                        {isNewGame && (
-                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                        )}
-                        {game.date}
-                        {isNewGame && (
-                          <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
-                            New
-                          </span>
-                        )}
-                      </div>
-                      <div className={getResultData(game.result).className}>
-                        {getResultData(game.result).text}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3">
-                      <div>
-                        <span className="text-gray-500">Opponent</span>
-                        <div className="font-semibold truncate">
-                          {game.opponent}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Rating</span>
-                        <div className="font-semibold">{game.rating}</div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Elo Change</span>
-                        <div
-                          className={getEloChangeData(game.eloChange).className}
-                        >
-                          {getEloChangeData(game.eloChange).text}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Time Control</span>
-                        <div className="font-semibold">{game.timeControl}</div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Moves</span>
-                        <div className="font-semibold">{game.moves}</div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Source</span>
-                        <div className="font-semibold">{game.source}</div>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-500">Opening</span>
-                        <div className="font-semibold">{game.opening}</div>
-                      </div>
-                    </div>
-
-                    <button
-                      className="btn-primary text-white w-full py-2 rounded-3xl text-xs flex justify-center items-center mt-2"
-                      onClick={() => handleAnalyzeClick(game)}
-                    >
-                      <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                      Analyze Game
-                    </button>
-                  </Card>
-                );
-              })}
+              {currentGames.map((game) => (
+                <GamesTabCard
+                  key={game.id}
+                  gameData={game}
+                  onAnalyze={() => handleAnalyzeClick(game)}
+                />
+              ))}
             </div>
           </div>
 
@@ -625,7 +498,7 @@ const OtherGamesTab = () => {
                   variant="ghost"
                   size="sm"
                   onClick={goToNextPage}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || totalPages === 0}
                   className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
                 >
                   <ChevronRight className="h-5 w-5" />
