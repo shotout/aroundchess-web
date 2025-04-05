@@ -21,6 +21,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
+  useEffect(() => {
+    console.log("movementDetails", movementDetails);
+  }, []);
   const moves = [
     {
       whiteMove: "d4",
@@ -183,14 +186,14 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         </div>
         <div className="flex flex-col mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
           <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
-            <div className="hidden sm:block sm:rounded-tl-sm bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#D7E3FB] border-r border-r-[#749BBF]  py-2">
+            <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+            <span className="block text-sm font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
               White{" "}
               <span className="block text-xs sm:text-sm md:text-md lg:text-md xl:text-sm font-light">
                 ({summary?.whiteSide?.profileInfo.username})
               </span>
             </span>
-            <span className="block text-sm font-bold rounded-tr-sm bg-[#D7E3FB] py-2 ">
+            <span className="block text-sm font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
               Black{" "}
               <span className="block text-xs sm:text-sm md:text-md lg:text-md xl:text-sm font-light">
                 ({summary?.blackSide?.profileInfo.username})
@@ -198,8 +201,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             </span>
           </div>
           <div className="flex grid grid-cols-2 sm:grid-cols-[6%_47%_47%]">
-            <div className="hidden sm:block bg-[#D7E3FB] border-r border-r-[#749BBF] py-2"></div>
-            <div className="grid grid-cols-3 text-center border-b bg-[#D7E3FB]">
+            <div className="hidden sm:block bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
+            <div className="grid grid-cols-3 text-center border-b bg-[#BDD0F9]">
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
@@ -209,7 +212,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                 </span>
               ))}
             </div>
-            <div className="grid grid-cols-3 text-center border-b bg-[#D7E3FB]">
+            <div className="grid grid-cols-3 text-center border-b bg-[#BDD0F9]">
               {["Movement", "Advantage", "Classification"].map((header) => (
                 <span
                   key={header}
@@ -225,13 +228,13 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
             <div
               key={index}
               className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-                index % 2 != 0 ? "bg-[#F6F9FF]" : "bg-white"
+                index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
               }`}
             >
               <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF]  ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -270,10 +273,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                           </PopoverClose>
                         </div>
                       </div>
-                      <span className="text-xs font-normal py-1">
-                        This move deviates from opening principles. Focus on
-                        development and center control.
-                      </span>
+                      {move.analysis && (
+                        <span className="text-xs font-normal py-1">
+                          {move.analysis}
+                        </span>
+                      )}
                       <div className="flex flex-row gap-1">
                         <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
@@ -284,9 +288,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     </div>
                   </PopoverContent>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant={"ghost"}
-                      className="rounded-none hover:bg-[#9BB8F5]"
+                    <button
+                      className="rounded-none"
                       onClick={() =>
                         handleOnClickMovement(move, index, "white")
                       }
@@ -294,7 +297,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-semibold py-2">
                         {move.move}
                       </span>
-                    </Button>
+                    </button>
                   </PopoverTrigger>
                 </Popover>
 
@@ -313,7 +316,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.classification}
                 </span>
               </div>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] ">
+              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -354,10 +357,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                           </PopoverClose>
                         </div>
                       </div>
-                      <span className="text-xs font-normal py-1">
-                        This move deviates from opening principles. Focus on
-                        development and center control.
-                      </span>
+                      {move.analysis && (
+                        <span className="text-xs font-normal py-1">
+                          {move.analysis}
+                        </span>
+                      )}
                       <div className="flex flex-row gap-1">
                         <InfoIcon size={16} color="#221AE9" />
                         <span className="text-xs">Type:</span>
@@ -368,9 +372,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     </div>
                   </PopoverContent>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant={"ghost"}
-                      className="rounded-none hover:bg-[#9BB8F5]"
+                    <button
+                      className="rounded-none"
                       onClick={() =>
                         handleOnClickMovement(
                           movementDetails.black[index],
@@ -382,7 +385,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                       <span className="text-xs sm:text-sm md:text-md lg:text-mdtext-center font-semibold py-2">
                         {movementDetails.black[index]?.move}
                       </span>
-                    </Button>
+                    </button>
                   </PopoverTrigger>
                 </Popover>
 
@@ -412,7 +415,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
-          <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+            <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
             Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
@@ -423,7 +426,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Threats
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
         </button>
       </div>

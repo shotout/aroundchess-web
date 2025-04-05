@@ -4,6 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Chess } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
 import CustomBoard from "./CustomBoard";
+import GlassBoard from "../chessboard/glass/GlassBoard";
+import WoodBoard from "../chessboard/wood/WoodBoard";
+import PlasticBoard from "../chessboard/plastic/PlasticBoard";
+import MetallicBoard from "../chessboard/metallic/MetallicBoard";
 
 interface ParsedMove {
   color: string;
@@ -23,6 +27,7 @@ const PgnPlayer: React.FC = () => {
   const [boardOrientation] = useState<"white" | "black">("white");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [boardSize, setBoardSize] = useState(700); // Default size
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -71,7 +76,7 @@ const PgnPlayer: React.FC = () => {
       setError(null);
 
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(
         `Error parsing PGN: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -198,12 +203,12 @@ const PgnPlayer: React.FC = () => {
       return;
     } else if (currentMoveIndex == moveHistory.length - 1) {
       console.log("Reached end of moves");
-        setCurrentMoveIndex(0);
-        setGame(new Chess());
-        if (autoPlayTimerRef.current) {
-      clearTimeout(autoPlayTimerRef.current);
-      autoPlayTimerRef.current = null;
-    }
+      setCurrentMoveIndex(0);
+      setGame(new Chess());
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
     }
 
     // Clear existing timer
@@ -251,6 +256,7 @@ const PgnPlayer: React.FC = () => {
 
   // Clean up on unmount
   useEffect(() => {
+    handleResize();
     return () => {
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
@@ -258,15 +264,41 @@ const PgnPlayer: React.FC = () => {
       }
     };
   }, []);
+  const handleResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    const minPadding = 0;
+    const maxSize = window.innerWidth > 1440 ? window.innerWidth / 4 : 400;
+    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
+    console.log("Resizing board...", isPortrait, window.innerWidth);
 
+    if (isPortrait) {
+      // In portrait mode, use screen width as the primary constraint
+      const availableWidth = width - minPadding * 2;
+      // Use 85% of available width for mobile, 90% for tablets
+      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+    } else {
+      // In landscape, use height as the primary constraint
+      const availableHeight = height - minPadding * 2;
+      // Use 80% of available height
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
+    }
+  };
   return (
     <>
       <div className="space-y-4">
-        <div className="mx-auto">
-          <CustomBoard
+        <div className="flex flex-row gap-3 mx-auto">
+          {/* <GlassBoard
+          boardWidth={boardSize}
             position={game.fen()}
-            boardOrientation={boardOrientation}
-          />
+          /> */}
+          <WoodBoard boardWidth={boardSize} position={game.fen()} />
+          {/* <PlasticBoard boardWidth={boardSize} position={game.fen()} /> */}
+          {/* <MetallicBoard boardWidth={boardSize} position={game.fen()} /> */}
         </div>
 
         {/* <div className="text-center mt-4">
