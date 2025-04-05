@@ -174,7 +174,9 @@ const Analytics: React.FC = () => {
           <RatingProgressChart
             ratingData={ratingData}
             isCacheValid={cacheIsValid}
-            handleForceRefresh={handleForceRefresh}
+            handleForceRefresh={function (): void {
+              throw new Error("Function not implemented.");
+            }}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:bg-white">

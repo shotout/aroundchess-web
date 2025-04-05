@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React, { useMemo } from "react";
-
 import { Chessboard } from "react-chessboard";
 
 interface WoodBoardProps {
@@ -9,7 +8,6 @@ interface WoodBoardProps {
 }
 
 const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
- 
   const twoDPieces = useMemo(() => {
     const pieces = [
       {
@@ -80,8 +78,9 @@ const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
             pointerEvents: "none",
           }}
         >
-          <img
+          <Image
             src={`/pieces/wood/${piece}.png`}
+            alt={`Chess piece ${piece}`}
             width={squareWidth}
             height={squareWidth}
             style={{
@@ -107,7 +106,11 @@ const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
       />
 
       <div
-        style={{ width: boardWidth, height: boardWidth, padding:(Math.round(boardWidth/16.5)) }}
+        style={{
+          width: boardWidth,
+          height: boardWidth,
+          padding: Math.round(boardWidth / 16.5),
+        }}
         className={`z-10 flex`}
       >
         <Chessboard

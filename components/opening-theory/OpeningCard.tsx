@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ApiOpening } from "./lib/opening";
 import { getFenFromMoves, getSlugFromId } from "./lib/openingMapper";
 import Image from "next/image";
+import WoodBoard from "../chessboard/wood/WoodBoard";
 
 interface OpeningCardProps {
   opening: ApiOpening;

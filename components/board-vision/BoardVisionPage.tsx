@@ -54,7 +54,9 @@ const BoardVisionPage: React.FC = () => {
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [highlightedSquares, setHighlightedSquares] =
     useState<HighlightedSquares>({});
-  const [arrows, setArrows] = useState<any & Omit<ChessboardProps, "ref"> & RefAttributes<ClearPremoves>>([]);
+  const [arrows, setArrows] = useState<
+    any & Omit<ChessboardProps, "ref"> & RefAttributes<ClearPremoves>
+  >([]);
 
   const questions: QuestionData[] = [
     {

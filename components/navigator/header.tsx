@@ -39,9 +39,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   }, []);
 
   return (
-    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b">
+    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b -mt-[1px]">
       {/* Left section - Logo and navigation (on desktop only) */}
-      <div className="flex items-center h-[70px] lg:h-[100px]">
+      <div className="flex items-center h-[72px] lg:h-24">
         {/* Logo/Title - Always visible */}
         <div className="mr-6 xl:hidden">
           <Link href="/" className="flex items-center gap-3">
@@ -58,11 +58,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
         {/* Navigation tabs - visible on desktop only (xl+) */}
         <div className="hidden xl:flex xl:items-center space-x-2">
-          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
             <Button
               color="primary"
               variant="outlineprimary"
-              className="rounded-[8px] bg-[#221AE904]"
+              className="rounded-[8px]"
             >
               <BarChart2 className="mr-2 h-4 w-4" />
               Analytics

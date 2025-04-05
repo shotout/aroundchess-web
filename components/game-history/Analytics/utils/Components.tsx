@@ -56,22 +56,11 @@ export const CustomTooltipContent: React.FC<CustomTooltipProps> = ({
 export const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
   ratingData,
   isCacheValid,
-  handleForceRefresh,
 }) => {
   return (
     <div className="md:p-4 rounded-lg md:shadow-sm">
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-base font-bold">Rating Progress</h1>
-        {!isCacheValid && (
-          <button
-            onClick={handleForceRefresh}
-            className="text-blue-500 hover:text-blue-700 flex items-center text-xs"
-            title="Refresh data"
-          >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Refresh
-          </button>
-        )}
       </div>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">

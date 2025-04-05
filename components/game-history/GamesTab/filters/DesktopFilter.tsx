@@ -33,7 +33,7 @@ const DesktopFilter = ({
   handleClearFilters,
 }: DesktopFilterProps) => {
   return (
-    <div className="hidden md:flex items-center justify-evenly mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
+    <div className="hidden md:flex items-center justify-evenly gap-x-2 mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
       {/* Dropdowns container - 70% width */}
       <div className="flex items-center space-x-2 w-[70%] 2xl:w-[75%]">
         <Select
@@ -86,10 +86,10 @@ const DesktopFilter = ({
       </div>
 
       {/* Buttons container - 30% width */}
-      <div className="flex items-center space-x-1 w-[30%] justify-evenly 2xl:w-[25%]">
+      <div className="flex items-center gap-x-2 w-[30%] justify-evenly 2xl:w-[25%]">
         <Button
           onClick={handleApplyFilters}
-          className="bg-blue-600 text-white w-[156px] rounded-full h-12 px-1 flex items-center gap-2 hover:bg-blue-700"
+          className="bg-blue-base text-white w-full rounded-full h-12 px-1 flex items-center gap-2 hover:bg-blue-base"
         >
           <Filter className="h-4 w-4" />
           Apply Filters
@@ -97,7 +97,7 @@ const DesktopFilter = ({
 
         <Button
           onClick={handleClearFilters}
-          className="bg-blue-50 text-blue-600 w-[156px] border border-blue-100 rounded-full h-12 px-1 hover:bg-blue-100"
+          className="bg-blue-50 text-blue-base w-full border border-blue-100 rounded-full h-12 px-1 hover:bg-blue-100"
         >
           Clear Filters
         </Button>
