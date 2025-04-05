@@ -1,4 +1,3 @@
-// Updated zustandStore.ts with Performance data support
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -53,7 +52,21 @@ interface PgnState {
   setDataAnalysis: (dataAnalysis: any) => void;
   setIsLoading: (isLoading: boolean) => void;
   resetFetchState: () => void;
+  error: Error | null;
+  setError: (error: Error | null) => void;
+  dataAnalysis: AnalysisResult | any;
+  setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
+  dataGamesImport: any;
+  setDataGamesImport: (dataGamesImport: any) => void;
+  dataGames: any;
+  setDataGames: (dataGames: any) => void;
+  hideDiv: boolean;
   setHideDiv: (hideDiv: boolean) => void;
+  
+  capturedWhite:any[];
+  setCapturedWhite: (capturedWhite: any[]) => void;
+  capturedBlack:any[]
+  setCapturedBlack: (capturedBlack: any[]) => void;
   
   // Actions for games data
   setGamesData: (games: Game[]) => void;

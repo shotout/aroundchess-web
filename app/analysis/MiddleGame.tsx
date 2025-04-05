@@ -12,6 +12,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import NoData from "@/components/NoData/NoData";
 interface MiddleGameProps {
   next: () => void;
   prev: () => void;
@@ -21,7 +22,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const { bestMoves, badMoves } = dataAnalysis?.middleGame;
-  const [openBestMoves, setOpenBestMoves] = useState<boolean>(false);
+  const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
   const [bestmoves, setBestMoves] = useState<any[]>([
     {
@@ -110,7 +111,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 src={"/icons/check.png"}
                 width={1000}
                 height={1000}
-                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                className="w-[18px] h-[18px] sm:w-[18px] sm:h-[18px] lg:w-[20px] lg:h-[20px]"
               />
               <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
                 Best Moves
@@ -133,6 +134,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               )}
             </div>
           </div>
+          {bestMoves && bestMoves.length == 0 && <NoData />}
           {openBestMoves &&
             bestMoves.map((item: any, index: number) => {
               return (
@@ -140,8 +142,10 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs  font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs  font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold sm:text-sm md:text-md lg:text-xs ">
                             {item.moves}
@@ -181,7 +185,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 src={"/icons/alert-triangle.png"}
                 width={1000}
                 height={1000}
-                className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                className="w-[18px] h-[18px] sm:w-[18px] sm:h-[18px] lg:w-[20px] lg:h-[20px]"
               />
               <span className="text-md sm:text-lg md:text-xl lg:text-xl  font-bold w-full">
                 Bad Moves
@@ -204,6 +208,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               )}
             </div>
           </div>
+          {badMoves && badMoves.length == 0 && <NoData />}
           {openBadMove &&
             badMoves.map((item: any, index: number) => {
               return (
@@ -211,8 +216,10 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1"
+                        >
                           Move {item.moveNumber}:{" "}
                           <span className="font-bold">{item.moves}</span>
                         </span>
@@ -240,7 +247,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 </div>
               );
             })}
-          {openBadMove && (
+          {/* {openBadMove && (
             <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
               <Image
                 alt=""
@@ -254,7 +261,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                 Strategy for the analyzed weaknesses.
               </span>
             </div>
-          )}
+          )} */}
         </div>
       </div>
       <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
@@ -263,7 +270,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
-            <ArrowLeft color="#000" className="mr-2 h-6 w-6" />
+            <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
             Openings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
@@ -274,7 +281,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         >
           <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endgame
-            <ArrowRight color="#FFF" className="ml-2 h-6 w-6" />
+            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
         </button>
       </div>
