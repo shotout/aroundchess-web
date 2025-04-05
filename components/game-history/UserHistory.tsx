@@ -10,9 +10,7 @@ const UserHistory = () => {
 
   return (
     <div className="w-full">
-      {/* Full-width container with bottom border */}
       <div className="w-full xl:border-b-2 border-[#DEDEDE] mb-4">
-        {/* Tabs container */}
         <div className="flex justify-between items-center mb-2 px-4">
           <div className="mb-4 w-full overflow-hidden rounded-md bg-[#F9FAFC] md:bg-transparent border-[1px] md:border-none border-[#DEDEDE]">
             <div className="flex justify-center items-center h-12 text-xs lg:text-sm px-2">

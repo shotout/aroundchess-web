@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-// Define a Game interface for type safety
 export interface Game {
   id: number;
   date: string;
@@ -20,79 +19,68 @@ export interface Game {
   pgn: string;
 }
 
-// Define the shape of your store state
+export interface AnalysisResult {
+  [key: string]: any;
+}
+
 interface PgnState {
-  // Data
   pgn: string;
   username: string;
-  dataAnalysis: any | null; 
+  dataAnalysis: AnalysisResult | null;
   isLoading: boolean;
   lastFetchTimestamp: number;
   hideDiv: boolean;
   
-  // Games data cache
   gamesData: Game[];
   gamesLastFetched: number | null;
 
   otherGamesData: Game[];
   otherGamesLastFetched: number | null;
-
   
-  // Analytics data cache
   analyticsData: any | null;
   analyticsLastFetched: number | null;
   
-  // Performance data cache
   performanceData: any | null;
   performanceLastFetched: number | null;
+
+  error: Error | null;
+  dataGamesImport: any;
+  dataGames: any;
+  capturedWhite: any[];
+  capturedBlack: any[];
   
-  // Actions for PGN and state
   setPgn: (pgn: string) => void;
   setUsername: (username: string) => void;
-  setDataAnalysis: (dataAnalysis: any) => void;
+  setDataAnalysis: (dataAnalysis: AnalysisResult | null) => void;
   setIsLoading: (isLoading: boolean) => void;
   resetFetchState: () => void;
-  error: Error | null;
   setError: (error: Error | null) => void;
-  dataAnalysis: AnalysisResult | any;
-  setDataAnalysis: (dataAnalysis: AnalysisResult | any) => void;
-  dataGamesImport: any;
   setDataGamesImport: (dataGamesImport: any) => void;
-  dataGames: any;
   setDataGames: (dataGames: any) => void;
-  hideDiv: boolean;
   setHideDiv: (hideDiv: boolean) => void;
   
-  capturedWhite:any[];
   setCapturedWhite: (capturedWhite: any[]) => void;
-  capturedBlack:any[]
   setCapturedBlack: (capturedBlack: any[]) => void;
   
-  // Actions for games data
   setGamesData: (games: Game[]) => void;
   setOtherGamesData: (games: Game[]) => void;
-
   clearGamesData: () => void;
   clearOtherGamesData: () => void;
   
-  // Actions for analytics data
   setAnalyticsData: (data: any) => void;
   clearAnalyticsData: () => void;
   resetAnalyticsState: () => void;
   
-  // Actions for performance data
   setPerformanceData: (data: any) => void;
   clearPerformanceData: () => void;
   resetPerformanceState: () => void;
   
-  // Clear everything
   clearAll: () => void;
 }
 
 export const usePgnStore = create<PgnState>()(
   persist(
     (set) => ({
-      // Initial state
       pgn: "",
       username: "",
       dataAnalysis: null,
@@ -100,39 +88,49 @@ export const usePgnStore = create<PgnState>()(
       lastFetchTimestamp: 0,
       hideDiv: false,
       
-      // Game data cache - initially empty
       gamesData: [],
       gamesLastFetched: null,
 
       otherGamesData: [],
       otherGamesLastFetched: null,
       
-      // Analytics data cache - initially empty
       analyticsData: null,
       analyticsLastFetched: null,
       
-      // Performance data cache - initially empty
       performanceData: null,
       performanceLastFetched: null,
+
+      error: null,
+      dataGamesImport: null,
+      dataGames: null,
+      capturedWhite: [],
+      capturedBlack: [],
       
-      // Actions
       setPgn: (pgn: string) => set({ pgn }),
       
       setUsername: (username: string) => set((state) => ({ 
         username,
-        // Only update timestamp if username actually changed
         lastFetchTimestamp: username !== state.username ? Date.now() : state.lastFetchTimestamp
       })),
 
       setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
       
-      setDataAnalysis: (dataAnalysis: any) => set({ dataAnalysis }),
+      setDataAnalysis: (dataAnalysis: AnalysisResult | null) => set({ dataAnalysis }),
       
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
       
       resetFetchState: () => set({ lastFetchTimestamp: Date.now() }),
+
+      setError: (error: Error | null) => set({ error }),
       
-      // Game data actions
+      setDataGamesImport: (dataGamesImport: any) => set({ dataGamesImport }),
+      
+      setDataGames: (dataGames: any) => set({ dataGames }),
+
+      setCapturedWhite: (capturedWhite: any[]) => set({ capturedWhite }),
+      
+      setCapturedBlack: (capturedBlack: any[]) => set({ capturedBlack }),
+      
       setGamesData: (games: Game[]) => set({ 
         gamesData: games,
         gamesLastFetched: Date.now()
@@ -153,7 +151,6 @@ export const usePgnStore = create<PgnState>()(
         otherGamesLastFetched: null
       }),
       
-      // Analytics data actions
       setAnalyticsData: (data: any) => set({
         analyticsData: data,
         analyticsLastFetched: Date.now()
@@ -168,7 +165,6 @@ export const usePgnStore = create<PgnState>()(
         analyticsLastFetched: Date.now()
       }),
       
-      // Performance data actions
       setPerformanceData: (data: any) => set({
         performanceData: data,
         performanceLastFetched: Date.now()
@@ -183,7 +179,6 @@ export const usePgnStore = create<PgnState>()(
         performanceLastFetched: Date.now()
       }),
       
-      // Clear everything (still available but not needed for session expiration)
       clearAll: () => set({ 
         pgn: "",
         username: "",
@@ -195,12 +190,20 @@ export const usePgnStore = create<PgnState>()(
         analyticsData: null,
         analyticsLastFetched: null,
         performanceData: null,
-        performanceLastFetched: null
+        performanceLastFetched: null,
+        error: null,
+        dataGamesImport: null,
+        dataGames: null,
+        capturedWhite: [],
+        capturedBlack: [],
+        hideDiv: false,
+        otherGamesData: [],
+        otherGamesLastFetched: null
       }),
     }),
     {
-      name: 'pgn-session-storage', // Changed name to indicate session storage
-      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage instead of localStorage
+      name: 'pgn-session-storage',
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         username: state.username,
         pgn: state.pgn,
