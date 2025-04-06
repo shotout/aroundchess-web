@@ -25,8 +25,8 @@ export const useChessNewsStore= create<ChessNewsState>()(
    
   }),
   {
-    name: 'pgn-storage', // unique name for the storage
-    storage: createJSONStorage(() => localStorage), // use localStorage by default
+    name: 'chess-news-storage', // unique name for the storage
+    storage: createJSONStorage(() => sessionStorage), // use localStorage by default
     partialize: (state) => ({
       chessNews: state.chessNews,
       detailNews: state.detailNews,

@@ -4,24 +4,42 @@ import AnalysisLatestGame from "./AnalysisLatestGame";
 import AnalysisResult from "./AnalysisResult";
 import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
-import { motion } from "framer-motion";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
+import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
+import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
+
 export default function AnalysisPage() {
-  const { setHideDiv, hideDiv, isLoading, setIsLoading , dataAnalysis} = usePgnStore(); // Get PGN from the Zustand store
+  const { setHideDiv, hideDiv, isLoading, setIsLoading, username } =
+    usePgnStore();
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [showChessConnect, setShowChessConnect] = useState<boolean>(false);
+  const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   let lastScrollY = 0;
 
+  const isAnyDialogOpen = showChessConnect || showPremiumDialog;
+
+  const handleSuccessfulConnection = (username: string) => {
+    setShowChessConnect(false);
+  };
+
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
+
+  const handleGetPremium = () => {
+    setShowPremiumDialog(false);
+  };
+
   useEffect(() => {
-    console.log("dataAnalysis",dataAnalysis)
     setIsLoading(false);
     const handleScroll = () => {
       if (window.innerWidth <= 1024) {
         if (window.scrollY > lastScrollY) {
           setHideDiv(true);
           setIsVisible(false);
-        } else if (window.scrollY == 0) {
+        } else if (window.scrollY === 0) {
           setHideDiv(false);
           setIsVisible(true);
         }
@@ -33,19 +51,29 @@ export default function AnalysisPage() {
         }
       }
       lastScrollY = window.scrollY;
-      console.log("scrolling", lastScrollY);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+
+    if (!isAnyDialogOpen) {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [lastScrollY, setHideDiv, setIsLoading, isAnyDialogOpen]);
 
   return (
     <>
-      {isLoading == true ? (
+      {isLoading ? (
         <LoadingPage />
       ) : (
         <Navigation>
-          <div className="flex flex-col overflow-y-auto">
+          <div
+            className={`flex flex-col overflow-y-auto relative ${
+              isAnyDialogOpen ? "z-30" : ""
+            }`}
+          >
             <div
               className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
                 hideDiv && "hidden"
@@ -54,6 +82,7 @@ export default function AnalysisPage() {
               <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-xl font-bold">
                 Analysis Result from{" "}
                 <span className="text-[#4E7838]">Chess.com</span>
+                <span className="text-sm font-normal ml-2">dummy data</span>
               </h2>
               <div className="xl:hidden flex items-center justify-center mt-2">
                 <AnalyzeDifferentGame />
@@ -72,8 +101,21 @@ export default function AnalysisPage() {
                 <AnalyzeDifferentGame />
               </div>
             </div>
-            <div className="flex flex-col xl:flex-row-reverse xl:justify-end gap-4 bg-white px-4">
-              {/* <div className={`${!isVisible && `bg-white fixed top-[10%] -right-2`}`}> */}
+            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
+              <ChessConnectDialog
+                open={showChessConnect && !isLoading && !username}
+                onOpenChange={setShowChessConnect}
+                onSuccess={handleSuccessfulConnection}
+              />
+              {/* <PremiumSubscription
+                open={showPremiumDialog && !isLoading}
+                onOpenChange={setShowPremiumDialog}
+                onClose={handleClosePremium}
+                onGetPremium={handleGetPremium}
+              /> */}
+              {isAnyDialogOpen && (
+                <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
+              )}
               <AnalysisResult />
               {/* </div> */}
               <AnalysisLatestGame />
