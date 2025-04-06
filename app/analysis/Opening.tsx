@@ -7,12 +7,13 @@ import React from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import ReactCountryFlag from "react-country-flag";
+import { CardPlayer } from "@/components/player/CardPlayer";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
 }
 const Opening: React.FC<OpeningProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis,capturedWhite,capturedBlack } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
@@ -75,124 +76,21 @@ const Opening: React.FC<OpeningProps> = (props) => {
           (Black)
         </span>
         <div className="hidden sm:flex flex-row items-center justify-between gap-4 sm:gap-6">
-          <div
-            className={`w-full border ${
-              whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
-            } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}
-          >
-            <div className="flex flex-row items-center justify-center gap-2">
-              <Image
-                alt="avatar"
-                src={whiteSide?.profileInfo.photo}
-                className="w-10 h-10 rounded-full"
-                width={1000}
-                height={1000}
-              />
-              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-2">
-                  <span
-                    className={`line-clamp-1 text-xs sm:text-sm md:text-md lg:text-xs font-medium ${
-                      !whiteWin ? "text-black" : "text-[#00B427]"
-                    }`}
-                  >
-                    {whiteSide?.profileInfo.username}
-                  </span>
-                </div>
-
-                <div className="flex flex-row gap-1">
-                  <Image
-                    src={"/icons/pawn-icon-alt-white.png"}
-                    alt="pawn"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-                  <Image
-                    src={"/icons/rook-icon-alt-white.png"}
-                    alt="rook"
-                    width={1000}
-                    height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6"
-                  />
-
-                  <Image
-                    src={"/icons/queen-icon-alt-white.png"}
-                    alt="queen"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <ReactCountryFlag
-              countryCode={whiteCountry}
-              svg
-              className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-              title={whiteCountry}
-            />
-          </div>
-          <div
-            className={`w-full border ${
-              !whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "border-input"
-            } p-3 rounded-md sm:rounded-lg flex flex-row justify-between items-center gap-2`}
-          >
-            <div className="flex flex-row items-center justify-center gap-2">
-              <Image
-                alt="avatar"
-                src={blackSide?.profileInfo.photo}
-                className="w-10 h-10 rounded-full"
-                width={1000}
-                height={1000}
-              />
-              {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-2">
-                  <span
-                    className={`line-clamp-1 text-xs sm:text-sm md:text-md lg:text-xs font-medium ${
-                      whiteWin ? "text-black" : "text-[#00B427]"
-                    }`}
-                  >
-                    {blackSide?.profileInfo.username}
-                  </span>
-                </div>
-
-                <div className="flex flex-row gap-1">
-                  <Image
-                    src={"/icons/pawn-icon-alt-black.png"}
-                    alt="pawn"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-                  <Image
-                    src={"/icons/bishop-icon-alt-black.png"}
-                    alt="bishop"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-
-                  <Image
-                    src={"/icons/king-icon-alt-black.png"}
-                    alt="king"
-                    width={1000}
-                    height={1000}
-                    className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                  />
-                </div>
-              </div>
-            </div>
-            
-          <ReactCountryFlag
-            countryCode={blackCountry}
-            svg
-            className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-            title={blackCountry}
-          />
-          </div>
+          <CardPlayer
+                        isWin={whiteWin}
+                        profilePhoto={whiteSide?.profileInfo.photo}
+                        username={whiteSide?.profileInfo.username}
+                        country={whiteCountry}
+                        capturedPieces={capturedWhite}
+                      />
+          
+                      <CardPlayer
+                        isWin={blackWin}
+                        profilePhoto={blackSide?.profileInfo.photo}
+                        username={blackSide?.profileInfo.username}
+                        country={blackCountry}
+                        capturedPieces={capturedBlack}
+                      />
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>
