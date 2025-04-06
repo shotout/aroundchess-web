@@ -40,6 +40,7 @@ const DialogButton: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [importedGameId, setImportedGameId] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // Store the actual File object
 
   const {
     addImportedGame,
@@ -62,6 +63,7 @@ const DialogButton: React.FC = () => {
     setError(null);
     setIsLoading(false);
     setImportedGameId(null);
+    setUploadedFile(null); // Reset the uploaded file
   }, []);
 
   const handleTabChange = useCallback((tab: string) => {
@@ -74,6 +76,7 @@ const DialogButton: React.FC = () => {
     setUploadProgress(0);
     setFileContent("");
     setError(null);
+    setUploadedFile(null); // Reset the uploaded file when changing tabs
   }, []);
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -157,6 +160,7 @@ const DialogButton: React.FC = () => {
 
     setFileName(file.name);
     setFileSize(file.size);
+    setUploadedFile(file); // Store the actual File object
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -201,17 +205,15 @@ const DialogButton: React.FC = () => {
     setUploadProgress(0);
 
     try {
-      const pgnContent = activeTab === "paste" ? pgnText : fileContent;
-
       const formData = new FormData();
 
       if (activeTab === "paste") {
+        // For paste, send the text as before
         formData.append("pgn", pgnText);
         formData.append("type", "text");
-      } else if (activeTab === "upload") {
-        formData.append("pgn", fileContent);
-        formData.append("fileName", fileName);
-        formData.append("fileSize", fileSize.toString());
+      } else if (activeTab === "upload" && uploadedFile) {
+        // For file upload, send the actual File object
+        formData.append("pgn", uploadedFile, fileName);
         formData.append("type", "file");
       }
 
@@ -232,6 +234,7 @@ const DialogButton: React.FC = () => {
         }
       );
 
+      const pgnContent = activeTab === "paste" ? pgnText : fileContent;
       const metadata = extractPgnMetadata(pgnContent);
 
       const currentUser = "User";
@@ -269,7 +272,6 @@ const DialogButton: React.FC = () => {
     activeTab,
     fileContent,
     fileName,
-    fileSize,
     pgnText,
     resetDialog,
     addImportedGame,
@@ -277,6 +279,7 @@ const DialogButton: React.FC = () => {
     setStoreError,
     sessionId,
     isUploading,
+    uploadedFile,
   ]);
 
   const handleRemoveFile = useCallback(() => {
@@ -284,6 +287,7 @@ const DialogButton: React.FC = () => {
     setFileSize(0);
     setFileContent("");
     setError(null);
+    setUploadedFile(null);
   }, []);
 
   return (
