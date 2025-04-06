@@ -13,12 +13,18 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
 import { useEffect } from "react";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
 export default function MovementTable() {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    capturedBlack,
+    capturedWhite,
+  } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
-
+  const { PieceChoosed } = useChessBoardThemeStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
   useEffect(() => {
     console.log("movementDetails", movementDetails);
@@ -196,6 +202,22 @@ export default function MovementTable() {
                     className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
+                    {capturedWhite
+                      .filter(
+                        (wp) => wp.san == move?.move
+                      )
+                      .map((item, index) => {
+                        return (
+                          <Image
+                            key={index}
+                            src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-[12px] h-[12px] object-contain inline-block mr-[1px]"
+                          />
+                        );
+                      })}
                     <span className="text-[11px] text-center font-semibold py-2">
                       {move.move}
                     </span>
@@ -297,6 +319,22 @@ export default function MovementTable() {
                       )
                     }
                   >
+                    {capturedBlack
+                      .filter(
+                        (bp) => bp.san == movementDetails.black[index]?.move
+                      )
+                      .map((item, index) => {
+                        return (
+                          <Image
+                            key={index}
+                            src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-[12px] h-[12px] object-contain inline-block mr-[1px]"
+                          />
+                        );
+                      })}
                     <span className="text-[11px] text-center font-semibold py-2">
                       {movementDetails.black[index]?.move}
                     </span>

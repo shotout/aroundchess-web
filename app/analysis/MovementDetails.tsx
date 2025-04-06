@@ -13,12 +13,20 @@ import {
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { usePgnStore } from "../store/zustandStore";
+import { useChessBoardThemeStore } from "../store/chessBoardTheme";
 interface MovementDetailsProps {
   next: () => void;
   prev: () => void;
 }
 const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    capturedBlack,
+    capturedWhite,
+  } = usePgnStore(); // Get PGN from the Zustand store
+
+  const { PieceChoosed } = useChessBoardThemeStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
   useEffect(() => {
@@ -294,6 +302,20 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         handleOnClickMovement(move, index, "white")
                       }
                     >
+                      {capturedWhite
+                        .filter((wp) => wp.san == move?.move)
+                        .map((item, index) => {
+                          return (
+                            <Image
+                              key={index}
+                              src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                              alt="icon"
+                              width={1000}
+                              height={1000}
+                              className="w-[16px] h-[16px] object-contain inline-block mr-1"
+                            />
+                          );
+                        })}
                       <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-semibold py-2">
                         {move.move}
                       </span>
@@ -382,6 +404,22 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                         )
                       }
                     >
+                      {capturedBlack
+                        .filter(
+                          (bp) => bp.san == movementDetails.black[index]?.move
+                        )
+                        .map((item, index) => {
+                          return (
+                            <Image
+                              key={index}
+                              src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                              alt="icon"
+                              width={1000}
+                              height={1000}
+                              className="w-[16px] h-[16px] object-contain inline-block mr-1"
+                            />
+                          );
+                        })}
                       <span className="text-xs sm:text-sm md:text-md lg:text-mdtext-center font-semibold py-2">
                         {movementDetails.black[index]?.move}
                       </span>

@@ -14,13 +14,15 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
+import { useChessBoardThemeStore } from "../store/chessBoardTheme";
 interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
 const EndGame: React.FC<EndgameProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { PieceChoosed } = useChessBoardThemeStore();
 
   const { bestMoves, badMoves } = dataAnalysis?.endGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
@@ -146,14 +148,26 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
                         <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md  font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold sm:text-sm md:text-md lg:text-md ">
-                            {item.moves}
-                          </span>
-                        </span>
+                                                  onClick={() => handleOnClickMovement(item)}
+                                                  className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                                                >
+                                                  Move {item?.moveNumber}:{" "}
+                                                  {capturedWhite
+                                                    .filter((wp) => wp.san == item?.move)
+                                                    .map((item, index) => {
+                                                      return (
+                                                        <Image
+                                                          key={index}
+                                                          src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                                          alt="icon"
+                                                          width={1000}
+                                                          height={1000}
+                                                          className="w-[12px] h-[12px] object-contain inline-block"
+                                                        />
+                                                      );
+                                                    })}
+                                                  <span className="font-bold">{item?.move}</span>
+                                                </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md  text-center font-normal ${getScoreClass(
                             item.classification
@@ -221,13 +235,27 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.moves}</span>
-                        </span>
+                       <span
+                                                 onClick={() => handleOnClickMovement(item)}
+                                                 className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                                               >
+                                                 Move {item?.moveNumber}:{" "}
+                                                 {capturedWhite
+                                                   .filter((wp) => wp.san == item?.move)
+                                                   .map((item, index) => {
+                                                     return (
+                                                       <Image
+                                                         key={index}
+                                                         src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                                         alt="icon"
+                                                         width={1000}
+                                                         height={1000}
+                                                         className="w-[12px] h-[12px] object-contain inline-block"
+                                                       />
+                                                     );
+                                                   })}
+                                                 <span className="font-bold">{item?.move}</span>
+                                               </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
