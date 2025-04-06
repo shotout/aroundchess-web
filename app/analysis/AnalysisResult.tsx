@@ -177,9 +177,9 @@ const AnalysisResult: React.FC = () => {
         if (move.captured) {
           if (move.color == "w") {
             capturedPiecesWhite.push({
-              captured: "w" + changeNamePiece(move.captured ?? null),
+              captured: "b" + changeNamePiece(move.captured ?? null),
               piece: changeNamePiece(move.piece),
-              color: "black",
+              color: "white",
               from: move.from,
               to: move.to,
               lan: move.lan,
@@ -187,7 +187,7 @@ const AnalysisResult: React.FC = () => {
             });
           } else {
             capturedPiecesBlack.push({
-              captured: "b" + changeNamePiece(move.captured ?? null),
+              captured: "w" + changeNamePiece(move.captured ?? null),
               piece: changeNamePiece(move.piece),
               color: "black",
               from: move.from,
