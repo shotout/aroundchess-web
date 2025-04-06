@@ -169,6 +169,12 @@ p{
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+.glassmorphismLogin {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 3px solid rgba(255, 255, 255, 1);
+}
 
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
@@ -183,6 +189,10 @@ p{
   background-size: 24px 24px;
 }
 
+.shadow-card {
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.1);
+}
+
 .btn-primary {
   background-color: #221AE9;
   color: white;
@@ -192,7 +202,6 @@ p{
               inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7);
   transition: all 0.2s;
   position: relative;
-  font-family: "Aloevera", sans-serif;
 }
 
 .btn-primary:hover {
@@ -222,7 +231,6 @@ p{
               inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7);
   position: relative;
   transition: all 0.2s;
-  font-family: "Aloevera", sans-serif;
   cursor: pointer;
 }
 
@@ -251,7 +259,6 @@ p{
               inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7);
   position: relative;
   transition: all 0.2s;
-  font-family: "Aloevera", sans-serif;
   cursor: pointer;
 }
 

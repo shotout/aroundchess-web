@@ -12,6 +12,8 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useClerk, UserButton, useUser } from "@clerk/nextjs";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -20,6 +22,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
+  const { isSignedIn } = useUser();
 
   // Check if desktop on initial load and when window resizes
   useEffect(() => {
@@ -36,9 +39,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   }, []);
 
   return (
-    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b">
+    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b -mt-[1px]">
       {/* Left section - Logo and navigation (on desktop only) */}
-      <div className="flex items-center h-[70px] lg:h-[100px]">
+      <div className="flex items-center h-[72px] lg:h-24">
         {/* Logo/Title - Always visible */}
         <div className="mr-6 xl:hidden">
           <Link href="/" className="flex items-center gap-3">
@@ -55,11 +58,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
         {/* Navigation tabs - visible on desktop only (xl+) */}
         <div className="hidden xl:flex xl:items-center space-x-2">
-          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
             <Button
               color="primary"
               variant="outlineprimary"
-              className="rounded-[8px] bg-[#221AE904]"
+              className="rounded-[8px]"
             >
               <BarChart2 className="mr-2 h-4 w-4" />
               Analytics
@@ -93,13 +96,21 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       <div className="flex items-center space-x-4">
         {/* Auth buttons - visible on desktop only (xl+) */}
-        <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-          Sign-in
-        </button>
-
-        <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-          Try Now
-        </button>
+        {!isSignedIn ? (
+          <div className="hidden sm:flex items-center gap-2">
+            <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <Link href="/login">Sign In</Link>
+            </button>
+            <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+              Try Now
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* <UserButton showName={true} /> */}
+            <LogoutButton />
+          </>
+        )}
 
         {/* Tablet view - Analytics button next to hamburger */}
         {!isDesktop && (
@@ -127,3 +138,21 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 };
 
 export default Header;
+
+function LogoutButton() {
+  const { signOut } = useClerk();
+  const clearAll = usePgnStore((state) => state.clearAll);
+
+  const handleLogout = async () => {
+    // Clear Zustand store first
+    clearAll();
+
+    // Then sign out with Clerk
+    await signOut();
+
+    // Optional: redirect to login page or home page
+    // window.location.href = '/';
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+}

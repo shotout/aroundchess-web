@@ -5,25 +5,17 @@ import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  BookOpen,
-  Info,
-  CheckCircle2,
-  ArrowLeft,
-  Clock,
-  Check,
-} from "lucide-react";
+import { BookOpen, Info, ArrowLeft, Check, Target, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Responsive from "../game-history/Responsive";
-
-import DotSpinner from "../game-history/Spinner";
-import { useMiddlegameClearStore } from "@/components/middlegame-strategy/store/MiddlegameStore";
 import {
   useMiddlegameStore,
   getFenFromMoves,
   getIdFromSlug,
   getSlugFromId,
-} from "./lib/middlegameMapper2"; // Fixed import path
+} from "./lib/middlegameMapper";
+import DotSpinner from "../game-history/Spinner";
+import Image from "next/image";
 
 export default function MiddlegameDetailWithNextTopics({
   params,
@@ -35,7 +27,6 @@ export default function MiddlegameDetailWithNextTopics({
     "overview"
   );
 
-  const { completeLesson, isLessonCompleted } = useMiddlegameClearStore();
   const {
     allMiddlegames,
     middlegameDetails,
@@ -50,10 +41,9 @@ export default function MiddlegameDetailWithNextTopics({
 
   const middlegameId = getIdFromSlug(params.slug);
   const middlegame = middlegameDetails[middlegameId];
-  const relatedMiddlegames =
-    allMiddlegames && allMiddlegames.length
-      ? allMiddlegames.filter((m) => m.id !== middlegameId).slice(0, 3)
-      : [];
+  const relatedMiddlegames = allMiddlegames
+    .filter((m) => m.id !== middlegameId)
+    .slice(0, 3);
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,12 +56,6 @@ export default function MiddlegameDetailWithNextTopics({
     loadData();
   }, [middlegameId, fetchMiddlegameDetails, initialized, fetchAllMiddlegames]);
 
-  useEffect(() => {
-    if (middlegame) {
-      setLessonFinished(isLessonCompleted(params.slug));
-    }
-  }, [middlegame, isLessonCompleted, params.slug]);
-
   const handleMiddlegameNavigation = (slug: string) => {
     const navigateToMiddlegame = () => {
       router.push(`/middlegame-strategy/${slug}`);
@@ -81,7 +65,6 @@ export default function MiddlegameDetailWithNextTopics({
 
   const handleFinishLesson = () => {
     if (middlegame) {
-      completeLesson(params.slug);
       setLessonFinished(true);
     }
   };
@@ -136,7 +119,7 @@ export default function MiddlegameDetailWithNextTopics({
         className="flex flex-col"
       >
         <div className="mb-4">
-          <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6">
+          <div className="px-4 pt-20 pb-3 md:px-6 md:pt-24 md:pb-4 lg:pt-28 xl:pt-6 xl:gap-y-2">
             <div className="flex">
               <div className="flex items-center">
                 <button
@@ -145,13 +128,15 @@ export default function MiddlegameDetailWithNextTopics({
                 >
                   <ArrowLeft className="h-6 w-6 mr-2 font-bold" />
                 </button>
-                <h1 className="font-bold text-lg">{middlegame.title}</h1>
+                <h1 className="font-bold text-lg xl:text-[32px]">
+                  {middlegame.title}
+                </h1>
               </div>
 
               <div className="hidden"></div>
             </div>
 
-            <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8">
+            <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8 xl:text-lg">
               {middlegame.description}
             </p>
           </div>
@@ -165,8 +150,12 @@ export default function MiddlegameDetailWithNextTopics({
                   <Chessboard
                     id={`board-${params.slug}`}
                     position={getFenFromMoves(middlegame.moves)}
-                    customDarkSquareStyle={{ backgroundColor: "#5C9DFF" }}
-                    customLightSquareStyle={{ backgroundColor: "#fff" }}
+                    customDarkSquareStyle={{
+                      backgroundColor: "#9E7555",
+                    }}
+                    customLightSquareStyle={{
+                      backgroundColor: "#F0DFC7",
+                    }}
                   />
                 </div>
               </div>
@@ -175,31 +164,39 @@ export default function MiddlegameDetailWithNextTopics({
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
                   {middlegame.difficulty}
                 </span>
-                <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
-                  <Clock className="w-3 h-3 mr-1" />
-                  <h1>{middlegame.estimatedTime || "15 min"} learning</h1>
-                </div>
               </div>
 
               {lessonFinished && (
-                <div className="bg-green-100 border-green-300 border rounded-lg p-4 flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  <span className="text-green-800 font-medium">
+                <div className="relative bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100% border rounded-lg p-4 pl-10 flex items-center gap-2">
+                  <Image
+                    width={20}
+                    height={20}
+                    alt="check icon"
+                    src={"/handbooks/check.png"}
+                    className="h-5 w-5 text-green-500"
+                  />
+                  <h1 className="text-black font-medium">
                     Great, you finished this exercise! Make sure you use your
                     Learnings in your next Game.
-                  </span>
+                  </h1>
+
+                  <Image
+                    width={200}
+                    height={200}
+                    alt="sparks"
+                    src={"/handbooks/sparks.png"}
+                    className="absolute top-0 right-12"
+                  />
                 </div>
               )}
 
               <div className="flex flex-col gap-4">
-                <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[71px]">
+                <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[78px] xl:gap-y-1">
                   <div className="flex items-center">
                     <Info className="h-5 w-5 mr-2 text-blue-600" />
-                    <h2 className="text-sm font-semibold">
-                      Middlegame Analysis
-                    </h2>
+                    <h2 className="text-base">Middlegame Analysis</h2>
                   </div>
-                  <p className="text-gray-600 text-xs">
+                  <p className="text-[#364152] text-sm">
                     Key strategic and tactical ideas in this middlegame
                   </p>
                 </div>
@@ -239,18 +236,18 @@ export default function MiddlegameDetailWithNextTopics({
                 </div>
               </div>
 
-              <div className="overflow-hidden bg-white flex flex-col gap-6">
-                <div className="p-2 flex bg-gray-200 rounded-lg border h-[52px] items-center">
+              <div className="overflow-hidden flex flex-col gap-6">
+                <div className="p-2 flex bg-[#F9FAFC] rounded-lg border h-auto items-center">
                   {[
                     { id: "overview", label: "Overview" },
                     { id: "patterns", label: "Patterns" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
-                      className={`flex-1 p-2 font-medium text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
                         activeTab === tab.id
-                          ? "bg-white shadow-sm text-black"
-                          : "text-gray-600"
+                          ? "bg-white shadow-md text-black font-bold"
+                          : "text-gray-600 font-normal"
                       }`}
                       onClick={() =>
                         setActiveTab(tab.id as "overview" | "patterns")
@@ -261,7 +258,7 @@ export default function MiddlegameDetailWithNextTopics({
                   ))}
                 </div>
 
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 bg-white">
                   <AnimatePresence mode="wait">
                     {activeTab === "overview" ? (
                       <motion.div
@@ -388,7 +385,7 @@ export default function MiddlegameDetailWithNextTopics({
                         transition={{ duration: 0.2 }}
                       >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {patterns.length > 0 ? (
+                          {patterns && patterns.length > 0 ? (
                             patterns.map((pattern, index) => (
                               <div
                                 key={index}
@@ -396,9 +393,7 @@ export default function MiddlegameDetailWithNextTopics({
                               >
                                 <div className="p-4">
                                   <div className="flex items-start gap-2">
-                                    <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-blue-base text-white flex items-center justify-center text-xs">
-                                      ✓
-                                    </div>
+                                    <Target className="w-5 h-5 mt-0.5 text-blue-base" />
                                     <span className="text-xs md:text-sm">
                                       {pattern.pattern}
                                     </span>
@@ -420,7 +415,7 @@ export default function MiddlegameDetailWithNextTopics({
                 </div>
               </div>
 
-              <div className="border rounded-lg p-4 bg-white">
+              <div className="border rounded-lg p-4 bg-light-40">
                 <h3 className="font-semibold text-sm mb-4">
                   Practice your Learnings to finish this Lesson:
                 </h3>
@@ -429,7 +424,7 @@ export default function MiddlegameDetailWithNextTopics({
                   {resources.map((resource, index) => (
                     <div
                       key={index}
-                      className="border rounded-lg p-4 flex flex-col h-40"
+                      className="border rounded-lg p-4 flex flex-col h-40 bg-white"
                     >
                       <h4 className="font-medium text-sm">{resource.title}</h4>
                       <p className="text-xs text-gray-600 mt-2 line-clamp-3">
@@ -442,7 +437,7 @@ export default function MiddlegameDetailWithNextTopics({
                           rel="noopener noreferrer"
                           className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
                         >
-                          <h1 className="text-center">
+                          <h1 className="text-center text-md font-semibold">
                             Visit{" "}
                             {resource.platform
                               ? resource.platform.replace("_", ".")
@@ -469,14 +464,14 @@ export default function MiddlegameDetailWithNextTopics({
               </div>
             </div>
 
-            <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md">
+            <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md xl:mb-6">
               <div className="xl:hidden -mx-4 md:-mx-6 w-screen">
                 <div className="border-t w-full"></div>
               </div>
 
-              <div className="p-4">
+              <div className="xl:p-4 py-4">
                 <div className="rounded-lg">
-                  <div>
+                  <div className="">
                     <h2 className="text-xl font-bold">Next Topics</h2>
                     <p className="text-sm text-gray-600 mt-1">
                       Discover other lessons now!
@@ -486,7 +481,6 @@ export default function MiddlegameDetailWithNextTopics({
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 mt-4">
                     {relatedMiddlegames.map((topic, index) => {
                       const topicSlug = getSlugFromId(topic.id);
-                      const isTopicCompleted = isLessonCompleted(topicSlug);
 
                       return (
                         <div
@@ -503,55 +497,39 @@ export default function MiddlegameDetailWithNextTopics({
                                     position={getFenFromMoves(topic.moves)}
                                     arePiecesDraggable={false}
                                     customDarkSquareStyle={{
-                                      backgroundColor: "#5C9DFF",
+                                      backgroundColor: "#9E7555",
                                     }}
                                     customLightSquareStyle={{
-                                      backgroundColor: "#fff",
+                                      backgroundColor: "#F0DFC7",
                                     }}
                                   />
                                 </div>
                               </div>
-                              <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-md">
+                              <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
                                 Strategy
                               </span>
-                              <span className="absolute top-2 right-2 bg-white p-1 rounded-md">
-                                {isTopicCompleted ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                ) : (
-                                  <BookOpen className="h-5 w-5 text-blue-base" />
-                                )}
-                              </span>
+                              <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full">
+                                <Image
+                                  src={"/handbooks/finished.png"}
+                                  alt="finish lesson icon"
+                                  fill
+                                  className="p-1"
+                                />
+                              </div>
                             </div>
 
-                            <div className="p-4 flex flex-col flex-grow space-y-3">
+                            <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2 xl:mb-4">
                               <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
                                 {topic.difficulty}
                               </span>
-                              <h3 className="font-medium text-gray-900 text-xs h-8 line-clamp-2">
+                              <h3 className="font-medium text-gray-900 text-xs h-auto line-clamp-2">
                                 {topic.title}
                               </h3>
-                              <div
-                                className={`w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto ${
-                                  isTopicCompleted
-                                    ? "btn-tertiary text-green-500 border border-green-500"
-                                    : "btn-primary"
-                                }`}
-                              >
-                                {isTopicCompleted ? (
-                                  <>
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    <span className="text-xs md:text-sm">
-                                      Continue Learning
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <BookOpen className="h-4 w-4" />
-                                    <span className="text-xs md:text-sm">
-                                      Start Learning
-                                    </span>
-                                  </>
-                                )}
+                              <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto btn-primary">
+                                <BookOpen className="h-4 w-4" />
+                                <span className="text-xs md:text-sm">
+                                  Start Learning
+                                </span>
                               </div>
                             </div>
                           </Card>
