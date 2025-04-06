@@ -99,7 +99,8 @@ export default function RegisterPage() {
       toast.success("Account verified successfully!");
 
       // Redirect to dashboard after successful verification
-      router.push("/my-game-history");
+      // router.push("/my-game-history");
+      window.location.href = "/my-game-history";
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Verification failed";

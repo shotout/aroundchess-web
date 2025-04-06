@@ -14,15 +14,17 @@ export const fetchAnalyticsData = async (
     const config: AxiosRequestConfig = {
       headers: {
         Accept: "application/json",
+        Authorization: `Bearer ${sessionId}`
+
       },
     };
 
-    if (sessionId) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${sessionId}`
-      };
-    }
+    // if (sessionId) {
+    //   config.headers = {
+    //     ...config.headers,
+    //     Authorization: `Bearer ${sessionId}`
+    //   };
+    // }
 
     const response = await axios.get(apiUrl, config);
 
