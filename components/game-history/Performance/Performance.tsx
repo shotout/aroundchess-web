@@ -54,12 +54,12 @@ const Performance = () => {
     setError(null);
 
     try {
-      const apiUrl = `${API_BASE_URL}/analytic-games/${username}`;
+      const apiUrl = `${API_BASE_URL}/analytic-games/my-game-performance-history`;
 
       const config = {
         headers: {
           Accept: "application/json",
-          ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
+          Authorization: `Bearer ${sessionId}`,
         },
       };
 

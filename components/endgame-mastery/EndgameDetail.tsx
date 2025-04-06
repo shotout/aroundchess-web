@@ -26,6 +26,7 @@ export default function EndgameDetailWithNextTopics({
   const [activeTab, setActiveTab] = useState<"overview" | "techniques">(
     "overview"
   );
+  const [lessonFinished, setLessonFinished] = useState(false);
 
   const {
     allEndgames,
@@ -59,6 +60,12 @@ export default function EndgameDetailWithNextTopics({
       router.push(`/endgame-mastery/${slug}`);
     };
     setTimeout(navigateToEndgame, 200);
+  };
+
+  const handleFinishLesson = () => {
+    if (endgame) {
+      setLessonFinished(true);
+    }
   };
 
   if (isLoading || !endgame) {
@@ -156,11 +163,31 @@ export default function EndgameDetailWithNextTopics({
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
                   {endgame.difficulty}
                 </span>
-                <div className="flex justify-center items-center px-2 py-1 text-xs rounded-[2px] border border-blue-base text-blue-base">
-                  <Clock className="w-3 h-3 mr-1" />
-                  <h1>{endgame.estimatedTime || "15 min"} learning</h1>
-                </div>
               </div>
+
+              {lessonFinished && (
+                <div className="relative bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100% border rounded-lg p-4 pl-10 flex items-center gap-2">
+                  <Image
+                    width={20}
+                    height={20}
+                    alt="check icon"
+                    src={"/handbooks/check.png"}
+                    className="h-5 w-5 text-green-500"
+                  />
+                  <h1 className="text-black font-medium">
+                    Great, you finished this exercise! Make sure you use your
+                    Learnings in your next Game.
+                  </h1>
+
+                  <Image
+                    width={200}
+                    height={200}
+                    alt="sparks"
+                    src={"/handbooks/sparks.png"}
+                    className="absolute top-0 right-12"
+                  />
+                </div>
+              )}
 
               <div className="flex flex-col gap-4">
                 <div className="border border-blue-base border-l-4 rounded-lg p-4 flex flex-col h-[78px] xl:gap-y-1">
@@ -422,11 +449,14 @@ export default function EndgameDetailWithNextTopics({
 
               <div className="flex flex-col gap-4">
                 <Button
-                  className="w-full py-3 text-white rounded-full bg-blue-base"
-                  onClick={() => router.push("/endgame-mastery")}
+                  className={`w-full py-3 text-white rounded-full ${
+                    lessonFinished ? "bg-green-500" : "bg-blue-base"
+                  }`}
+                  onClick={handleFinishLesson}
+                  disabled={lessonFinished}
                 >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Learn More Endgames
+                  <Check className="mr-2 h-5 w-5" />
+                  {lessonFinished ? "Lesson Finished" : "Finish Lesson"}
                 </Button>
               </div>
             </div>
@@ -476,7 +506,12 @@ export default function EndgameDetailWithNextTopics({
                                 Endgame
                               </span>
                               <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full">
-                                <BookOpen className="h-5 w-5 xl:h-8 xl:w-8 text-white p-1" />
+                                <Image
+                                  src={"/handbooks/finished.png"}
+                                  alt="finish lesson icon"
+                                  fill
+                                  className="p-1"
+                                />
                               </div>
                             </div>
 

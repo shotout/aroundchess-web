@@ -10,6 +10,10 @@ interface SuccessViewProps {
   handleAnalyzeButtonClick: () => void;
   isLoading?: boolean;
   error?: string | null;
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  backButtonText?: string;
 }
 
 interface TabSelectorProps {
@@ -55,12 +59,15 @@ interface SubmitButtonProps {
   isLoading?: boolean; // Added this prop
 }
 
-// Component for the success screen after submission
 export const SuccessView: React.FC<SuccessViewProps> = ({
   resetDialog,
   handleAnalyzeButtonClick,
   isLoading,
   error,
+  title = "Your Import was successful!",
+  description = "Your PGN was successfully uploaded. You can now analyze your Game with our Advanced Chess Engine!",
+  buttonText = "Analyze Game",
+  backButtonText = "Back to Game History",
 }) => {
   return (
     <div className="flex flex-col items-center">
@@ -73,13 +80,8 @@ export const SuccessView: React.FC<SuccessViewProps> = ({
         />
       </div>
 
-      <h3 className="text-xl font-semibold text-gray-800 mb-1">
-        Your Import was successful!
-      </h3>
-      <p className="text-gray-600 text-center mb-6">
-        Your PGN was successfully uploaded. You can now analyze your Game with
-        our Advanced Chess Engine!
-      </p>
+      <h3 className="text-xl font-semibold text-gray-800 mb-1">{title}</h3>
+      <p className="text-gray-600 text-center mb-6">{description}</p>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
@@ -89,14 +91,14 @@ export const SuccessView: React.FC<SuccessViewProps> = ({
           onClick={resetDialog}
           disabled={isLoading}
         >
-          Back to Game History
+          {backButtonText}
         </button>
         <button
           className="flex-1 py-3 btn-primary text-white font-medium rounded-full"
           onClick={handleAnalyzeButtonClick}
           disabled={isLoading}
         >
-          {isLoading ? "Analyzing..." : "Analyze Game"}
+          {isLoading ? "Processing..." : buttonText}
         </button>
       </div>
     </div>

@@ -40,7 +40,10 @@ const DialogButton: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [importedGameId, setImportedGameId] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // Store the actual File object
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isConfirmationMode, setIsConfirmationMode] = useState<boolean>(false);
+  const [isOperationCompleted, setIsOperationCompleted] =
+    useState<boolean>(false);
 
   const {
     addImportedGame,
@@ -63,7 +66,9 @@ const DialogButton: React.FC = () => {
     setError(null);
     setIsLoading(false);
     setImportedGameId(null);
-    setUploadedFile(null); // Reset the uploaded file
+    setUploadedFile(null);
+    setIsConfirmationMode(false);
+    setIsOperationCompleted(false);
   }, []);
 
   const handleTabChange = useCallback((tab: string) => {
@@ -76,7 +81,9 @@ const DialogButton: React.FC = () => {
     setUploadProgress(0);
     setFileContent("");
     setError(null);
-    setUploadedFile(null); // Reset the uploaded file when changing tabs
+    setUploadedFile(null);
+    setIsConfirmationMode(false);
+    setIsOperationCompleted(false);
   }, []);
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -160,7 +167,7 @@ const DialogButton: React.FC = () => {
 
     setFileName(file.name);
     setFileSize(file.size);
-    setUploadedFile(file); // Store the actual File object
+    setUploadedFile(file);
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -169,9 +176,9 @@ const DialogButton: React.FC = () => {
       }
     };
     reader.readAsText(file);
-    // Don't set isSubmitted here, just show the file
   }, []);
 
+  // Modified to show confirmation view
   const handleButtonClick = useCallback(() => {
     if (activeTab === "upload" && !fileName) {
       if (fileInputRef.current) {
@@ -181,93 +188,93 @@ const DialogButton: React.FC = () => {
       (activeTab === "paste" && pgnText.trim()) ||
       (activeTab === "upload" && fileName)
     ) {
-      // For paste tab, go straight to submitted state
-      if (activeTab === "paste") {
-        setIsSubmitted(true);
-      } else if (activeTab === "upload") {
-        // For upload tab, show the upload progress
-        setIsUploading(true);
-        handleAnalyzeButtonClick();
-      }
+      // Show confirmation view instead of submitting
+      setIsSubmitted(true);
+      setIsConfirmationMode(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, fileName, pgnText]);
 
+  // This is now the function that will be triggered when "Analyze Game" is clicked in the confirmation view
   const handleAnalyzeButtonClick = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    setStoreError(null);
+    // If we're in confirmation mode, this is the actual submission
+    if (isConfirmationMode) {
+      setIsLoading(true);
+      setError(null);
+      setStoreError(null);
 
-    if (!isUploading) {
-      setIsUploading(true);
-    }
-
-    setUploadProgress(0);
-
-    try {
-      const formData = new FormData();
-
-      if (activeTab === "paste") {
-        // For paste, send the text as before
-        formData.append("pgn", pgnText);
-        formData.append("type", "text");
-      } else if (activeTab === "upload" && uploadedFile) {
-        // For file upload, send the actual File object
-        formData.append("pgn", uploadedFile, fileName);
-        formData.append("type", "file");
+      if (!isUploading) {
+        setIsUploading(true);
       }
 
-      const response = await axios.post(
-        `${endpoint}/games/import-game`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${sessionId}`,
-          },
-          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 1)
-            );
-            setUploadProgress(percentCompleted);
-          },
+      setUploadProgress(0);
+
+      try {
+        const formData = new FormData();
+
+        if (activeTab === "paste") {
+          formData.append("pgn", pgnText);
+          formData.append("type", "text");
+        } else if (activeTab === "upload" && uploadedFile) {
+          formData.append("pgn", uploadedFile, fileName);
+          formData.append("type", "file");
         }
-      );
 
-      const pgnContent = activeTab === "paste" ? pgnText : fileContent;
-      const metadata = extractPgnMetadata(pgnContent);
+        const response = await axios.post(
+          `${endpoint}/games/import-game`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${sessionId}`,
+            },
+            onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / (progressEvent.total || 1)
+              );
+              setUploadProgress(percentCompleted);
+            },
+          }
+        );
 
-      const currentUser = "User";
-      metadata.opponent =
-        metadata.white === currentUser ? metadata.black : metadata.white;
+        const pgnContent = activeTab === "paste" ? pgnText : fileContent;
+        const metadata = extractPgnMetadata(pgnContent);
 
-      metadata.color = metadata.white === currentUser ? "White" : "Black";
+        const currentUser = "User";
+        metadata.opponent =
+          metadata.white === currentUser ? metadata.black : metadata.white;
 
-      const newGame = addImportedGame({
-        ...metadata,
-        pgn: pgnContent,
-      }) as unknown as Game;
+        metadata.color = metadata.white === currentUser ? "White" : "Black";
 
-      setImportedGameId(newGame.id);
+        const newGame = addImportedGame({
+          ...metadata,
+          pgn: pgnContent,
+        }) as unknown as Game;
 
-      // Only set to submitted after upload is complete
-      setIsUploading(false);
-      setIsSubmitted(true);
+        setImportedGameId(newGame.id);
 
-      // Only reset dialog after a short delay to show success
-      setTimeout(() => {
-        resetDialog();
-      }, 2000);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to analyze PGN data";
-      setError(errorMessage);
-      setStoreError(errorMessage);
-      setIsUploading(false);
-    } finally {
-      setIsLoading(false);
-      setLoading(false);
+        // Set operation completed and exit confirmation mode
+        setIsOperationCompleted(true);
+        setIsConfirmationMode(false);
+        setIsUploading(false);
+
+        // Close dialog and refresh after a delay
+        setTimeout(() => {
+          resetDialog();
+          window.location.reload();
+        }, 2000);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to analyze PGN data";
+        setError(errorMessage);
+        setStoreError(errorMessage);
+        setIsUploading(false);
+      } finally {
+        setIsLoading(false);
+        setLoading(false);
+      }
     }
+    // If we're not in confirmation mode (i.e., we're in success mode),
+    // this would be the existing functionality for that mode
   }, [
     activeTab,
     fileContent,
@@ -280,6 +287,7 @@ const DialogButton: React.FC = () => {
     sessionId,
     isUploading,
     uploadedFile,
+    isConfirmationMode,
   ]);
 
   const handleRemoveFile = useCallback(() => {
@@ -289,6 +297,62 @@ const DialogButton: React.FC = () => {
     setError(null);
     setUploadedFile(null);
   }, []);
+
+  // This function will be passed to SuccessView's resetDialog prop when in confirmation mode
+  const handleCancelConfirmation = useCallback(() => {
+    setIsSubmitted(false);
+    setIsConfirmationMode(false);
+  }, []);
+
+  // Customize SuccessView props based on whether we're in confirmation mode or success mode
+  const getSuccessViewProps = () => {
+    if (isConfirmationMode) {
+      return {
+        resetDialog: handleCancelConfirmation, // Cancel button goes back to edit screen
+        handleAnalyzeButtonClick, // Confirm button starts the POST request
+        isLoading,
+        error,
+        title: "Confirm PGN Import", // Custom title for confirmation mode
+        description: `Are you sure you want to import this ${
+          activeTab === "paste" ? "PGN data" : "file"
+        }? You can analyze it after import.`,
+        buttonText: "Import PGN", // Custom button text for confirmation
+        backButtonText: "Go Back", // Custom back button text
+      };
+    } else {
+      return {
+        resetDialog, // Success mode closes the dialog
+        handleAnalyzeButtonClick, // In success mode, this would be the existing functionality
+        isLoading,
+        error,
+        title: "Your Import was successful!",
+        description:
+          "Your PGN was successfully uploaded. You can now analyze your Game with our Advanced Chess Engine!",
+        buttonText: "Analyze Game",
+        backButtonText: "Back to Game History",
+      };
+    }
+  };
+
+  // A wrapper around SuccessView to customize it based on the current mode
+  const CustomSuccessView = () => {
+    const props = getSuccessViewProps();
+
+    // Here we assume that your SuccessView component can accept these optional props
+    // If it can't, you'd need to modify the component to handle them
+    return (
+      <SuccessView
+        resetDialog={props.resetDialog}
+        handleAnalyzeButtonClick={props.handleAnalyzeButtonClick}
+        isLoading={props.isLoading}
+        error={props.error}
+        title={props.title}
+        description={props.description}
+        buttonText={props.buttonText}
+        backButtonText={props.backButtonText}
+      />
+    );
+  };
 
   return (
     <div>
@@ -305,15 +369,11 @@ const DialogButton: React.FC = () => {
         <div className="fixed inset-0 bg-black/25 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-xl overflow-hidden">
             {!isSubmitted && <DialogHeader resetDialog={resetDialog} />}
+            {isSubmitted && <DialogHeader resetDialog={resetDialog} />}
 
             <div className="px-6 py-4">
               {isSubmitted ? (
-                <SuccessView
-                  resetDialog={resetDialog}
-                  handleAnalyzeButtonClick={handleAnalyzeButtonClick}
-                  isLoading={isLoading}
-                  error={error}
-                />
+                <CustomSuccessView />
               ) : (
                 <>
                   <DialogInstructions />
