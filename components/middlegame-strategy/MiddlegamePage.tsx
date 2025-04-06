@@ -11,7 +11,7 @@ import {
   FilteringState,
   NoResultsState,
   LoadMoreState,
-} from "./LoadingState"; // Reusing the same loading states
+} from "./LoadingState";
 
 // Import custom hooks
 import { useMiddlegamePagination } from "./lib/hooks/useMiddlegamePagination";

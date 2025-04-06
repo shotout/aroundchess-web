@@ -46,7 +46,6 @@ const OtherGamesTab = () => {
   const { sessionId: rawSessionId, isLoaded: authIsLoaded } = useAuth();
   const sessionId = rawSessionId ?? null;
 
-  // Custom hooks for handling different aspects of the component
   const { isLoading, error, gamesData, handleRetryFetch, handleForceRefresh } =
     useOtherGamesData(
       username,

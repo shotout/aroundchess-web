@@ -14,23 +14,19 @@ import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
 import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
-import LoadingPage from "../analysis-loading/LoadingPage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_AUTH;
 
 const GameHistoryPage = () => {
   const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
+  const { setUsername, username } = usePgnStore();
 
-  // DEV: Temporary state for development to control dialogs
-  const [devMode] = useState(false); // Set to true for development mode
+  const [devMode] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(devMode);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [fetchAttempted, setFetchAttempted] = useState(false);
 
-  const { setUsername, username } = usePgnStore();
-  const Section = [username, "Other Games"];
-  const [sect, setSect] = useState(Section[0]);
+  const [activeTab, setActiveTab] = useState("user");
 
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
@@ -58,15 +54,14 @@ const GameHistoryPage = () => {
 
   useEffect(() => {
     const fetchProfileData = async () => {
-      if (!authIsLoaded || !isSignedIn || !sessionId) {
-        if (authIsLoaded) {
-          setIsLoading(false);
-        }
+      if (!authIsLoaded) {
         return;
       }
 
-      if (fetchAttempted) return;
-      setFetchAttempted(true);
+      if (!isSignedIn || !sessionId) {
+        setIsLoading(false);
+        return;
+      }
 
       setIsLoading(true);
       setShowConnectDialog(false);
@@ -89,33 +84,27 @@ const GameHistoryPage = () => {
           if (extractedUsername) {
             setUsername(extractedUsername);
           } else {
-            setTimeout(() => {
-              if (!username) {
-                setShowConnectDialog(true);
-              }
-            }, 3000);
-          }
-        }
-      } catch (error) {
-        setTimeout(() => {
-          if (!username) {
             setShowConnectDialog(true);
           }
-        }, 3000);
+        } else {
+          setShowConnectDialog(true);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setShowConnectDialog(true);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [
-    authIsLoaded,
-    isSignedIn,
-    sessionId,
-    setUsername,
-    fetchAttempted,
-    username,
-  ]);
+  }, [authIsLoaded, isSignedIn, sessionId, setUsername]);
+
+  useEffect(() => {
+    if (authIsLoaded && !isLoading && !username) {
+      setShowConnectDialog(true);
+    }
+  }, [authIsLoaded, isLoading, username]);
 
   return (
     <>
@@ -310,32 +299,35 @@ const GameHistoryPage = () => {
         <div className="lg:border-2 lg:p-4 xl:p-0 lg:rounded-md bg-white">
           <div className="flex justify-center flex-col">
             <div className="xl:flex justify-center hidden">
-              {Section.map((t, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSect(t)}
-                  className={`flex-1 text-center py-3  text-lg
-            ${
-              sect !== t
-                ? "text-black border-b  border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
-                : "font-bold"
-            }
-            ${
-              t === "Blitzmystic" && sect === "Blitzmystic"
-                ? "rounded-tl-md"
-                : t === "Other Games" && sect === "Other Games"
-                ? "rounded-tr-md"
-                : ""
-            }
-            ${index === 0 ? "border-r border-gray-200" : ""}`}
-                >
-                  {t}
-                </button>
-              ))}
+              <button
+                onClick={() => setActiveTab("user")}
+                className={`flex-1 text-center py-3 text-lg
+                ${
+                  activeTab !== "user"
+                    ? "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
+                    : "font-bold"
+                }
+                ${activeTab === "user" ? "rounded-tl-md" : ""}
+                border-r border-gray-200`}
+              >
+                {username || "My Games"}
+              </button>
+              <button
+                onClick={() => setActiveTab("other")}
+                className={`flex-1 text-center py-3 text-lg
+                ${
+                  activeTab !== "other"
+                    ? "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
+                    : "font-bold"
+                }
+                ${activeTab === "other" ? "rounded-tr-md" : ""}`}
+              >
+                Other Games
+              </button>
             </div>
             <div className="mt-4">
-              <div>{sect === username && <UserHistory />}</div>
-              <div>{sect === "Other Games" && <OtherHistory />}</div>
+              {activeTab === "user" && <UserHistory />}
+              {activeTab === "other" && <OtherHistory />}
             </div>
           </div>
         </div>

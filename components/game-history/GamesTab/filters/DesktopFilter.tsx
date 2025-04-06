@@ -89,7 +89,7 @@ const DesktopFilter = ({
       <div className="flex items-center gap-x-2 w-[30%] justify-evenly 2xl:w-[25%]">
         <Button
           onClick={handleApplyFilters}
-          className="bg-blue-base text-white w-full rounded-full h-12 px-1 flex items-center gap-2 hover:bg-blue-base"
+          className="bg-blue-base text-white w-full rounded-full h-12 px-1 flex items-center gap-1 hover:bg-blue-base"
         >
           <Filter className="h-4 w-4" />
           Apply Filters

@@ -50,7 +50,6 @@ export function useOtherGamesData(
       setError(null);
 
       try {
-        // Changed the endpoint to use "other" type instead of "chessdotcom"
         const apiUrl = `${endpoint}/games/my-game-history?type=other`
         const config = {
           headers: {
@@ -110,7 +109,7 @@ export function useOtherGamesData(
   const handleForceRefresh = () => {
     fetchRef.current = false;
     const { resetFetchState, clearOtherGamesData } = usePgnStore.getState();
-    clearOtherGamesData(); // Changed from clearGamesData to clearOtherGamesData
+    clearOtherGamesData(); 
     resetFetchState();
     toast.info("Refreshing games data...");
   };
