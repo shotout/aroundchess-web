@@ -58,7 +58,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#80B64D] text-[#FFA459]";
     }
   };
   const handleOnClickMovement = (move: any) => {
