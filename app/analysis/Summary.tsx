@@ -182,7 +182,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-start justify-around gap-2 pt-1 w-[40px]">
+            <div className="flex flex-col items-center justify-center gap-2 mt-1 sm:gap-3 sm:-mt-1 w-[40px]">
               <div className="h-6">
                 <Image
                   alt=""

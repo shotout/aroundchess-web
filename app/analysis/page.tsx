@@ -82,7 +82,6 @@ export default function AnalysisPage() {
               <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-xl font-bold">
                 Analysis Result from{" "}
                 <span className="text-[#4E7838]">Chess.com</span>
-                <span className="text-sm font-normal ml-2">dummy data</span>
               </h2>
               <div className="xl:hidden flex items-center justify-center mt-2">
                 <AnalyzeDifferentGame />
