@@ -415,11 +415,7 @@ const AnalysisResult: React.FC = () => {
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
     const maxSize =
-      window.innerWidth > 1440
-        ? window.innerWidth * 0.27
-        : window.innerWidth <= 1024
-        ? 453
-        : window.innerWidth * 0.26;
+    window.innerWidth > 1440 ? window.innerWidth / 3 : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {

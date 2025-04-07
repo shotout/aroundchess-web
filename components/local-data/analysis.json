@@ -1,0 +1,1968 @@
+{
+    "gameInfo": {
+        "event": "FIDE World Blitz Chess Championship 2022",
+        "date": "2022.12.29",
+        "round": "01",
+        "time": "04:35:28",
+        "isPlayerWhite": true,
+        "whiteWin": false,
+        "blackWin": true,
+        "draw": false,
+        "pgn": "[Event \"FIDE World Blitz Chess Championship 2022\"]\n[Site \"Chess.com\"]\n[Date \"2022.12.29\"]\n[Round \"01\"]\n[White \"Kovalev, Vladislav\"]\n[Black \"Carlsen, Magnus\"]\n[Result \"0-1\"]\n[WhiteElo \"2555\"]\n[BlackElo \"2852\"]\n[TimeControl \"180+2\"]\n[Link \"https://www.chess.com/events/2022-fide-world-blitz-chess-championship/01/Kovalev_Vladislav-Carlsen_Magnus\"]\n\n1. e4 {[%clk 0:02:59]} 1... e6 {[%clk 0:00:31]} 2. d4 {[%clk 0:02:54]} 2... d5\n{[%clk 0:00:32]} 3. exd5 {[%clk 0:02:54]} 3... exd5 {[%clk 0:00:33]} 4. Nf3\n{[%clk 0:02:54]} 4... Bd6 {[%clk 0:00:34]} 5. c4 {[%clk 0:02:48]} 5... Nf6\n{[%clk 0:00:35]} 6. Nc3 {[%clk 0:02:02]} 6... O-O {[%clk 0:00:35]} 7. cxd5\n{[%clk 0:01:23]} 7... Re8+ {[%clk 0:00:36]} 8. Be2 {[%clk 0:01:24]} 8... Nbd7\n{[%clk 0:00:33]} 9. O-O {[%clk 0:01:18]} 9... h6 {[%clk 0:00:32]} 10. Re1 {[%clk\n0:01:11]} 10... Nb6 {[%clk 0:00:33]} 11. Ne5 {[%clk 0:00:59]} 11... Nbxd5 {[%clk\n0:00:28]} 12. Bf3 {[%clk 0:00:34]} 12... c6 {[%clk 0:00:28]} 13. Qb3 {[%clk\n0:00:22]} 13... Qb6 {[%clk 0:00:16]} 14. Nxd5 {[%clk 0:00:18]} 14... Nxd5 {[%clk\n0:00:16]} 15. Bxd5 {[%clk 0:00:11]} 15... cxd5 {[%clk 0:00:16]} 16. Qxb6 {[%clk\n0:00:12]} 16... axb6 {[%clk 0:00:17]} 17. Bd2 {[%clk 0:00:05]} 17... f6 {[%clk\n0:00:14]} 18. Nd3 {[%clk 0:00:05]} 18... Rxe1+ {[%clk 0:00:12]} 19. Bxe1 {[%clk\n0:00:04]} 19... Ra4 {[%clk 0:00:08]} 20. Bc3 {[%clk 0:00:04]} 20... Bf5 {[%clk\n0:00:09]} 21. Ne1 {[%clk 0:00:03]} 21... Kf7 {[%clk 0:00:10]} 22. a3 {[%clk\n0:00:04]} 22... b5 {[%clk 0:00:10]} 23. Rc1 {[%clk 0:00:05]} 23... Rc4 {[%clk\n0:00:10]} 24. Rd1 {[%clk 0:00:04]} 24... b4 {[%clk 0:00:11]} 25. axb4 {[%clk\n0:00:05]} 25... Bxb4 {[%clk 0:00:12]} 26. Bxb4 {[%clk 0:00:06]} 26... Rxb4\n{[%clk 0:00:13]} 27. Rd2 {[%clk 0:00:07]} 27... g5 {[%clk 0:00:13]} 28. f3\n{[%clk 0:00:09]} 28... h5 {[%clk 0:00:14]} 29. Kf2 {[%clk 0:00:10]} 29... h4\n{[%clk 0:00:15]} 30. g3 {[%clk 0:00:05]} 30... hxg3+ {[%clk 0:00:10]} 31. hxg3\n{[%clk 0:00:06]} 31... Ke6 {[%clk 0:00:11]} 32. Ng2 {[%clk 0:00:07]} 32... Kd6\n{[%clk 0:00:12]} 33. Ne3 {[%clk 0:00:08]} 33... Be6 {[%clk 0:00:13]} 34. Ke2\n{[%clk 0:00:04]} 34... Rb3 {[%clk 0:00:13]} 35. Kf2 {[%clk 0:00:05]} 35... Rb4\n{[%clk 0:00:12]} 36. Ke2 {[%clk 0:00:06]} 36... Ra4 {[%clk 0:00:13]} 37. Kf2\n{[%clk 0:00:06]} 37... Bd7 {[%clk 0:00:14]} 38. g4 {[%clk 0:00:05]} 38... Ra1\n{[%clk 0:00:12]} 39. Rd1 {[%clk 0:00:04]} 39... Ra2 {[%clk 0:00:12]} 40. Rd2\n{[%clk 0:00:04]} 40... b5 {[%clk 0:00:12]} 41. Ke2 {[%clk 0:00:05]} 41... b4\n{[%clk 0:00:13]} 42. Kd3 {[%clk 0:00:03]} 42... Bb5+ {[%clk 0:00:13]} 43. Kc2\n{[%clk 0:00:05]} 43... Bc4 {[%clk 0:00:07]} 44. Kb1 {[%clk 0:00:05]} 44... Ra8\n{[%clk 0:00:07]} 45. Kc2 {[%clk 0:00:04]} 45... Re8 {[%clk 0:00:08]} 46. Nxc4+\n{[%clk 0:00:03]} 46... dxc4 {[%clk 0:00:09]} 47. d5 {[%clk 0:00:04]} 47... Re3\n{[%clk 0:00:08]} 48. Rd4 {[%clk 0:00:06]} 48... b3+ {[%clk 0:00:05]} 49. Kd2\n{[%clk 0:00:07]} 49... Rxf3 {[%clk 0:00:05]} 50. Rxc4 {[%clk 0:00:09]} 50...\nKxd5 {[%clk 0:00:06]} 51. Rb4 {[%clk 0:00:10]} 51... Kc5 {[%clk 0:00:06]} 52.\nRa4 {[%clk 0:00:11]} 52... Rf4 {[%clk 0:00:06]} 53. Ra6 {[%clk 0:00:11]} 53...\nKd4 {[%clk 0:00:05]} 54. Rd6+ {[%clk 0:00:04]} 54... Ke5 {[%clk 0:00:05]} 55.\nRb6 {[%clk 0:00:06]} 55... Rxg4 {[%clk 0:00:06]} 56. Rxb3 {[%clk 0:00:07]} 56...\nRg2+ {[%clk 0:00:07]} 57. Ke1 {[%clk 0:00:08]} 57... g4 {[%clk 0:00:07]} 58. Rb8\n{[%clk 0:00:09]} 58... f5 {[%clk 0:00:07]} 59. b4 {[%clk 0:00:09]} 59... Rb2\n{[%clk 0:00:09]} 0-1",
+        "openings": {
+            "white": {
+                "eco": "B00",
+                "name": "King's Pawn Game",
+                "moves": "1. e4"
+            },
+            "black": {
+                "eco": "C01",
+                "name": "French Defense: Exchange Variation",
+                "moves": "1. e4 e6 2. d4 d5 3. exd5"
+            }
+        }
+    },
+    "summary": {
+        "whiteSide": {
+            "profileInfo": {
+                "photo": "https://www.chess.com/bundles/web/images/user-image.007dad08.svg",
+                "username": "Kovalev, Vladislav",
+                "gameRating": 2555,
+                "chessAccountInfo": {}
+            },
+            "analysis": {
+                "accuracy": 96.6,
+                "moveQuality": {
+                    "brilliant": 38,
+                    "great": 13,
+                    "best": 6,
+                    "mistake": 0,
+                    "miss": 0,
+                    "blunder": 0
+                },
+                "opening": "Excellent",
+                "middleGame": "Brilliant",
+                "endGame": "None"
+            }
+        },
+        "blackSide": {
+            "profileInfo": {
+                "photo": "https://www.chess.com/bundles/web/images/user-image.007dad08.svg",
+                "username": "Carlsen, Magnus",
+                "gameRating": 2852,
+                "chessAccountInfo": {}
+            },
+            "analysis": {
+                "accuracy": 96.6,
+                "moveQuality": {
+                    "brilliant": 38,
+                    "great": 11,
+                    "best": 8,
+                    "mistake": 0,
+                    "miss": 0,
+                    "blunder": 0
+                },
+                "opening": "Good",
+                "middleGame": "Brilliant",
+                "endGame": "None"
+            }
+        },
+        "overallGameAssessment": {
+            "gameAccuracy": 96.6,
+            "analysis": "Game assessment skipped in debug mode"
+        },
+        "bestMoves": {
+            "middleGame": [
+                {
+                    "moveNumber": 2,
+                    "move": "d4",
+                    "classification": "Excellent",
+                    "evaluation": -0.13,
+                    "analysis": "Debug analysis for d4"
+                },
+                {
+                    "moveNumber": 3,
+                    "move": "exd5",
+                    "classification": "Good",
+                    "evaluation": -0.2,
+                    "analysis": "Debug analysis for exd5"
+                },
+                {
+                    "moveNumber": 4,
+                    "move": "Nf3",
+                    "classification": "Excellent",
+                    "evaluation": -0.13,
+                    "analysis": "Debug analysis for Nf3"
+                },
+                {
+                    "moveNumber": 5,
+                    "move": "c4",
+                    "classification": "Excellent",
+                    "evaluation": -0.15,
+                    "analysis": "Debug analysis for c4"
+                },
+                {
+                    "moveNumber": 6,
+                    "move": "Nc3",
+                    "classification": "Excellent",
+                    "evaluation": -0.11,
+                    "analysis": "Debug analysis for Nc3"
+                },
+                {
+                    "moveNumber": 7,
+                    "move": "cxd5",
+                    "classification": "Excellent",
+                    "evaluation": 0,
+                    "analysis": "Debug analysis for cxd5"
+                },
+                {
+                    "moveNumber": 8,
+                    "move": "Be2",
+                    "classification": "Excellent",
+                    "evaluation": -0.22,
+                    "analysis": "Debug analysis for Be2"
+                },
+                {
+                    "moveNumber": 9,
+                    "move": "O-O",
+                    "classification": "Excellent",
+                    "evaluation": -0.1,
+                    "analysis": "Debug analysis for O-O"
+                },
+                {
+                    "moveNumber": 10,
+                    "move": "Re1",
+                    "classification": "Good",
+                    "evaluation": -0.18,
+                    "analysis": "Debug analysis for Re1"
+                },
+                {
+                    "moveNumber": 11,
+                    "move": "Ne5",
+                    "classification": "Excellent",
+                    "evaluation": 0.14,
+                    "analysis": "Debug analysis for Ne5"
+                },
+                {
+                    "moveNumber": 12,
+                    "move": "Bf3",
+                    "classification": "Best",
+                    "evaluation": 0.27,
+                    "analysis": "Debug analysis for Bf3"
+                },
+                {
+                    "moveNumber": 13,
+                    "move": "Qb3",
+                    "classification": "Best",
+                    "evaluation": 0.13,
+                    "analysis": "Debug analysis for Qb3"
+                },
+                {
+                    "moveNumber": 14,
+                    "move": "Nxd5",
+                    "classification": "Brilliant",
+                    "evaluation": 0.5,
+                    "analysis": "Debug analysis for Nxd5"
+                },
+                {
+                    "moveNumber": 15,
+                    "move": "Bxd5",
+                    "classification": "Brilliant",
+                    "evaluation": 0.52,
+                    "analysis": "Debug analysis for Bxd5"
+                },
+                {
+                    "moveNumber": 16,
+                    "move": "Qxb6",
+                    "classification": "Brilliant",
+                    "evaluation": 0.77,
+                    "analysis": "Debug analysis for Qxb6"
+                },
+                {
+                    "moveNumber": 17,
+                    "move": "Bd2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.79,
+                    "analysis": "Debug analysis for Bd2"
+                },
+                {
+                    "moveNumber": 18,
+                    "move": "Nd3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.4,
+                    "analysis": "Debug analysis for Nd3"
+                },
+                {
+                    "moveNumber": 19,
+                    "move": "Bxe1",
+                    "classification": "Brilliant",
+                    "evaluation": 0.46,
+                    "analysis": "Debug analysis for Bxe1"
+                },
+                {
+                    "moveNumber": 20,
+                    "move": "Bc3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.41,
+                    "analysis": "Debug analysis for Bc3"
+                },
+                {
+                    "moveNumber": 21,
+                    "move": "Ne1",
+                    "classification": "Brilliant",
+                    "evaluation": 1.28,
+                    "analysis": "Debug analysis for Ne1"
+                },
+                {
+                    "moveNumber": 22,
+                    "move": "a3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.82,
+                    "analysis": "Debug analysis for a3"
+                },
+                {
+                    "moveNumber": 23,
+                    "move": "Rc1",
+                    "classification": "Brilliant",
+                    "evaluation": 0.85,
+                    "analysis": "Debug analysis for Rc1"
+                },
+                {
+                    "moveNumber": 25,
+                    "move": "axb4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.06,
+                    "analysis": "Debug analysis for axb4"
+                },
+                {
+                    "moveNumber": 26,
+                    "move": "Bxb4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.08,
+                    "analysis": "Debug analysis for Bxb4"
+                },
+                {
+                    "moveNumber": 28,
+                    "move": "f3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.82,
+                    "analysis": "Debug analysis for f3"
+                },
+                {
+                    "moveNumber": 30,
+                    "move": "g3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.52,
+                    "analysis": "Debug analysis for g3"
+                },
+                {
+                    "moveNumber": 31,
+                    "move": "hxg3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.73,
+                    "analysis": "Debug analysis for hxg3"
+                },
+                {
+                    "moveNumber": 32,
+                    "move": "Ng2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.67,
+                    "analysis": "Debug analysis for Ng2"
+                },
+                {
+                    "moveNumber": 33,
+                    "move": "Ne3",
+                    "classification": "Brilliant",
+                    "evaluation": 0.4,
+                    "analysis": "Debug analysis for Ne3"
+                },
+                {
+                    "moveNumber": 37,
+                    "move": "Kf2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.82,
+                    "analysis": "Debug analysis for Kf2"
+                },
+                {
+                    "moveNumber": 37,
+                    "move": "Kf2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.59,
+                    "analysis": "Debug analysis for Kf2"
+                },
+                {
+                    "moveNumber": 37,
+                    "move": "Kf2",
+                    "classification": "Best",
+                    "evaluation": 0.33,
+                    "analysis": "Debug analysis for Kf2"
+                },
+                {
+                    "moveNumber": 38,
+                    "move": "g4",
+                    "classification": "Brilliant",
+                    "evaluation": 0.32,
+                    "analysis": "Debug analysis for g4"
+                },
+                {
+                    "moveNumber": 39,
+                    "move": "Rd1",
+                    "classification": "Brilliant",
+                    "evaluation": 1.94,
+                    "analysis": "Debug analysis for Rd1"
+                },
+                {
+                    "moveNumber": 39,
+                    "move": "Rd1",
+                    "classification": "Best",
+                    "evaluation": 0.22,
+                    "analysis": "Debug analysis for Rd1"
+                },
+                {
+                    "moveNumber": 40,
+                    "move": "Rd2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.94,
+                    "analysis": "Debug analysis for Rd2"
+                },
+                {
+                    "moveNumber": 40,
+                    "move": "Rd2",
+                    "classification": "Best",
+                    "evaluation": 0.24,
+                    "analysis": "Debug analysis for Rd2"
+                },
+                {
+                    "moveNumber": 41,
+                    "move": "Ke2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.4,
+                    "analysis": "Debug analysis for Ke2"
+                },
+                {
+                    "moveNumber": 41,
+                    "move": "Ke2",
+                    "classification": "Brilliant",
+                    "evaluation": 0.4,
+                    "analysis": "Debug analysis for Ke2"
+                },
+                {
+                    "moveNumber": 41,
+                    "move": "Ke2",
+                    "classification": "Excellent",
+                    "evaluation": 0,
+                    "analysis": "Debug analysis for Ke2"
+                },
+                {
+                    "moveNumber": 42,
+                    "move": "Kd3",
+                    "classification": "Excellent",
+                    "evaluation": 0,
+                    "analysis": "Debug analysis for Kd3"
+                },
+                {
+                    "moveNumber": 44,
+                    "move": "Kb1",
+                    "classification": "Excellent",
+                    "evaluation": 0.2,
+                    "analysis": "Debug analysis for Kb1"
+                },
+                {
+                    "moveNumber": 45,
+                    "move": "Kc2",
+                    "classification": "Excellent",
+                    "evaluation": 0,
+                    "analysis": "Debug analysis for Kc2"
+                },
+                {
+                    "moveNumber": 45,
+                    "move": "Kc2",
+                    "classification": "Best",
+                    "evaluation": 0.36,
+                    "analysis": "Debug analysis for Kc2"
+                },
+                {
+                    "moveNumber": 46,
+                    "move": "Nxc4+",
+                    "classification": "Brilliant",
+                    "evaluation": 1.45,
+                    "analysis": "Debug analysis for Nxc4+"
+                },
+                {
+                    "moveNumber": 47,
+                    "move": "d5",
+                    "classification": "Brilliant",
+                    "evaluation": 2.29,
+                    "analysis": "Debug analysis for d5"
+                },
+                {
+                    "moveNumber": 48,
+                    "move": "Rd4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.87,
+                    "analysis": "Debug analysis for Rd4"
+                },
+                {
+                    "moveNumber": 49,
+                    "move": "Kd2",
+                    "classification": "Brilliant",
+                    "evaluation": 1.28,
+                    "analysis": "Debug analysis for Kd2"
+                },
+                {
+                    "moveNumber": 50,
+                    "move": "Rxc4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.53,
+                    "analysis": "Debug analysis for Rxc4"
+                },
+                {
+                    "moveNumber": 51,
+                    "move": "Rb4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.47,
+                    "analysis": "Debug analysis for Rb4"
+                },
+                {
+                    "moveNumber": 52,
+                    "move": "Ra4",
+                    "classification": "Brilliant",
+                    "evaluation": 1.46,
+                    "analysis": "Debug analysis for Ra4"
+                },
+                {
+                    "moveNumber": 53,
+                    "move": "Ra6",
+                    "classification": "Brilliant",
+                    "evaluation": 1.74,
+                    "analysis": "Debug analysis for Ra6"
+                },
+                {
+                    "moveNumber": 54,
+                    "move": "Rd6+",
+                    "classification": "Brilliant",
+                    "evaluation": 2,
+                    "analysis": "Debug analysis for Rd6+"
+                },
+                {
+                    "moveNumber": 55,
+                    "move": "Rb6",
+                    "classification": "Brilliant",
+                    "evaluation": 2.02,
+                    "analysis": "Debug analysis for Rb6"
+                },
+                {
+                    "moveNumber": 56,
+                    "move": "Rxb3",
+                    "classification": "Brilliant",
+                    "evaluation": 2.51,
+                    "analysis": "Debug analysis for Rxb3"
+                },
+                {
+                    "moveNumber": 57,
+                    "move": "Ke1",
+                    "classification": "Brilliant",
+                    "evaluation": 2.58,
+                    "analysis": "Debug analysis for Ke1"
+                },
+                {
+                    "moveNumber": 58,
+                    "move": "Rb8",
+                    "classification": "Brilliant",
+                    "evaluation": 3.49,
+                    "analysis": "Debug analysis for Rb8"
+                },
+                {
+                    "moveNumber": 59,
+                    "move": "b4",
+                    "classification": "Brilliant",
+                    "evaluation": 3.99,
+                    "analysis": "Debug analysis for b4"
+                }
+            ],
+            "endGame": []
+        },
+        "criticalMistakes": [
+            {
+                "moveNumber": 8,
+                "move": "Nbd7",
+                "type": "Pin",
+                "analysis": "Debug explanation for Pin threat",
+                "solution": "Debug solution for Pin threat"
+            },
+            {
+                "moveNumber": 14,
+                "move": "Nxd5",
+                "type": "Fork",
+                "analysis": "Debug explanation for Fork threat",
+                "solution": "Debug solution for Fork threat"
+            },
+            {
+                "moveNumber": 48,
+                "move": "Rd4",
+                "type": "Pin",
+                "analysis": "Debug explanation for Pin threat",
+                "solution": "Debug solution for Pin threat"
+            }
+        ]
+    },
+    "movementDetails": {
+        "white": [
+            {
+                "moveNumber": 1,
+                "move": "e4",
+                "classification": "Excellent",
+                "evaluation": -0.21,
+                "gamePhase": "Opening",
+                "analysis": "Debug analysis for e4 in Opening (Position: rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1)"
+            },
+            {
+                "moveNumber": 2,
+                "move": "d4",
+                "classification": "Excellent",
+                "evaluation": -0.13,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for d4 in Middle Game (Position: rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2)"
+            },
+            {
+                "moveNumber": 3,
+                "move": "exd5",
+                "classification": "Good",
+                "evaluation": -0.2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for exd5 in Middle Game (Position: rnbqkbnr/ppp2ppp/4p3/3P4/3P4/8/PPP2PPP/RNBQKBNR b KQkq - 0 3)"
+            },
+            {
+                "moveNumber": 4,
+                "move": "Nf3",
+                "classification": "Excellent",
+                "evaluation": -0.13,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nf3 in Middle Game (Position: rnbqkbnr/ppp2ppp/8/3p4/3P4/5N2/PPP2PPP/RNBQKB1R b KQkq - 1 4)"
+            },
+            {
+                "moveNumber": 5,
+                "move": "c4",
+                "classification": "Excellent",
+                "evaluation": -0.15,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for c4 in Middle Game (Position: rnbqk1nr/ppp2ppp/3b4/3p4/2PP4/5N2/PP3PPP/RNBQKB1R b KQkq - 0 5)"
+            },
+            {
+                "moveNumber": 6,
+                "move": "Nc3",
+                "classification": "Excellent",
+                "evaluation": -0.11,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nc3 in Middle Game (Position: rnbqk2r/ppp2ppp/3b1n2/3p4/2PP4/2N2N2/PP3PPP/R1BQKB1R b KQkq - 2 6)"
+            },
+            {
+                "moveNumber": 7,
+                "move": "cxd5",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for cxd5 in Middle Game (Position: rnbq1rk1/ppp2ppp/3b1n2/3P4/3P4/2N2N2/PP3PPP/R1BQKB1R b KQ - 0 7)"
+            },
+            {
+                "moveNumber": 8,
+                "move": "Be2",
+                "classification": "Excellent",
+                "evaluation": -0.22,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Be2 in Middle Game (Position: rnbqr1k1/ppp2ppp/3b1n2/3P4/3P4/2N2N2/PP2BPPP/R1BQK2R b KQ - 2 8)"
+            },
+            {
+                "moveNumber": 9,
+                "move": "O-O",
+                "classification": "Excellent",
+                "evaluation": -0.1,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for O-O in Middle Game (Position: r1bqr1k1/pppn1ppp/3b1n2/3P4/3P4/2N2N2/PP2BPPP/R1BQ1RK1 b - - 4 9)"
+            },
+            {
+                "moveNumber": 10,
+                "move": "Re1",
+                "classification": "Good",
+                "evaluation": -0.18,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Re1 in Middle Game (Position: r1bqr1k1/pppn1pp1/3b1n1p/3P4/3P4/2N2N2/PP2BPPP/R1BQR1K1 b - - 1 10)"
+            },
+            {
+                "moveNumber": 11,
+                "move": "Ne5",
+                "classification": "Excellent",
+                "evaluation": 0.14,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ne5 in Middle Game (Position: r1bqr1k1/ppp2pp1/1n1b1n1p/3PN3/3P4/2N5/PP2BPPP/R1BQR1K1 b - - 3 11)"
+            },
+            {
+                "moveNumber": 12,
+                "move": "Bf3",
+                "classification": "Best",
+                "evaluation": 0.27,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bf3 in Middle Game (Position: r1bqr1k1/ppp2pp1/3b1n1p/3nN3/3P4/2N2B2/PP3PPP/R1BQR1K1 b - - 1 12)"
+            },
+            {
+                "moveNumber": 13,
+                "move": "Qb3",
+                "classification": "Best",
+                "evaluation": 0.13,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Qb3 in Middle Game (Position: r1bqr1k1/pp3pp1/2pb1n1p/3nN3/3P4/1QN2B2/PP3PPP/R1B1R1K1 b - - 1 13)"
+            },
+            {
+                "moveNumber": 14,
+                "move": "Nxd5",
+                "classification": "Brilliant",
+                "evaluation": 0.5,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nxd5 in Middle Game (Position: r1b1r1k1/pp3pp1/1qpb1n1p/3NN3/3P4/1Q3B2/PP3PPP/R1B1R1K1 b - - 0 14)"
+            },
+            {
+                "moveNumber": 15,
+                "move": "Bxd5",
+                "classification": "Brilliant",
+                "evaluation": 0.52,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bxd5 in Middle Game (Position: r1b1r1k1/pp3pp1/1qpb3p/3BN3/3P4/1Q6/PP3PPP/R1B1R1K1 b - - 0 15)"
+            },
+            {
+                "moveNumber": 16,
+                "move": "Qxb6",
+                "classification": "Brilliant",
+                "evaluation": 0.77,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Qxb6 in Middle Game (Position: r1b1r1k1/pp3pp1/1Q1b3p/3pN3/3P4/8/PP3PPP/R1B1R1K1 b - - 0 16)"
+            },
+            {
+                "moveNumber": 17,
+                "move": "Bd2",
+                "classification": "Brilliant",
+                "evaluation": 0.79,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bd2 in Middle Game (Position: r1b1r1k1/1p3pp1/1p1b3p/3pN3/3P4/8/PP1B1PPP/R3R1K1 b - - 1 17)"
+            },
+            {
+                "moveNumber": 18,
+                "move": "Nd3",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nd3 in Middle Game (Position: r1b1r1k1/1p4p1/1p1b1p1p/3p4/3P4/3N4/PP1B1PPP/R3R1K1 b - - 1 18)"
+            },
+            {
+                "moveNumber": 19,
+                "move": "Bxe1",
+                "classification": "Brilliant",
+                "evaluation": 0.46,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bxe1 in Middle Game (Position: r1b3k1/1p4p1/1p1b1p1p/3p4/3P4/3N4/PP3PPP/R3B1K1 b - - 0 19)"
+            },
+            {
+                "moveNumber": 20,
+                "move": "Bc3",
+                "classification": "Brilliant",
+                "evaluation": 0.41,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bc3 in Middle Game (Position: 2b3k1/1p4p1/1p1b1p1p/3p4/r2P4/2BN4/PP3PPP/R5K1 b - - 2 20)"
+            },
+            {
+                "moveNumber": 21,
+                "move": "Ne1",
+                "classification": "Brilliant",
+                "evaluation": 1.28,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ne1 in Middle Game (Position: 6k1/1p4p1/1p1b1p1p/3p1b2/r2P4/2B5/PP3PPP/R3N1K1 b - - 4 21)"
+            },
+            {
+                "moveNumber": 22,
+                "move": "a3",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for a3 in Middle Game (Position: 8/1p3kp1/1p1b1p1p/3p1b2/r2P4/P1B5/1P3PPP/R3N1K1 b - - 0 22)"
+            },
+            {
+                "moveNumber": 23,
+                "move": "Rc1",
+                "classification": "Brilliant",
+                "evaluation": 0.85,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rc1 in Middle Game (Position: 8/1p3kp1/3b1p1p/1p1p1b2/r2P4/P1B5/1P3PPP/2R1N1K1 b - - 1 23)"
+            },
+            {
+                "moveNumber": 24,
+                "move": "Rd1",
+                "classification": "Brilliant",
+                "evaluation": 1.94,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd1 in Middle Game (Position: 8/1p3kp1/3b1p1p/1p1p1b2/2rP4/P1B5/1P3PPP/3RN1K1 b - - 3 24)"
+            },
+            {
+                "moveNumber": 25,
+                "move": "axb4",
+                "classification": "Brilliant",
+                "evaluation": 1.06,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for axb4 in Middle Game (Position: 8/1p3kp1/3b1p1p/3p1b2/1PrP4/2B5/1P3PPP/3RN1K1 b - - 0 25)"
+            },
+            {
+                "moveNumber": 26,
+                "move": "Bxb4",
+                "classification": "Brilliant",
+                "evaluation": 1.08,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bxb4 in Middle Game (Position: 8/1p3kp1/5p1p/3p1b2/1BrP4/8/1P3PPP/3RN1K1 b - - 0 26)"
+            },
+            {
+                "moveNumber": 27,
+                "move": "Rd2",
+                "classification": "Brilliant",
+                "evaluation": 0.94,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd2 in Middle Game (Position: 8/1p3kp1/5p1p/3p1b2/1r1P4/8/1P1R1PPP/4N1K1 b - - 1 27)"
+            },
+            {
+                "moveNumber": 28,
+                "move": "f3",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for f3 in Middle Game (Position: 8/1p3k2/5p1p/3p1bp1/1r1P4/5P2/1P1R2PP/4N1K1 b - - 0 28)"
+            },
+            {
+                "moveNumber": 29,
+                "move": "Kf2",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kf2 in Middle Game (Position: 8/1p3k2/5p2/3p1bpp/1r1P4/5P2/1P1R1KPP/4N3 b - - 1 29)"
+            },
+            {
+                "moveNumber": 30,
+                "move": "g3",
+                "classification": "Brilliant",
+                "evaluation": 0.52,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for g3 in Middle Game (Position: 8/1p3k2/5p2/3p1bp1/1r1P3p/5PP1/1P1R1K1P/4N3 b - - 0 30)"
+            },
+            {
+                "moveNumber": 31,
+                "move": "hxg3",
+                "classification": "Brilliant",
+                "evaluation": 0.73,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for hxg3 in Middle Game (Position: 8/1p3k2/5p2/3p1bp1/1r1P4/5PP1/1P1R1K2/4N3 b - - 0 31)"
+            },
+            {
+                "moveNumber": 32,
+                "move": "Ng2",
+                "classification": "Brilliant",
+                "evaluation": 0.67,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ng2 in Middle Game (Position: 8/1p6/4kp2/3p1bp1/1r1P4/5PP1/1P1R1KN1/8 b - - 2 32)"
+            },
+            {
+                "moveNumber": 33,
+                "move": "Ne3",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ne3 in Middle Game (Position: 8/1p6/3k1p2/3p1bp1/1r1P4/4NPP1/1P1R1K2/8 b - - 4 33)"
+            },
+            {
+                "moveNumber": 34,
+                "move": "Ke2",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke2 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/1r1P4/4NPP1/1P1RK3/8 b - - 6 34)"
+            },
+            {
+                "moveNumber": 35,
+                "move": "Kf2",
+                "classification": "Brilliant",
+                "evaluation": 0.59,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kf2 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/3P4/1r2NPP1/1P1R1K2/8 b - - 8 35)"
+            },
+            {
+                "moveNumber": 36,
+                "move": "Ke2",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke2 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/1r1P4/4NPP1/1P1RK3/8 b - - 10 36)"
+            },
+            {
+                "moveNumber": 37,
+                "move": "Kf2",
+                "classification": "Best",
+                "evaluation": 0.33,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kf2 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/r2P4/4NPP1/1P1R1K2/8 b - - 12 37)"
+            },
+            {
+                "moveNumber": 38,
+                "move": "g4",
+                "classification": "Brilliant",
+                "evaluation": 0.32,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for g4 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/r2P2P1/4NP2/1P1R1K2/8 b - - 0 38)"
+            },
+            {
+                "moveNumber": 39,
+                "move": "Rd1",
+                "classification": "Best",
+                "evaluation": 0.22,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd1 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/3P2P1/4NP2/1P3K2/r2R4 b - - 2 39)"
+            },
+            {
+                "moveNumber": 40,
+                "move": "Rd2",
+                "classification": "Best",
+                "evaluation": 0.24,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd2 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/3P2P1/4NP2/rP1R1K2/8 b - - 4 40)"
+            },
+            {
+                "moveNumber": 41,
+                "move": "Ke2",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke2 in Middle Game (Position: 8/3b4/3k1p2/1p1p2p1/3P2P1/4NP2/rP1RK3/8 b - - 1 41)"
+            },
+            {
+                "moveNumber": 42,
+                "move": "Kd3",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kd3 in Middle Game (Position: 8/3b4/3k1p2/3p2p1/1p1P2P1/3KNP2/rP1R4/8 b - - 1 42)"
+            },
+            {
+                "moveNumber": 43,
+                "move": "Kc2",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kc2 in Middle Game (Position: 8/8/3k1p2/1b1p2p1/1p1P2P1/4NP2/rPKR4/8 b - - 3 43)"
+            },
+            {
+                "moveNumber": 44,
+                "move": "Kb1",
+                "classification": "Excellent",
+                "evaluation": 0.2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kb1 in Middle Game (Position: 8/8/3k1p2/3p2p1/1pbP2P1/4NP2/rP1R4/1K6 b - - 5 44)"
+            },
+            {
+                "moveNumber": 45,
+                "move": "Kc2",
+                "classification": "Best",
+                "evaluation": 0.36,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kc2 in Middle Game (Position: r7/8/3k1p2/3p2p1/1pbP2P1/4NP2/1PKR4/8 b - - 7 45)"
+            },
+            {
+                "moveNumber": 46,
+                "move": "Nxc4+",
+                "classification": "Brilliant",
+                "evaluation": 1.45,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nxc4+ in Middle Game (Position: 4r3/8/3k1p2/3p2p1/1pNP2P1/5P2/1PKR4/8 b - - 0 46)"
+            },
+            {
+                "moveNumber": 47,
+                "move": "d5",
+                "classification": "Brilliant",
+                "evaluation": 2.29,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for d5 in Middle Game (Position: 4r3/8/3k1p2/3P2p1/1pp3P1/5P2/1PKR4/8 b - - 0 47)"
+            },
+            {
+                "moveNumber": 48,
+                "move": "Rd4",
+                "classification": "Brilliant",
+                "evaluation": 1.87,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd4 in Middle Game (Position: 8/8/3k1p2/3P2p1/1ppR2P1/4rP2/1PK5/8 b - - 2 48)"
+            },
+            {
+                "moveNumber": 49,
+                "move": "Kd2",
+                "classification": "Brilliant",
+                "evaluation": 1.28,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kd2 in Middle Game (Position: 8/8/3k1p2/3P2p1/2pR2P1/1p2rP2/1P1K4/8 b - - 1 49)"
+            },
+            {
+                "moveNumber": 50,
+                "move": "Rxc4",
+                "classification": "Brilliant",
+                "evaluation": 1.53,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxc4 in Middle Game (Position: 8/8/3k1p2/3P2p1/2R3P1/1p3r2/1P1K4/8 b - - 0 50)"
+            },
+            {
+                "moveNumber": 51,
+                "move": "Rb4",
+                "classification": "Brilliant",
+                "evaluation": 1.47,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb4 in Middle Game (Position: 8/8/5p2/3k2p1/1R4P1/1p3r2/1P1K4/8 b - - 1 51)"
+            },
+            {
+                "moveNumber": 52,
+                "move": "Ra4",
+                "classification": "Brilliant",
+                "evaluation": 1.46,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra4 in Middle Game (Position: 8/8/5p2/2k3p1/R5P1/1p3r2/1P1K4/8 b - - 3 52)"
+            },
+            {
+                "moveNumber": 53,
+                "move": "Ra6",
+                "classification": "Brilliant",
+                "evaluation": 1.74,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra6 in Middle Game (Position: 8/8/R4p2/2k3p1/5rP1/1p6/1P1K4/8 b - - 5 53)"
+            },
+            {
+                "moveNumber": 54,
+                "move": "Rd6+",
+                "classification": "Brilliant",
+                "evaluation": 2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rd6+ in Middle Game (Position: 8/8/3R1p2/6p1/3k1rP1/1p6/1P1K4/8 b - - 7 54)"
+            },
+            {
+                "moveNumber": 55,
+                "move": "Rb6",
+                "classification": "Brilliant",
+                "evaluation": 2.02,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb6 in Middle Game (Position: 8/8/1R3p2/4k1p1/5rP1/1p6/1P1K4/8 b - - 9 55)"
+            },
+            {
+                "moveNumber": 56,
+                "move": "Rxb3",
+                "classification": "Brilliant",
+                "evaluation": 2.51,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxb3 in Middle Game (Position: 8/8/5p2/4k1p1/6r1/1R6/1P1K4/8 b - - 0 56)"
+            },
+            {
+                "moveNumber": 57,
+                "move": "Ke1",
+                "classification": "Brilliant",
+                "evaluation": 2.58,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke1 in Middle Game (Position: 8/8/5p2/4k1p1/8/1R6/1P4r1/4K3 b - - 2 57)"
+            },
+            {
+                "moveNumber": 58,
+                "move": "Rb8",
+                "classification": "Brilliant",
+                "evaluation": 3.49,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb8 in Middle Game (Position: 1R6/8/5p2/4k3/6p1/8/1P4r1/4K3 b - - 1 58)"
+            },
+            {
+                "moveNumber": 59,
+                "move": "b4",
+                "classification": "Brilliant",
+                "evaluation": 3.99,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b4 in Middle Game (Position: 1R6/8/8/4kp2/1P4p1/8/6r1/4K3 b - - 0 59)"
+            }
+        ],
+        "black": [
+            {
+                "moveNumber": 1,
+                "move": "e6",
+                "classification": "Good",
+                "evaluation": 0.22,
+                "gamePhase": "Opening",
+                "analysis": "Debug analysis for e6 in Opening (Position: rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2)"
+            },
+            {
+                "moveNumber": 2,
+                "move": "d5",
+                "classification": "Excellent",
+                "evaluation": 0.22,
+                "gamePhase": "Opening",
+                "analysis": "Debug analysis for d5 in Opening (Position: rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3)"
+            },
+            {
+                "moveNumber": 3,
+                "move": "exd5",
+                "classification": "Excellent",
+                "evaluation": 0.19,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for exd5 in Middle Game (Position: rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 4)"
+            },
+            {
+                "moveNumber": 4,
+                "move": "Bd6",
+                "classification": "Excellent",
+                "evaluation": 0.13,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bd6 in Middle Game (Position: rnbqk1nr/ppp2ppp/3b4/3p4/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 2 5)"
+            },
+            {
+                "moveNumber": 5,
+                "move": "Nf6",
+                "classification": "Excellent",
+                "evaluation": 0.13,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nf6 in Middle Game (Position: rnbqk2r/ppp2ppp/3b1n2/3p4/2PP4/5N2/PP3PPP/RNBQKB1R w KQkq - 1 6)"
+            },
+            {
+                "moveNumber": 6,
+                "move": "O-O",
+                "classification": "Excellent",
+                "evaluation": 0.06,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for O-O in Middle Game (Position: rnbq1rk1/ppp2ppp/3b1n2/3p4/2PP4/2N2N2/PP3PPP/R1BQKB1R w KQ - 3 7)"
+            },
+            {
+                "moveNumber": 7,
+                "move": "Re8+",
+                "classification": "Excellent",
+                "evaluation": 0.16,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Re8+ in Middle Game (Position: rnbqr1k1/ppp2ppp/3b1n2/3P4/3P4/2N2N2/PP3PPP/R1BQKB1R w KQ - 1 8)"
+            },
+            {
+                "moveNumber": 8,
+                "move": "Nbd7",
+                "classification": "Excellent",
+                "evaluation": 0.12,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nbd7 in Middle Game (Position: r1bqr1k1/pppn1ppp/3b1n2/3P4/3P4/2N2N2/PP2BPPP/R1BQK2R w KQ - 3 9)"
+            },
+            {
+                "moveNumber": 9,
+                "move": "h6",
+                "classification": "Good",
+                "evaluation": 0.35,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for h6 in Middle Game (Position: r1bqr1k1/pppn1pp1/3b1n1p/3P4/3P4/2N2N2/PP2BPPP/R1BQ1RK1 w - - 0 10)"
+            },
+            {
+                "moveNumber": 10,
+                "move": "Nb6",
+                "classification": "Excellent",
+                "evaluation": 0.1,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nb6 in Middle Game (Position: r1bqr1k1/ppp2pp1/1n1b1n1p/3P4/3P4/2N2N2/PP2BPPP/R1BQR1K1 w - - 2 11)"
+            },
+            {
+                "moveNumber": 11,
+                "move": "Nbxd5",
+                "classification": "Best",
+                "evaluation": -0.08,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nbxd5 in Middle Game (Position: r1bqr1k1/ppp2pp1/3b1n1p/3nN3/3P4/2N5/PP2BPPP/R1BQR1K1 w - - 0 12)"
+            },
+            {
+                "moveNumber": 12,
+                "move": "c6",
+                "classification": "Best",
+                "evaluation": -0.2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for c6 in Middle Game (Position: r1bqr1k1/pp3pp1/2pb1n1p/3nN3/3P4/2N2B2/PP3PPP/R1BQR1K1 w - - 0 13)"
+            },
+            {
+                "moveNumber": 13,
+                "move": "Qb6",
+                "classification": "Best",
+                "evaluation": -0.25,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Qb6 in Middle Game (Position: r1b1r1k1/pp3pp1/1qpb1n1p/3nN3/3P4/1QN2B2/PP3PPP/R1B1R1K1 w - - 2 14)"
+            },
+            {
+                "moveNumber": 14,
+                "move": "Nxd5",
+                "classification": "Brilliant",
+                "evaluation": -0.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Nxd5 in Middle Game (Position: r1b1r1k1/pp3pp1/1qpb3p/3nN3/3P4/1Q3B2/PP3PPP/R1B1R1K1 w - - 0 15)"
+            },
+            {
+                "moveNumber": 15,
+                "move": "cxd5",
+                "classification": "Brilliant",
+                "evaluation": -0.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for cxd5 in Middle Game (Position: r1b1r1k1/pp3pp1/1q1b3p/3pN3/3P4/1Q6/PP3PPP/R1B1R1K1 w - - 0 16)"
+            },
+            {
+                "moveNumber": 16,
+                "move": "axb6",
+                "classification": "Brilliant",
+                "evaluation": -0.65,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for axb6 in Middle Game (Position: r1b1r1k1/1p3pp1/1p1b3p/3pN3/3P4/8/PP3PPP/R1B1R1K1 w - - 0 17)"
+            },
+            {
+                "moveNumber": 17,
+                "move": "f6",
+                "classification": "Brilliant",
+                "evaluation": -0.66,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for f6 in Middle Game (Position: r1b1r1k1/1p4p1/1p1b1p1p/3pN3/3P4/8/PP1B1PPP/R3R1K1 w - - 0 18)"
+            },
+            {
+                "moveNumber": 18,
+                "move": "Rxe1+",
+                "classification": "Brilliant",
+                "evaluation": -0.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxe1+ in Middle Game (Position: r1b3k1/1p4p1/1p1b1p1p/3p4/3P4/3N4/PP1B1PPP/R3r1K1 w - - 0 19)"
+            },
+            {
+                "moveNumber": 19,
+                "move": "Ra4",
+                "classification": "Brilliant",
+                "evaluation": -0.45,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra4 in Middle Game (Position: 2b3k1/1p4p1/1p1b1p1p/3p4/r2P4/3N4/PP3PPP/R3B1K1 w - - 1 20)"
+            },
+            {
+                "moveNumber": 20,
+                "move": "Bf5",
+                "classification": "Brilliant",
+                "evaluation": -0.41,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bf5 in Middle Game (Position: 6k1/1p4p1/1p1b1p1p/3p1b2/r2P4/2BN4/PP3PPP/R5K1 w - - 3 21)"
+            },
+            {
+                "moveNumber": 21,
+                "move": "Kf7",
+                "classification": "Brilliant",
+                "evaluation": -0.89,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kf7 in Middle Game (Position: 8/1p3kp1/1p1b1p1p/3p1b2/r2P4/2B5/PP3PPP/R3N1K1 w - - 5 22)"
+            },
+            {
+                "moveNumber": 22,
+                "move": "b5",
+                "classification": "Brilliant",
+                "evaluation": -0.71,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b5 in Middle Game (Position: 8/1p3kp1/3b1p1p/1p1p1b2/r2P4/P1B5/1P3PPP/R3N1K1 w - - 0 23)"
+            },
+            {
+                "moveNumber": 23,
+                "move": "Rc4",
+                "classification": "Brilliant",
+                "evaluation": -0.92,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rc4 in Middle Game (Position: 8/1p3kp1/3b1p1p/1p1p1b2/2rP4/P1B5/1P3PPP/2R1N1K1 w - - 2 24)"
+            },
+            {
+                "moveNumber": 24,
+                "move": "b4",
+                "classification": "Brilliant",
+                "evaluation": -1.02,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b4 in Middle Game (Position: 8/1p3kp1/3b1p1p/3p1b2/1prP4/P1B5/1P3PPP/3RN1K1 w - - 0 25)"
+            },
+            {
+                "moveNumber": 25,
+                "move": "Bxb4",
+                "classification": "Brilliant",
+                "evaluation": -1.09,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bxb4 in Middle Game (Position: 8/1p3kp1/5p1p/3p1b2/1brP4/2B5/1P3PPP/3RN1K1 w - - 0 26)"
+            },
+            {
+                "moveNumber": 26,
+                "move": "Rxb4",
+                "classification": "Brilliant",
+                "evaluation": -1.01,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxb4 in Middle Game (Position: 8/1p3kp1/5p1p/3p1b2/1r1P4/8/1P3PPP/3RN1K1 w - - 0 27)"
+            },
+            {
+                "moveNumber": 27,
+                "move": "g5",
+                "classification": "Brilliant",
+                "evaluation": -0.83,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for g5 in Middle Game (Position: 8/1p3k2/5p1p/3p1bp1/1r1P4/8/1P1R1PPP/4N1K1 w - - 0 28)"
+            },
+            {
+                "moveNumber": 28,
+                "move": "h5",
+                "classification": "Brilliant",
+                "evaluation": -0.82,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for h5 in Middle Game (Position: 8/1p3k2/5p2/3p1bpp/1r1P4/5P2/1P1R2PP/4N1K1 w - - 0 29)"
+            },
+            {
+                "moveNumber": 29,
+                "move": "h4",
+                "classification": "Brilliant",
+                "evaluation": -0.72,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for h4 in Middle Game (Position: 8/1p3k2/5p2/3p1bp1/1r1P3p/5P2/1P1R1KPP/4N3 w - - 0 30)"
+            },
+            {
+                "moveNumber": 30,
+                "move": "hxg3+",
+                "classification": "Brilliant",
+                "evaluation": -0.63,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for hxg3+ in Middle Game (Position: 8/1p3k2/5p2/3p1bp1/1r1P4/5Pp1/1P1R1K1P/4N3 w - - 0 31)"
+            },
+            {
+                "moveNumber": 31,
+                "move": "Ke6",
+                "classification": "Brilliant",
+                "evaluation": -0.41,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke6 in Middle Game (Position: 8/1p6/4kp2/3p1bp1/1r1P4/5PP1/1P1R1K2/4N3 w - - 1 32)"
+            },
+            {
+                "moveNumber": 32,
+                "move": "Kd6",
+                "classification": "Brilliant",
+                "evaluation": -0.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kd6 in Middle Game (Position: 8/1p6/3k1p2/3p1bp1/1r1P4/5PP1/1P1R1KN1/8 w - - 3 33)"
+            },
+            {
+                "moveNumber": 33,
+                "move": "Be6",
+                "classification": "Brilliant",
+                "evaluation": -0.34,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Be6 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/1r1P4/4NPP1/1P1R1K2/8 w - - 5 34)"
+            },
+            {
+                "moveNumber": 34,
+                "move": "Rb3",
+                "classification": "Brilliant",
+                "evaluation": -0.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb3 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/3P4/1r2NPP1/1P1RK3/8 w - - 7 35)"
+            },
+            {
+                "moveNumber": 35,
+                "move": "Rb4",
+                "classification": "Brilliant",
+                "evaluation": -0.34,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb4 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/1r1P4/4NPP1/1P1R1K2/8 w - - 9 36)"
+            },
+            {
+                "moveNumber": 36,
+                "move": "Ra4",
+                "classification": "Best",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra4 in Middle Game (Position: 8/1p6/3kbp2/3p2p1/r2P4/4NPP1/1P1RK3/8 w - - 11 37)"
+            },
+            {
+                "moveNumber": 37,
+                "move": "Bd7",
+                "classification": "Brilliant",
+                "evaluation": -0.32,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bd7 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/r2P4/4NPP1/1P1R1K2/8 w - - 13 38)"
+            },
+            {
+                "moveNumber": 38,
+                "move": "Ra1",
+                "classification": "Best",
+                "evaluation": -0.27,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra1 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/3P2P1/4NP2/1P1R1K2/r7 w - - 1 39)"
+            },
+            {
+                "moveNumber": 39,
+                "move": "Ra2",
+                "classification": "Best",
+                "evaluation": -0.2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra2 in Middle Game (Position: 8/1p1b4/3k1p2/3p2p1/3P2P1/4NP2/rP3K2/3R4 w - - 3 40)"
+            },
+            {
+                "moveNumber": 40,
+                "move": "b5",
+                "classification": "Best",
+                "evaluation": -0.1,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b5 in Middle Game (Position: 8/3b4/3k1p2/1p1p2p1/3P2P1/4NP2/rP1R1K2/8 w - - 0 41)"
+            },
+            {
+                "moveNumber": 41,
+                "move": "b4",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b4 in Middle Game (Position: 8/3b4/3k1p2/3p2p1/1p1P2P1/4NP2/rP1RK3/8 w - - 0 42)"
+            },
+            {
+                "moveNumber": 42,
+                "move": "Bb5+",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bb5+ in Middle Game (Position: 8/8/3k1p2/1b1p2p1/1p1P2P1/3KNP2/rP1R4/8 w - - 2 43)"
+            },
+            {
+                "moveNumber": 43,
+                "move": "Bc4",
+                "classification": "Excellent",
+                "evaluation": 0.16,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Bc4 in Middle Game (Position: 8/8/3k1p2/3p2p1/1pbP2P1/4NP2/rPKR4/8 w - - 4 44)"
+            },
+            {
+                "moveNumber": 44,
+                "move": "Ra8",
+                "classification": "Best",
+                "evaluation": -0.2,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ra8 in Middle Game (Position: r7/8/3k1p2/3p2p1/1pbP2P1/4NP2/1P1R4/1K6 w - - 6 45)"
+            },
+            {
+                "moveNumber": 45,
+                "move": "Re8",
+                "classification": "Brilliant",
+                "evaluation": -0.75,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Re8 in Middle Game (Position: 4r3/8/3k1p2/3p2p1/1pbP2P1/4NP2/1PKR4/8 w - - 8 46)"
+            },
+            {
+                "moveNumber": 46,
+                "move": "dxc4",
+                "classification": "Brilliant",
+                "evaluation": -1.63,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for dxc4 in Middle Game (Position: 4r3/8/3k1p2/6p1/1ppP2P1/5P2/1PKR4/8 w - - 0 47)"
+            },
+            {
+                "moveNumber": 47,
+                "move": "Re3",
+                "classification": "Brilliant",
+                "evaluation": -1.4,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Re3 in Middle Game (Position: 8/8/3k1p2/3P2p1/1pp3P1/4rP2/1PKR4/8 w - - 1 48)"
+            },
+            {
+                "moveNumber": 48,
+                "move": "b3+",
+                "classification": "Brilliant",
+                "evaluation": -1.53,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for b3+ in Middle Game (Position: 8/8/3k1p2/3P2p1/2pR2P1/1p2rP2/1PK5/8 w - - 0 49)"
+            },
+            {
+                "moveNumber": 49,
+                "move": "Rxf3",
+                "classification": "Brilliant",
+                "evaluation": -1.38,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxf3 in Middle Game (Position: 8/8/3k1p2/3P2p1/2pR2P1/1p3r2/1P1K4/8 w - - 0 50)"
+            },
+            {
+                "moveNumber": 50,
+                "move": "Kxd5",
+                "classification": "Brilliant",
+                "evaluation": -1.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kxd5 in Middle Game (Position: 8/8/5p2/3k2p1/2R3P1/1p3r2/1P1K4/8 w - - 0 51)"
+            },
+            {
+                "moveNumber": 51,
+                "move": "Kc5",
+                "classification": "Brilliant",
+                "evaluation": -1.5,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kc5 in Middle Game (Position: 8/8/5p2/2k3p1/1R4P1/1p3r2/1P1K4/8 w - - 2 52)"
+            },
+            {
+                "moveNumber": 52,
+                "move": "Rf4",
+                "classification": "Brilliant",
+                "evaluation": -1.67,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rf4 in Middle Game (Position: 8/8/5p2/2k3p1/R4rP1/1p6/1P1K4/8 w - - 4 53)"
+            },
+            {
+                "moveNumber": 53,
+                "move": "Kd4",
+                "classification": "Brilliant",
+                "evaluation": -1.44,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Kd4 in Middle Game (Position: 8/8/R4p2/6p1/3k1rP1/1p6/1P1K4/8 w - - 6 54)"
+            },
+            {
+                "moveNumber": 54,
+                "move": "Ke5",
+                "classification": "Brilliant",
+                "evaluation": -2.08,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Ke5 in Middle Game (Position: 8/8/3R1p2/4k1p1/5rP1/1p6/1P1K4/8 w - - 8 55)"
+            },
+            {
+                "moveNumber": 55,
+                "move": "Rxg4",
+                "classification": "Brilliant",
+                "evaluation": -2.1,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rxg4 in Middle Game (Position: 8/8/1R3p2/4k1p1/6r1/1p6/1P1K4/8 w - - 0 56)"
+            },
+            {
+                "moveNumber": 56,
+                "move": "Rg2+",
+                "classification": "Brilliant",
+                "evaluation": -2.56,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rg2+ in Middle Game (Position: 8/8/5p2/4k1p1/8/1R6/1P1K2r1/8 w - - 1 57)"
+            },
+            {
+                "moveNumber": 57,
+                "move": "g4",
+                "classification": "Brilliant",
+                "evaluation": -2.65,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for g4 in Middle Game (Position: 8/8/5p2/4k3/6p1/1R6/1P4r1/4K3 w - - 0 58)"
+            },
+            {
+                "moveNumber": 58,
+                "move": "f5",
+                "classification": "Brilliant",
+                "evaluation": -2.88,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for f5 in Middle Game (Position: 1R6/8/8/4kp2/6p1/8/1P4r1/4K3 w - - 0 59)"
+            },
+            {
+                "moveNumber": 59,
+                "move": "Rb2",
+                "classification": "Brilliant",
+                "evaluation": -4.35,
+                "gamePhase": "Middle Game",
+                "analysis": "Debug analysis for Rb2 in Middle Game (Position: 1R6/8/8/4kp2/1P4p1/8/1r6/4K3 w - - 1 60)"
+            }
+        ]
+    },
+    "threats": [
+        {
+            "moveNumber": 13,
+            "move": "Qb6",
+            "threatType": "Fork",
+            "explanation": "Debug explanation for Fork threat at move 13",
+            "solution": "Debug solution for Fork threat at move 13"
+        },
+        {
+            "moveNumber": 15,
+            "move": "Bxd5",
+            "threatType": "Pin",
+            "explanation": "Debug explanation for Pin threat at move 15",
+            "solution": "Debug solution for Pin threat at move 15"
+        },
+        {
+            "moveNumber": 15,
+            "move": "cxd5",
+            "threatType": "Fork",
+            "explanation": "Debug explanation for Fork threat at move 15",
+            "solution": "Debug solution for Fork threat at move 15"
+        },
+        {
+            "moveNumber": 39,
+            "move": "Ra2",
+            "threatType": "Pin",
+            "explanation": "Debug explanation for Pin threat at move 39",
+            "solution": "Debug solution for Pin threat at move 39"
+        },
+        {
+            "moveNumber": 43,
+            "move": "Bc4",
+            "threatType": "Pin",
+            "explanation": "Debug explanation for Pin threat at move 43",
+            "solution": "Debug solution for Pin threat at move 43"
+        },
+        {
+            "moveNumber": 47,
+            "move": "d5",
+            "threatType": "Pin",
+            "explanation": "Debug explanation for Pin threat at move 47",
+            "solution": "Debug solution for Pin threat at move 47"
+        },
+        {
+            "moveNumber": 49,
+            "move": "Kd2",
+            "threatType": "Pin",
+            "explanation": "Debug explanation for Pin threat at move 49",
+            "solution": "Debug solution for Pin threat at move 49"
+        }
+    ],
+    "opening": {
+        "whiteOpening": {
+            "moves": "1. e4",
+            "classification": "Excellent",
+            "description": [
+                "Debug description for white opening"
+            ],
+            "explanation": "Debug explanation for white opening"
+        },
+        "blackOpening": {
+            "moves": "1. e4 e6 2. d4 d5 3. exd5",
+            "classification": "Good",
+            "description": [
+                "Debug description for black opening"
+            ],
+            "explanation": "Debug explanation for black opening"
+        }
+    },
+    "middleGame": {
+        "bestMoves": [
+            {
+                "moveNumber": 2,
+                "move": "d4",
+                "classification": "Excellent",
+                "evaluation": -0.13,
+                "analysis": "Debug analysis for d4 (Excellent)"
+            },
+            {
+                "moveNumber": 3,
+                "move": "exd5",
+                "classification": "Good",
+                "evaluation": -0.2,
+                "analysis": "Debug analysis for exd5 (Good)"
+            },
+            {
+                "moveNumber": 4,
+                "move": "Nf3",
+                "classification": "Excellent",
+                "evaluation": -0.13,
+                "analysis": "Debug analysis for Nf3 (Excellent)"
+            },
+            {
+                "moveNumber": 5,
+                "move": "c4",
+                "classification": "Excellent",
+                "evaluation": -0.15,
+                "analysis": "Debug analysis for c4 (Excellent)"
+            },
+            {
+                "moveNumber": 6,
+                "move": "Nc3",
+                "classification": "Excellent",
+                "evaluation": -0.11,
+                "analysis": "Debug analysis for Nc3 (Excellent)"
+            },
+            {
+                "moveNumber": 7,
+                "move": "cxd5",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "analysis": "Debug analysis for cxd5 (Excellent)"
+            },
+            {
+                "moveNumber": 8,
+                "move": "Be2",
+                "classification": "Excellent",
+                "evaluation": -0.22,
+                "analysis": "Debug analysis for Be2 (Excellent)"
+            },
+            {
+                "moveNumber": 9,
+                "move": "O-O",
+                "classification": "Excellent",
+                "evaluation": -0.1,
+                "analysis": "Debug analysis for O-O (Excellent)"
+            },
+            {
+                "moveNumber": 10,
+                "move": "Re1",
+                "classification": "Good",
+                "evaluation": -0.18,
+                "analysis": "Debug analysis for Re1 (Good)"
+            },
+            {
+                "moveNumber": 11,
+                "move": "Ne5",
+                "classification": "Excellent",
+                "evaluation": 0.14,
+                "analysis": "Debug analysis for Ne5 (Excellent)"
+            },
+            {
+                "moveNumber": 12,
+                "move": "Bf3",
+                "classification": "Best",
+                "evaluation": 0.27,
+                "analysis": "Debug analysis for Bf3 (Best)"
+            },
+            {
+                "moveNumber": 13,
+                "move": "Qb3",
+                "classification": "Best",
+                "evaluation": 0.13,
+                "analysis": "Debug analysis for Qb3 (Best)"
+            },
+            {
+                "moveNumber": 14,
+                "move": "Nxd5",
+                "classification": "Brilliant",
+                "evaluation": 0.5,
+                "analysis": "Debug analysis for Nxd5 (Brilliant)"
+            },
+            {
+                "moveNumber": 15,
+                "move": "Bxd5",
+                "classification": "Brilliant",
+                "evaluation": 0.52,
+                "analysis": "Debug analysis for Bxd5 (Brilliant)"
+            },
+            {
+                "moveNumber": 16,
+                "move": "Qxb6",
+                "classification": "Brilliant",
+                "evaluation": 0.77,
+                "analysis": "Debug analysis for Qxb6 (Brilliant)"
+            },
+            {
+                "moveNumber": 17,
+                "move": "Bd2",
+                "classification": "Brilliant",
+                "evaluation": 0.79,
+                "analysis": "Debug analysis for Bd2 (Brilliant)"
+            },
+            {
+                "moveNumber": 18,
+                "move": "Nd3",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "analysis": "Debug analysis for Nd3 (Brilliant)"
+            },
+            {
+                "moveNumber": 19,
+                "move": "Bxe1",
+                "classification": "Brilliant",
+                "evaluation": 0.46,
+                "analysis": "Debug analysis for Bxe1 (Brilliant)"
+            },
+            {
+                "moveNumber": 20,
+                "move": "Bc3",
+                "classification": "Brilliant",
+                "evaluation": 0.41,
+                "analysis": "Debug analysis for Bc3 (Brilliant)"
+            },
+            {
+                "moveNumber": 21,
+                "move": "Ne1",
+                "classification": "Brilliant",
+                "evaluation": 1.28,
+                "analysis": "Debug analysis for Ne1 (Brilliant)"
+            },
+            {
+                "moveNumber": 22,
+                "move": "a3",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "analysis": "Debug analysis for a3 (Brilliant)"
+            },
+            {
+                "moveNumber": 23,
+                "move": "Rc1",
+                "classification": "Brilliant",
+                "evaluation": 0.85,
+                "analysis": "Debug analysis for Rc1 (Brilliant)"
+            },
+            {
+                "moveNumber": 25,
+                "move": "axb4",
+                "classification": "Brilliant",
+                "evaluation": 1.06,
+                "analysis": "Debug analysis for axb4 (Brilliant)"
+            },
+            {
+                "moveNumber": 26,
+                "move": "Bxb4",
+                "classification": "Brilliant",
+                "evaluation": 1.08,
+                "analysis": "Debug analysis for Bxb4 (Brilliant)"
+            },
+            {
+                "moveNumber": 28,
+                "move": "f3",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "analysis": "Debug analysis for f3 (Brilliant)"
+            },
+            {
+                "moveNumber": 30,
+                "move": "g3",
+                "classification": "Brilliant",
+                "evaluation": 0.52,
+                "analysis": "Debug analysis for g3 (Brilliant)"
+            },
+            {
+                "moveNumber": 31,
+                "move": "hxg3",
+                "classification": "Brilliant",
+                "evaluation": 0.73,
+                "analysis": "Debug analysis for hxg3 (Brilliant)"
+            },
+            {
+                "moveNumber": 32,
+                "move": "Ng2",
+                "classification": "Brilliant",
+                "evaluation": 0.67,
+                "analysis": "Debug analysis for Ng2 (Brilliant)"
+            },
+            {
+                "moveNumber": 33,
+                "move": "Ne3",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "analysis": "Debug analysis for Ne3 (Brilliant)"
+            },
+            {
+                "moveNumber": 37,
+                "move": "Kf2",
+                "classification": "Brilliant",
+                "evaluation": 0.82,
+                "analysis": "Debug analysis for Kf2 (Brilliant)"
+            },
+            {
+                "moveNumber": 37,
+                "move": "Kf2",
+                "classification": "Brilliant",
+                "evaluation": 0.59,
+                "analysis": "Debug analysis for Kf2 (Brilliant)"
+            },
+            {
+                "moveNumber": 37,
+                "move": "Kf2",
+                "classification": "Best",
+                "evaluation": 0.33,
+                "analysis": "Debug analysis for Kf2 (Best)"
+            },
+            {
+                "moveNumber": 38,
+                "move": "g4",
+                "classification": "Brilliant",
+                "evaluation": 0.32,
+                "analysis": "Debug analysis for g4 (Brilliant)"
+            },
+            {
+                "moveNumber": 39,
+                "move": "Rd1",
+                "classification": "Brilliant",
+                "evaluation": 1.94,
+                "analysis": "Debug analysis for Rd1 (Brilliant)"
+            },
+            {
+                "moveNumber": 39,
+                "move": "Rd1",
+                "classification": "Best",
+                "evaluation": 0.22,
+                "analysis": "Debug analysis for Rd1 (Best)"
+            },
+            {
+                "moveNumber": 40,
+                "move": "Rd2",
+                "classification": "Brilliant",
+                "evaluation": 0.94,
+                "analysis": "Debug analysis for Rd2 (Brilliant)"
+            },
+            {
+                "moveNumber": 40,
+                "move": "Rd2",
+                "classification": "Best",
+                "evaluation": 0.24,
+                "analysis": "Debug analysis for Rd2 (Best)"
+            },
+            {
+                "moveNumber": 41,
+                "move": "Ke2",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "analysis": "Debug analysis for Ke2 (Brilliant)"
+            },
+            {
+                "moveNumber": 41,
+                "move": "Ke2",
+                "classification": "Brilliant",
+                "evaluation": 0.4,
+                "analysis": "Debug analysis for Ke2 (Brilliant)"
+            },
+            {
+                "moveNumber": 41,
+                "move": "Ke2",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "analysis": "Debug analysis for Ke2 (Excellent)"
+            },
+            {
+                "moveNumber": 42,
+                "move": "Kd3",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "analysis": "Debug analysis for Kd3 (Excellent)"
+            },
+            {
+                "moveNumber": 44,
+                "move": "Kb1",
+                "classification": "Excellent",
+                "evaluation": 0.2,
+                "analysis": "Debug analysis for Kb1 (Excellent)"
+            },
+            {
+                "moveNumber": 45,
+                "move": "Kc2",
+                "classification": "Excellent",
+                "evaluation": 0,
+                "analysis": "Debug analysis for Kc2 (Excellent)"
+            },
+            {
+                "moveNumber": 45,
+                "move": "Kc2",
+                "classification": "Best",
+                "evaluation": 0.36,
+                "analysis": "Debug analysis for Kc2 (Best)"
+            },
+            {
+                "moveNumber": 46,
+                "move": "Nxc4+",
+                "classification": "Brilliant",
+                "evaluation": 1.45,
+                "analysis": "Debug analysis for Nxc4+ (Brilliant)"
+            },
+            {
+                "moveNumber": 47,
+                "move": "d5",
+                "classification": "Brilliant",
+                "evaluation": 2.29,
+                "analysis": "Debug analysis for d5 (Brilliant)"
+            },
+            {
+                "moveNumber": 48,
+                "move": "Rd4",
+                "classification": "Brilliant",
+                "evaluation": 1.87,
+                "analysis": "Debug analysis for Rd4 (Brilliant)"
+            },
+            {
+                "moveNumber": 49,
+                "move": "Kd2",
+                "classification": "Brilliant",
+                "evaluation": 1.28,
+                "analysis": "Debug analysis for Kd2 (Brilliant)"
+            },
+            {
+                "moveNumber": 50,
+                "move": "Rxc4",
+                "classification": "Brilliant",
+                "evaluation": 1.53,
+                "analysis": "Debug analysis for Rxc4 (Brilliant)"
+            },
+            {
+                "moveNumber": 51,
+                "move": "Rb4",
+                "classification": "Brilliant",
+                "evaluation": 1.47,
+                "analysis": "Debug analysis for Rb4 (Brilliant)"
+            },
+            {
+                "moveNumber": 52,
+                "move": "Ra4",
+                "classification": "Brilliant",
+                "evaluation": 1.46,
+                "analysis": "Debug analysis for Ra4 (Brilliant)"
+            },
+            {
+                "moveNumber": 53,
+                "move": "Ra6",
+                "classification": "Brilliant",
+                "evaluation": 1.74,
+                "analysis": "Debug analysis for Ra6 (Brilliant)"
+            },
+            {
+                "moveNumber": 54,
+                "move": "Rd6+",
+                "classification": "Brilliant",
+                "evaluation": 2,
+                "analysis": "Debug analysis for Rd6+ (Brilliant)"
+            },
+            {
+                "moveNumber": 55,
+                "move": "Rb6",
+                "classification": "Brilliant",
+                "evaluation": 2.02,
+                "analysis": "Debug analysis for Rb6 (Brilliant)"
+            },
+            {
+                "moveNumber": 56,
+                "move": "Rxb3",
+                "classification": "Brilliant",
+                "evaluation": 2.51,
+                "analysis": "Debug analysis for Rxb3 (Brilliant)"
+            },
+            {
+                "moveNumber": 57,
+                "move": "Ke1",
+                "classification": "Brilliant",
+                "evaluation": 2.58,
+                "analysis": "Debug analysis for Ke1 (Brilliant)"
+            },
+            {
+                "moveNumber": 58,
+                "move": "Rb8",
+                "classification": "Brilliant",
+                "evaluation": 3.49,
+                "analysis": "Debug analysis for Rb8 (Brilliant)"
+            },
+            {
+                "moveNumber": 59,
+                "move": "b4",
+                "classification": "Brilliant",
+                "evaluation": 3.99,
+                "analysis": "Debug analysis for b4 (Brilliant)"
+            }
+        ],
+        "badMoves": []
+    },
+    "endGame": {
+        "bestMoves": [],
+        "badMoves": []
+    },
+    "improvementRecommendation": {
+        "keyWeaknesses": {
+            "tacticalAwareness": "Debug tactical awareness",
+            "openingPreparation": "Debug opening preparation",
+            "middleGameTechnique": "Debug middle game technique",
+            "endGameTechnique": "Debug endgame technique"
+        },
+        "gameAnalysis": {
+            "strength": "Debug strength analysis",
+            "weaknesses": "Debug weaknesses analysis"
+        },
+        "nextStepImprovement": "1. Debug Tip: This is a debug improvement tip\n\n2. Practice More: Just keep practicing"
+    },
+    "training": {
+        "criticalMistakes": {
+            "opening": [],
+            "middleGame": [],
+            "endGame": []
+        },
+        "weaknessIdentification": {
+            "opening": [],
+            "middleGame": [],
+            "endGame": []
+        }
+    }
+}

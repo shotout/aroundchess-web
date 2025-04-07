@@ -54,7 +54,7 @@ const AnalysisLatestGame: React.FC = () => {
   }, [mounted]);
   const handleResize = () => {
     let widthC =
-      window?.innerWidth < 1024 ? window?.innerWidth : window?.innerWidth * 0.5;
+      window?.innerWidth <= 1024 ? window?.innerWidth : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
