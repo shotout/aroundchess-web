@@ -28,6 +28,7 @@ interface TwoDChessboardProps {
   customSquareStyles?: Record<string, React.CSSProperties>;
   customArrows:any;
   areArrowsAllowed:boolean;
+  customArrowColor:string;
 }
 
 const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
@@ -43,7 +44,8 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   showPromotionDialog,
   customSquareStyles,
   customArrows,
-  areArrowsAllowed
+  areArrowsAllowed,
+  customArrowColor
 }) => {
   const {
     StyleChoosed,
@@ -159,6 +161,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
       >
         <Chessboard
           // onPieceDrop={onPieceDrop}
+          customArrowColor={customArrowColor}
           boardOrientation={orientation}
           boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
           arePiecesDraggable={arePiecesDraggable}

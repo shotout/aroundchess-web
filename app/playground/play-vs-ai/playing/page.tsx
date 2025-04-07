@@ -27,12 +27,13 @@ export default function Playing() {
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
 
-  const [heightScreen,setHeightScreen] = useState<number>(0)
+  const [heightScreen, setHeightScreen] = useState<number>(0);
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
-  const [bestLine, setBestline] = useState<string>("");
+  const [bestLine, setBestline] = useState<string | null>(null);
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
   const [depth, setDepth] = useState<number>(10);
+  const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
@@ -211,23 +212,14 @@ export default function Playing() {
     });
   };
   const handleHint = () => {
+    setHintClicked(true);
     console.log("handleHint");
-    let depthHint = depth;
-    engine.evaluatePosition(game.fen(), depthHint);
-    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
-      if (depth && depth < 10) return;
-      positionEvaluation &&
-        setPositionEvaluation(
-          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
-        );
-      possibleMate && setPossibleMate(possibleMate);
-      depth && setDepth(depth);
-      pv && setBestline(pv);
-    });
   };
+
   useEffect(() => {
     fillMovement();
   }, [gamePosition]);
+
   const fillMovement = () => {
     let capturedPiecesBlack: {
       captured: string | null;
@@ -314,7 +306,7 @@ export default function Playing() {
         findBestMove();
       }, 1000);
     }
-    setHeightScreen(window?.innerHeight)
+    setHeightScreen(window?.innerHeight);
     handleResize();
   }, []);
   const getStockfishDepth = (elo: number) => {
@@ -468,7 +460,27 @@ export default function Playing() {
       </div>
     );
   };
-
+  useEffect(() => {
+    if (!hintClicked) return;
+    if (bestLine && bestLine.length > 0) {
+      setBestline(null);
+    }
+    let depthHint = depth;
+    engine.evaluatePosition(game.fen(), depthHint);
+    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
+      if (depth && depth < 10) return;
+      positionEvaluation &&
+        setPositionEvaluation(
+          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+        );
+      possibleMate && setPossibleMate(possibleMate);
+      depth && setDepth(depth);
+      pv && setBestline(pv);
+    });
+    return () => {
+      setBestline("");
+    };
+  }, [game, hintClicked]);
   return (
     <Navigation>
       <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
@@ -503,6 +515,7 @@ export default function Playing() {
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
             {orientation != "white" ? whitePlayer() : blackPlayer()}
             <div className="flex flex-col justify-center items-center gap-3 ">
+              {bestLine}
               {buttonBoard()}
               <TwoDChessboard
                 arePiecesDraggable={false}
@@ -517,17 +530,18 @@ export default function Playing() {
                   ...optionSquares,
                   ...rightClickedSquares,
                 }}
-                areArrowsAllowed={bestLine.length > 0}
+                areArrowsAllowed={true}
                 customArrows={
-                  bestLine.length > 0 &&
-                  bestLine?.split(" ")?.[0] && [
-                    [
-                      bestLine?.split(" ")?.[0].substring(0, 2) as Square,
-                      bestLine?.split(" ")?.[0].substring(2, 4) as Square,
-                      "#1C16C250",
-                    ],
-                  ]
+                  bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
+                    ? [
+                        [
+                          bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                          bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                        ],
+                      ]
+                    : null
                 }
+                customArrowColor={"#1C16C250"}
                 promotionToSquare={moveTo}
                 showPromotionDialog={showPromotionDialog}
               />
