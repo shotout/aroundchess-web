@@ -120,7 +120,7 @@ const AnalysisLatestGame: React.FC = () => {
 
   return (
     <div
-      style={{ maxWidth: widthContainer }}
+      style={{ width: widthContainer }}
       className={`${
         hideDiv && "mt-96 sm:mt-[64%]"
       } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 p-3`}

@@ -12,7 +12,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
 
-      <div className="flex flex-col px-12 py-8 lg:py-2 lg:pt-8">
+      <div className="flex flex-col px-4 lg:py-2 lg:pt-8">
         <div className="grid gap-9 lg:grid-cols-2 sm:mb-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-2 sm:mb-8">
@@ -25,7 +25,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 height={600}
               />
             </Link>
-            <p className="mt-1 text-md sm:mt-2:text-sm text-[#364152]">
+            <p className="mt-1 text-lg sm:mt-2:text-lg text-[#364152]">
               Advanced chess training and analysis powered by AI
             </p>
           </div>
@@ -68,7 +68,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             </ul>
           </div>
           <div>
-            <h3 className="mb-8 text-lg font-semibold">Company</h3>
+            <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">Company</h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -97,7 +97,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             </ul>
           </div>
           <div>
-            <h3 className="mb-8 text-lg font-semibold">Legal</h3>
+            <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">Legal</h3>
             <ul className="space-y-2">
               <li>
                 <Link

@@ -3,7 +3,6 @@ import { useEffect } from "react";
 
 const DotSpinner = () => {
   useEffect(() => {
-    // Add keyframes for the pulse animation
     const style = document.createElement("style");
     style.textContent = `
       @keyframes pulse {

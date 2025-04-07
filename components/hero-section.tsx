@@ -40,13 +40,7 @@ export function HeroSection() {
     try {
       setIsLoading(true);
       const config = {
-        headers: {
-          // "Access-Control-Allow-Origin": "*",
-          // "Access-Control-Allow-Methods":"GET,OPTIONS,PATCH,DELETE,POST,PUT",
-          // "Access-Control-Allow-Credentials": "true",
-          // "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-          // "Access-Control-Expose-Headers": "*",
-        },
+        headers: {},
       };
       const url = AnalyticsUrl + "/" + username;
       console.log(username, url, isLoading);
@@ -154,7 +148,7 @@ export function HeroSection() {
                   setUsername(e.target.value);
                   setUsernamePlayer(e.target.value);
                 }}
-                className="block w-full p-3 rounded-sm border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="block w-full p-3  border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
 
               <button

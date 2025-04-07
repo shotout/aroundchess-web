@@ -7,17 +7,23 @@ import React from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
+import { useChessBoardThemeStore } from "../store/chessBoardTheme";
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
 }
 const Threats: React.FC<ThreatsProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-    const { chessMove, setChessMove } = useChessMoveStore();
-  
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    capturedWhite,
+  } = usePgnStore(); // Get PGN from the Zustand store
+  const { chessMove, setChessMove } = useChessMoveStore();
+  const { PieceChoosed } = useChessBoardThemeStore();
+
   const { threats } = dataAnalysis ?? {};
   const handleOnClickMovement = (move: any) => {
-    console.log("move",move)
+    console.log("move", move);
     setChessMove(move);
   };
   return (
@@ -37,14 +43,31 @@ const Threats: React.FC<ThreatsProps> = (props) => {
             </span>
           </div>
           <div className="flex flex-col gap-2 mt-2">
-            {threats.length==0&&(<NoData/>)}
+            {threats.length == 0 && <NoData />}
             {threats.map((item: any, index: number) => {
               return (
                 <div key={index} className="border border-input rounded-md p-4">
                   <div className="flex flex-row justify-between items-center gap-2 mb-2">
-                    <span onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1">
-                      Move {item?.moveNumber}: <span className="font-bold">{item?.move}</span>
+                    <span
+                      onClick={() => handleOnClickMovement(item)}
+                      className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                    >
+                      Move {item?.moveNumber}:{" "}
+                      {capturedWhite
+                        .filter((wp) => wp.san == item?.move)
+                        .map((item, index) => {
+                          return (
+                            <Image
+                              key={index}
+                              src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                              alt="icon"
+                              width={1000}
+                              height={1000}
+                              className="w-[12px] h-[12px] object-contain inline-block"
+                            />
+                          );
+                        })}
+                      <span className="font-bold">{item?.move}</span>
                     </span>
                     <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
                       {item?.threatType}
