@@ -13,53 +13,22 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
+import { useChessBoardThemeStore } from "../store/chessBoardTheme";
 interface MiddleGameProps {
   next: () => void;
   prev: () => void;
 }
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { PieceChoosed } = useChessBoardThemeStore();
 
   const { bestMoves, badMoves } = dataAnalysis?.middleGame;
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
-  const [bestmoves, setBestMoves] = useState<any[]>([
-    {
-      number: 5,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Brilliant",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 2,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Great",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
-  const [badMove, setBadMove] = useState<any[]>([
-    {
-      number: 1,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 7,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
+  useEffect(() => {
+    console.log("dataAnalysis?.middleGame", dataAnalysis?.middleGame);
+  }, []);
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -75,7 +44,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#80B64D] text-[#FFA459]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -144,12 +113,24 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                       <div className="flex flex-row gap-2">
                         <span
                           onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs  font-normal border border-primary rounded-[4px] p-1"
+                          className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
                         >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold sm:text-sm md:text-md lg:text-xs ">
-                            {item.moves}
-                          </span>
+                          Move {item?.moveNumber}:{" "}
+                          {capturedWhite
+                            .filter((wp) => wp.san == item?.move)
+                            .map((item, index) => {
+                              return (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[12px] h-[12px] object-contain inline-block"
+                                />
+                              );
+                            })}
+                          <span className="font-bold">{item?.move}</span>
                         </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-xs  text-center font-normal ${getScoreClass(
@@ -218,10 +199,24 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                       <div className="flex flex-row gap-2">
                         <span
                           onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1"
+                          className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
                         >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.moves}</span>
+                          Move {item?.moveNumber}:{" "}
+                          {capturedWhite
+                            .filter((wp) => wp.san == item?.move)
+                            .map((item, index) => {
+                              return (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[12px] h-[12px] object-contain inline-block"
+                                />
+                              );
+                            })}
+                          <span className="font-bold">{item?.move}</span>
                         </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-xs text-center font-normal ${getScoreClass(

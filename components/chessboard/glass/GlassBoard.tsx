@@ -1,10 +1,6 @@
-import Engine from "@/components/playground/src/lib/stockfish";
-import { Chess, Piece, Square } from "chess.js";
 import Image from "next/image";
-import React from "react";
-import { SetStateAction, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
-import { CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
  
 
@@ -14,40 +10,7 @@ interface GlassBoardProps {
 }
 
 const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
-  const engine = useMemo(() => new Engine(), []);
-  const game = useMemo(() => new Chess(), []);
-  const [gamePosition, setGamePosition] = useState(game.fen());
-  function findBestMove() {
-    engine.evaluatePosition(game.fen());
-    engine.onMessage((message) => {
-      const bestMove = message.bestMove;
-      if (bestMove) {
-        game.move({
-          from: bestMove.substring(0, 2),
-          to: bestMove.substring(2, 4),
-          promotion: bestMove.substring(4, 5),
-        });
-        setGamePosition(game.fen());
-      }
-    });
-  }
-  function onDrop(sourceSquare: Square, targetSquare: Square, piece: any) {
-    const move = game.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: piece[1].toLowerCase() ?? "q",
-    });
-    setGamePosition(game.fen());
-
-    // illegal move
-    if (move === null) return false;
-
-    // exit if the game is over
-    if (game.isGameOver() || game.isDraw()) return false;
-    findBestMove();
-    return true;
-  }
-  const [activeSquare, setActiveSquare] = useState("");
+   
   const twoDPieces = useMemo(() => {
     const pieces = [
       {
@@ -137,7 +100,7 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
       {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
-        src={"/boards/blueglass.png"}
+        src={"/boards/glass.png"}
         alt="blueglass"
         width={1000}
         height={1000}

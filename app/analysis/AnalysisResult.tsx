@@ -1,9 +1,9 @@
 "use client";
 
+import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import MovementTable from "@/components/table/movement";
-import { Button } from "@/components/ui/button";
-import { getStockfishService } from "@/lib/stockfish/stockfish-service";
-import { Chess, PieceSymbol, Square } from "chess.js";
+import { changeNamePiece } from "@/functions/change-name-piece";
+import { Chess, Square } from "chess.js";
 import { motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -11,11 +11,9 @@ import {
   InfoIcon,
   PauseIcon,
   PlayIcon,
-  Settings,
   SkipBackIcon,
   SkipForwardIcon,
-  SquareIcon,
-  Watch,
+  Watch
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -25,9 +23,9 @@ import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
 import GlassBoard from "@/components/chessboard/glass/GlassBoard";
 import { unixFormatDate } from "@/functions/unix-format-date";
-import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import ReactCountryFlag from "react-country-flag";
 import ThreeDBoardWood from "@/components/3d-board/3DBoardWoodNew";
+import { useChessBoardThemeStore } from "../store/chessBoardTheme";
 
 type CapturedPieces = {
   white: string[];
@@ -49,11 +47,21 @@ const AnalysisResult: React.FC = () => {
     pgn: storePgn,
     dataAnalysis,
     hideDiv,
+    capturedWhite,
+    capturedBlack,
     setCapturedBlack,
     setCapturedWhite,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
+  const {
+    StyleChoosed,
+    setStyleChoosed,
+    BoardChoosed,
+    setBoardChoosed,
+    PieceChoosed,
+    setPieceChoosed,
+  } = useChessBoardThemeStore();
   const {
     gameInfo,
     summary,
@@ -241,33 +249,45 @@ const AnalysisResult: React.FC = () => {
         }
       });
       let capturedPiecesBlack: {
-        piece: PieceSymbol; // Type of piece captured (p, n, b, r, q)
-        color: string; // Opponent's color
+        captured: string | null;
+        piece: string | null;
+        color: string;
         from: Square;
         to: Square;
+        lan: string;
+        san: string;
       }[] = [];
       let capturedPiecesWhite: {
-        piece: PieceSymbol; // Type of piece captured (p, n, b, r, q)
-        color: string; // Opponent's color
+        captured: string | null;
+        piece: string | null;
+        color: string;
         from: Square;
         to: Square;
+        lan: string;
+        san: string;
       }[] = [];
       // Replay moves and check for captures
       tempGame.history({ verbose: true }).forEach((move) => {
         if (move.captured) {
           if (move.color == "w") {
             capturedPiecesWhite.push({
-              piece: move.captured, // Type of piece captured (p, n, b, r, q)
-              color: "white", // Opponent's color
+              captured: "b" + changeNamePiece(move.captured ?? null),
+              piece: changeNamePiece(move.piece),
+              color: "white",
               from: move.from,
               to: move.to,
+              lan: move.lan,
+              san: move.san,
             });
           } else {
             capturedPiecesBlack.push({
-              piece: move.captured, // Type of piece captured (p, n, b, r, q)
-              color: "black", // Opponent's color
+              captured: "w" + changeNamePiece(move.captured ?? null),
+              piece: changeNamePiece(move.piece),
+              color: "black",
               from: move.from,
               to: move.to,
+              lan: move.lan,
+              san: move.san,
             });
           }
         }
@@ -511,24 +531,152 @@ const AnalysisResult: React.FC = () => {
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
-  const fetchStockfishData = async (fen: string) => {
-    const stockfishService = getStockfishService();
+  const renderBlackAvatar = () => {
+    return (
+      <div
+        className={`w-full border ${
+          gameInfo?.blackWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+        } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+      >
+        <div className="flex flex-row items-center gap-2">
+          <Image
+            alt="avatar"
+            src={summary?.blackSide?.profileInfo.photo}
+            className="w-10 h-10 rounded-full"
+            width={1000}
+            height={1000}
+          />
+          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
+          <div className="flex flex-col line-clamp-1 ">
+            <div className="flex flex-row items-center gap-2">
+              <span
+                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                  gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                }`}
+              >
+                {summary?.blackSide?.profileInfo.username}
+              </span>
 
-    try {
-      await stockfishService.waitReady();
+              <ReactCountryFlag
+                countryCode={blackCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={blackCountry}
+              />
+            </div>
 
-      const bestMove = await stockfishService.getBestMove(fen, 20, 0.1);
-      setBestMove(bestMove);
-
-      const evaluation = await stockfishService.getEvaluation(fen, 20);
-      setEvaluation(evaluation);
-    } catch (error) {
-      console.error("Error using StockfishService:", error);
-    } finally {
-      stockfishService.destroy();
-    }
+            <div className="flex flex-row gap-1">
+              {capturedBlack &&
+                capturedBlack.length > 0 &&
+                capturedBlack
+                  .sort((a, b) => a.captured.localeCompare(b.captured))
+                  .map((captured, index) => {
+                    let icon = captured.captured;
+                    let nextIcon =capturedBlack[index + 1]? capturedBlack[index + 1].captured:""
+                    return (
+                      <div
+                        key={index}
+                        className={`${
+                          icon == nextIcon ? "-mr-2" : ""
+                        }`}
+                      >
+                        {icon && (
+                          <Image
+                            src={`/pieces/${PieceChoosed}/${icon}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-3 h-4 sm:w-4 sm:h-5 lg:w-4 lg:h-5 object-contain inline-block"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+            </div>
+          </div>
+        </div>
+        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+          <Watch size={16} />
+          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+            {currentMoveBlack == 0 ? startTime : currentMoveBlack}
+          </span>
+        </div>
+      </div>
+    );
   };
+  const renderWhiteAvatar = () => {
+    return (
+      <div
+        className={`w-full border ${
+          gameInfo?.whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+        } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+      >
+        <div className="flex flex-row items-center gap-2">
+          <Image
+            alt="avatar"
+            src={summary?.whiteSide?.profileInfo.photo}
+            className="w-10 h-10 rounded-full"
+            width={1000}
+            height={1000}
+          />
+          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
+          <div className="flex flex-col line-clamp-1 ">
+            <div className="flex flex-row items-center gap-2">
+              <span
+                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                  gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
+                }`}
+              >
+                {summary?.whiteSide?.profileInfo.username}
+              </span>
 
+              <ReactCountryFlag
+                countryCode={whiteCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                title={whiteCountry}
+              />
+            </div>
+
+            <div className="flex flex-row gap-1">
+              {capturedWhite &&
+                capturedWhite.length > 0 &&
+                capturedWhite
+                  .sort((a, b) => a.captured.localeCompare(b.captured))
+                  .map((captured, index) => {
+                    let icon = captured.captured;
+                    let nextIcon =capturedWhite[index + 1]? capturedWhite[index + 1].captured:""
+                    return (
+                      <div
+                        key={index}
+                        className={`${
+                          icon == nextIcon ? "-mr-2" : ""
+                        }`}
+                      >
+                        {icon && (
+                          <Image
+                            src={`/pieces/${PieceChoosed}/${icon}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-3 h-4 sm:w-4 sm:h-5 lg:w-4 lg:h-5 object-contain inline-block"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+            </div>
+          </div>
+        </div>
+        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+          <Watch size={16} />
+          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+            {currentMoveWhite == 0 ? startTime : currentMoveWhite}
+          </span>
+        </div>
+      </div>
+    );
+  };
   useEffect(() => {
     handleResize();
   }, [hideDiv, is3DMode]);
@@ -554,73 +702,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            <div
-              className={`w-full border ${
-                gameInfo?.blackWin
-                  ? "border-[#00B427] bg-[#D3FFDD]"
-                  : "bg-white"
-              } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
-            >
-              <div className="flex flex-row items-center gap-2">
-                <Image
-                  alt="avatar"
-                  src={summary?.blackSide?.profileInfo.photo}
-                  className="w-10 h-10 rounded-full"
-                  width={1000}
-                  height={1000}
-                />
-                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col line-clamp-1 ">
-                  <div className="flex flex-row items-center gap-2">
-                    <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                        gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
-                      }`}
-                    >
-                      {summary?.blackSide?.profileInfo.username}
-                    </span>
-
-                    <ReactCountryFlag
-                      countryCode={blackCountry}
-                      svg
-                      className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                      title={blackCountry}
-                    />
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Image
-                      src={"/icons/pawn-icon-alt-black.png"}
-                      alt="pawn"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                    <Image
-                      src={"/icons/bishop-icon-alt-black.png"}
-                      alt="bishop"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-
-                    <Image
-                      src={"/icons/king-icon-alt-black.png"}
-                      alt="king"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-                <Watch size={16} />
-                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-                  {currentMoveBlack == 0 ? startTime : currentMoveBlack}
-                </span>
-              </div>
-            </div>
+            {renderBlackAvatar()}
           </motion.div>
           <motion.div
             animate={
@@ -745,72 +827,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            <div
-              className={`w-full border ${
-                gameInfo?.whiteWin
-                  ? "border-[#00B427] bg-[#D3FFDD]"
-                  : "bg-white"
-              } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
-            >
-              <div className="flex flex-row items-center gap-2">
-                <Image
-                  alt="avatar"
-                  src={summary?.whiteSide?.profileInfo.photo}
-                  className="w-10 h-10 rounded-full"
-                  width={1000}
-                  height={1000}
-                />
-                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col line-clamp-1 ">
-                  <div className="flex flex-row items-center gap-2">
-                    <span
-                      className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                        !gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
-                      }`}
-                    >
-                      {summary?.whiteSide?.profileInfo.username}
-                    </span>
-                    <ReactCountryFlag
-                      countryCode={whiteCountry}
-                      svg
-                      className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                      title={whiteCountry}
-                    />
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Image
-                      src={"/icons/pawn-icon-alt-white.png"}
-                      alt="pawn"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                    <Image
-                      src={"/icons/rook-icon-alt-white.png"}
-                      alt="rook"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-
-                    <Image
-                      src={"/icons/queen-icon-alt-white.png"}
-                      alt="queen"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-                <Watch size={16} />
-                <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-                  {currentMoveWhite == 0 ? startTime : currentMoveWhite}
-                </span>
-              </div>
-            </div>
+           {renderWhiteAvatar()}
           </motion.div>
 
           {showTable && <MovementTable />}
@@ -842,7 +859,7 @@ const AnalysisResult: React.FC = () => {
                         {chessMove.classification}
                       </span>
                     )}
-                     {chessMove?.type && (
+                    {chessMove?.type && (
                       <span
                         className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
                           chessMove.type

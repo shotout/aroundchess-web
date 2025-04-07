@@ -3,11 +3,14 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
+
 export default function Navigation({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) {
+  children,
+  isDialogOpen = false,
+}: {
+  children: React.ReactNode;
+  isDialogOpen?: boolean;
+}) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -25,25 +28,49 @@ export default function Navigation({
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
+
   return (
-    <div className="flex overflow-hidden bg-[#FCFCFD]">
-      {/* Desktop sidebar - always visible on desktop */}
+    <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
+      {/* Fixed sidebar for desktop - full height */}
       {isDesktop && (
-        <div className="border-r border-gray-200 bg-white">
+        <div className="fixed top-0 left-0 h-full w-64 border-r border-gray-200 bg-white z-30">
           <Sidebar />
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col">
-        <Header onSidebarToggle={toggleSidebar} />
-        <main className="flex flex-col pt-20 xl:pt-0 overflow-y-auto">
-          {children}
-          <SiteFooterNew />
+      {/* Main content wrapper with header */}
+      <div className={`flex flex-col w-full ${isDesktop ? "ml-64" : ""}`}>
+        {/* Fixed header */}
+        <div className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0 xl:left-64">
+          <Header onSidebarToggle={toggleSidebar} />
+        </div>
+
+        {/* Scrollable content area */}
+        <main className="flex-1 overflow-y-auto pt-[72px] lg:pt-24">
+          {/* Overlay when dialog is open */}
+          {isDialogOpen && (
+            <div
+              className="fixed inset-0 bg-black/10 z-20"
+              style={{
+                top: "4.5rem", // Below header
+                left: isDesktop ? "16rem" : "0", // Account for sidebar on desktop
+                bottom: "0",
+              }}
+            />
+          )}
+
+          {/* Main content */}
+          <div className="relative z-10 min-h-[calc(100vh-10rem)]">
+            {children}
+          </div>
+
+          <div className="z-50 relative">
+            <SiteFooterNew />
+          </div>
         </main>
       </div>
 
-      {/* Mobile sidebar - only visible when toggled */}
+      {/* Mobile sidebar overlay and panel */}
       {!isDesktop && isSidebarOpen && (
         <>
           <div
@@ -51,8 +78,7 @@ export default function Navigation({
             onClick={() => setSidebarOpen(false)}
           />
 
-          {/* Mobile sidebar */}
-          <div className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200">
+          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
         </>

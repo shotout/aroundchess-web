@@ -8,13 +8,19 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import ReactCountryFlag from "react-country-flag";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import { CardPlayer } from "@/components/player/CardPlayer";
 
 interface SummaryProps {
   next: () => void;
 }
 
 const Summary: React.FC<SummaryProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    capturedWhite,
+    capturedBlack,
+  } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const {
@@ -61,123 +67,21 @@ const Summary: React.FC<SummaryProps> = (props) => {
             (Black)
           </span>
           <div className="hidden sm:flex flex-row items-center justify-between gap-4">
-            <div
-              className={`w-full border ${
-                whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
-              } p-3 rounded-md flex flex-row justify-between items-center gap-2`}
-            >
-              <div className="flex flex-row gap-2">
-                <Image
-                  alt="avatar"
-                  src={whiteSide?.profileInfo.photo}
-                  className="w-10 h-10 rounded-full"
-                  width={1000}
-                  height={1000}
-                />
-                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col">
-                  <div className="flex flex-row gap-2">
-                    <span
-                      className={` line-clamp-1 text-xs sm:text-sm md:text-md lg:text-sm font-medium ${
-                        !whiteWin ? "text-black" : "text-[#00B427]"
-                      }`}
-                    >
-                      {whiteSide?.profileInfo.username}
-                    </span>
-                  </div>
+            <CardPlayer
+              isWin={whiteWin}
+              profilePhoto={whiteSide?.profileInfo.photo}
+              username={whiteSide?.profileInfo.username}
+              country={whiteCountry}
+              capturedPieces={capturedWhite}
+            />
 
-                  <div className="flex flex-row gap-1">
-                    <Image
-                      src={"/icons/pawn-icon-alt-white.png"}
-                      alt="pawn"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                    <Image
-                      src={"/icons/rook-icon-alt-white.png"}
-                      alt="rook"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-
-                    <Image
-                      src={"/icons/queen-icon-alt-white.png"}
-                      alt="queen"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                  </div>
-                </div>
-              </div>
-              <ReactCountryFlag
-                countryCode={whiteCountry}
-                svg
-                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                title={whiteCountry}
-              />
-            </div>
-            <div
-              className={`w-full border ${
-                !whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
-              } p-3 rounded-md flex flex-row justify-between items-center gap-2`}
-            >
-              <div className="flex flex-row gap-2">
-                <Image
-                  alt="avatar"
-                  src={blackSide?.profileInfo.photo}
-                  className="w-10 h-10 rounded-full"
-                  width={1000}
-                  height={1000}
-                />
-                {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-                <div className="flex flex-col">
-                  <div className="flex flex-row gap-2">
-                    <span
-                      className={`line-clamp-1 text-xs sm:text-sm md:text-md lg:text-sm font-medium ${
-                        whiteWin ? "text-black" : "text-[#00B427]"
-                      }`}
-                    >
-                      {blackSide?.profileInfo.username}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-row gap-1">
-                    <Image
-                      src={"/icons/pawn-icon-alt-black.png"}
-                      alt="pawn"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                    <Image
-                      src={"/icons/bishop-icon-alt-black.png"}
-                      alt="bishop"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-
-                    <Image
-                      src={"/icons/king-icon-alt-black.png"}
-                      alt="king"
-                      width={1000}
-                      height={1000}
-                      className="w-3 h-4 sm:w-4 sm:h-5 lg:w-5 lg:h-6"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <ReactCountryFlag
-                countryCode={blackCountry}
-                svg
-                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                title={blackCountry}
-              />
-            </div>
+            <CardPlayer
+              isWin={blackWin}
+              profilePhoto={blackSide?.profileInfo.photo}
+              username={blackSide?.profileInfo.username}
+              country={blackCountry}
+              capturedPieces={capturedBlack}
+            />
           </div>
           <div className="flex flex-row items-center justify-start py-2">
             <div
@@ -589,10 +493,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           </div>
           {openCriticalMoves &&
+            criticalMistakes &&
             criticalMistakes.length > 0 &&
             criticalMistakes.map((item: any, index: number) => {
               return (
-                <div className="flex flex-col gap-2 mt-2">
+                <div className="flex flex-col gap-2 mt-2" key={index}>
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-2">
                       <span
