@@ -422,7 +422,8 @@ const AnalysisResult: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3 : 453;
+    let desktopSize = window.innerWidth - ((window.innerWidth * 0.525) + 256)
+    const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
@@ -696,44 +697,49 @@ const AnalysisResult: React.FC = () => {
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <SkipBackIcon fill="black" size={boardSize / 20} color="black" />
+              <SkipBackIcon fill="black" size={boardSize / 22} color="black" />
             </button>
 
             <button
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronLeft size={boardSize / 20} color="black" />
+              <ChevronLeft size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               {isPlaying ? (
-                <PauseIcon size={boardSize / 20} fill="black" color="black" />
+                <PauseIcon size={boardSize / 22} fill="black" color="black" />
               ) : (
-                <PlayIcon size={boardSize / 20} fill="black" color="black" />
+                <PlayIcon size={boardSize / 22} fill="black" color="black" />
               )}
             </button>
 
             <button
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronRight size={boardSize / 20} color="black" />
+              <ChevronRight size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipForwardIcon
                 fill="black"
-                size={boardSize / 20}
+                size={boardSize / 22}
                 color="black"
               />
             </button>

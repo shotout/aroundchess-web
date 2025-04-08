@@ -58,7 +58,7 @@ const AnalysisLatestGame: React.FC = () => {
   }, [mounted]);
   const handleResize = () => {
     let widthC =
-      window?.innerWidth <= 1024
+      window?.innerWidth <= 1280
         ? window?.innerWidth
         : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
@@ -168,7 +168,7 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name == "movement" &&
-                `min-w-[120px] sm:min-w-[140px] lg:min-w-[140px]`
+                `min-w-[120px] sm:min-w-[140px] lg:min-w-[150px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `
