@@ -6,6 +6,7 @@ import ThreeDChessboard from "@/components/chessboard/3d/ThreeDChessboard";
 import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import Navigation from "@/components/navigator/navigation";
+import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,7 +14,13 @@ import { postVSAILogs } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { Chess, PieceSymbol, Square } from "chess.js";
-import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart2,
+  HistoryIcon,
+  MoveRightIcon,
+  Plus,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
@@ -41,7 +48,9 @@ export default function Playing() {
   const [depth, setDepth] = useState<number>(10);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
-  const [statusGame, setStatusGame] = useState<string>("");
+  const [statusGame, setStatusGame] = useState<string>("Ongoing");
+  const [winnerColor, setWinnerColor] = useState<string>("");
+  const [loserColor, setLoserColor] = useState<string>("");
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveFrom, setMoveFrom] = useState<string>("");
@@ -239,7 +248,7 @@ export default function Playing() {
 
   useEffect(() => {
     fillMovement();
-    checkStatusGame()
+    checkStatusGame();
   }, [gamePosition]);
 
   const fillMovement = () => {
@@ -325,7 +334,7 @@ export default function Playing() {
   };
   useEffect(() => {
     localStorage.setItem("token", sessionId + "");
-
+    console.log("sessionId", sessionId);
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
     console.log("AIChoosed.color", AIChoosed.color);
@@ -388,6 +397,9 @@ export default function Playing() {
     });
   };
   const handleSetting = () => {};
+  const handleShare = () => {};
+  const handleSettingsGame = () => {};
+  const handleDownload = () => {};
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
   };
@@ -395,8 +407,11 @@ export default function Playing() {
     router.replace("/playground/play-vs-ai");
     handleSaveLog();
   };
+  const handleAnalyzeGame = () => {};
   const handleNewGame = () => {
     handleSaveLog();
+    game.reset();
+    setGamePosition(game.fen());
   };
   const handleSaveLog = async () => {
     let body = {
@@ -408,8 +423,9 @@ export default function Playing() {
       pgn: game.pgn(),
     };
     await postVSAILogs(body);
-    game.reset();
-    setGamePosition(game.fen());
+    setWinnerColor("");
+    setLoserColor("");
+    setStatusGame("");
   };
   const checkStatusGame = () => {
     let isUserWin = false;
@@ -420,22 +436,27 @@ export default function Playing() {
         // Determine the winner based on the player who was in checkmate
         let loserColor = game.turn(); // 'w' for white, 'b' for black
         let winnerColor = loserColor === "w" ? "black" : "white";
+        let losserColor = loserColor != "w" ? "black" : "white";
         isUserWin = myColor === winnerColor;
+        setWinnerColor(winnerColor);
+        setLoserColor(losserColor);
         console.log(`The ${winnerColor} player wins!`);
+
+        let gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
+        setStatusGame(gameStatus);
       } else {
         isDraw = true;
         console.log("Game Over! Stalemate or Draw.");
+        setStatusGame("Draw");
       }
     }
-    let gameStatus = isUserWin
-      ? "Win"
-      : !isUserWin
-      ? "Loss"
-      : isDraw
-      ? "Draw"
-      : "Ongoing";
-      setStatusGame(gameStatus);
   };
+  useEffect(() => {
+    console.log("statusGame useEffect", statusGame);
+    if (statusGame == "Win" || statusGame == "Loss" || statusGame == "Draw") {
+      handleSaveLog();
+    }
+  }, [statusGame]);
   const buttonBoard = () => {
     return (
       <div
@@ -494,8 +515,21 @@ export default function Playing() {
     );
   };
   const blackPlayer = () => {
+    let isWin = winnerColor == "black";
+    let isDraw = statusGame == "Draw";
+    let isLoss = loserColor == "black";
     return (
-      <div className="flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+      <div
+        className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
+          isWin
+            ? "border-[#00B427] bg-[#00B42716]"
+            : isDraw
+            ? "border-[#221AE9] bg-[#221AE916]"
+            : isLoss
+            ? "border-[#FD0000] bg-[#FD000016]"
+            : "border-[#DEDEDE] bg-white "
+        } p-2 gap-2 mb-2`}
+      >
         <div className="flex flex-row items-center gap-2">
           <Image
             src={myColor != "white" ? user?.imageUrl : AIChoosed.opponent.img}
@@ -505,7 +539,17 @@ export default function Playing() {
             className="w-[48px] h-[48px] rounded-full object-contain"
           />
 
-          <span className="text-[17.23px] font-medium">
+          <span
+            className={`text-[17.23px] font-medium ${
+              isWin
+                ? "text-[#00B427] "
+                : isDraw
+                ? "text-[#221AE9] "
+                : isLoss
+                ? "text-[#FD0000]  "
+                : "text-[#040404]"
+            }`}
+          >
             {myColor != "white" ? "You" : AIChoosed.opponent.name}
           </span>
         </div>
@@ -540,8 +584,21 @@ export default function Playing() {
     );
   };
   const whitePlayer = () => {
+    let isWin = winnerColor == "white";
+    let isDraw = statusGame == "Draw";
+    let isLoss = loserColor == "white";
     return (
-      <div className="flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+      <div
+        className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border ${
+          isWin
+            ? "border-[#00B427] bg-[#00B42716]"
+            : isDraw
+            ? "border-[#221AE9] bg-[#221AE916]"
+            : isLoss
+            ? "border-[#FD0000] bg-[#FD000016]"
+            : "border-[#DEDEDE]"
+        } p-2 gap-2 mb-2`}
+      >
         <div className="flex flex-row items-center gap-2">
           <Image
             src={myColor == "white" ? user?.imageUrl : AIChoosed.opponent.img}
@@ -551,7 +608,17 @@ export default function Playing() {
             className="w-[48px] h-[48px] rounded-full object-contain"
           />
 
-          <span className="text-[17.23px] font-medium">
+          <span
+            className={`text-[17.23px] font-medium ${
+              isWin
+                ? "text-[#00B427] "
+                : isDraw
+                ? "text-[#221AE9] "
+                : isLoss
+                ? "text-[#FD0000]  "
+                : "text-[#040404]"
+            }`}
+          >
             {myColor == "white" ? "You" : AIChoosed.opponent.name}
           </span>
         </div>
@@ -583,6 +650,209 @@ export default function Playing() {
             })}
         </div>
       </div>
+    );
+  };
+  const renderButtonPlaying = () => {
+    return (
+      <div className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
+        <button
+          disabled={currentTurn.toLowerCase() != myColor}
+          onClick={handleHint}
+          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
+        >
+          <Image
+            src={"/images/play-vs-ai/hint.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[11px] h-[16px] object-contain "
+          />
+
+          <span className="font-medium text-xs mt-1 ">Hint</span>
+        </button>
+        <button
+          onClick={handleResign}
+          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
+        >
+          <Image
+            src={"/images/play-vs-ai/resign.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[11px] h-[16px] object-contain "
+          />
+
+          <span className="font-medium text-xs mt-1 ">Resign</span>
+        </button>
+        <button
+          onClick={handleNewGame}
+          className="flex flex-row items-center justify-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+        >
+          <Image
+            src={"/images/play-vs-ai/new-game.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[16px] h-[16px] object-contain"
+          />
+          <span className="font-medium text-xs mt-1">New Game</span>
+        </button>
+      </div>
+    );
+  };
+  const renderButtonFinish = () => {
+    return (
+      <div className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4">
+        <button
+          onClick={handleAnalyzeGame}
+          className="md:hidden xl:block btn-primary w-full rounded-full h-[40px]"
+        >
+          <div className="flex flex-row items-center justify-center gap-2">
+            <BarChart2 color="white" className="w-[20px] h-[20px]" size={20} />
+            <span>Analyze Game</span>
+          </div>
+        </button>
+        <div className="flex w-full gap-2">
+          <button
+            onClick={handleNewGame}
+            className="btn-secondary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
+          >
+            <div className="flex flex-row items-center justify-center gap-2">
+              <Plus color="#221AE9" className="w-[20px] h-[20px]" size={20} />
+              <span className="text-[#221AE9] font-medium">New Game</span>
+            </div>
+          </button>
+          <button
+            onClick={handleNewGame}
+            className="btn-tertiary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
+          >
+            <div className="flex flex-row items-center justify-center gap-2">
+              <Image
+                src={"/images/play-vs-ai/rematch.png"}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[16px] h-[16px] object-contain"
+              />
+              <span className="text-[#221AE9] font-medium">Rematch</span>
+            </div>
+          </button>
+          <button
+            onClick={handleAnalyzeGame}
+            className="hidden md:block xl:hidden md:w-2/4 btn-primary w-full rounded-full h-[40px]"
+          >
+            <div className="flex flex-row items-center justify-center gap-2">
+              <BarChart2
+                color="white"
+                className="w-[20px] h-[20px]"
+                size={20}
+              />
+              <span>Analyze Game</span>
+            </div>
+          </button>
+        </div>
+        <div className="flex w-full gap-2">
+          <button
+            onClick={handleShare}
+            className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+          >
+            <Image
+              src={"/images/play-vs-ai/share-filled.png"}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[16px] h-[16px] object-contain"
+            />
+            <span className="font-medium text-xs mt-1">Share</span>
+          </button>
+          <button
+            onClick={handleSettingsGame}
+            className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+          >
+            <Image
+              src={"/images/play-vs-ai/settings-filled.png"}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[16px] h-[16px] object-contain"
+            />
+            <span className="font-medium text-xs mt-1">Settings</span>
+          </button>
+          <button
+            onClick={handleDownload}
+            className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+          >
+            <Image
+              src={"/images/play-vs-ai/download-filled.png"}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[16px] h-[16px] object-contain"
+            />
+            <span className="font-medium text-xs mt-1">Download</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+  const renderCommentaryGame = () => {
+    let gradColor =
+      statusGame == "Win"
+        ? `bg-[linear-gradient(to_right,_#FFFFFF58,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#FFFFFF40)]`
+        : statusGame == "Draw"
+        ? `bg-[linear-gradient(to_right,_#FFFFFF58,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#FFFFFF40)]`
+        : `bg-[linear-gradient(to_right,_#FFFFFF58,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#FFFFFF40)]`;
+    let color =
+      statusGame == "Win"
+        ? "#00B427"
+        : statusGame == "Draw"
+        ? "#221AE9"
+        : "#C01B1B";
+    let icon =
+      statusGame == "Win"
+        ? "you-win"
+        : statusGame == "Draw"
+        ? "you-draw"
+        : "you-loss";
+    let sparks =
+      statusGame == "Win"
+        ? "sparks-win"
+        : statusGame == "Draw"
+        ? "sparks-draw"
+        : "sparks-loss";
+
+    let content =
+      statusGame == "Win"
+        ? "Congratulations! You won this game!"
+        : statusGame == "Draw"
+        ? "The Game ended in a Draw."
+        : "You loss by [REASON OF LOSS]";
+    return (
+      <button
+        className={`relative w-[98%] rounded-[8px] ${gradColor} border border-[${color}] mx-2 p-[1px]`}
+      >
+        <div
+          className={`flex h-[56px] flex-row items-center rounded-[8px] border-2 border-dashed border-[${color}] gap-3`}
+        >
+          <Image
+            src={`/images/play-vs-ai/${icon}.png`}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[30px] h-[30px] object-contain m-4 mr-0"
+          />
+          <span className="text-white">{content}</span>
+          <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+            <Image
+              src={`/images/play-vs-ai/${sparks}.png`}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-full h-[56px] object-cover"
+            />
+          </div>
+        </div>
+      </button>
     );
   };
   return (
@@ -751,21 +1021,23 @@ export default function Playing() {
 
           <TabsContent value="current" className="gap-2">
             <div className="flex flex-col items-center justify-center rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
-              <span className="font-semibold text-[16px] my-1">
+              <span className="font-semibold text-[16px] my-2 xl:my-4">
                 Movement Details
               </span>
               <div
                 style={{ height: heightScreen * 0.8 }}
-                className="px-2 w-full xl:max-h-[70vh] overflow-y-auto"
+                className="px-4 w-full xl:max-h-[70vh] overflow-y-auto rounded-[8px]"
               >
-                <table className="w-full border-collapse rounded-[4px] border-[#BDD0F9]">
+                <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-collapse border-[#BDD0F9]">
                   <thead>
-                    <tr className="bg-[#D7E3FB]">
-                      <th className="p-2 border font-normal text-xs">#</th>
-                      <th className="p-2 border font-normal text-xs">
+                    <tr className="bg-[#D7E3FB] ">
+                      <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
+                        #
+                      </th>
+                      <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
                         {myColor == "white" ? "You" : "Computer"} (White)
                       </th>
-                      <th className="p-2 border font-normal text-xs">
+                      <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
                         {myColor != "white" ? "You" : "Computer"} (Black)
                       </th>
                     </tr>
@@ -778,10 +1050,10 @@ export default function Playing() {
                         let icon = captured.captured;
                         return (
                           <tr className="text-center" key={index}>
-                            <td className="p-2 border font-normal text-xs">
+                            <td className="p-2 border font-normal text-xs border-[#BDD0F9]">
                               {index + 1}
                             </td>
-                            <td className="text-center align-middle p-2 border ">
+                            <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
                               {icon && (
                                 <Image
                                   src={`/images/play-vs-ai/${icon}-white.png`}
@@ -796,7 +1068,7 @@ export default function Playing() {
                                 {move}
                               </span>
                             </td>
-                            <td className="text-center align-middle p-2 border  ">
+                            <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
                               {capturedBlack[index] != null &&
                                 capturedBlack[index].captured != null && (
                                   <Image
@@ -820,54 +1092,62 @@ export default function Playing() {
                   </tbody>
                 </table>
               </div>
-              <div className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
-                <button
-                  disabled={currentTurn.toLowerCase() != myColor}
-                  onClick={handleHint}
-                  className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
-                >
-                  <Image
-                    src={"/images/play-vs-ai/hint.png"}
-                    alt="icon"
-                    width={1000}
-                    height={1000}
-                    className="w-[11px] h-[16px] object-contain "
-                  />
-
-                  <span className="font-medium text-xs mt-1 ">Hint</span>
-                </button>
-                <button
-                  onClick={handleResign}
-                  className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
-                >
-                  <Image
-                    src={"/images/play-vs-ai/resign.png"}
-                    alt="icon"
-                    width={1000}
-                    height={1000}
-                    className="w-[11px] h-[16px] object-contain "
-                  />
-
-                  <span className="font-medium text-xs mt-1 ">Resign</span>
-                </button>
-                <button
-                  onClick={handleNewGame}
-                  className="flex flex-row items-center justify-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
-                >
-                  <Image
-                    src={"/images/play-vs-ai/new-game.png"}
-                    alt="icon"
-                    width={1000}
-                    height={1000}
-                    className="w-[16px] h-[16px] object-contain"
-                  />
-                  <span className="font-medium text-xs mt-1">New Game</span>
-                </button>
-              </div>
+              {statusGame != "Ongoing" && renderCommentaryGame()}
+              {statusGame == "Ongoing"
+                ? renderButtonPlaying()
+                : renderButtonFinish()}
             </div>
           </TabsContent>
 
-          <TabsContent value="past" className="gap-2"></TabsContent>
+          <TabsContent value="past" className="gap-2">
+            <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
+              <div
+                style={{ height: heightScreen * 0.8 }}
+                className="px-4 w-full xl:max-h-[70vh] overflow-y-auto"
+              >
+                <GameCard
+                  result="win"
+                  date="3/17/2025"
+                  opponent="Hikaru"
+                  elo={1500}
+                  moves={111}
+                  time="1 minutes"
+                />
+                <GameCard
+                  result="draw"
+                  date="3/16/2025"
+                  opponent="Hikaru"
+                  elo={1500}
+                  moves={111}
+                  time="1 minutes"
+                />
+                <GameCard
+                  result="loss"
+                  date="3/15/2025"
+                  opponent="Hikaru"
+                  elo={1500}
+                  moves={111}
+                  time="1 minutes"
+                />
+                <GameCard
+                  result="win"
+                  date="3/17/2025"
+                  opponent="Hikaru"
+                  elo={1500}
+                  moves={111}
+                  time="1 minutes"
+                />
+                <GameCard
+                  result="win"
+                  date="3/17/2025"
+                  opponent="Hikaru"
+                  elo={1500}
+                  moves={111}
+                  time="1 minutes"
+                />
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </Navigation>
