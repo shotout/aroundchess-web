@@ -26,24 +26,28 @@ export function StartPlayVSAI() {
   const difficulties = [
     {
       icon: "/images/play-vs-ai/beginner.png",
+      iconActive: "/images/play-vs-ai/beginner-active.png",
       label: "Beginner",
       range: "250 - 850 ELO",
       key: "beginner",
     },
     {
       icon: "/images/play-vs-ai/intermediate.png",
+      iconActive: "/images/play-vs-ai/intermediate-active.png",
       label: "Intermediate",
       range: "900 - 1400 ELO",
       key: "intermediate",
     },
     {
       icon: "/images/play-vs-ai/advanced.png",
+      iconActive: "/images/play-vs-ai/advanced-active.png",
       label: "Advanced",
       range: "1500 - 2100 ELO",
       key: "advanced",
     },
     {
       icon: "/images/play-vs-ai/master.png",
+      iconActive: "/images/play-vs-ai/master-active.png",
       label: "Master",
       range: "2200 - 2450 ELO",
       key: "master",
@@ -167,7 +171,7 @@ export function StartPlayVSAI() {
               >
                 <div className="flex flex-row items-center justify-center gap-1">
                   <Image
-                    src={diff.icon}
+                    src={difficulty === diff.key ?diff.iconActive:diff.icon}
                     alt={diff.icon}
                     width={1000}
                     height={1000}
