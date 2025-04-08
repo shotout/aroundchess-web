@@ -1,4 +1,5 @@
 "use client";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import ThreeDChessboard from "@/components/chessboard/3d/ThreeDChessboard";
@@ -9,7 +10,8 @@ import { Engine } from "@/components/playground/src/lib/stockfish";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { postVSAILogs } from "@/functions/api-client";
-import { useAuth } from "@clerk/nextjs";
+import { changeNamePiece } from "@/functions/change-name-piece";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { Chess, PieceSymbol, Square } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
@@ -18,8 +20,10 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 export default function Playing() {
   const router = useRouter();
+  const { user } = useUser();
   const { sessionId } = useAuth();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
+  const { PieceChoosed } = useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
   const [myColor, setMyColor] = useState<string>(AIChoosed.color); // Default size
@@ -37,6 +41,7 @@ export default function Playing() {
   const [depth, setDepth] = useState<number>(10);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
+  const [statusGame, setStatusGame] = useState<string>("");
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveFrom, setMoveFrom] = useState<string>("");
@@ -234,11 +239,13 @@ export default function Playing() {
 
   useEffect(() => {
     fillMovement();
+    checkStatusGame()
   }, [gamePosition]);
 
   const fillMovement = () => {
     let capturedPiecesBlack: {
       captured: string | null;
+      capturedTheme: string | null;
       piece: string | null;
       color: string;
       from: Square;
@@ -248,6 +255,7 @@ export default function Playing() {
     }[] = [];
     let capturedPiecesWhite: {
       captured: string | null;
+      capturedTheme: string | null;
       piece: string | null;
       color: string;
       from: Square;
@@ -259,8 +267,9 @@ export default function Playing() {
       console.log(move);
       if (move.color == "w") {
         capturedPiecesWhite.push({
-          captured: changeNamePiece(move.captured ?? null),
-          piece: changeNamePiece(move.piece),
+          captured: changeNameFull(move.captured ?? null),
+          piece: changeNameFull(move.piece),
+          capturedTheme: "b" + changeNamePiece(move.captured ?? null),
           color: "white",
           from: move.from,
           to: move.to,
@@ -269,8 +278,9 @@ export default function Playing() {
         });
       } else {
         capturedPiecesBlack.push({
-          captured: changeNamePiece(move.captured ?? null),
-          piece: changeNamePiece(move.piece),
+          captured: changeNameFull(move.captured ?? null),
+          piece: changeNameFull(move.piece),
+          capturedTheme: "w" + changeNamePiece(move.captured ?? null),
           color: "black",
           from: move.from,
           to: move.to,
@@ -284,7 +294,7 @@ export default function Playing() {
     setCapturedBlack(capturedPiecesBlack);
     setCapturedWhite(capturedPiecesWhite);
   };
-  const changeNamePiece = (piece: string | null) => {
+  const changeNameFull = (piece: string | null) => {
     switch (piece) {
       case "p":
         return "pawn";
@@ -386,10 +396,22 @@ export default function Playing() {
     handleSaveLog();
   };
   const handleNewGame = () => {
-    
     handleSaveLog();
   };
   const handleSaveLog = async () => {
+    let body = {
+      enemyTag: AIChoosed.opponent.name,
+      eloRating: AIChoosed.opponent.elo,
+      totalMoves: game.history().length,
+      totalTime: "10 Minutes",
+      status: statusGame,
+      pgn: game.pgn(),
+    };
+    await postVSAILogs(body);
+    game.reset();
+    setGamePosition(game.fen());
+  };
+  const checkStatusGame = () => {
     let isUserWin = false;
     let isDraw = false;
     if (game.isGameOver()) {
@@ -405,23 +427,14 @@ export default function Playing() {
         console.log("Game Over! Stalemate or Draw.");
       }
     }
-    let body = {
-      enemyTag: AIChoosed.opponent.name,
-      eloRating: AIChoosed.opponent.elo,
-      totalMoves: game.history().length,
-      totalTime: "10 Minutes",
-      status: isUserWin
-        ? "Win"
-        : !isUserWin
-        ? "Loss"
-        : isDraw
-        ? "Draw"
-        : "Ongoing",
-      pgn: game.pgn(),
-    };
-    await postVSAILogs(body);
-    game.reset();
-    setGamePosition(game.fen());
+    let gameStatus = isUserWin
+      ? "Win"
+      : !isUserWin
+      ? "Loss"
+      : isDraw
+      ? "Draw"
+      : "Ongoing";
+      setStatusGame(gameStatus);
   };
   const buttonBoard = () => {
     return (
@@ -482,33 +495,93 @@ export default function Playing() {
   };
   const blackPlayer = () => {
     return (
-      <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
-        <Image
-          src={AIChoosed.opponent.img}
-          alt="icon"
-          width={1000}
-          height={1000}
-          className="w-[22px] h-[22px] rounded-full object-contain"
-        />
-        <span className="text-[16px] font-medium">
-          {myColor != "white" ? "You" : AIChoosed.opponent.name}
-        </span>
+      <div className="flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+        <div className="flex flex-row items-center gap-2">
+          <Image
+            src={myColor != "white" ? user?.imageUrl : AIChoosed.opponent.img}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[48px] h-[48px] rounded-full object-contain"
+          />
+
+          <span className="text-[17.23px] font-medium">
+            {myColor != "white" ? "You" : AIChoosed.opponent.name}
+          </span>
+        </div>
+        <div className="flex flex-row items-center ">
+          {capturedBlack &&
+            capturedBlack.length > 0 &&
+            capturedBlack.map((captured, index) => {
+              let icon = captured.capturedTheme;
+              let nextIcon = capturedBlack[index + 1]
+                ? capturedBlack[index + 1].capturedTheme
+                : "";
+              if (icon.length != 2) return null;
+              return (
+                <div
+                  key={index}
+                  className={`${icon == nextIcon ? "-mr-2" : ""}`}
+                >
+                  {icon && (
+                    <Image
+                      src={`/pieces/${PieceChoosed}/${icon}.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-[20px] h-[28px] sm:w-[24px] sm:h-[32px] lg:w-[28px] lg:h-[36px] object-contain inline-block"
+                    />
+                  )}
+                </div>
+              );
+            })}
+        </div>
       </div>
     );
   };
   const whitePlayer = () => {
     return (
-      <div className="flex flex-row min-h-[46px] items-center rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
-        <Image
-          src={"/images/play-vs-ai/thomas.png"}
-          alt="icon"
-          width={1000}
-          height={1000}
-          className="w-[22px] h-[22px] rounded-full object-contain"
-        />
-        <span className="text-[16px] font-medium">
-          {myColor == "white" ? "You" : AIChoosed.opponent.name}
-        </span>
+      <div className="flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2">
+        <div className="flex flex-row items-center gap-2">
+          <Image
+            src={myColor == "white" ? user?.imageUrl : AIChoosed.opponent.img}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[48px] h-[48px] rounded-full object-contain"
+          />
+
+          <span className="text-[17.23px] font-medium">
+            {myColor == "white" ? "You" : AIChoosed.opponent.name}
+          </span>
+        </div>
+        <div className="flex flex-row items-center ">
+          {capturedWhite &&
+            capturedWhite.length > 0 &&
+            capturedWhite.map((captured, index) => {
+              let icon = captured.capturedTheme;
+              let nextIcon = capturedWhite[index + 1]
+                ? capturedWhite[index + 1].capturedTheme
+                : "";
+              if (icon.length != 2) return null;
+              return (
+                <div
+                  key={index}
+                  className={`${icon == nextIcon ? "-mr-2" : ""}`}
+                >
+                  {icon && (
+                    <Image
+                      src={`/pieces/${PieceChoosed}/${icon}.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-[20px] h-[28px] sm:w-[24px] sm:h-[32px] lg:w-[28px] lg:h-[36px] object-contain inline-block"
+                    />
+                  )}
+                </div>
+              );
+            })}
+        </div>
       </div>
     );
   };
