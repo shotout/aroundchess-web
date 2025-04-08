@@ -8,8 +8,10 @@ import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
+import { useAuth } from "@clerk/nextjs";
 
 export default function AnalysisPage() {
+  const { isSignedIn } = useAuth();
   const { setHideDiv, hideDiv, isLoading, setIsLoading, username } =
     usePgnStore();
 
@@ -75,30 +77,35 @@ export default function AnalysisPage() {
             }`}
           >
             <div
-              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 ${
+              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 gap-1 ${
                 hideDiv && "hidden"
               }`}
             >
-              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-xl lg:text-xl font-bold">
+              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
                 Analysis Result from{" "}
-                <span className="text-[#4E7838]">Chess.com</span>
-                <span className="text-sm font-normal ml-2">dummy data</span>
+                <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
-              <div className="xl:hidden flex items-center justify-center mt-2">
-                <AnalyzeDifferentGame />
-              </div>
-              <span className="hidden xl:block text-xs sm:text-sm md:text-md lg:text-md">
-                Discover an Analysis of your latest Chess.com Game.
+              {isSignedIn && (
+                <div className="xl:hidden flex items-center justify-center mt-2">
+                  <AnalyzeDifferentGame />
+                </div>
+              )}
+              <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
+                Discover a Chess.com Game Analysis.
               </span>
               <div className="hidden xl:flex flex-row items-center justify-between">
-                <div className="hidden lg:block w-3/5 text-xs sm:text-sm md:text-md lg:text-md">
-                  AI-powered chess analysis provides deep insights into
+                <div
+                  className={`hidden lg:block ${
+                    !isSignedIn ? `w-full` : `w-3/5`
+                  } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px]`}
+                >
+                  Our AI-powered chess analysis provides deep insights into
                   positional and tactical aspects of a game. It evaluates piece
                   coordination, pawn structure, king safety, and overall
                   positional advantages, helping players understand strategic
-                  strengths and weaknesses
+                  strengths and weaknesses.
                 </div>
-                <AnalyzeDifferentGame />
+                {isSignedIn && <AnalyzeDifferentGame />}
               </div>
             </div>
             <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">

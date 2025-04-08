@@ -123,9 +123,12 @@ export function SettingBoard() {
   } = useChessBoardThemeStore();
   const [open, setOpen] = useState<boolean>(false);
   const [tabSelected, setTabSelected] = useState<string>("2d");
-  const [boardSelected, setBoardSelected] = useState<string>("wood");
-  const [pieceSelected, setPieceSelected] = useState<string>("wood");
-  useEffect(() => {}, []);
+  const [boardSelected, setBoardSelected] = useState<string>(BoardChoosed);
+  const [pieceSelected, setPieceSelected] = useState<string>(PieceChoosed);
+  useEffect(() => {
+    setPieceSelected(PieceChoosed);
+    setBoardSelected(BoardChoosed);
+  }, []);
   const handleSelectTab = (value: string) => {
     setTabSelected(value);
   };
@@ -271,6 +274,7 @@ export function SettingBoard() {
                 </TabsTrigger>
                 <TabsTrigger
                   onClick={() => handleSelectTab("3d")}
+                  disabled={true}
                   value="3d"
                   style={{
                     background: tabSelected == "3d" ? "#D7E3FB" : "#fff",

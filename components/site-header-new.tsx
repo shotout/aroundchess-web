@@ -1,5 +1,6 @@
 "use client";
 
+import { usePgnStore } from "@/app/store/zustandStore";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -13,7 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import {
   BarChart2,
@@ -90,7 +91,8 @@ interface SiteHeaderProps {
 
 export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
-
+  const { signOut } = useClerk();
+  const clearAll = usePgnStore((state) => state.clearAll);
   const { isSignedIn } = useUser();
 
   React.useEffect(() => {
@@ -101,6 +103,16 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleLogout = async () => {
+    // Clear Zustand store first
+    clearAll();
+
+    // Then sign out with Clerk
+    await signOut();
+
+    // Optional: redirect to login page or home page
+    // window.location.href = '/';
+  };
   return (
     <motion.header
       className="sticky top-0 z-50 w-full bg-white py-2"
@@ -184,7 +196,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <div id="mobile-nav-description" className="sr-only">
                 Mobile navigation menu for AroundChess
               </div>
-              <MobileNav isSignedIn={isSignedIn} />
+              <MobileNav isSignedIn={isSignedIn} handleLogout={handleLogout} />
             </SheetContent>
           </Sheet>
           <div className="hidden xl:flex items-center gap-2">
@@ -198,7 +210,10 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                 </button>
               </div>
             ) : (
-              <UserButton showName={true} />
+              <div className="flex items-center gap-2">
+                <button onClick={handleLogout}>Logout</button>
+                <UserButton showName={true} />
+              </div>
             )}
           </div>
         </div>
@@ -233,9 +248,10 @@ const ListItem = React.forwardRef<
     </li>
   );
 });
+
 ListItem.displayName = "ListItem";
 
-function MobileNav(props: { isSignedIn: any }) {
+function MobileNav(props: { isSignedIn: any; handleLogout: ()=>void }) {
   return (
     <div className="flex flex-col ml-4 self-center ">
       <div className="flex items-center justify-between mb-8">
@@ -278,20 +294,16 @@ function MobileNav(props: { isSignedIn: any }) {
       <div className="flex flex-1 gap-2 mt-8">
         {!props.isSignedIn ? (
           <div className="sm:flex sm:flex-col w-full items-center gap-2">
-            <button
-              className="btn-secondary rounded-full mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1"
-            >
+            <button className="btn-secondary rounded-full mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1">
               <Link href="/login">Sign In</Link>
             </button>
-            <button
-               
-              className="btn-primary rounded-full w-full text-xs h-8 sm:h-12 px-2 py-1"
-            >
+            <button className="btn-primary rounded-full w-full text-xs h-8 sm:h-12 px-2 py-1">
               <Link href="/register">Try Now</Link>
             </button>
           </div>
         ) : (
-          <UserButton showName={true} />
+          // <UserButton showName={true} />
+          <button onClick={props.handleLogout}>Logout</button>
         )}
       </div>
     </div>

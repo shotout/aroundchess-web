@@ -28,7 +28,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="border w-full border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
             <Image

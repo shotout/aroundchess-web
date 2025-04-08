@@ -205,6 +205,8 @@ export const usePgnStore = create<PgnState>()(
       name: 'pgn-session-storage',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
+        dataAnalysis: state.dataAnalysis,
+        isLoading: state.isLoading,
         username: state.username,
         pgn: state.pgn,
         gamesData: state.gamesData,
