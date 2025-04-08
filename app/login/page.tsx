@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { signIn, isLoaded } = useSignIn();
+  const { sessionId } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +35,7 @@ export default function LoginPage() {
       if (result.status === "complete") {
         toast.success("Logged in successfully!");
         window.location.href = "/my-game-history";
+        localStorage.setItem("token", sessionId + "");
       } else {
         console.error("Sign in result:", result);
         toast.error("Failed to sign in");
@@ -53,6 +55,7 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Google");
@@ -67,6 +70,7 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Facebook");
@@ -81,6 +85,7 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Apple");

@@ -8,6 +8,8 @@ import Navigation from "@/components/navigator/navigation";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { postVSAILogs } from "@/functions/api-client";
+import { useAuth } from "@clerk/nextjs";
 import { Chess, PieceSymbol, Square } from "chess.js";
 import { ArrowLeft, HistoryIcon, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
@@ -16,8 +18,8 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 export default function Playing() {
   const router = useRouter();
+  const { sessionId } = useAuth();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-
   const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
   const [myColor, setMyColor] = useState<string>(AIChoosed.color); // Default size
@@ -83,6 +85,7 @@ export default function Playing() {
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
+
     console.log("onSquareClick", square);
     // from square
     if (!moveFrom) {
@@ -157,6 +160,7 @@ export default function Playing() {
   ) => {
     // if no piece passed then user has cancelled dialog, don't make move and reset
     setBestline("");
+    setHintClicked(false);
     console.log(
       "onPromotionPieceSelect",
       piece,
@@ -204,6 +208,7 @@ export default function Playing() {
           promotion: bestMove.substring(4, 5),
         });
         setBestline("");
+        setHintClicked(false);
         setGamePosition(game.fen());
         setCurrentTurn((turnColor) =>
           turnColor != "White" ? "White" : "Black"
@@ -213,7 +218,18 @@ export default function Playing() {
   };
   const handleHint = () => {
     setHintClicked(true);
-    console.log("handleHint");
+    let depthHint = depth;
+    engine.evaluatePosition(game.fen(), depthHint);
+    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
+      if (depth && depth < 10) return;
+      positionEvaluation &&
+        setPositionEvaluation(
+          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+        );
+      possibleMate && setPossibleMate(possibleMate);
+      depth && setDepth(depth);
+      pv && setBestline(pv);
+    });
   };
 
   useEffect(() => {
@@ -298,6 +314,8 @@ export default function Playing() {
     }
   };
   useEffect(() => {
+    localStorage.setItem("token", sessionId + "");
+
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
     console.log("AIChoosed.color", AIChoosed.color);
@@ -365,12 +383,46 @@ export default function Playing() {
   };
   const handleResign = () => {
     router.replace("/playground/play-vs-ai");
+    handleSaveLog();
   };
   const handleNewGame = () => {
+    
+    handleSaveLog();
+  };
+  const handleSaveLog = async () => {
+    let isUserWin = false;
+    let isDraw = false;
+    if (game.isGameOver()) {
+      if (game.isCheckmate()) {
+        console.log("Game Over! Checkmate!");
+        // Determine the winner based on the player who was in checkmate
+        let loserColor = game.turn(); // 'w' for white, 'b' for black
+        let winnerColor = loserColor === "w" ? "black" : "white";
+        isUserWin = myColor === winnerColor;
+        console.log(`The ${winnerColor} player wins!`);
+      } else {
+        isDraw = true;
+        console.log("Game Over! Stalemate or Draw.");
+      }
+    }
+    let body = {
+      enemyTag: AIChoosed.opponent.name,
+      eloRating: AIChoosed.opponent.elo,
+      totalMoves: game.history().length,
+      totalTime: "10 Minutes",
+      status: isUserWin
+        ? "Win"
+        : !isUserWin
+        ? "Loss"
+        : isDraw
+        ? "Draw"
+        : "Ongoing",
+      pgn: game.pgn(),
+    };
+    await postVSAILogs(body);
     game.reset();
     setGamePosition(game.fen());
   };
-
   const buttonBoard = () => {
     return (
       <div
@@ -460,27 +512,6 @@ export default function Playing() {
       </div>
     );
   };
-  useEffect(() => {
-    if (!hintClicked) return;
-    if (bestLine && bestLine.length > 0) {
-      setBestline(null);
-    }
-    let depthHint = depth;
-    engine.evaluatePosition(game.fen(), depthHint);
-    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
-      if (depth && depth < 10) return;
-      positionEvaluation &&
-        setPositionEvaluation(
-          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
-        );
-      possibleMate && setPossibleMate(possibleMate);
-      depth && setDepth(depth);
-      pv && setBestline(pv);
-    });
-    return () => {
-      setBestline("");
-    };
-  }, [game, hintClicked]);
   return (
     <Navigation>
       <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
@@ -515,7 +546,6 @@ export default function Playing() {
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
             {orientation != "white" ? whitePlayer() : blackPlayer()}
             <div className="flex flex-col justify-center items-center gap-3 ">
-              {bestLine}
               {buttonBoard()}
               <TwoDChessboard
                 arePiecesDraggable={false}
@@ -541,7 +571,7 @@ export default function Playing() {
                       ]
                     : null
                 }
-                customArrowColor={"#1C16C250"}
+                customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
                 promotionToSquare={moveTo}
                 showPromotionDialog={showPromotionDialog}
               />

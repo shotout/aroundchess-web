@@ -103,19 +103,19 @@ const sidebarLinks: SidebarLink[] = [
       },
       {
         name: "Puzzles",
-        href: "/puzzles",
+        href: "/playground/puzzles",
         icon: "/icons/sidebar-puzzle-icon.png",
         iconActive: "/icons/sidebar-puzzle-icon-active.png",
       },
       {
         name: "Board Vision",
-        href: "/board-vision",
+        href: "/playground/board-vision",
         icon: "/icons/sidebar-board-vision-icon.png",
         iconActive: "/icons/sidebar-board-vision-icon-active.png",
       },
       {
         name: "Endgame Training",
-        href: "/endgame-training",
+        href: "/playground/endgame-training",
         icon: "/icons/sidebar-endgame-training-icon.png",
         iconActive: "/icons/sidebar-endgame-training-icon-active.png",
       },
