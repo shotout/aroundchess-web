@@ -123,9 +123,12 @@ export function SettingBoard() {
   } = useChessBoardThemeStore();
   const [open, setOpen] = useState<boolean>(false);
   const [tabSelected, setTabSelected] = useState<string>("2d");
-  const [boardSelected, setBoardSelected] = useState<string>("wood");
-  const [pieceSelected, setPieceSelected] = useState<string>("wood");
-  useEffect(() => {}, []);
+  const [boardSelected, setBoardSelected] = useState<string>(BoardChoosed);
+  const [pieceSelected, setPieceSelected] = useState<string>(PieceChoosed);
+  useEffect(() => {
+    setPieceSelected(PieceChoosed);
+    setBoardSelected(BoardChoosed);
+  }, []);
   const handleSelectTab = (value: string) => {
     setTabSelected(value);
   };
