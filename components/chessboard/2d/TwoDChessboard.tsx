@@ -59,7 +59,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1,
+        pieceHeight: 1.2,
       },
       {
         piece: "wN",
@@ -83,7 +83,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
       },
       {
         piece: "bP",
-        pieceHeight: 1,
+        pieceHeight: 1.2,
       },
       {
         piece: "bN",
@@ -174,9 +174,18 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             }
             return false;
           }}
-          customBoardStyle={{
-            borderRadius: "4px",
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+          // customBoardStyle={{
+          //   borderRadius: "4px",
+          //   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+          // }}
+          customPieces={twoDPieces}
+          customLightSquareStyle={{
+            // backgroundColor: "#ff000070",
+            backgroundColor: "transparent",
+          }}
+          customDarkSquareStyle={{
+            // backgroundColor: "#00ff0080",
+            backgroundColor: "transparent",
           }}
           customArrows={customArrows}
           areArrowsAllowed={areArrowsAllowed}

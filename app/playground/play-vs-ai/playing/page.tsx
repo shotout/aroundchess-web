@@ -1047,16 +1047,16 @@ export default function Playing() {
                       capturedWhite.length > 0 &&
                       capturedWhite.map((captured, index) => {
                         let move = captured.san;
-                        let icon = captured.captured;
+                        let icon = captured.capturedTheme;
                         return (
                           <tr className="text-center" key={index}>
                             <td className="p-2 border font-normal text-xs border-[#BDD0F9]">
                               {index + 1}
                             </td>
                             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
-                              {icon && (
+                              {icon.length == 2 && (
                                 <Image
-                                  src={`/images/play-vs-ai/${icon}-white.png`}
+                                  src={`/pieces/${PieceChoosed}/${icon}.png`}
                                   alt="icon"
                                   width={1000}
                                   height={1000}
@@ -1070,9 +1070,9 @@ export default function Playing() {
                             </td>
                             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
                               {capturedBlack[index] != null &&
-                                capturedBlack[index].captured != null && (
+                                capturedBlack[index].capturedTheme.length==2 && (
                                   <Image
-                                    src={`/images/play-vs-ai/${capturedBlack[index].captured}-black.png`}
+                                    src={`/pieces/${PieceChoosed}/${capturedBlack[index].capturedTheme}.png`}
                                     alt="icon"
                                     width={1000}
                                     height={1000}
