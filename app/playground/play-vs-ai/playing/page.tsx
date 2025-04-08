@@ -8,6 +8,7 @@ import { SettingBoard } from "@/components/modal/SettingBoard";
 import Navigation from "@/components/navigator/navigation";
 import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
+import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { postVSAILogs } from "@/functions/api-client";
@@ -654,7 +655,9 @@ export default function Playing() {
   };
   const renderButtonPlaying = () => {
     return (
-      <div className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
+     
+      <motion.div
+        variants={fadeInUp} className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
         <button
           disabled={currentTurn.toLowerCase() != myColor}
           onClick={handleHint}
@@ -697,12 +700,14 @@ export default function Playing() {
           />
           <span className="font-medium text-xs mt-1">New Game</span>
         </button>
-      </div>
+      </motion.div>
     );
   };
   const renderButtonFinish = () => {
     return (
-      <div className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4">
+      
+      <motion.div
+        variants={fadeInUp} className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4">
         <button
           onClick={handleAnalyzeGame}
           className="md:hidden xl:block btn-primary w-full rounded-full h-[40px]"
@@ -792,7 +797,7 @@ export default function Playing() {
             <span className="font-medium text-xs mt-1">Download</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   };
   const renderCommentaryGame = () => {
@@ -828,7 +833,8 @@ export default function Playing() {
         ? "The Game ended in a Draw."
         : "You loss by [REASON OF LOSS]";
     return (
-      <button
+      <motion.div
+        variants={fadeInUp}
         className={`relative w-[98%] rounded-[8px] ${gradColor} border border-[${color}] mx-2 p-[1px]`}
       >
         <div
@@ -852,7 +858,7 @@ export default function Playing() {
             />
           </div>
         </div>
-      </button>
+      </motion.div>
     );
   };
   return (
@@ -1070,7 +1076,8 @@ export default function Playing() {
                             </td>
                             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
                               {capturedBlack[index] != null &&
-                                capturedBlack[index].capturedTheme.length==2 && (
+                                capturedBlack[index].capturedTheme.length ==
+                                  2 && (
                                   <Image
                                     src={`/pieces/${PieceChoosed}/${capturedBlack[index].capturedTheme}.png`}
                                     alt="icon"

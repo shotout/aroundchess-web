@@ -18,17 +18,21 @@ interface TwoDChessboardProps {
   //   targetSquare: Square,
   //   piece: string
   // ) => boolean;
-  arePiecesDraggable: boolean;
-  onSquareClick:  (square: Square) => void;
-  onSquareRightClick:  (square: Square) => void;
-  onPromotionPieceSelect: (piece?: PromotionPieceOption, promoteFromSquare?: Square, promoteToSquare?: Square) => boolean;
-   
+  arePiecesDraggable?: boolean;
+  onSquareClick: (square: Square) => void;
+  onSquareRightClick: (square: Square) => void;
+  onPromotionPieceSelect: (
+    piece?: PromotionPieceOption,
+    promoteFromSquare?: Square,
+    promoteToSquare?: Square
+  ) => boolean;
+
   promotionToSquare: Square | null;
   showPromotionDialog: boolean;
   customSquareStyles?: Record<string, React.CSSProperties>;
-  customArrows:any;
-  areArrowsAllowed:boolean;
-  customArrowColor:string;
+  customArrows: any;
+  areArrowsAllowed: boolean;
+  customArrowColor: string;
 }
 
 const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
@@ -39,13 +43,13 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   arePiecesDraggable,
   onSquareClick,
   onSquareRightClick,
-  onPromotionPieceSelect, 
+  onPromotionPieceSelect,
   promotionToSquare,
   showPromotionDialog,
   customSquareStyles,
   customArrows,
   areArrowsAllowed,
-  customArrowColor
+  customArrowColor,
 }) => {
   const {
     StyleChoosed,
@@ -159,41 +163,62 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
         }}
         className={`z-10 flex`}
       >
-        <Chessboard
-          // onPieceDrop={onPieceDrop}
-          customArrowColor={customArrowColor}
-          boardOrientation={orientation}
-          boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
-          arePiecesDraggable={arePiecesDraggable}
-          position={position}
-          onSquareClick={onSquareClick}
-          onSquareRightClick={onSquareRightClick}
-          onPromotionPieceSelect={(piece, promoteFromSquare, promoteToSquare) => {
-            if (piece) {
-              return onPromotionPieceSelect(piece);
-            }
-            return false;
-          }}
-          // customBoardStyle={{
-          //   borderRadius: "4px",
-          //   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-          // }}
-          customPieces={twoDPieces}
-          customLightSquareStyle={{
-            // backgroundColor: "#ff000070",
-            backgroundColor: "transparent",
-          }}
-          customDarkSquareStyle={{
-            // backgroundColor: "#00ff0080",
-            backgroundColor: "transparent",
-          }}
-          customArrows={customArrows}
-          areArrowsAllowed={areArrowsAllowed}
-          customSquareStyles={customSquareStyles}
-          promotionToSquare={promotionToSquare}
-          showPromotionDialog={showPromotionDialog}
-          animationDuration={200}
-        />
+        {arePiecesDraggable ? (
+          <Chessboard
+            // onPieceDrop={onPieceDrop}
+            customArrowColor={customArrowColor}
+            boardOrientation={orientation}
+            boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
+            arePiecesDraggable={arePiecesDraggable}
+            position={position}
+            onSquareClick={onSquareClick}
+            onSquareRightClick={onSquareRightClick}
+            onPromotionPieceSelect={(
+              piece,
+              promoteFromSquare,
+              promoteToSquare
+            ) => {
+              if (piece) {
+                return onPromotionPieceSelect(piece);
+              }
+              return false;
+            }}
+            // customBoardStyle={{
+            //   borderRadius: "4px",
+            //   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+            // }}
+            customPieces={twoDPieces}
+            customLightSquareStyle={{
+              // backgroundColor: "#ff000070",
+              backgroundColor: "transparent",
+            }}
+            customDarkSquareStyle={{
+              // backgroundColor: "#00ff0080",
+              backgroundColor: "transparent",
+            }}
+            customArrows={customArrows}
+            areArrowsAllowed={areArrowsAllowed}
+            customSquareStyles={customSquareStyles}
+            promotionToSquare={promotionToSquare}
+            showPromotionDialog={showPromotionDialog}
+            animationDuration={200}
+          />
+        ) : (
+          <Chessboard
+            boardOrientation={orientation}
+            boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
+            arePiecesDraggable={arePiecesDraggable}
+            position={position}
+            customPieces={twoDPieces}
+            customLightSquareStyle={{
+              backgroundColor: "transparent",
+            }}
+            customDarkSquareStyle={{
+              backgroundColor: "transparent",
+            }}
+            animationDuration={200}
+          />
+        )}
       </div>
     </div>
   );
