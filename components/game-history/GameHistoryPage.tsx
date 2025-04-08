@@ -14,6 +14,7 @@ import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
 import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
+import { ChessApiService } from "../analysis/onboarding/store/APIService";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_AUTH;
 
@@ -52,7 +53,7 @@ const GameHistoryPage = () => {
     toast.success("Thank you for subscribing to Premium!");
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchProfileData = async () => {
       if (!authIsLoaded) {
         return;

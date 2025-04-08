@@ -13,8 +13,12 @@ import Training from "./Training";
 import { usePgnStore } from "../store/zustandStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { useChessMoveStore } from "../store/chessMoveStore";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const AnalysisLatestGame: React.FC = () => {
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
   const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { setTabFocus, tabFocus } = useTabFocusStore();
   const {
@@ -54,7 +58,9 @@ const AnalysisLatestGame: React.FC = () => {
   }, [mounted]);
   const handleResize = () => {
     let widthC =
-      window?.innerWidth < 1024 ? window?.innerWidth : window?.innerWidth * 0.5;
+      window?.innerWidth <= 1280
+        ? window?.innerWidth
+        : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
@@ -117,19 +123,27 @@ const AnalysisLatestGame: React.FC = () => {
         );
     }
   };
-
+  const handleOnChangeTab = (tab: any) => {
+    if (isSignedIn) {
+      setTabFocus(tab.name);
+      setFocusPage(tab.name);
+      setChessMove({});
+    } else {
+      router.push("/login");
+    }
+  };
   return (
     <div
       style={{ width: widthContainer }}
       className={`${
         hideDiv && "mt-96 sm:mt-[64%]"
-      } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 p-3`}
+      } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 p-[32px]`}
     >
       <div className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
         <span className="text-sm sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
           Analysis
         </span>
-        <span className="text-xs sm:text-sm md:text-md lg:text-md ">
+        <span className="text-xs sm:text-sm md:text-md lg:text-md mb-1">
           {gameInfo?.date}, {summary?.whiteSide?.profileInfo.username} (White
           <span className="text-[#00B427]">
             {gameInfo?.whiteWin && " - WIN"}
@@ -144,27 +158,23 @@ const AnalysisLatestGame: React.FC = () => {
 
       <div
         style={{ maxWidth: widthContainer }}
-        className="flex flex-row bg-[#FAFDFF] max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 px-4 py-2"
+        className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 p-[8px]"
       >
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
             <div
               key={index}
-              onClick={() => {
-                setTabFocus(tab.name);
-                setFocusPage(tab.name);
-                setChessMove({});
-              }}
-              className={`flex cursor-pointer ${
+              onClick={() => handleOnChangeTab(tab)}
+              className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name == "movement" &&
-                `min-w-[120px] sm:min-w-[140px] lg:min-w-[140px]`
+                `min-w-[120px] sm:min-w-[140px] lg:min-w-[150px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md ">
+              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-[14px] font-medium">
                 {tab.label}
               </span>
             </div>

@@ -39,7 +39,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-2 bg-white mx-4 px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-2 bg-white px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="flex flex-row items-center gap-2">
           <Image
             alt=""

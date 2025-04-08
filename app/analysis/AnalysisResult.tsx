@@ -13,7 +13,7 @@ import {
   PlayIcon,
   SkipBackIcon,
   SkipForwardIcon,
-  Watch
+  Watch,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -21,16 +21,14 @@ import { Chessboard } from "react-chessboard";
 import { useChessMoveStore } from "../store/chessMoveStore";
 import { useTabFocusStore } from "../store/tabAnalysisStore";
 import { usePgnStore } from "../store/zustandStore";
-import GlassBoard from "@/components/chessboard/glass/GlassBoard";
-import { unixFormatDate } from "@/functions/unix-format-date";
-import ReactCountryFlag from "react-country-flag";
-import ThreeDBoardWood from "@/components/3d-board/3DBoardWoodNew";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import {
+  BoardOrientation,
+  PromotionPieceOption,
+} from "react-chessboard/dist/chessboard/types";
+import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useChessBoardThemeStore } from "../store/chessBoardTheme";
-
-type CapturedPieces = {
-  white: string[];
-  black: string[];
-};
+import ReactCountryFlag from "react-country-flag";
 
 interface ParsedMove {
   color: string;
@@ -88,6 +86,7 @@ const AnalysisResult: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
+  const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -508,12 +507,8 @@ const AnalysisResult: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    const maxSize =
-      window.innerWidth > 1440
-        ? window.innerWidth * 0.27
-        : window.innerWidth <= 1024
-        ? 453
-        : window.innerWidth * 0.26;
+    let desktopSize = window.innerWidth - ((window.innerWidth * 0.525) + 256)
+    const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
@@ -572,13 +567,13 @@ const AnalysisResult: React.FC = () => {
                   .sort((a, b) => a.captured.localeCompare(b.captured))
                   .map((captured, index) => {
                     let icon = captured.captured;
-                    let nextIcon =capturedBlack[index + 1]? capturedBlack[index + 1].captured:""
+                    let nextIcon = capturedBlack[index + 1]
+                      ? capturedBlack[index + 1].captured
+                      : "";
                     return (
                       <div
                         key={index}
-                        className={`${
-                          icon == nextIcon ? "-mr-2" : ""
-                        }`}
+                        className={`${icon == nextIcon ? "-mr-3" : ""}`}
                       >
                         {icon && (
                           <Image
@@ -645,13 +640,13 @@ const AnalysisResult: React.FC = () => {
                   .sort((a, b) => a.captured.localeCompare(b.captured))
                   .map((captured, index) => {
                     let icon = captured.captured;
-                    let nextIcon =capturedWhite[index + 1]? capturedWhite[index + 1].captured:""
+                    let nextIcon = capturedWhite[index + 1]
+                      ? capturedWhite[index + 1].captured
+                      : "";
                     return (
                       <div
                         key={index}
-                        className={`${
-                          icon == nextIcon ? "-mr-2" : ""
-                        }`}
+                        className={`${icon == nextIcon ? "-mr-3" : ""}`}
                       >
                         {icon && (
                           <Image
@@ -685,7 +680,43 @@ const AnalysisResult: React.FC = () => {
     // console.log("Best move:", bestMove);
     // console.log("Evaluation:", evaluation);
   }, [bestMove, evaluation]);
-
+  const handleSwitch = () => {
+    setOrientation((prev) => {
+      if (prev == "white") {
+        return "black";
+      } else {
+        return "white";
+      }
+    });
+  };
+  const buttonBoard = () => {
+    return (
+      <div
+        style={{ width: boardSize }}
+        className="flex flex-row self-end sm:self-center justify-end items-center gap-3"
+      >
+        <button onClick={handleSwitch}>
+          <Image
+            src={"/images/play-vs-ai/switch.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[20px] h-[20px] rounded-full object-contain"
+          />
+        </button>
+        <SettingBoard />
+        {/* <button onClick={handleThreeD}>
+            <Image
+              src={"/images/play-vs-ai/3d.png"}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[22px] h-[27px] object-contain"
+            />
+          </button> */}
+      </div>
+    );
+  };
   return (
     <div
       className={`${
@@ -702,7 +733,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            {renderBlackAvatar()}
+            {orientation != "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
           <motion.div
             animate={
@@ -714,108 +745,86 @@ const AnalysisResult: React.FC = () => {
               justifyContent: "end",
             }}
           >
-            <button
-              className="flex items-end justify-end"
-              onClick={toggleBoardMode}
-              title={is3DMode ? "Switch to 2D Mode" : "Switch to 3D Mode"}
-            >
-              {!is3DMode ? (
-                <Image
-                  alt="3d"
-                  src={"/icons/3d-icon.png"}
-                  width={1000}
-                  height={1000}
-                  className="h-[27px] w-[22px] object-contain"
-                />
-              ) : (
-                <Image
-                  alt="2d"
-                  src={"/icons/2d-icon.png"}
-                  width={1000}
-                  height={1000}
-                  className="h-[27px] w-[22px] object-contain"
-                />
-              )}
-            </button>
+            {buttonBoard()}
           </motion.div>
 
           <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
-            {!is3DMode ? (
-              <motion.div
-                animate={
-                  is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
-                }
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                style={{
-                  display: !is3DMode ? "flex" : "none",
-                  justifyContent: "end",
-                }}
-              >
-                <ThreeDBoardWood size={boardSize} {...getBoardProps()} />
-              </motion.div>
-            ) : (
-              <motion.div
-                animate={
-                  is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1 }
-                }
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                style={{
-                  display: !is3DMode ? "flex" : "none",
-                  justifyContent: "end",
-                }}
-              >
-                <WoodBoard
-                  boardWidth={
-                    hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-                  }
-                  {...getBoardProps()}
-                />
-              </motion.div>
-            )}
+            {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
+            <TwoDChessboard
+              boardWidth={
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+              }
+              arePiecesDraggable={false}
+              orientation={orientation}
+              position={game.fen()}
+              onSquareClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onSquareRightClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onPromotionPieceSelect={function (
+                piece?: PromotionPieceOption,
+                promoteFromSquare?: Square,
+                promoteToSquare?: Square
+              ): boolean {
+                throw new Error("Function not implemented.");
+              }}
+              promotionToSquare={null}
+              showPromotionDialog={false}
+              customArrows={undefined}
+              areArrowsAllowed={false}
+              customArrowColor={""}
+            />
           </div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-2 ">
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <SkipBackIcon fill="black" size={boardSize / 20} color="black" />
+              <SkipBackIcon fill="black" size={boardSize / 22} color="black" />
             </button>
 
             <button
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronLeft size={boardSize / 20} color="black" />
+              <ChevronLeft size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               {isPlaying ? (
-                <PauseIcon size={boardSize / 20} fill="black" color="black" />
+                <PauseIcon size={boardSize / 22} fill="black" color="black" />
               ) : (
-                <PlayIcon size={boardSize / 20} fill="black" color="black" />
+                <PlayIcon size={boardSize / 22} fill="black" color="black" />
               )}
             </button>
 
             <button
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
-              <ChevronRight size={boardSize / 20} color="black" />
+              <ChevronRight size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
+              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipForwardIcon
                 fill="black"
-                size={boardSize / 20}
+                size={boardSize / 22}
                 color="black"
               />
             </button>
@@ -827,7 +836,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-           {renderWhiteAvatar()}
+            {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
 
           {showTable && <MovementTable />}
