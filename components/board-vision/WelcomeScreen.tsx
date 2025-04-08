@@ -1,0 +1,99 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { useBoardVisionStore } from "./store/BoardvisionStore";
+
+const WelcomeScreen: React.FC = () => {
+  const { setAppState } = useBoardVisionStore();
+  const [isMobile, setIsMobile] = useState(false);
+  const headerHeight = 97;
+
+  // Check if screen is mobile or tablet
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1280);
+    };
+
+    // Initial check
+    checkScreenSize();
+
+    // Add listener for window resize
+    window.addEventListener("resize", checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // Just set the app state to "default" when clicked
+  const handleStartClick = () => {
+    setAppState("default");
+  };
+
+  return (
+    <main
+      className="w-full p-0 xl:p-8 xl:mt-8"
+      style={{ height: `calc(100vh - ${headerHeight}px)` }}
+    >
+      <div className="relative mx-auto w-full h-full flex items-center justify-center rounded-xl overflow-hidden border">
+        {/* Image Background - Conditionally rendered based on screen size */}
+        {isMobile ? (
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/board-vision/board.png"
+              alt="Background"
+              priority
+              fill
+              sizes="100vw"
+              className="object-cover object-bottom"
+              style={{ objectPosition: "50% 100%" }}
+              quality={100}
+            />
+          </div>
+        ) : (
+          <div className="absolute z-0 bottom-0 left-0">
+            <Image
+              src="/board-vision/board.png"
+              alt="Background"
+              priority
+              width={2000}
+              height={1000}
+              className="object-cover"
+              quality={100}
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center m-4">
+            <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
+              <Image
+                src={"/board-vision/eye.png"}
+                alt="background"
+                width={1000}
+                height={1000}
+                className="w-[188px] xl:w-[376px] h-auto"
+              />
+              <span className="font-medium text-lg xl:text-xl">
+                Board Vision
+              </span>
+              <span className="font-normal text-md xl:mx-20 text-center">
+                Answer technical Chess Questions from positions of your previous
+                Games to improve your Board Vision.
+              </span>
+              <button
+                className="btn-primary w-full p-2 rounded-full"
+                onClick={handleStartClick}
+              >
+                Start Board Vision
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default WelcomeScreen;

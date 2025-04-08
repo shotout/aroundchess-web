@@ -1,7 +1,7 @@
 "use client";
 
-import BoardVisionPage from "@/components/board-vision/BoardVisionPage";
 import Navigation from "@/components/navigator/navigation";
+import EndgameTrainingPage from "./components/EndgameTrainingPage";
 
 export default function Page() {
   return (
@@ -9,7 +9,7 @@ export default function Page() {
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
           <div className="xl:-mt-16">
-            <BoardVisionPage />
+            <EndgameTrainingPage />
           </div>
         </Navigation>
       </div>
