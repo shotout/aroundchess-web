@@ -58,7 +58,7 @@ export const ChessConnectDialog = ({
       console.log("Setting username:", username);
 
       // Call the API to set the username
-      const result = await ChessApiService.setUsername("NaufalKemang", sessionId);
+      const result = await ChessApiService.setUsername(username, sessionId);
       console.log("API response:", result);
 
       // Update the Zustand store
