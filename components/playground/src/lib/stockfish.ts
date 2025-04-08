@@ -51,7 +51,7 @@ export class Engine {
   }
 
   private handleMessage(data: string) {
-    console.log('Engine received:', data);
+    // console.log('Engine received:', data);
 
     // Handle initialization messages
     if (data === 'readyok') {
