@@ -58,35 +58,35 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
         {/* Navigation tabs - visible on desktop only (xl+) */}
         <div className="hidden xl:flex xl:items-center space-x-2">
-        <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
             <Button
               color="primary"
               variant="outlineprimary"
-              className="rounded-[8px] bg-[#221AE904]"
+              className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
             >
-              <BarChart2 className="mr-2 h-4 w-4" />
-              Analytics
+              <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+              <span className="font-normal text-[18px]">Analytics</span>
             </Button>
           </div>
           {/* Grouped navigation tabs */}
-          <div className="flex rounded-[8px] border border-gray-200 overflow-hidden p-1">
+          <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
             <button
-              className={`flex items-center px-4 py-2 text-sm font-medium ${
+              className={`flex items-center text-[18px] font-medium ${
                 pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
               } hover:bg-gray-50`}
             >
               <InfoIcon
-                className="h-4 w-4 mr-2"
+                className="h-[20px] w-[20px] mr-2"
                 color={pathname == "/about-us" ? "#221AE9" : "black"}
               />
               About
             </button>
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
-              <HelpCircle className="h-4 w-4 mr-2" />
+            <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
+              <HelpCircle className="h-[20px] w-[20px] mr-2" />
               FAQ
             </button>
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-black hover:bg-gray-50">
-              <DollarSign className="h-4 w-4 mr-2" />
+            <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
+              <DollarSign className="h-[20px] w-[20px] mr-2" />
               Pricing
             </button>
           </div>
@@ -96,13 +96,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       <div className="flex items-center space-x-4">
         {/* Auth buttons - visible on desktop only (xl+) */}
-        
+
         {!isSignedIn ? (
           <div className="hidden sm:flex items-center gap-2">
-            <button className="hidden xl:block btn-secondary rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              <Link href="/login">Sign In</Link>
+            <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <Link href="/login">Sign-In</Link>
             </button>
-            <button className="hidden xl:block btn-primary rounded-md bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+            <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
               Try Now
             </button>
           </div>
@@ -117,10 +117,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {!isDesktop && (
           <div className="flex items-center space-x-3">
             {/* Analytics button - visible on tablet */}
-            <button className="hidden md:flex xl:hidden items-center border rounded-[8px] border-input px-4 py-2 bg-gray-50 text-sm font-medium text-black hover:border-blue-600">
-              <BarChart2 className="h-4 w-4 mr-2" />
-              Analytics
-            </button>
+            <Button
+              color="primary"
+              variant="outlineprimary"
+              className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+            >
+              <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+              <span className="font-normal text-[18px]">Analytics</span>
+            </Button>
 
             {/* Hamburger menu */}
             <button
