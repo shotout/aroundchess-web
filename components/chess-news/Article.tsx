@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { useChessNewsStore } from "../store/chessNewsStore";
+import { useChessNewsStore } from "../../app/store/chessNewsStore";
 import Link from "next/link";
 
 const tournaments = [

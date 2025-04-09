@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, SetStateAction } from "react";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import {
   Dialog,
   DialogContent,
@@ -9,26 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clipboard, UploadCloud, Check, X, Edit, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Edit } from "lucide-react";
 import Image from "next/image";
-import axios from "axios";
-import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
-import { Chess } from "chess.js";
-import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { useEffect, useState } from "react";
 
 export function SettingBoard() {
+
   const router = useRouter();
   const boardsTwoD = [
     {
@@ -123,9 +112,12 @@ export function SettingBoard() {
   } = useChessBoardThemeStore();
   const [open, setOpen] = useState<boolean>(false);
   const [tabSelected, setTabSelected] = useState<string>("2d");
-  const [boardSelected, setBoardSelected] = useState<string>("wood");
-  const [pieceSelected, setPieceSelected] = useState<string>("wood");
-  useEffect(() => {}, []);
+  const [boardSelected, setBoardSelected] = useState<string>(BoardChoosed);
+  const [pieceSelected, setPieceSelected] = useState<string>(PieceChoosed);
+  useEffect(() => {
+    setPieceSelected(PieceChoosed);
+    setBoardSelected(BoardChoosed);
+  }, []);
   const handleSelectTab = (value: string) => {
     setTabSelected(value);
   };
@@ -133,7 +125,7 @@ export function SettingBoard() {
     setStyleChoosed(tabSelected);
     setBoardChoosed(boardSelected);
     setPieceChoosed(pieceSelected);
-    setOpen(false)
+    setOpen(false);
   };
 
   const content = (boards: any, pieces: any, style: string) => {
@@ -227,18 +219,20 @@ export function SettingBoard() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button>
-        <Image
-          src={"/images/play-vs-ai/setting.png"}
-          alt="icon"
-          width={1000}
-          height={1000}
-          className="w-[20px] h-[20px] object-contain"
-        />
+          <Image
+            src={"/images/play-vs-ai/setting.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[20px] h-[20px] object-contain"
+          />
         </button>
       </DialogTrigger>
       <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl">
         <DialogHeader className="gap-2 mb-2 flex flex-col items-center justify-center">
-          <DialogTitle className="font-semibold text-[24px]">Game Settings</DialogTitle>
+          <DialogTitle className="font-semibold text-[24px]">
+            Game Settings
+          </DialogTitle>
           <DialogDescription className="text-black font-normal text-[20px]">
             Customize your game experience and preferences
           </DialogDescription>
@@ -271,6 +265,7 @@ export function SettingBoard() {
                 </TabsTrigger>
                 <TabsTrigger
                   onClick={() => handleSelectTab("3d")}
+                  disabled={true}
                   value="3d"
                   style={{
                     background: tabSelected == "3d" ? "#D7E3FB" : "#fff",
