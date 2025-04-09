@@ -17,6 +17,7 @@ import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useApiClient } from "@/functions/api-client";
 
 const history = [
   { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
@@ -27,7 +28,35 @@ const history = [
 
 const MistakeLog = () => {
   const { PieceChoosed } = useChessBoardThemeStore();
-  const { username } = usePgnStore();
+  const {
+    getMistakeSaved,
+    getMistakePrevious,
+    getMistakePreviousDetail,
+    saveMistakeLog,
+    unsaveMistakeLog,
+    isLoading,
+    error,
+  } = useApiClient();
+  const {
+    username,
+    mistakeLogs,
+    setMistakeLogs,
+    movementDetails,
+    setMovementDetails,
+    playerInfo,
+    setPlayerInfo,
+    setPgn,
+    pgn,
+    titleGame,
+    setTitleGame,
+    savedMistakes,
+    setSavedMistakes,
+    previousAnalyses,
+    setPreviousAnalyses,
+  } = usePgnStore();
+  const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
+    id: "",
+  });
   const [tabSelected, setSelectedTab] = useState<string>("saved");
   const [MistakeType, setMistakeType] = useState<string>("");
   const [GamePhase, setGamePhase] = useState<string>("");
@@ -37,7 +66,53 @@ const MistakeLog = () => {
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
+  const loadData = () => {
+    fetchMistakePrevious();
+    fetchMistakeSaved();
+  };
+  useEffect(() => {
+    loadData();
+  }, []);
 
+  const fetchMistakePrevious = async () => {
+    try {
+      const prevData = await getMistakePrevious();
+      console.log("prevData", prevData.data);
+      if (prevData.data.length > 0) {
+        setPreviousAnalyses(prevData.data);
+        setMistakePreviousDetail(prevData.data[0]);
+        setSelectedHistory(prevData.data[0].id);
+        fetchMistakePreviousDetail(prevData.data[0].id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch mistake previous:", error);
+    }
+  };
+  const fetchMistakePreviousDetail = async (id: string) => {
+    try {
+      let params = { phase: GamePhase, type: MistakeType };
+      const prevDataDetail = await getMistakePreviousDetail(id, params);
+      console.log("prevDataDetail", prevDataDetail);
+      let dataDetail = prevDataDetail.data;
+      setMistakePreviousDetail(prevDataDetail.data);
+      setPgn(dataDetail.pgn);
+      setTitleGame(dataDetail.title);
+      setMovementDetails(dataDetail.movementDetails);
+      setPlayerInfo(dataDetail.playerInfo);
+      setMistakeLogs(dataDetail.mistakeLogs);
+    } catch (error) {
+      console.error("Failed to fetch mistake previous:", error);
+    }
+  };
+  const fetchMistakeSaved = async () => {
+    try {
+      const savedData = await getMistakeSaved();
+      console.log("savedData", savedData.data);
+      setSavedMistakes(savedData.data);
+    } catch (error) {
+      console.error("Failed to fetch mistake saved:", error);
+    }
+  };
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -64,6 +139,7 @@ const MistakeLog = () => {
   }, [MistakeType, GamePhase]);
 
   const handleApplyFilters = () => {
+    fetchMistakePreviousDetail(mistakePreviousDetail.id)
     setShowFilters(false);
   };
   const handleClearFilters = () => {
@@ -71,24 +147,25 @@ const MistakeLog = () => {
     setMistakeType("");
     setActiveFiltersCount(0);
     setFiltersApplied(false);
+    fetchMistakePreviousDetail(mistakePreviousDetail.id)
   };
   const renderFilters = () => {
     return (
       <>
         <div className="flex flex-row w-full max-w-sm md:max-w-full overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
-          {history.map((hist: any, i: number) => {
+          {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
-                onClick={() => setSelectedHistory(hist.value)}
+                onClick={() => setSelectedHistory(hist.id)}
                 key={i}
-                className={`rounded-[4px] md:rounded-[6px] py-1 px-2 ${
-                  selectedHistory != hist.value
+                className={`cursor-pointer rounded-[4px] md:rounded-[6px] py-1 px-2 ${
+                  selectedHistory != hist.id
                     ? `font-normal `
                     : `border border-[#C0CED4] bg-white shadow-md font-medium `
                 }`}
               >
                 <span className="min-w-max text-[10px] sm:text-[14px] line-clamp-1">
-                  {hist.label}
+                  {hist.title}
                 </span>
               </div>
             );
@@ -100,34 +177,37 @@ const MistakeLog = () => {
             <Select
               value={MistakeType}
               onValueChange={setMistakeType}
-              defaultValue="All Games"
+              defaultValue="All Type"
             >
               <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
                 <SelectValue placeholder="Mistake Type" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="All Games">All Games</SelectItem>
-                <SelectItem value="Bullet">Bullet</SelectItem>
-                <SelectItem value="Blitz">Blitz</SelectItem>
-                <SelectItem value="Rapid">Rapid</SelectItem>
-                <SelectItem value="Classical">Classical</SelectItem>
+                <SelectItem value="All Type">All Type</SelectItem>
+                <SelectItem value="Critical Mistakes">
+                  Critical Mistakes
+                </SelectItem>
+                <SelectItem value="Threats">Threats</SelectItem>
+                <SelectItem value="Bad Moves">Bad Moves</SelectItem>
+                <SelectItem value="Weakness Identification">
+                  Weakness Identification
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select
               value={GamePhase}
               onValueChange={setGamePhase}
-              defaultValue="All Formats"
+              defaultValue="All Phase"
             >
               <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
-                <SelectValue placeholder="All Sources" />
+                <SelectValue placeholder="Game Phase" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="All Formats">All Sources</SelectItem>
-                <SelectItem value="Chess.com">Chess.com</SelectItem>
-                <SelectItem value="PGN Upload">PGN Upload</SelectItem>
-                <SelectItem value="Online Games">Online Games</SelectItem>
-                <SelectItem value="Tournaments">Tournaments</SelectItem>
+                <SelectItem value="All Phase">All Phase</SelectItem>
+                <SelectItem value="Opening">Opening</SelectItem>
+                <SelectItem value="Middle Game">Middle Game</SelectItem>
+                <SelectItem value="End Game">End Game</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -175,52 +255,55 @@ const MistakeLog = () => {
             <Select
               value={MistakeType}
               onValueChange={setMistakeType}
-              defaultValue="All Games"
+              defaultValue="All Type"
             >
               <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
                 <SelectValue placeholder="Mistake Type" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="All Games">All Games</SelectItem>
-                <SelectItem value="Bullet">Bullet</SelectItem>
-                <SelectItem value="Blitz">Blitz</SelectItem>
-                <SelectItem value="Rapid">Rapid</SelectItem>
-                <SelectItem value="Classical">Classical</SelectItem>
+                <SelectItem value="All Type">All Type</SelectItem>
+                <SelectItem value="Critical Mistakes">
+                  Critical Mistakes
+                </SelectItem>
+                <SelectItem value="Threats">Threats</SelectItem>
+                <SelectItem value="Bad Moves">Bad Moves</SelectItem>
+                <SelectItem value="Weakness Identification">
+                  Weakness Identification
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select
               value={GamePhase}
               onValueChange={setGamePhase}
-              defaultValue="All Formats"
+              defaultValue="All Phase"
             >
               <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
-                <SelectValue placeholder="All Sources" />
+                <SelectValue placeholder="Game Phase" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value="All Formats">All Sources</SelectItem>
-                <SelectItem value="Chess.com">Chess.com</SelectItem>
-                <SelectItem value="PGN Upload">PGN Upload</SelectItem>
-                <SelectItem value="Online Games">Online Games</SelectItem>
-                <SelectItem value="Tournaments">Tournaments</SelectItem>
+                <SelectItem value="All Phase">All Phase</SelectItem>
+                <SelectItem value="Opening">Opening</SelectItem>
+                <SelectItem value="Middle Game">Middle Game</SelectItem>
+                <SelectItem value="End Game">End Game</SelectItem>
               </SelectContent>
             </Select>
             </div>
             <div className="flex items-center justify-end space-x-1 lg:space-x-2 ml-1 shrink-0 mt-2">
-            <button
-              onClick={handleApplyFilters}
-              className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
-            >
-              <Filter className="h-[20px] w-[20px]" />
-              Apply Filters
-            </button>
-            <button
-              onClick={handleClearFilters}
-              className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
-            >
-              <Filter className="h-[20px] w-[20px]" />
-              Clear Filters
-            </button>
+              <button
+                onClick={handleApplyFilters}
+                className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
+              >
+                <Filter className="h-[20px] w-[20px]" />
+                Apply Filters
+              </button>
+              <button
+                onClick={handleClearFilters}
+                className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
+              >
+                <Filter className="h-[20px] w-[20px]" />
+                Clear Filters
+              </button>
             </div>
           </div>
         )}
@@ -228,7 +311,7 @@ const MistakeLog = () => {
     );
   };
   return (
-    <main className="w-full px-4 py-4 space-y-[16px] bg-[#FAFDFF]">
+    <main className="w-full p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-base lg:text-[32px] font-semibold">
@@ -244,6 +327,7 @@ const MistakeLog = () => {
       <Tabs defaultValue="saved" className="w-full p-[8px]">
         <TabsList className="grid w-full lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
+            onClick={() => setSelectedTab("saved")}
             value="saved"
             className={`${
               tabSelected == "saved"
@@ -260,6 +344,7 @@ const MistakeLog = () => {
             </span>
           </TabsTrigger>
           <TabsTrigger
+            onClick={() => setSelectedTab("previous")}
             value="previous"
             className={`${
               tabSelected != "saved"
@@ -272,7 +357,7 @@ const MistakeLog = () => {
                 tabSelected != "saved" ? `font-semibold` : `font-normal`
               } lg:py-2`}
             >
-              Previous Analysis
+              Previous Analyses
             </span>
           </TabsTrigger>
         </TabsList>
@@ -282,9 +367,11 @@ const MistakeLog = () => {
             Saved Mistakes
           </span>
           <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-            <ChessContent />
+            <div className="lg:mt-2">
+              <ChessContent />
+            </div>
             <div style={{ width: widthContainer }}>
-              <SavedMistakes />
+              <SavedMistakes reFetch={loadData} />
             </div>
           </div>
         </TabsContent>
@@ -296,7 +383,7 @@ const MistakeLog = () => {
             <div className="block lg:hidden">{renderFilters()}</div>
 
             <div className="xl:w-3/4">
-              <PreviousAnalysis />
+              <PreviousAnalysis reFetch={loadData} />
             </div>
           </div>
         </TabsContent>
