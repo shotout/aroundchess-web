@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../store/zustandStore";
-import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
 interface TrainingProps {
   next: () => void;

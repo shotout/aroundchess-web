@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../store/zustandStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 import Link from "next/link";
 const PreviousAnalysis: React.FC = () => {
   const [indexOpen, setIndexOpen] = useState<number | undefined>(0);

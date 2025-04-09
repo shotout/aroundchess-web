@@ -19,10 +19,10 @@ import {
   SquareIcon,
   Watch,
 } from "lucide-react";
-import { usePgnStore } from "../store/zustandStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 import { Button } from "@/components/ui/button";
-import { useChessMoveStore } from "../store/chessMoveStore";
-import { useTabFocusStore } from "../store/tabAnalysisStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import MovementTable from "@/components/table/movement";
 import { motion } from "framer-motion";
 

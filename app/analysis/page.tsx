@@ -1,7 +1,7 @@
 "use client";
 import Navigation from "@/components/navigator/navigation";
-import AnalysisLatestGame from "./AnalysisLatestGame";
-import AnalysisResult from "./AnalysisResult";
+import AnalysisLatestGame from "../../components/analysis/AnalysisLatestGame";
+import AnalysisResult from "../../components/analysis/AnalysisResult";
 import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
