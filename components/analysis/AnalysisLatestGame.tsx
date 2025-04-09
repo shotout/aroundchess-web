@@ -10,9 +10,9 @@ import EndGame from "./EndGame";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Improvement from "./Improvement";
 import Training from "./Training";
-import { usePgnStore } from "../store/zustandStore";
-import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 

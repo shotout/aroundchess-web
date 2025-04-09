@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import { usePgnStore } from "../store/zustandStore";
-import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
 interface OpeningProps {

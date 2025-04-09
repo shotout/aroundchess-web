@@ -153,6 +153,8 @@ function LogoutButton() {
     clearAll();
 
     // Then sign out with Clerk
+    localStorage.clear();
+    localStorage.removeItem("token");
     await signOut();
 
     // Optional: redirect to login page or home page

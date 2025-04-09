@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../store/zustandStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 interface ImprovementProps {
   next: () => void;
   prev: () => void;

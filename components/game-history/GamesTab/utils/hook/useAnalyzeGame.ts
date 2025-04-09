@@ -1,8 +1,8 @@
 // useAnalyzeGame.ts
 import { useRouter } from "next/navigation";
 import { Game, usePgnStore} from "@/app/store/zustandStore";
-import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
+import { toast } from "sonner"; 
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 
 interface UseAnalyzeGameResult {
   handleAnalyzeClick: (game: Game) => Promise<void>;
@@ -16,6 +16,7 @@ export function useAnalyzeGame(
 ): UseAnalyzeGameResult {
   const router = useRouter();
   const {setIsLoading : ZustandSetIsLoading} = usePgnStore()
+  const { proceedAnalysis } = useStockfishAnalysis();
 
   const handleAnalyzeClick = async (game: Game) => {
     let arr = null;

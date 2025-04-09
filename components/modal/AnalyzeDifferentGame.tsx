@@ -24,8 +24,8 @@ import axios from "axios";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
 import { Chess } from "chess.js";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -108,7 +108,7 @@ const mockData = {
 
 export function AnalyzeDifferentGame() {
   const router = useRouter();
-
+  const { proceedAnalysis } = useStockfishAnalysis();
   const {
     setPgn,
     setIsLoading,

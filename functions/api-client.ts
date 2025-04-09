@@ -1,5 +1,6 @@
-// apiClient.ts
+// apiClient.tsx
 "use client";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
@@ -13,220 +14,362 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
-async function apiRequest<T = any>({
-  method,
-  path,
-  body,
-  params,
-  headers = {},
-}: RequestOptions): Promise<T> {
-  let url = path;
-  let token = localStorage.getItem("token")  ;
+export function useApiClient() {
+  const { sessionId } = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  if (params && Object.keys(params).length > 0) {
-    const query = new URLSearchParams(params as any).toString();
-    url += `?${query}`;
-  }
-  console.log("url", url);
-  console.log("method", method);
-  console.log("token", token);
-  console.log("body", body);
+  const apiRequest = useCallback(
+    async <T = any>({
+      method,
+      path,
+      body,
+      params,
+      headers = {},
+    }: RequestOptions): Promise<T> => {
+      setIsLoading(true);
+      setError(null);
 
-  const response = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...headers,
+      try {
+        let url = path;
+        const token = sessionId || localStorage.getItem("token");
+
+        if (params && Object.keys(params).length > 0) {
+          const query = new URLSearchParams(params as any).toString();
+          url += `?${query}`;
+        }
+
+        console.log("url", url);
+        console.log("method", method);
+        console.log("token", token);
+        console.log("body", body);
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...headers,
+          },
+          body: method !== "GET" ? JSON.stringify(body) : undefined,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          toast.error(errorData.message || "API request failed");
+          throw new Error(errorData.message || "API request failed");
+        }
+
+        const responseData = await response.json();
+        if (method == "POST") {
+          toast.success(responseData.message || "Request successful");
+        }
+        return responseData;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    body: method !== "GET" ? JSON.stringify(body) : undefined,
-  });
+    [sessionId]
+  );
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    toast.error(errorData.message || "API request failed");
-    throw new Error(errorData.message || "API request failed");
-  }
-  const successData = await response.json();
-  toast.success(successData.message || "Request successful");
+  const getHistoryGames = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/games/my-game-history?type=other`,
+    });
+  }, [apiRequest]);
 
-  return response.json();
-}
+  const getHistoryOptions = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/games/get-data/newbiepisan`,
+    });
+  }, [apiRequest]);
 
-export async function getHistoryGames() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/games/my-game-history?type=other`,
-  });
-}
+  const getAnalyticGamePerformance = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/analytic-games/my-game-performance-history`,
+    });
+  }, [apiRequest]);
 
-export async function getHistoryOptions() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/games/get-data/newbiepisan`,
-  });
-}
+  const getAnalyticGameAnalytic = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/analytic-games/my-game-analytic-history`,
+    });
+  }, [apiRequest]);
 
-export async function getAnalyticGamePerformance() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/analytic-games/my-game-performance-history`,
-  });
-}
+  const getAnalyticGameSummary = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/analytic-games/summary`,
+    });
+  }, [apiRequest]);
 
-export async function getAnalyticGameAnalytic() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/analytic-games/my-game-analytic-history`,
-  });
-}
+  const getPGNFromUsername = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/chessdotcom/games/newbiepisan`,
+    });
+  }, [apiRequest]);
 
-export async function getAnalyticGameSummary() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/analytic-games/summary`,
-  });
-}
+  const getAnalyticGame = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/analytic-games/newbiepisan`,
+    });
+  }, [apiRequest]);
 
-export async function getPGNFromUsername() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/chessdotcom/games/newbiepisan`,
-  });
-}
+  const setUsername = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/profile/set-username`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function getAnalyticGame() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/analytic-games/newbiepisan`,
-  });
-}
+  const profile = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/profile`,
+    });
+  }, [apiRequest]);
 
-export async function setUsername(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/profile/set-username`,
-    body,
-  });
-}
+  const analyze = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/analyze`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function profile() {
-  return apiRequest({ method: "GET", path: `${process.env.BASE_URL}/profile` });
-}
+  const startGame = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/start`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function analyze(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/analyze`,
-    body,
-  });
-}
+  const resignGame = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/resign`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function startGame(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/start`,
-    body,
-  });
-}
+  const offerDraw = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/offer-draw`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function resignGame(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/resign`,
-    body,
-  });
-}
+  const acceptDraw = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/accept-draw`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function offerDraw(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/offer-draw`,
-    body,
-  });
-}
+  const rejectDraw = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/reject-draw`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function acceptDraw(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/accept-draw`,
-    body,
-  });
-}
+  const makeMove = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/move`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function rejectDraw(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/reject-draw`,
-    body,
-  });
-}
+  const getMyGames = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/games/my-games`,
+    });
+  }, [apiRequest]);
 
-export async function makeMove(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/move`,
-    body,
-  });
-}
+  const getGameById = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/get-game`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function getMyGames() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/games/my-games`,
-  });
-}
+  const getGamePGN = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/get-pgn`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function getGameById(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/get-game`,
-    body,
-  });
-}
+  const rematch = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/rematch`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function getGamePGN(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/get-pgn`,
-    body,
-  });
-}
+  const uploadPGN = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/upload-pgn`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function rematch(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/rematch`,
-    body,
-  });
-}
+  const getPuzzle = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/playground/puzzles`,
+    });
+  }, [apiRequest]);
 
-export async function uploadPGN(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/games/upload-pgn`,
-    body,
-  });
-}
+  const getVSAILogs = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/playground/vs-ai-logs`,
+    });
+  }, [apiRequest]);
 
-export async function getPuzzle() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/playground/puzzles`,
-  });
-}
+  const postVSAILogs = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/playground/vs-ai-logs?page=1&limit=1`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
-export async function getVSAILogs() {
-  return apiRequest({
-    method: "GET",
-    path: `${process.env.BASE_URL}/playground/vs-ai-logs`,
-  });
-}
+  const getMistakePrevious = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/mistake-logs/previous`,
+    });
+  }, [apiRequest]);
+  const getMistakePreviousDetail = useCallback(
+    (id: string, params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/mistake-logs/previous/${id}`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getMistakeSaved = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/mistake-logs/saved?page=1&limit=1`,
+    });
+  }, [apiRequest]);
 
-export async function postVSAILogs(body: any) {
-  return apiRequest({
-    method: "POST",
-    path: `${process.env.BASE_URL}/playground/vs-ai-logs`,
-    body,
-  });
+  const saveMistakeLog = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/mistake-logs/save`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  const unsaveMistakeLog = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/mistake-logs/unsave`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  return {
+    isLoading,
+    error,
+    getHistoryGames,
+    getHistoryOptions,
+    getAnalyticGamePerformance,
+    getAnalyticGameAnalytic,
+    getAnalyticGameSummary,
+    getPGNFromUsername,
+    getAnalyticGame,
+    setUsername,
+    profile,
+    analyze,
+    startGame,
+    resignGame,
+    offerDraw,
+    acceptDraw,
+    rejectDraw,
+    makeMove,
+    getMyGames,
+    getGameById,
+    getGamePGN,
+    rematch,
+    uploadPGN,
+    getPuzzle,
+    getVSAILogs,
+    postVSAILogs,
+    getMistakePrevious,
+    getMistakeSaved,
+    saveMistakeLog,
+    unsaveMistakeLog,
+    getMistakePreviousDetail
+  };
 }
