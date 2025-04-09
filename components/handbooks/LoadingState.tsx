@@ -27,7 +27,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
   return (
     <div className="p-12 text-center">
       <h3 className="text-lg font-medium text-red-600">
-        Error loading resources
+        Error loading content
       </h3>
       <p className="text-gray-600 mt-2">{error}</p>
       <Button onClick={onRetry} className="mt-4" variant="outline">

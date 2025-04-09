@@ -1,23 +1,29 @@
 import React, { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { getSlugFromId, useMiddlegameStore } from "./lib/middlegameMapper";
-
-// Import components
-import MiddlegameCard from "./MiddlegameCard";
-import MiddlegameFilters from "./MiddlegameFilter";
 import {
-  LoadingState,
-  ErrorState,
-  FilteringState,
-  NoResultsState,
-  LoadMoreState,
-} from "./LoadingState";
+  getSlugFromId,
+  useMiddlegameStore,
+  getFenFromMoves,
+} from "./lib/middlegameMapper";
+import { useAuth } from "@clerk/nextjs";
 
-// Import custom hooks
+// Import the new unified card component instead of the specific one
+import MiddlegameFilters from "./MiddlegameFilter";
+
 import { useMiddlegamePagination } from "./lib/hooks/useMiddlegamePagination";
 import { useMiddlegameFilters } from "./lib/hooks/useMiddlegameFilter";
+import {
+  ErrorState,
+  FilteringState,
+  LoadingState,
+  LoadMoreState,
+  NoResultsState,
+} from "../handbooks/LoadingState";
+import ChessLessonCard from "../handbooks/HandbookCard";
 
 const MiddlegamePage: React.FC = () => {
+  const { sessionId } = useAuth();
+
   const {
     filteredMiddlegames,
     pagination,
@@ -27,12 +33,12 @@ const MiddlegamePage: React.FC = () => {
     searchTerm,
     initialized,
     fetchAllMiddlegames,
+    fetchMiddlegameDetails,
     setDifficultyFilter,
     setSearchTerm,
     applyFilters,
   } = useMiddlegameStore();
 
-  // Initialize pagination hook
   const {
     paginatedMiddlegames,
     hasMoreResults,
@@ -42,7 +48,6 @@ const MiddlegamePage: React.FC = () => {
     ref,
   } = useMiddlegamePagination(filteredMiddlegames);
 
-  // Initialize filters hook
   const {
     localSearchTerm,
     isFiltering,
@@ -57,24 +62,40 @@ const MiddlegamePage: React.FC = () => {
     filteredMiddlegames
   );
 
-  // Fetch middlegames on mount if not already initialized
+  const fetchMiddlegameDetailsWithAuth = async (id: string) => {
+    try {
+      return await fetchMiddlegameDetails(id, sessionId || undefined);
+    } catch (error) {
+      console.error("Error fetching middlegame with auth:", error);
+      return await fetchMiddlegameDetails(id);
+    }
+  };
+
+  const fetchWithAuth = async () => {
+    try {
+      await fetchAllMiddlegames(sessionId || undefined);
+    } catch (error) {
+      console.error("Error fetching with auth:", error);
+      await fetchAllMiddlegames();
+    }
+  };
+
   useEffect(() => {
     if (!initialized) {
-      fetchAllMiddlegames();
+      fetchWithAuth();
     } else {
-      // Force apply filters when component mounts
       applyFilters();
     }
-  }, [initialized, fetchAllMiddlegames, applyFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized, applyFilters, sessionId]);
 
-  // Render the content based on current state
   const renderContent = () => {
     if (isLoading && filteredMiddlegames.length === 0) {
       return <LoadingState isLoading={true} />;
     }
 
     if (error) {
-      return <ErrorState error={error} onRetry={fetchAllMiddlegames} />;
+      return <ErrorState error={error} onRetry={fetchWithAuth} />;
     }
 
     if (isFiltering) {
@@ -92,10 +113,17 @@ const MiddlegamePage: React.FC = () => {
             {paginatedMiddlegames.map((middlegame) => {
               const slug = getSlugFromId(middlegame.id);
               return (
-                <MiddlegameCard
+                <ChessLessonCard
                   key={middlegame.id}
-                  middlegame={middlegame}
+                  lesson={{
+                    title: middlegame.title,
+                    difficulty: middlegame.difficulty,
+                    moves: middlegame.moves,
+                  }}
                   slug={slug}
+                  lessonType="middlegame"
+                  getFenFromMoves={getFenFromMoves}
+                  fetchDetails={fetchMiddlegameDetailsWithAuth}
                 />
               );
             })}

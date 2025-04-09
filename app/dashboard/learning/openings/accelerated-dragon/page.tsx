@@ -1,35 +1,60 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { BookOpen, Clock, Target, Book, ChevronLeft, RotateCcw } from "lucide-react"
-import Link from "next/link"
-import dynamic from "next/dynamic"
-import { acceleratedDragon } from "@/components/analysis/training-plan/training-topics/openings/accelerated-dragon"
-import { OpeningTopic } from "@/components/analysis/training-plan/training-topics/types"
-import { Chess, Square } from "chess.js"
-import { OpeningIdeas, openingIdeas } from "@/components/learn/opening-theory/OpeningIdeas"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  BookOpen,
+  Clock,
+  Target,
+  Book,
+  ChevronLeft,
+  RotateCcw,
+} from "lucide-react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { acceleratedDragon } from "@/components/analysis/training-plan/training-topics/openings/accelerated-dragon";
+import { OpeningTopic } from "@/components/analysis/training-plan/training-topics/types";
+import { Chess, Square } from "chess.js";
+import {
+  OpeningIdeas,
+  openingIdeas,
+} from "@/components/learn/opening-theory/OpeningIdeas";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ChessboardProps {
-  position: string
-  boardSize: number
-  isDraggable: boolean
-  onPieceDrop?: (sourceSquare: Square, targetSquare: Square, piece: string) => boolean
+  position: string;
+  boardSize: number;
+  isDraggable: boolean;
+  onPieceDrop?: (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ) => boolean;
 }
 
-const Chessboard = dynamic<ChessboardProps>(() => import("@/components/chess/chessboard"), {
-  ssr: false,
-})
+const Chessboard = dynamic<ChessboardProps>(
+  () => import("@/components/chess/chessboard"),
+  {
+    ssr: false,
+  }
+);
 
 export default function AcceleratedDragonPage() {
-  const [currentVariation, setCurrentVariation] = useState<OpeningTopic['variations'][0]>(acceleratedDragon.variations[0])
-  const [game, setGame] = useState<Chess>(new Chess())
-  const [position, setPosition] = useState("rnbqkbnr/pppppp1p/6p1/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 3")
+  const [currentVariation, setCurrentVariation] = useState<
+    OpeningTopic["variations"][0]
+  >(acceleratedDragon.variations[0]);
+  const [game, setGame] = useState<Chess>(new Chess());
+  const [position, setPosition] = useState(
+    "rnbqkbnr/pppppp1p/6p1/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 3"
+  );
 
   function onDrop(sourceSquare: Square, targetSquare: Square, piece: string) {
     try {
@@ -37,25 +62,27 @@ export default function AcceleratedDragonPage() {
         from: sourceSquare,
         to: targetSquare,
         promotion: piece[1].toLowerCase() === "p" ? "q" : undefined,
-      })
+      });
 
-      if (move === null) return false
-      setPosition(game.fen())
-      return true
+      if (move === null) return false;
+      setPosition(game.fen());
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   function resetPosition() {
-    const newGame = new Chess("rnbqkbnr/pppppp1p/6p1/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 3")
-    setGame(newGame)
-    setPosition(newGame.fen())
+    const newGame = new Chess(
+      "rnbqkbnr/pppppp1p/6p1/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 0 3"
+    );
+    setGame(newGame);
+    setPosition(newGame.fen());
   }
 
   useEffect(() => {
-    resetPosition()
-  }, [])
+    resetPosition();
+  }, []);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -66,8 +93,12 @@ export default function AcceleratedDragonPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{acceleratedDragon.title}</h1>
-          <p className="text-muted-foreground">{acceleratedDragon.description}</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {acceleratedDragon.title}
+          </h1>
+          <p className="text-muted-foreground">
+            {acceleratedDragon.description}
+          </p>
         </div>
       </div>
 
@@ -75,7 +106,9 @@ export default function AcceleratedDragonPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6">
             <div className="flex justify-center mb-6">
-              <div style={{ width: '100%', maxWidth: '480px', aspectRatio: '1/1' }}>
+              <div
+                style={{ width: "100%", maxWidth: "480px", aspectRatio: "1/1" }}
+              >
                 <Chessboard
                   position={position}
                   boardSize={480}
@@ -84,13 +117,15 @@ export default function AcceleratedDragonPage() {
                 />
               </div>
             </div>
-            
-            <OpeningIdeas ideas={openingIdeas['accelerated-dragon']} />
-            
+
+            <OpeningIdeas ideas={openingIdeas["accelerated-dragon"]} />
+
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{acceleratedDragon.difficulty}</Badge>
+                  <Badge variant="secondary">
+                    {acceleratedDragon.difficulty}
+                  </Badge>
                   <div className="flex items-center gap-1 text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>{acceleratedDragon.estimatedTime}</span>
@@ -118,31 +153,50 @@ export default function AcceleratedDragonPage() {
 
               <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="w-full">
-                  <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
-                  <TabsTrigger value="variations" className="flex-1">Variations</TabsTrigger>
-                  <TabsTrigger value="resources" className="flex-1">Resources</TabsTrigger>
+                  <TabsTrigger value="overview" className="flex-1">
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="variations" className="flex-1">
+                    Variations
+                  </TabsTrigger>
+                  <TabsTrigger value="resources" className="flex-1">
+                    Resources
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-6">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Learning Objectives</h3>
+                      <h3 className="text-lg font-semibold mb-3">
+                        Learning Objectives
+                      </h3>
                       <ul className="space-y-2">
-                        {acceleratedDragon.objectives.map((objective, index) => (
-                          <li key={index} className="text-muted-foreground flex items-start gap-2">
-                            <span className="select-none">•</span>
-                            <span>{objective}</span>
-                          </li>
-                        ))}
+                        {acceleratedDragon.objectives.map(
+                          (objective, index) => (
+                            <li
+                              key={index}
+                              className="text-muted-foreground flex items-start gap-2"
+                            >
+                              <span className="select-none">•</span>
+                              <span>{objective}</span>
+                            </li>
+                          )
+                        )}
                       </ul>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Prerequisites</h3>
+                      <h3 className="text-lg font-semibold mb-3">
+                        Prerequisites
+                      </h3>
                       <div className="flex gap-2">
-                        {acceleratedDragon.prerequisites?.map((prereq, index) => (
-                          <Badge key={index} variant="outline">{prereq}</Badge>
-                        ))}
+                        {acceleratedDragon.prerequisites?.map(
+                          (prereq, index) => (
+                            <Badge key={index} variant="outline">
+                              {prereq}
+                            </Badge>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
@@ -153,15 +207,22 @@ export default function AcceleratedDragonPage() {
                     <Card
                       key={index}
                       className={`p-4 cursor-pointer hover:bg-accent ${
-                        currentVariation.name === variation.name ? "border-primary" : ""
+                        currentVariation.name === variation.name
+                          ? "border-primary"
+                          : ""
                       }`}
                       onClick={() => setCurrentVariation(variation)}
                     >
                       <h3 className="font-semibold mb-2">{variation.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{variation.description}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {variation.description}
+                      </p>
                       <div className="space-y-1">
                         {variation.keyIdeas.map((idea, ideaIndex) => (
-                          <div key={ideaIndex} className="text-sm flex items-center gap-2">
+                          <div
+                            key={ideaIndex}
+                            className="text-sm flex items-center gap-2"
+                          >
                             <Target className="h-4 w-4" />
                             <span>{idea}</span>
                           </div>
@@ -178,7 +239,9 @@ export default function AcceleratedDragonPage() {
                         <Book className="h-5 w-5 mt-1" />
                         <div>
                           <h3 className="font-semibold">{resource.title}</h3>
-                          <p className="text-sm text-muted-foreground">{resource.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {resource.description}
+                          </p>
                           <a
                             href={resource.url}
                             target="_blank"
@@ -210,9 +273,19 @@ export default function AcceleratedDragonPage() {
             <h2 className="text-xl font-semibold mb-4">Related Topics</h2>
             <div className="space-y-2">
               {acceleratedDragon.relatedTopics?.map((topic, index) => (
-                <Button key={index} variant="outline" className="w-full justify-start" asChild>
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link href={`/dashboard/learning/openings/${topic}`}>
-                    {topic.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    {topic
+                      .split("-")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
                   </Link>
                 </Button>
               ))}
@@ -221,5 +294,5 @@ export default function AcceleratedDragonPage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

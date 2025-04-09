@@ -1,4 +1,3 @@
-// lib/endgameMapper.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Chess } from 'chess.js';
@@ -51,7 +50,7 @@ export const useEndgameStore = create<EndgameState>()(
         get().applyFilters();
       },
 
-      fetchAllEndgames: async () => {
+      fetchAllEndgames: async (sessionId?: string) => {
         if (get().initialized && get().allEndgames.length > 0) {
           get().applyFilters();
           return;
@@ -63,7 +62,12 @@ export const useEndgameStore = create<EndgameState>()(
           const apiBaseUrl = process.env.BASE_URL
           const initialUrl = `${apiBaseUrl}/handbooks?page=1&limit=100&category=endgame`;
           
-          const initialResponse = await fetch(initialUrl);
+          const headers: HeadersInit = {};
+          if (sessionId) {
+            headers['Authorization'] = `Bearer ${sessionId}`;
+          }
+          
+          const initialResponse = await fetch(initialUrl, { headers });
 
           if (!initialResponse.ok) {
             throw new Error(`API Error: ${initialResponse.status}`);
@@ -81,7 +85,7 @@ export const useEndgameStore = create<EndgameState>()(
             for (let page = 2; page <= totalPages; page++) {
               const url = `${apiBaseUrl}/handbooks?page=${page}&limit=100&category=endgame`;
               remainingRequests.push(
-                fetch(url)
+                fetch(url, { headers })
                   .then(response => {
                     if (!response.ok) {
                       throw new Error(`API Error on page ${page}: ${response.status}`);
@@ -128,7 +132,7 @@ export const useEndgameStore = create<EndgameState>()(
         }
       },
 
-      fetchEndgameDetails: async (id: string) => {
+      fetchEndgameDetails: async (id: string, sessionId?: string) => {
         try {
           const existingEndgame = get().endgameDetails[id];
           if (existingEndgame) {
@@ -147,8 +151,13 @@ export const useEndgameStore = create<EndgameState>()(
 
           const apiBaseUrl = process.env.BASE_URL;
           const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
+          
+          const headers: HeadersInit = {};
+          if (sessionId) {
+            headers['Authorization'] = `Bearer ${sessionId}`;
+          }
 
-          const response = await fetch(apiUrl);
+          const response = await fetch(apiUrl, { headers });
 
           if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
@@ -194,48 +203,33 @@ export const useEndgameStore = create<EndgameState>()(
 const fenCache = new Map<string, string>();
 const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-/**
- * Checks if a string appears to be in FEN notation
- * @param input String to check
- * @returns boolean indicating if the string looks like a FEN position
- */
 function isFenString(input: string): boolean {
-  // A valid FEN has slashes and typically contains numbers and piece letters
   return input.includes('/') && /[1-8prnbqkPRNBQK]/.test(input) && input.split('/').length === 8;
 }
 
-/**
- * Gets a FEN position from either moves or a FEN string
- * @param input String containing either chess moves or a FEN position
- * @returns FEN string representation of the position
- */
 export function getFenFromMoves(input: string | null): string {
   if (!input) {
     return DEFAULT_FEN;
   }
 
-  // First check if the input is already cached
   if (fenCache.has(input)) {
     return fenCache.get(input)!;
   }
 
-  // Check if the input is already a FEN string
   if (isFenString(input)) {
     fenCache.set(input, input);
     return input;
   }
 
-  // Otherwise, treat the input as chess moves
   try {
     const chess = new Chess();
     
-    // Improved preprocessing of moves string
     const moveList = input
-      .replace(/\d+\./g, '') // Remove move numbers like "1."
-      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .replace(/\d+\./g, '') 
+      .replace(/\s+/g, ' ')  
       .trim()
       .split(' ')
-      .filter(move => move.length > 0); // Remove empty moves
+      .filter(move => move.length > 0); 
     
     for (const move of moveList) {
       if (move && move.length > 1) {
