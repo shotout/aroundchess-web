@@ -1,0 +1,86 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { LucideTrophy, TargetIcon, BrainIcon, TrendingUp } from "lucide-react";
+
+interface KeyStatisticsProps {
+  stats: {
+    totalGames: number;
+    winRate: number;
+    averageRating: number;
+    longestStreak: number;
+  };
+}
+
+const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
+  return (
+    <div className="md:p-4 rounded-lg">
+      <h1 className="text-base font-medium mb-3">Key Statistics</h1>
+      <div className="grid grid-cols-2 gap-3">
+        {/* Total Games Card */}
+        <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-gray-100 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <LucideTrophy
+                className="h-5 w-5 md:h-6 md:w-6 text-yellow-500"
+                fill="#eab308"
+              />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-xs text-gray-500">Total Games</p>
+              <h2 className="text-base font-semibold">
+                {stats.totalGames.toLocaleString()}
+              </h2>
+              <p className="text-[10px] text-green-500">+45 this month</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Win Rate Card */}
+        <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-gray-100 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <TargetIcon className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-xs text-gray-500">Win Rate</p>
+              <h2 className="text-base font-semibold">{stats.winRate}%</h2>
+              <p className="text-[10px] text-green-500">+5%</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Average Rating Card */}
+        <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-gray-100 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <BrainIcon className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-xs text-gray-500">Average Rating</p>
+              <h2 className="text-base font-semibold">{stats.averageRating}</h2>
+              <p className="text-[10px] text-green-500">+25 point this month</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Longest Streak Card */}
+        <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-gray-100 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-purple-500" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-xs text-gray-500">Longest Streak</p>
+              <h2 className="text-base font-semibold">
+                {stats.longestStreak} wins
+              </h2>
+              <p className="text-[10px] text-purple-300">Current streak</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default KeyStatisticsSection;
