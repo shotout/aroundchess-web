@@ -1,14 +1,7 @@
-import { FC } from "react";
-import {
-  FaTrophy,
-  FaInfoCircle,
-  FaTimesCircle,
-  FaChessBoard,
-} from "react-icons/fa";
-import { MdAccessTime } from "react-icons/md";
-import { BsPersonFill } from "react-icons/bs";
+import { formatDateHistory } from "@/functions/format-date";
 import Image from "next/image";
-import { Info } from "lucide-react";
+import { FC } from "react";
+import { MdAccessTime } from "react-icons/md";
 
 type GameCardProps = {
   result: "win" | "loss" | "draw";
@@ -37,6 +30,7 @@ const resultStyles = {
     textColor: "#FD0000",
     moveIcon: "#FD0000",
   },
+  
 };
 
 const GameCard: FC<GameCardProps> = ({
@@ -66,10 +60,10 @@ const GameCard: FC<GameCardProps> = ({
           />
           <span>{style.text}</span>
         </div>
-        <span className="text-gray-500 text-sm">{date}</span>
+        <span className="text-gray-500 text-sm">{formatDateHistory(date)}</span>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 min-h-[18px]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 min-h-[18px] ">
         <div className="flex flex-row items-center gap-1">
           <span className="font-medium text-[12px]">Vs {opponent}:</span>
           <Image
@@ -77,7 +71,7 @@ const GameCard: FC<GameCardProps> = ({
             alt="icon"
             width={1000}
             height={1000}
-            className="w-[12px] h-[12px] object-contain"
+            className="w-[12px] h-[12px] object-contain mb-1"
           />
           <span className="font-medium text-[14px]">ELO Rating: {elo}</span>
           <span className="font-medium text-[14px]">•</span>
@@ -90,14 +84,14 @@ const GameCard: FC<GameCardProps> = ({
               alt="icon"
               width={1000}
               height={1000}
-              className="w-[16px] h-[12px] object-contain"
+              className="w-[16px] h-[12px] object-contain mb-1"
             />
             <span className="font-medium text-[14px]">{moves} Moves </span>
           </div>
           <span className="font-medium text-[14px]">•</span>
           <div className={`flex flex-row items-center gap-1`}>
             <MdAccessTime
-              className={`w-[14px] h-[14px] text-[${style.moveIcon}]`}
+              className={`w-[14px] h-[14px] text-[${style.moveIcon}] mb-1`}
             />
             <span className="font-medium text-[14px]">{time}</span>
           </div>
