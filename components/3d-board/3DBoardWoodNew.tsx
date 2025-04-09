@@ -149,19 +149,19 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
       className="relative flex items-center justify-center"
       style={{ width: size, height: size }}
     >
-      <Image
-        src="/boards/3d-wood.png"
+      {/* <Image
+        src="/boards/adjusted_8apr2025.png"
         alt="Chess board frame"
         width={1000}
         height={1000}
         className={`absolute z-2 w-[${size}px] h-[${size}px] object-contain`}
-      />
+      /> */}
       <div
         style={{
           // width: size,
           // height: size,
-          left: 84,
-          top: 40,
+          left: 60,
+          top: 35,
         }}
         className={`z-10 absolute flex items-center justify-center`}
       >

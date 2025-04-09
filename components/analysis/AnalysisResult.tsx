@@ -122,7 +122,6 @@ const AnalysisResult: React.FC = () => {
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
    
-     
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
