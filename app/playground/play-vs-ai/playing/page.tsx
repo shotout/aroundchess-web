@@ -417,7 +417,7 @@ export default function Playing() {
   const handleSaveLog = async () => {
     let body = {
       enemyTag: AIChoosed.opponent.name,
-      eloRating: AIChoosed.opponent.elo,
+      eloRating: AIChoosed.opponent.elo+"",
       totalMoves: game.history().length,
       totalTime: "10 Minutes",
       status: statusGame,
@@ -490,7 +490,7 @@ export default function Playing() {
     return (
       <div
         style={{ width: boardSize }}
-        className="hidden xl:flex max-w-[20px]  flex-col justify-start items-center gap-3"
+        className="hidden xl:flex max-w-[20px] flex-col justify-start items-center gap-3 mt-1"
       >
         <button onClick={handleSwitch}>
           <Image
