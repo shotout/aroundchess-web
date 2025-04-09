@@ -3,8 +3,6 @@ const nextConfig = {
   env: {
     BASE_URL: process.env.BASE_URL,
     BASE_URL_IP: process.env.BASE_URL_IP,
-    NEXT_PUBLIC_GAME_HISTORY:process.env.NEXT_PUBLIC_GAME_HISTORY,
-    NEXT_PUBLIC_GAME_HISTORY_ANALYTICS:process.env.NEXT_PUBLIC_GAME_HISTORY_ANALYTICS,
     NEXT_PUBLIC_BASE_AUTH:process.env.NEXT_PUBLIC_BASE_AUTH,
 }, 
 

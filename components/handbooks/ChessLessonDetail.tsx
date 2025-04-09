@@ -15,7 +15,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Responsive from "../game-history/Responsive";
 import {
   ChessLesson,
   ChessLessonState,
@@ -238,7 +237,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
   return (
     <AnimatePresence mode="wait">
-      <Responsive />
       <motion.div
         key={params.slug}
         initial={{ opacity: 0 }}
