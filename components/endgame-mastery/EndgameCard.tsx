@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
 import { Chessboard } from "react-chessboard";
@@ -11,6 +11,7 @@ import Image from "next/image";
 interface EndgameCardProps {
   endgame: ApiEndgame;
   slug: string;
+  fetchDetails?: (id: string) => Promise<ApiEndgame | null>;
 }
 
 const EndgameCard = React.memo(({ endgame, slug }: EndgameCardProps) => {
@@ -53,7 +54,6 @@ const EndgameCard = React.memo(({ endgame, slug }: EndgameCardProps) => {
           </div>
 
           <div className="xl:px-4 flex flex-col gap-y-4 h-auto">
-            {/* Mobile and Tablet View (stack vertically) */}
             <div className="flex flex-col lg:hidden gap-y-2">
               <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
                 {endgame.difficulty}
@@ -63,7 +63,6 @@ const EndgameCard = React.memo(({ endgame, slug }: EndgameCardProps) => {
               </h3>
             </div>
 
-            {/* Desktop View (side by side) */}
             <div className="hidden lg:flex justify-between items-center">
               <div className="flex items-center gap-1 flex-1 mr-2">
                 <h3 className="font-medium text-gray-900 text-xs line-clamp-2">

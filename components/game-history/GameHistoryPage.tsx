@@ -14,9 +14,8 @@ import UserHistory from "./UserHistory";
 import OtherHistory from "./OtherHistory";
 import Image from "next/image";
 import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
-import { ChessApiService } from "../analysis/onboarding/store/APIService";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_AUTH;
+const API_BASE_URL = process.env.BASE_URL;
 
 const GameHistoryPage = () => {
   const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
@@ -26,8 +25,29 @@ const GameHistoryPage = () => {
   const [showConnectDialog, setShowConnectDialog] = useState(devMode);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [statsLoading, setStatsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("user");
+
+  // Add state for statistics
+  const [statistics, setStatistics] = useState({
+    bestWin: {
+      opponent: "NONE",
+      rating: 0,
+      date: "",
+    },
+    winRate: {
+      percentage: 0,
+      monthlyChange: 0,
+    },
+    averageEloRating: {
+      rating: 0,
+      monthlyChange: 0,
+    },
+    totalGames: {
+      count: 0,
+      monthlyChange: 0,
+    },
+  });
 
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
@@ -53,7 +73,50 @@ const GameHistoryPage = () => {
     toast.success("Thank you for subscribing to Premium!");
   };
 
-  useEffect(() => { 
+  // Function to fetch statistics from API
+  const fetchStatistics = async () => {
+    if (!authIsLoaded || !isSignedIn || !sessionId) {
+      setStatsLoading(false);
+      return;
+    }
+
+    setStatsLoading(true);
+    try {
+      console.log(
+        "Fetching statistics from:",
+        `${API_BASE_URL}/api/analytic-games/summary`
+      );
+
+      const response = await axios.get(
+        `${API_BASE_URL}/api/analytic-games/summary`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      console.log("API Response:", response);
+
+      if (response.data && response.data.success) {
+        console.log("Setting statistics:", response.data.data);
+        setStatistics(response.data.data);
+      } else {
+        console.warn(
+          "API returned success:false or missing data",
+          response.data
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching statistics:", error);
+      toast.error("Failed to load statistics. Please try again later.");
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const fetchProfileData = async () => {
       if (!authIsLoaded) {
         return;
@@ -101,11 +164,30 @@ const GameHistoryPage = () => {
     fetchProfileData();
   }, [authIsLoaded, isSignedIn, sessionId, setUsername]);
 
+  // Add effect to fetch statistics when auth is loaded
+  useEffect(() => {
+    if (authIsLoaded && isSignedIn && sessionId) {
+      fetchStatistics();
+    }
+  }, [authIsLoaded, isSignedIn, sessionId]);
+
   useEffect(() => {
     if (authIsLoaded && !isLoading && !username) {
       setShowConnectDialog(true);
     }
   }, [authIsLoaded, isLoading, username]);
+
+  // Function to format numbers with commas - handle different types
+  const formatNumber = (num: any) => {
+    if (num === undefined || num === null) return "0";
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // Add debug button for development
+  const triggerManualFetch = () => {
+    fetchStatistics();
+    toast.info("Manually triggered statistics fetch");
+  };
 
   return (
     <>
@@ -124,6 +206,12 @@ const GameHistoryPage = () => {
               className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm"
             >
               {showPremiumDialog ? "Close" : "Open"} Premium Dialog
+            </button>
+            <button
+              onClick={triggerManualFetch}
+              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+            >
+              Fetch Stats
             </button>
             <span className="text-xs self-center text-yellow-800">
               DEV MODE
@@ -170,9 +258,12 @@ const GameHistoryPage = () => {
             <DialogButton />
           </div>
 
-          <div className="xl:block xl:p-3 xl:border xl:border-primary-gray  xl:rounded-md bg-transparent xl:bg-white xl:shadow-card">
+          <div className="xl:block xl:p-3 xl:border xl:border-primary-gray xl:rounded-md bg-transparent xl:bg-white xl:shadow-card">
             <div className="font-semibold text-sm py-2 lg:text-xl">
               Overall Statistic
+              {statsLoading && (
+                <span className="text-xs ml-2 text-gray-500">(Loading...)</span>
+              )}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <Card className="p-3 h-[120px] lg:h-[147px] bg-gradient-to-br from-[#A855F7] to-[#CF9DFF] text-white rounded-lg overflow-hidden relative flex flex-col justify-between">
@@ -184,12 +275,12 @@ const GameHistoryPage = () => {
                 <div className="flex flex-col">
                   <div className="flex gap-1 items-center">
                     <h1 className="text-lg font-bold lg:text-[28px]">
-                      {"2,100"}
+                      {formatNumber(statistics?.bestWin?.rating)}
                     </h1>
                     <Star fill="white" />
                   </div>
                   <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                    vs {"IM_ChessMaster"}
+                    vs {statistics?.bestWin?.opponent || "Unknown"}
                   </span>
                 </div>
 
@@ -218,11 +309,12 @@ const GameHistoryPage = () => {
                 <div className="flex flex-col">
                   <div className="flex gap-1 items-center">
                     <h1 className="text-lg font-bold lg:text-[28px] bg-gradient-to-b from-[#029A46]  to-[#42F993] inline-block text-transparent bg-clip-text">
-                      {"90%"}
+                      {statistics?.winRate?.percentage || 0}%
                     </h1>
                   </div>
                   <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                    {"+5% this month"}
+                    {(statistics?.winRate?.monthlyChange || 0) > 0 ? "+" : ""}
+                    {statistics?.winRate?.monthlyChange || 0}% this month
                   </span>
                 </div>
                 <Image
@@ -252,11 +344,15 @@ const GameHistoryPage = () => {
                 <div className="flex flex-col">
                   <div className="flex gap-1 items-center">
                     <h1 className="text-lg font-bold lg:text-[28px] bg-gradient-to-b from-[#3871EC]  to-[#80A8FF] inline-block text-transparent bg-clip-text">
-                      {"1,850"}
+                      {formatNumber(statistics?.averageEloRating?.rating)}
                     </h1>
                   </div>
                   <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                    {"+25 points this month"}
+                    {(statistics?.averageEloRating?.monthlyChange || 0) > 0
+                      ? "+"
+                      : ""}
+                    {statistics?.averageEloRating?.monthlyChange || 0} points
+                    this month
                   </span>
                 </div>
 
@@ -285,11 +381,14 @@ const GameHistoryPage = () => {
                 <div className="flex flex-col">
                   <div className="flex gap-1 items-center">
                     <h1 className="text-lg font-bold lg:text-[28px]">
-                      {"1,234"}
+                      {formatNumber(statistics?.totalGames?.count)}
                     </h1>
                   </div>
                   <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
-                    {"+45 this month"}
+                    {(statistics?.totalGames?.monthlyChange || 0) > 0
+                      ? "+"
+                      : ""}
+                    {statistics?.totalGames?.monthlyChange || 0} this month
                   </span>
                 </div>
               </Card>

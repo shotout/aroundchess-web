@@ -23,7 +23,7 @@ import {
   PgnStore,
   ProcessedData,
 } from "./types/AnalyticsTypes";
-import { isCacheValid } from "./utils/AnalyticsHelper";
+import { isCacheValid, processApiData } from "./utils/AnalyticsHelper";
 import { fetchAnalyticsData } from "./utils/API";
 import DotSpinner from "../Spinner";
 
@@ -78,17 +78,17 @@ const Analytics: React.FC = () => {
         return;
       }
 
+      // If cache is valid, use the cached data without making an API call
       if (cacheIsValid && cachedAnalytics) {
         try {
-          const processedData = await fetchAnalyticsData(
-            username,
-            sessionId || null,
-            setAnalyticsData
-          );
+          // Process the cached data instead of fetching new data
+          const processedData = processApiData(cachedAnalytics);
           updateStateWithProcessedData(processedData);
         } catch (err) {
           setError(
-            err instanceof Error ? err : new Error("An unknown error occurred")
+            err instanceof Error
+              ? err
+              : new Error("Failed to process cached data")
           );
         } finally {
           setLoading(false);
@@ -96,6 +96,7 @@ const Analytics: React.FC = () => {
         return;
       }
 
+      // If cache is not valid, fetch new data
       fetchRef.current = true;
       setLoading(true);
       setError(null);
@@ -128,7 +129,6 @@ const Analytics: React.FC = () => {
     sessionId,
     cacheIsValid,
     cachedAnalytics,
-    analyticsLastFetched,
     setAnalyticsData,
   ]);
 
@@ -151,11 +151,11 @@ const Analytics: React.FC = () => {
     return <DotSpinner />;
   }
 
-  // if (error) {
-  //   return (
-  //     <LoadingError error={error} handleForceRefresh={handleForceRefresh} />
-  //   );
-  // }
+  if (error) {
+    return (
+      <LoadingError error={error} handleForceRefresh={handleForceRefresh} />
+    );
+  }
 
   if (!username) {
     return <NoUsername />;
@@ -169,14 +169,12 @@ const Analytics: React.FC = () => {
   return (
     <div className="grid md:grid-cols-2 gap-6 bg-transparent">
       {/* Left Column Group - with border */}
-      <div className="md:border border-gray-200 rounded-lg p-4 ">
+      <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           <RatingProgressChart
             ratingData={ratingData}
             isCacheValid={cacheIsValid}
-            handleForceRefresh={function (): void {
-              throw new Error("Function not implemented.");
-            }}
+            handleForceRefresh={handleForceRefresh}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:bg-white">
@@ -190,7 +188,7 @@ const Analytics: React.FC = () => {
       </div>
 
       {/* Right Column Group - with border */}
-      <div className="md:border border-gray-200 rounded-lg p-4 ">
+      <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           {/* Show Performance Insights at the top right on tablet (md) */}
           <div className="hidden md:block lg:hidden">

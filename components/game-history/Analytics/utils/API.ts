@@ -15,22 +15,16 @@ export const fetchAnalyticsData = async (
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${sessionId}`
-
       },
     };
-
-    // if (sessionId) {
-    //   config.headers = {
-    //     ...config.headers,
-    //     Authorization: `Bearer ${sessionId}`
-    //   };
-    // }
 
     const response = await axios.get(apiUrl, config);
 
     if (response.data && response.data.success) {
       const apiData: ApiData = response.data.data;
+      
       setAnalyticsData(apiData);
+      
       return processApiData(apiData);
     } else {
       throw new Error("Invalid data format received from server");

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { getSlugFromId, useEndgameStore } from "./lib/endgameMapper";
+import { useAuth } from "@clerk/nextjs";
 
-// Import components
 import EndgameCard from "./EndgameCard";
 import EndgameFilters from "./EndgameFilter";
 import {
@@ -11,13 +11,14 @@ import {
   FilteringState,
   NoResultsState,
   LoadMoreState,
-} from "@/components/opening-theory/LoadingState"; // Reusing the same loading states
+} from "@/components/opening-theory/LoadingState";
 
-// Import custom hooks
 import { useEndgamePagination } from "./lib/hooks/useEndgamePagination";
 import { useEndgameFilters } from "./lib/hooks/useEndgameFilter";
 
 const EndgamePage: React.FC = () => {
+  const { sessionId } = useAuth();
+
   const {
     filteredEndgames,
     pagination,
@@ -27,22 +28,20 @@ const EndgamePage: React.FC = () => {
     searchTerm,
     initialized,
     fetchAllEndgames,
+    fetchEndgameDetails,
     setDifficultyFilter,
     setSearchTerm,
     applyFilters,
   } = useEndgameStore();
 
-  // Initialize pagination hook
   const {
     paginatedEndgames,
     hasMoreResults,
     isLoadingMore,
     loadMoreItems,
-    displayCount,
     ref,
   } = useEndgamePagination(filteredEndgames);
 
-  // Initialize filters hook
   const {
     localSearchTerm,
     isFiltering,
@@ -57,24 +56,48 @@ const EndgamePage: React.FC = () => {
     filteredEndgames
   );
 
-  // Fetch endgames on mount if not already initialized
-  useEffect(() => {
-    if (!initialized) {
-      fetchAllEndgames();
-    } else {
-      // Force apply filters when component mounts
-      applyFilters();
+  const fetchEndgameDetailsWithAuth = async (id: string) => {
+    try {
+      return await fetchEndgameDetails(id);
+    } catch (error) {
+      console.error("Error fetching endgame with auth:", error);
+      return await fetchEndgameDetails(id);
     }
-  }, [initialized, fetchAllEndgames, applyFilters]);
+  };
 
-  // Render the content based on current state
+  useEffect(() => {
+    const fetchWithAuth = async () => {
+      if (!initialized) {
+        try {
+          await fetchAllEndgames();
+        } catch (error) {
+          console.error("Error getting auth token:", error);
+          await fetchAllEndgames();
+        }
+      } else {
+        applyFilters();
+      }
+    };
+
+    fetchWithAuth();
+  }, [initialized, fetchAllEndgames, applyFilters, sessionId]);
+
+  const fetchWithAuth = async () => {
+    try {
+      await fetchAllEndgames();
+    } catch (error) {
+      console.error("Error fetching with auth:", error);
+      await fetchAllEndgames();
+    }
+  };
+
   const renderContent = () => {
     if (isLoading && filteredEndgames.length === 0) {
       return <LoadingState isLoading={true} />;
     }
 
     if (error) {
-      return <ErrorState error={error} onRetry={fetchAllEndgames} />;
+      return <ErrorState error={error} onRetry={fetchWithAuth} />;
     }
 
     if (isFiltering) {
@@ -92,7 +115,12 @@ const EndgamePage: React.FC = () => {
             {paginatedEndgames.map((endgame) => {
               const slug = getSlugFromId(endgame.id);
               return (
-                <EndgameCard key={endgame.id} endgame={endgame} slug={slug} />
+                <EndgameCard
+                  key={endgame.id}
+                  endgame={endgame}
+                  slug={slug}
+                  fetchDetails={fetchEndgameDetailsWithAuth}
+                />
               );
             })}
           </AnimatePresence>

@@ -1,88 +1,12 @@
-// lib/middlegameMapper.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Chess } from 'chess.js';
-import { DifficultyFilter } from './middlegame';
+import axios from 'axios';
+import { DifficultyFilter, MiddlegameState } from './middlegame';
 
-// Import ApiMiddlegame interface for proper typing
-export interface ApiMiddlegame {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced" | "Expert";
-  estimatedTime: string;
-  forColor: string;
-  popularityLevel: number;
-  recommendedFor: string[];
-  relatedTopics: string[];
-  eco: string | null;
-  moves: string | null;
-  prerequisites: { id: number; handbookId: string; prerequisite: string }[];
-  objectives: { id: number; handbookId: string; objective: string }[];
-  resources: {
-    id: number;
-    handbookId: string;
-    title: string;
-    url: string;
-    platform: string;
-    description: string;
-  }[];
-  patterns: {
-    id: number;
-    handbookId: string;
-    pattern: string;
-  }[];
-  commonThemes: {
-    id: number;
-    handbookId: string;
-    theme: string;
-  }[];
-  tacticalMotifs: {
-    id: number;
-    handbookId: string;
-    motif: string;
-  }[];
-  strategicConcepts: {
-    id: number;
-    handbookId: string;
-    concept: string;
-  }[];
-}
+const apiBaseUrl = process.env.BASE_URL;
 
-// Define the proper store state type
-export interface MiddlegameState {
-  // Data
-  allMiddlegames: ApiMiddlegame[]; // All fetched middlegames
-  filteredMiddlegames: ApiMiddlegame[]; // Filtered middlegames for display
-  middlegameDetails: Record<string, ApiMiddlegame>; // Indexed by id
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  } | null;
 
-  // Filter states
-  difficultyFilter: DifficultyFilter;
-  searchTerm: string;
-
-  // Loading states
-  isLoading: boolean;
-  isLoadingMore: boolean;
-  error: string | null;
-  initialized: boolean;
-
-  // Actions
-  fetchAllMiddlegames: () => Promise<void>;
-  fetchMiddlegameDetails: (id: string) => Promise<ApiMiddlegame | null>;
-  setDifficultyFilter: (difficulty: DifficultyFilter) => void;
-  setSearchTerm: (term: string) => void;
-  reset: () => void;
-  applyFilters: () => void;
-}
 
 export const useMiddlegameStore = create<MiddlegameState>()(
   persist(
@@ -131,7 +55,7 @@ export const useMiddlegameStore = create<MiddlegameState>()(
         get().applyFilters();
       },
 
-      fetchAllMiddlegames: async () => {
+      fetchAllMiddlegames: async (sessionId?: string) => {
         if (get().initialized && get().allMiddlegames.length > 0) {
           get().applyFilters();
           return;
@@ -140,58 +64,48 @@ export const useMiddlegameStore = create<MiddlegameState>()(
         try {
           set({ isLoading: true, error: null });
           
-          const apiBaseUrl = process.env.BASE_URL;
-          const initialUrl = `${apiBaseUrl}/handbooks?page=1&limit=100&category=middlegame`;
+          const headers = sessionId ? { Authorization: `Bearer ${sessionId}` } : {};
+          const url = `${apiBaseUrl}/handbooks`;
           
-          const initialResponse = await fetch(initialUrl);
+          const initialResponse = await axios.get(url, {
+            params: { page: 1, limit: 100, category: 'middlegame' },
+            headers
+          });
 
-          if (!initialResponse.ok) {
-            throw new Error(`API Error: ${initialResponse.status}`);
-          }
-
-          const initialData = await initialResponse.json();
-          let allData = [...initialData.data];
-          
-          const totalPages = initialData.pagination.totalPages;
+          let allData = [...initialResponse.data.data];
+          const totalPages = initialResponse.data.pagination.totalPages;
           
           if (totalPages > 1) {
             set({ isLoadingMore: true });
             
-            const remainingRequests = [];
-            for (let page = 2; page <= totalPages; page++) {
-              const url = `${apiBaseUrl}/handbooks?page=${page}&limit=100&category=middlegame`;
-              remainingRequests.push(
-                fetch(url)
-                  .then(response => {
-                    if (!response.ok) {
-                      throw new Error(`API Error on page ${page}: ${response.status}`);
-                    }
-                    return response.json();
-                  })
-                  .then(data => data.data)
-              );
-            }
-            
             try {
-              const remainingData = await Promise.all(remainingRequests);
-              allData = [...allData, ...remainingData.flat()];
-            } catch (fetchError) {
-              console.error('Error fetching additional pages:', fetchError);
+              const requests = Array.from({ length: totalPages - 1 }, (_, i) => 
+                axios.get(url, {
+                  params: { page: i + 2, limit: 100, category: 'middlegame' },
+                  headers
+                })
+              );
+              
+              const responses = await Promise.all(requests);
+              const additionalData = responses.flatMap(response => response.data.data);
+              allData = [...allData, ...additionalData];
+            } catch (error) {
+              console.error('Error fetching additional pages:', error);
+            } finally {
+              set({ isLoadingMore: false });
             }
-            
-            set({ isLoadingMore: false });
           }
           
-          allData.sort((a, b) => {
-            const difficultyOrder = ["Beginner", "Intermediate", "Advanced", "Expert"];
-            return difficultyOrder.indexOf(a.difficulty) - difficultyOrder.indexOf(b.difficulty);
-          });
+          const difficultyOrder = ["Beginner", "Intermediate", "Advanced", "Expert"];
+          allData.sort((a, b) => 
+            difficultyOrder.indexOf(a.difficulty) - difficultyOrder.indexOf(b.difficulty)
+          );
           
           set({ 
             allMiddlegames: allData,
             filteredMiddlegames: allData,
             pagination: {
-              ...initialData.pagination,
+              ...initialResponse.data.pagination,
               total: allData.length
             },
             isLoading: false,
@@ -199,16 +113,20 @@ export const useMiddlegameStore = create<MiddlegameState>()(
           });
           
         } catch (error) {
+          const errorMessage = axios.isAxiosError(error)
+            ? `API Error: ${error.response?.status || 'Unknown'}`
+            : 'Failed to fetch all middlegames';
+            
           console.error('Error fetching all middlegames:', error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch all middlegames',
+            error: errorMessage,
             isLoading: false,
             isLoadingMore: false
           });
         }
       },
 
-      fetchMiddlegameDetails: async (id: string) => {
+      fetchMiddlegameDetails: async (id: string, sessionId?: string) => {
         try {
           const existingMiddlegame = get().middlegameDetails[id];
           if (existingMiddlegame) {
@@ -225,25 +143,26 @@ export const useMiddlegameStore = create<MiddlegameState>()(
 
           set({ isLoading: true, error: null });
 
-          const apiBaseUrl = process.env.BASE_URL;
-          const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
+          const headers = sessionId ? { Authorization: `Bearer ${sessionId}` } : {};
+          const url = `${apiBaseUrl}/handbooks/${id}`;
 
-          const response = await fetch(apiUrl);
-
-          if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-          }
-
-          const data = await response.json();
+          const response = await axios.get(url, { headers });
+          const middlegameData = response.data.data;
+          
           set(state => ({
-            middlegameDetails: { ...state.middlegameDetails, [id]: data.data },
+            middlegameDetails: { ...state.middlegameDetails, [id]: middlegameData },
             isLoading: false
           }));
-          return data.data;
+          
+          return middlegameData;
         } catch (error) {
+          const errorMessage = axios.isAxiosError(error)
+            ? `API Error: ${error.response?.status || 'Unknown'}`
+            : `Failed to fetch middlegame details for ${id}`;
+            
           console.error(`Error fetching middlegame details for ${id}:`, error);
           set({ 
-            error: error instanceof Error ? error.message : `Failed to fetch middlegame details for ${id}`,
+            error: errorMessage,
             isLoading: false
           });
           return null;
@@ -275,7 +194,6 @@ const fenCache = new Map<string, string>();
 const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 function isFenString(input: string): boolean {
-  // A valid FEN has slashes and typically contains numbers and piece letters
   return input.includes('/') && /[1-8prnbqkPRNBQK]/.test(input) && input.split('/').length === 8;
 }
 
@@ -284,28 +202,24 @@ export function getFenFromMoves(input: string | null): string {
     return DEFAULT_FEN;
   }
 
-  // First check if the input is already cached
   if (fenCache.has(input)) {
     return fenCache.get(input)!;
   }
 
-  // Check if the input is already a FEN string
   if (isFenString(input)) {
     fenCache.set(input, input);
     return input;
   }
 
-  // Otherwise, treat the input as chess moves
   try {
     const chess = new Chess();
     
-    // Improved preprocessing of moves string
     const moveList = input
-      .replace(/\d+\./g, '') // Remove move numbers like "1."
-      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .replace(/\d+\./g, '') 
+      .replace(/\s+/g, ' ')  
       .trim()
       .split(' ')
-      .filter(move => move.length > 0); // Remove empty moves
+      .filter(move => move.length > 0); 
     
     for (const move of moveList) {
       if (move && move.length > 1) {

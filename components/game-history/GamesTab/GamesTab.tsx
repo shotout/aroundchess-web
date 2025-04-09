@@ -57,8 +57,6 @@ const GamesTab = () => {
       setGamesData
     );
 
-  console.log(gamesData);
-
   const {
     filters,
     setFilters,

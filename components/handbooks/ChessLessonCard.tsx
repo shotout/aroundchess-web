@@ -4,20 +4,35 @@ import { BookOpen } from "lucide-react";
 import { Chessboard } from "react-chessboard";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ApiMiddlegame } from "./lib/middlegameMapper";
-import { getFenFromMoves } from "./lib/middlegameMapper";
+import { ChessLesson, LessonType, getLessonBasePath } from "./ChessLessonTypes";
 import Image from "next/image";
 
-interface MiddlegameCardProps {
-  middlegame: ApiMiddlegame;
+interface ChessLessonCardProps {
+  lesson: {
+    id?: string;
+    title: string;
+    difficulty: string;
+    moves: string | null;
+  };
   slug: string;
-  fetchDetails?: (id: string) => Promise<ApiMiddlegame | null>;
+  lessonType: LessonType;
+  getFenFromMoves: (moves: string | null) => string;
+  fetchDetails?: (id: string) => Promise<any | null>;
 }
 
-const MiddlegameCard = React.memo(
-  ({ middlegame, slug }: MiddlegameCardProps) => {
+// Use React.memo with a custom comparison function to prevent unnecessary re-renders
+const ChessLessonCard = React.memo<ChessLessonCardProps>(
+  ({ lesson, slug, lessonType, getFenFromMoves }) => {
+    const basePath = getLessonBasePath(lessonType);
+    const lessonTypeLabel =
+      lessonType === "middlegame"
+        ? "Strategy"
+        : lessonType === "endgame"
+        ? "Endgame"
+        : "Opening";
+
     return (
-      <Link href={`/middlegame-strategy/${slug}`}>
+      <Link href={`${basePath}/${slug}`}>
         <motion.div
           layout
           initial={{ opacity: 0, scale: 0.9 }}
@@ -33,7 +48,7 @@ const MiddlegameCard = React.memo(
                   <Chessboard
                     id={`board-${slug}`}
                     key={`board-${slug}`}
-                    position={getFenFromMoves(middlegame.moves)}
+                    position={getFenFromMoves(lesson.moves)}
                     arePiecesDraggable={false}
                     customDarkSquareStyle={{
                       backgroundColor: "#9E7555",
@@ -57,21 +72,21 @@ const MiddlegameCard = React.memo(
             <div className="xl:px-4 flex flex-col gap-y-4 h-auto">
               <div className="flex flex-col lg:hidden gap-y-2">
                 <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
-                  {middlegame.difficulty}
+                  {lesson.difficulty}
                 </h1>
                 <h3 className="font-medium text-gray-900 text-xs line-clamp-2">
-                  {middlegame.title}
+                  {lesson.title}
                 </h3>
               </div>
 
               <div className="hidden lg:flex justify-between items-center">
                 <div className="flex items-center gap-1 flex-1 mr-2">
                   <h3 className="font-medium text-gray-900 text-xs line-clamp-2">
-                    {middlegame.title}
+                    {lesson.title}
                   </h3>
                 </div>
                 <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
-                  {middlegame.difficulty}
+                  {lesson.difficulty}
                 </h1>
               </div>
 
@@ -87,6 +102,16 @@ const MiddlegameCard = React.memo(
   }
 );
 
-MiddlegameCard.displayName = "MiddlegameCard";
+ChessLessonCard.displayName = "ChessLessonCard";
 
-export default MiddlegameCard;
+// Export with a custom equality function to avoid unnecessary re-renders
+export default React.memo(ChessLessonCard, (prevProps, nextProps) => {
+  // Only re-render if these key properties change
+  return (
+    prevProps.slug === nextProps.slug &&
+    prevProps.lesson.title === nextProps.lesson.title &&
+    prevProps.lesson.difficulty === nextProps.lesson.difficulty &&
+    prevProps.lesson.moves === nextProps.lesson.moves &&
+    prevProps.lessonType === nextProps.lessonType
+  );
+});
