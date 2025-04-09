@@ -121,6 +121,8 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
   }, null) || sidebarLinks[0].children[0]
 
   const handleSignOut = async () => {
+    localStorage.clear();
+    localStorage.removeItem("token");
     await signOut()
     router.push("/")
   }

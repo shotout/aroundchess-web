@@ -9,13 +9,17 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
-
+import { useAuth } from "@clerk/nextjs";
+import { FamousGameButton } from "./famous-game-button";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
 export function HeroSection() {
   const router = useRouter();
+  const { proceedAnalysis } = useStockfishAnalysis();
+
+  const { isSignedIn } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const {
@@ -35,6 +39,7 @@ export function HeroSection() {
       res.json().then((data) => console.log(data))
     );
   };
+
   const fetchPgn = async () => {
     let arr = null;
     try {
@@ -87,6 +92,59 @@ export function HeroSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const renderInsertUsername = () => {
+    return (
+      <div className="max-w-[668px] mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
+        <p className="w-full block text-base text-start font-semibold sm:text-xl text-gray-600">
+          Analyze your most recent Game now:
+        </p>
+        <p className="block mb-3 text-xs text-start sm:text-md text-gray-600">
+          Simply enter your Chess.com Username below and the AroundChess Engine
+          will analyze your game.
+        </p>
+        <div className="flex flex-row items-center">
+          <Image
+            src="/icons/hero-section.png"
+            alt="chess"
+            width={100}
+            height={100}
+            className="w-3 h-4 relative z-10"
+            priority
+          />
+          <p className="block ml-1 text-base sm:text-lg md:text-md lg:text-lg text-gray-600">
+            Chess.com Username
+          </p>
+        </div>
+
+        <input
+          type="text"
+          id="username"
+          value={username}
+          placeholder="Enter your Chess.com Username"
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setUsernamePlayer(e.target.value);
+          }}
+          className="block w-full p-3  border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+
+        <button
+          className="btn-primary mt-2 w-full text-xs px-2 py-2 rounded-full"
+          onClick={fetchPgn}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
+            </>
+          ) : (
+            "Analyze now"
+          )}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-32 lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
@@ -117,54 +175,7 @@ export function HeroSection() {
                 your Chess.com account.
               </p>
             </div>
-            <div className="max-w-[668px] mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-4 flex flex-col gap-2 sm:justify-center lg:justify-start">
-              <p className="w-full block text-base text-start font-semibold sm:text-xl text-gray-600">
-                Analyze your most recent Game now:
-              </p>
-              <p className="block mb-3 text-xs text-start sm:text-md text-gray-600">
-                Simply enter your Chess.com Username below and the AroundChess
-                Engine will analyze your game.
-              </p>
-              <div className="flex flex-row items-center">
-                <Image
-                  src="/icons/hero-section.png"
-                  alt="chess"
-                  width={100}
-                  height={100}
-                  className="w-3 h-4 relative z-10"
-                  priority
-                />
-                <p className="block ml-1 text-base sm:text-lg md:text-md lg:text-lg text-gray-600">
-                  Chess.com Username
-                </p>
-              </div>
-
-              <input
-                type="text"
-                id="username"
-                value={username}
-                placeholder="Enter your Chess.com Username"
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setUsernamePlayer(e.target.value);
-                }}
-                className="block w-full p-3  border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-
-              <button
-                className="btn-primary mt-2 w-full text-xs px-2 py-2 rounded-lg"
-                onClick={fetchPgn}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  "Analyze now"
-                )}
-              </button>
-            </div>
+            {isSignedIn ? renderInsertUsername() : <FamousGameButton />}
           </motion.div>
         </motion.div>
       </div>

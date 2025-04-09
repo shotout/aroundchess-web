@@ -5,10 +5,12 @@ import { ArrowRight, ChevronDown, ChevronUp, Watch } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../store/zustandStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 import ReactCountryFlag from "react-country-flag";
-import { useChessMoveStore } from "../store/chessMoveStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { CardPlayer } from "@/components/player/CardPlayer";
+import { useAuth } from "@clerk/nextjs";
+import { FamousGameCard } from "@/components/famous-game-button";
 
 interface SummaryProps {
   next: () => void;
@@ -22,6 +24,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
     capturedBlack,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { isSignedIn } = useAuth();
 
   const {
     whiteSide,
@@ -46,7 +49,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="flex flex-col gap-2 w-full py-2 border-b border-b-input">
           <span className="text-xs sm:hidden text-center line-clamp-1">
             <span
@@ -66,23 +69,28 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </span>
             (Black)
           </span>
-          <div className="hidden sm:flex flex-row items-center justify-between gap-4">
-            <CardPlayer
-              isWin={whiteWin}
-              profilePhoto={whiteSide?.profileInfo.photo}
-              username={whiteSide?.profileInfo.username}
-              country={whiteCountry}
-              capturedPieces={capturedWhite}
-            />
+          {isSignedIn ? (
+            <div className="hidden sm:flex flex-row items-center justify-between gap-4">
+              <CardPlayer
+                isWin={whiteWin}
+                profilePhoto={whiteSide?.profileInfo.photo}
+                username={whiteSide?.profileInfo.username}
+                country={whiteCountry}
+                capturedPieces={capturedWhite}
+              />
 
-            <CardPlayer
-              isWin={blackWin}
-              profilePhoto={blackSide?.profileInfo.photo}
-              username={blackSide?.profileInfo.username}
-              country={blackCountry}
-              capturedPieces={capturedBlack}
-            />
-          </div>
+              <CardPlayer
+                isWin={blackWin}
+                profilePhoto={blackSide?.profileInfo.photo}
+                username={blackSide?.profileInfo.username}
+                country={blackCountry}
+                capturedPieces={capturedBlack}
+              />
+            </div>
+          ) : (
+              <FamousGameCard />
+          )}
+
           <div className="flex flex-row items-center justify-start py-2">
             <div
               className={`w-full xl:pr-3 rounded-md flex flex-row justify-end items-center`}
@@ -182,7 +190,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center justify-center gap-2 mt-1 sm:gap-3 sm:-mt-1 w-[40px]">
+            <div className="flex flex-col items-center justify-center gap-2 mt-1 sm:gap-3 sm:-mt-[8px] w-[40px]">
               <div className="h-6">
                 <Image
                   alt=""

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import { usePgnStore } from "../store/zustandStore";
-import { useChessMoveStore } from "../store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
 interface OpeningProps {
@@ -67,7 +67,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col w-full justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <span className="text-xs sm:hidden text-center">
           <span className="line-clamp-1 text-[#00B427]">
             {whiteSide?.profileInfo.username}
