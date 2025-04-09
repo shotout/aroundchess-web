@@ -296,6 +296,49 @@ export function useApiClient() {
     [apiRequest]
   );
 
+  const getMistakePrevious = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/mistake-logs/previous`,
+    });
+  }, [apiRequest]);
+  const getMistakePreviousDetail = useCallback(
+    (id: string, params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/mistake-logs/previous/${id}`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getMistakeSaved = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/mistake-logs/saved?page=1&limit=1`,
+    });
+  }, [apiRequest]);
+
+  const saveMistakeLog = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/mistake-logs/save`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  const unsaveMistakeLog = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/mistake-logs/unsave`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -323,35 +366,10 @@ export function useApiClient() {
     getPuzzle,
     getVSAILogs,
     postVSAILogs,
+    getMistakePrevious,
+    getMistakeSaved,
+    saveMistakeLog,
+    unsaveMistakeLog,
+    getMistakePreviousDetail
   };
 }
-
-// Example usage in a component:
-// const MyComponent = () => {
-//   const { getMyGames, isLoading, error } = useApiClient();
-//   const [games, setGames] = useState([]);
-//
-//   useEffect(() => {
-//     const fetchGames = async () => {
-//       try {
-//         const gamesData = await getMyGames();
-//         setGames(gamesData);
-//       } catch (error) {
-//         console.error("Failed to fetch games:", error);
-//       }
-//     };
-//
-//     fetchGames();
-//   }, [getMyGames]);
-//
-//   if (isLoading) return <div>Loading...</div>;
-//   if (error) return <div>Error: {error.message}</div>;
-//
-//   return (
-//     <div>
-//       {games.map(game => (
-//         <div key={game.id}>{game.title}</div>
-//       ))}
-//     </div>
-//   );
-// };
