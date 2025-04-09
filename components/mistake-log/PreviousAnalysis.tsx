@@ -13,6 +13,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import Link from "next/link";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 const PreviousAnalysis: React.FC = () => {
   const [indexOpen, setIndexOpen] = useState<number | undefined>(0);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
@@ -126,7 +127,7 @@ const PreviousAnalysis: React.FC = () => {
         return (
           <div
             key={index}
-            className="border border-t-4 border-[#221AE9] rounded-lg p-2 lg:p-4"
+            className="border border-t-[4px] border-[#221AE9] rounded-[16px] p-[12px] lg:p-[16px]"
           >
             <div className="flex flex-row justify-between items-center gap-2">
               <div className="flex flex-row items-center gap-2">
@@ -135,10 +136,10 @@ const PreviousAnalysis: React.FC = () => {
                   src={"/icons/alert-triangle.png"}
                   width={1000}
                   height={1000}
-                  className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8"
+                  className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] lg:w-[24px] lg:h-[24px]"
                 />
-                <span className="text-xs sm:text-lg">Mistake Type:</span>
-                <span className="text-xs sm:text-lg font-bold">{i?.type}</span>
+                <span className="text-[20px]">Mistake Type:</span>
+                <span className="text-[20px] font-semibold">{i?.type}</span>
               </div>
               <div
                 onClick={
@@ -154,113 +155,123 @@ const PreviousAnalysis: React.FC = () => {
                 )}
               </div>
             </div>
-            {indexOpen == index&&i.mistakes.map((item: any, key: number) => {
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col gap-2 mt-4 cursor-pointer"
-                  onClick={() => setSelectedMistakes(item)}
-                >
-                  <div className="flex flex-row gap-2 items-center">
-                    <InfoIcon
-                      className="w-3 h-3 sm:w-5 sm:h-5 lg:w-6 lg:h-6"
-                      color="#221AE9"
-                    />
-                    <span className="text-xs">Game Phase:</span>
-                    <span className="text-sm font-bold">
-                      {item?.mistake.game_phase}
-                    </span>
-                  </div>
+            {indexOpen == index &&
+              i.mistakes.map((item: any, key: number) => {
+                return (
                   <div
-                    className={`border ${
-                      selectedMistakes.id == item?.id
-                        ? `border-[#221AE9] border-1`
-                        : `border-input`
-                    } rounded-md p-2 lg:p-4`}
+                    key={index}
+                    className="flex flex-col gap-2 mt-4 cursor-pointer"
+                    onClick={() => setSelectedMistakes(item)}
                   >
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center justify-between lg:justify-start gap-3">
-                        <span className="flex items-center text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1">
-                          Move {item?.mistake.move}:{" "}
-                          <span className="font-bold sm:text-sm md:text-md lg:text-md ">
-                            {item?.mistake.move}
-                          </span>
-                        </span>
-                        <span
-                          className={`flex items-center rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md  text-center font-normal ${getScoreClass(
-                            item?.mistake.classification
-                          )}`}
-                        >
-                          {item?.mistake.evaluation}
-                        </span>
-                        <span
-                          className={`flex items-center min-w-[72px] text-center px-2 py-1 rounded-[4px] text-sm sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
-                            item?.mistake.classification
-                          )}`}
-                        >
-                          {item?.mistake.classification}
-                        </span>
-                      </div>
-                      <div className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] py-2 px-3 items-center font-semibold">
-                        <Bookmark className="w-6 h-6" color="#221AE9" />
-                      </div>
+                    <div className="flex flex-row gap-2 items-center">
+                      <InfoIcon
+                        className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] lg:w-[16px] lg:h-[16px]"
+                        color="#221AE9"
+                      />
+                      <span className="text-[14px]">Game Phase:</span>
+                      <span className="text-[14px] font-semibold">
+                        {item?.mistake.game_phase}
+                      </span>
                     </div>
-                    <span className="text-xs sm:text-md md:text-md lg:text-lg font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item?.analysis}
-                    </span>
-                    <div className="p-3 mt-2 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2">
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        <Image
-                          alt=""
-                          src={"/icons/recommended-training-icon.png"}
-                          width={1000}
-                          height={1000}
-                          className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
-                        />
-                        <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-primary">
-                          Recommended Training Exercise:{" "}
-                          <span className="font-bold">
-                            {" " + item?.recommended_training.title}
+                    <div
+                      className={`border ${
+                        selectedMistakes.id == item?.id
+                          ? `border-[#221AE9] border-1`
+                          : `border-[#DEDEDE]`
+                      } rounded-[8px] p-[8px] lg:p-[12px]`}
+                    >
+                      <div className="flex flex-row justify-between gap-2 mb-4">
+                        <div className="flex flex-row items-center justify-between lg:justify-start gap-3">
+                          <span className="flex items-center text-[12px] font-normal max-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                            Move {item?.mistake.move}:{" "}
+                            <span className="font-normal sm:text-sm md:text-md lg:text-md ">
+                              {item?.mistake.move}
+                            </span>
                           </span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
-                      {item?.resources.map((resource: any, index: number) => {
-                        return (
-                          <div
-                            key={index}
-                            className="flex flex-col justify-between rounded-xs border border-input gap-2 p-2"
+                          <span
+                            className={`flex items-center rounded-full border border-[#DEDEDE] px-[8px] py-[4px] font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                              item?.mistake.classification
+                            )}`}
                           >
-                            <span className="block my-1 font-bold text-xs sm:text-sm">
-                              {resource.title}
+                            {item?.mistake.evaluation}
+                          </span>
+                          <span
+                            className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-sm sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
+                              item?.mistake.classification
+                            )}`}
+                          >
+                            {item?.mistake.classification}
+                          </span>
+                        </div>
+                        <div className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold">
+                          <BookmarkFilledIcon
+                            className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                            color="#221AE9"
+                          />
+                        </div>
+                        {/* <div className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold">
+                          <Bookmark
+                            className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                            color="#221AE9"
+                          />
+                        </div> */}
+                      </div>
+                      <span className="text-xs sm:text-md md:text-md lg:text-[14px] font-normal">
+                        <span className="font-semibold">Analysis: </span>
+                        {item?.analysis}
+                      </span>
+                      <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2">
+                        <div className="flex flex-row items-center justify-start gap-2">
+                          <Image
+                            alt=""
+                            src={"/icons/recommended-training-icon.png"}
+                            width={1000}
+                            height={1000}
+                            className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
+                          />
+                          <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
+                            Recommended Training Exercise:{" "}
+                            <span className="font-bold">
+                              {" " + item?.recommended_training.title}
                             </span>
-                            <span className="block my-1 text-[#585858] font-light text-xs sm:text-sm">
-                              {resource.description}
-                            </span>
-                            <Link href={resource.link}>
-                              <div
-                                className="flex flex-row w-full justify-center my-2 sm:my-1 items-center px-4 py-2 rounded-full border border-[#C6EEFE] bg-[#E6F7FE]"
-                                style={{
-                                  boxShadow: `inset 0px -2px 2px #C6EEFE,
-                                                       inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
-                                }}
-                              >
-                                <span className="text-center text-xs sm:text-sm text-primary font-medium">
-                                  Visit{" "}
-                                  {resource.link.replace("https://www.", "")}
-                                </span>
-                              </div>
-                            </Link>
-                          </div>
-                        );
-                      })}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                        {item?.resources.map((resource: any, index: number) => {
+                          return (
+                            <div
+                              key={index}
+                              className="rounded-[4px] flex flex-col justify-between border border-input p-[12px]"
+                            >
+                              <span className="block my-1 font-semibold text-xs sm:text-[12px] text-black">
+                                {resource.title}
+                              </span>
+                              <span className="block my-1 text-[#364152] font-light text-xs sm:text-[11px]">
+                                {resource.description}
+                              </span>
+                              <Link href={resource.link}>
+                                <div
+                                  className="btn-tertiary rounded-full flex items-center justify-center"
+                                  style={{
+                                    boxShadow: `inset 0px -2px 2px #C6EEFE,
+                                         inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
+                                  }}
+                                >
+                                  <span className="text-center text-xs sm:text-[14px] text-[#221AE9] font-medium">
+                                    Visit{" "}
+                                    {resource.link.replace("https://www.", "")}
+                                  </span>
+                                </div>
+                              </Link>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         );
       })}
