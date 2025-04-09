@@ -9,14 +9,16 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/nextjs";
 import { FamousGameButton } from "./famous-game-button";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
 export function HeroSection() {
   const router = useRouter();
+  const { proceedAnalysis } = useStockfishAnalysis();
+
   const { isSignedIn } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);

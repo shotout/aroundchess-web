@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface Game {
   id: number;
@@ -30,16 +30,16 @@ interface PgnState {
   isLoading: boolean;
   lastFetchTimestamp: number;
   hideDiv: boolean;
-  
+
   gamesData: Game[];
   gamesLastFetched: number | null;
 
   otherGamesData: Game[];
   otherGamesLastFetched: number | null;
-  
+
   analyticsData: any | null;
   analyticsLastFetched: number | null;
-  
+
   performanceData: any | null;
   performanceLastFetched: number | null;
 
@@ -48,7 +48,13 @@ interface PgnState {
   dataGames: any;
   capturedWhite: any[];
   capturedBlack: any[];
-  
+  mistakeLogs: any[];
+  movementDetails: any[];
+  playerInfo: any;
+  titleGame: string;
+  previousAnalyses: any[];
+  savedMistakes: any[];
+
   setPgn: (pgn: string) => void;
   setUsername: (username: string) => void;
   setDataAnalysis: (dataAnalysis: AnalysisResult | null) => void;
@@ -58,23 +64,29 @@ interface PgnState {
   setDataGamesImport: (dataGamesImport: any) => void;
   setDataGames: (dataGames: any) => void;
   setHideDiv: (hideDiv: boolean) => void;
-  
+
   setCapturedWhite: (capturedWhite: any[]) => void;
   setCapturedBlack: (capturedBlack: any[]) => void;
-  
+  setMistakeLogs: (mistakeLogs: any[]) => void;
+  setSavedMistakes: (savedMistakes: any[]) => void;
+  setPreviousAnalyses: (previousAnalyses: any[]) => void;
+  setMovementDetails: (movementDetails: any[]) => void;
+  setPlayerInfo: (playerInfo: any[]) => void;
+  setTitleGame: (titleGame: string) => void;
+
   setGamesData: (games: Game[]) => void;
   setOtherGamesData: (games: Game[]) => void;
   clearGamesData: () => void;
   clearOtherGamesData: () => void;
-  
+
   setAnalyticsData: (data: any) => void;
   clearAnalyticsData: () => void;
   resetAnalyticsState: () => void;
-  
+
   setPerformanceData: (data: any) => void;
   clearPerformanceData: () => void;
   resetPerformanceState: () => void;
-  
+
   clearAll: () => void;
 }
 
@@ -87,16 +99,16 @@ export const usePgnStore = create<PgnState>()(
       isLoading: false,
       lastFetchTimestamp: 0,
       hideDiv: false,
-      
+
       gamesData: [],
       gamesLastFetched: null,
 
       otherGamesData: [],
       otherGamesLastFetched: null,
-      
+
       analyticsData: null,
       analyticsLastFetched: null,
-      
+
       performanceData: null,
       performanceLastFetched: null,
 
@@ -105,104 +117,131 @@ export const usePgnStore = create<PgnState>()(
       dataGames: null,
       capturedWhite: [],
       capturedBlack: [],
-      
+      mistakeLogs: [],
+      movementDetails: [],
+      playerInfo: [],
+      titleGame: "",
+      previousAnalyses: [],
+      savedMistakes: [],
+
       setPgn: (pgn: string) => set({ pgn }),
-      
-      setUsername: (username: string) => set((state) => ({ 
-        username,
-        lastFetchTimestamp: username !== state.username ? Date.now() : state.lastFetchTimestamp
-      })),
+
+      setUsername: (username: string) =>
+        set((state) => ({
+          username,
+          lastFetchTimestamp:
+            username !== state.username ? Date.now() : state.lastFetchTimestamp,
+        })),
 
       setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
-      
-      setDataAnalysis: (dataAnalysis: AnalysisResult | null) => set({ dataAnalysis }),
-      
+
+      setDataAnalysis: (dataAnalysis: AnalysisResult | null) =>
+        set({ dataAnalysis }),
+
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
-      
+
       resetFetchState: () => set({ lastFetchTimestamp: Date.now() }),
 
       setError: (error: Error | null) => set({ error }),
-      
+
       setDataGamesImport: (dataGamesImport: any) => set({ dataGamesImport }),
-      
+
       setDataGames: (dataGames: any) => set({ dataGames }),
 
       setCapturedWhite: (capturedWhite: any[]) => set({ capturedWhite }),
-      
+
       setCapturedBlack: (capturedBlack: any[]) => set({ capturedBlack }),
-      
-      setGamesData: (games: Game[]) => set({ 
-        gamesData: games,
-        gamesLastFetched: Date.now()
-      }),
+      setMistakeLogs: (mistakeLogs: any[]) => set({ mistakeLogs }),
+      setMovementDetails: (movementDetails: any[]) => set({ movementDetails }),
+      setPlayerInfo: (playerInfo: any[]) => set({ playerInfo }),
+      setTitleGame: (titleGame: string) => set({ titleGame }),
+      setSavedMistakes: (savedMistakes: any[]) => set({ savedMistakes }),
+      setPreviousAnalyses(previousAnalyses) {
+        set({ previousAnalyses });
+      },
+      setGamesData: (games: Game[]) =>
+        set({
+          gamesData: games,
+          gamesLastFetched: Date.now(),
+        }),
 
-      setOtherGamesData: (games: Game[]) => set({
-        otherGamesData: games,
-        otherGamesLastFetched: Date.now()
-      }),
-      
-      clearGamesData: () => set({ 
-        gamesData: [],
-        gamesLastFetched: null
-      }),
+      setOtherGamesData: (games: Game[]) =>
+        set({
+          otherGamesData: games,
+          otherGamesLastFetched: Date.now(),
+        }),
 
-      clearOtherGamesData: () => set({
-        otherGamesData: [],
-        otherGamesLastFetched: null
-      }),
-      
-      setAnalyticsData: (data: any) => set({
-        analyticsData: data,
-        analyticsLastFetched: Date.now()
-      }),
-      
-      clearAnalyticsData: () => set({
-        analyticsData: null,
-        analyticsLastFetched: null
-      }),
-      
-      resetAnalyticsState: () => set({
-        analyticsLastFetched: Date.now()
-      }),
-      
-      setPerformanceData: (data: any) => set({
-        performanceData: data,
-        performanceLastFetched: Date.now()
-      }),
-      
-      clearPerformanceData: () => set({
-        performanceData: null,
-        performanceLastFetched: null
-      }),
-      
-      resetPerformanceState: () => set({
-        performanceLastFetched: Date.now()
-      }),
-      
-      clearAll: () => set({ 
-        pgn: "",
-        username: "",
-        dataAnalysis: null,
-        isLoading: false,
-        lastFetchTimestamp: 0,
-        gamesData: [],
-        gamesLastFetched: null,
-        analyticsData: null,
-        analyticsLastFetched: null,
-        performanceData: null,
-        performanceLastFetched: null,
-        error: null,
-        dataGamesImport: null,
-        dataGames: null,
-        capturedWhite: [],
-        capturedBlack: [],
-        hideDiv: false,
-        otherGamesData: [],
-        otherGamesLastFetched: null
-      }),
+      clearGamesData: () =>
+        set({
+          gamesData: [],
+          gamesLastFetched: null,
+        }),
+
+      clearOtherGamesData: () =>
+        set({
+          otherGamesData: [],
+          otherGamesLastFetched: null,
+        }),
+
+      setAnalyticsData: (data: any) =>
+        set({
+          analyticsData: data,
+          analyticsLastFetched: Date.now(),
+        }),
+
+      clearAnalyticsData: () =>
+        set({
+          analyticsData: null,
+          analyticsLastFetched: null,
+        }),
+
+      resetAnalyticsState: () =>
+        set({
+          analyticsLastFetched: Date.now(),
+        }),
+
+      setPerformanceData: (data: any) =>
+        set({
+          performanceData: data,
+          performanceLastFetched: Date.now(),
+        }),
+
+      clearPerformanceData: () =>
+        set({
+          performanceData: null,
+          performanceLastFetched: null,
+        }),
+
+      resetPerformanceState: () =>
+        set({
+          performanceLastFetched: Date.now(),
+        }),
+
+      clearAll: () =>
+        set({
+          pgn: "",
+          username: "",
+          dataAnalysis: null,
+          isLoading: false,
+          lastFetchTimestamp: 0,
+          gamesData: [],
+          gamesLastFetched: null,
+          analyticsData: null,
+          analyticsLastFetched: null,
+          performanceData: null,
+          performanceLastFetched: null,
+          error: null,
+          dataGamesImport: null,
+          dataGames: null,
+          capturedWhite: [],
+          capturedBlack: [],
+          hideDiv: false,
+          otherGamesData: [],
+          otherGamesLastFetched: null,
+        }),
     }),
     {
-      name: 'pgn-session-storage',
+      name: "pgn-session-storage",
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         dataAnalysis: state.dataAnalysis,

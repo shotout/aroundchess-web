@@ -40,7 +40,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   boardWidth,
   orientation,
   // onPieceDrop,
-  arePiecesDraggable,
+  arePiecesDraggable = true,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
@@ -163,7 +163,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
         }}
         className={`z-10 flex`}
       >
-        {arePiecesDraggable ? (
+        {arePiecesDraggable !=null ? (
           <Chessboard
             // onPieceDrop={onPieceDrop}
             customArrowColor={customArrowColor}

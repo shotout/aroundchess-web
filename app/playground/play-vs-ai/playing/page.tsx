@@ -11,7 +11,6 @@ import { Engine } from "@/components/playground/src/lib/stockfish";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { postVSAILogs } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { Chess, PieceSymbol, Square } from "chess.js";
@@ -26,8 +25,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
+import { useApiClient } from "@/functions/api-client";
 export default function Playing() {
   const router = useRouter();
+  const { getVSAILogs, postVSAILogs } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
@@ -40,7 +41,7 @@ export default function Playing() {
   const [boardSize, setBoardSize] = useState<number>(700); // Default size
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
-
+  const [pastGames, setPastGames] = useState<any[]>([]);
   const [heightScreen, setHeightScreen] = useState<number>(0);
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
@@ -246,7 +247,6 @@ export default function Playing() {
       pv && setBestline(pv);
     });
   };
-
   useEffect(() => {
     fillMovement();
     checkStatusGame();
@@ -334,8 +334,16 @@ export default function Playing() {
     }
   };
   useEffect(() => {
+    if (!sessionId) return;
     localStorage.setItem("token", sessionId + "");
+
+    getVSAILogs().then((res: any) => {
+      console.log("res getVSAILogs", res);
+      setPastGames(res.data);
+    });
     console.log("sessionId", sessionId);
+  }, [sessionId]);
+  useEffect(() => {
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
     console.log("AIChoosed.color", AIChoosed.color);
@@ -417,7 +425,7 @@ export default function Playing() {
   const handleSaveLog = async () => {
     let body = {
       enemyTag: AIChoosed.opponent.name,
-      eloRating: AIChoosed.opponent.elo,
+      eloRating: AIChoosed.opponent.elo + "",
       totalMoves: game.history().length,
       totalTime: "10 Minutes",
       status: statusGame,
@@ -490,7 +498,7 @@ export default function Playing() {
     return (
       <div
         style={{ width: boardSize }}
-        className="hidden xl:flex max-w-[20px]  flex-col justify-start items-center gap-3"
+        className="hidden xl:flex max-w-[20px] flex-col justify-start items-center gap-3 mt-1"
       >
         <button onClick={handleSwitch}>
           <Image
@@ -655,9 +663,10 @@ export default function Playing() {
   };
   const renderButtonPlaying = () => {
     return (
-     
       <motion.div
-        variants={fadeInUp} className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2">
+        variants={fadeInUp}
+        className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2"
+      >
         <button
           disabled={currentTurn.toLowerCase() != myColor}
           onClick={handleHint}
@@ -705,9 +714,10 @@ export default function Playing() {
   };
   const renderButtonFinish = () => {
     return (
-      
       <motion.div
-        variants={fadeInUp} className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4">
+        variants={fadeInUp}
+        className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4"
+      >
         <button
           onClick={handleAnalyzeGame}
           className="md:hidden xl:block btn-primary w-full rounded-full h-[40px]"
@@ -972,7 +982,7 @@ export default function Playing() {
         </div>
         {buttonBoardColumn()}
         <Tabs defaultValue="current" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 min-h-[54px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
+          <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
             <TabsTrigger
               value="current"
               className={`gap-2 py-2 ${
@@ -1112,46 +1122,23 @@ export default function Playing() {
                 style={{ height: heightScreen * 0.8 }}
                 className="px-4 w-full xl:max-h-[70vh] overflow-y-auto"
               >
-                <GameCard
-                  result="win"
-                  date="3/17/2025"
-                  opponent="Hikaru"
-                  elo={1500}
-                  moves={111}
-                  time="1 minutes"
-                />
-                <GameCard
-                  result="draw"
-                  date="3/16/2025"
-                  opponent="Hikaru"
-                  elo={1500}
-                  moves={111}
-                  time="1 minutes"
-                />
-                <GameCard
-                  result="loss"
-                  date="3/15/2025"
-                  opponent="Hikaru"
-                  elo={1500}
-                  moves={111}
-                  time="1 minutes"
-                />
-                <GameCard
-                  result="win"
-                  date="3/17/2025"
-                  opponent="Hikaru"
-                  elo={1500}
-                  moves={111}
-                  time="1 minutes"
-                />
-                <GameCard
-                  result="win"
-                  date="3/17/2025"
-                  opponent="Hikaru"
-                  elo={1500}
-                  moves={111}
-                  time="1 minutes"
-                />
+                {pastGames.map((past, index) => {
+                  return (
+                    <GameCard
+                      key={index}
+                      result={
+                        past.status.toLowerCase() == "ongoing"
+                          ? "loss"
+                          : past.status.toLowerCase()
+                      }
+                      date={past.updatedAt}
+                      opponent={past.enemyTag}
+                      elo={past.eloRating}
+                      moves={past.totalMoves}
+                      time={past.totalTime}
+                    />
+                  );
+                })}
               </div>
             </div>
           </TabsContent>

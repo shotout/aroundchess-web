@@ -17,18 +17,17 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Chessboard } from "react-chessboard";
-import { useChessMoveStore } from "../store/chessMoveStore";
-import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { usePgnStore } from "../store/zustandStore";
+import ReactCountryFlag from "react-country-flag";
+import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import {
   BoardOrientation,
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
-import { SettingBoard } from "@/components/modal/SettingBoard";
-import { useChessBoardThemeStore } from "../store/chessBoardTheme";
-import ReactCountryFlag from "react-country-flag";
+import { SettingBoard } from "@/components/modal/SettingBoard"; 
 
 interface ParsedMove {
   color: string;
@@ -122,91 +121,8 @@ const AnalysisResult: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const threeDPieces = useMemo(() => {
-    const pieces = [
-      {
-        piece: "wP",
-        pieceHeight: 1,
-      },
-      {
-        piece: "wN",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "wB",
-        pieceHeight: 1.3,
-      },
-      {
-        piece: "wR",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "wQ",
-        pieceHeight: 1.4,
-      },
-      {
-        piece: "wK",
-        pieceHeight: 0.87,
-      },
-      {
-        piece: "bP",
-        pieceHeight: 1,
-      },
-      {
-        piece: "bN",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "bB",
-        pieceHeight: 1.3,
-      },
-      {
-        piece: "bR",
-        pieceHeight: 1.2,
-      },
-      {
-        piece: "bQ",
-        pieceHeight: 1.4,
-      },
-      {
-        piece: "bK",
-        pieceHeight: 0.8,
-      },
-    ];
-    const pieceComponents: {
-      [key: string]: ({
-        squareWidth,
-        square,
-      }: {
-        squareWidth: number;
-        square: Square;
-      }) => JSX.Element;
-    } = {};
-    pieces.forEach(({ piece, pieceHeight }) => {
-      pieceComponents[piece] = ({ squareWidth, square }) => (
-        <div
-          style={{
-            width: squareWidth * pieceHeight,
-            height: squareWidth,
-            position: "relative",
-            pointerEvents: "none",
-          }}
-        >
-          <img
-            src={`/3d-pieces/${piece}.webp`}
-            width={squareWidth * pieceHeight}
-            height={squareWidth}
-            style={{
-              position: "absolute",
-              bottom: `${0.2 * squareWidth}px`,
-              objectFit: piece[1] === "K" ? "contain" : "cover",
-            }}
-          />
-        </div>
-      );
-    });
-    return pieceComponents;
-  }, []);
+   
+     
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
@@ -507,7 +423,7 @@ const AnalysisResult: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - ((window.innerWidth * 0.525) + 256)
+    let desktopSize = window.innerWidth - ((window.innerWidth * 0.54) + 256)
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 

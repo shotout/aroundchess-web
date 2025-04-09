@@ -128,7 +128,7 @@ export const FamousGameButton = () => {
         className="btn-primary mt-2 w-full text-xs px-2 py-2 rounded-full"
         onClick={fetchPgnFamousGame}
       >
-        "Start Analysis"
+        Start Analysis
       </button>
     </div>
   );

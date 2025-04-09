@@ -11,9 +11,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { useChessMoveStore } from "../store/chessMoveStore";
-import { usePgnStore } from "../store/zustandStore";
-import { useChessBoardThemeStore } from "../store/chessBoardTheme";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 interface MovementDetailsProps {
   next: () => void;
   prev: () => void;

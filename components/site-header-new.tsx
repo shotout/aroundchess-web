@@ -106,7 +106,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const handleLogout = async () => {
     // Clear Zustand store first
     clearAll();
-
+    localStorage.clear();
+    localStorage.removeItem("token");
     // Then sign out with Clerk
     await signOut();
 
