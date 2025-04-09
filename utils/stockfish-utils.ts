@@ -127,7 +127,7 @@ export function useStockfishAnalysis() {
       try {
         const { default: axios } = await import('axios');
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/v2/analyze`,
+          `${process.env.BASE_URL}/v2/analyze`,
           {
             pgn: pgn,
             username: username,
