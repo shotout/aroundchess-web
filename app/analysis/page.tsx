@@ -35,6 +35,7 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
+    console.log('masuk');
     setIsLoading(false);
     const handleScroll = () => {
       if (window.innerWidth <= 1024) {
