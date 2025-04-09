@@ -18,10 +18,10 @@ import {
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
-import { useChessBoardThemeStore } from "../store/chessBoardTheme";
-import { useChessMoveStore } from "../store/chessMoveStore";
-import { useTabFocusStore } from "../store/tabAnalysisStore";
-import { usePgnStore } from "../store/zustandStore";
+import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import {
   BoardOrientation,
