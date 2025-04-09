@@ -78,7 +78,7 @@ export default function AnalysisPage() {
             }`}
           >
             <div
-              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 lg:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 gap-1 ${
+              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 lg:p-[32px] gap-1 ${
                 hideDiv && "hidden"
               }`}
             >
@@ -109,7 +109,7 @@ export default function AnalysisPage() {
                 {isSignedIn && <AnalyzeDifferentGame />}
               </div>
             </div>
-            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4">
+            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
               <ChessConnectDialog
                 open={showChessConnect && !isLoading && !username}
                 onOpenChange={setShowChessConnect}

@@ -422,7 +422,7 @@ const ChessContent: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - ((window.innerWidth * 0.525) + 256)
+    let desktopSize = window.innerWidth - ((window.innerWidth * 0.540) + 256)
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -637,7 +637,7 @@ const ChessContent: React.FC = () => {
       className={`${
         hideDiv &&
         "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
-      } flex justify-center gap-4 bg-white pb-4`}
+      } flex justify-center gap-4 bg-white pb-4 `}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
