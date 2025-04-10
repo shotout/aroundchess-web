@@ -1,8 +1,8 @@
 "use client";
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { useMiddlegameStore } from "../page";
 import { useMemo } from "react";
+import { useMiddlegameStore } from "../MiddlegameStore";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const middlegameStore = useMemo(() => useMiddlegameStore, []);

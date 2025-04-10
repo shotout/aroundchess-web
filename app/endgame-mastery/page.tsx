@@ -1,15 +1,8 @@
 "use client";
 import ChessLessonPage from "@/components/handbooks/ChessLessonPage";
-import { EndgameLesson } from "@/components/handbooks/ChessLessonTypes";
-import { createChessLessonStore } from "@/components/handbooks/CreateChessLessonStore";
 import Navigation from "@/components/navigator/navigation";
 import { useMemo } from "react";
-
-export const useEndgameStore = createChessLessonStore<EndgameLesson>({
-  storeName: "endgames-store",
-  lessonType: "endgame",
-  apiEndpoint: "handbooks",
-});
+import { useEndgameStore } from "./EndgameStore";
 
 export default function Page() {
   const endgameStore = useMemo(() => useEndgameStore, []);
