@@ -18,12 +18,15 @@ import EmptyLog from "./EmptyLog";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
+import { Pagination } from "../pagination/pagination";
+import { usePagination } from "../pagination/hook/usePagination";
 interface PreviousAnalysisProps {
   reFetch: () => void;
 }
 
 const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
+
   const {
     username,
     mistakeLogs,
@@ -46,11 +49,18 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     getMistakeSaved,
     getMistakePrevious,
     unsaveMistakeLog,
-    isLoading
+    isLoading,
   } = useApiClient();
+  const { currentData } = usePagination(previousAnalyses);
+
   const [indexOpen, setIndexOpen] = useState<string>("Threats");
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
+  useEffect(() => {
+    if (previousAnalyses.length > 0) {
+      setSelectedMistakes(previousAnalyses[0]?.id);
+    }
+  }, [previousAnalyses]);
   const handleOnClickMovement = (move: any) => {
     console.log("move", move);
     setChessMove(move);
@@ -58,16 +68,16 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const handleSaveLog = async (id: string) => {
     saveMistakeLog({ mistakeLogId: id }).then(async (res) => {
       console.log("handleSaveLog", res);
-      reFetch()
+      reFetch();
     });
   };
   const handleUnsaveLog = async (id: string) => {
     unsaveMistakeLog({ mistakeLogId: id }).then(async (res) => {
       console.log("handleUnsaveLog", res);
-      reFetch()
+      reFetch();
     });
   };
-  
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -104,9 +114,15 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         return "text-[#FD0000]";
     }
   };
+  const scrollToTop = () => {
+    const isBrowser = () => typeof window !== "undefined";
+    if (!isBrowser()) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const PreviousAnalysisCard = (data: any[], Type: string) => {
     return (
-      <div className="border border-t-[4px] border-[#221AE9] rounded-[16px] p-[12px] lg:p-[16px]">
+      <div className="flex flex-col border border-t-[4px] border-[#221AE9] rounded-[16px] p-[12px] lg:p-[16px]">
         <div className="flex flex-row justify-between items-center gap-2">
           <div className="flex flex-row items-center gap-2">
             <Image
@@ -122,8 +138,14 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
           <div
             onClick={
               Type == indexOpen
-                ? () => setIndexOpen("")
-                : () => setIndexOpen(Type)
+                ? () => {
+                    setIndexOpen("");
+                    scrollToTop();
+                  }
+                : () => {
+                    setIndexOpen(Type);
+                    scrollToTop();
+                  }
             }
           >
             {Type == indexOpen ? (
@@ -206,7 +228,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                     {item?.analysis}
                   </span>
                   <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
+                    <div className="flex flex-row items-start justify-start gap-2">
                       <Image
                         alt=""
                         src={"/icons/recommended-training-icon.png"}
@@ -259,13 +281,25 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       </div>
     );
   };
-  
+
   if (isLoading) {
     return <DotSpinner />;
+  } else if (!PreviousAnalysis) {
+    return (
+      <EmptyLog title="You have not yet Analyses" content="Analyze Game now" />
+    );
   }
   return (
-    <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-      {Object.keys(PreviousAnalysis).length == 0 && <EmptyLog />}
+    <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
+      {PreviousAnalysis?.criticalMistakes.length == 0 &&
+        PreviousAnalysis?.badMoves.length == 0 &&
+        PreviousAnalysis?.threats.length == 0 &&
+        PreviousAnalysis?.weaknessIdentification.length == 0 && (
+          <EmptyLog
+            title="You have not yet Analyses"
+            content="Analyze Game now"
+          />
+        )}
 
       {PreviousAnalysis &&
         PreviousAnalysis?.criticalMistakes != null &&

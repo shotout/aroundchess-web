@@ -10,7 +10,6 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import Responsive from "@/components/game-history/Responsive";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -179,7 +178,6 @@ export default function RegisterPage() {
   return (
     <>
       <div className="min-h-screen flex flex-col relative">
-        <Responsive />
         {/* Background with adjustable positioning */}
         <div className="absolute inset-0 -z-10">
           <Image

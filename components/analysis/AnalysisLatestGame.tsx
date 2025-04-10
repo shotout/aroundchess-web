@@ -31,7 +31,7 @@ const AnalysisLatestGame: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
-  const [widthContainer, setWidthContainer] = useState<number>(700);
+  const [widthContainer, setWidthContainer] = useState<number|string>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [focusPage, setFocusPage] = useState<string>("summary");
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -59,7 +59,7 @@ const AnalysisLatestGame: React.FC = () => {
   const handleResize = () => {
     let widthC =
       window?.innerWidth <= 1280
-        ? window?.innerWidth
+        ? 'auto'
         : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
@@ -134,10 +134,10 @@ const AnalysisLatestGame: React.FC = () => {
   };
   return (
     <div
-      style={{ width: widthContainer }}
+      style={{ width: widthContainer,}}
       className={`${
         hideDiv && "mt-96 sm:mt-[64%]"
-      } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 p-[32px]`}
+      } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 lg:p-[32px]`}
     >
       <div className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
         <span className="text-sm sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
@@ -157,8 +157,7 @@ const AnalysisLatestGame: React.FC = () => {
       </div>
 
       <div
-        style={{ maxWidth: widthContainer }}
-        className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] max-w-sm md:max-w-3xl xl:max-w-full overflow-x-auto gap-1 p-[8px]"
+        className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] overflow-x-auto gap-1 p-[8px]"
       >
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
@@ -168,7 +167,7 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name == "movement" &&
-                `min-w-[120px] sm:min-w-[140px] lg:min-w-[150px]`
+                `min-w-[120px] sm:min-w-[150px] lg:min-w-[150px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `

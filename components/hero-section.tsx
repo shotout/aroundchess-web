@@ -23,7 +23,8 @@ export function HeroSection() {
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const {
-    setUsername: setUsernamePlayer,
+    usernameAnalysis,
+    setUsernameAnalysis,
     setPgn,
     setIsLoading,
     setError,
@@ -123,7 +124,7 @@ export function HeroSection() {
           placeholder="Enter your Chess.com Username"
           onChange={(e) => {
             setUsername(e.target.value);
-            setUsernamePlayer(e.target.value);
+            setUsernameAnalysis(e.target.value);
           }}
           className="block w-full p-3  border border-gray-300 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
@@ -175,7 +176,8 @@ export function HeroSection() {
                 your Chess.com account.
               </p>
             </div>
-            {isSignedIn ? renderInsertUsername() : <FamousGameButton />}
+            {/* {isSignedIn ? renderInsertUsername() : <FamousGameButton />} */}
+            <FamousGameButton />
           </motion.div>
         </motion.div>
       </div>
