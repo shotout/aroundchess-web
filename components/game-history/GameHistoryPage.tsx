@@ -29,7 +29,6 @@ const GameHistoryPage: React.FC = () => {
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
-    toast.success(`Successfully connected to Chess.com as ${username}`);
     setShowPremiumDialog(true);
   };
 
@@ -65,17 +64,15 @@ const GameHistoryPage: React.FC = () => {
 
       try {
         const response = await gameHistoryApi.getProfile(sessionId);
+        console.log(
+          "Profile response structure:",
+          JSON.stringify(response).substring(0, 200)
+        );
 
-        if (response) {
-          const extractedUsername =
-            response.username || (response.data && response.data.username);
-
-          if (extractedUsername) {
-            setUsername(extractedUsername);
-          } else {
-            setShowConnectDialog(true);
-          }
+        if (response?.success && response?.data?.username) {
+          setUsername(response.data.username);
         } else {
+          console.log("No username found in response:", response);
           setShowConnectDialog(true);
         }
       } catch (error) {

@@ -47,36 +47,23 @@ export const ChessConnectDialog = ({
     setIsSubmitting(true);
 
     try {
-      // Call the API to set the username
       const result = await ChessApiService.setUsername(username, sessionId);
 
-      // Update the Zustand store
       setStoreUsername(username);
 
-      // Call the success callback
-      onSuccess(username);
-
-      // Show success message
-      toast.success(`Successfully connected to Chess.com as ${username}`);
-    } catch (error: any) {
-      // If the error contains "already exists" it likely means this username is already set
-      // for this user, which we can treat as a success.
-      if (error.message && error.message.includes("already exists")) {
-        // Update the Zustand store
-        setStoreUsername(username);
-
-        // Call the success callback
-        onSuccess(username);
-
+      if (result.usernameAlreadyExists) {
         toast.success(`Connected to Chess.com as ${username}`);
-        toast.info(`Username ${username} is already connected to your account`);
+        toast.info(`Username ${username} is already exist`);
       } else {
-        // For other errors, show the error message
-        const errorMsg =
-          error.message || "Failed to connect to Chess.com. Please try again.";
-        setErrorMessage(errorMsg);
-        toast.error(errorMsg);
+        toast.success(`Successfully connected to Chess.com as ${username}`);
       }
+
+      onSuccess(username);
+    } catch (error: any) {
+      const errorMsg =
+        error.message || "Failed to connect to Chess.com. Please try again.";
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
