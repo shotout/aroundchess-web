@@ -15,7 +15,6 @@ import GamesList from "../GameList";
 
 const GamesTab: React.FC = () => {
   const router = useRouter();
-  const { sessionId } = useAuth();
   const {
     username,
     setPgn,
@@ -46,7 +45,6 @@ const GamesTab: React.FC = () => {
     handleClearFilters,
   } = useFilters(games);
 
-  // Handle pagination
   const paginationProps = usePagination(filteredGames);
 
   // Handle game analysis
@@ -56,7 +54,6 @@ const GamesTab: React.FC = () => {
         setZustandIsLoading(true);
         setPgn(game.pgn);
 
-        // Depth and timeout parameters may need to be adjusted based on your requirements
         const response = await gameHistoryApi.analyzeGame(
           game.pgn,
           username || undefined,
@@ -81,7 +78,6 @@ const GamesTab: React.FC = () => {
     [router, setPgn, setDataAnalysis, setZustandIsLoading, username]
   );
 
-  // Source options specific to user games
   const sourceOptions = [
     { value: "All Formats", label: "All Sources" },
     { value: "Chess.com", label: "Chess.com" },
@@ -92,7 +88,6 @@ const GamesTab: React.FC = () => {
 
   return (
     <div className="mx-auto relative">
-      {/* Filters */}
       <Filters
         filters={filters}
         setFilters={setFilters}
@@ -107,7 +102,6 @@ const GamesTab: React.FC = () => {
         sourceOptions={sourceOptions}
       />
 
-      {/* Games List */}
       <GamesList
         games={filteredGames}
         currentGames={paginationProps.currentGames}
