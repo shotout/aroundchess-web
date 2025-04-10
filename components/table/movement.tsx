@@ -14,20 +14,26 @@ import { Button } from "../ui/button";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
 import { useEffect } from "react";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import DotSpinner from "../game-history/Spinner";
+import { useApiClient } from "@/functions/api-client";
 
 export default function MovementTable() {
+  const { isLoading } = useApiClient();
   const {
     pgn: storePgn,
     dataAnalysis,
     capturedBlack,
     capturedWhite,
+    movementDetails: logMovement,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const { PieceChoosed } = useChessBoardThemeStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
+  let dataMovement = movementDetails != null ? movementDetails : logMovement;
   useEffect(() => {
     console.log("movementDetails", movementDetails);
+    console.log("logMovement", logMovement);
   }, []);
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -83,6 +89,9 @@ export default function MovementTable() {
     console.log(move);
     setChessMove(move);
   };
+  if (isLoading) {
+    return <DotSpinner />;
+  }
   return (
     <div className="hidden xl:block mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
       <div className="max-h-[496px] overflow-y-auto">
@@ -124,7 +133,7 @@ export default function MovementTable() {
             ))}
           </div>
         </div>
-        {movementDetails.white.map((move: any, index: number) => (
+        {dataMovement.white.map((move: any, index: number) => (
           <div
             key={index}
             className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
@@ -203,9 +212,7 @@ export default function MovementTable() {
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
                     {capturedWhite
-                      .filter(
-                        (wp) => wp.san == move?.move
-                      )
+                      .filter((wp) => wp.san == move?.move)
                       .map((item, index) => {
                         return (
                           <Image
@@ -246,7 +253,7 @@ export default function MovementTable() {
             <div
               className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-                chessMove.move == movementDetails.black[index]?.move
+                chessMove.move == dataMovement.black[index]?.move
                   ? "bg-[#81CFF3]"
                   : index % 2 != 0
                   ? "bg-[#81]"
@@ -262,25 +269,25 @@ export default function MovementTable() {
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
                         <span className="text-[7px]  lg:text-[8px] font-semibold">
-                          {movementDetails.black[index]?.move}
+                          {dataMovement.black[index]?.move}
                         </span>
                         <span
                           className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal py-2 ${getScoreClass(
-                            movementDetails.black[
+                            dataMovement.black[
                               index
                             ]?.classification.toLowerCase()
                           )}`}
                         >
-                          {movementDetails.black[index]?.evaluation}
+                          {dataMovement.black[index]?.evaluation}
                         </span>
                       </div>
                       <div className="flex flex-row items-center gap-2">
                         <span
                           className={`mx-1 py-1 rounded-[4px] text-xs px-2 ${getBadgeClass(
-                            movementDetails.black[index]?.classification
+                            dataMovement.black[index]?.classification
                           )}`}
                         >
-                          {movementDetails.black[index]?.classification}
+                          {dataMovement.black[index]?.classification}
                         </span>
                         <PopoverClose>
                           <Image
@@ -293,16 +300,16 @@ export default function MovementTable() {
                         </PopoverClose>
                       </div>
                     </div>
-                    {movementDetails.black[index]?.analysis && (
+                    {dataMovement.black[index]?.analysis && (
                       <span className="text-[7px] font-normal py-1">
-                        {movementDetails.black[index]?.analysis}
+                        {dataMovement.black[index]?.analysis}
                       </span>
                     )}
                     <div className="flex flex-row gap-1">
                       <InfoIcon size={16} color="#221AE9" />
                       <span className="text-[7px]">Type:</span>
                       <span className="text-[7px] font-semibold ">
-                        {movementDetails.black[index]?.gamePhase}
+                        {dataMovement.black[index]?.gamePhase}
                       </span>
                     </div>
                   </div>
@@ -313,16 +320,14 @@ export default function MovementTable() {
                     className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() =>
                       handleOnClickMovement(
-                        movementDetails.black[index],
+                        dataMovement.black[index],
                         index,
                         "black"
                       )
                     }
                   >
                     {capturedBlack
-                      .filter(
-                        (bp) => bp.san == movementDetails.black[index]?.move
-                      )
+                      .filter((bp) => bp.san == dataMovement.black[index]?.move)
                       .map((item, index) => {
                         return (
                           <Image
@@ -336,7 +341,7 @@ export default function MovementTable() {
                         );
                       })}
                     <span className="text-[11px] text-center font-semibold py-2">
-                      {movementDetails.black[index]?.move}
+                      {dataMovement.black[index]?.move}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -349,17 +354,17 @@ export default function MovementTable() {
                     ? "font-bold"
                     : "font-normal"
                 } py-2 ${getScoreClass(
-                  movementDetails.black[index]?.classification
+                  dataMovement.black[index]?.classification
                 )}`}
               >
-                {movementDetails.black[index]?.evaluation}
+                {dataMovement.black[index]?.evaluation}
               </span>
               <span
                 className={`mx-1 rounded-[4px] text-[11px] ${getBadgeClass(
-                  movementDetails.black[index]?.classification
+                  dataMovement.black[index]?.classification
                 )}`}
               >
-                {movementDetails.black[index]?.classification}
+                {dataMovement.black[index]?.classification}
               </span>
             </div>
           </div>

@@ -46,7 +46,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     getMistakeSaved,
     getMistakePrevious,
     unsaveMistakeLog,
-    isLoading
+    isLoading,
   } = useApiClient();
   const [indexOpen, setIndexOpen] = useState<string>("Threats");
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
@@ -58,16 +58,16 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const handleSaveLog = async (id: string) => {
     saveMistakeLog({ mistakeLogId: id }).then(async (res) => {
       console.log("handleSaveLog", res);
-      reFetch()
+      reFetch();
     });
   };
   const handleUnsaveLog = async (id: string) => {
     unsaveMistakeLog({ mistakeLogId: id }).then(async (res) => {
       console.log("handleUnsaveLog", res);
-      reFetch()
+      reFetch();
     });
   };
-  
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -259,13 +259,18 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       </div>
     );
   };
-  
+
   if (isLoading) {
     return <DotSpinner />;
+  }else if(!PreviousAnalysis) {
+    return <EmptyLog title="You have not yet Analyses" content="Analyze Game now"/>
   }
   return (
     <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-      {Object.keys(PreviousAnalysis).length == 0 && <EmptyLog />}
+      {PreviousAnalysis?.criticalMistakes.length == 0 &&
+        PreviousAnalysis?.badMoves.length == 0 &&
+        PreviousAnalysis?.threats.length == 0 &&
+        PreviousAnalysis?.weaknessIdentification.length == 0 && <EmptyLog title="You have not yet Analyses" content="Analyze Game now"/>}
 
       {PreviousAnalysis &&
         PreviousAnalysis?.criticalMistakes != null &&
@@ -289,6 +294,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
           PreviousAnalysis?.weaknessIdentification,
           "Weakness Identification"
         )}
+        
     </div>
   );
 };

@@ -26,6 +26,7 @@ export interface AnalysisResult {
 interface PgnState {
   pgn: string;
   username: string;
+  usernameAnalysis: string;
   dataAnalysis: AnalysisResult | null;
   isLoading: boolean;
   lastFetchTimestamp: number;
@@ -56,6 +57,7 @@ interface PgnState {
   savedMistakes: any[];
 
   setPgn: (pgn: string) => void;
+  setUsernameAnalysis: (usernameAnalysis: string) => void;
   setUsername: (username: string) => void;
   setDataAnalysis: (dataAnalysis: AnalysisResult | null) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -95,6 +97,7 @@ export const usePgnStore = create<PgnState>()(
     (set) => ({
       pgn: "",
       username: "",
+      usernameAnalysis:"",
       dataAnalysis: null,
       isLoading: false,
       lastFetchTimestamp: 0,
@@ -132,7 +135,12 @@ export const usePgnStore = create<PgnState>()(
           lastFetchTimestamp:
             username !== state.username ? Date.now() : state.lastFetchTimestamp,
         })),
-
+        setUsernameAnalysis: (usernameAnalysis: string) =>
+          set((state) => ({
+            usernameAnalysis,
+            lastFetchTimestamp:
+            usernameAnalysis !== state.usernameAnalysis ? Date.now() : state.lastFetchTimestamp,
+          })),
       setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
 
       setDataAnalysis: (dataAnalysis: AnalysisResult | null) =>
@@ -221,6 +229,7 @@ export const usePgnStore = create<PgnState>()(
         set({
           pgn: "",
           username: "",
+          usernameAnalysis:"",
           dataAnalysis: null,
           isLoading: false,
           lastFetchTimestamp: 0,
@@ -247,6 +256,7 @@ export const usePgnStore = create<PgnState>()(
         dataAnalysis: state.dataAnalysis,
         isLoading: state.isLoading,
         username: state.username,
+        usernameAnalysis:state.usernameAnalysis,
         pgn: state.pgn,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
