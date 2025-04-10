@@ -64,7 +64,7 @@ export const FamousGameButton = () => {
         </span>
       </div>
       <div className="flex flex-row justify-between items-center">
-      <div className="flex flex-row items-center justify-between min-w-[283px] rounded-[8px] p-[12px] gap-2 border border-[#00B427] bg-[#D3FFDD]">
+      <div className="flex flex-row items-center justify-between rounded-[8px] p-[12px] gap-2 border border-[#00B427] bg-[#D3FFDD]">
         <div className="flex flex-row items-center">
           <Image
             alt="magnus"
@@ -94,7 +94,7 @@ export const FamousGameButton = () => {
         />
       </div>
       <span className="text-[20px] text-[#17119B] font-medium">VS</span>
-      <div className="flex flex-row items-center justify-between min-w-[283px] rounded-[8px] p-[12px] gap-2 border border-[#DEDEDE] bg-white">
+      <div className="flex flex-row items-center justify-between rounded-[8px] p-[12px] gap-2 border border-[#DEDEDE] bg-white">
         <div className="flex flex-row items-center">
           <Image
             alt="magnus"
@@ -137,7 +137,7 @@ export const FamousGameButton = () => {
 export const FamousGameCard = () => {
   return (
     <div className="hidden sm:flex flex-row justify-between items-center gap-4">
-      <div className="flex flex-row items-center justify-between w-1/2 min-w-[283px] rounded-[8px] p-[12px] gap-2 border border-[#00B427] bg-[#D3FFDD]">
+      <div className="flex flex-row items-center justify-between w-1/2 rounded-[8px] p-[12px] gap-2 border border-[#00B427] bg-[#D3FFDD]">
         <div className="flex flex-row items-center">
           <Image
             alt="magnus"
@@ -166,7 +166,7 @@ export const FamousGameCard = () => {
           priority
         />
       </div>
-      <div className="flex flex-row items-center justify-between w-1/2 min-w-[283px] rounded-[8px] p-[12px] gap-2 border border-[#DEDEDE] bg-white">
+      <div className="flex flex-row items-center justify-between w-1/2 rounded-[8px] p-[12px] gap-2 border border-[#DEDEDE] bg-white">
         <div className="flex flex-row items-center">
           <Image
             alt="magnus"
