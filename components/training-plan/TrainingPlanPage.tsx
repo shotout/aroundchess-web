@@ -1,6 +1,5 @@
 "use client";
 
-import Responsive from "@/components/game-history/Responsive";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -30,7 +29,6 @@ const TrainingPlanPage = () => {
 
   return (
     <>
-      {/* <Responsive /> */}
       <main className="w-full p-4 space-y-[16px]">
         {/* top menu */}
         <div className="flex justify-between items-center">
