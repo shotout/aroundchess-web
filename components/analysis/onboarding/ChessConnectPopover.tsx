@@ -2,18 +2,10 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, Cat, Icon } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
 
@@ -55,11 +47,8 @@ export const ChessConnectDialog = ({
     setIsSubmitting(true);
 
     try {
-      console.log("Setting username:", username);
-
       // Call the API to set the username
       const result = await ChessApiService.setUsername(username, sessionId);
-      console.log("API response:", result);
 
       // Update the Zustand store
       setStoreUsername(username);
@@ -70,13 +59,9 @@ export const ChessConnectDialog = ({
       // Show success message
       toast.success(`Successfully connected to Chess.com as ${username}`);
     } catch (error: any) {
-      console.error("Chess.com connection error:", error);
-
       // If the error contains "already exists" it likely means this username is already set
       // for this user, which we can treat as a success.
       if (error.message && error.message.includes("already exists")) {
-        console.log("Username already exists in database, treating as success");
-
         // Update the Zustand store
         setStoreUsername(username);
 
@@ -84,6 +69,7 @@ export const ChessConnectDialog = ({
         onSuccess(username);
 
         toast.success(`Connected to Chess.com as ${username}`);
+        toast.info(`Username ${username} is already connected to your account`);
       } else {
         // For other errors, show the error message
         const errorMsg =
@@ -103,11 +89,18 @@ export const ChessConnectDialog = ({
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[358px] mx-auto rounded-md p-4 overflow-hidden [&>button]:hidden md:w-[640px] xl:w-[600px] h-auto">
-        {/* Top section - Image */}
-        <div className="w-full  flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 md:p-0"
+      onClick={() => onOpenChange(false)}
+    >
+      <div
+        className="w-full mx-auto rounded-md p-4 bg-white overflow-hidden md:w-[640px] xl:w-[600px] h-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-full flex items-center justify-center p-4">
           <div className="w-full h-48 relative">
             <Image
               src="/icons/onboarding-popup.png"
@@ -118,17 +111,16 @@ export const ChessConnectDialog = ({
           </div>
         </div>
 
-        {/* Bottom section - Form */}
         <div className="w-full p-6">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">
+          <div>
+            <h2 className="text-2xl font-bold text-center">
               Welcome on Board!
-            </DialogTitle>
-            <DialogDescription className="text-center text-black">
+            </h2>
+            <p className="text-center text-black">
               Enter your Chess.com Username and find your previously played
               Games right away.
-            </DialogDescription>
-            <div className=" text-blue-base text-xs border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
+            </p>
+            <div className="text-blue-base text-xs border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
               <AlertCircle className="w-10 h-10" />
               <div>
                 Enter the Chess.com Username that you would like to connect to
@@ -136,7 +128,7 @@ export const ChessConnectDialog = ({
                 changed)
               </div>
             </div>
-          </DialogHeader>
+          </div>
 
           <div className="mt-4 space-y-4">
             <div className="flex items-center gap-x-2">
@@ -173,7 +165,7 @@ export const ChessConnectDialog = ({
             </button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };

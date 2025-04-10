@@ -1,5 +1,6 @@
 // Common Game Types
 export interface Game {
+    playerColor: any;
     id: number | string;
     date: string;
     opponent: string;

@@ -49,7 +49,7 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
               className={`flex-1 text-center py-2 text-sm
                 ${
                   activeTab === "user"
-                    ? "bg-blue-50 text-blue-600 font-medium"
+                    ? "bg-blue-50 text-blue-base font-medium"
                     : "bg-white text-gray-600"
                 }`}
             >
@@ -60,7 +60,7 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
               className={`flex-1 text-center py-2 text-sm
                 ${
                   activeTab === "other"
-                    ? "bg-blue-50 text-blue-600 font-medium"
+                    ? "bg-blue-50 text-blue-base font-medium"
                     : "bg-white text-gray-600"
                 }`}
             >
