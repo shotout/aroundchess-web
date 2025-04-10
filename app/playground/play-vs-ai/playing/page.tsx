@@ -26,9 +26,10 @@ import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "@/components/game-history/Spinner";
 export default function Playing() {
   const router = useRouter();
-  const { getVSAILogs, postVSAILogs } = useApiClient();
+  const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
@@ -1118,6 +1119,7 @@ export default function Playing() {
 
           <TabsContent value="past" className="gap-2">
             <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
+              {isLoading && (<DotSpinner/>)}
               <div
                 style={{ height: heightScreen * 0.8 }}
                 className="px-4 w-full xl:max-h-[70vh] overflow-y-auto"
