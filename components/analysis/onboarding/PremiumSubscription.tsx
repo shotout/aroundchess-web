@@ -15,7 +15,6 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -31,9 +30,9 @@ export const PremiumSubscription = ({
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-4 lg:p-4 xl:p-96">
       <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
-      <div className="relative max-w-[700px] max-h-[90vh] overflow-y-auto bg-blue-50 border border-blue-100 rounded-xl w-[95%] z-50 overflow-hidden">
+      <div className="relative w-full overflow-y-scroll bg-blue-50 border border-blue-100 rounded-xl z-50 overflow-hidden mt-40 md:mt-12">
         <div className="absolute inset-0 z-0">
           <Image
             src="/my-game-history/pattern.png"
