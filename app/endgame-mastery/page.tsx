@@ -1,5 +1,4 @@
 "use client";
-import EndgamePage from "@/components/endgame-mastery/EndgamePage";
 import ChessLessonPage from "@/components/handbooks/ChessLessonPage";
 import { EndgameLesson } from "@/components/handbooks/ChessLessonTypes";
 import { createChessLessonStore } from "@/components/handbooks/CreateChessLessonStore";

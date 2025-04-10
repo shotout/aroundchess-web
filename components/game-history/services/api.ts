@@ -111,7 +111,9 @@ export const gameHistoryApi = {
    */
   getProfile: async (sessionId: string | null) => {
     console.log("Fetching profile with sessionId:", !!sessionId);
-    return apiRequest<{ username?: string; data?: { username?: string } }>(
+    return apiRequest<{
+      success: string | undefined; username?: string; data?: { username?: string } 
+}>(
       '/profile',
       { sessionId }
     );
