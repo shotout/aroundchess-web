@@ -19,6 +19,7 @@ import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
+import { usePagination } from "../game-history/GamesTab/utils/hook/usePagination";
 
 const history = [
   { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
@@ -38,6 +39,7 @@ const MistakeLog = () => {
     isLoading,
     error,
   } = useApiClient();
+   
   const {
     username,
     mistakeLogs,
