@@ -28,7 +28,7 @@ export const Pagination = ({ data }: PaginationProps) => {
   return (
     <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
-        <span>Games per Page</span>
+        <span>Shows per Page</span>
         <Select
           value={String(itemsPerPage)}
           onValueChange={(value) => setItemsPerPage(Number(value))}

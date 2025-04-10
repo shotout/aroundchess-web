@@ -19,7 +19,7 @@ import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
-import { usePagination } from "../game-history/GamesTab/utils/hook/usePagination";
+import { useChessMoveStore } from "@/app/store/chessMoveStore";
 
 const history = [
   { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
@@ -39,7 +39,8 @@ const MistakeLog = () => {
     isLoading,
     error,
   } = useApiClient();
-   
+  const { chessMove, setChessMove } = useChessMoveStore();
+
   const {
     username,
     mistakeLogs,
@@ -93,11 +94,13 @@ const MistakeLog = () => {
   };
   const fetchMistakePreviousDetail = async (id: string, reset: boolean) => {
     try {
-      let params = reset ? {} : {page: 1, limit: 10, phase: GamePhase, type: MistakeType };
+      let params = reset
+        ? {}
+        : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       console.log("prevDataDetail", prevDataDetail);
       let dataDetail = prevDataDetail.data;
-      setMistakePreviousDetail(prevDataDetail.data);
+      setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
       setMovementDetails(dataDetail.movementDetail);
@@ -109,7 +112,7 @@ const MistakeLog = () => {
   };
   const fetchMistakeSaved = async () => {
     try {
-      let params = {page: 1, limit: 10};
+      let params = { page: 1, limit: 10 };
       const savedData = await getMistakeSaved(params);
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
@@ -160,7 +163,10 @@ const MistakeLog = () => {
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
-                onClick={() => setSelectedHistory(hist.id)}
+                onClick={() => {
+                  fetchMistakePreviousDetail(hist.id, false);
+                  setSelectedHistory(hist.id);
+                }}
                 key={i}
                 className={`cursor-pointer rounded-[4px] md:rounded-[6px] py-1 px-2 ${
                   selectedHistory != hist.id
@@ -315,10 +321,10 @@ const MistakeLog = () => {
     );
   };
   return (
-    <main className="w-full p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+    <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
-          <h1 className="text-base lg:text-[32px] font-semibold">
+          <h1 className="text-xl lg:text-[32px] font-semibold">
             Mistake Log
           </h1>
           <div className="flex justify-center items-end h-full">
@@ -328,10 +334,13 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="saved" className="w-full p-[8px]">
-        <TabsList className="grid w-full lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
+      <Tabs defaultValue="saved" className="w-full p-0 xl:p-[8px] ">
+        <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
-            onClick={() => setSelectedTab("saved")}
+            onClick={() => {
+              setSelectedTab("saved");
+              setChessMove({});
+            }}
             value="saved"
             className={`${
               tabSelected == "saved"
@@ -348,7 +357,10 @@ const MistakeLog = () => {
             </span>
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => setSelectedTab("previous")}
+            onClick={() => {
+              setSelectedTab("previous");
+              setChessMove({});
+            }}
             value="previous"
             className={`${
               tabSelected != "saved"
@@ -378,7 +390,7 @@ const MistakeLog = () => {
                 <div className="lg:mt-2">
                   <ChessContent />
                 </div>
-                <div style={{ width: widthContainer }}>
+                <div className="xl:w-3/4">
                   <SavedMistakes reFetch={loadData} />
                 </div>
               </div>
@@ -386,7 +398,7 @@ const MistakeLog = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="previous" className="space-y-4">
+        <TabsContent value="previous" >
           {isLoading ? (
             <DotSpinner />
           ) : (

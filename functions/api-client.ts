@@ -315,7 +315,7 @@ export function useApiClient() {
   const getMistakeSaved = useCallback((params:any) => {
     return apiRequest({
       method: "GET",
-      path: `${process.env.BASE_URL}/mistake-logs/saved `,
+      path: `${process.env.BASE_URL}/mistake-logs/saved`,
       params
     });
   }, [apiRequest]);

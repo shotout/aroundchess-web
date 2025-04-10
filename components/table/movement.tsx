@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import DotSpinner from "../game-history/Spinner";
 import { useApiClient } from "@/functions/api-client";
+import PlayerInfo from "@/app/components/puzzle/PlayerInfo";
 
 export default function MovementTable() {
   const { isLoading } = useApiClient();
@@ -25,11 +26,20 @@ export default function MovementTable() {
     capturedBlack,
     capturedWhite,
     movementDetails: logMovement,
+    playerInfo,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
   const { PieceChoosed } = useChessBoardThemeStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
+  let blackPlayer =
+    summary?.blackSide != null
+      ? summary?.blackSide?.profileInfo
+      : playerInfo?.black;
+  let whitePlayer =
+    summary?.whiteSide != null
+      ? summary?.whiteSide?.profileInfo
+      : playerInfo?.white;
   let dataMovement = movementDetails != null ? movementDetails : logMovement;
   useEffect(() => {
     console.log("movementDetails", movementDetails);
@@ -50,13 +60,13 @@ export default function MovementTable() {
       case "Miss":
         return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
-        return "border border-[#FA402D] text-[#FA402D] bg-white ";
+        return "border border-[#FFA459] text-[#B08503] bg-white";
       case "Mistake":
-        return "border border-[#FFA459] text-[#FFA459] bg-white";
+        return "border border-[#FFA459] text-[#B08503] bg-white";
       case "Inaccuracy":
-        return "border border-[#FFA459] text-[#FFA459] bg-white";
+        return "border border-[#FFA459] text-[#B08503] bg-white";
       default:
-        return "";
+        return "border border-[#FFA459] text-[#B08503] bg-[white]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -89,24 +99,25 @@ export default function MovementTable() {
     console.log(move);
     setChessMove(move);
   };
-  if (isLoading) {
-    return <DotSpinner />;
+  useEffect(() => {},[])
+  if (isLoading|| dataMovement == null || blackPlayer==null ||whitePlayer == null) {
+    return null;
   }
   return (
-    <div className="hidden xl:block mt-4 bg-white border border-[#749BBF] pb-2 rounded-sm">
+    <div className="hidden xl:block bg-white border border-[#749BBF] pb-2 rounded-sm">
       <div className="max-h-[496px] overflow-y-auto">
         <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
           <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
           <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
             White{" "}
             <span className="block text-xs font-light">
-              ({summary?.whiteSide?.profileInfo.username})
+              ({whitePlayer.username})
             </span>
           </span>
           <span className="block text-xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
             Black{" "}
             <span className="block text-xs font-light">
-              ({summary?.blackSide?.profileInfo.username})
+              ({blackPlayer.username})
             </span>
           </span>
         </div>

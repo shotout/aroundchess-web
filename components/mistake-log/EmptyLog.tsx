@@ -20,7 +20,7 @@ interface emptyLogProps {
 }
 const EmptyLog: React.FC<emptyLogProps> = ({ title, content }) => {
   return (
-    <div className="flex flex-col w-full justify-center gap-[24px] bg-white rounded-[16px] items-center p-2">
+    <div className="flex flex-col w-[95%] justify-center gap-[24px] bg-white rounded-[16px] items-center p-2">
       <Image
         alt=""
         src={"/images/mistake-log/empty-mistake-log.png"}
