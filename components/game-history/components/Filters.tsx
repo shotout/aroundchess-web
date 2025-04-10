@@ -51,9 +51,8 @@ export const Filters: React.FC<FiltersProps> = ({
 }) => {
   return (
     <>
-      {/* Desktop Filter Bar */}
-      <div className="hidden md:flex items-center justify-evenly mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
-        <div className="flex items-center space-x-2 w-[70%] 2xl:w-[75%]">
+      <div className="hidden md:flex items-center justify-between gap-6 mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
+        <div className="flex items-center space-x-4 w-[70%] 2xl:w-[75%]">
           <Select
             value={filters.color}
             onValueChange={(value) => setFilters.setColor(value)}
@@ -103,10 +102,10 @@ export const Filters: React.FC<FiltersProps> = ({
           </Select>
         </div>
 
-        <div className="flex items-center space-x-1 w-[30%] justify-evenly 2xl:w-[25%]">
+        <div className="flex items-center space-x-4 w-[30%] 2xl:w-[25%]">
           <Button
             onClick={handleApplyFilters}
-            className="bg-blue-600 text-white w-[156px] rounded-full h-12 px-1 flex items-center gap-2 hover:bg-blue-700"
+            className="btn-primary text-white flex-1 rounded-full h-12 flex items-center justify-center gap-2 hover:bg-blue-700 text-sm md:text-base"
           >
             <Filter className="h-4 w-4" />
             Apply Filters
@@ -114,109 +113,105 @@ export const Filters: React.FC<FiltersProps> = ({
 
           <Button
             onClick={handleClearFilters}
-            className="bg-blue-50 text-blue-600 w-[156px] border border-blue-100 rounded-full h-12 px-1 hover:bg-blue-100"
+            className="bg-blue-50 text-blue-600 flex-1 border border-blue-100 btn-tertiary rounded-full h-12 flex items-center justify-center hover:bg-blue-100 text-sm md:text-base"
           >
             Clear Filters
           </Button>
         </div>
       </div>
 
-      {/* Mobile Filter Button */}
-      <div className="md:hidden flex w-full items-center justify-between gap-2 mb-4">
-        <Button
-          variant="outline"
-          className={`flex-1 flex items-center justify-center gap-2 py-5 rounded-lg ${
-            filtersApplied ? "text-blue-base border-blue-base" : ""
-          }`}
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <Filter className="h-4 w-4" />
-          {filtersApplied ? (
-            <>
-              Filters Applied
-              {activeFiltersCount > 0 && (
-                <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </>
-          ) : (
-            "Add Filters"
-          )}
-        </Button>
+      <div className="md:hidden relative w-full">
+        <div className="flex w-full items-center justify-between gap-2 mb-4">
+          <Button
+            variant="outline"
+            className={`flex-1 flex items-center justify-center gap-2 py-5 rounded-lg ${
+              filtersApplied ? "text-blue-base border-blue-base" : ""
+            }`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="h-4 w-4" />
+            {filtersApplied ? (
+              <>
+                Filters Applied
+                {activeFiltersCount > 0 && (
+                  <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </>
+            ) : (
+              "Add Filters"
+            )}
+          </Button>
+        </div>
+
+        {showFilters && (
+          <Card className="md:hidden p-4 border rounded-lg mb-4 absolute top-full left-0 right-0 z-20 bg-white shadow-lg">
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Select
+                value={filters.color}
+                onValueChange={(value) => setFilters.setColor(value)}
+              >
+                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
+                  <SelectValue className="text-xs" placeholder="Both Colors" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="All Colors">Both Colors</SelectItem>
+                  <SelectItem value="White">White</SelectItem>
+                  <SelectItem value="Black">Black</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.gameFormat}
+                onValueChange={(value) => setFilters.setGameFormat(value)}
+              >
+                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
+                  <SelectValue className="text-xs" placeholder="All Sources" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {sourceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.results}
+                onValueChange={(value) => setFilters.setResults(value)}
+              >
+                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
+                  <SelectValue className="text-xs" placeholder="All Results" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="All Results">All Results</SelectItem>
+                  <SelectItem value="Wins">Wins</SelectItem>
+                  <SelectItem value="Losses">Losses</SelectItem>
+                  <SelectItem value="Draws">Draws</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleApplyFilters}
+                className="btn-secondary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
+              >
+                <Filter className="h-4 w-4" />
+                <span className="text-xs sm:text-[10px]">Apply Filters</span>
+              </button>
+              <button
+                onClick={handleClearFilters}
+                className="btn-tertiary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
+              >
+                <span className="text-xs sm:text-[10px]">Clear Filters</span>
+              </button>
+            </div>
+          </Card>
+        )}
       </div>
-
-      {/* Mobile Filter Panel */}
-      {showFilters && (
-        <Card className="md:hidden p-2 border rounded-lg mb-4 absolute top-full left-0 right-0 z-10 bg-white shadow-lg">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Select
-              value={filters.color}
-              onValueChange={(value) => setFilters.setColor(value)}
-              defaultValue="All Colors"
-            >
-              <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                <SelectValue className="text-xs" placeholder="Both Colors" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All Colors">Both Colors</SelectItem>
-                <SelectItem value="White">White</SelectItem>
-                <SelectItem value="Black">Black</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.gameFormat}
-              onValueChange={(value) => setFilters.setGameFormat(value)}
-              defaultValue="All Formats"
-            >
-              <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                <SelectValue className="text-xs" placeholder="All Sources" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {sourceOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.results}
-              onValueChange={(value) => setFilters.setResults(value)}
-              defaultValue="All Results"
-            >
-              <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                <SelectValue className="text-xs" placeholder="All Results" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All Results">All Results</SelectItem>
-                <SelectItem value="Wins">Wins</SelectItem>
-                <SelectItem value="Losses">Losses</SelectItem>
-                <SelectItem value="Draws">Draws</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleApplyFilters}
-              className="btn-secondary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
-            >
-              <Filter className="h-4 w-4" />
-              <h1 className="text-xs">Apply Filters</h1>
-            </button>
-            <button
-              onClick={handleClearFilters}
-              className="btn-tertiary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Clear Filters
-            </button>
-          </div>
-        </Card>
-      )}
     </>
   );
 };

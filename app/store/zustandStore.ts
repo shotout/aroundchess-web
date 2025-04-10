@@ -246,7 +246,7 @@ export const usePgnStore = create<PgnState>()(
           capturedBlack: [],
           hideDiv: false,
           otherGamesData: [],
-          otherGamesLastFetched: null,,
+          otherGamesLastFetched: null,
         importedGames: []
         }),
       

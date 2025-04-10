@@ -23,11 +23,6 @@ const GamesTab: React.FC = () => {
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
 
-  console.log("GamesTab render - Auth state:", {
-    sessionId: !!sessionId,
-    username,
-  });
-
   // Fetch games data
   const {
     games,
@@ -37,13 +32,6 @@ const GamesTab: React.FC = () => {
     handleRetryFetch,
     handleForceRefresh,
   } = useGames("chessdotcom");
-
-  console.log("Games data state:", {
-    gamesCount: games.length,
-    isLoading,
-    error,
-    cacheIsValid,
-  });
 
   // Handle filters
   const {

@@ -14,7 +14,6 @@ import { Game } from "../../types/GameHistoryTypes";
 
 const OtherGamesTab: React.FC = () => {
   const router = useRouter();
-  const { sessionId } = useAuth();
   const {
     username,
     setPgn,
@@ -84,7 +83,7 @@ const OtherGamesTab: React.FC = () => {
   const sourceOptions = [
     { value: "All Formats", label: "All Sources" },
     { value: "Lichess", label: "Lichess" },
-    { value: "PGN Upload", label: "PGN Upload" },
+    { value: "File Upload", label: "File Upload" },
     { value: "Tournament", label: "Tournament" },
   ];
 
