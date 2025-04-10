@@ -10,7 +10,6 @@ import { useAuth, useSignIn } from "@clerk/nextjs";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
-import Responsive from "@/components/game-history/Responsive";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -92,10 +91,11 @@ export default function LoginPage() {
     }
   };
 
+  const headerHeight = 80;
+
   return (
     <>
       <div className="min-h-screen flex flex-col relative">
-        <Responsive />
         <div className="absolute inset-0 -z-10">
           <Image
             src="/images/auth-background.png"
@@ -117,7 +117,10 @@ export default function LoginPage() {
         <SiteHeaderNew />
 
         {/* Main Content with fixed dimensions based on device */}
-        <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <main
+          style={{ height: `calc(100vh - ${headerHeight}px)` }}
+          className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8"
+        >
           <div
             className={`
             w-full

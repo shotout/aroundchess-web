@@ -1,9 +1,8 @@
 "use client";
 
-const endpoint = process.env.NEXT_PUBLIC_BASE_AUTH
+const endpoint = process.env.NEXT_PUBLIC_BASE_AUTH;
 
 export const ChessApiService = {
- 
   async setUsername(username: string, sessionId: string): Promise<any> {
     try {
       if (!username || !sessionId) {
@@ -34,6 +33,17 @@ export const ChessApiService = {
         console.error("Failed to parse response as JSON:", e);
         console.log("Response wasn't valid JSON:", responseText);
         throw new Error("Server returned an invalid response. Please check console for details.");
+      }
+
+      // Check if the username already exists (check message for "already exists")
+      if (responseData.message && responseData.message.toLowerCase().includes("already exists")) {
+        // This is actually a success case for our UI flow
+        return {
+          success: true,
+          usernameAlreadyExists: true,
+          message: responseData.message,
+          username
+        };
       }
 
       if (!response.ok) {
@@ -93,12 +103,12 @@ export const ChessApiService = {
     }
   },
 
-
   async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string, profile?: any}> {
     try {
       const profileData = await this.getProfile(sessionId);
       
-      const username = profileData?.username || (profileData?.data && profileData.data.username);
+      // Correctly handle the nested data structure
+      const username = profileData?.data?.username;
       
       if (username) {
         return { 

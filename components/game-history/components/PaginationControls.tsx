@@ -1,0 +1,140 @@
+import React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+interface PaginationControlsProps {
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  itemsPerPage: number;
+  setItemsPerPage: (count: number) => void;
+  totalPages: number;
+  goToNextPage: () => void;
+  goToPreviousPage: () => void;
+}
+
+const PaginationControls: React.FC<PaginationControlsProps> = ({
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+  setItemsPerPage,
+  totalPages,
+  goToNextPage,
+  goToPreviousPage,
+}) => {
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+
+    if (totalPages <= 5) {
+      // If total pages is 5 or less, show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Show 5 pages with current page in the middle when possible
+      if (currentPage <= 3) {
+        // At the beginning, show pages 1-5
+        for (let i = 1; i <= 5; i++) {
+          pageNumbers.push(i);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        // At the end, show the last 5 pages
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        // In the middle, show current page and 2 pages on each side
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          pageNumbers.push(i);
+        }
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  // Only show pagination controls if there are pages to navigate
+  if (totalPages === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
+      {/* Items per page selector */}
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
+        <span>Games per Page</span>
+        <Select
+          value={String(itemsPerPage)}
+          onValueChange={(value) => setItemsPerPage(Number(value))}
+          defaultValue="10"
+        >
+          <SelectTrigger className="w-16 h-8 border rounded-md bg-white">
+            <SelectValue className="text-sm" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="5">5</SelectItem>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+          </SelectContent>
+        </Select>
+        <ChevronRight className="h-4 w-4 text-gray-400" />
+      </div>
+
+      {/* Page navigation */}
+      <div className="flex items-center justify-center">
+        {/* Previous page button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={goToPreviousPage}
+          disabled={currentPage === 1}
+          className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+
+        {/* Page number buttons */}
+        {getPageNumbers().map((pageNum) => (
+          <Button
+            key={pageNum}
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentPage(pageNum)}
+            className={`h-8 w-8 p-0 flex items-center justify-center mx-1 ${
+              currentPage === pageNum
+                ? "bg-blue-50 border border-blue-base text-blue-base rounded-md"
+                : "text-gray-600 hover:bg-gray-100 border"
+            }`}
+            aria-label={`Page ${pageNum}`}
+            aria-current={currentPage === pageNum ? "page" : undefined}
+          >
+            {pageNum}
+          </Button>
+        ))}
+
+        {/* Next page button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={goToNextPage}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="h-10 w-10 p-0 flex items-center justify-center text-blue-500"
+          aria-label="Next page"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default PaginationControls;

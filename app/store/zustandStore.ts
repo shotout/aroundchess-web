@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface Game {
-  id: number;
+  id: number | string;
   date: string;
   opponent: string;
   result: string;
@@ -55,6 +55,9 @@ interface PgnState {
   titleGame: string;
   previousAnalyses: any[];
   savedMistakes: any[];
+  
+  // Track newly imported games
+  importedGames: Game[];
 
   setPgn: (pgn: string) => void;
   setUsernameAnalysis: (usernameAnalysis: string) => void;
@@ -90,11 +93,14 @@ interface PgnState {
   resetPerformanceState: () => void;
 
   clearAll: () => void;
+  
+  // New function to add imported games
+  addImportedGame: (game: Omit<Game, 'id'>) => Game;
 }
 
 export const usePgnStore = create<PgnState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       pgn: "",
       username: "",
       usernameAnalysis:"",
@@ -126,6 +132,9 @@ export const usePgnStore = create<PgnState>()(
       titleGame: "",
       previousAnalyses: [],
       savedMistakes: [],
+      
+      // Initialize imported games array
+      importedGames: [],
 
       setPgn: (pgn: string) => set({ pgn }),
 
@@ -247,7 +256,35 @@ export const usePgnStore = create<PgnState>()(
           hideDiv: false,
           otherGamesData: [],
           otherGamesLastFetched: null,
+        importedGames: []
         }),
+      
+      // Add a new imported game to the store
+      addImportedGame: (gameData) => {
+        // Generate a unique ID for the new game
+        const newId = Date.now();
+        
+        // Create the new game with the generated ID
+        const newGame: Game = {
+          ...gameData,
+          id: newId
+        };
+        
+        // Update the store with the new game
+        set((state) => ({
+          // Add to imported games array
+          importedGames: [newGame, ...state.importedGames],
+          
+          // Also add to regular games array if it's a user game
+          gamesData: [newGame, ...state.gamesData],
+          
+          // Update the timestamp
+          gamesLastFetched: Date.now()
+        }));
+        
+        // Return the new game so it can be used
+        return newGame;
+      }
     }),
     {
       name: "pgn-session-storage",
@@ -264,6 +301,7 @@ export const usePgnStore = create<PgnState>()(
         analyticsLastFetched: state.analyticsLastFetched,
         performanceData: state.performanceData,
         performanceLastFetched: state.performanceLastFetched,
+        importedGames: state.importedGames,
       }),
     }
   )
