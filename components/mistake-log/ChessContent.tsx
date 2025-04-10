@@ -28,6 +28,7 @@ import {
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
 import { SettingBoard } from "@/components/modal/SettingBoard";
+import { useApiClient } from "@/functions/api-client";
 
 interface ParsedMove {
   color: string;
@@ -48,6 +49,8 @@ const ChessContent: React.FC = () => {
     capturedBlack,
     setCapturedBlack,
     setCapturedWhite,
+    playerInfo,
+    movementDetails,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -59,16 +62,8 @@ const ChessContent: React.FC = () => {
     PieceChoosed,
     setPieceChoosed,
   } = useChessBoardThemeStore();
-  const {
-    gameInfo,
-    summary,
-    movementDetails,
-    opening,
-    middleGame,
-    endGame,
-    improvementRecommendation,
-    training,
-  } = dataAnalysis ?? {};
+  const { isLoading: loading } = useApiClient();
+  const { gameInfo, summary } = dataAnalysis ?? {};
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
     ?.country
     ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
@@ -99,13 +94,9 @@ const ChessContent: React.FC = () => {
   }, [mounted]);
 
   useEffect(() => {
-    let isOpen =
-      tabFocus == "opening" ||
-      tabFocus == "threats" ||
-      tabFocus == "middlegame" ||
-      tabFocus == "endgame";
+    let isOpen = storePgn != "" || storePgn != null ? true : false;
     setShowTable(isOpen);
-  }, [tabFocus]);
+  }, [storePgn]);
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
@@ -364,6 +355,7 @@ const ChessContent: React.FC = () => {
   }, [currentMoveIndex, parsedMoves]);
 
   useEffect(() => {
+    console.log("movementDetails", movementDetails);
     return () => {
       if (autoPlayTimerRef.current) {
         clearInterval(autoPlayTimerRef.current);
@@ -395,7 +387,7 @@ const ChessContent: React.FC = () => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#FFA459] text-[#FFA459]";
+        return "border border-[#FFA459] text-[#B08503]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -422,7 +414,7 @@ const ChessContent: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - ((window.innerWidth * 0.540) + 256)
+    let desktopSize = window.innerWidth - (window.innerWidth * 0.55 + 256);
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -451,7 +443,7 @@ const ChessContent: React.FC = () => {
         <div className="flex flex-row items-center gap-2">
           <Image
             alt="avatar"
-            src={summary?.blackSide?.profileInfo.photo}
+            src={playerInfo?.black?.avatarUrl}
             className="w-10 h-10 rounded-full"
             width={1000}
             height={1000}
@@ -464,7 +456,7 @@ const ChessContent: React.FC = () => {
                   gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                 }`}
               >
-                {summary?.blackSide?.profileInfo.username}
+                {playerInfo?.black?.username}
               </span>
 
               <ReactCountryFlag
@@ -524,7 +516,7 @@ const ChessContent: React.FC = () => {
         <div className="flex flex-row items-center gap-2">
           <Image
             alt="avatar"
-            src={summary?.whiteSide?.profileInfo.photo}
+            src={playerInfo?.white?.avatarUrl}
             className="w-10 h-10 rounded-full"
             width={1000}
             height={1000}
@@ -537,7 +529,7 @@ const ChessContent: React.FC = () => {
                   gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
                 }`}
               >
-                {summary?.whiteSide?.profileInfo.username}
+                {playerInfo?.white?.username}
               </span>
 
               <ReactCountryFlag
@@ -697,7 +689,7 @@ const ChessContent: React.FC = () => {
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipBackIcon fill="black" size={boardSize / 22} color="black" />
@@ -706,14 +698,14 @@ const ChessContent: React.FC = () => {
             <button
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <ChevronLeft size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               {isPlaying ? (
@@ -726,7 +718,7 @@ const ChessContent: React.FC = () => {
             <button
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <ChevronRight size={boardSize / 22} color="black" />
@@ -734,7 +726,7 @@ const ChessContent: React.FC = () => {
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipForwardIcon
@@ -754,8 +746,7 @@ const ChessContent: React.FC = () => {
             {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
 
-          {showTable && <MovementTable />}
-          {showMovementContent && !showTable && chessMove.move != null && (
+          {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
@@ -825,6 +816,7 @@ const ChessContent: React.FC = () => {
               </div>
             </div>
           )}
+          {showTable && !loading && <MovementTable />}
         </div>
       </div>
     </div>

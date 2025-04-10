@@ -10,7 +10,6 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { toast } from "sonner";
-import Responsive from "@/components/game-history/Responsive";
 
 // Define CSS variables for background image positioning
 const backgroundStyles = {
@@ -150,7 +149,6 @@ const ForgotPasswordPage: NextPage = () => {
   return (
     <>
       <div className="min-h-screen flex flex-col relative">
-        <Responsive />
         {/* Background with adjustable positioning */}
         <div className="absolute inset-0 -z-10" style={backgroundStyles}>
           <Image

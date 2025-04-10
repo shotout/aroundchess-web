@@ -312,10 +312,11 @@ export function useApiClient() {
     },
     [apiRequest]
   );
-  const getMistakeSaved = useCallback(() => {
+  const getMistakeSaved = useCallback((params:any) => {
     return apiRequest({
       method: "GET",
-      path: `${process.env.BASE_URL}/mistake-logs/saved?page=1&limit=1`,
+      path: `${process.env.BASE_URL}/mistake-logs/saved`,
+      params
     });
   }, [apiRequest]);
 

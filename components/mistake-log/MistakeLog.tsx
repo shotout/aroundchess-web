@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
+import { useChessMoveStore } from "@/app/store/chessMoveStore";
 
 const history = [
   { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
@@ -37,6 +39,8 @@ const MistakeLog = () => {
     isLoading,
     error,
   } = useApiClient();
+  const { chessMove, setChessMove } = useChessMoveStore();
+
   const {
     username,
     mistakeLogs,
@@ -82,22 +86,24 @@ const MistakeLog = () => {
         setPreviousAnalyses(prevData.data);
         setMistakePreviousDetail(prevData.data[0]);
         setSelectedHistory(prevData.data[0].id);
-        fetchMistakePreviousDetail(prevData.data[0].id);
+        fetchMistakePreviousDetail(prevData.data[0].id, false);
       }
     } catch (error) {
       console.error("Failed to fetch mistake previous:", error);
     }
   };
-  const fetchMistakePreviousDetail = async (id: string) => {
+  const fetchMistakePreviousDetail = async (id: string, reset: boolean) => {
     try {
-      let params = { phase: GamePhase, type: MistakeType };
+      let params = reset
+        ? {}
+        : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       console.log("prevDataDetail", prevDataDetail);
       let dataDetail = prevDataDetail.data;
-      setMistakePreviousDetail(prevDataDetail.data);
+      setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
-      setMovementDetails(dataDetail.movementDetails);
+      setMovementDetails(dataDetail.movementDetail);
       setPlayerInfo(dataDetail.playerInfo);
       setMistakeLogs(dataDetail.mistakeLogs);
     } catch (error) {
@@ -106,7 +112,8 @@ const MistakeLog = () => {
   };
   const fetchMistakeSaved = async () => {
     try {
-      const savedData = await getMistakeSaved();
+      let params = { page: 1, limit: 10 };
+      const savedData = await getMistakeSaved(params);
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
     } catch (error) {
@@ -139,7 +146,7 @@ const MistakeLog = () => {
   }, [MistakeType, GamePhase]);
 
   const handleApplyFilters = () => {
-    fetchMistakePreviousDetail(mistakePreviousDetail.id)
+    fetchMistakePreviousDetail(mistakePreviousDetail.id, false);
     setShowFilters(false);
   };
   const handleClearFilters = () => {
@@ -147,7 +154,7 @@ const MistakeLog = () => {
     setMistakeType("");
     setActiveFiltersCount(0);
     setFiltersApplied(false);
-    fetchMistakePreviousDetail(mistakePreviousDetail.id)
+    fetchMistakePreviousDetail(mistakePreviousDetail.id, true);
   };
   const renderFilters = () => {
     return (
@@ -156,7 +163,10 @@ const MistakeLog = () => {
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
-                onClick={() => setSelectedHistory(hist.id)}
+                onClick={() => {
+                  fetchMistakePreviousDetail(hist.id, false);
+                  setSelectedHistory(hist.id);
+                }}
                 key={i}
                 className={`cursor-pointer rounded-[4px] md:rounded-[6px] py-1 px-2 ${
                   selectedHistory != hist.id
@@ -252,42 +262,42 @@ const MistakeLog = () => {
         {showFilters && (
           <div className="md:hidden p-2 border rounded-lg mb-4 absolute top-full left-2 right-2 z-10 bg-white shadow-lg">
             <div className="flex items-center space-x-1 lg:space-x-1 flex-1 flex-nowrap mx-2">
-            <Select
-              value={MistakeType}
-              onValueChange={setMistakeType}
-              defaultValue="All Type"
-            >
-              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
-                <SelectValue placeholder="Mistake Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All Type">All Type</SelectItem>
-                <SelectItem value="Critical Mistakes">
-                  Critical Mistakes
-                </SelectItem>
-                <SelectItem value="Threats">Threats</SelectItem>
-                <SelectItem value="Bad Moves">Bad Moves</SelectItem>
-                <SelectItem value="Weakness Identification">
-                  Weakness Identification
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={MistakeType}
+                onValueChange={setMistakeType}
+                defaultValue="All Type"
+              >
+                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+                  <SelectValue placeholder="Mistake Type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="All Type">All Type</SelectItem>
+                  <SelectItem value="Critical Mistakes">
+                    Critical Mistakes
+                  </SelectItem>
+                  <SelectItem value="Threats">Threats</SelectItem>
+                  <SelectItem value="Bad Moves">Bad Moves</SelectItem>
+                  <SelectItem value="Weakness Identification">
+                    Weakness Identification
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={GamePhase}
-              onValueChange={setGamePhase}
-              defaultValue="All Phase"
-            >
-              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
-                <SelectValue placeholder="Game Phase" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All Phase">All Phase</SelectItem>
-                <SelectItem value="Opening">Opening</SelectItem>
-                <SelectItem value="Middle Game">Middle Game</SelectItem>
-                <SelectItem value="End Game">End Game</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={GamePhase}
+                onValueChange={setGamePhase}
+                defaultValue="All Phase"
+              >
+                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+                  <SelectValue placeholder="Game Phase" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="All Phase">All Phase</SelectItem>
+                  <SelectItem value="Opening">Opening</SelectItem>
+                  <SelectItem value="Middle Game">Middle Game</SelectItem>
+                  <SelectItem value="End Game">End Game</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center justify-end space-x-1 lg:space-x-2 ml-1 shrink-0 mt-2">
               <button
@@ -311,10 +321,10 @@ const MistakeLog = () => {
     );
   };
   return (
-    <main className="w-full p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+    <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
-          <h1 className="text-base lg:text-[32px] font-semibold">
+          <h1 className="text-xl lg:text-[32px] font-semibold">
             Mistake Log
           </h1>
           <div className="flex justify-center items-end h-full">
@@ -324,10 +334,13 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="saved" className="w-full p-[8px]">
-        <TabsList className="grid w-full lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
+      <Tabs defaultValue="saved" className="w-full p-0 xl:p-[8px] ">
+        <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
-            onClick={() => setSelectedTab("saved")}
+            onClick={() => {
+              setSelectedTab("saved");
+              setChessMove({});
+            }}
             value="saved"
             className={`${
               tabSelected == "saved"
@@ -344,7 +357,10 @@ const MistakeLog = () => {
             </span>
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => setSelectedTab("previous")}
+            onClick={() => {
+              setSelectedTab("previous");
+              setChessMove({});
+            }}
             value="previous"
             className={`${
               tabSelected != "saved"
@@ -363,29 +379,41 @@ const MistakeLog = () => {
         </TabsList>
 
         <TabsContent value="saved" className="gap-2">
-          <span className="hidden lg:block font-semibold text-[20px]">
-            Saved Mistakes
-          </span>
-          <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-            <div className="lg:mt-2">
-              <ChessContent />
-            </div>
-            <div style={{ width: widthContainer }}>
-              <SavedMistakes reFetch={loadData} />
-            </div>
-          </div>
+          {isLoading ? (
+            <DotSpinner />
+          ) : (
+            <>
+              <span className="hidden lg:block font-semibold text-[20px]">
+                Saved Mistakes
+              </span>
+              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+                <div className="lg:mt-2">
+                  <ChessContent />
+                </div>
+                <div className="xl:w-3/4">
+                  <SavedMistakes reFetch={loadData} />
+                </div>
+              </div>
+            </>
+          )}
         </TabsContent>
 
-        <TabsContent value="previous" className="space-y-4">
-          <div className="hidden lg:block">{renderFilters()}</div>
-          <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-            <ChessContent />
-            <div className="block lg:hidden">{renderFilters()}</div>
+        <TabsContent value="previous" >
+          {isLoading ? (
+            <DotSpinner />
+          ) : (
+            <>
+              <div className="hidden lg:block">{renderFilters()}</div>
+              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+                <ChessContent />
+                <div className="block lg:hidden">{renderFilters()}</div>
 
-            <div className="xl:w-3/4">
-              <PreviousAnalysis reFetch={loadData} />
-            </div>
-          </div>
+                <div className="xl:w-3/4">
+                  <PreviousAnalysis reFetch={loadData} />
+                </div>
+              </div>
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </main>
