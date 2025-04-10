@@ -63,10 +63,7 @@ const ChessContent: React.FC = () => {
     setPieceChoosed,
   } = useChessBoardThemeStore();
   const { isLoading: loading } = useApiClient();
-  const {
-    gameInfo,
-    summary, 
-  } = dataAnalysis ?? {};
+  const { gameInfo, summary } = dataAnalysis ?? {};
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
     ?.country
     ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
@@ -358,7 +355,7 @@ const ChessContent: React.FC = () => {
   }, [currentMoveIndex, parsedMoves]);
 
   useEffect(() => {
-    console.log("movementDetails",movementDetails)
+    console.log("movementDetails", movementDetails);
     return () => {
       if (autoPlayTimerRef.current) {
         clearInterval(autoPlayTimerRef.current);
@@ -390,7 +387,7 @@ const ChessContent: React.FC = () => {
       case "Mistake":
         return "border border-[#FFA459] text-[#FFA459]";
       default:
-        return "border border-[#FFA459] text-[#FFA459]";
+        return "border border-[#FFA459] text-[#B08503]";
     }
   };
   const getScoreClass = (type: string) => {
@@ -417,7 +414,7 @@ const ChessContent: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - (window.innerWidth * 0.54 + 256);
+    let desktopSize = window.innerWidth - (window.innerWidth * 0.55 + 256);
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -749,7 +746,6 @@ const ChessContent: React.FC = () => {
             {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
 
-          {/* {showTable && !loading && <MovementTable />} */}
           {showMovementContent && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
@@ -820,6 +816,7 @@ const ChessContent: React.FC = () => {
               </div>
             </div>
           )}
+          {showTable && !loading && <MovementTable />}
         </div>
       </div>
     </div>

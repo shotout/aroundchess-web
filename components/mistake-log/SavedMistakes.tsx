@@ -19,6 +19,7 @@ import { useApiClient } from "@/functions/api-client";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import DotSpinner from "../game-history/Spinner";
 import { Pagination } from "../pagination/pagination";
+import { usePagination } from "../pagination/hook/usePagination";
 
 interface savedProps {
   reFetch: () => void;
@@ -49,8 +50,13 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
     unsaveMistakeLog,
     isLoading,
   } = useApiClient();
+  const { currentData } = usePagination(savedMistakes);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
-
+  useEffect(() => {
+    if (savedMistakes.length > 0) {
+      setSelectedMistakes(savedMistakes[0]?.mistakeLog.id);
+    }
+  }, [savedMistakes]);
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -101,24 +107,25 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
     return <DotSpinner />;
   }
   return (
-    <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-      {savedMistakes.length == 0 && <EmptyLog />}
+    <>
+    <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
+      {currentData.length == 0 && <EmptyLog />}
 
-      {savedMistakes.length > 0 &&
-        savedMistakes.map((item: any, index: number) => {
+      {currentData.length > 0 &&
+        currentData.map((item: any, index: number) => {
           return (
             <div
               key={index}
               className="flex flex-col gap-2 lg:mt-2 cursor-pointer"
               onClick={() => {
                 handleOnClickMovement(item.mistakeLog);
-                setSelectedMistakes(item);
+                setSelectedMistakes(item.mistakeLog);
                 setPgn(item.pgn);
               }}
             >
               <div
                 className={`border ${
-                  selectedMistakes.id == item?.id
+                  selectedMistakes.id == item.mistakeLog?.id
                     ? `border-[#221AE9] border-2`
                     : `border-input`
                 } rounded-md p-2 lg:p-4`}
@@ -256,11 +263,10 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
             </div>
           );
         })}
-        <Pagination
-          data={savedMistakes}
-        />
     </div>
-  );
+      {currentData.length > 0 && <Pagination data={currentData} />}
+      </>
+    );
 };
 
 export default SavedMistakes;
