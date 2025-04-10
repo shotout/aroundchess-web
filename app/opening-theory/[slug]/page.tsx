@@ -2,8 +2,8 @@
 
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { useOpeningStore } from "../page";
 import { useMemo } from "react";
+import { useOpeningStore } from "../OpeningStore";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const openingStore = useMemo(() => useOpeningStore, []);

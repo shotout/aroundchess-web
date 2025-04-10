@@ -1,16 +1,9 @@
 "use client";
 
 import ChessLessonPage from "@/components/handbooks/ChessLessonPage";
-import { OpeningLesson } from "@/components/handbooks/ChessLessonTypes";
-import { createChessLessonStore } from "@/components/handbooks/CreateChessLessonStore";
 import Navigation from "@/components/navigator/navigation";
 import { useMemo } from "react";
-
-export const useOpeningStore = createChessLessonStore<OpeningLesson>({
-  storeName: "openings-store",
-  lessonType: "opening",
-  apiEndpoint: "handbooks",
-});
+import { useOpeningStore } from "./OpeningStore";
 
 export default function Page() {
   const openingStore = useMemo(() => useOpeningStore, []);

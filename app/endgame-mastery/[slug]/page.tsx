@@ -1,8 +1,8 @@
 "use client";
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { useEndgameStore } from "../page";
 import { useMemo } from "react";
+import { useEndgameStore } from "../EndgameStore";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const endgameStore = useMemo(() => useEndgameStore, []);
