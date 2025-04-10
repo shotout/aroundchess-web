@@ -3,13 +3,15 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useAuth } from "@clerk/nextjs";
 
 import { toast } from "sonner";
-import { PerformanceData } from "../types/GameHistoryTypes";
+import {
+  PerformanceData,
+  BarDataItem,
+  RadarDataItem,
+} from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
 
-// Default cache expiration in milliseconds
-const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_EXPIRATION = 5 * 60 * 1000;
 
-// Process raw API data into a more usable format
 export const processPerformanceData = (
   apiData: any
 ): PerformanceData | null => {
@@ -40,7 +42,7 @@ export const processPerformanceData = (
   const timeManagementScore = timeManagement;
   const openingKnowledgeScore = Math.min(100, averageOpeningWinRate + 10);
 
-  const radarData = [
+  const radarData: RadarDataItem[] = [
     {
       subject: "Calculation",
       A: Math.round(calculationScore),
@@ -115,7 +117,7 @@ export const processPerformanceData = (
     return `${item.subject} training (${percentage}%)`;
   });
 
-  const barData = [
+  const barData: BarDataItem[] = [
     {
       name: "Opening",
       performance: Math.round(averageOpeningWinRate),
@@ -145,7 +147,6 @@ export const processPerformanceData = (
   };
 };
 
-// Helper function to determine icon type for strengths
 const getSkillIconType = (skillName: string): string => {
   switch (skillName) {
     case "Tactical":
@@ -160,7 +161,6 @@ const getSkillIconType = (skillName: string): string => {
   }
 };
 
-// Custom hook for performance data
 export function usePerformanceData() {
   const {
     username,
@@ -179,7 +179,6 @@ export function usePerformanceData() {
 
   const fetchRef = useRef(false);
 
-  // Check if cache is valid
   const isCacheValid = useMemo(() => {
     if (!performanceLastFetched || !cachedPerformance) return false;
     const now = Date.now();
@@ -189,7 +188,6 @@ export function usePerformanceData() {
     );
   }, [performanceLastFetched, cachedPerformance]);
 
-  // Fetch performance data
   const fetchPerformanceData = useCallback(async () => {
     if (!username || fetchRef.current) {
       if (authIsLoaded && !username) {
@@ -241,14 +239,12 @@ export function usePerformanceData() {
     cachedPerformance,
   ]);
 
-  // Force refresh data
   const handleForceRefresh = useCallback(() => {
     fetchRef.current = false;
     toast.info("Refreshing performance data...");
     fetchPerformanceData();
   }, [fetchPerformanceData]);
 
-  // Fetch data on mount
   useEffect(() => {
     if (authIsLoaded) {
       fetchPerformanceData();
@@ -264,7 +260,6 @@ export function usePerformanceData() {
   };
 }
 
-// Workaround for the useRef error in the hook above
 function useRef<T>(initialValue: T): { current: T } {
   const [ref] = useState<{ current: T }>({ current: initialValue });
   return ref;

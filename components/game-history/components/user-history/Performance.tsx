@@ -7,21 +7,24 @@ import ImprovementRecommendations from "./ImprovementRecommendations";
 import { usePerformanceData } from "../../hooks/usePerformanceData";
 import DotSpinner from "../../Spinner";
 import StrengthsWeaknessesSection from "./StrengthAndWeakness";
+import {
+  BarDataItem,
+  RadarDataItem,
+  StrengthItem,
+  WeaknessItem,
+} from "../../types/GameHistoryTypes";
 
 const Performance: React.FC = () => {
-  // Use custom hook to get performance data
   const { loading, error, data, isCacheValid, handleForceRefresh } =
     usePerformanceData();
 
-  // Default empty data for each component
-  const defaultBarData: never[] = [];
-  const defaultRadarData: never[] = [];
-  const defaultStrengthsData: never[] = [];
-  const defaultWeaknessesData: never[] = [];
-  const defaultShortTermGoals: never[] = [];
-  const defaultTrainingFocus: never[] = [];
+  const defaultBarData: BarDataItem[] = [];
+  const defaultRadarData: RadarDataItem[] = [];
+  const defaultStrengthsData: StrengthItem[] = [];
+  const defaultWeaknessesData: WeaknessItem[] = [];
+  const defaultShortTermGoals: string[] = [];
+  const defaultTrainingFocus: string[] = [];
 
-  // Extract data from processed performance data
   const {
     barData = defaultBarData,
     radarData = defaultRadarData,
@@ -31,12 +34,10 @@ const Performance: React.FC = () => {
     trainingFocus = defaultTrainingFocus,
   } = data || {};
 
-  // Handle loading state
   if (loading) {
     return <DotSpinner />;
   }
 
-  // Handle error state
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
@@ -51,7 +52,6 @@ const Performance: React.FC = () => {
     );
   }
 
-  // Handle no username state (this should be handled at a higher level)
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -65,14 +65,12 @@ const Performance: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:border lg:rounded-md">
-      {/* Game Phase Chart */}
       <GamePhaseChart
         barData={barData}
         isCacheValid={isCacheValid}
         onRefresh={handleForceRefresh}
       />
 
-      {/* Skills Analysis and Strengths/Weaknesses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2">
         <SkillAnalysisRadar radarData={radarData} />
         <StrengthsWeaknessesSection
@@ -81,7 +79,6 @@ const Performance: React.FC = () => {
         />
       </div>
 
-      {/* Improvement Recommendations */}
       <ImprovementRecommendations
         shortTermGoals={shortTermGoals}
         trainingFocus={trainingFocus}
