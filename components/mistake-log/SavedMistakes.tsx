@@ -18,6 +18,7 @@ import EmptyLog from "./EmptyLog";
 import { useApiClient } from "@/functions/api-client";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import DotSpinner from "../game-history/Spinner";
+import { Pagination } from "../pagination/pagination";
 
 interface savedProps {
   reFetch: () => void;
@@ -112,6 +113,7 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
               onClick={() => {
                 handleOnClickMovement(item.mistakeLog);
                 setSelectedMistakes(item);
+                setPgn(item.pgn);
               }}
             >
               <div
@@ -202,7 +204,7 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
                   {item?.mistakeLog.analysis}
                 </span>
                 <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                  <div className="flex flex-row items-center justify-start gap-2">
+                  <div className="flex flex-row items-start justify-start gap-2">
                     <Image
                       alt=""
                       src={"/icons/recommended-training-icon.png"}
@@ -254,6 +256,9 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
             </div>
           );
         })}
+        <Pagination
+          data={savedMistakes}
+        />
     </div>
   );
 };
