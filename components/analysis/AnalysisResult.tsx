@@ -1,6 +1,7 @@
 "use client";
 
-import WoodBoard from "@/components/chessboard/wood/WoodBoard";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import { SettingBoard } from "@/components/modal/SettingBoard";
 import MovementTable from "@/components/table/movement";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Square } from "chess.js";
@@ -16,19 +17,16 @@ import {
   Watch,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  BoardOrientation,
+  PromotionPieceOption,
+} from "react-chessboard/dist/chessboard/types";
 import ReactCountryFlag from "react-country-flag";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { usePgnStore } from "../../app/store/zustandStore";
-import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
-import {
-  BoardOrientation,
-  PromotionPieceOption,
-} from "react-chessboard/dist/chessboard/types";
-import { SettingBoard } from "@/components/modal/SettingBoard";
-import BoardWood from "../3d-board/3DBoardWoodNew";
 import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
 
 interface ParsedMove {
@@ -90,17 +88,6 @@ const AnalysisResult: React.FC = () => {
   const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
 
   useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
-
-    // Initial size calculation
-    handleResize();
-
-    // Add event listeners
-    window?.addEventListener("resize", handleResize);
-    return () => window?.removeEventListener("resize", handleResize);
-  }, [mounted]);
-
-  useEffect(() => {
     let isOpen =
       tabFocus == "opening" ||
       tabFocus == "threats" ||
@@ -123,6 +110,21 @@ const AnalysisResult: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
+  }, [mounted, hideDiv, is3DMode]);
+  useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
 
   useEffect(() => {
     if (storePgn) {
@@ -590,10 +592,6 @@ const AnalysisResult: React.FC = () => {
     );
   };
   useEffect(() => {
-    handleResize();
-  }, [hideDiv, is3DMode]);
-
-  useEffect(() => {
     // console.log("Best move:", bestMove);
     // console.log("Evaluation:", evaluation);
   }, [bestMove, evaluation]);
@@ -622,7 +620,7 @@ const AnalysisResult: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={toggleBoardMode}>
+        <button onClick={toggleBoardMode}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -630,7 +628,7 @@ const AnalysisResult: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button> */}
+        </button>
       </div>
     );
   };
@@ -718,29 +716,29 @@ const AnalysisResult: React.FC = () => {
           >
             {is3DMode && (
               <ThreeDBoard
-              boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-              }
-              orientation={orientation}
-              position={game.fen()}
-              onSquareClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onSquareRightClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onPromotionPieceSelect={function (
-                piece?: PromotionPieceOption,
-                promoteFromSquare?: Square,
-                promoteToSquare?: Square
-              ): boolean {
-                throw new Error("Function not implemented.");
-              }}
-              promotionToSquare={null}
-              showPromotionDialog={false}
-              customArrows={undefined}
-              areArrowsAllowed={false}
-              customArrowColor={""}
+                boardWidth={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                orientation={orientation}
+                position={game.fen()}
+                onSquareClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onSquareRightClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+                promotionToSquare={null}
+                showPromotionDialog={false}
+                customArrows={undefined}
+                areArrowsAllowed={false}
+                customArrowColor={""}
               />
             )}
           </motion.div>

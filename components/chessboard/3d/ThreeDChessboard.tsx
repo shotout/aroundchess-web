@@ -43,7 +43,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   boardWidth,
   orientation,
   // onPieceDrop,
-  arePiecesDraggable = true,
+  arePiecesDraggable = null,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
@@ -269,7 +269,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               boardOrientation={orientation}
               boardWidth={Math.round(480 * 0.779)}
               id="Styled3DBoard"
-              // position={position}
+              position={position}
               customBoardStyle={{
                 transform: "rotateX(27.5deg) scale(1)",
                 transformOrigin: "center",
@@ -277,11 +277,11 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               }}
               customPieces={threeDPieces}
               customLightSquareStyle={{
-                backgroundColor: "transparent",
+                // backgroundColor: "transparent",
                 // backgroundColor: "#00000080",
               }}
               customDarkSquareStyle={{
-                backgroundColor: "transparent",
+                // backgroundColor: "transparent",
                 // backgroundColor: "#00000070",
               }}
               animationDuration={100}

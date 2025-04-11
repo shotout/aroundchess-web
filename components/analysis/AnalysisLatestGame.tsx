@@ -14,15 +14,15 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 
 const AnalysisLatestGame: React.FC = () => {
-  const router = useRouter(); 
+  const router = useRouter();
   const { isSignedIn } = useAuth();
   const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { setTabFocus, tabFocus } = useTabFocusStore();
-  const { open, setOpen:setOpenConfirmLogin } = useConfirmLogin();
+  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
   const {
     gameInfo,
@@ -129,7 +129,7 @@ const AnalysisLatestGame: React.FC = () => {
       setFocusPage(tab.name);
       setChessMove({});
     } else {
-      setOpenConfirmLogin(true)
+      setOpenConfirmLogin(true);
     }
   };
   return (

@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
+import { useAuth } from "@clerk/nextjs";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -139,6 +141,8 @@ const sidebarLinks: SidebarLink[] = [
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { isSignedIn } = useAuth();
   const isMobile = !!onClose; // If onClose is provided, we're on mobile
   const [widthContainer, setWidthContainer] = useState<number>(240);
   const [mounted, setMounted] = useState<boolean>(true);
@@ -195,7 +199,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 <div className="space-y-2">
                   {section.href ? (
                     <Link
-                      href={section.href}
+                      href={!isSignedIn ? "" : section.href}
+                      onClick={
+                        !isSignedIn
+                          ? () => setOpenConfirmLogin(true)
+                          : () => null
+                      }
                       // style={{ width: widthContainer - 50 }}
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
@@ -267,8 +276,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
                         return (
                           <Link
                             key={child.href}
+                            onClick={
+                              !isSignedIn
+                                ? () => setOpenConfirmLogin(true)
+                                : () => null
+                            }
                             href={
-                              child.href == "/training-plan" ? "" : child.href
+                              child.href == "/training-plan" || !isSignedIn
+                                ? ""
+                                : child.href
                             }
                             // style={{ width: widthContainer - 50 }}
                             className={cn(
