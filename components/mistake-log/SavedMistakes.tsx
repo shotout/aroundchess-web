@@ -42,6 +42,7 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
     setSavedMistakes,
     previousAnalyses,
     setPreviousAnalyses,
+    setPreviousAnalysesDetail
   } = usePgnStore();
   const {
     saveMistakeLog,
@@ -120,6 +121,7 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
               onClick={() => {
                 handleOnClickMovement(item.mistakeLog);
                 setSelectedMistakes(item.mistakeLog);
+                setPreviousAnalysesDetail(item)
                 setPgn(item.pgn);
               }}
             >
@@ -183,7 +185,7 @@ const SavedMistakes: React.FC<savedProps> = ({ reFetch }) => {
                     </div>
                   </div>
                   <div className="flex flex-row items-center lg:justify-start gap-3">
-                    <span className="flex items-center text-[12px] font-normal max-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                    <span className="flex items-center text-[12px] font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
                       Move {item?.mistakeLog.moveNumber} :{" "}
                       <span className="font-normal sm:text-sm md:text-md lg:text-md ">
                         {" "}

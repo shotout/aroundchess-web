@@ -32,7 +32,7 @@ export const Pagination = ({ data }: PaginationProps) => {
         <Select
           value={String(itemsPerPage)}
           onValueChange={(value) => setItemsPerPage(Number(value))}
-          defaultValue="10"
+          defaultValue="5"
         >
           <SelectTrigger className="w-16 h-8 border rounded-md bg-white">
             <SelectValue className="text-sm" />
