@@ -1,6 +1,6 @@
 "use client";
 import Navigation from "@/components/navigator/navigation";
-import Engine from "@/components/playground/src/lib/stockfish";
+import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Square } from "chess.js";
 import { useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
