@@ -20,12 +20,10 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
 }) => {
   // Board size configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
-  const [widthC, setWidthC] = useState<number | any>(700); // Default size
   const [scale, setScale] = useState<number | any>(0); // Default size
 
   useEffect(() => {
     console.log(size, "size in 3d board wood");
-    setWidthC(window?.innerWidth);
     console.log(window?.innerWidth, "widthC in 3d board wood");
     if (size) {
       let fixScale = size / 480;
@@ -42,11 +40,7 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    // const maxSize = window.innerWidth > 1300 ? window.innerWidth / 5 : 400;
     const maxSize = window?.innerWidth / 3;
-    // window?.innerWidth < 1440
-    // ? window?.innerWidth / 2.5
-    // : window?.innerWidth / 4;
     console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
@@ -142,7 +136,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
             style={{
               position: "absolute",
               bottom: `${0.12 * squareWidth}px`,
-              // objectFit: piece[1] === "K" ? "contain" : "cover",
             }}
           />
         </div>
@@ -152,16 +145,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
   }, []);
   // Frame dimensions
   let paddingTop = 50;
-  // widthC > 1440
-  //   ? boardSize * 0.08
-  //   : widthC == 1440
-  //   ? boardSize * 0.12
-  //   : widthC < 1440 && widthC >= 1280
-  //   ? boardSize * 0.15
-  //   : widthC < 768
-  //   ? boardSize * 0.13
-  //   : boardSize * 0.103;
-  let paddingLeft = boardSize * 0.12;
 
   return (
     <div
@@ -170,13 +153,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
         width: boardSize,
         height: boardSize,
         transform: `scale(${scale + ``})`,
-        // widthC > 1440
-        // ? `scale(0.94)`
-        // : widthC > 1280 || widthC < 768
-        // ? `scale(0.84)`
-        // : widthC < 1440 && widthC >= 1280
-        // ? `scale(0.68)`
-        // : ``,
       }}
     >
       <div
@@ -184,8 +160,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
         style={{
           width: 480,
           height: 480,
-          // backgroundColor: "green",
-          // widthC < 768 ? "scale(0.8)" : widthC > 1280 ? "scale(1)" : "",
         }}
       >
         <Image
@@ -197,10 +171,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
         />
         <div
           style={{
-            // width: boardSize,
-            // height: boardSize,
-            // left: paddingLeft,
-            // top: paddingTop,
             marginTop: -paddingTop,
           }}
           className={`z-10 flex items-center justify-center`}
