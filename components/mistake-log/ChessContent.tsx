@@ -438,7 +438,7 @@ const ChessContent: React.FC = () => {
     return (
       <div
         className={`w-full border ${
-          previousAnalysesDetail.blackWin
+          previousAnalysesDetail?.blackWin
             ? "border-[#00B427] bg-[#D3FFDD]"
             : "bg-white"
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}

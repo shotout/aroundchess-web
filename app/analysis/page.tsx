@@ -30,6 +30,7 @@ export default function AnalysisPage() {
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
+  const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
 
   const isAnyDialogOpen = showChessConnect || showPremiumDialog;
@@ -61,7 +62,6 @@ export default function AnalysisPage() {
   const openModalAnalyze = (data: any) => {
     console.log("openModalAnalyze", data);
     if (data.length == 0) {
-      fetchPgnFamousGame();
       if (!openAnalyze) {
         setOpenAnalyze(true);
       }
@@ -70,6 +70,9 @@ export default function AnalysisPage() {
     }
   };
   useEffect(() => {
+    if (pgn.length == 0) {
+      fetchPgnFamousGame();
+    }
     fetchMistakePrevious();
   }, []);
 
@@ -98,7 +101,7 @@ export default function AnalysisPage() {
     }
   };
   useEffect(() => {
-    console.log("masuk");
+    setWidthC(window?.innerWidth);
     setIsLoading(false);
     const handleScroll = () => {
       if (window?.innerWidth <= 1024) {
@@ -149,7 +152,7 @@ export default function AnalysisPage() {
                 Analysis Result from{" "}
                 <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
-              {isSignedIn && (
+              {isSignedIn && widthC < 1024 && (
                 <div className="lg:hidden flex items-center justify-center my-2">
                   <AnalyzeDifferentGame openPopup={openAnalyze} />
                 </div>
@@ -169,7 +172,7 @@ export default function AnalysisPage() {
                   positional advantages, helping players understand strategic
                   strengths and weaknesses.
                 </div>
-                {isSignedIn && <AnalyzeDifferentGame openPopup={openAnalyze} />}
+                {isSignedIn && widthC > 1024 && <AnalyzeDifferentGame openPopup={openAnalyze} />}
               </div>
             </div>
             {fetchLoading && pgn.length == 0 ? (
