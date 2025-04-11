@@ -1,92 +1,157 @@
-/*!
- * Stockfish.js (http://github.com/nmrugg/stockfish.js)
- * License: GPL
- */
+// Add TypeScript declarations
+declare global {
+  interface Window {
+    Stockfish?: any;
+  }
+}
 
-/*
- * Description of the universal chess interface (UCI)  https://gist.github.com/aliostad/f4470274f39d29b788c1b09519e67372/
- */
-
-const stockfish = new Worker("./stockfish.wasm.js");
-
-type EngineMessage = {
-  /** stockfish engine message in UCI format*/
-  uciMessage: string;
-  /** found best move for current position in format `e2e4`*/
-  bestMove?: string;
-  /** found best move for opponent in format `e7e5` */
-  ponder?: string;
-  /**  material balance's difference in centipawns(IMPORTANT! stockfish gives the cp score in terms of whose turn it is)*/
+interface EngineMessage {
+  bestMove: any;
   positionEvaluation?: string;
-  /** count of moves until mate */
   possibleMate?: string;
-  /** the best line found */
   pv?: string;
-  /** number of halfmoves the engine looks ahead */
   depth?: number;
-};
+}
 
-export default class Engine {
-  stockfish: Worker;
-  onMessage: (callback: (messageData: EngineMessage) => void) => void;
-  isReady: boolean;
+interface EngineMessageCallback {
+  (message: EngineMessage): void;
+}
+
+export class Engine {
+  private worker: Worker | null = null;
+  private messageCallback: EngineMessageCallback | null = null;
+  private isReady: boolean = false;
 
   constructor() {
-    this.stockfish = stockfish;
-    this.isReady = false;
-    this.onMessage = (callback) => {
-      this.stockfish.addEventListener("message", (e) => {
-        callback(this.transformSFMessageData(e));
-      });
-    };
-    this.init();
+    if (typeof window !== 'undefined') {
+      this.worker = new Worker('/stockfish/stockfish-nnue-16-single.js');
+      this.worker.onmessage = (e) => this.handleMessage(e.data);
+      this.init();
+    }
   }
 
-  private transformSFMessageData(e:any) {
-    const uciMessage = e?.data ?? e;
-
-    return {
-      uciMessage,
-      bestMove: uciMessage.match(/bestmove\s+(\S+)/)?.[1],
-      ponder: uciMessage.match(/ponder\s+(\S+)/)?.[1],
-      positionEvaluation: uciMessage.match(/cp\s+(\S+)/)?.[1],
-      possibleMate: uciMessage.match(/mate\s+(\S+)/)?.[1],
-      pv: uciMessage.match(/ pv\s+(.*)/)?.[1],
-      depth: Number(uciMessage.match(/ depth\s+(\S+)/)?.[1]) ?? 0,
-    };
-  }
-
-  init() {
-    this.stockfish.postMessage("uci");
-    this.stockfish.postMessage("isready");
-    this.onMessage(({ uciMessage }) => {
-      if (uciMessage === "readyok") {
-        this.isReady = true;
-      }
+  private init() {
+    if (!this.worker) return;
+    
+    // Initialize with all settings at once
+    const commands = [
+      'uci',
+      'setoption name Use NNUE value false',
+      'setoption name UCI_AnalyseMode value true',
+      'setoption name MultiPV value 1',
+      'setoption name Hash value 16',
+      'setoption name Threads value 1',
+      'isready'
+    ];
+    
+    commands.forEach(cmd => {
+      console.log('Sending command:', cmd);
+      this.worker?.postMessage(cmd);
     });
   }
 
-  onReady(callback:any) {
-    this.onMessage(({ uciMessage }) => {
-      if (uciMessage === "readyok") {
-        callback();
+  private handleMessage(data: string) {
+    // console.log('Engine received:', data);
+
+    // Handle initialization messages
+    if (data === 'readyok') {
+      this.isReady = true;
+      return;
+    }
+
+    if (!this.messageCallback) return;
+
+    // Parse info messages for moves
+    if (data.startsWith('info')) {
+      // Look for score and pv
+      const scoreMatch = data.match(/score (?:cp|mate) (-?\d+)/);
+      const pvMatch = data.match(/pv ([a-h][1-8][a-h][1-8])/);
+      const depthMatch = data.match(/depth (\d+)/);
+      
+      if (pvMatch) {
+        const move = pvMatch[1];
+        console.log('Found move:', move);
+        this.messageCallback({
+          pv: move,
+          depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
+          positionEvaluation: scoreMatch ? scoreMatch[1] : undefined,
+          bestMove: undefined
+        });
       }
+    }
+    
+    // Handle bestmove messages
+    if (data.startsWith('bestmove')) {
+      const parts = data.split(' ');
+      if (parts.length >= 2) {
+        const move = parts[1];
+        if (move && move !== '(none)' && move.length >= 4) {
+          console.log('Best move found:', move);
+          this.messageCallback({
+            pv: move,
+            bestMove: move
+          });
+          this.stop();
+        }
+      }
+    }
+  }
+
+  setSkillLevel(skillLevel: number) {
+    if (!this.worker) return;
+    
+    // Set UCI_LimitStrength and UCI_Elo for accurate ELO-based play
+    const commands = [
+      `setoption name UCI_LimitStrength value true`,
+      `setoption name UCI_Elo value ${skillLevel}`,
+      'isready'
+    ];
+    
+    commands.forEach(cmd => {
+      console.log('Setting skill level:', cmd);
+      this.worker?.postMessage(cmd);
     });
   }
 
-  evaluatePosition(fen:any, depth = 12) {
-    if (depth > 24) depth = 24;
+  evaluatePosition(fen: string, stockfishLevel: number) {
+    if (!this.worker) return;
+    
+    // Stop any ongoing analysis
+    this.stop();
+    
+    // Set position and start analysis
+    console.log('Evaluating position:', fen);
+    this.worker.postMessage('position fen ' + fen);
+    this.worker.postMessage(`go depth ${stockfishLevel}`);
+    this.worker.postMessage('go movetime 2000'); // Just use movetime for faster response
+  }
 
-    this.stockfish.postMessage(`position fen ${fen}`);
-    this.stockfish.postMessage(`go depth ${depth}`);
+  onMessage(callback: EngineMessageCallback) {
+    this.messageCallback = callback;
   }
 
   stop() {
-    this.stockfish.postMessage("stop"); // Run when searching takes too long time and stockfish will return you the bestmove of the deep it has reached
+    if (!this.worker) return;
+    console.log('Stopping engine');
+    this.worker.postMessage('stop');
   }
 
-  terminate() {
+  destroy() {
+    if (!this.worker) return;
+    this.stop();
+    this.worker.terminate();
+    this.worker = null;
     this.isReady = false;
-    this.stockfish.postMessage("quit"); // Run this before chessboard unmounting.
   }
 }
+
+// Singleton instance
+let stockfishService: Engine | null = null;
+
+export const getStockfishService = () => {
+  if (!stockfishService) {
+    console.log('Creating new StockfishService instance'); // Debug log
+    stockfishService = new Engine();
+  }
+  return stockfishService;
+};
