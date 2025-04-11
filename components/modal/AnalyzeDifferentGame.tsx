@@ -182,7 +182,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   }, [username]);
 
   useEffect(() => {
-    if (openPopup != null) {
+    if (openPopup != null && open != true) {
       setOpen(openPopup);
     }
   }, [openPopup]);
@@ -344,7 +344,17 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        if (!open) {
+          setOpen(true);
+          setOpen(true);
+        } else {
+          setOpen(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <button className="w-fill px-5 py-2 btn-primary rounded-full">
           Analyze a different game
