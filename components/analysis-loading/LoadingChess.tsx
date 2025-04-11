@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Chess } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
-import CustomBoard from "./CustomBoard";
-import GlassBoard from "../chessboard/glass/GlassBoard";
-import WoodBoard from "../chessboard/wood/WoodBoard";
-import PlasticBoard from "../chessboard/plastic/PlasticBoard";
-import MetallicBoard from "../chessboard/metallic/MetallicBoard";
-import BoardWood from "../3d-board/3DBoardWoodNew";
+import { motion } from "framer-motion";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 interface ParsedMove {
   color: string;
@@ -21,6 +20,14 @@ interface ParsedMove {
 }
 
 const PgnPlayer: React.FC = () => {
+  const {
+    StyleChoosed,
+    setStyleChoosed,
+    BoardChoosed,
+    setBoardChoosed,
+    PieceChoosed,
+    setPieceChoosed,
+  } = useChessBoardThemeStore();
   const { pgn: storePgn, error: storeError } = usePgnStore();
   const [game, setGame] = useState<Chess>(new Chess());
   const [moveHistory, setMoveHistory] = useState<ParsedMove[]>([]);
@@ -30,7 +37,14 @@ const PgnPlayer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
   const [mounted, setMounted] = useState(false);
+  const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+    console.log("StyleChoosed", StyleChoosed);
+  }, [StyleChoosed]);
 
   const manuallyPlayPgn = (pgnText: string) => {
     try {
@@ -302,13 +316,59 @@ const PgnPlayer: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-row gap-3 mx-auto">
-        {/* <GlassBoard
-          boardWidth={boardSize}
+        {!is3DMode && (
+          <TwoDChessboard
+            boardWidth={boardSize}
+            orientation={boardOrientation}
             position={game.fen()}
-          /> */}
-        <BoardWood size={boardSize} boardOrientation="white" position={game.fen()} />
-        {/* <PlasticBoard boardWidth={boardSize} position={game.fen()} /> */}
-        {/* <MetallicBoard boardWidth={boardSize} position={game.fen()} /> */}
+            onSquareClick={function (square: Square): void {
+              throw new Error("Function not implemented.");
+            }}
+            onSquareRightClick={function (square: Square): void {
+              throw new Error("Function not implemented.");
+            }}
+            onPromotionPieceSelect={function (
+              piece?: PromotionPieceOption,
+              promoteFromSquare?: Square,
+              promoteToSquare?: Square
+            ): boolean {
+              throw new Error("Function not implemented.");
+            }}
+            promotionToSquare={null}
+            showPromotionDialog={false}
+            customArrows={undefined}
+            areArrowsAllowed={false}
+            customArrowColor={""}
+          />
+        )}
+
+        {is3DMode && (
+          <div className="-mt-[40px]">
+            <ThreeDBoard
+              boardWidth={boardSize}
+              orientation={boardOrientation}
+              position={game.fen()}
+              onSquareClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onSquareRightClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onPromotionPieceSelect={function (
+                piece?: PromotionPieceOption,
+                promoteFromSquare?: Square,
+                promoteToSquare?: Square
+              ): boolean {
+                throw new Error("Function not implemented.");
+              }}
+              promotionToSquare={null}
+              showPromotionDialog={false}
+              customArrows={undefined}
+              areArrowsAllowed={false}
+              customArrowColor={""}
+            />
+          </div>
+        )}
       </div>
 
       {/* <div className="text-center mt-4">

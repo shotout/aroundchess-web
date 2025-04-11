@@ -265,7 +265,7 @@ export function SettingBoard() {
                 </TabsTrigger>
                 <TabsTrigger
                   onClick={() => handleSelectTab("3d")}
-                  disabled={true}
+                  // disabled={true}
                   value="3d"
                   style={{
                     background: tabSelected == "3d" ? "#D7E3FB" : "#fff",

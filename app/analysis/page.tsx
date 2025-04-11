@@ -70,10 +70,12 @@ export default function AnalysisPage() {
     }
   };
   useEffect(() => {
-    if (pgn.length == 0) {
+    if (pgn.length == 0 || !isSignedIn) {
       fetchPgnFamousGame();
     }
-    fetchMistakePrevious();
+    if (isSignedIn) {
+      fetchMistakePrevious();
+    }
   }, []);
 
   const fetchPgnFamousGame = async () => {
@@ -172,7 +174,9 @@ export default function AnalysisPage() {
                   positional advantages, helping players understand strategic
                   strengths and weaknesses.
                 </div>
-                {isSignedIn && widthC > 1024 && <AnalyzeDifferentGame openPopup={openAnalyze} />}
+                {isSignedIn && widthC > 1024 && (
+                  <AnalyzeDifferentGame openPopup={openAnalyze} />
+                )}
               </div>
             </div>
             {fetchLoading && pgn.length == 0 ? (
