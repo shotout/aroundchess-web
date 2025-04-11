@@ -147,10 +147,14 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
   return (
     <div
       className="relative flex items-center justify-center"
-      style={{ width: size, height: size, transform:"scale(1.8)" }}
+      style={{
+        width: size,
+        height: size,
+        transform: "scale(1.8)"
+      }}
     >
       <Image
-        src="/boards/adjusted-10-apr2025.png"
+        src="/boards/11-apr-2025.png"
         alt="Chess board frame"
         width={1000}
         height={1000}
@@ -160,8 +164,8 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
         style={{
           // width: size,
           // height: size,
-          left: 42,
-          top: 24.4
+          left: 50,
+          top: 25.5,
         }}
         className={`z-10 absolute flex items-center justify-center`}
       >
@@ -177,12 +181,12 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#00000080",
+            // backgroundColor: "transparent",
+            backgroundColor: "#00000080",
           }}
           customDarkSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#00000070",
+            // backgroundColor: "transparent",
+            backgroundColor: "#00000070",
           }}
           animationDuration={100}
         />
