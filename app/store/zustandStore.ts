@@ -54,6 +54,7 @@ interface PgnState {
   playerInfo: any;
   titleGame: string;
   previousAnalyses: any[];
+  previousAnalysesDetail: any;
   savedMistakes: any[];
   
   // Track newly imported games
@@ -75,6 +76,7 @@ interface PgnState {
   setMistakeLogs: (mistakeLogs: any[]) => void;
   setSavedMistakes: (savedMistakes: any[]) => void;
   setPreviousAnalyses: (previousAnalyses: any[]) => void;
+  setPreviousAnalysesDetail: (previousAnalysesDetail: any) => void;
   setMovementDetails: (movementDetails: any[]) => void;
   setPlayerInfo: (playerInfo: any[]) => void;
   setTitleGame: (titleGame: string) => void;
@@ -131,6 +133,7 @@ export const usePgnStore = create<PgnState>()(
       playerInfo: [],
       titleGame: "",
       previousAnalyses: [],
+      previousAnalysesDetail: [],
       savedMistakes: [],
       
       // Initialize imported games array
@@ -175,6 +178,9 @@ export const usePgnStore = create<PgnState>()(
       setSavedMistakes: (savedMistakes: any[]) => set({ savedMistakes }),
       setPreviousAnalyses(previousAnalyses) {
         set({ previousAnalyses });
+      },
+      setPreviousAnalysesDetail(previousAnalysesDetail) {
+        set({ previousAnalysesDetail });
       },
       setGamesData: (games: Game[]) =>
         set({
