@@ -1,0 +1,1937 @@
+{
+    "success": true,
+    "statusCode": 200,
+    "message": "Handbooks retrieved successfully",
+    "data": [
+        {
+            "id": "opening_accelerated-dragon_1743482905797",
+            "title": "Accelerated Dragon",
+            "description": "The Accelerated Dragon is a dynamic variation of the Sicilian Defense where Black fianchettoes the king's bishop early. It offers complex counterplay and unique strategic battles.",
+            "category": "opening",
+            "difficulty": "Advanced",
+            "estimatedTime": "35 hours",
+            "forColor": "black",
+            "popularityLevel": 4,
+            "recommendedFor": [
+                "Advanced",
+                "Expert"
+            ],
+            "relatedTopics": [
+                "sicilian-defense",
+                "dragon-variation",
+                "pawn-structures",
+                "attacking-patterns"
+            ],
+            "eco": "B34-B39",
+            "moves": "rnbqkbnr/pp1ppp1p/6p1/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3",
+            "prerequisites": [
+                {
+                    "id": 782,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "prerequisite": "sicilian-defense"
+                },
+                {
+                    "id": 783,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 784,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "prerequisite": "piece-coordination"
+                },
+                {
+                    "id": 785,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "prerequisite": "tactical-patterns"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1403,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "objective": "Master Dragon pawn structures"
+                },
+                {
+                    "id": 1404,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "objective": "Learn key tactical patterns"
+                },
+                {
+                    "id": 1405,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "objective": "Understand strategic plans"
+                },
+                {
+                    "id": 1406,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "objective": "Handle different White setups"
+                },
+                {
+                    "id": 1407,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "objective": "Navigate complex middlegames"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 802,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "title": "Accelerated Dragon Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/accelerated-dragon",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Accelerated Dragon"
+                },
+                {
+                    "id": 803,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "title": "Dragon Study - Lichess",
+                    "url": "https://lichess.org/study/accelerated-dragon",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and tactical patterns"
+                },
+                {
+                    "id": 804,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "title": "Advanced Dragon Strategy",
+                    "url": "https://lichess.org/study/advanced-dragon",
+                    "platform": "lichess_org",
+                    "description": "Complex variations and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 447,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "name": "Maroczy Bind",
+                    "moves": "1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 g6 5.c4",
+                    "description": "White's most principled response, establishing a strong pawn center.",
+                    "keyIdeas": [
+                        {
+                            "id": 1569,
+                            "variationId": 447,
+                            "idea": "Space advantage"
+                        },
+                        {
+                            "id": 1570,
+                            "variationId": 447,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1571,
+                            "variationId": 447,
+                            "idea": "Piece activity"
+                        },
+                        {
+                            "id": 1572,
+                            "variationId": 447,
+                            "idea": "Strategic battle"
+                        }
+                    ]
+                },
+                {
+                    "id": 448,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "name": "Yugoslav Attack",
+                    "moves": "1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 g6 5.Nc3 Bg7 6.Be3",
+                    "description": "A sharp attacking setup leading to complex tactical play.",
+                    "keyIdeas": [
+                        {
+                            "id": 1573,
+                            "variationId": 448,
+                            "idea": "Opposite-side castling"
+                        },
+                        {
+                            "id": 1574,
+                            "variationId": 448,
+                            "idea": "King hunt"
+                        },
+                        {
+                            "id": 1575,
+                            "variationId": 448,
+                            "idea": "Piece sacrifice"
+                        },
+                        {
+                            "id": 1576,
+                            "variationId": 448,
+                            "idea": "Time-sensitive play"
+                        }
+                    ]
+                },
+                {
+                    "id": 449,
+                    "handbookId": "opening_accelerated-dragon_1743482905797",
+                    "name": "Classical Variation",
+                    "moves": "1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 g6 5.Nc3 Bg7 6.Be2",
+                    "description": "A more positional approach focusing on strategic play.",
+                    "keyIdeas": [
+                        {
+                            "id": 1577,
+                            "variationId": 449,
+                            "idea": "Positional battle"
+                        },
+                        {
+                            "id": 1578,
+                            "variationId": 449,
+                            "idea": "Piece coordination"
+                        },
+                        {
+                            "id": 1579,
+                            "variationId": 449,
+                            "idea": "Pawn structure"
+                        },
+                        {
+                            "id": 1580,
+                            "variationId": 449,
+                            "idea": "Long-term planning"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_alekhine-defense_1743482859195",
+            "title": "Alekhine Defense",
+            "description": "A hypermodern defense where Black invites White to advance in the center, planning to undermine and attack the resulting pawn structure.",
+            "category": "opening",
+            "difficulty": "Advanced",
+            "estimatedTime": "30 hours",
+            "forColor": "black",
+            "popularityLevel": 3,
+            "recommendedFor": [
+                "Advanced"
+            ],
+            "relatedTopics": [
+                "modern-defense",
+                "pirc-defense",
+                "hypermodern-principles",
+                "pawn-structures"
+            ],
+            "eco": "B02-B05",
+            "moves": "rnbqkb1r/pppppppp/8/4P3/4n3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3",
+            "prerequisites": [
+                {
+                    "id": 770,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 771,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 772,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "prerequisite": "tactical-patterns"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1383,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "objective": "Master Alekhine's Defense principles"
+                },
+                {
+                    "id": 1384,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "objective": "Learn to handle pawn centers"
+                },
+                {
+                    "id": 1385,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "objective": "Understand tactical opportunities"
+                },
+                {
+                    "id": 1386,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "objective": "Develop counterattacking skills"
+                },
+                {
+                    "id": 1387,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "objective": "Handle different White setups"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 790,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "title": "Alekhine's Defense Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/alekhine-defense",
+                    "platform": "chess_com",
+                    "description": "Complete guide to Alekhine's Defense"
+                },
+                {
+                    "id": 791,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "title": "Alekhine Study - Lichess",
+                    "url": "https://lichess.org/study/alekhine-defense",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and practice positions"
+                },
+                {
+                    "id": 792,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "title": "Advanced Alekhine",
+                    "url": "https://lichess.org/study/advanced-alekhine",
+                    "platform": "lichess_org",
+                    "description": "Complex variations and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 435,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "name": "Four Pawns Attack",
+                    "moves": "1.e4 Nf6 2.e5 Nd5 3.d4 d6 4.c4 Nb6 5.f4",
+                    "description": "The most aggressive try against the Alekhine.",
+                    "keyIdeas": [
+                        {
+                            "id": 1521,
+                            "variationId": 435,
+                            "idea": "Massive pawn center"
+                        },
+                        {
+                            "id": 1522,
+                            "variationId": 435,
+                            "idea": "Active counterplay"
+                        },
+                        {
+                            "id": 1523,
+                            "variationId": 435,
+                            "idea": "Tactical opportunities"
+                        },
+                        {
+                            "id": 1524,
+                            "variationId": 435,
+                            "idea": "Dynamic positions"
+                        }
+                    ]
+                },
+                {
+                    "id": 436,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "name": "Modern Variation",
+                    "moves": "1.e4 Nf6 2.e5 Nd5 3.d4 d6 4.Nf3",
+                    "description": "A more positional approach by White.",
+                    "keyIdeas": [
+                        {
+                            "id": 1525,
+                            "variationId": 436,
+                            "idea": "Controlled center"
+                        },
+                        {
+                            "id": 1526,
+                            "variationId": 436,
+                            "idea": "Piece development"
+                        },
+                        {
+                            "id": 1527,
+                            "variationId": 436,
+                            "idea": "Strategic battle"
+                        },
+                        {
+                            "id": 1528,
+                            "variationId": 436,
+                            "idea": "Pawn breaks"
+                        }
+                    ]
+                },
+                {
+                    "id": 437,
+                    "handbookId": "opening_alekhine-defense_1743482859195",
+                    "name": "Exchange Variation",
+                    "moves": "1.e4 Nf6 2.e5 Nd5 3.c4 Nb6 4.d4",
+                    "description": "White builds a strong pawn center.",
+                    "keyIdeas": [
+                        {
+                            "id": 1529,
+                            "variationId": 437,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1530,
+                            "variationId": 437,
+                            "idea": "Piece activity"
+                        },
+                        {
+                            "id": 1531,
+                            "variationId": 437,
+                            "idea": "Break preparation"
+                        },
+                        {
+                            "id": 1532,
+                            "variationId": 437,
+                            "idea": "Dynamic play"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_basic-opening-principles_1743482597802",
+            "title": "Basic Opening Principles",
+            "description": "Master the fundamental principles of chess openings. Learn how to develop your pieces effectively, control the center, and ensure king safety.",
+            "category": "opening",
+            "difficulty": "Beginner",
+            "estimatedTime": "15 hours",
+            "forColor": "both",
+            "popularityLevel": 5,
+            "recommendedFor": [
+                "Beginner"
+            ],
+            "relatedTopics": [
+                "piece-development",
+                "center-control",
+                "king-safety",
+                "pawn-structure-basics"
+            ],
+            "eco": "A00-E99",
+            "moves": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "prerequisites": [
+                {
+                    "id": 699,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "prerequisite": "piece-movement"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1257,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "objective": "Understand core opening principles"
+                },
+                {
+                    "id": 1258,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "objective": "Learn proper piece development"
+                },
+                {
+                    "id": 1259,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "objective": "Master center control concepts"
+                },
+                {
+                    "id": 1260,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "objective": "Ensure king safety"
+                },
+                {
+                    "id": 1261,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "objective": "Avoid common opening mistakes"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 715,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "title": "Opening Principles - Chess.com",
+                    "url": "https://www.chess.com/lessons/opening-principles",
+                    "platform": "chess_com",
+                    "description": "Essential opening principles for beginners"
+                },
+                {
+                    "id": 716,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "title": "Opening Basics - Lichess",
+                    "url": "https://lichess.org/study/opening-basics",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons on opening fundamentals"
+                },
+                {
+                    "id": 717,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "title": "Common Opening Mistakes",
+                    "url": "https://lichess.org/study/opening-mistakes",
+                    "platform": "lichess_org",
+                    "description": "Learn to avoid typical opening errors"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 358,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "name": "Center Control",
+                    "moves": "1.e4 e5 2.Nf3",
+                    "description": "The basic approach to controlling the center with pawns and pieces.",
+                    "keyIdeas": [
+                        {
+                            "id": 1213,
+                            "variationId": 358,
+                            "idea": "Control central squares"
+                        },
+                        {
+                            "id": 1214,
+                            "variationId": 358,
+                            "idea": "Support center pawns"
+                        },
+                        {
+                            "id": 1215,
+                            "variationId": 358,
+                            "idea": "Develop pieces toward center"
+                        },
+                        {
+                            "id": 1216,
+                            "variationId": 358,
+                            "idea": "Create pawn tension"
+                        }
+                    ]
+                },
+                {
+                    "id": 359,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "name": "Piece Development",
+                    "moves": "1.e4 e5 2.Nf3 Nc6 3.Bc4",
+                    "description": "Natural development of pieces to active squares.",
+                    "keyIdeas": [
+                        {
+                            "id": 1217,
+                            "variationId": 359,
+                            "idea": "Develop knights before bishops"
+                        },
+                        {
+                            "id": 1218,
+                            "variationId": 359,
+                            "idea": "Don't move same piece twice"
+                        },
+                        {
+                            "id": 1219,
+                            "variationId": 359,
+                            "idea": "Castle early"
+                        },
+                        {
+                            "id": 1220,
+                            "variationId": 359,
+                            "idea": "Connect rooks"
+                        }
+                    ]
+                },
+                {
+                    "id": 360,
+                    "handbookId": "opening_basic-opening-principles_1743482597802",
+                    "name": "King Safety",
+                    "moves": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.0-0",
+                    "description": "Ensuring king safety through timely castling and proper pawn structure.",
+                    "keyIdeas": [
+                        {
+                            "id": 1221,
+                            "variationId": 360,
+                            "idea": "Castle within first 7 moves"
+                        },
+                        {
+                            "id": 1222,
+                            "variationId": 360,
+                            "idea": "Maintain kingside pawns"
+                        },
+                        {
+                            "id": 1223,
+                            "variationId": 360,
+                            "idea": "Avoid early queen moves"
+                        },
+                        {
+                            "id": 1224,
+                            "variationId": 360,
+                            "idea": "Keep king protected"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_benko-gambit_1743482990132",
+            "title": "Benko Gambit",
+            "description": "A dynamic opening where Black sacrifices a pawn for long-term pressure on White's queenside, featuring active piece play and clear strategic goals.",
+            "category": "opening",
+            "difficulty": "Advanced",
+            "estimatedTime": "25 hours",
+            "forColor": "black",
+            "popularityLevel": 3,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "benoni-defense",
+                "kings-indian-defense",
+                "dynamic-play",
+                "gambit-play"
+            ],
+            "eco": "A57-A59",
+            "moves": "rnbqkb1r/p2ppppp/5n2/1ppP4/2P5/8/PP2PPPP/RNBQKBNR w KQkq b6 0 4",
+            "prerequisites": [
+                {
+                    "id": 802,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 803,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 804,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "prerequisite": "tactical-awareness"
+                },
+                {
+                    "id": 805,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "prerequisite": "piece-coordination"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1433,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "objective": "Master Benko Gambit principles"
+                },
+                {
+                    "id": 1434,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "objective": "Learn queenside attacking patterns"
+                },
+                {
+                    "id": 1435,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "objective": "Understand pawn structure implications"
+                },
+                {
+                    "id": 1436,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "objective": "Handle various White setups"
+                },
+                {
+                    "id": 1437,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "objective": "Develop positional understanding"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 820,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "title": "Benko Gambit Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/benko-gambit",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Benko Gambit"
+                },
+                {
+                    "id": 821,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "title": "Benko Gambit Study - Lichess",
+                    "url": "https://lichess.org/study/benko-gambit",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and practice positions"
+                },
+                {
+                    "id": 822,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "title": "Benko Gambit Strategy",
+                    "url": "https://lichess.org/study/benko-strategy",
+                    "platform": "lichess_org",
+                    "description": "Strategic themes and plans"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 465,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "name": "Accepted Main Line",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6",
+                    "description": "White accepts the pawn sacrifice.",
+                    "keyIdeas": [
+                        {
+                            "id": 1641,
+                            "variationId": 465,
+                            "idea": "Queenside pressure"
+                        },
+                        {
+                            "id": 1642,
+                            "variationId": 465,
+                            "idea": "Open a-file play"
+                        },
+                        {
+                            "id": 1643,
+                            "variationId": 465,
+                            "idea": "Bishop fianchetto"
+                        },
+                        {
+                            "id": 1644,
+                            "variationId": 465,
+                            "idea": "Long-term compensation"
+                        }
+                    ]
+                },
+                {
+                    "id": 466,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "name": "Fianchetto Variation",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.g3",
+                    "description": "White aims for a more positional game.",
+                    "keyIdeas": [
+                        {
+                            "id": 1645,
+                            "variationId": 466,
+                            "idea": "Control of long diagonal"
+                        },
+                        {
+                            "id": 1646,
+                            "variationId": 466,
+                            "idea": "Kingside fianchetto"
+                        },
+                        {
+                            "id": 1647,
+                            "variationId": 466,
+                            "idea": "Piece coordination"
+                        },
+                        {
+                            "id": 1648,
+                            "variationId": 466,
+                            "idea": "Strategic battle"
+                        }
+                    ]
+                },
+                {
+                    "id": 467,
+                    "handbookId": "opening_benko-gambit_1743482990132",
+                    "name": "Modern Variation",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 b5 4.cxb5 a6 5.f3",
+                    "description": "White strengthens central control.",
+                    "keyIdeas": [
+                        {
+                            "id": 1649,
+                            "variationId": 467,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1650,
+                            "variationId": 467,
+                            "idea": "Pawn structure battle"
+                        },
+                        {
+                            "id": 1651,
+                            "variationId": 467,
+                            "idea": "Active piece play"
+                        },
+                        {
+                            "id": 1652,
+                            "variationId": 467,
+                            "idea": "Dynamic positions"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_benoni-defense_1743483004429",
+            "title": "Benoni Defense",
+            "description": "A sharp and dynamic defense against 1.d4 where Black immediately challenges White's center with c5, leading to complex tactical play.",
+            "category": "opening",
+            "difficulty": "Advanced",
+            "estimatedTime": "30 hours",
+            "forColor": "black",
+            "popularityLevel": 3,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "kings-indian-defense",
+                "modern-benoni",
+                "benko-gambit",
+                "dynamic-play"
+            ],
+            "eco": "A56-A79",
+            "moves": "rnbqkb1r/pp1ppppp/5n2/2pP4/2P5/8/PP2PPPP/RNBQKBNR b KQkq - 0 3",
+            "prerequisites": [
+                {
+                    "id": 806,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 807,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 808,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "prerequisite": "tactical-awareness"
+                },
+                {
+                    "id": 809,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "prerequisite": "piece-coordination"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1438,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "objective": "Master Benoni pawn structures"
+                },
+                {
+                    "id": 1439,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "objective": "Learn typical attacking patterns"
+                },
+                {
+                    "id": 1440,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "objective": "Understand strategic plans"
+                },
+                {
+                    "id": 1441,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "objective": "Handle various White setups"
+                },
+                {
+                    "id": 1442,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "objective": "Develop tactical awareness"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 823,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "title": "Benoni Defense Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/benoni-defense",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Benoni Defense"
+                },
+                {
+                    "id": 824,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "title": "Benoni Defense Study - Lichess",
+                    "url": "https://lichess.org/study/benoni-defense",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and practice positions"
+                },
+                {
+                    "id": 825,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "title": "Benoni Defense Strategy",
+                    "url": "https://lichess.org/study/benoni-strategy",
+                    "platform": "lichess_org",
+                    "description": "Strategic themes and plans"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 468,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "name": "Modern Benoni",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 e6",
+                    "description": "The main line leading to sharp tactical play.",
+                    "keyIdeas": [
+                        {
+                            "id": 1653,
+                            "variationId": 468,
+                            "idea": "Queenside counterplay"
+                        },
+                        {
+                            "id": 1654,
+                            "variationId": 468,
+                            "idea": "e6 pawn break"
+                        },
+                        {
+                            "id": 1655,
+                            "variationId": 468,
+                            "idea": "Knight outposts"
+                        },
+                        {
+                            "id": 1656,
+                            "variationId": 468,
+                            "idea": "Dynamic piece play"
+                        }
+                    ]
+                },
+                {
+                    "id": 469,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "name": "Czech Benoni",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 e5",
+                    "description": "A more solid variation with central control.",
+                    "keyIdeas": [
+                        {
+                            "id": 1657,
+                            "variationId": 469,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1658,
+                            "variationId": 469,
+                            "idea": "Kingside attacking chances"
+                        },
+                        {
+                            "id": 1659,
+                            "variationId": 469,
+                            "idea": "Piece coordination"
+                        },
+                        {
+                            "id": 1660,
+                            "variationId": 469,
+                            "idea": "Strategic play"
+                        }
+                    ]
+                },
+                {
+                    "id": 470,
+                    "handbookId": "opening_benoni-defense_1743483004429",
+                    "name": "Snake Benoni",
+                    "moves": "1.d4 Nf6 2.c4 c5 3.d5 e6 4.Nc3 exd5 5.cxd5 Bd6",
+                    "description": "An aggressive setup with early bishop development.",
+                    "keyIdeas": [
+                        {
+                            "id": 1661,
+                            "variationId": 470,
+                            "idea": "Quick development"
+                        },
+                        {
+                            "id": 1662,
+                            "variationId": 470,
+                            "idea": "Attacking chances"
+                        },
+                        {
+                            "id": 1663,
+                            "variationId": 470,
+                            "idea": "Dynamic piece play"
+                        },
+                        {
+                            "id": 1664,
+                            "variationId": 470,
+                            "idea": "Tactical opportunities"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_birds-opening_1743482869625",
+            "title": "Bird's Opening",
+            "description": "Bird's Opening is an aggressive flank opening starting with 1.f4. It leads to unique positions where White aims for early kingside pressure and unusual pawn structures.",
+            "category": "opening",
+            "difficulty": "Intermediate",
+            "estimatedTime": "20 hours",
+            "forColor": "white",
+            "popularityLevel": 2,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "dutch-defense",
+                "kings-gambit",
+                "attacking-chess",
+                "pawn-structures"
+            ],
+            "eco": "A02-A03",
+            "moves": "rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 0 1",
+            "prerequisites": [
+                {
+                    "id": 773,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 774,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 775,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "prerequisite": "attacking-patterns"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1388,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "objective": "Master Bird's Opening structures"
+                },
+                {
+                    "id": 1389,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "objective": "Learn attacking patterns"
+                },
+                {
+                    "id": 1390,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "objective": "Understand piece placement"
+                },
+                {
+                    "id": 1391,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "objective": "Handle different Black setups"
+                },
+                {
+                    "id": 1392,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "objective": "Create kingside pressure"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 793,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "title": "Bird's Opening Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/birds-opening",
+                    "platform": "chess_com",
+                    "description": "Complete guide to Bird's Opening"
+                },
+                {
+                    "id": 794,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "title": "Bird's Opening Study - Lichess",
+                    "url": "https://lichess.org/study/birds-opening",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and tactical patterns"
+                },
+                {
+                    "id": 795,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "title": "Advanced Bird's Strategy",
+                    "url": "https://lichess.org/study/advanced-bird",
+                    "platform": "lichess_org",
+                    "description": "Complex positions and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 438,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "name": "From's Gambit",
+                    "moves": "1.f4 e5",
+                    "description": "The sharpest response where Black immediately challenges White's center.",
+                    "keyIdeas": [
+                        {
+                            "id": 1533,
+                            "variationId": 438,
+                            "idea": "Tactical play"
+                        },
+                        {
+                            "id": 1534,
+                            "variationId": 438,
+                            "idea": "Open lines"
+                        },
+                        {
+                            "id": 1535,
+                            "variationId": 438,
+                            "idea": "King safety"
+                        },
+                        {
+                            "id": 1536,
+                            "variationId": 438,
+                            "idea": "Piece activity"
+                        }
+                    ]
+                },
+                {
+                    "id": 439,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "name": "Dutch Defense Reversed",
+                    "moves": "1.f4 d5",
+                    "description": "A solid setup leading to Dutch Defense positions with colors reversed.",
+                    "keyIdeas": [
+                        {
+                            "id": 1537,
+                            "variationId": 439,
+                            "idea": "Kingside pressure"
+                        },
+                        {
+                            "id": 1538,
+                            "variationId": 439,
+                            "idea": "Pawn chains"
+                        },
+                        {
+                            "id": 1539,
+                            "variationId": 439,
+                            "idea": "Strategic play"
+                        },
+                        {
+                            "id": 1540,
+                            "variationId": 439,
+                            "idea": "Piece coordination"
+                        }
+                    ]
+                },
+                {
+                    "id": 440,
+                    "handbookId": "opening_birds-opening_1743482869625",
+                    "name": "Williams Gambit",
+                    "moves": "1.f4 d5 2.e4",
+                    "description": "An aggressive variation where White immediately fights for the center.",
+                    "keyIdeas": [
+                        {
+                            "id": 1541,
+                            "variationId": 440,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1542,
+                            "variationId": 440,
+                            "idea": "Active pieces"
+                        },
+                        {
+                            "id": 1543,
+                            "variationId": 440,
+                            "idea": "Attack preparation"
+                        },
+                        {
+                            "id": 1544,
+                            "variationId": 440,
+                            "idea": "Dynamic play"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_budapest-gambit_1743482880028",
+            "title": "Budapest Gambit",
+            "description": "The Budapest Gambit is a sharp opening where Black sacrifices a pawn for quick development and active piece play. It offers practical chances and can be an effective surprise weapon.",
+            "category": "opening",
+            "difficulty": "Intermediate",
+            "estimatedTime": "20 hours",
+            "forColor": "black",
+            "popularityLevel": 2,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "gambit-play",
+                "attacking-chess",
+                "tactical-patterns",
+                "piece-activity"
+            ],
+            "eco": "A51-A52",
+            "moves": "rnbqkb1r/pppp1ppp/8/4p3/2PPn3/8/PP2PPPP/RNBQKBNR w KQkq - 1 3",
+            "prerequisites": [
+                {
+                    "id": 776,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "prerequisite": "basic-tactics"
+                },
+                {
+                    "id": 777,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "prerequisite": "piece-coordination"
+                },
+                {
+                    "id": 778,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "prerequisite": "attacking-patterns"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1393,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "objective": "Master typical tactics"
+                },
+                {
+                    "id": 1394,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "objective": "Learn attacking patterns"
+                },
+                {
+                    "id": 1395,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "objective": "Understand compensation principles"
+                },
+                {
+                    "id": 1396,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "objective": "Handle different White setups"
+                },
+                {
+                    "id": 1397,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "objective": "Create active piece play"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 796,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "title": "Budapest Gambit Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/budapest-gambit",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Budapest Gambit"
+                },
+                {
+                    "id": 797,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "title": "Budapest Study - Lichess",
+                    "url": "https://lichess.org/study/budapest",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and tactical patterns"
+                },
+                {
+                    "id": 798,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "title": "Attacking with the Budapest",
+                    "url": "https://lichess.org/study/budapest-attack",
+                    "platform": "lichess_org",
+                    "description": "Attacking patterns and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 441,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "name": "Main Line",
+                    "moves": "1.d4 Nf6 2.c4 e5 3.dxe5 Ng4",
+                    "description": "The classical approach where Black immediately fights for the center.",
+                    "keyIdeas": [
+                        {
+                            "id": 1545,
+                            "variationId": 441,
+                            "idea": "Quick development"
+                        },
+                        {
+                            "id": 1546,
+                            "variationId": 441,
+                            "idea": "Active piece play"
+                        },
+                        {
+                            "id": 1547,
+                            "variationId": 441,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1548,
+                            "variationId": 441,
+                            "idea": "Attacking chances"
+                        }
+                    ]
+                },
+                {
+                    "id": 442,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "name": "Fajarowicz Variation",
+                    "moves": "1.d4 Nf6 2.c4 e5 3.dxe5 Ne4",
+                    "description": "A sharp alternative focusing on the e4-square.",
+                    "keyIdeas": [
+                        {
+                            "id": 1549,
+                            "variationId": 442,
+                            "idea": "Control of e4"
+                        },
+                        {
+                            "id": 1550,
+                            "variationId": 442,
+                            "idea": "Piece activity"
+                        },
+                        {
+                            "id": 1551,
+                            "variationId": 442,
+                            "idea": "Tactical opportunities"
+                        },
+                        {
+                            "id": 1552,
+                            "variationId": 442,
+                            "idea": "Unusual positions"
+                        }
+                    ]
+                },
+                {
+                    "id": 443,
+                    "handbookId": "opening_budapest-gambit_1743482880028",
+                    "name": "Adler Variation",
+                    "moves": "1.d4 Nf6 2.c4 e5 3.dxe5 Ng4 4.Nf3",
+                    "description": "A solid approach by White aiming to maintain the pawn.",
+                    "keyIdeas": [
+                        {
+                            "id": 1553,
+                            "variationId": 443,
+                            "idea": "Pawn structure battles"
+                        },
+                        {
+                            "id": 1554,
+                            "variationId": 443,
+                            "idea": "Piece coordination"
+                        },
+                        {
+                            "id": 1555,
+                            "variationId": 443,
+                            "idea": "Dynamic equality"
+                        },
+                        {
+                            "id": 1556,
+                            "variationId": 443,
+                            "idea": "Strategic play"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_caro-kann_1743482753925",
+            "title": "Caro-Kann Defense",
+            "description": "A solid and strategically rich defense against 1.e4. The Caro-Kann offers Black a stable pawn structure and clear strategic plans.",
+            "category": "opening",
+            "difficulty": "Intermediate",
+            "estimatedTime": "25 hours",
+            "forColor": "black",
+            "popularityLevel": 4,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "french-defense",
+                "slav-defense",
+                "pawn-structures",
+                "positional-play"
+            ],
+            "eco": "B10-B19",
+            "moves": "rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "prerequisites": [
+                {
+                    "id": 732,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 733,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 734,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "prerequisite": "piece-coordination"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1333,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "objective": "Master the main Caro-Kann variations"
+                },
+                {
+                    "id": 1334,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "objective": "Understand typical pawn structures"
+                },
+                {
+                    "id": 1335,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "objective": "Learn strategic plans for both sides"
+                },
+                {
+                    "id": 1336,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "objective": "Handle different White setups"
+                },
+                {
+                    "id": 1337,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "objective": "Develop positional understanding"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 760,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "title": "Caro-Kann Defense Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/caro-kann",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Caro-Kann Defense"
+                },
+                {
+                    "id": 761,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "title": "Caro-Kann Study - Lichess",
+                    "url": "https://lichess.org/study/caro-kann",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and practice positions"
+                },
+                {
+                    "id": 762,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "title": "Advanced Caro-Kann",
+                    "url": "https://lichess.org/study/advanced-caro-kann",
+                    "platform": "lichess_org",
+                    "description": "Complex variations and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 404,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "name": "Classical Variation",
+                    "moves": "1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4",
+                    "description": "The main line leading to balanced positions.",
+                    "keyIdeas": [
+                        {
+                            "id": 1397,
+                            "variationId": 404,
+                            "idea": "Solid pawn structure"
+                        },
+                        {
+                            "id": 1398,
+                            "variationId": 404,
+                            "idea": "Control of e5 square"
+                        },
+                        {
+                            "id": 1399,
+                            "variationId": 404,
+                            "idea": "Queenside expansion"
+                        },
+                        {
+                            "id": 1400,
+                            "variationId": 404,
+                            "idea": "Active piece play"
+                        }
+                    ]
+                },
+                {
+                    "id": 405,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "name": "Advance Variation",
+                    "moves": "1.e4 c6 2.d4 d5 3.e5",
+                    "description": "White gains space but gives Black targets.",
+                    "keyIdeas": [
+                        {
+                            "id": 1401,
+                            "variationId": 405,
+                            "idea": "Pawn chain strategy"
+                        },
+                        {
+                            "id": 1402,
+                            "variationId": 405,
+                            "idea": "Light square control"
+                        },
+                        {
+                            "id": 1403,
+                            "variationId": 405,
+                            "idea": "Piece maneuvering"
+                        },
+                        {
+                            "id": 1404,
+                            "variationId": 405,
+                            "idea": "Break preparation"
+                        }
+                    ]
+                },
+                {
+                    "id": 406,
+                    "handbookId": "opening_caro-kann_1743482753925",
+                    "name": "Panov Attack",
+                    "moves": "1.e4 c6 2.d4 d5 3.exd5 cxd5 4.c4",
+                    "description": "Sharp variation leading to IQP positions.",
+                    "keyIdeas": [
+                        {
+                            "id": 1405,
+                            "variationId": 406,
+                            "idea": "IQP dynamics"
+                        },
+                        {
+                            "id": 1406,
+                            "variationId": 406,
+                            "idea": "Piece activity"
+                        },
+                        {
+                            "id": 1407,
+                            "variationId": 406,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1408,
+                            "variationId": 406,
+                            "idea": "Attacking chances"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_catalan-opening_1743482784923",
+            "title": "Catalan Opening",
+            "description": "A sophisticated opening system where White combines d4 with a kingside fianchetto, aiming for long-term positional pressure. The Catalan is known for its strategic depth and flexible pawn structures.",
+            "category": "opening",
+            "difficulty": "Advanced",
+            "estimatedTime": "30 hours",
+            "forColor": "white",
+            "popularityLevel": 4,
+            "recommendedFor": [
+                "Advanced",
+                "Expert"
+            ],
+            "relatedTopics": [
+                "reti-opening",
+                "queens-gambit",
+                "positional-play",
+                "strategic-planning"
+            ],
+            "eco": "E01-E09",
+            "moves": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/6P1/PP2PP1P/RNBQKBNR b KQkq - 0 3",
+            "prerequisites": [
+                {
+                    "id": 742,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "prerequisite": "basic-opening-principles"
+                },
+                {
+                    "id": 743,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "prerequisite": "positional-play"
+                },
+                {
+                    "id": 744,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "prerequisite": "pawn-structures"
+                },
+                {
+                    "id": 745,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "prerequisite": "strategic-planning"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1348,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "objective": "Master Catalan pawn structures"
+                },
+                {
+                    "id": 1349,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "objective": "Understand bishop fianchetto"
+                },
+                {
+                    "id": 1350,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "objective": "Learn queenside expansion"
+                },
+                {
+                    "id": 1351,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "objective": "Handle various Black setups"
+                },
+                {
+                    "id": 1352,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "objective": "Create long-term plans"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 769,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "title": "Catalan Opening Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/catalan",
+                    "platform": "chess_com",
+                    "description": "Comprehensive guide to Catalan structures and plans"
+                },
+                {
+                    "id": 770,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "title": "Catalan Study - Lichess",
+                    "url": "https://lichess.org/study/catalan",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons on key variations"
+                },
+                {
+                    "id": 771,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "title": "Strategic Themes in Catalan",
+                    "url": "https://lichess.org/study/catalan-strategy",
+                    "platform": "lichess_org",
+                    "description": "Deep dive into positional themes and plans"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 413,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "name": "Closed Catalan",
+                    "moves": "1.d4 d5 2.c4 e6 3.g3 Nf6 4.Bg2 Be7 5.Nf3",
+                    "description": "The main line where Black maintains central tension with a solid setup.",
+                    "keyIdeas": [
+                        {
+                            "id": 1433,
+                            "variationId": 413,
+                            "idea": "Fianchetto pressure"
+                        },
+                        {
+                            "id": 1434,
+                            "variationId": 413,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1435,
+                            "variationId": 413,
+                            "idea": "Queenside expansion"
+                        },
+                        {
+                            "id": 1436,
+                            "variationId": 413,
+                            "idea": "Strategic maneuvering"
+                        }
+                    ]
+                },
+                {
+                    "id": 414,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "name": "Open Catalan",
+                    "moves": "1.d4 d5 2.c4 e6 3.g3 Nf6 4.Bg2 dxc4",
+                    "description": "Black releases central tension early, leading to more concrete play.",
+                    "keyIdeas": [
+                        {
+                            "id": 1437,
+                            "variationId": 414,
+                            "idea": "Pawn sacrifice"
+                        },
+                        {
+                            "id": 1438,
+                            "variationId": 414,
+                            "idea": "Bishop activity"
+                        },
+                        {
+                            "id": 1439,
+                            "variationId": 414,
+                            "idea": "Space advantage"
+                        },
+                        {
+                            "id": 1440,
+                            "variationId": 414,
+                            "idea": "Dynamic possibilities"
+                        }
+                    ]
+                },
+                {
+                    "id": 415,
+                    "handbookId": "opening_catalan-opening_1743482784923",
+                    "name": "Semi-Catalan",
+                    "moves": "1.d4 Nf6 2.c4 e6 3.g3",
+                    "description": "A flexible approach where Black hasn't committed to ...d5.",
+                    "keyIdeas": [
+                        {
+                            "id": 1441,
+                            "variationId": 415,
+                            "idea": "Flexible development"
+                        },
+                        {
+                            "id": 1442,
+                            "variationId": 415,
+                            "idea": "Multiple pawn structures"
+                        },
+                        {
+                            "id": 1443,
+                            "variationId": 415,
+                            "idea": "Prophylactic play"
+                        },
+                        {
+                            "id": 1444,
+                            "variationId": 415,
+                            "idea": "Strategic options"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "opening_chigorin_1743482893514",
+            "title": "Chigorin Defense",
+            "description": "The Chigorin Defense is an unconventional response to the Queen's Gambit where Black develops the knights before the pawns. It leads to unique positions where piece activity compensates for structural weaknesses.",
+            "category": "opening",
+            "difficulty": "Intermediate",
+            "estimatedTime": "25 hours",
+            "forColor": "black",
+            "popularityLevel": 2,
+            "recommendedFor": [
+                "Intermediate"
+            ],
+            "relatedTopics": [
+                "queens-gambit",
+                "piece-activity",
+                "tactical-patterns",
+                "dynamic-play"
+            ],
+            "eco": "D07",
+            "moves": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "prerequisites": [
+                {
+                    "id": 779,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "prerequisite": "queens-gambit"
+                },
+                {
+                    "id": 780,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "prerequisite": "piece-coordination"
+                },
+                {
+                    "id": 781,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "prerequisite": "tactical-patterns"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1398,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "objective": "Master Chigorin pawn structures"
+                },
+                {
+                    "id": 1399,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "objective": "Learn tactical opportunities"
+                },
+                {
+                    "id": 1400,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "objective": "Understand piece activity"
+                },
+                {
+                    "id": 1401,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "objective": "Handle structural weaknesses"
+                },
+                {
+                    "id": 1402,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "objective": "Create dynamic counterplay"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 799,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "title": "Chigorin Defense Guide - Chess.com",
+                    "url": "https://www.chess.com/lessons/chigorin",
+                    "platform": "chess_com",
+                    "description": "Complete guide to the Chigorin Defense"
+                },
+                {
+                    "id": 800,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "title": "Chigorin Study - Lichess",
+                    "url": "https://lichess.org/study/chigorin",
+                    "platform": "lichess_org",
+                    "description": "Interactive lessons and tactical patterns"
+                },
+                {
+                    "id": 801,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "title": "Dynamic Chess Play",
+                    "url": "https://lichess.org/study/dynamic-chigorin",
+                    "platform": "lichess_org",
+                    "description": "Complex positions and strategies"
+                }
+            ],
+            "variations": [
+                {
+                    "id": 444,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "name": "Main Line",
+                    "moves": "1.d4 d5 2.c4 Nc6",
+                    "description": "The classical approach challenging White's center immediately.",
+                    "keyIdeas": [
+                        {
+                            "id": 1557,
+                            "variationId": 444,
+                            "idea": "Early piece activity"
+                        },
+                        {
+                            "id": 1558,
+                            "variationId": 444,
+                            "idea": "Central control"
+                        },
+                        {
+                            "id": 1559,
+                            "variationId": 444,
+                            "idea": "Dynamic play"
+                        },
+                        {
+                            "id": 1560,
+                            "variationId": 444,
+                            "idea": "Tactical opportunities"
+                        }
+                    ]
+                },
+                {
+                    "id": 445,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "name": "Modern Variation",
+                    "moves": "1.d4 d5 2.c4 Nc6 3.Nf3 Bg4",
+                    "description": "A sharp line adding pressure on White's kingside.",
+                    "keyIdeas": [
+                        {
+                            "id": 1561,
+                            "variationId": 445,
+                            "idea": "Pin tactics"
+                        },
+                        {
+                            "id": 1562,
+                            "variationId": 445,
+                            "idea": "Piece coordination"
+                        },
+                        {
+                            "id": 1563,
+                            "variationId": 445,
+                            "idea": "Active development"
+                        },
+                        {
+                            "id": 1564,
+                            "variationId": 445,
+                            "idea": "Attacking chances"
+                        }
+                    ]
+                },
+                {
+                    "id": 446,
+                    "handbookId": "opening_chigorin_1743482893514",
+                    "name": "Exchange Variation",
+                    "moves": "1.d4 d5 2.c4 Nc6 3.cxd5 Qxd5",
+                    "description": "A direct approach where Black recaptures with the queen.",
+                    "keyIdeas": [
+                        {
+                            "id": 1565,
+                            "variationId": 446,
+                            "idea": "Queen activity"
+                        },
+                        {
+                            "id": 1566,
+                            "variationId": 446,
+                            "idea": "Quick development"
+                        },
+                        {
+                            "id": 1567,
+                            "variationId": 446,
+                            "idea": "Tactical play"
+                        },
+                        {
+                            "id": 1568,
+                            "variationId": 446,
+                            "idea": "Dynamic equality"
+                        }
+                    ]
+                }
+            ],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [],
+            "theoreticalKnowledge": [],
+            "practicalTips": [],
+            "commonMistakes": [],
+            "winningTechniques": [],
+            "drawingTechniques": [],
+            "readStatus": false
+        }
+    ],
+    "pagination": {
+        "total": 37,
+        "page": 1,
+        "limit": 10,
+        "totalPages": 4,
+        "hasNext": true,
+        "hasPrev": false
+    }
+}

@@ -26,7 +26,6 @@ interface SidebarLink {
   }[];
 }
 
-
 const sidebarLinks: SidebarLink[] = [
   {
     name: "Chess News",
@@ -103,19 +102,19 @@ const sidebarLinks: SidebarLink[] = [
       },
       {
         name: "Puzzles",
-        href: "/puzzles",
+        href: "/playground/puzzles",
         icon: "/icons/sidebar-puzzle-icon.png",
         iconActive: "/icons/sidebar-puzzle-icon-active.png",
       },
       {
         name: "Board Vision",
-        href: "/board-vision",
+        href: "/playground/board-vision",
         icon: "/icons/sidebar-board-vision-icon.png",
         iconActive: "/icons/sidebar-board-vision-icon-active.png",
       },
       {
         name: "Endgame Training",
-        href: "/endgame-training",
+        href: "/playground/endgame-training",
         icon: "/icons/sidebar-endgame-training-icon.png",
         iconActive: "/icons/sidebar-endgame-training-icon-active.png",
       },
@@ -155,11 +154,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
   }, [mounted]);
   const handleResize = () => {
     let widthC = window?.innerWidth * 0.2;
-    console.log("widthC", widthC);
+    // console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
   return (
-    <div  className="flex h-full flex-col">
+    <div className="flex h-full flex-col">
       <div className="flex h-24 items-center px-6 justify-center border-b">
         <Link href="/" className="flex items-center justify-center">
           <Image
@@ -188,7 +187,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
-              ? pathname === section.href
+              ? pathname.includes(section.href)
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
@@ -196,33 +195,33 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 <div className="space-y-2">
                   {section.href ? (
                     <Link
-                    href={section.href}
-                    // style={{ width: widthContainer - 50 }}
-                    className={cn(
-                      "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                      pathname === section.href
-                        ? "text-[#221AE9]"
-                        : "hover:bg-[#221AE950] hover:text-[#221AE9]"
-                    )}
-                  >
-                    <div className="mr-3">
-                      <Image
-                        width={1000}
-                        height={1000}
-                        alt={section.href}
-                        src={
-                          pathname === section.href
-                            ? section.iconActive
-                            : section.icon
-                        }
-                        className={cn(
-                          "h-5 w-5 transition-colors",
-                          pathname === section.href
-                            ? "text-[#221AE9]"
-                            : "text-gray-400 group-hover:text-[#221AE9]"
-                        )}
-                      />
-                    </div>
+                      href={section.href}
+                      // style={{ width: widthContainer - 50 }}
+                      className={cn(
+                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        isActive
+                          ? "text-[#221AE9]"
+                          : "hover:bg-[#221AE950] hover:text-[#221AE9]"
+                      )}
+                    >
+                      <div className="mr-3">
+                        <Image
+                          width={1000}
+                          height={1000}
+                          alt={section.href}
+                          src={
+                            pathname === section.href
+                              ? section.iconActive
+                              : section.icon
+                          }
+                          className={cn(
+                            "h-5 w-5 transition-colors",
+                            pathname === section.href
+                              ? "text-[#221AE9]"
+                              : "text-gray-400 group-hover:text-[#221AE9]"
+                          )}
+                        />
+                      </div>
 
                       <span className="flex-1 font-semibold">
                         {section.name}
@@ -264,7 +263,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   {hasChildren && (
                     <div className="ml-6 space-y-2 ">
                       {section.children.map((child: any) => {
-                        const isChildActive = pathname === child.href;
+                        const isChildActive = pathname.includes(child.href);
                         return (
                           <Link
                             key={child.href}

@@ -57,7 +57,7 @@ export const CardPlayer = ({
                   return (
                     <div
                       key={index}
-                      className={`${icon == nextIcon ? "-mr-2" : ""}`}
+                      className={`${icon == nextIcon ? "-mr-3" : ""}`}
                     >
                       {icon && (
                         <Image

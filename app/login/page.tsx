@@ -10,7 +10,6 @@ import { useAuth, useSignIn } from "@clerk/nextjs";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
-import Responsive from "@/components/game-history/Responsive";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { signIn, isLoaded } = useSignIn();
+  const { sessionId } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +34,7 @@ export default function LoginPage() {
       if (result.status === "complete") {
         toast.success("Logged in successfully!");
         window.location.href = "/my-game-history";
+        localStorage.setItem("token", sessionId + "");
       } else {
         console.error("Sign in result:", result);
         toast.error("Failed to sign in");
@@ -53,6 +54,7 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Google");
@@ -67,6 +69,7 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Facebook");
@@ -81,16 +84,18 @@ export default function LoginPage() {
         redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
       });
+      localStorage.setItem("token", sessionId + "");
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Apple");
     }
   };
 
+  const headerHeight = 80;
+
   return (
     <>
       <div className="min-h-screen flex flex-col relative">
-        <Responsive />
         <div className="absolute inset-0 -z-10">
           <Image
             src="/images/auth-background.png"
@@ -112,7 +117,10 @@ export default function LoginPage() {
         <SiteHeaderNew />
 
         {/* Main Content with fixed dimensions based on device */}
-        <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <main
+          style={{ height: `calc(100vh - ${headerHeight}px)` }}
+          className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8"
+        >
           <div
             className={`
             w-full

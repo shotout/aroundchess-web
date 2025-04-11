@@ -1,6 +1,6 @@
 "use client";
+import Article from "@/components/chess-news/Article";
 import Navigation from "@/components/navigator/navigation";
-import Article from "./Article";
 export default function ChessNews() {
   return (
     <Navigation>

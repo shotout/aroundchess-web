@@ -24,8 +24,9 @@ import axios from "axios";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { proceedAnalysis } from "@/utils/stockfish-utils";
 import { Chess } from "chess.js";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import { useAuth } from "@clerk/clerk-react";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -108,7 +109,7 @@ const mockData = {
 
 export function AnalyzeDifferentGame() {
   const router = useRouter();
-
+  const { proceedAnalysis } = useStockfishAnalysis();
   const {
     setPgn,
     setIsLoading,
@@ -154,7 +155,7 @@ export function AnalyzeDifferentGame() {
   const [depthChoosed, setDepthChoosed] = useState(15);
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-
+  const { sessionId } = useAuth();
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
   interface GameOption {
@@ -185,7 +186,13 @@ export function AnalyzeDifferentGame() {
 
   const getByUsername = async () => {
     const url = getDataUsername + username;
-    const response = await axios.get(url, { headers: {} });
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        authorization: `Bearer ${sessionId}`,
+      },
+    });
     if (response.status == 200) {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);

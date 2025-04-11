@@ -1,0 +1,1895 @@
+{
+    "success": true,
+    "statusCode": 200,
+    "message": "Handbooks retrieved successfully",
+    "data": [
+        {
+            "id": "endgame_1743483362509_0gs2vb5",
+            "title": "Basic Endgame Principles",
+            "description": "Master the essential concepts and techniques for basic endgame principles",
+            "category": "endgame",
+            "difficulty": "Beginner",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/4p3/4P3/4K3/8/8/8/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 925,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 926,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1633,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1634,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1635,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1636,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 940,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "title": "Basic Endgame Principles Fundamentals",
+                    "url": "https://www.chess.com/lessons/basic-endgame-principles",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of basic endgame principles"
+                },
+                {
+                    "id": 941,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "title": "Advanced Basic Endgame Principles",
+                    "url": "https://lichess.org/study/basic-endgame-principles",
+                    "platform": "lichess_org",
+                    "description": "Master complex basic endgame principles positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 265,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 266,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 267,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 268,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 265,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 266,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 267,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 268,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 265,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 266,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 267,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 268,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 265,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 266,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 267,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 268,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 265,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 266,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 267,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 268,
+                    "handbookId": "endgame_1743483362509_0gs2vb5",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483370818_ji3vehb",
+            "title": "Basic Checkmates",
+            "description": "Master the essential concepts and techniques for basic checkmates",
+            "category": "endgame",
+            "difficulty": "Beginner",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/8/4Q3/4K3 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 927,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 928,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1637,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1638,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1639,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1640,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 942,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "title": "Basic Checkmates Fundamentals",
+                    "url": "https://www.chess.com/lessons/basic-checkmates",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of basic checkmates"
+                },
+                {
+                    "id": 943,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "title": "Advanced Basic Checkmates",
+                    "url": "https://lichess.org/study/basic-checkmates",
+                    "platform": "lichess_org",
+                    "description": "Master complex basic checkmates positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 269,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 270,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 271,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 272,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 269,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 270,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 271,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 272,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 269,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 270,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 271,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 272,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 269,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 270,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 271,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 272,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 269,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 270,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 271,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 272,
+                    "handbookId": "endgame_1743483370818_ji3vehb",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483379305_d3vuqew",
+            "title": "King and Pawn Endgames",
+            "description": "Master the essential concepts and techniques for king and pawn",
+            "category": "endgame",
+            "difficulty": "Intermediate",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/3KP3/8/8/8/8/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 929,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 930,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1641,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1642,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1643,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1644,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 944,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "title": "King And Pawn Fundamentals",
+                    "url": "https://www.chess.com/lessons/king-and-pawn",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of king and pawn"
+                },
+                {
+                    "id": 945,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "title": "Advanced King And Pawn",
+                    "url": "https://lichess.org/study/king-and-pawn",
+                    "platform": "lichess_org",
+                    "description": "Master complex king and pawn positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 273,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 274,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 275,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 276,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 273,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 274,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 275,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 276,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 273,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 274,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 275,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 276,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 273,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 274,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 275,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 276,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 273,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 274,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 275,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 276,
+                    "handbookId": "endgame_1743483379305_d3vuqew",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483387607_3wfpfta",
+            "title": "Basic Rook Endgames",
+            "description": "Master the essential concepts and techniques for basic rook endgames",
+            "category": "endgame",
+            "difficulty": "Intermediate",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/R7/8/8/8/2p5/2K5/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 931,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 932,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1645,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1646,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1647,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1648,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 946,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "title": "Basic Rook Endgames Fundamentals",
+                    "url": "https://www.chess.com/lessons/basic-rook-endgames",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of basic rook endgames"
+                },
+                {
+                    "id": 947,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "title": "Advanced Basic Rook Endgames",
+                    "url": "https://lichess.org/study/basic-rook-endgames",
+                    "platform": "lichess_org",
+                    "description": "Master complex basic rook endgames positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 277,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 278,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 279,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 280,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 277,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 278,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 279,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 280,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 277,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 278,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 279,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 280,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 277,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 278,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 279,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 280,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 277,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 278,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 279,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 280,
+                    "handbookId": "endgame_1743483387607_3wfpfta",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483396100_9dfgu0k",
+            "title": "Basic Minor Piece Endgames",
+            "description": "Master the essential concepts and techniques for basic minor piece",
+            "category": "endgame",
+            "difficulty": "Intermediate",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4B3/4K3/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 933,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 934,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1649,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1650,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1651,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1652,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 948,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "title": "Basic Minor Piece Fundamentals",
+                    "url": "https://www.chess.com/lessons/basic-minor-piece",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of basic minor piece"
+                },
+                {
+                    "id": 949,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "title": "Advanced Basic Minor Piece",
+                    "url": "https://lichess.org/study/basic-minor-piece",
+                    "platform": "lichess_org",
+                    "description": "Master complex basic minor piece positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 281,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 282,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 283,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 284,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 281,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 282,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 283,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 284,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 281,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 282,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 283,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 284,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 281,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 282,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 283,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 284,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 281,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 282,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 283,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 284,
+                    "handbookId": "endgame_1743483396100_9dfgu0k",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483404417_e75273f",
+            "title": "Drawing Techniques",
+            "description": "Master the essential concepts and techniques for drawing techniques",
+            "category": "endgame",
+            "difficulty": "Advanced",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4b3/4K3/7B w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 935,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 936,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1653,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1654,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1655,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1656,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 950,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "title": "Drawing Techniques Fundamentals",
+                    "url": "https://www.chess.com/lessons/drawing-techniques",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of drawing techniques"
+                },
+                {
+                    "id": 951,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "title": "Advanced Drawing Techniques",
+                    "url": "https://lichess.org/study/drawing-techniques",
+                    "platform": "lichess_org",
+                    "description": "Master complex drawing techniques positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 285,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 286,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 287,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 288,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 285,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 286,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 287,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 288,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 285,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 286,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 287,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 288,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 285,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 286,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 287,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 288,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 285,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 286,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 287,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 288,
+                    "handbookId": "endgame_1743483404417_e75273f",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483412905_7gbltv3",
+            "title": "Fortress Positions",
+            "description": "Master the essential concepts and techniques for fortress positions",
+            "category": "endgame",
+            "difficulty": "Expert",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4r3/4K3/7B w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 937,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 938,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1657,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1658,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1659,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1660,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 952,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "title": "Fortress Positions Fundamentals",
+                    "url": "https://www.chess.com/lessons/fortress-positions",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of fortress positions"
+                },
+                {
+                    "id": 953,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "title": "Advanced Fortress Positions",
+                    "url": "https://lichess.org/study/fortress-positions",
+                    "platform": "lichess_org",
+                    "description": "Master complex fortress positions positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 289,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 290,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 291,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 292,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 289,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 290,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 291,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 292,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 289,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 290,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 291,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 292,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 289,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 290,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 291,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 292,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 289,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 290,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 291,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 292,
+                    "handbookId": "endgame_1743483412905_7gbltv3",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483421207_gmqxu6m",
+            "title": "Endgame Studies",
+            "description": "Master the essential concepts and techniques for endgame studies",
+            "category": "endgame",
+            "difficulty": "Expert",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4RB2/4K3/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 939,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 940,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1661,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1662,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1663,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1664,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 954,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "title": "Endgame Studies Fundamentals",
+                    "url": "https://www.chess.com/lessons/endgame-studies",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of endgame studies"
+                },
+                {
+                    "id": 955,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "title": "Advanced Endgame Studies",
+                    "url": "https://lichess.org/study/endgame-studies",
+                    "platform": "lichess_org",
+                    "description": "Master complex endgame studies positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 293,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 294,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 295,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 296,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 293,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 294,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 295,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 296,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 293,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 294,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 295,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 296,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 293,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 294,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 295,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 296,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 293,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 294,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 295,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 296,
+                    "handbookId": "endgame_1743483421207_gmqxu6m",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483429716_ltglhzo",
+            "title": "Zugzwang Positions",
+            "description": "Master the essential concepts and techniques for zugzwang positions",
+            "category": "endgame",
+            "difficulty": "Expert",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4p3/4K3/8 w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 941,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 942,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1665,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1666,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1667,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1668,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 956,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "title": "Zugzwang Positions Fundamentals",
+                    "url": "https://www.chess.com/lessons/zugzwang-positions",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of zugzwang positions"
+                },
+                {
+                    "id": 957,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "title": "Advanced Zugzwang Positions",
+                    "url": "https://lichess.org/study/zugzwang-positions",
+                    "platform": "lichess_org",
+                    "description": "Master complex zugzwang positions positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 297,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 298,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 299,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 300,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 297,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 298,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 299,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 300,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 297,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 298,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 299,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 300,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 297,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 298,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 299,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 300,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 297,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 298,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 299,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 300,
+                    "handbookId": "endgame_1743483429716_ltglhzo",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        },
+        {
+            "id": "endgame_1743483438019_t6rcyb3",
+            "title": "Opposite-Colored Bishops",
+            "description": "Master the essential concepts and techniques for opposite colored bishops",
+            "category": "endgame",
+            "difficulty": "Advanced",
+            "estimatedTime": "30 minutes",
+            "forColor": "both",
+            "popularityLevel": 3,
+            "recommendedFor": [],
+            "relatedTopics": [
+                "endgame-principles",
+                "practical-endgame",
+                "technical-winning",
+                "endgame-calculation"
+            ],
+            "eco": null,
+            "moves": "4k3/8/8/8/8/4b3/4K3/7B w - - 0 1",
+            "prerequisites": [
+                {
+                    "id": 943,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "prerequisite": "Basic piece movement"
+                },
+                {
+                    "id": 944,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "prerequisite": "Understanding of endgame principles"
+                }
+            ],
+            "objectives": [
+                {
+                    "id": 1669,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "objective": "Understand the fundamental concepts"
+                },
+                {
+                    "id": 1670,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "objective": "Master key techniques and patterns"
+                },
+                {
+                    "id": 1671,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "objective": "Learn common winning methods"
+                },
+                {
+                    "id": 1672,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "objective": "Practice essential positions"
+                }
+            ],
+            "resources": [
+                {
+                    "id": 958,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "title": "Opposite Colored Bishops Fundamentals",
+                    "url": "https://www.chess.com/lessons/opposite-colored-bishops",
+                    "platform": "chess_com",
+                    "description": "Learn the essential concepts of opposite colored bishops"
+                },
+                {
+                    "id": 959,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "title": "Advanced Opposite Colored Bishops",
+                    "url": "https://lichess.org/study/opposite-colored-bishops",
+                    "platform": "lichess_org",
+                    "description": "Master complex opposite colored bishops positions"
+                }
+            ],
+            "variations": [],
+            "patterns": [],
+            "commonThemes": [],
+            "tacticalMotifs": [],
+            "strategicConcepts": [],
+            "fundamentalPositions": [
+                {
+                    "id": 301,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "position": "Basic setup and structure"
+                },
+                {
+                    "id": 302,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "position": "Key tactical patterns"
+                },
+                {
+                    "id": 303,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "position": "Critical positions"
+                },
+                {
+                    "id": 304,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "position": "Common formations"
+                }
+            ],
+            "theoreticalKnowledge": [
+                {
+                    "id": 301,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "knowledge": "Core principles"
+                },
+                {
+                    "id": 302,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "knowledge": "Key patterns"
+                },
+                {
+                    "id": 303,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "knowledge": "Important concepts"
+                },
+                {
+                    "id": 304,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "knowledge": "Strategic ideas"
+                }
+            ],
+            "practicalTips": [
+                {
+                    "id": 301,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "tip": "Calculate variations carefully"
+                },
+                {
+                    "id": 302,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "tip": "Use your pieces actively"
+                },
+                {
+                    "id": 303,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "tip": "Create and exploit weaknesses"
+                },
+                {
+                    "id": 304,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "tip": "Control key squares"
+                }
+            ],
+            "commonMistakes": [
+                {
+                    "id": 301,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "mistake": "Poor piece coordination"
+                },
+                {
+                    "id": 302,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "mistake": "Incorrect evaluation"
+                },
+                {
+                    "id": 303,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "mistake": "Technical mistakes"
+                },
+                {
+                    "id": 304,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "mistake": "Strategic errors"
+                }
+            ],
+            "winningTechniques": [
+                {
+                    "id": 301,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "technique": "Position improvement"
+                },
+                {
+                    "id": 302,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "technique": "Creating and exploiting weaknesses"
+                },
+                {
+                    "id": 303,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "technique": "Converting advantages"
+                },
+                {
+                    "id": 304,
+                    "handbookId": "endgame_1743483438019_t6rcyb3",
+                    "technique": "Technical execution"
+                }
+            ],
+            "drawingTechniques": [],
+            "readStatus": false
+        }
+    ],
+    "pagination": {
+        "total": 36,
+        "page": 1,
+        "limit": 10,
+        "totalPages": 4,
+        "hasNext": true,
+        "hasPrev": false
+    }
+}
