@@ -27,7 +27,8 @@ import {
   BoardOrientation,
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
-import { SettingBoard } from "@/components/modal/SettingBoard"; 
+import { SettingBoard } from "@/components/modal/SettingBoard";
+import BoardWood from "../3d-board/3DBoardWoodNew";
 
 interface ParsedMove {
   color: string;
@@ -121,7 +122,7 @@ const AnalysisResult: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-   
+
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
@@ -422,8 +423,8 @@ const AnalysisResult: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - ((window.innerWidth * 0.54) + 256)
-    const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
+    let desktopSize = window.innerWidth - (window.innerWidth * 0.54 + 256);
+    const maxSize = window.innerWidth >= 1280 ? desktopSize : 480;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
@@ -620,15 +621,15 @@ const AnalysisResult: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={handleThreeD}>
-            <Image
-              src={"/images/play-vs-ai/3d.png"}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[22px] h-[27px] object-contain"
-            />
-          </button> */}
+        <button onClick={toggleBoardMode}>
+          <Image
+            src={"/images/play-vs-ai/3d.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[22px] h-[27px] object-contain"
+          />
+        </button>
       </div>
     );
   };
@@ -662,42 +663,75 @@ const AnalysisResult: React.FC = () => {
           >
             {buttonBoard()}
           </motion.div>
-
-          <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
-            {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
-            <TwoDChessboard
-              boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-              }
-              arePiecesDraggable={false}
-              orientation={orientation}
-              position={game.fen()}
-              onSquareClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onSquareRightClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onPromotionPieceSelect={function (
-                piece?: PromotionPieceOption,
-                promoteFromSquare?: Square,
-                promoteToSquare?: Square
-              ): boolean {
-                throw new Error("Function not implemented.");
-              }}
-              promotionToSquare={null}
-              showPromotionDialog={false}
-              customArrows={undefined}
-              areArrowsAllowed={false}
-              customArrowColor={""}
-            />
-          </div>
+          <motion.div
+            animate={
+              hideDiv || is3DMode
+                ? { opacity: 0, display: "hidden" }
+                : { opacity: 1 }
+            }
+            transition={{ duration: 1, ease: "easeInOut" }}
+            style={{
+              width: boardSize,
+              display: !hideDiv || is3DMode ? "flex" : "none",
+            }}
+          >
+            {!is3DMode && (
+              <TwoDChessboard
+                boardWidth={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                arePiecesDraggable={false}
+                orientation={orientation}
+                position={game.fen()}
+                onSquareClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onSquareRightClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+                promotionToSquare={null}
+                showPromotionDialog={false}
+                customArrows={undefined}
+                areArrowsAllowed={false}
+                customArrowColor={""}
+              />
+            )}
+          </motion.div>
+          <motion.div
+            animate={
+              hideDiv || !is3DMode
+                ? { opacity: 0, display: "none" }
+                : { opacity: 1 }
+            }
+            transition={{ duration: 1, ease: "easeInOut" }}
+            style={{
+              width: boardSize,
+              display: !hideDiv || !is3DMode ? "flex" : "none",
+            }}
+          >
+            {is3DMode && (
+              <BoardWood
+                size={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                position={game.fen()}
+                boardOrientation={orientation}
+              />
+            )}
+          </motion.div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-2 ">
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipBackIcon fill="black" size={boardSize / 22} color="black" />
@@ -706,14 +740,14 @@ const AnalysisResult: React.FC = () => {
             <button
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <ChevronLeft size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               {isPlaying ? (
@@ -726,7 +760,7 @@ const AnalysisResult: React.FC = () => {
             <button
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <ChevronRight size={boardSize / 22} color="black" />
@@ -734,7 +768,7 @@ const AnalysisResult: React.FC = () => {
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
-              style={{ height: boardSize / 15, borderRadius: boardSize /120 }}
+              style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
               className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
             >
               <SkipForwardIcon

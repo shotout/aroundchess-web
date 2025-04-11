@@ -29,7 +29,7 @@ const PgnPlayer: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
-
+  const [mounted, setMounted] = useState(false);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const manuallyPlayPgn = (pgnText: string) => {
@@ -255,6 +255,16 @@ const PgnPlayer: React.FC = () => {
     };
   }, [game, moveHistory, currentMoveIndex]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
   // Clean up on unmount
   useEffect(() => {
     handleResize();
@@ -270,7 +280,7 @@ const PgnPlayer: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1440 ? window.innerWidth / 4 : 400;
+    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3 : 480;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
