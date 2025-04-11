@@ -30,8 +30,8 @@ export function ConfirmLogin() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:h-[408px] lg:p-[32px] bg-white overflow-y-auto">
-        <ScrollArea className="flex flex-col justify-center items-center bg-white">
+      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:h-[408px] lg:p-[32px] bg-white h-4/5 overflow-y-hidden">
+        <div className="flex flex-col justify-center items-center bg-white">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image
               src="/images/validation/login-vector.png"
@@ -51,7 +51,7 @@ export function ConfirmLogin() {
               Account.
             </span>
           </div>
-        </ScrollArea>
+        </div>
         <div className="flex flex-row justify-center items-center gap-3">
           <button
             onClick={handleRegister}
