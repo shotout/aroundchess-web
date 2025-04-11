@@ -198,7 +198,6 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
             animationDuration={100}
           />
         </div>
-        {/* <span className="absolute">{boardSize}</span> */}
       </div>
     </div>
   );
