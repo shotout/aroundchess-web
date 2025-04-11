@@ -11,8 +11,11 @@ import { usePagination } from "../../hooks/usePagination";
 import { gameHistoryApi } from "../../services/api";
 import GamesList from "../GameList";
 import { Game } from "../../types/GameHistoryTypes";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 
 const OtherGamesTab: React.FC = () => {
+  const { proceedAnalysis } = useStockfishAnalysis();
+
   const router = useRouter();
   const {
     username,
@@ -55,12 +58,7 @@ const OtherGamesTab: React.FC = () => {
         setPgn(game.pgn);
 
         // Depth and timeout parameters may need to be adjusted based on your requirements
-        const response = await gameHistoryApi.analyzeGame(
-          game.pgn,
-          username || undefined,
-          15,
-          60000
-        );
+        const response = await proceedAnalysis(game?.pgn, username, 15, 60000);
 
         if (response && response.data) {
           setDataAnalysis(response.data);

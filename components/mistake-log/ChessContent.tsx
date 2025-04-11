@@ -51,6 +51,7 @@ const ChessContent: React.FC = () => {
     setCapturedWhite,
     playerInfo,
     movementDetails,
+    previousAnalysesDetail,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -437,7 +438,9 @@ const ChessContent: React.FC = () => {
     return (
       <div
         className={`w-full border ${
-          gameInfo?.blackWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+          previousAnalysesDetail.blackWin
+            ? "border-[#00B427] bg-[#D3FFDD]"
+            : "bg-white"
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -453,7 +456,7 @@ const ChessContent: React.FC = () => {
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                  gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                  previousAnalysesDetail?.blackWin&&"text-[#00B427]"
                 }`}
               >
                 {playerInfo?.black?.username}
@@ -510,7 +513,9 @@ const ChessContent: React.FC = () => {
     return (
       <div
         className={`w-full border ${
-          gameInfo?.whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+          previousAnalysesDetail?.whiteWin
+            ? "border-[#00B427] bg-[#D3FFDD]"
+            : "bg-white"
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -526,7 +531,7 @@ const ChessContent: React.FC = () => {
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                  gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
+                  previousAnalysesDetail?.whiteWin && "text-[#00B427]"
                 }`}
               >
                 {playerInfo?.white?.username}
@@ -746,76 +751,6 @@ const ChessContent: React.FC = () => {
             {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
 
-          {showMovementContent && chessMove.move != null && (
-            <div className="w-full p-0" style={{ maxWidth: boardSize }}>
-              <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                <div className="flex flex-row items-center justify-between gap-2">
-                  <div className="flex flex-row items-center gap-2">
-                    <span className="text-xs  sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
-                      {chessMove.move}
-                    </span>
-                    {chessMove?.evaluation && (
-                      <span
-                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
-                          chessMove?.classification.toLowerCase()
-                        )}`}
-                      >
-                        {chessMove.evaluation}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center gap-2">
-                    {chessMove?.classification && (
-                      <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
-                          chessMove.classification
-                        )}`}
-                      >
-                        {chessMove.classification}
-                      </span>
-                    )}
-                    {chessMove?.type && (
-                      <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
-                          chessMove.type
-                        )}`}
-                      >
-                        {chessMove.type}
-                      </span>
-                    )}
-                    <button onClick={() => setChessMove({})}>
-                      <Image
-                        alt="close"
-                        src={"/icons/close-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-5 h-5"
-                      />
-                    </button>
-                  </div>
-                </div>
-                {chessMove?.analysis && (
-                  <span className="text-sm font-normal py-1">
-                    {chessMove?.analysis}
-                  </span>
-                )}
-                {chessMove?.solution && (
-                  <span className="text-sm font-normal py-1">
-                    {chessMove?.solution}
-                  </span>
-                )}
-                {chessMove?.gamePhase && (
-                  <div className="flex flex-row gap-1">
-                    <InfoIcon size={16} color="#221AE9" />
-                    <span className="text-sm">Type:</span>
-                    <span className="text-sm font-semibold ">
-                      {chessMove.gamePhase}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
           {showTable && !loading && <MovementTable />}
         </div>
       </div>

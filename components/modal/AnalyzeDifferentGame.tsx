@@ -107,7 +107,11 @@ const mockData = {
   ],
 };
 
-export function AnalyzeDifferentGame() {
+interface AnalyzeDifferentGameProps {
+  openPopup?: boolean;
+}
+
+export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const router = useRouter();
   const { proceedAnalysis } = useStockfishAnalysis();
   const {
@@ -176,6 +180,12 @@ export function AnalyzeDifferentGame() {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
     return () => clearTimeout(timer); // Cleanup
   }, [username]);
+
+  useEffect(() => {
+    if (openPopup != null) {
+      setOpen(openPopup);
+    }
+  }, [openPopup]);
 
   useEffect(() => {
     if (debouncedQuery) {
