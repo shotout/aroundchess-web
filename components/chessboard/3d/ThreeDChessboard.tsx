@@ -66,13 +66,13 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   // Board boardWidth configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
   const [scale, setScale] = useState<number | any>(0);
-  const [loading, setLoading] = useState<number | any>(0);
+  const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
-  }, [BoardChoosed, StyleChoosed, PieceChoosed]);
+    }, 500);
+  }, [PieceChoosed]);
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -199,14 +199,14 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   }, []);
   // Frame dimensions
   let paddingTop = 50;
-if(loading) return <DotSpinner/>
+  if (loading) return <DotSpinner />;
   return (
     <div
       className="flex flex-col items-center justify-center"
       style={{
         width: boardWidth,
         height: boardWidth,
-        pointerEvents:"none",
+        pointerEvents: "none",
         transform: `scale(${scale + ``})`,
       }}
     >

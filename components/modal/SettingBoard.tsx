@@ -117,7 +117,7 @@ export function SettingBoard() {
   useEffect(() => {
     setPieceSelected(PieceChoosed);
     setBoardSelected(BoardChoosed);
-  }, []);
+  }, [PieceChoosed, BoardChoosed]);
   const handleSelectTab = (value: string) => {
     setTabSelected(value);
   };
