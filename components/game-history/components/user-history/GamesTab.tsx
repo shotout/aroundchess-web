@@ -12,8 +12,10 @@ import { gameHistoryApi } from "../../services/api";
 import { toast } from "sonner";
 import Filters from "../Filters";
 import GamesList from "../GameList";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 
 const GamesTab: React.FC = () => {
+  const {proceedAnalysis} = useStockfishAnalysis()
   const router = useRouter();
   const {
     username,
@@ -54,12 +56,7 @@ const GamesTab: React.FC = () => {
         setZustandIsLoading(true);
         setPgn(game.pgn);
 
-        const response = await gameHistoryApi.analyzeGame(
-          game.pgn,
-          username || undefined,
-          15,
-          60000
-        );
+        const response = await proceedAnalysis(game?.pgn, username, 15, 60000);
 
         if (response && response.data) {
           setDataAnalysis(response.data);

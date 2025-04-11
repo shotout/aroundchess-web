@@ -59,9 +59,12 @@ export default function AnalysisPage() {
     }
   };
   const openModalAnalyze = (data: any) => {
-    if (data.length == 0 && !openAnalyze) {
+    console.log("openModalAnalyze", data);
+    if (data.length == 0) {
       fetchPgnFamousGame();
-      setOpenAnalyze(true);
+      if (!openAnalyze) {
+        setOpenAnalyze(true);
+      }
     } else {
       setOpenAnalyze(false);
     }
@@ -169,7 +172,7 @@ export default function AnalysisPage() {
                 {isSignedIn && <AnalyzeDifferentGame openPopup={openAnalyze} />}
               </div>
             </div>
-            {fetchLoading ? (
+            {fetchLoading && pgn.length == 0 ? (
               <DotSpinner />
             ) : (
               <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
