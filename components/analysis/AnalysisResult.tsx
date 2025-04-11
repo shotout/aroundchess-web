@@ -29,6 +29,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import BoardWood from "../3d-board/3DBoardWoodNew";
+import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
 
 interface ParsedMove {
   color: string;
@@ -621,7 +622,7 @@ const AnalysisResult: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        <button onClick={toggleBoardMode}>
+        {/* <button onClick={toggleBoardMode}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -629,7 +630,7 @@ const AnalysisResult: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -680,7 +681,6 @@ const AnalysisResult: React.FC = () => {
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }
-                arePiecesDraggable={false}
                 orientation={orientation}
                 position={game.fen()}
                 onSquareClick={function (square: Square): void {
@@ -717,12 +717,30 @@ const AnalysisResult: React.FC = () => {
             }}
           >
             {is3DMode && (
-              <BoardWood
-                size={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-                }
-                position={game.fen()}
-                boardOrientation={orientation}
+              <ThreeDBoard
+              boardWidth={
+                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+              }
+              orientation={orientation}
+              position={game.fen()}
+              onSquareClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onSquareRightClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onPromotionPieceSelect={function (
+                piece?: PromotionPieceOption,
+                promoteFromSquare?: Square,
+                promoteToSquare?: Square
+              ): boolean {
+                throw new Error("Function not implemented.");
+              }}
+              promotionToSquare={null}
+              showPromotionDialog={false}
+              customArrows={undefined}
+              areArrowsAllowed={false}
+              customArrowColor={""}
               />
             )}
           </motion.div>
