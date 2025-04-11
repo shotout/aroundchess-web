@@ -183,14 +183,16 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             pointerEvents: "none",
           }}
         >
-          <img
+          <Image
             src={`/3d-pieces/${PieceChoosed}/${piece}.png`}
+            alt="Chess board pieces"
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
               position: "absolute",
               bottom: `${0.12 * squareWidth}px`,
             }}
+            priority
           />
         </div>
       );
@@ -223,6 +225,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           width={1000}
           height={1000}
           className={`absolute z-2 w-[480px] h-[480px] object-contain`}
+          priority
         />
         <div
           style={{
