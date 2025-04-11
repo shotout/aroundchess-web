@@ -11,6 +11,7 @@ import {
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import DotSpinner from "@/components/game-history/Spinner";
 
 interface ThreeDBoardProps {
   position: string;
@@ -64,8 +65,14 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   } = useChessBoardThemeStore();
   // Board boardWidth configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
-  const [scale, setScale] = useState<number | any>(0); // Default boardWidth
-
+  const [scale, setScale] = useState<number | any>(0);
+  const [loading, setLoading] = useState<number | any>(0);
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, [BoardChoosed, StyleChoosed, PieceChoosed]);
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -192,13 +199,14 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   }, []);
   // Frame dimensions
   let paddingTop = 50;
-
+if(loading) return <DotSpinner/>
   return (
     <div
       className="flex flex-col items-center justify-center"
       style={{
         width: boardWidth,
         height: boardWidth,
+        pointerEvents:"none",
         transform: `scale(${scale + ``})`,
       }}
     >
@@ -276,14 +284,18 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 // background:"black"
               }}
               customPieces={threeDPieces}
-              customLightSquareStyle={{
-                // backgroundColor: "transparent",
-                // backgroundColor: "#00000080",
-              }}
-              customDarkSquareStyle={{
-                // backgroundColor: "transparent",
-                // backgroundColor: "#00000070",
-              }}
+              customLightSquareStyle={
+                {
+                  // backgroundColor: "transparent",
+                  // backgroundColor: "#00000080",
+                }
+              }
+              customDarkSquareStyle={
+                {
+                  // backgroundColor: "transparent",
+                  // backgroundColor: "#00000070",
+                }
+              }
               animationDuration={100}
             />
           )}
