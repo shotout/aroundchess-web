@@ -14,13 +14,16 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; 
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 
 const AnalysisLatestGame: React.FC = () => {
-  const router = useRouter();
+  const router = useRouter(); 
   const { isSignedIn } = useAuth();
   const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
   const { setTabFocus, tabFocus } = useTabFocusStore();
+  const { open, setOpen:setOpenConfirmLogin } = useConfirmLogin();
+
   const {
     gameInfo,
     summary,
@@ -31,7 +34,7 @@ const AnalysisLatestGame: React.FC = () => {
     improvementRecommendation,
     training,
   } = dataAnalysis ?? {};
-  const [widthContainer, setWidthContainer] = useState<number|string>(700);
+  const [widthContainer, setWidthContainer] = useState<number | string>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [focusPage, setFocusPage] = useState<string>("summary");
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -57,10 +60,7 @@ const AnalysisLatestGame: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
   const handleResize = () => {
-    let widthC =
-      window?.innerWidth <= 1280
-        ? 'auto'
-        : window?.innerWidth * 0.5;
+    let widthC = window?.innerWidth <= 1280 ? "auto" : window?.innerWidth * 0.5;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
@@ -129,21 +129,21 @@ const AnalysisLatestGame: React.FC = () => {
       setFocusPage(tab.name);
       setChessMove({});
     } else {
-      router.push("/login");
+      setOpenConfirmLogin(true)
     }
   };
   return (
     <div
-      style={{ width: widthContainer,}}
+      style={{ width: widthContainer }}
       className={`${
         hideDiv && "mt-96 sm:mt-[64%]"
       } flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 lg:p-[32px]`}
     >
       <div className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
-        <span className="text-sm sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
+        <span className="text-[24px] sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
           Analysis
         </span>
-        <span className="text-xs sm:text-sm md:text-md lg:text-md mb-1">
+        <span className="text-md sm:text-md md:text-md lg:text-md mb-1">
           {gameInfo?.date}, {summary?.whiteSide?.profileInfo.username} (White
           <span className="text-[#00B427]">
             {gameInfo?.whiteWin && " - WIN"}
@@ -156,9 +156,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div
-        className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] overflow-x-auto gap-1 p-[8px]"
-      >
+      <div className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] overflow-x-auto gap-1 p-[8px]">
         {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
@@ -167,7 +165,7 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name == "movement" &&
-                `min-w-[120px] sm:min-w-[150px] lg:min-w-[150px]`
+                `min-w-[136px] sm:min-w-[154px] lg:min-w-[154px]`
               } p-2 ${
                 focusPage == tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `

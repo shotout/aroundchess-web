@@ -43,6 +43,8 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     setSavedMistakes,
     previousAnalyses,
     setPreviousAnalyses,
+    previousAnalysesDetail,
+    setPreviousAnalysesDetail,
   } = usePgnStore();
   const {
     saveMistakeLog,
@@ -58,7 +60,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
   useEffect(() => {
     if (previousAnalyses.length > 0) {
-      setSelectedMistakes(previousAnalyses[0]?.id);
+      setSelectedMistakes(previousAnalyses[0]);
     }
   }, [previousAnalyses]);
   const handleOnClickMovement = (move: any) => {
@@ -185,7 +187,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                 >
                   <div className="flex flex-row justify-between gap-2 mb-4">
                     <div className="flex flex-row items-center justify-between lg:justify-start gap-3">
-                      <span className="flex items-center text-[12px] font-normal max-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                      <span className="flex items-center text-[12px] font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
                         Move {item?.moveNumber} :{" "}
                         <span className="font-normal sm:text-sm md:text-md lg:text-md ">
                           {" "}
