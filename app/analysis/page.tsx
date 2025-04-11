@@ -131,7 +131,7 @@ export default function AnalysisPage() {
 
   return (
     <>
-      {!isLoading ? (
+      {isLoading ? (
         <LoadingPage />
       ) : (
         <Navigation>
@@ -150,7 +150,7 @@ export default function AnalysisPage() {
                 <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
               {isSignedIn && (
-                <div className="lg:hidden flex items-center justify-center mt-2">
+                <div className="lg:hidden flex items-center justify-center my-2">
                   <AnalyzeDifferentGame openPopup={openAnalyze} />
                 </div>
               )}

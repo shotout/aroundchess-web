@@ -20,14 +20,23 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
 }) => {
   // Board size configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
+  const [widthC, setWidthC] = useState<number | any>(700); // Default size
+  const [scale, setScale] = useState<number | any>(0); // Default size
 
   useEffect(() => {
+    console.log(size, "size in 3d board wood");
+    setWidthC(window?.innerWidth);
+    console.log(window?.innerWidth, "widthC in 3d board wood");
     if (size) {
+      let fixScale = size / 480;
+
+      setScale(fixScale);
+      let sz = size < 480 ? 480 : size;
       setBoardSize(size);
     } else {
       handleResize();
     }
-  }, [size]);
+  }, [size, window?.innerWidth]);
   const handleResize = () => {
     const width = window?.innerWidth;
     const height = window?.innerHeight;
@@ -142,54 +151,84 @@ const ThreeDBoardWood: React.FC<ThreeDBoardWoodProps> = ({
     return pieceComponents;
   }, []);
   // Frame dimensions
-  let paddingTop = size > 356 ? Math.round(size / 15) : Math.round(size / 22);
-  let paddingLeft = size > 356 ? Math.round(size / 7.9) : Math.round(size / 9);
+  let paddingTop = 50;
+  // widthC > 1440
+  //   ? boardSize * 0.08
+  //   : widthC == 1440
+  //   ? boardSize * 0.12
+  //   : widthC < 1440 && widthC >= 1280
+  //   ? boardSize * 0.15
+  //   : widthC < 768
+  //   ? boardSize * 0.13
+  //   : boardSize * 0.103;
+  let paddingLeft = boardSize * 0.12;
+
   return (
     <div
-      className="relative flex items-center justify-center"
+      className="flex flex-col items-center justify-center"
       style={{
-        width: size,
-        height: size,
-        transform: "scale(1.8)"
+        width: boardSize,
+        height: boardSize,
+        transform: `scale(${scale + ``})`,
+        // widthC > 1440
+        // ? `scale(0.94)`
+        // : widthC > 1280 || widthC < 768
+        // ? `scale(0.84)`
+        // : widthC < 1440 && widthC >= 1280
+        // ? `scale(0.68)`
+        // : ``,
       }}
     >
-      <Image
-        src="/boards/11042025-14.png"
-        alt="Chess board frame"
-        width={1000}
-        height={1000}
-        className={`absolute z-2 w-[${size}px] h-[${size}px] object-contain`}
-      />
       <div
+        className="relative flex items-center justify-center"
         style={{
-          // width: size,
-          // height: size,
-          left: 53,
-          top: 28,
+          width: 480,
+          height: 480,
+          // backgroundColor: "green",
+          // widthC < 768 ? "scale(0.8)" : widthC > 1280 ? "scale(1)" : "",
         }}
-        className={`z-10 absolute flex items-center justify-center`}
       >
-        <Chessboard
-          arePiecesDraggable={false}
-          boardWidth={Math.round(size * 0.779)}
-          id="Styled3DBoard"
-          // position={position}
-          customBoardStyle={{
-            transform: "rotateX(27.5deg)",
-            transformOrigin: "center",
-            // background:"black"
-          }}
-          customPieces={threeDPieces}
-          customLightSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#00000080",
-          }}
-          customDarkSquareStyle={{
-            backgroundColor: "transparent",
-            // backgroundColor: "#00000070",
-          }}
-          animationDuration={100}
+        <Image
+          src="/boards/11042025-14.png"
+          alt="Chess board frame"
+          width={1000}
+          height={1000}
+          className={`absolute z-2 w-[480px] h-[480px] object-contain`}
         />
+        <div
+          style={{
+            // width: boardSize,
+            // height: boardSize,
+            // left: paddingLeft,
+            // top: paddingTop,
+            marginTop: -paddingTop,
+          }}
+          className={`z-10 flex items-center justify-center`}
+        >
+          <Chessboard
+            arePiecesDraggable={false}
+            boardOrientation={boardOrientation}
+            boardWidth={Math.round(480 * 0.779)}
+            id="Styled3DBoard"
+            // position={position}
+            customBoardStyle={{
+              transform: "rotateX(27.5deg) scale(1)",
+              transformOrigin: "center",
+              // background:"black"
+            }}
+            customPieces={threeDPieces}
+            customLightSquareStyle={{
+              backgroundColor: "transparent",
+              // backgroundColor: "#00000080",
+            }}
+            customDarkSquareStyle={{
+              backgroundColor: "transparent",
+              // backgroundColor: "#00000070",
+            }}
+            animationDuration={100}
+          />
+        </div>
+        {/* <span className="absolute">{boardSize}</span> */}
       </div>
     </div>
   );
