@@ -1,217 +1,239 @@
 // useStockfishAnalysis.tsx
-import { useState, useCallback } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { Chess } from 'chess.js';
+import { useState, useCallback } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { Chess } from "chess.js";
 
 export function useStockfishAnalysis() {
-    const { sessionId } = useAuth();
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [error, setError] = useState<Error | null>(null);
+  const { sessionId } = useAuth();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<Error | null>(null);
 
-    /**
-     * Extract a list of FEN positions from a PGN string
-     * @param pgn PGN string to convert
-     * @param includeStartPosition Whether to include the starting position (default: true)
-     * @returns Array of FEN position strings representing each move in the game
-     */
-    const pgnToFenList = useCallback((pgn: string, includeStartPosition: boolean = true): string[] => {
-        const chess = new Chess();
+  /**
+   * Extract a list of FEN positions from a PGN string
+   * @param pgn PGN string to convert
+   * @param includeStartPosition Whether to include the starting position (default: true)
+   * @returns Array of FEN position strings representing each move in the game
+   */
+  const pgnToFenList = useCallback(
+    (pgn: string, includeStartPosition: boolean = true): string[] => {
+      const chess = new Chess();
 
-        try {
-            chess.loadPgn(pgn);
-        } catch (error) {
-            console.error("Error loading PGN:", error);
-            return [];
-        }
+      try {
+        chess.loadPgn(pgn);
+      } catch (error) {
+        console.error("Error loading PGN:", error);
+        return [];
+      }
 
-        const history = chess.history({ verbose: true });
-        const fenList: string[] = [];
+      const history = chess.history({ verbose: true });
+      const fenList: string[] = [];
 
-        chess.reset();
+      chess.reset();
 
-        if (includeStartPosition) {
-            fenList.push(chess.fen());
-        }
+      if (includeStartPosition) {
+        fenList.push(chess.fen());
+      }
 
-        for (const move of history) {
-            chess.move(move);
-            fenList.push(chess.fen());
-        }
+      for (const move of history) {
+        chess.move(move);
+        fenList.push(chess.fen());
+      }
 
-        return fenList;
-    }, []);
+      return fenList;
+    },
+    []
+  );
 
-    /**
-     * Analyze multiple chess positions with Stockfish
-     * @param fenPositions Array of FEN position strings to analyze
-     * @param depth Maximum depth for Stockfish analysis (default: 20)
-     * @param moveTime Time in milliseconds for each position analysis (default: 60000)
-     * @returns Array of analysis results for each position
-     */
-    const batchStockfishAnalysis = useCallback(async (
-        fenPositions: string[],
-        depth: number = 20,
-        moveTime: number = 60000
+  /**
+   * Analyze multiple chess positions with Stockfish
+   * @param fenPositions Array of FEN position strings to analyze
+   * @param depth Maximum depth for Stockfish analysis (default: 20)
+   * @param moveTime Time in milliseconds for each position analysis (default: 60000)
+   * @returns Array of analysis results for each position
+   */
+  const batchStockfishAnalysis = useCallback(
+    async (
+      fenPositions: string[],
+      depth: number = 20,
+      moveTime: number = 60000
     ) => {
-        const results = [];
+      const results = [];
 
-        const { getStockfishService } = await import(
-            "@/lib/stockfish/stockfish-service"
+      const { getStockfishService } = await import(
+        "@/lib/stockfish/stockfish-service"
+      );
+      const stockfishService = getStockfishService();
+      await stockfishService.waitReady();
+      let prog = 0;
+      for (let i = 0; i < fenPositions.length; i++) {
+        const fen = fenPositions[i];
+        const fenParts = fen.split(" ");
+        const colorToMove = fenParts.length > 1 ? fenParts[1] : "w";
+        const colorName = colorToMove === "w" ? "White" : "Black";
+
+        console.log(`Analyzing position for ${colorName}:`, fen);
+        console.log(`Analyzing position progress: ${progress}`);
+        prog = Math.round(((i + 1) / fenPositions.length) * 100);
+        console.log("rumus", prog);
+        // Update progress state
+        const analysis = await stockfishService.getMoveAndEval(
+          fen,
+          depth,
+          moveTime
         );
-        const stockfishService = getStockfishService();
-        await stockfishService.waitReady();
 
-        for (let i = 0; i < fenPositions.length; i++) {
-            const fen = fenPositions[i];
-            const fenParts = fen.split(' ');
-            const colorToMove = fenParts.length > 1 ? fenParts[1] : 'w';
-            const colorName = colorToMove === 'w' ? 'White' : 'Black';
+        results.push({
+          fen: fen,
+          moveNumber: i + 1,
+          color: colorToMove,
+          colorName: colorName,
+          evaluation: analysis.evaluationPawns,
+          bestMove: analysis.bestMove,
+          depth: analysis.depth,
+          evaluationCentiPawns: analysis.evaluationCentiPawns,
+        });
+      }
+      setProgress(prog);
 
-            console.log(`Analyzing position for ${colorName}:`, fen);
+      return results;
+    },
+    []
+  );
 
-            // Update progress state
-            setProgress(Math.round(((i + 1) / fenPositions.length) * 100));
-
-            const analysis = await stockfishService.getMoveAndEval(fen, depth, moveTime);
-
-            results.push({
-                fen: fen,
-                moveNumber: i + 1,
-                color: colorToMove,
-                colorName: colorName,
-                evaluation: analysis.evaluationPawns,
-                bestMove: analysis.bestMove,
-                depth: analysis.depth,
-                evaluationCentiPawns: analysis.evaluationCentiPawns,
-            });
-        }
-
-        return results;
-    }, []);
-
-    /**
-     * Analyze a PGN and send results to API
-     * @param pgn PGN string to analyze (required)
-     * @param username Optional username for the analysis
-     * @param depth Maximum depth for Stockfish analysis (default: 20)
-     * @param moveTime Time in milliseconds for each position analysis (default: 60000)
-     * @returns Analysis results
-     */
-    const proceedAnalysis = useCallback(async (
-        pgn: string,
-        username?: string,
-        depth: number = 20,
-        moveTime: number = 60000
+  /**
+   * Analyze a PGN and send results to API
+   * @param pgn PGN string to analyze (required)
+   * @param username Optional username for the analysis
+   * @param depth Maximum depth for Stockfish analysis (default: 20)
+   * @param moveTime Time in milliseconds for each position analysis (default: 60000)
+   * @returns Analysis results
+   */
+  const proceedAnalysis = useCallback(
+    async (
+      pgn: string,
+      username?: string,
+      depth: number = 20,
+      moveTime: number = 60000
     ) => {
-        if (!pgn) {
-            setError(new Error("PGN is required"));
-            throw new Error("PGN is required");
-        }
+      if (!pgn) {
+        setError(new Error("PGN is required"));
+        throw new Error("PGN is required");
+      }
 
-        setIsAnalyzing(true);
-        setError(null);
-        setProgress(0);
+      setIsAnalyzing(true);
+      setError(null);
+      setProgress(0);
 
-        try {
-            const { default: axios } = await import('axios');
-            const isAlreadyAnalyzed = await axios.post(
-                `${process.env.BASE_URL}/v2/analyze/check-exists`,
-                {
-                    pgn: pgn,
+      try {
+        const { default: axios } = await import("axios");
+        const isAlreadyAnalyzed = await axios.post(
+          `${process.env.BASE_URL}/v2/analyze/check-exists`,
+          {
+            pgn: pgn,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionId}`,
+            },
+          }
+        );
+
+        console.log(isAlreadyAnalyzed.data);
+        console.log(
+          isAlreadyAnalyzed.data.data.exists
+            ? "Analysis already exists"
+            : "Analysis does not exist"
+        );
+
+        if (isAlreadyAnalyzed.data.data.exists) {
+          console.log("Analysis already exists, retrieving existing analysis");
+          try {
+            const { default: axios } = await import("axios");
+            const response = await axios.post(
+              `${process.env.BASE_URL}/v2/analyze`,
+              {
+                pgn: pgn,
+                username: username,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${sessionId}`,
                 },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${sessionId}`,
-                    },
-                }
+              }
             );
 
-            console.log(isAlreadyAnalyzed.data);
-            console.log(isAlreadyAnalyzed.data.data.exists ? "Analysis already exists" : "Analysis does not exist");
+            console.log("API response:", response.data);
+            return response.data;
+          } catch (apiError) {
+            console.error("Error sending analysis to API:", apiError);
+            setError(
+              apiError instanceof Error ? apiError : new Error(String(apiError))
+            );
+            throw apiError;
+          }
+        } else {
+          console.log("Analysis does not exist, proceeding with analysis");
 
-            if (isAlreadyAnalyzed.data.data.exists) {
-                console.log("Analysis already exists, retrieving existing analysis");
-                try {
-                    const { default: axios } = await import('axios');
-                    const response = await axios.post(
-                        `${process.env.BASE_URL}/v2/analyze`,
-                        {
-                            pgn: pgn,
-                            username: username,
-                        },
-                        {
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${sessionId}`,
-                            },
-                        }
-                    );
+          const fenPositions = pgnToFenList(pgn);
+          console.log("Generated FEN positions:", fenPositions.length);
 
-                    console.log("API response:", response.data);
-                    return response.data;
-                } catch (apiError) {
-                    console.error("Error sending analysis to API:", apiError);
-                    setError(apiError instanceof Error ? apiError : new Error(String(apiError)));
-                    throw apiError;
-                }
-            } else {
-                console.log("Analysis does not exist, proceeding with analysis");
+          const analysisResults: any[] = await batchStockfishAnalysis(
+            fenPositions,
+            depth,
+            moveTime
+          );
 
-                const fenPositions = pgnToFenList(pgn);
-                console.log("Generated FEN positions:", fenPositions.length);
+          console.log("Analysis complete:", analysisResults);
 
-                const analysisResults: any[] = await batchStockfishAnalysis(
-                    fenPositions,
-                    depth,
-                    moveTime
-                );
+          try {
+            const { default: axios } = await import("axios");
+            const response = await axios.post(
+              `${process.env.BASE_URL}/v2/analyze`,
+              {
+                pgn: pgn,
+                username: username,
+                stockfishData: analysisResults,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${sessionId}`,
+                },
+              }
+            );
 
-                console.log("Analysis complete:", analysisResults);
-
-                try {
-                    const { default: axios } = await import('axios');
-                    const response = await axios.post(
-                        `${process.env.BASE_URL}/v2/analyze`,
-                        {
-                            pgn: pgn,
-                            username: username,
-                            stockfishData: analysisResults,
-                        },
-                        {
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${sessionId}`,
-                            },
-                        }
-                    );
-
-                    console.log("API response:", response.data);
-                    return response.data;
-                } catch (apiError) {
-                    console.error("Error sending analysis to API:", apiError);
-                    setError(apiError instanceof Error ? apiError : new Error(String(apiError)));
-                    throw apiError;
-                }
-            }
-        } catch (error) {
-            console.error("Error analyzing PGN:", error);
-            setError(error instanceof Error ? error : new Error(String(error)));
-            throw error;
-        } finally {
-            setIsAnalyzing(false);
+            console.log("API response:", response.data);
+            return response.data;
+          } catch (apiError) {
+            console.error("Error sending analysis to API:", apiError);
+            setError(
+              apiError instanceof Error ? apiError : new Error(String(apiError))
+            );
+            throw apiError;
+          }
         }
-    }, [sessionId, pgnToFenList, batchStockfishAnalysis]);
+      } catch (error) {
+        console.error("Error analyzing PGN:", error);
+        setError(error instanceof Error ? error : new Error(String(error)));
+        throw error;
+      } finally {
+        setIsAnalyzing(false);
+      }
+    },
+    [sessionId, pgnToFenList, batchStockfishAnalysis]
+  );
 
-    return {
-        proceedAnalysis,
-        pgnToFenList,
-        batchStockfishAnalysis,
-        isAnalyzing,
-        progress,
-        error
-    };
+  return {
+    proceedAnalysis,
+    pgnToFenList,
+    batchStockfishAnalysis,
+    isAnalyzing,
+    progress,
+    error,
+  };
 }
 
 // Example usage in a component:
