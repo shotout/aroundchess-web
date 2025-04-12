@@ -1,6 +1,7 @@
 "use client";
 import { useLoadingNumber } from "@/app/store/loadingNumber";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
@@ -8,6 +9,7 @@ export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
   const { isLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
   const { length, workingOn } = useLoadingNumber(); // Get PGN from the Zustand store
+  const { proceedAnalysis, isAnalyzing, progress:analysisProgress, error } = useStockfishAnalysis();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,7 +78,7 @@ export default function LoadingSpinner() {
             stroke="url(#gradientColor)"
             fill="transparent"
             strokeDasharray="251.2"
-            strokeDashoffset={251.2 - (progress / 100) * 251.2}
+            strokeDashoffset={251.2 - (analysisProgress / 100) * 251.2}
             strokeLinecap="round"
             className="transition-all duration-300 ease-out"
           />
@@ -84,7 +86,7 @@ export default function LoadingSpinner() {
 
         {/* Percentage Text */}
         <div className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-gray-700">
-          {progress}%
+          {analysisProgress}%
         </div>
 
         {/* <div
