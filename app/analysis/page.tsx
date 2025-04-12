@@ -136,7 +136,7 @@ export default function AnalysisPage() {
                 Analysis Result from{" "}
                 <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
-              {isSignedIn && widthC < 1024 && (
+              {isSignedIn && widthC <= 1024 && (
                 <div className="lg:hidden flex items-center justify-center my-2">
                   <AnalyzeDifferentGame openPopup={openAnalyze} />
                 </div>

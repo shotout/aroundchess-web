@@ -1,12 +1,12 @@
 // useStockfishAnalysis.tsx
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Chess } from "chess.js";
 
 export function useStockfishAnalysis() {
   const { sessionId } = useAuth();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
 
   /**
@@ -59,29 +59,32 @@ export function useStockfishAnalysis() {
       moveTime: number = 60000
     ) => {
       const results = [];
+      let count = 0;
 
       const { getStockfishService } = await import(
         "@/lib/stockfish/stockfish-service"
       );
       const stockfishService = getStockfishService();
       await stockfishService.waitReady();
-      let prog = 0;
+
       for (let i = 0; i < fenPositions.length; i++) {
         const fen = fenPositions[i];
         const fenParts = fen.split(" ");
         const colorToMove = fenParts.length > 1 ? fenParts[1] : "w";
         const colorName = colorToMove === "w" ? "White" : "Black";
+        count = Math.round(((i + 1) / fenPositions.length) * 100);
+
+        // Update progress state after each position
 
         console.log(`Analyzing position for ${colorName}:`, fen);
         console.log(`Analyzing position progress: ${progress}`);
-        prog = Math.round(((i + 1) / fenPositions.length) * 100);
-        console.log("rumus", prog);
-        // Update progress state
+        console.log("count progress", count);
         const analysis = await stockfishService.getMoveAndEval(
           fen,
           depth,
           moveTime
         );
+        setProgress(count);
 
         results.push({
           fen: fen,
@@ -94,13 +97,10 @@ export function useStockfishAnalysis() {
           evaluationCentiPawns: analysis.evaluationCentiPawns,
         });
       }
-      setProgress(prog);
-
       return results;
     },
     []
-  );
-
+  ); 
   /**
    * Analyze a PGN and send results to API
    * @param pgn PGN string to analyze (required)

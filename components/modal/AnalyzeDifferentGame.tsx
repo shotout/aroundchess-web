@@ -134,7 +134,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     {
       image: "/icons/board-medium-analysis.png",
       value: 20,
-      title: "Standard Analysi",
+      title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
     },

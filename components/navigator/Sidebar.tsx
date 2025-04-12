@@ -36,7 +36,7 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-news-icon.png",
     iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",
-    permission: true,
+    // permission: true,
   },
   {
     name: "Dashboard",
