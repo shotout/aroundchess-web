@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         toast.success("Logged in successfully!");
-        window.location.href = "/my-game-history";
+        window.location.href = "/analysis";
         localStorage.setItem("token", sessionId + "");
       } else {
         console.error("Sign in result:", result);
@@ -52,7 +52,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
       });
       localStorage.setItem("token", sessionId + "");
     } catch (error) {
@@ -67,7 +67,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
       });
       localStorage.setItem("token", sessionId + "");
     } catch (error) {
@@ -82,7 +82,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history", // Ensure redirect to game-history
+        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
       });
       localStorage.setItem("token", sessionId + "");
     } catch (error) {

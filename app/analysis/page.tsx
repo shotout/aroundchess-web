@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
-import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { useAuth } from "@clerk/nextjs";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
+import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+
+
+const DEV_MODE = false;
 
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
@@ -26,26 +28,12 @@ export default function AnalysisPage() {
   } = usePgnStore();
   const { getMistakePrevious, isLoading: fetchLoading } = useApiClient();
   const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [showChessConnect, setShowChessConnect] = useState<boolean>(false);
-  const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
   const [widthC, setWidthC] = useState<number>(0);
+  const [devMode] = useState(DEV_MODE);
   let lastScrollY = 0;
 
-  const isAnyDialogOpen = showChessConnect || showPremiumDialog;
-
-  const handleSuccessfulConnection = (username: string) => {
-    setShowChessConnect(false);
-  };
-
-  const handleClosePremium = () => {
-    setShowPremiumDialog(false);
-  };
-
-  const handleGetPremium = () => {
-    setShowPremiumDialog(false);
-  };
   const fetchMistakePrevious = async () => {
     try {
       const prevData = await getMistakePrevious();
@@ -59,6 +47,7 @@ export default function AnalysisPage() {
       console.error("Failed to fetch mistake previous:", error);
     }
   };
+
   const openModalAnalyze = (data: any) => {
     console.log("openModalAnalyze", data);
     if (data.length == 0) {
@@ -69,6 +58,7 @@ export default function AnalysisPage() {
       setOpenAnalyze(false);
     }
   };
+
   useEffect(() => {
     if (pgn.length == 0 || !isSignedIn) {
       fetchPgnFamousGame();
@@ -91,7 +81,6 @@ export default function AnalysisPage() {
 
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
-      // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
       setIsLoading(false);
@@ -102,6 +91,7 @@ export default function AnalysisPage() {
       }
     }
   };
+
   useEffect(() => {
     setWidthC(window?.innerWidth);
     setIsLoading(false);
@@ -124,15 +114,9 @@ export default function AnalysisPage() {
       lastScrollY = window.scrollY;
     };
 
-    if (!isAnyDialogOpen) {
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [lastScrollY, setHideDiv, setIsLoading, isAnyDialogOpen]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY, setHideDiv, setIsLoading]);
 
   return (
     <>
@@ -140,11 +124,9 @@ export default function AnalysisPage() {
         <LoadingPage />
       ) : (
         <Navigation>
-          <div
-            className={`flex flex-col overflow-y-auto relative ${
-              isAnyDialogOpen ? "z-30" : ""
-            }`}
-          >
+          <div className="flex flex-col overflow-y-auto relative">
+            <ChessAccountSetup isLoading={isLoading} debugMode={devMode} />
+
             <div
               className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 lg:p-[32px] gap-1 ${
                 hideDiv && "hidden"
@@ -183,22 +165,7 @@ export default function AnalysisPage() {
               <DotSpinner />
             ) : (
               <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
-                <ChessConnectDialog
-                  open={showChessConnect && !isLoading && !username}
-                  onOpenChange={setShowChessConnect}
-                  onSuccess={handleSuccessfulConnection}
-                />
-                {/* <PremiumSubscription
-                open={showPremiumDialog && !isLoading}
-                onOpenChange={setShowPremiumDialog}
-                onClose={handleClosePremium}
-                onGetPremium={handleGetPremium}
-              /> */}
-                {isAnyDialogOpen && (
-                  <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
-                )}
                 <AnalysisResult />
-                {/* </div> */}
                 <AnalysisLatestGame />
               </div>
             )}
