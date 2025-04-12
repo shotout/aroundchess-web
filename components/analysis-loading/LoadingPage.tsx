@@ -4,6 +4,7 @@ import PgnPlayer from "./LoadingChess";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { unixFormatDate } from "@/functions/unix-format-date";
 import { Chess } from "chess.js";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 
 const LoadingPage: React.FC = (props) => {
   const {
