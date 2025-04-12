@@ -57,6 +57,8 @@ const MistakeLog = () => {
     setSavedMistakes,
     previousAnalyses,
     setPreviousAnalyses,
+    setPreviousAnalysesDetail,
+    previousAnalysesDetail,
   } = usePgnStore();
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
@@ -116,6 +118,7 @@ const MistakeLog = () => {
       const savedData = await getMistakeSaved(params);
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
+      setPreviousAnalysesDetail(savedData.data[0]);
     } catch (error) {
       console.error("Failed to fetch mistake saved:", error);
     }
@@ -324,9 +327,7 @@ const MistakeLog = () => {
     <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
-          <h1 className="text-xl lg:text-[32px] font-semibold">
-            Mistake Log
-          </h1>
+          <h1 className="text-xl lg:text-[32px] font-semibold">Mistake Log</h1>
           <div className="flex justify-center items-end h-full">
             <p className="text-xs text-gray-500 lg:text-[18px] font-normal">
               {`(${username})`}
@@ -340,6 +341,11 @@ const MistakeLog = () => {
             onClick={() => {
               setSelectedTab("saved");
               setChessMove({});
+              setPgn(savedMistakes[0].pgn);
+              setPlayerInfo(savedMistakes[0].playerInfo);
+              setTitleGame(savedMistakes[0].title);
+              setMovementDetails(savedMistakes[0].movementDetail);
+              setPreviousAnalysesDetail(savedMistakes[0]); // Set the first saved mistake as the default detail
             }}
             value="saved"
             className={`${
@@ -360,6 +366,11 @@ const MistakeLog = () => {
             onClick={() => {
               setSelectedTab("previous");
               setChessMove({});
+              setPgn(mistakePreviousDetail.pgn);
+              setPlayerInfo(mistakePreviousDetail.playerInfo);
+              setTitleGame(mistakePreviousDetail.title);
+              setMovementDetails(mistakePreviousDetail.movementDetail);
+              setPreviousAnalysesDetail(mistakePreviousDetail); // Set the first saved mistake as the default detail
             }}
             value="previous"
             className={`${
@@ -398,7 +409,7 @@ const MistakeLog = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="previous" >
+        <TabsContent value="previous">
           {isLoading ? (
             <DotSpinner />
           ) : (

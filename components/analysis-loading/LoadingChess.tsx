@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Chess } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { usePgnStore } from "@/app/store/zustandStore";
-import CustomBoard from "./CustomBoard";
-import GlassBoard from "../chessboard/glass/GlassBoard";
-import WoodBoard from "../chessboard/wood/WoodBoard";
-import PlasticBoard from "../chessboard/plastic/PlasticBoard";
-import MetallicBoard from "../chessboard/metallic/MetallicBoard";
+import { motion } from "framer-motion";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 interface ParsedMove {
   color: string;
@@ -20,6 +20,14 @@ interface ParsedMove {
 }
 
 const PgnPlayer: React.FC = () => {
+  const {
+    StyleChoosed,
+    setStyleChoosed,
+    BoardChoosed,
+    setBoardChoosed,
+    PieceChoosed,
+    setPieceChoosed,
+  } = useChessBoardThemeStore();
   const { pgn: storePgn, error: storeError } = usePgnStore();
   const [game, setGame] = useState<Chess>(new Chess());
   const [moveHistory, setMoveHistory] = useState<ParsedMove[]>([]);
@@ -28,8 +36,15 @@ const PgnPlayer: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
-
+  const [mounted, setMounted] = useState(false);
+  const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+    console.log("StyleChoosed", StyleChoosed);
+  }, [StyleChoosed]);
 
   const manuallyPlayPgn = (pgnText: string) => {
     try {
@@ -254,6 +269,16 @@ const PgnPlayer: React.FC = () => {
     };
   }, [game, moveHistory, currentMoveIndex]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
   // Clean up on unmount
   useEffect(() => {
     handleResize();
@@ -269,7 +294,7 @@ const PgnPlayer: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1440 ? window.innerWidth / 4 : 400;
+    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3 : 480;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
@@ -289,26 +314,77 @@ const PgnPlayer: React.FC = () => {
     }
   };
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex flex-row gap-3 mx-auto">
-          {/* <GlassBoard
-          boardWidth={boardSize}
+    <div className="space-y-4">
+      <div className="flex flex-row gap-3 mx-auto">
+        {!is3DMode && (
+          <TwoDChessboard
+            boardWidth={boardSize}
+            orientation={boardOrientation}
             position={game.fen()}
-          /> */}
-          <WoodBoard boardWidth={boardSize} position={game.fen()} />
-          {/* <PlasticBoard boardWidth={boardSize} position={game.fen()} /> */}
-          {/* <MetallicBoard boardWidth={boardSize} position={game.fen()} /> */}
-        </div>
+            onSquareClick={function (square: Square): void {
+              throw new Error("Function not implemented.");
+            }}
+            onSquareRightClick={function (square: Square): void {
+              throw new Error("Function not implemented.");
+            }}
+            onPromotionPieceSelect={function (
+              piece?: PromotionPieceOption,
+              promoteFromSquare?: Square,
+              promoteToSquare?: Square
+            ): boolean {
+              throw new Error("Function not implemented.");
+            }}
+            promotionToSquare={null}
+            showPromotionDialog={false}
+            customArrows={undefined}
+            areArrowsAllowed={false}
+            customArrowColor={""}
+          />
+        )}
 
-        {/* <div className="text-center mt-4">
+        {is3DMode && (
+          <div className="-mt-[40px]">
+            <ThreeDBoard
+              boardWidth={boardSize}
+              orientation={boardOrientation}
+              position={game.fen()}
+              onSquareClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onSquareRightClick={function (square: Square): void {
+                throw new Error("Function not implemented.");
+              }}
+              onPromotionPieceSelect={function (
+                piece?: PromotionPieceOption,
+                promoteFromSquare?: Square,
+                promoteToSquare?: Square
+              ): boolean {
+                throw new Error("Function not implemented.");
+              }}
+              promotionToSquare={null}
+              showPromotionDialog={false}
+              customArrows={undefined}
+              areArrowsAllowed={false}
+              customArrowColor={""}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* <div className="text-center mt-4">
           <p>
             Move: {currentMoveIndex} / {moveHistory.length}
           </p>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </div> */}
-      </div>
-    </>
+
+      {/* <div className="">
+        <p className="text-sm md:text-md text-center">
+          Move: {currentMoveIndex} / {moveHistory.length}
+        </p>
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+      </div> */}
+    </div>
   );
 };
 

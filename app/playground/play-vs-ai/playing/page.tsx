@@ -24,22 +24,30 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
-import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
+import {
+  BoardOrientation,
+  PromotionPieceOption,
+} from "react-chessboard/dist/chessboard/types";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
+import { usePgnStore } from "@/app/store/zustandStore";
+import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 export default function Playing() {
   const router = useRouter();
+ 
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
+  const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { PieceChoosed } = useChessBoardThemeStore();
-  const [selectedTab, setSelectedTab] = useState<string>("current"); // Default size
-  const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
-  const [myColor, setMyColor] = useState<string>(AIChoosed.color); // Default size
-  const [currentTurn, setCurrentTurn] = useState<string>("White"); // Default size
-  const [is3DMode, setIs3DMode] = useState<boolean>(false); // Default size
-  const [boardSize, setBoardSize] = useState<number>(700); // Default size
+  const { PieceChoosed ,StyleChoosed} = useChessBoardThemeStore();
+  const [selectedTab, setSelectedTab] = useState<string>("current");
+  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [myColor, setMyColor] = useState<string>(AIChoosed.color);
+  const [currentTurn, setCurrentTurn] = useState<string>("White");
+  const [is3DMode, setIs3DMode] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(true);
+  const [boardSize, setBoardSize] = useState<number>(700);
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [pastGames, setPastGames] = useState<any[]>([]);
@@ -68,7 +76,10 @@ export default function Playing() {
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
   >({});
-
+  useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({
       square,
@@ -354,7 +365,6 @@ export default function Playing() {
       }, 1000);
     }
     setHeightScreen(window?.innerHeight);
-    handleResize();
   }, []);
   const getStockfishDepth = (elo: number) => {
     if (elo < 250) return 1;
@@ -372,13 +382,23 @@ export default function Playing() {
     if (elo < 2800) return 24;
     return 26; // 2800+ players (Super GM strength)
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
+  }, [mounted, hideDiv, is3DMode]);
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth > 1024 ? window.innerWidth / 2.9 : 453;
-    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 2.9 : 480;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
@@ -471,7 +491,7 @@ export default function Playing() {
     return (
       <div
         style={{ width: boardSize }}
-        className="xl:hidden flex flex-row self-end sm:self-center justify-end items-center gap-3"
+        className="xl:hidden flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
       >
         <button onClick={handleSwitch}>
           <Image
@@ -483,7 +503,7 @@ export default function Playing() {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={handleThreeD}>
+        <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -491,7 +511,7 @@ export default function Playing() {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button> */}
+        </button>
       </div>
     );
   };
@@ -512,7 +532,7 @@ export default function Playing() {
         </button>
         <SettingBoard />
 
-        {/* <button onClick={handleThreeD}>
+        <button onClick={handleThreeD}>
           <Image
             src={"/images/play-vs-ai/3d.png"}
             alt="icon"
@@ -520,7 +540,7 @@ export default function Playing() {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button> */}
+        </button>
       </div>
     );
   };
@@ -907,51 +927,96 @@ export default function Playing() {
             {orientation != "white" ? whitePlayer() : blackPlayer()}
             <div className="flex flex-col justify-center items-center gap-3 ">
               {buttonBoard()}
-              <TwoDChessboard
-                arePiecesDraggable={false}
-                orientation={orientation}
-                boardWidth={boardSize}
-                position={gamePosition}
-                onSquareClick={onSquareClick}
-                onSquareRightClick={onSquareRightClick}
-                onPromotionPieceSelect={onPromotionPieceSelect}
-                customSquareStyles={{
-                  ...moveSquares,
-                  ...optionSquares,
-                  ...rightClickedSquares,
-                }}
-                areArrowsAllowed={true}
-                customArrows={
-                  bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
-                    ? [
-                        [
-                          bestLine?.split(" ")?.[0].substring(0, 2) as Square,
-                          bestLine?.split(" ")?.[0].substring(2, 4) as Square,
-                        ],
-                      ]
-                    : null
+              <motion.div
+                animate={
+                  hideDiv || is3DMode
+                    ? { opacity: 0, display: "hidden" }
+                    : { opacity: 1 }
                 }
-                customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
-                promotionToSquare={moveTo}
-                showPromotionDialog={showPromotionDialog}
-              />
+                transition={{ duration: 1, ease: "easeInOut" }}
+                style={{
+                  width: boardSize,
+                  display: !hideDiv || is3DMode ? "flex" : "none",
+                }}
+              >
+                {!is3DMode && (
+                  <TwoDChessboard
+                    boardWidth={
+                      hideDiv
+                        ? boardSize - 80
+                        : is3DMode
+                        ? boardSize
+                        : boardSize
+                    }
+                    orientation={orientation}
+                    position={game.fen()}
+                    onSquareClick={function (square: Square): void {
+                      throw new Error("Function not implemented.");
+                    }}
+                    onSquareRightClick={function (square: Square): void {
+                      throw new Error("Function not implemented.");
+                    }}
+                    onPromotionPieceSelect={function (
+                      piece?: PromotionPieceOption,
+                      promoteFromSquare?: Square,
+                      promoteToSquare?: Square
+                    ): boolean {
+                      throw new Error("Function not implemented.");
+                    }}
+                    promotionToSquare={null}
+                    showPromotionDialog={false}
+                    customArrows={undefined}
+                    areArrowsAllowed={false}
+                    customArrowColor={""}
+                  />
+                )}
+              </motion.div>
+              <motion.div
+                animate={
+                  hideDiv || !is3DMode
+                    ? { opacity: 0, display: "none" }
+                    : { opacity: 1 }
+                }
+                transition={{ duration: 1, ease: "easeInOut" }}
+                style={{
+                  width: boardSize,
+                  display: !hideDiv || !is3DMode ? "flex" : "none",
+                }}
+              >
+                {is3DMode && (
+                  <ThreeDBoard
+                    boardWidth={
+                      hideDiv
+                        ? boardSize - 80
+                        : is3DMode
+                        ? boardSize
+                        : boardSize
+                    }
+                    orientation={orientation}
+                    position={game.fen()}
+                    onSquareClick={function (square: Square): void {
+                      throw new Error("Function not implemented.");
+                    }}
+                    onSquareRightClick={function (square: Square): void {
+                      throw new Error("Function not implemented.");
+                    }}
+                    onPromotionPieceSelect={function (
+                      piece?: PromotionPieceOption,
+                      promoteFromSquare?: Square,
+                      promoteToSquare?: Square
+                    ): boolean {
+                      throw new Error("Function not implemented.");
+                    }}
+                    promotionToSquare={null}
+                    showPromotionDialog={false}
+                    customArrows={undefined}
+                    areArrowsAllowed={false}
+                    customArrowColor={""}
+                  />
+                )}
+              </motion.div>
 
-              {/* {is3DMode ? (
-                <ThreeDChessboard
-                  onPieceDrop={onDrop}
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  position={gamePosition}
-                />
-              ) : (
-                <TwoDChessboard
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  position={gamePosition}
-                  onPieceDrop={onDrop}
-                />
-              )} */}
-              <div className="flex flex-row flex-wrap items-center justify-center gap-2 xl:mb-2">
+              <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
                 <div className="flex flex-row items-center justify-center gap-1">
                   <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
                   <span className="h-[14px] font-normal text-[11px]">
@@ -1119,7 +1184,7 @@ export default function Playing() {
 
           <TabsContent value="past" className="gap-2">
             <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
-              {isLoading && (<DotSpinner/>)}
+              {isLoading && <DotSpinner />}
               <div
                 style={{ height: heightScreen * 0.8 }}
                 className="px-4 w-full xl:max-h-[70vh] overflow-y-auto"

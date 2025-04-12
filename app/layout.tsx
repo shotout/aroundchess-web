@@ -24,10 +24,10 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <script src="/stockfish.js" defer></script>
       </head>
-      <body className={inter.className}>
+      <body >
         <ClerkProvider>
           {children}
-          <Analytics />
+          {/* <Analytics /> */}
           <Toaster />
         </ClerkProvider>
       </body>

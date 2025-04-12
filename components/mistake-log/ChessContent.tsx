@@ -29,6 +29,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useApiClient } from "@/functions/api-client";
+import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
 
 interface ParsedMove {
   color: string;
@@ -51,6 +52,7 @@ const ChessContent: React.FC = () => {
     setCapturedWhite,
     playerInfo,
     movementDetails,
+    previousAnalysesDetail,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -112,7 +114,10 @@ const ChessContent: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-
+useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
   useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
@@ -437,7 +442,9 @@ const ChessContent: React.FC = () => {
     return (
       <div
         className={`w-full border ${
-          gameInfo?.blackWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+          previousAnalysesDetail?.blackWin
+            ? "border-[#00B427] bg-[#D3FFDD]"
+            : "bg-white"
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -453,7 +460,7 @@ const ChessContent: React.FC = () => {
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                  gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                  previousAnalysesDetail?.blackWin && "text-[#00B427]"
                 }`}
               >
                 {playerInfo?.black?.username}
@@ -510,7 +517,9 @@ const ChessContent: React.FC = () => {
     return (
       <div
         className={`w-full border ${
-          gameInfo?.whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+          previousAnalysesDetail?.whiteWin
+            ? "border-[#00B427] bg-[#D3FFDD]"
+            : "bg-white"
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -526,7 +535,7 @@ const ChessContent: React.FC = () => {
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
-                  gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
+                  previousAnalysesDetail?.whiteWin && "text-[#00B427]"
                 }`}
               >
                 {playerInfo?.white?.username}
@@ -612,15 +621,15 @@ const ChessContent: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={handleThreeD}>
-            <Image
-              src={"/images/play-vs-ai/3d.png"}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[22px] h-[27px] object-contain"
-            />
-          </button> */}
+        <button onClick={toggleBoardMode}>
+          <Image
+            src={"/images/play-vs-ai/3d.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[22px] h-[27px] object-contain"
+          />
+        </button>
       </div>
     );
   };
@@ -655,35 +664,86 @@ const ChessContent: React.FC = () => {
             {buttonBoard()}
           </motion.div>
 
-          <div className={`m-0 ${is3DMode && "m-0 xl:m-0"}`}>
-            {/* <div className={`m-0 ${is3DMode && "m-0 xl:m-8"}`}> */}
-            <TwoDChessboard
-              boardWidth={
-                hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-              }
-              arePiecesDraggable={false}
-              orientation={orientation}
-              position={game.fen()}
-              onSquareClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onSquareRightClick={function (square: Square): void {
-                throw new Error("Function not implemented.");
-              }}
-              onPromotionPieceSelect={function (
-                piece?: PromotionPieceOption,
-                promoteFromSquare?: Square,
-                promoteToSquare?: Square
-              ): boolean {
-                throw new Error("Function not implemented.");
-              }}
-              promotionToSquare={null}
-              showPromotionDialog={false}
-              customArrows={undefined}
-              areArrowsAllowed={false}
-              customArrowColor={""}
-            />
-          </div>
+          <motion.div
+            animate={
+              hideDiv || is3DMode
+                ? { opacity: 0, display: "hidden" }
+                : { opacity: 1 }
+            }
+            transition={{ duration: 1, ease: "easeInOut" }}
+            style={{
+              width: boardSize,
+              display: !hideDiv || is3DMode ? "flex" : "none",
+            }}
+          >
+            {!is3DMode && (
+              <TwoDChessboard
+                boardWidth={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                orientation={orientation}
+                position={game.fen()}
+                onSquareClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onSquareRightClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+                promotionToSquare={null}
+                showPromotionDialog={false}
+                customArrows={undefined}
+                areArrowsAllowed={false}
+                customArrowColor={""}
+              />
+            )}
+          </motion.div>
+          <motion.div
+            animate={
+              hideDiv || !is3DMode
+                ? { opacity: 0, display: "none" }
+                : { opacity: 1 }
+            }
+            transition={{ duration: 1, ease: "easeInOut" }}
+            style={{
+              width: boardSize,
+              display: !hideDiv || !is3DMode ? "flex" : "none",
+            }}
+          >
+            {is3DMode && (
+              <ThreeDBoard
+                boardWidth={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                orientation={orientation}
+                position={game.fen()}
+                onSquareClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onSquareRightClick={function (square: Square): void {
+                  throw new Error("Function not implemented.");
+                }}
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+                promotionToSquare={null}
+                showPromotionDialog={false}
+                customArrows={undefined}
+                areArrowsAllowed={false}
+                customArrowColor={""}
+              />
+            )}
+          </motion.div>
           {/* Group Button */}
           <div className="flex flex-row justify-around gap-2 ">
             <button
@@ -746,76 +806,6 @@ const ChessContent: React.FC = () => {
             {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
 
-          {showMovementContent && chessMove.move != null && (
-            <div className="w-full p-0" style={{ maxWidth: boardSize }}>
-              <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                <div className="flex flex-row items-center justify-between gap-2">
-                  <div className="flex flex-row items-center gap-2">
-                    <span className="text-xs  sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
-                      {chessMove.move}
-                    </span>
-                    {chessMove?.evaluation && (
-                      <span
-                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
-                          chessMove?.classification.toLowerCase()
-                        )}`}
-                      >
-                        {chessMove.evaluation}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center gap-2">
-                    {chessMove?.classification && (
-                      <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
-                          chessMove.classification
-                        )}`}
-                      >
-                        {chessMove.classification}
-                      </span>
-                    )}
-                    {chessMove?.type && (
-                      <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
-                          chessMove.type
-                        )}`}
-                      >
-                        {chessMove.type}
-                      </span>
-                    )}
-                    <button onClick={() => setChessMove({})}>
-                      <Image
-                        alt="close"
-                        src={"/icons/close-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-5 h-5"
-                      />
-                    </button>
-                  </div>
-                </div>
-                {chessMove?.analysis && (
-                  <span className="text-sm font-normal py-1">
-                    {chessMove?.analysis}
-                  </span>
-                )}
-                {chessMove?.solution && (
-                  <span className="text-sm font-normal py-1">
-                    {chessMove?.solution}
-                  </span>
-                )}
-                {chessMove?.gamePhase && (
-                  <div className="flex flex-row gap-1">
-                    <InfoIcon size={16} color="#221AE9" />
-                    <span className="text-sm">Type:</span>
-                    <span className="text-sm font-semibold ">
-                      {chessMove.gamePhase}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
           {showTable && !loading && <MovementTable />}
         </div>
       </div>
