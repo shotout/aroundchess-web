@@ -19,12 +19,14 @@ interface SidebarLink {
   iconActive: string;
   href?: string;
   disabled?: boolean;
+  permission?: boolean;
   children?: {
     name: string;
     href: string;
     icon: string;
     iconActive: string;
     disabled?: boolean;
+    permission?: boolean;
   }[];
 }
 
@@ -34,6 +36,7 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-news-icon.png",
     iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",
+    permission: true,
   },
   {
     name: "Dashboard",
@@ -199,9 +202,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 <div className="space-y-2">
                   {section.href ? (
                     <Link
-                      href={!isSignedIn ? "" : section.href}
+                      href={
+                        !isSignedIn && !section.permission ? "" : section.href
+                      }
                       onClick={
-                        !isSignedIn
+                        !isSignedIn && !section.permission
                           ? () => setOpenConfirmLogin(true)
                           : () => null
                       }
