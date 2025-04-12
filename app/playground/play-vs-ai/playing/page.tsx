@@ -34,13 +34,13 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 export default function Playing() {
   const router = useRouter();
- 
+
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
   const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { PieceChoosed ,StyleChoosed} = useChessBoardThemeStore();
+  const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
@@ -346,15 +346,11 @@ export default function Playing() {
     }
   };
   useEffect(() => {
-    if (!sessionId) return;
-    localStorage.setItem("token", sessionId + "");
-
     getVSAILogs().then((res: any) => {
       console.log("res getVSAILogs", res);
       setPastGames(res.data);
     });
-    console.log("sessionId", sessionId);
-  }, [sessionId]);
+  }, []);
   useEffect(() => {
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
