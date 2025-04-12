@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { ConfirmLogin } from "../modal/ConfirmLogin";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Navigation({
   children,
@@ -14,7 +15,11 @@ export default function Navigation({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-
+  const { sessionId } = useAuth();
+  useEffect(() => {
+    if (sessionId) localStorage.setItem("token", sessionId);
+    console.log("sessionId/token", sessionId);
+  }, [sessionId]);
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

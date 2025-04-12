@@ -29,10 +29,9 @@ export function useApiClient() {
     }: RequestOptions): Promise<T> => {
       setIsLoading(true);
       setError(null);
-
       try {
         let url = path;
-        const token = sessionId || localStorage.getItem("token");
+        const token = localStorage.getItem("token");;
 
         if (params && Object.keys(params).length > 0) {
           const query = new URLSearchParams(params as any).toString();
@@ -41,7 +40,8 @@ export function useApiClient() {
 
         console.log("url", url);
         console.log("method", method);
-        console.log("token", token);
+        console.log("localStorage.getItem token", token);
+        console.log("token", sessionId);
         console.log("body", body);
 
         const response = await fetch(url, {
@@ -312,13 +312,16 @@ export function useApiClient() {
     },
     [apiRequest]
   );
-  const getMistakeSaved = useCallback((params:any) => {
-    return apiRequest({
-      method: "GET",
-      path: `${process.env.BASE_URL}/mistake-logs/saved`,
-      params
-    });
-  }, [apiRequest]);
+  const getMistakeSaved = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/mistake-logs/saved`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
 
   const saveMistakeLog = useCallback(
     (body: any) => {
@@ -371,6 +374,6 @@ export function useApiClient() {
     getMistakeSaved,
     saveMistakeLog,
     unsaveMistakeLog,
-    getMistakePreviousDetail
+    getMistakePreviousDetail,
   };
 }
