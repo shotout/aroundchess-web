@@ -78,7 +78,7 @@ export default function LoadingSpinner() {
             stroke="url(#gradientColor)"
             fill="transparent"
             strokeDasharray="251.2"
-            strokeDashoffset={251.2 - (analysisProgress / 100) * 251.2}
+            strokeDashoffset={251.2 - (progress / 100) * 251.2}
             strokeLinecap="round"
             className="transition-all duration-300 ease-out"
           />
@@ -86,7 +86,7 @@ export default function LoadingSpinner() {
 
         {/* Percentage Text */}
         <div className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-gray-700">
-          {analysisProgress}%
+          {progress}%
         </div>
 
         {/* <div
