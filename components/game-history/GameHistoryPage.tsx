@@ -3,98 +3,39 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { toast } from "sonner";
 
-import { ChessConnectDialog } from "../analysis/onboarding/ChessConnectPopover";
-import { PremiumSubscription } from "../analysis/onboarding/PremiumSubscription";
-import { gameHistoryApi } from "./services/api";
 import DotSpinner from "./Spinner";
 import HistoryTabs from "./components/HistoryTabs";
 import StatisticsSection from "./components/StatisticsSection";
 import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
-
-const DEV_MODE = false;
+import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
 
 const GameHistoryPage: React.FC = () => {
-  const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
-  const { setUsername, username } = usePgnStore();
+  const { isLoaded: authIsLoaded, isSignedIn } = useAuth();
+  const { username } = usePgnStore();
 
-  const [devMode] = useState(DEV_MODE);
-  const [showConnectDialog, setShowConnectDialog] = useState(devMode);
-  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUsernameFetching, setIsUsernameFetching] = useState(false);
 
-  const handleConnectSuccess = (username: string) => {
-    setShowConnectDialog(false);
-    setUsername(username);
-    setShowPremiumDialog(true);
-  };
-
-  const handleConnectClose = () => {
-    setShowConnectDialog(false);
-    setShowPremiumDialog(true);
-  };
-
-  const handleClosePremium = () => {
-    setShowPremiumDialog(false);
-  };
-
-  const handleGetPremium = () => {
-    setShowPremiumDialog(false);
-    toast.success("Thank you for subscribing to Premium!");
-  };
-
   useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!authIsLoaded) {
-        return;
-      }
-
-      if (!isSignedIn || !sessionId) {
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setIsUsernameFetching(true);
-      setShowConnectDialog(false);
-      setShowPremiumDialog(false);
-
-      try {
-        const response = await gameHistoryApi.getProfile(sessionId);
-        console.log(
-          "Profile response structure:",
-          JSON.stringify(response).substring(0, 200)
-        );
-
-        if (response?.success && response?.data?.username) {
-          setUsername(response.data.username);
-        } else {
-          console.log("No username found in response:", response);
-          setShowConnectDialog(true);
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        setShowConnectDialog(true);
-      } finally {
-        setIsLoading(false);
-        setIsUsernameFetching(false);
-      }
-    };
-
-    fetchProfileData();
-  }, [authIsLoaded, isSignedIn, sessionId, setUsername]);
-
-  useEffect(() => {
-    if (authIsLoaded && !isLoading && !username) {
-      setShowConnectDialog(true);
+    if (!authIsLoaded) {
+      return;
     }
-  }, [authIsLoaded, isLoading, username]);
 
-  const triggerConnectDialog = () => setShowConnectDialog(!showConnectDialog);
-  const triggerPremiumDialog = () => setShowPremiumDialog(!showPremiumDialog);
+    if (!isSignedIn) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsUsernameFetching(true);
+
+    // Just wait for ChessAccountSetup to finish its work
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsUsernameFetching(false);
+    }, 500);
+  }, [authIsLoaded, isSignedIn]);
 
   if (isLoading) {
     return (
@@ -107,46 +48,7 @@ const GameHistoryPage: React.FC = () => {
   return (
     <>
       <main className="w-full px-4 py-4 space-y-[16px] bg-primary-white relative">
-        {devMode && (
-          <div className="flex gap-2 mb-4 bg-yellow-100 p-2 rounded-md border border-yellow-300">
-            <button
-              onClick={triggerConnectDialog}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-            >
-              {showConnectDialog ? "Close" : "Open"} Chess Connect
-            </button>
-            <button
-              onClick={triggerPremiumDialog}
-              className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm"
-            >
-              {showPremiumDialog ? "Close" : "Open"} Premium Dialog
-            </button>
-            <span className="text-xs self-center text-yellow-800">
-              DEV MODE
-            </span>
-          </div>
-        )}
-
-        <ChessConnectDialog
-          open={
-            devMode
-              ? showConnectDialog
-              : showConnectDialog && !isLoading && !username
-          }
-          onOpenChange={(open) => {
-            setShowConnectDialog(open);
-            if (!open) {
-              handleConnectClose();
-            }
-          }}
-          onSuccess={handleConnectSuccess}
-        />
-
-        <PremiumSubscription
-          visible={showPremiumDialog && !isLoading}
-          onClose={handleClosePremium}
-          onGetPremium={handleGetPremium}
-        />
+        <ChessAccountSetup isLoading={isLoading} />
 
         <div className="">
           <div className="flex justify-between items-center mb-4">
