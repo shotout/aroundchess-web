@@ -20,7 +20,9 @@ import ReactCountryFlag from "react-country-flag";
 
 const UserPGN: React.FC = () => {
   const { username, setAppState } = useBoardVisionStore();
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | number | null>(
+    null
+  );
   const [showFeedback, setShowFeedback] = useState(false);
 
   // Use username or default to "Player"
@@ -29,7 +31,7 @@ const UserPGN: React.FC = () => {
   const headerHeight = 97;
 
   // Handle answer selection
-  const handleSelectAnswer = (answer: string) => {
+  const handleSelectAnswer = (answer: string | number) => {
     setSelectedAnswer(answer);
     setShowFeedback(true);
   };
