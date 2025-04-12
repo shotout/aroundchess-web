@@ -3,6 +3,7 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
+import { ConfirmLogin } from "../modal/ConfirmLogin";
 
 export default function Navigation({
   children,
@@ -62,6 +63,7 @@ export default function Navigation({
           {/* Main content */}
           <div className="relative z-10 min-h-[calc(100vh-10rem)]">
             {children}
+            <ConfirmLogin />
           </div>
 
           <div className="z-50 relative">

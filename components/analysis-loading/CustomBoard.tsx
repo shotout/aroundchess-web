@@ -23,8 +23,8 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
   }, [window.innerWidth]);
 
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window?.innerWidth;
+    const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth / 3;
@@ -77,9 +77,10 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       [key: string]: React.FC<{ squareWidth: number }>;
     } = {};
 
-    pieces.forEach(({ piece, pieceHeight }) => {
+    pieces.forEach(({ piece, pieceHeight }, index) => {
       pieceComponents[piece] = ({ squareWidth }: { squareWidth: number }) => (
         <div
+          key={index}
           style={{
             width: squareWidth,
             height: squareWidth,

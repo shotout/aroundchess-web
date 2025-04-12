@@ -105,7 +105,7 @@ export default function LoadingSpinner() {
         </div> */}
       </div>
 
-      <p className="mt-4 text-lg font-semibold text-gray-700">
+      <p className="mt-4 sm:text-md text-sm font-semibold text-gray-700">
         AI Analyzing Now...
       </p>
     </div>

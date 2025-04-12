@@ -9,15 +9,28 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { useAuth } from "@clerk/nextjs";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "@/components/game-history/Spinner";
 
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
-  const { setHideDiv, hideDiv, isLoading, setIsLoading, username } =
-    usePgnStore();
-
+  const {
+    setHideDiv,
+    hideDiv,
+    isLoading,
+    setIsLoading,
+    username,
+    pgn,
+    setPgn,
+    setDataAnalysis,
+  } = usePgnStore();
+  const { getMistakePrevious, isLoading: fetchLoading } = useApiClient();
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [showChessConnect, setShowChessConnect] = useState<boolean>(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
+  const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
+  const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
+  const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
 
   const isAnyDialogOpen = showChessConnect || showPremiumDialog;
@@ -33,13 +46,68 @@ export default function AnalysisPage() {
   const handleGetPremium = () => {
     setShowPremiumDialog(false);
   };
-
+  const fetchMistakePrevious = async () => {
+    try {
+      const prevData = await getMistakePrevious();
+      console.log("prevData", prevData.data);
+      if (prevData.data.length > 0) {
+        setPreviousAnalyse(prevData.data);
+        openModalAnalyze(prevData.data);
+      }
+    } catch (error) {
+      openModalAnalyze([]);
+      console.error("Failed to fetch mistake previous:", error);
+    }
+  };
+  const openModalAnalyze = (data: any) => {
+    console.log("openModalAnalyze", data);
+    if (data.length == 0) {
+      if (!openAnalyze) {
+        setOpenAnalyze(true);
+      }
+    } else {
+      setOpenAnalyze(false);
+    }
+  };
   useEffect(() => {
-    console.log('masuk');
+    if (pgn.length == 0 || !isSignedIn) {
+      fetchPgnFamousGame();
+    }
+    if (isSignedIn) {
+      fetchMistakePrevious();
+    }
+  }, []);
+
+  const fetchPgnFamousGame = async () => {
+    let arr = null;
+    try {
+      const resFamousGame = await fetch("/local-data/famous-game.txt");
+      const pgnLocal = await resFamousGame.text();
+      setPgn(pgnLocal);
+      const resAnalysis = await fetch("/local-data/analysis.json");
+      const responseAnalysis = await resAnalysis.json();
+      console.log("pgnLocal", pgnLocal);
+      console.log("responseAnalysis", responseAnalysis);
+
+      setDataAnalysis(responseAnalysis);
+      arr = responseAnalysis;
+      // router.push("/analysis");
+    } catch (err) {
+      console.log("error", err);
+      setIsLoading(false);
+    } finally {
+      if (arr != null) {
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
+  useEffect(() => {
+    setWidthC(window?.innerWidth);
     setIsLoading(false);
     const handleScroll = () => {
-      if (window.innerWidth <= 1024) {
-        if (window.scrollY > lastScrollY) {
+      if (window?.innerWidth <= 1024) {
+        if (window?.scrollY > lastScrollY) {
           setHideDiv(true);
           setIsVisible(false);
         } else if (window.scrollY === 0) {
@@ -86,9 +154,9 @@ export default function AnalysisPage() {
                 Analysis Result from{" "}
                 <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
-              {isSignedIn && (
-                <div className="xl:hidden flex items-center justify-center mt-2">
-                  <AnalyzeDifferentGame />
+              {isSignedIn && widthC < 1024 && (
+                <div className="lg:hidden flex items-center justify-center my-2">
+                  <AnalyzeDifferentGame openPopup={openAnalyze} />
                 </div>
               )}
               <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
@@ -98,7 +166,7 @@ export default function AnalysisPage() {
                 <div
                   className={`hidden lg:block ${
                     !isSignedIn ? `w-full` : `w-3/5`
-                  } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px]`}
+                  } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
                 >
                   Our AI-powered chess analysis provides deep insights into
                   positional and tactical aspects of a game. It evaluates piece
@@ -106,28 +174,34 @@ export default function AnalysisPage() {
                   positional advantages, helping players understand strategic
                   strengths and weaknesses.
                 </div>
-                {isSignedIn && <AnalyzeDifferentGame />}
+                {isSignedIn && widthC > 1024 && (
+                  <AnalyzeDifferentGame openPopup={openAnalyze} />
+                )}
               </div>
             </div>
-            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
-              <ChessConnectDialog
-                open={showChessConnect && !isLoading && !username}
-                onOpenChange={setShowChessConnect}
-                onSuccess={handleSuccessfulConnection}
-              />
-              {/* <PremiumSubscription
+            {fetchLoading && pgn.length == 0 ? (
+              <DotSpinner />
+            ) : (
+              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
+                <ChessConnectDialog
+                  open={showChessConnect && !isLoading && !username}
+                  onOpenChange={setShowChessConnect}
+                  onSuccess={handleSuccessfulConnection}
+                />
+                {/* <PremiumSubscription
                 open={showPremiumDialog && !isLoading}
                 onOpenChange={setShowPremiumDialog}
                 onClose={handleClosePremium}
                 onGetPremium={handleGetPremium}
               /> */}
-              {isAnyDialogOpen && (
-                <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
-              )}
-              <AnalysisResult />
-              {/* </div> */}
-              <AnalysisLatestGame />
-            </div>
+                {isAnyDialogOpen && (
+                  <div className="absolute inset-0 bg-black/50 z-40 pointer-events-none" />
+                )}
+                <AnalysisResult />
+                {/* </div> */}
+                <AnalysisLatestGame />
+              </div>
+            )}
           </div>
         </Navigation>
       )}

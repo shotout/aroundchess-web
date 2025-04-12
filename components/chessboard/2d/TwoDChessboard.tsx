@@ -216,7 +216,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             customDarkSquareStyle={{
               backgroundColor: "transparent",
             }}
-            animationDuration={200}
+            animationDuration={100}
           />
         )}
       </div>

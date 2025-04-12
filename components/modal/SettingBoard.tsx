@@ -117,7 +117,7 @@ export function SettingBoard() {
   useEffect(() => {
     setPieceSelected(PieceChoosed);
     setBoardSelected(BoardChoosed);
-  }, []);
+  }, [PieceChoosed, BoardChoosed]);
   const handleSelectTab = (value: string) => {
     setTabSelected(value);
   };
@@ -228,7 +228,7 @@ export function SettingBoard() {
           />
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl">
+      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl h-4/5">
         <DialogHeader className="gap-2 mb-2 flex flex-col items-center justify-center">
           <DialogTitle className="font-semibold text-[24px]">
             Game Settings
@@ -242,7 +242,7 @@ export function SettingBoard() {
             <div className="w-full shadow-lg flex flex-row items-center justify-center gap-2 bg-[#F9FAFC] border border-[#F4F4F4] rounded-[12px] p-[8px]">
               <Edit className="text-[#221AE9]" size={16} />
               <span className="text-[#221AE9] font-bold text-[14px]">
-                Theme
+                Theme 
               </span>
             </div>
           </div>
@@ -265,7 +265,7 @@ export function SettingBoard() {
                 </TabsTrigger>
                 <TabsTrigger
                   onClick={() => handleSelectTab("3d")}
-                  disabled={true}
+                  // disabled={true}
                   value="3d"
                   style={{
                     background: tabSelected == "3d" ? "#D7E3FB" : "#fff",

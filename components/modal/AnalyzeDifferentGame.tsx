@@ -107,7 +107,11 @@ const mockData = {
   ],
 };
 
-export function AnalyzeDifferentGame() {
+interface AnalyzeDifferentGameProps {
+  openPopup?: boolean;
+}
+
+export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const router = useRouter();
   const { proceedAnalysis } = useStockfishAnalysis();
   const {
@@ -176,6 +180,12 @@ export function AnalyzeDifferentGame() {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
     return () => clearTimeout(timer); // Cleanup
   }, [username]);
+
+  useEffect(() => {
+    if (openPopup != null && open != true) {
+      setOpen(openPopup);
+    }
+  }, [openPopup]);
 
   useEffect(() => {
     if (debouncedQuery) {
@@ -334,13 +344,23 @@ export function AnalyzeDifferentGame() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        if (!open) {
+          setOpen(true);
+          setOpen(true);
+        } else {
+          setOpen(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <button className="w-fill px-5 py-2 btn-primary rounded-full">
           Analyze a different game
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl">
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl h-4/5">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
