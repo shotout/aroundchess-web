@@ -12,7 +12,6 @@ import { useAuth } from "@clerk/nextjs";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 
-
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
   const {
