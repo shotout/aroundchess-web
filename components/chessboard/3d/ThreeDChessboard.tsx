@@ -12,6 +12,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import DotSpinner from "@/components/game-history/Spinner";
+import { motion } from "framer-motion";
 
 interface ThreeDBoardProps {
   position: string;
@@ -68,10 +69,10 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    // setLoading(true);
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 500);
   }, [PieceChoosed]);
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
@@ -233,75 +234,84 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           }}
           className={`z-10 flex items-center justify-center`}
         >
-          {arePiecesDraggable != null ? (
-            <Chessboard
-              arePiecesDraggable={arePiecesDraggable}
-              customArrowColor={customArrowColor}
-              boardOrientation={orientation}
-              boardWidth={Math.round(480 * 0.779)}
-              id="Styled3DBoard"
-              position={position}
-              onSquareClick={onSquareClick}
-              onSquareRightClick={onSquareRightClick}
-              onPromotionPieceSelect={(
-                piece,
-                promoteFromSquare,
-                promoteToSquare
-              ) => {
-                if (piece) {
-                  return onPromotionPieceSelect(piece);
-                }
-                return false;
-              }}
-              customBoardStyle={{
-                transform: "rotateX(27.5deg) scale(1)",
-                transformOrigin: "center",
-                // background:"black"
-              }}
-              customPieces={threeDPieces}
-              customLightSquareStyle={{
-                backgroundColor: "transparent",
-                // backgroundColor: "#00000080",
-              }}
-              customDarkSquareStyle={{
-                backgroundColor: "transparent",
-                // backgroundColor: "#00000070",
-              }}
-              customArrows={customArrows}
-              areArrowsAllowed={areArrowsAllowed}
-              customSquareStyles={customSquareStyles}
-              promotionToSquare={promotionToSquare}
-              showPromotionDialog={showPromotionDialog}
-              animationDuration={200}
-            />
-          ) : (
-            <Chessboard
-              arePiecesDraggable={false}
-              boardOrientation={orientation}
-              boardWidth={Math.round(480 * 0.779)}
-              id="Styled3DBoard"
-              position={position}
-              customBoardStyle={{
-                transform: "rotateX(27.5deg) scale(1)",
-                transformOrigin: "center",
-                // background:"black"
-              }}
-              customPieces={threeDPieces}
-              customLightSquareStyle={
-                {
-                  // backgroundColor: "transparent",
+          <motion.div
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            style={{
+              display: "flex",
+              justifyContent: "start",
+            }}
+          >
+            {arePiecesDraggable != null ? (
+              <Chessboard
+                arePiecesDraggable={arePiecesDraggable}
+                customArrowColor={customArrowColor}
+                boardOrientation={orientation}
+                boardWidth={Math.round(480 * 0.779)}
+                id="Styled3DBoard"
+                position={position}
+                onSquareClick={onSquareClick}
+                onSquareRightClick={onSquareRightClick}
+                onPromotionPieceSelect={(
+                  piece,
+                  promoteFromSquare,
+                  promoteToSquare
+                ) => {
+                  if (piece) {
+                    return onPromotionPieceSelect(piece);
+                  }
+                  return false;
+                }}
+                customBoardStyle={{
+                  transform: "rotateX(27.5deg) scale(1)",
+                  transformOrigin: "center",
+                  // background:"black"
+                }}
+                customPieces={threeDPieces}
+                customLightSquareStyle={{
+                  backgroundColor: "transparent",
                   // backgroundColor: "#00000080",
-                }
-              }
-              customDarkSquareStyle={
-                {
-                  // backgroundColor: "transparent",
+                }}
+                customDarkSquareStyle={{
+                  backgroundColor: "transparent",
                   // backgroundColor: "#00000070",
+                }}
+                customArrows={customArrows}
+                areArrowsAllowed={areArrowsAllowed}
+                customSquareStyles={customSquareStyles}
+                promotionToSquare={promotionToSquare}
+                showPromotionDialog={showPromotionDialog}
+                animationDuration={200}
+              />
+            ) : (
+              <Chessboard
+                arePiecesDraggable={false}
+                boardOrientation={orientation}
+                boardWidth={Math.round(480 * 0.779)}
+                id="Styled3DBoard"
+                position={position}
+                customBoardStyle={{
+                  transform: "rotateX(27.5deg) scale(1)",
+                  transformOrigin: "center",
+                  // background:"black"
+                }}
+                customPieces={threeDPieces}
+                customLightSquareStyle={
+                  {
+                    // backgroundColor: "transparent",
+                    // backgroundColor: "#00000080",
+                  }
                 }
-              }
-              animationDuration={100}
-            />
-          )}
+                customDarkSquareStyle={
+                  {
+                    // backgroundColor: "transparent",
+                    // backgroundColor: "#00000070",
+                  }
+                }
+                animationDuration={100}
+              />
+            )}
+          </motion.div>
         </div>
       </div>
     </div>
