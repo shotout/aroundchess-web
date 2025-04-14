@@ -1,5 +1,5 @@
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
-import { Square } from "chess.js";
+import { Piece, Square } from "chess.js";
 import Image from "next/image";
 import React, { useMemo } from "react";
 
@@ -11,46 +11,53 @@ import {
 import { motion } from "framer-motion";
 
 interface TwoDChessboardProps {
-  position: string;
+  position?: string;
   boardWidth: number;
-  orientation: BoardOrientation | undefined;
-  // onPieceDrop?: (
-  //   sourceSquare: Square,
-  //   targetSquare: Square,
-  //   piece: string
-  // ) => boolean;
+  orientation?: BoardOrientation | undefined;
+  onPieceDragBegin?: ((piece: string, sourceSquare: string) => any) | undefined;
+  onPieceDragEnd?: ((piece: string, sourceSquare: string) => any) | undefined;
+  onPieceDrop?: (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ) => boolean;
   arePiecesDraggable?: boolean;
-  onSquareClick: (square: Square) => void;
-  onSquareRightClick: (square: Square) => void;
+  onSquareClick?: (square: Square) => void;
+  onSquareRightClick?: (square: Square) => void;
   onPromotionPieceSelect: (
     piece?: PromotionPieceOption,
     promoteFromSquare?: Square,
     promoteToSquare?: Square
   ) => boolean;
-
-  promotionToSquare: Square | null;
-  showPromotionDialog: boolean;
+  onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
+  promotionToSquare?: Square | null;
+  showPromotionDialog?: boolean;
   customSquareStyles?: Record<string, React.CSSProperties>;
-  customArrows: any;
-  areArrowsAllowed: boolean;
-  customArrowColor: string;
+  customArrows?: any;
+  areArrowsAllowed?: boolean;
+  arePremovesAllowed?: boolean;
+  customArrowColor?: string;
 }
 
 const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   position,
   boardWidth,
   orientation,
-  // onPieceDrop,
+  onPieceDrop,
+  onPieceDragBegin,
+  onPieceDragEnd,
   arePiecesDraggable = true,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
+  onPieceClick,
   promotionToSquare,
   showPromotionDialog,
   customSquareStyles,
   customArrows,
   areArrowsAllowed,
   customArrowColor,
+  arePremovesAllowed,
 }) => {
   const {
     StyleChoosed,
@@ -174,7 +181,16 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
         >
           {arePiecesDraggable != null ? (
             <Chessboard
-              // onPieceDrop={onPieceDrop}
+              arePremovesAllowed={arePremovesAllowed}
+              onPieceDrop={onPieceDrop}
+              onPieceDragBegin={
+                onPieceDragBegin
+                  ? (piece, sourceSquare) =>
+                      onPieceDragBegin(piece as string, sourceSquare as string)
+                  : undefined
+              }
+              onPieceDragEnd={onPieceDragEnd}
+              onPieceClick={onPieceClick}
               customArrowColor={customArrowColor}
               boardOrientation={orientation}
               boardWidth={Math.round(boardWidth - boardWidth / 8.5)}

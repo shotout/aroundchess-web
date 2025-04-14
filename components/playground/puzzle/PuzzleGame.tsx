@@ -16,11 +16,16 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import { Chess, Piece, PieceSymbol, Square } from "chess.js";
 import {
   ArrowLeft,
+  ArrowRight,
   BarChart2,
+  ChevronLeft,
+  ChevronRight,
   HistoryIcon,
   Info,
   MoveRightIcon,
   Plus,
+  RefreshCcw,
+  RotateCw,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -335,9 +340,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   );
 
   const handleDragBegin = useCallback(
-    (piece: Piece, square: Square) => {
-      setSelectedSquare(square);
-      getPossibleMoves(square);
+    (piece: string, square: string) => {
+      setSelectedSquare(square as Square);
+      getPossibleMoves(square as Square);
     },
     [getPossibleMoves]
   );
@@ -468,10 +473,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
   >({});
-  useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
-    setIs3DMode(is3D);
-  }, [StyleChoosed]);
+  
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({
       square,
@@ -968,49 +970,39 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return (
       <motion.div
         variants={fadeInUp}
-        className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2"
+        className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
       >
         <button
           disabled={currentTurn.toLowerCase() != myColor}
           onClick={handleHint}
-          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
+          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#C0CED4] bg-white text-[#364152] rounded-[8px] hover:bg-blue-100 gap-1"
         >
           <Image
-            src={"/images/play-vs-ai/hint.png"}
+            src={"/images/puzzle/hint-icon.png"}
             alt="icon"
             width={1000}
             height={1000}
-            className="w-[11px] h-[16px] object-contain "
+            className="w-[16px] h-[20px] object-contain "
           />
 
-          <span className="font-medium text-xs mt-1 ">Hint</span>
+          <span className="font-medium text-[14px] mt-1 ">Hint</span>
         </button>
         <button
           onClick={handleResign}
           className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
         >
-          <Image
-            src={"/images/play-vs-ai/resign.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[11px] h-[16px] object-contain "
-          />
+          <RefreshCcw size={20} />
 
-          <span className="font-medium text-xs mt-1 ">Resign</span>
+          <span className="font-medium text-[14px] mt-1 ">
+            Change Puzzle Topic
+          </span>
         </button>
         <button
           onClick={handleNewGame}
           className="flex flex-row items-center justify-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
         >
-          <Image
-            src={"/images/play-vs-ai/new-game.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[16px] h-[16px] object-contain"
-          />
-          <span className="font-medium text-xs mt-1">New Game</span>
+          <span className="font-medium text-[14px] mt-1">Next Puzzle</span>
+          <ArrowRight size={20} />
         </button>
       </motion.div>
     );
@@ -1189,7 +1181,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               height={1000}
               className="w-[22px] h-[21px] object-contain"
             />
-            <span className="font-semibold text-[18px]">Play VS AI</span>
+            <span className="font-semibold text-[18px]">Puzzle</span>
           </div>
           <div className="flex " />
         </div>
@@ -1197,7 +1189,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
           {cardPlayer()}
           <div className="flex flex-col justify-center items-center gap-3 ">
-            {buttonBoard()}
+            {/* {buttonBoard()} */}
             <motion.div
               initial={{ rotateX: 180 }}
               animate={
@@ -1221,29 +1213,39 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {is3DMode && (
                 <ThreeDBoard
-                  boardWidth={
-                    hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-                  }
-                  orientation={orientation}
-                  position={game.fen()}
-                  onSquareClick={function (square: Square): void {
-                    throw new Error("Function not implemented.");
-                  }}
-                  onSquareRightClick={function (square: Square): void {
-                    throw new Error("Function not implemented.");
-                  }}
-                  onPromotionPieceSelect={function (
-                    piece?: PromotionPieceOption,
-                    promoteFromSquare?: Square,
-                    promoteToSquare?: Square
-                  ): boolean {
-                    throw new Error("Function not implemented.");
-                  }}
-                  promotionToSquare={null}
-                  showPromotionDialog={false}
-                  customArrows={undefined}
-                  areArrowsAllowed={false}
-                  customArrowColor={""}
+                position={position}
+                boardWidth={
+                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                }
+                orientation={boardOrientation}
+                onPieceDrop={handlePieceDrop}
+                onPieceDragBegin={handleDragBegin}
+                onPieceDragEnd={handleDragEnd}
+                onSquareClick={
+                  !isComputerTurn && gameEnded
+                    ? () => {} // Provide a default no-op function
+                    : handleSquareClickCallback
+                }
+                onPieceClick={
+                  !isComputerTurn && gameEnded
+                    ? undefined
+                    : (piece: string, sourceSquare: string) =>
+                        handlePieceClick(
+                          { type: piece as PieceSymbol, color: "w" }, // Adjust as needed
+                          sourceSquare as Square
+                        )
+                }
+                onSquareRightClick={handleSquareRightClick}
+                arePiecesDraggable={!isComputerTurn && !gameEnded}
+                customSquareStyles={customSquareStyles}
+                arePremovesAllowed={true}
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
                 />
               )}
             </motion.div>
@@ -1269,17 +1271,32 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {!is3DMode && (
                 <TwoDChessboard
+                  position={position}
                   boardWidth={
                     hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                   }
-                  orientation={orientation}
-                  position={game.fen()}
-                  onSquareClick={function (square: Square): void {
-                    throw new Error("Function not implemented.");
-                  }}
-                  onSquareRightClick={function (square: Square): void {
-                    throw new Error("Function not implemented.");
-                  }}
+                  orientation={boardOrientation}
+                  onPieceDrop={handlePieceDrop}
+                  onPieceDragBegin={handleDragBegin}
+                  onPieceDragEnd={handleDragEnd}
+                  onSquareClick={
+                    !isComputerTurn && gameEnded
+                      ? () => {} // Provide a default no-op function
+                      : handleSquareClickCallback
+                  }
+                  onPieceClick={
+                    !isComputerTurn && gameEnded
+                      ? undefined
+                      : (piece: string, sourceSquare: string) =>
+                          handlePieceClick(
+                            { type: piece as PieceSymbol, color: "w" }, // Adjust as needed
+                            sourceSquare as Square
+                          )
+                  }
+                  onSquareRightClick={handleSquareRightClick}
+                  arePiecesDraggable={!isComputerTurn && !gameEnded}
+                  customSquareStyles={customSquareStyles}
+                  arePremovesAllowed={true}
                   onPromotionPieceSelect={function (
                     piece?: PromotionPieceOption,
                     promoteFromSquare?: Square,
@@ -1287,11 +1304,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   ): boolean {
                     throw new Error("Function not implemented.");
                   }}
-                  promotionToSquare={null}
-                  showPromotionDialog={false}
-                  customArrows={undefined}
-                  areArrowsAllowed={false}
-                  customArrowColor={""}
                 />
               )}
             </motion.div>
@@ -1325,10 +1337,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </div>
         </div>
       </div>
-      {buttonBoardColumn()}
+      {/* {buttonBoardColumn()} */}
 
-      <div className="flex flex-col pt-0 w-full items-center justify-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3">
-        <div className="flex flex-row w-full items-center gap-2">
+      <div className="flex flex-col w-full items-center justify-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3">
+        <div className="flex flex-row p-[16px] w-full items-center gap-2">
           <ArrowLeft className="w-[32px] h-[30px]" color="#000" />
           <Image
             src={"/images/puzzle/icon-puzzle.png"}
@@ -1339,27 +1351,42 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           />
           <span className="font-semibold text-[20px]">Puzzles</span>
         </div>
-        <div className="w-full p-[16px] flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9]">
+        <div className="w-[94%] mx-[16px] p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
           <Info className="w-[24px] h-[24px]" color="#221AE9" />
           <span className="font-medium text-[16px]">You are White</span>
         </div>
         <div
-          style={{ height: heightScreen * 0.8 }}
-          className="w-full xl:max-h-[70vh] overflow-y-auto rounded-[8px]"
+          style={{ height: heightScreen * 0.7 }}
+          className="w-[94%] mx-[16px] xl:max-h-[60vh] overflow-y-auto rounded-[8px]"
         >
           <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-collapse border-[#BDD0F9]">
             <thead>
               <tr className="bg-[#D7E3FB] ">
-                <th className="p-2 border font-normal text-xs border border-[#BDD0F9] "></th>
-                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9]">
+                <th className="p-2 border font-normal text-xs border border-[#BDD0F9] border-b-0 border-r-0"></th>
+                <th className="gap-2 p-2 border font-normal text-xs border border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">White</span>
-                  <span className="block font-normal text-[11px]">
+                  <span className="block font-normal text-[11px] text-[#364152]">
                     ({username})
                   </span>
                 </th>
-                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9]">
+                <th className="gap-2 p-2 border font-normal text-xs border border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">Black</span>
-                  <span className="block font-normal text-[11px]">(Bot)</span>
+                  <span className="block font-normal text-[11px] text-[#364152]">
+                    (Bot)
+                  </span>
+                </th>
+              </tr>
+              <tr className="bg-[#D7E3FB] ">
+                <th className="p-2 font-normal text-xs border border-[#D7E3FB] border-t-0 border-r-0"></th>
+                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9] border-t-0">
+                  <span className="block font-normal text-[12px]">
+                    Movement
+                  </span>
+                </th>
+                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9] border-t-0">
+                  <span className="block font-normal text-[12px]">
+                    Movement
+                  </span>
                 </th>
               </tr>
             </thead>
@@ -1412,6 +1439,17 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 })}
             </tbody>
           </table>
+          <div className="flex flex-row justify-center items-center gap-2 my-4">
+            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+              <ChevronLeft size={24} color="#000" />
+            </button>
+            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+              <ChevronRight size={24} color="#000" />
+            </button>
+            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+              <RotateCw size={20} color="#000" />
+            </button>
+          </div>
         </div>
         {statusGame != "Ongoing" && renderCommentaryGame()}
         {statusGame == "Ongoing"
