@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, Check, X } from "lucide-react";
+import { ChevronLeft, Check, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useBoardVisionStore } from "./store/BoardvisionStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface SetupPopupProps {
   isOpen: boolean;
@@ -19,9 +27,85 @@ interface SetupPopupProps {
 }
 
 const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
-  const { username, setUsername, setAppState } = useBoardVisionStore();
+  const {
+    username,
+    setUsername,
+    setAppState,
+    currentYear,
+    currentMonth,
+    loadUserPositions,
+    loadDefaultPositions,
+    isLoading,
+    loadingError,
+  } = useBoardVisionStore();
 
-  // Close on escape key
+  const [usernameInput, setUsernameInput] = useState(username);
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
+  const currentSystemYear = new Date().getFullYear();
+  const yearOptions = Array.from(
+    { length: 10 },
+    (_, i) => currentSystemYear - i
+  );
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsernameInput(e.target.value);
+  };
+
+  const handleYearChange = (value: string) => {
+    setYear(parseInt(value));
+  };
+
+  const handleMonthChange = (value: string) => {
+    setMonth(parseInt(value));
+  };
+
+  const handleDefaultPositionClick = () => {
+    loadDefaultPositions();
+    setAppState("default");
+    onClose();
+  };
+
+  const handleStartClick = async () => {
+    if (usernameInput.trim() === "") {
+      handleDefaultPositionClick();
+      return;
+    }
+
+    setUsername(usernameInput);
+
+    try {
+      await loadUserPositions(usernameInput, year, month);
+
+      if (!loadingError) {
+        setAppState("player-game");
+        onClose();
+      } else {
+        setShowErrorModal(true);
+      }
+    } catch (error) {
+      console.error("Error loading user positions:", error);
+      setShowErrorModal(true);
+    }
+  };
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -33,6 +117,12 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setShowErrorModal(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -40,10 +130,14 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <ChevronLeft className="h-6 w-6 text-black" />
-            <span className="font-semibold ml-2">Setup</span>
-          </div>
+          <button className="flex items-center">
+            <ChevronLeft
+              onClick={() => {
+                setAppState("welcome");
+              }}
+              className="h-6 w-6 text-black"
+            />
+          </button>
           <button
             className="rounded-full p-1 hover:bg-gray-100"
             onClick={onClose}
@@ -117,8 +211,8 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
 
           <Input
             placeholder="Blitzmystic"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={usernameInput}
+            onChange={handleUsernameChange}
             className="w-full"
           />
 
@@ -127,26 +221,32 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
               Show questions for my Games in the following month:
             </p>
             <div className="grid grid-cols-2 gap-2">
-              <Select>
+              <Select
+                value={month.toString()}
+                onValueChange={handleMonthChange}
+              >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="March" />
+                  <SelectValue placeholder={monthNames[month - 1]} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="january">January</SelectItem>
-                  <SelectItem value="february">February</SelectItem>
-                  <SelectItem value="march">March</SelectItem>
-                  <SelectItem value="april">April</SelectItem>
+                  {monthNames.map((name, index) => (
+                    <SelectItem key={index + 1} value={(index + 1).toString()}>
+                      {name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
-              <Select>
+              <Select value={year.toString()} onValueChange={handleYearChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="2025" />
+                  <SelectValue placeholder={year.toString()} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
+                  {yearOptions.map((yearOption) => (
+                    <SelectItem key={yearOption} value={yearOption.toString()}>
+                      {yearOption}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -156,10 +256,8 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
             <Button
               variant="outline"
               className="w-full py-2 rounded-full bg-blue-50 text-blue-600 border border-blue-200"
-              onClick={() => {
-                setAppState("default");
-                onClose();
-              }}
+              onClick={handleDefaultPositionClick}
+              disabled={isLoading}
             >
               Default Position
             </Button>
@@ -167,16 +265,38 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
             <Button
               variant="default"
               className="w-full py-2 rounded-full bg-blue-600 text-white"
-              onClick={() => {
-                setAppState("player-game");
-                onClose();
-              }}
+              onClick={handleStartClick}
+              disabled={isLoading}
             >
-              Start
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Start"
+              )}
             </Button>
           </div>
         </div>
       </div>
+
+      {showErrorModal && (
+        <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Error</DialogTitle>
+              <DialogDescription>
+                {loadingError ||
+                  "There was an error loading the games. Please try another month or username."}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setShowErrorModal(false)}>Ok</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
