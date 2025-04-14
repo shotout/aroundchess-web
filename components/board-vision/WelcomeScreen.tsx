@@ -9,23 +9,16 @@ const WelcomeScreen: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const headerHeight = 97;
 
-  // Check if screen is mobile or tablet
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1280);
     };
 
-    // Initial check
     checkScreenSize();
-
-    // Add listener for window resize
     window.addEventListener("resize", checkScreenSize);
-
-    // Cleanup
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Just set the app state to "default" when clicked
   const handleStartClick = () => {
     setAppState("default");
   };
@@ -36,7 +29,6 @@ const WelcomeScreen: React.FC = () => {
       style={{ height: `calc(100vh - ${headerHeight}px)` }}
     >
       <div className="relative mx-auto w-full h-full flex items-center justify-center rounded-xl overflow-hidden border">
-        {/* Image Background - Conditionally rendered based on screen size */}
         {isMobile ? (
           <div className="absolute inset-0 z-0">
             <Image
@@ -64,7 +56,6 @@ const WelcomeScreen: React.FC = () => {
           </div>
         )}
 
-        {/* Content */}
         <div className="relative z-20 w-full h-full flex items-center justify-center">
           <div className="absolute inset-0 flex items-center justify-center m-4">
             <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
