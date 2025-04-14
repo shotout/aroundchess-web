@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useBoardVisionStore } from "./store/BoardvisionStore";
+import { useBoardVisionStore } from "./utils/BoardvisionStore";
 import {
   Dialog,
   DialogContent,
@@ -20,17 +20,18 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
-interface SetupPopupProps {
+interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
+const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
+  const router = useRouter();
   const {
     username,
     setUsername,
-    setAppState,
     currentYear,
     currentMonth,
     loadUserPositions,
@@ -79,8 +80,8 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
 
   const handleDefaultPositionClick = () => {
     loadDefaultPositions();
-    setAppState("default");
     onClose();
+    router.push("/playground/board-vision/default");
   };
 
   const handleStartClick = async () => {
@@ -95,7 +96,7 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
       await loadUserPositions(usernameInput, year, month);
 
       if (!loadingError) {
-        setAppState("player-game");
+        router.push("/playground/board-vision/user");
         onClose();
       } else {
         setShowErrorModal(true);
@@ -130,13 +131,11 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
         <div className="flex items-center justify-between mb-4">
-          <button className="flex items-center">
-            <ChevronLeft
-              onClick={() => {
-                setAppState("welcome");
-              }}
-              className="h-6 w-6 text-black"
-            />
+          <button
+            onClick={() => router.push("/playground/board-vision")}
+            className="flex items-center"
+          >
+            <ChevronLeft className="h-6 w-6 text-black" />
           </button>
           <button
             className="rounded-full p-1 hover:bg-gray-100"
@@ -301,4 +300,4 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default SetupPopup;
+export default Popup;
