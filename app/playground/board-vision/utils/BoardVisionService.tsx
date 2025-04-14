@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Chess } from "chess.js";
-import { shuffle } from "../util/UtilFunctions";
+import { shuffle } from "./UtilFunctions";
 
 export interface Position {
   fen: string;

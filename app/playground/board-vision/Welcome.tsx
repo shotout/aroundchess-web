@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { useBoardVisionStore } from "./store/BoardvisionStore";
+import { useRouter } from "next/navigation";
+import Popup from "./Popup";
 
-const WelcomeScreen: React.FC = () => {
-  const { setAppState } = useBoardVisionStore();
+const Welcome: React.FC = () => {
+  const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const headerHeight = 97;
 
@@ -20,7 +21,7 @@ const WelcomeScreen: React.FC = () => {
   }, []);
 
   const handleStartClick = () => {
-    setAppState("default");
+    route.push("/playground/board-vision/default");
   };
 
   return (
@@ -87,4 +88,4 @@ const WelcomeScreen: React.FC = () => {
   );
 };
 
-export default WelcomeScreen;
+export default Welcome;
