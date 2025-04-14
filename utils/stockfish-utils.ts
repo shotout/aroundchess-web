@@ -100,7 +100,7 @@ export function useStockfishAnalysis() {
       return results;
     },
     []
-  ); 
+  );
   /**
    * Analyze a PGN and send results to API
    * @param pgn PGN string to analyze (required)
@@ -131,6 +131,7 @@ export function useStockfishAnalysis() {
           `${process.env.BASE_URL}/v2/analyze/check-exists`,
           {
             pgn: pgn,
+            depth: depth
           },
           {
             headers: {
@@ -156,6 +157,7 @@ export function useStockfishAnalysis() {
               {
                 pgn: pgn,
                 username: username,
+                depth: depth
               },
               {
                 headers: {
@@ -194,6 +196,7 @@ export function useStockfishAnalysis() {
               `${process.env.BASE_URL}/v2/analyze`,
               {
                 pgn: pgn,
+                depth: depth,
                 username: username,
                 stockfishData: analysisResults,
               },
