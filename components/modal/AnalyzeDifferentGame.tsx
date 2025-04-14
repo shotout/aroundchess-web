@@ -134,7 +134,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     {
       image: "/icons/board-medium-analysis.png",
       value: 20,
-      title: "Standard Analysi",
+      title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
     },
@@ -360,7 +360,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl h-4/5">
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl overflow-y-auto max-h-[90%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">

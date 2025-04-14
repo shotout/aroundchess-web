@@ -19,12 +19,14 @@ interface SidebarLink {
   iconActive: string;
   href?: string;
   disabled?: boolean;
+  permission?: boolean;
   children?: {
     name: string;
     href: string;
     icon: string;
     iconActive: string;
     disabled?: boolean;
+    permission?: boolean;
   }[];
 }
 
@@ -34,6 +36,7 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-news-icon.png",
     iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",
+    // permission: true,
   },
   {
     name: "Dashboard",
@@ -45,6 +48,7 @@ const sidebarLinks: SidebarLink[] = [
         href: "/analysis",
         icon: "/icons/sidebar-analyze-icon.png",
         iconActive: "/icons/sidebar-analyze-icon-active.png",
+        permission: true,
       },
       {
         name: "My Game History",
@@ -199,9 +203,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 <div className="space-y-2">
                   {section.href ? (
                     <Link
-                      href={!isSignedIn ? "" : section.href}
+                      href={
+                        !isSignedIn && !section.permission ? "" : section.href
+                      }
                       onClick={
-                        !isSignedIn
+                        !isSignedIn && !section.permission
                           ? () => setOpenConfirmLogin(true)
                           : () => null
                       }
@@ -235,6 +241,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
                       <span className="flex-1 font-semibold">
                         {section.name}
                       </span>
+                      {!isSignedIn && !section.permission && (
+                        <Image
+                          src="/icons/lock.png"
+                          alt="lock"
+                          className="w-4 h-4 object-contain"
+                          quality={100}
+                          width={1000}
+                          height={1000}
+                        />
+                      )}
                     </Link>
                   ) : (
                     // Non-clickable title (section header)
@@ -277,18 +293,19 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           <Link
                             key={child.href}
                             onClick={
-                              !isSignedIn
+                              !isSignedIn && !section.permission
                                 ? () => setOpenConfirmLogin(true)
                                 : () => null
                             }
                             href={
-                              child.href == "/training-plan" || !isSignedIn
+                              child.href == "/training-plan" ||
+                              (!isSignedIn && !section.permission)
                                 ? ""
                                 : child.href
                             }
                             // style={{ width: widthContainer - 50 }}
                             className={cn(
-                              "min-h-[52px] group flex items-center rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
+                              "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
                                 ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
                                 : child.disabled
@@ -298,24 +315,36 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
                             )}
                           >
-                            <Image
-                              width={1000}
-                              height={1000}
-                              alt={child.href}
-                              src={
-                                isChildActive ? child.iconActive : child.icon
-                              }
-                              className={cn(
-                                "mr-3 h-5 w-5",
-                                isChildActive
-                                  ? "text-[#221AE9]"
-                                  : child.href == "/training-plan"
-                                  ? "text-[#AAA4A4]"
-                                  : "text-gray-400 group-hover:text-[#221AE9]"
-                              )}
-                            />
+                            <div className="flex flex-row items-center">
+                              <Image
+                                width={1000}
+                                height={1000}
+                                alt={child.href}
+                                src={
+                                  isChildActive ? child.iconActive : child.icon
+                                }
+                                className={cn(
+                                  "mr-3 h-5 w-5",
+                                  isChildActive
+                                    ? "text-[#221AE9]"
+                                    : child.href == "/training-plan"
+                                    ? "text-[#AAA4A4]"
+                                    : "text-gray-400 group-hover:text-[#221AE9]"
+                                )}
+                              />
 
-                            <span>{child.name}</span>
+                              <span>{child.name}</span>
+                            </div>
+                            {!isSignedIn && !child.permission && child.href!= "#" && (
+                              <Image
+                                src="/icons/lock.png"
+                                alt="lock"
+                                className="w-4 h-4 object-contain"
+                                quality={100}
+                                width={1000}
+                                height={1000}
+                              />
+                            )}
                           </Link>
                         );
                       })}

@@ -255,6 +255,7 @@ const AnalysisResult: React.FC = () => {
     setStartTime(result);
   };
   const toggleBoardMode = () => {
+    console.log("is3DMode", is3DMode);
     setIs3DMode((prev) => !prev);
   };
 
@@ -622,7 +623,7 @@ const AnalysisResult: React.FC = () => {
         <SettingBoard />
         <button onClick={toggleBoardMode}>
           <Image
-            src={"/images/play-vs-ai/3d.png"}
+            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
             width={1000}
             height={1000}
@@ -663,19 +664,28 @@ const AnalysisResult: React.FC = () => {
             {buttonBoard()}
           </motion.div>
           <motion.div
+            initial={{ rotateX: 180 }}
             animate={
-              hideDiv || is3DMode
+              !is3DMode
                 ? { opacity: 0, display: "hidden" }
-                : { opacity: 1 }
+                : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
             }
-            transition={{ duration: 1, ease: "easeInOut" }}
+            transition={{
+              duration: 0.6,
+              stiffness: 500,
+              damping: 30,
+              ease: [0.4, 0.0, 0.2, 1],
+              type: "tween",
+            }}
             style={{
               width: boardSize,
-              display: !hideDiv || is3DMode ? "flex" : "none",
+              display: is3DMode ? "flex" : "none",
+              backfaceVisibility: "hidden",
+              transformStyle: "preserve-3d",
             }}
           >
-            {!is3DMode && (
-              <TwoDChessboard
+            {is3DMode && (
+              <ThreeDBoard
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }
@@ -703,19 +713,27 @@ const AnalysisResult: React.FC = () => {
             )}
           </motion.div>
           <motion.div
+            initial={{ rotateX: 180 }}
             animate={
-              hideDiv || !is3DMode
+              is3DMode
                 ? { opacity: 0, display: "none" }
-                : { opacity: 1 }
+                : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
             }
-            transition={{ duration: 1, ease: "easeInOut" }}
+            transition={{
+              duration: 0.5,
+              stiffness: 500,
+              damping: 35,
+              ease: [0.4, 0.0, 0.2, 1],
+              type: "tween",
+            }}
             style={{
               width: boardSize,
-              display: !hideDiv || !is3DMode ? "flex" : "none",
+              display: !is3DMode ? "flex" : "none",
+              backfaceVisibility: "hidden",
             }}
           >
-            {is3DMode && (
-              <ThreeDBoard
+            {!is3DMode && (
+              <TwoDChessboard
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }

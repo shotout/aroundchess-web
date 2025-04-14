@@ -1,6 +1,6 @@
 "use client";
 
-const endpoint = process.env.NEXT_PUBLIC_BASE_AUTH;
+const endpoint = process.env.BASE_URL;
 
 export const ChessApiService = {
   async setUsername(username: string, sessionId: string): Promise<any> {
