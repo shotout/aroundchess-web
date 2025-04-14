@@ -98,8 +98,8 @@ export default function RegisterPage() {
       toast.success("Account verified successfully!");
 
       // Redirect to dashboard after successful verification
-      // router.push("/my-game-history");
-      window.location.href = "/my-game-history";
+      // router.push("/analysis");
+      window.location.href = "/analysis";
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Verification failed";
@@ -139,7 +139,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history",
+        redirectUrlComplete: "/analysis",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -153,7 +153,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_facebook",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history",
+        redirectUrlComplete: "/analysis",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -167,7 +167,7 @@ export default function RegisterPage() {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/my-game-history",
+        redirectUrlComplete: "/analysis",
       });
     } catch (error) {
       console.error("OAuth error:", error);
@@ -193,7 +193,7 @@ export default function RegisterPage() {
             }}
             alt="Authentication background"
           />
-          {/* Optional overlay for improved text clarity */}
+          {/* overlay*/}
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 

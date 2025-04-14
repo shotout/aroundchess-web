@@ -98,22 +98,22 @@ export const ChessConnectDialog = ({
           </div>
         </div>
 
-        <div className="w-full p-6">
-          <div>
+        <div className="w-full p-4 md:p-6">
+          <div className="flex flex-col gap-y-2">
             <h2 className="text-2xl font-bold text-center">
               Welcome on Board!
             </h2>
-            <p className="text-center text-black">
+            <p className="text-center text-xs md:text-base text-black">
               Enter your Chess.com Username and find your previously played
               Games right away.
             </p>
-            <div className="text-blue-base text-xs border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
+            <div className="text-blue-base border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
               <AlertCircle className="w-10 h-10" />
-              <div>
+              <h1 className="text-[10px] md:text-xs">
                 Enter the Chess.com Username that you would like to connect to
                 your AroundChess Account (Once you save it, it cannot be
                 changed)
-              </div>
+              </h1>
             </div>
           </div>
 
