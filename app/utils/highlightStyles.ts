@@ -1,4 +1,4 @@
-export const squareSize = 12.5
+export const squareSize =12.5
 
 export const getMoveHighlightStyle = (
   square: string,

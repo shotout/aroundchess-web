@@ -432,6 +432,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const handleNextMove = () =>
     navigateToMove(Math.min(currentMoveIndex + 1, fenHistory.length - 1));
 
+  //dari sini
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
@@ -473,7 +474,20 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
   >({});
-  
+  const [currentSquare, setCurrentSquare] = useState<Square | undefined>(
+    undefined
+  );
+  const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
+    undefined
+  );
+  const prevCurrentColor = {
+    ...(previousSquare && {
+      [previousSquare]: { backgroundColor: "#B9CA43" }, // Yellow for previous
+    }),
+    ...(currentSquare && {
+      [currentSquare]: { backgroundColor: "#F5F682" }, // Green for current
+    }),
+  };
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({
       square,
@@ -512,7 +526,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     // from square
     if (!moveFrom) {
       const hasMoveOptions = getMoveOptions(square);
-      if (hasMoveOptions) setMoveFrom(square);
+      if (hasMoveOptions) {
+        setPreviousSquare(square);
+        setMoveFrom(square);
+      }
       return;
     }
 
@@ -537,7 +554,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
       // valid move
       setMoveTo(square);
-
+      setCurrentSquare(square);
       // if promotion move
       if (
         (foundMove.color === "w" &&
@@ -1168,6 +1185,29 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   };
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
+      {isGameOver && (
+        <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-full bg-purple-300 text-black text-center p-2 font-bold z-10">
+          {"Puzzle Solved!"}
+          <div className="mt-4 flex justify-center gap-4">
+            <button
+              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              onClick={() => {
+                resetPuzzleHandler();
+              }}
+            >
+              Repeat Puzzle
+            </button>
+            <button
+              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              onClick={() => {
+                getNextPuzzleHandler();
+              }}
+            >
+              Next Puzzle
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col w-full gap-4 ">
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
           <button>
@@ -1213,39 +1253,33 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {is3DMode && (
                 <ThreeDBoard
-                position={position}
-                boardWidth={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-                }
-                orientation={boardOrientation}
-                onPieceDrop={handlePieceDrop}
-                onPieceDragBegin={handleDragBegin}
-                onPieceDragEnd={handleDragEnd}
-                onSquareClick={
-                  !isComputerTurn && gameEnded
-                    ? () => {} // Provide a default no-op function
-                    : handleSquareClickCallback
-                }
-                onPieceClick={
-                  !isComputerTurn && gameEnded
-                    ? undefined
-                    : (piece: string, sourceSquare: string) =>
-                        handlePieceClick(
-                          { type: piece as PieceSymbol, color: "w" }, // Adjust as needed
-                          sourceSquare as Square
-                        )
-                }
-                onSquareRightClick={handleSquareRightClick}
-                arePiecesDraggable={!isComputerTurn && !gameEnded}
-                customSquareStyles={customSquareStyles}
-                arePremovesAllowed={true}
-                onPromotionPieceSelect={function (
-                  piece?: PromotionPieceOption,
-                  promoteFromSquare?: Square,
-                  promoteToSquare?: Square
-                ): boolean {
-                  throw new Error("Function not implemented.");
-                }}
+                  position={position}
+                  arePiecesDraggable={false}
+                  orientation={orientation}
+                  boardWidth={boardSize}
+                  onSquareClick={onSquareClick}
+                  onSquareRightClick={onSquareRightClick}
+                  onPromotionPieceSelect={onPromotionPieceSelect}
+                  customSquareStyles={{
+                    ...moveSquares,
+                    ...optionSquares,
+                    ...rightClickedSquares,
+                    ...prevCurrentColor,
+                  }}
+                  areArrowsAllowed={true}
+                  customArrows={
+                    bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
+                      ? [
+                          [
+                            bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                            bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                          ],
+                        ]
+                      : null
+                  }
+                  customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+                  promotionToSquare={moveTo}
+                  showPromotionDialog={showPromotionDialog}
                 />
               )}
             </motion.div>
@@ -1271,41 +1305,101 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {!is3DMode && (
                 <TwoDChessboard
-                  position={position}
-                  boardWidth={
-                    hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
-                  }
-                  orientation={boardOrientation}
                   onPieceDrop={handlePieceDrop}
-                  onPieceDragBegin={handleDragBegin}
-                  onPieceDragEnd={handleDragEnd}
+                  position={position}
+                  orientation={orientation}
+                  boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
-                      ? () => {} // Provide a default no-op function
+                      ? undefined
                       : handleSquareClickCallback
                   }
+                  arePiecesDraggable={!isComputerTurn && !gameEnded}
                   onPieceClick={
                     !isComputerTurn && gameEnded
                       ? undefined
                       : (piece: string, sourceSquare: string) =>
                           handlePieceClick(
-                            { type: piece as PieceSymbol, color: "w" }, // Adjust as needed
+                            { type: piece as PieceSymbol, color: "w" }, // Adjust the piece type
                             sourceSquare as Square
                           )
                   }
                   onSquareRightClick={handleSquareRightClick}
-                  arePiecesDraggable={!isComputerTurn && !gameEnded}
-                  customSquareStyles={customSquareStyles}
-                  arePremovesAllowed={true}
-                  onPromotionPieceSelect={function (
-                    piece?: PromotionPieceOption,
-                    promoteFromSquare?: Square,
-                    promoteToSquare?: Square
-                  ): boolean {
-                    throw new Error("Function not implemented.");
+                  onPromotionPieceSelect={onPromotionPieceSelect}
+                  customSquareStyles={{
+                    ...moveSquares,
+                    ...optionSquares,
+                    ...rightClickedSquares,
+                    ...prevCurrentColor,
+                    ...customSquareStyles,
                   }}
+                  arePremovesAllowed={true}
+                  customArrows={
+                    bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
+                      ? [
+                          [
+                            bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                            bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                          ],
+                        ]
+                      : null
+                  }
+                  customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+                  promotionToSquare={moveTo}
+                  showPromotionDialog={showPromotionDialog}
                 />
               )}
+              <div
+                style={{
+                  width: Math.round(boardSize - boardSize / 8.5),
+                  height: Math.round(boardSize - boardSize / 8.5),
+                  // background: "rgba(0,0,0,0.2)",
+                  margin: Math.round(boardSize / 16.5),
+                  pointerEvents: "none",
+                }}
+                className="flex items-center justify-center rounded-lg shadow-lg absolute"
+              >
+                {lastMove && isAtCurrentMove && (
+                  <>
+                    <div
+                      style={getLastMoveHighlightStyle(
+                        lastMove.from,
+                        boardOrientation
+                      )}
+                    />
+                    <div
+                      style={getLastMoveHighlightStyle(
+                        lastMove.to,
+                        boardOrientation
+                      )}
+                    />
+                  </>
+                )}
+
+                {hint && isAtCurrentMove && !isComputerTurn && (
+                  <div style={getHintHighlightStyle(hint, boardOrientation)} />
+                )}
+
+                {isAtCurrentMove &&
+                  selectedSquare &&
+                  highlightStyles.map((style, index) => (
+                    <div
+                      key={`${possibleMoves[index].square}-${index}`}
+                      style={style}
+                    />
+                  ))}
+                {invalidMoveSquares.map((square) => (
+                  <div
+                    key={square}
+                    style={getInvalidMoveHighlightStyle(
+                      square,
+                      boardOrientation
+                    )}
+                  >
+                    ❌
+                  </div>
+                ))}
+              </div>
             </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
@@ -1336,6 +1430,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             </div>
           </div>
         </div>
+        <div></div>
       </div>
       {/* {buttonBoardColumn()} */}
 
@@ -1440,13 +1535,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             </tbody>
           </table>
           <div className="flex flex-row justify-center items-center gap-2 my-4">
-            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+            <button
+              onClick={handlePreviousMove}
+              className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+            >
               <ChevronLeft size={24} color="#000" />
             </button>
-            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+            <button
+              onClick={handleNextMove}
+              className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+            >
               <ChevronRight size={24} color="#000" />
             </button>
-            <button className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
+            <button onClick={resetPuzzleHandler} className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]">
               <RotateCw size={20} color="#000" />
             </button>
           </div>
