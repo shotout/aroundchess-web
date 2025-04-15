@@ -21,7 +21,7 @@ type Puzzle = {
 };
 export default function Puzzle() {
   const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]); // Store filtered puzzles
-
+   
   // Use the custom hook with the filtered puzzles
   const {
     currentPuzzle,
@@ -45,6 +45,7 @@ export default function Puzzle() {
     getHint,
     hint,
     clearHint,
+    changeTopicPuzzle,
     showConfirmationBox,
     handleConfirm,
   } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
@@ -95,7 +96,9 @@ export default function Puzzle() {
           clearHint={clearHint}
           navigateToMove={handleNavigateToMove}
           onTakeBackMove={handleTakeBackMove}
-        />
+          onGetHint={getHint}
+          onChangeTopic={changeTopicPuzzle}
+          />
       )}
     </Navigation>
   );

@@ -883,7 +883,7 @@ export default function Playing() {
             height={1000}
             className="w-[30px] h-[30px] object-contain m-4 mr-0"
           />
-          <span className="text-white">{content}</span>
+          <span className="font-medium text-[14px]">{content}</span>
           <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
             <Image
               src={`/images/play-vs-ai/${sparks}.png`}
