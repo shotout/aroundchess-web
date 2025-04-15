@@ -3,7 +3,8 @@ export const squareSize = 12.5;
 export const getMoveHighlightStyle = (
   square: string,
   isCapture: boolean,
-  boardOrientation: "white" | "black"
+  boardOrientation: "white" | "black",
+  color?: string
 ): React.CSSProperties => {
   const column = square[0];
   const row = square[1];
@@ -13,7 +14,7 @@ export const getMoveHighlightStyle = (
       : `${(parseInt(row) - 1) * squareSize - 0.2}%`;
   const left =
     boardOrientation === "white"
-      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.2}%`
+      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.1}%`
       : `${
           (7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize - 0.1
         }%`;
@@ -26,7 +27,7 @@ export const getMoveHighlightStyle = (
     height: `${squareSize}%`,
     background: isCapture
       ? "radial-gradient(transparent 0%, transparent 80%, rgba(0, 0, 0, 0.7) 80%)"
-      : "rgba(0, 0, 0, 0.7)",
+      : color,
     clipPath: isCapture ? "none" : "circle(13% at 50% 50%)",
     pointerEvents: "none",
     zIndex: 10,
@@ -46,7 +47,7 @@ export const getLastMoveHighlightStyle = (
       : `${(parseInt(row) - 1) * squareSize - 0.2}%`;
   const left =
     boardOrientation === "white"
-      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.2}%`
+      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.1}%`
       : `${
           (7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize - 0.1
         }%`;
@@ -73,11 +74,13 @@ export const getHintHighlightStyle = (
   const top =
     boardOrientation === "white"
       ? `${100 - parseInt(row) * squareSize - 0.1}%`
-      : `${((parseInt(row) - 1) * squareSize)-0.2}%`;
+      : `${(parseInt(row) - 1) * squareSize - 0.2}%`;
   const left =
     boardOrientation === "white"
-      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.2}%`
-      : `${((7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize)-0.2}%`;
+      ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.1}%`
+      : `${
+          (7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize - 0.1
+        }%`;
 
   return {
     position: "absolute",
