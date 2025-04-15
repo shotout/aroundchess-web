@@ -818,19 +818,7 @@ export default function Playing() {
             />
             <span className="font-medium text-xs mt-1">Share</span>
           </button>
-          <button
-            onClick={handleSettingsGame}
-            className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
-          >
-            <Image
-              src={"/images/play-vs-ai/settings-filled.png"}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[16px] h-[16px] object-contain"
-            />
-            <span className="font-medium text-xs mt-1">Settings</span>
-          </button>
+        
           <button
             onClick={handleDownload}
             className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
