@@ -79,7 +79,7 @@ export const getHintHighlightStyle = (
     boardOrientation === "white"
       ? `${(column.charCodeAt(0) - "a".charCodeAt(0)) * squareSize - 0.1}%`
       : `${
-          (7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize - 0.1
+          (7 - (column.charCodeAt(0) - "a".charCodeAt(0))) * squareSize - 0.2
         }%`;
 
   return {
