@@ -31,7 +31,7 @@ export function useApiClient() {
       setError(null);
       try {
         let url = path;
-        const token = localStorage.getItem("token");;
+        const token = localStorage.getItem("token");
 
         if (params && Object.keys(params).length > 0) {
           const query = new URLSearchParams(params as any).toString();
@@ -277,7 +277,16 @@ export function useApiClient() {
       path: `${process.env.BASE_URL}/playground/puzzles`,
     });
   }, [apiRequest]);
-
+  const postPuzzle = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/playground/puzzles`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   const getVSAILogs = useCallback(() => {
     return apiRequest({
       method: "GET",
@@ -368,6 +377,7 @@ export function useApiClient() {
     rematch,
     uploadPGN,
     getPuzzle,
+    postPuzzle,
     getVSAILogs,
     postVSAILogs,
     getMistakePrevious,

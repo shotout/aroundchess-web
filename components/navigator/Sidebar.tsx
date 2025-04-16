@@ -108,7 +108,7 @@ const sidebarLinks: SidebarLink[] = [
       },
       {
         name: "Puzzles",
-        href: "/playground/puzzles",
+        href: "/playground/puzzle",
         icon: "/icons/sidebar-puzzle-icon.png",
         iconActive: "/icons/sidebar-puzzle-icon-active.png",
       },
