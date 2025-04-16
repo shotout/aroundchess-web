@@ -5,6 +5,7 @@ import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { ConfirmLogin } from "../modal/ConfirmLogin";
 import { useAuth } from "@clerk/nextjs";
+import { ContactUs } from "../modal/ContactUs";
 
 export default function Navigation({
   children,
@@ -62,12 +63,13 @@ export default function Navigation({
 
           {/* Main content */}
           <div className="relative z-10">
-            {/* <div className="relative z-10 min-h-[calc(100vh-10rem)]"> */}
+            {/* <div className="relative z-10 lg:min-h-[calc(100vh-97px)]"> */}
             {children}
             <ConfirmLogin />
+            <ContactUs />
           </div>
 
-          <div className="z-50 relative">
+          <div className="z-49 relative">
             <SiteFooterNew />
           </div>
         </main>
@@ -80,7 +82,7 @@ export default function Navigation({
             onClick={() => setSidebarOpen(false)}
           />
 
-          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200">
+          <div className="fixed inset-y-0 left-0 z-49 w-64 bg-white border-r border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
         </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePuzzles } from "@/app/hooks/usePuzzles";
+import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import Navigation from "@/components/navigator/navigation";
 import { PuzzleGame } from "@/components/playground/puzzle/PuzzleGame";
 import PuzzleInitialize from "@/components/playground/puzzle/PuzzleInitialize";
@@ -14,6 +15,8 @@ import {
 import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
 type Puzzle = {
   PuzzleId: string;
   FEN: string;
@@ -52,6 +55,15 @@ export default function Puzzle() {
   } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
   const { postPuzzle, getPuzzle, isLoading } = useApiClient();
   const [puzzleLog, setPuzzleLog] = useState<any[]>([]);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
+
+  const handleGetPremium = () => {
+    setShowPremiumDialog(false);
+    toast.success("Thank you for subscribing to Premium!");
+  };
   useEffect(() => {
     handleGetLog();
     if (isSolved) {
@@ -62,8 +74,9 @@ export default function Puzzle() {
     await getPuzzle().then((res) => {
       let logs = res.data;
       setPuzzleLog(logs);
-      if (logs.length == 20) {
+      if (logs.length >= 20) {
         // kondisi kalo udah 20
+        setShowPremiumDialog(true);
       }
     });
   };
@@ -123,6 +136,11 @@ export default function Puzzle() {
           onChangeTopic={changeTopicPuzzle}
         />
       )}
+      <PremiumSubscription
+        visible={showPremiumDialog && !isLoading}
+        onClose={handleClosePremium}
+        onGetPremium={handleGetPremium}
+      />
     </Navigation>
   );
 }
