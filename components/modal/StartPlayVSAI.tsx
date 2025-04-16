@@ -111,7 +111,7 @@ export function StartPlayVSAI() {
           Start Now
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:min-w-[640px] md:max-w-xl lg:max-h-[600px] lg:max-w-[902px] xl:max-w-[1141px] bg-white overflow-y-auto">
+      <DialogContent className="rounded-lg max-w-sm sm:min-w-[640px] md:max-w-xl lg:max-h-[90vh] lg:max-w-[902px] xl:max-w-[1141px] bg-white overflow-y-auto">
         <DialogHeader className="gap-1 mb-2">
           <DialogTitle>
             <h2 className="text-[18px] font-semibold text-center">

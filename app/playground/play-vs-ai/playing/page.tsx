@@ -32,10 +32,26 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import { usePgnStore } from "@/app/store/zustandStore";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
+import { toast } from "sonner";
+import LoadingPage from "@/components/analysis-loading/LoadingPage";
+import axios from "axios";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
+
 export default function Playing() {
   const router = useRouter();
+  const { proceedAnalysis } = useStockfishAnalysis();
 
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
+  const {
+    isLoading: loadingAnalyze,
+    setIsLoading,
+    setPgn,
+    setDataAnalysis,
+    setDataGames,
+    setError,
+    username,
+  } = usePgnStore();
   const { user } = useUser();
   const { sessionId } = useAuth();
   const { hideDiv } = usePgnStore();
@@ -54,9 +70,9 @@ export default function Playing() {
   const [heightScreen, setHeightScreen] = useState<number>(0);
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
-  const [bestLine, setBestline] = useState<string | null>(null);
+  const [bestLine, setBestline] = useState<string | null>("");
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
-  const [depth, setDepth] = useState<number>(10);
+  const [depth, setDepth] = useState<number>(20);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
   const [statusGame, setStatusGame] = useState<string>("Ongoing");
@@ -82,6 +98,38 @@ export default function Playing() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
+  const fetchPgnLocal = async () => {
+    let arr = null;
+    try {
+      setIsLoading(true);
+      setDataAnalysis(arr);
+      console.log("body analysis", JSON.stringify(game.pgn()), username);
+
+      const responseAnalysis = await proceedAnalysis(
+        JSON.stringify(game.pgn()),
+        username,
+        10,
+        60000
+      );
+      setDataAnalysis(responseAnalysis.data);
+      setIsLoading(false);
+      arr = responseAnalysis.data;
+
+      console.log("responseAnalysis:", responseAnalysis);
+    } catch (err) {
+      console.log("error", err);
+      toast.error(err + "");
+      setIsLoading(false);
+
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      if (arr != null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     let is3D = StyleChoosed == "3d" ? true : false;
@@ -236,10 +284,18 @@ export default function Playing() {
   };
   const prevCurrentColor = {
     ...(previousSquare && {
-      [previousSquare]: { backgroundColor: "#B9CA43" }, // Yellow for previous
+      [previousSquare]: {
+        backgroundColor: "#B9CA43",
+        marginLeft: -0.5,
+        marginTop: is3DMode ? 0.5 : -1.5,
+      }, // Green for previous
     }),
     ...(currentSquare && {
-      [currentSquare]: { backgroundColor: "#F5F682" }, // Green for current
+      [currentSquare]: {
+        backgroundColor: "#F5F682",
+        marginLeft: -0.5,
+        marginTop: is3DMode ? 0 : -1.5,
+      }, // Yellow for current
     }),
   };
 
@@ -266,19 +322,27 @@ export default function Playing() {
     });
   };
   const handleHint = () => {
-    setHintClicked(true);
     let depthHint = depth;
+    let isYourTurn = myColor == "white" ? "w" : "b";
+    setBestline(null);
     engine.evaluatePosition(game.fen(), depthHint);
-    engine.onMessage(({ positionEvaluation, possibleMate, pv, depth }) => {
-      if (depth && depth < 10) return;
-      positionEvaluation &&
-        setPositionEvaluation(
-          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
-        );
-      possibleMate && setPossibleMate(possibleMate);
-      depth && setDepth(depth);
-      pv && setBestline(pv);
-    });
+    engine.onMessage(
+      ({ positionEvaluation, possibleMate, pv, depth, bestMove }) => {
+        if (depth && depth < 10) return;
+        positionEvaluation &&
+          setPositionEvaluation(
+            ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+          );
+        possibleMate && setPossibleMate(possibleMate);
+        if (game.turn() == isYourTurn) {
+          console.log("handle hint", bestMove);
+          !bestMove && setHintClicked(false);
+          !bestMove && setBestline(null);
+          bestMove && setBestline(bestMove);
+          bestMove && setHintClicked(true);
+        }
+      }
+    );
   };
   useEffect(() => {
     fillMovement();
@@ -415,7 +479,7 @@ export default function Playing() {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 2.9 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
@@ -443,22 +507,62 @@ export default function Playing() {
       }
     });
   };
-  const handleSetting = () => {};
-  const handleShare = () => {};
-  const handleSettingsGame = () => {};
-  const handleDownload = () => {};
+  const handleShare = async () => {
+    try {
+      const currentPgn = game.pgn();
+
+      await navigator.clipboard.writeText(JSON.stringify(currentPgn));
+      toast("Current PGN copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+  const handleDownload = () => {
+    if (game) {
+      const currentPgn = game.pgn();
+
+      // Create a blob with the PGN content
+      const blob = new Blob([currentPgn], { type: "text/plain" });
+
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+
+      // Create a temporary anchor element to trigger the download
+      const a = document.createElement("a");
+      a.href = url;
+      const currentEpochTimeMs = Date.now();
+
+      let fileName =
+        AIChoosed.opponent.name +
+        "_" +
+        AIChoosed.opponent.elo +
+        "_" +
+        currentEpochTimeMs;
+      a.download = fileName + ".pgn"; // Name of the downloaded file
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up by removing the anchor and revoking the URL
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast("Current PGN Downloaded!");
+    }
+  };
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
   };
   const handleResign = () => {
-    router.replace("/playground/play-vs-ai");
-    handleSaveLog();
+    setStatusGame("Loss");
   };
-  const handleAnalyzeGame = () => {};
+  const handleAnalyzeGame = () => {
+    fetchPgnLocal();
+  };
   const handleNewGame = () => {
-    handleSaveLog();
     game.reset();
     setGamePosition(game.fen());
+    setStatusGame("Ongoing");
+    setPreviousSquare(undefined);
+    setCurrentSquare(undefined);
   };
   const handleSaveLog = async () => {
     let body = {
@@ -470,9 +574,6 @@ export default function Playing() {
       pgn: game.pgn(),
     };
     await postVSAILogs(body);
-    setWinnerColor("");
-    setLoserColor("");
-    setStatusGame("");
   };
   const checkStatusGame = () => {
     let isUserWin = false;
@@ -573,7 +674,7 @@ export default function Playing() {
             : isDraw
             ? "border-[#221AE9] bg-[#221AE916]"
             : isLoss
-            ? "border-[#FD0000] bg-[#FD000016]"
+            ? "border-[#FD0000] bg-[#FD000020]"
             : "border-[#DEDEDE] bg-white "
         } p-2 gap-2 mb-2`}
       >
@@ -642,7 +743,7 @@ export default function Playing() {
             : isDraw
             ? "border-[#221AE9] bg-[#221AE916]"
             : isLoss
-            ? "border-[#FD0000] bg-[#FD000016]"
+            ? "border-[#FD0000] bg-[#FD000020]"
             : "border-[#DEDEDE]"
         } p-2 gap-2 mb-2`}
       >
@@ -706,19 +807,27 @@ export default function Playing() {
         className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2"
       >
         <button
-          disabled={currentTurn.toLowerCase() != myColor}
+          disabled={
+            currentTurn.toLowerCase() != myColor ||
+            (!hintClicked && bestLine?.length == null)
+          }
           onClick={handleHint}
           className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
         >
-          <Image
-            src={"/images/play-vs-ai/hint.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[11px] h-[16px] object-contain "
-          />
-
-          <span className="font-medium text-xs mt-1 ">Hint</span>
+          {!hintClicked && bestLine?.length == null ? (
+            <DotSpinner size={5} />
+          ) : (
+            <>
+              <Image
+                src={"/images/play-vs-ai/hint.png"}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[11px] h-[16px] object-contain "
+              />
+              <span className="font-medium text-xs mt-1 ">Hint</span>
+            </>
+          )}
         </button>
         <button
           onClick={handleResign}
@@ -776,7 +885,7 @@ export default function Playing() {
             </div>
           </button>
           <button
-            onClick={handleNewGame}
+            onClick={handleResign}
             className="btn-tertiary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
           >
             <div className="flex flex-row items-center justify-center gap-2">
@@ -818,7 +927,7 @@ export default function Playing() {
             />
             <span className="font-medium text-xs mt-1">Share</span>
           </button>
-        
+
           <button
             onClick={handleDownload}
             className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
@@ -867,11 +976,11 @@ export default function Playing() {
         ? "Congratulations! You won this game!"
         : statusGame == "Draw"
         ? "The Game ended in a Draw."
-        : "You loss by [REASON OF LOSS]";
+        : "The Game ended You loss";
     return (
       <motion.div
         variants={fadeInUp}
-        className={`relative w-[98%] rounded-[8px] ${gradColor} border border-[${color}] mx-2 p-[1px]`}
+        className={`relative w-[96%] rounded-[8px] ${gradColor} border border-[${color}] mx-2 p-[1px]`}
       >
         <div
           className={`flex h-[56px] flex-row items-center rounded-[8px] border-2 border-dashed border-[${color}] gap-3`}
@@ -883,7 +992,7 @@ export default function Playing() {
             height={1000}
             className="w-[30px] h-[30px] object-contain m-4 mr-0"
           />
-          <span className="font-medium text-[14px]">{content}</span>
+          <span className="font-medium text-[14px] text-white">{content}</span>
           <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
             <Image
               src={`/images/play-vs-ai/${sparks}.png`}
@@ -897,6 +1006,7 @@ export default function Playing() {
       </motion.div>
     );
   };
+  if (loadingAnalyze) return <LoadingPage />;
   return (
     <Navigation>
       <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
@@ -955,7 +1065,7 @@ export default function Playing() {
               >
                 {is3DMode && (
                   <ThreeDBoard
-                    arePiecesDraggable={false}
+                    arePiecesDraggable={true}
                     orientation={orientation}
                     boardWidth={boardSize}
                     position={gamePosition}
@@ -1141,8 +1251,13 @@ export default function Playing() {
                 Movement Details
               </span>
               <div
-                style={{ height: heightScreen * 0.8 }}
-                className="px-4 w-full xl:max-h-[70vh] overflow-y-auto rounded-[8px]"
+                style={{
+                  height:
+                    statusGame == "Ongoing"
+                      ? heightScreen * 0.75
+                      : heightScreen * 0.45,
+                }}
+                className="px-4 w-full xl:max-h-[65vh] overflow-y-auto"
               >
                 <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-collapse border-[#BDD0F9]">
                   <thead>
@@ -1166,7 +1281,12 @@ export default function Playing() {
                         let icon = captured.capturedTheme;
                         return (
                           <tr className="text-center" key={index}>
-                            <td className="p-2 border font-normal text-xs border-[#BDD0F9]">
+                            <td
+                              className={`p-2 border font-normal text-xs border-[#BDD0F9] ${
+                                index + 1 == capturedWhite.length &&
+                                `rounded-bl-[8px]`
+                              }`}
+                            >
                               {index + 1}
                             </td>
                             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
@@ -1184,7 +1304,12 @@ export default function Playing() {
                                 {move}
                               </span>
                             </td>
-                            <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
+                            <td
+                              className={`text-center align-middle p-2 border border-[#BDD0F9] ${
+                                index + 1 == capturedWhite.length &&
+                                `rounded-br-[8px]`
+                              }`}
+                            >
                               {capturedBlack[index] != null &&
                                 capturedBlack[index].capturedTheme.length ==
                                   2 && (
@@ -1220,15 +1345,15 @@ export default function Playing() {
             <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
               {isLoading && <DotSpinner />}
               <div
-                style={{ height: heightScreen * 0.8 }}
-                className="px-4 w-full xl:max-h-[70vh] overflow-y-auto"
+                style={{ height: heightScreen * 0.75 }}
+                className="px-4 w-full xl:max-h-[80vh] overflow-y-auto"
               >
                 {pastGames.map((past, index) => {
                   return (
                     <GameCard
                       key={index}
                       result={
-                        past.status.toLowerCase() == "ongoing"
+                        past.status.toLowerCase() == "Ongoing"
                           ? "loss"
                           : past.status.toLowerCase()
                       }

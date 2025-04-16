@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 
-const DotSpinner = () => {
+const DotSpinner: React.FC<{ size?: number }> = ({ size = 12 }) => {
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -25,7 +25,9 @@ const DotSpinner = () => {
 
   return (
     <div className="w-full flex justify-center items-center">
-      <div className="relative flex items-center justify-center h-12 w-12">
+      <div
+        className={`relative flex items-center justify-center h-${size} w-${size}`}
+      >
         {[...Array(8)].map((_, index) => (
           <div
             key={index}
@@ -35,8 +37,10 @@ const DotSpinner = () => {
             }}
           >
             <div
-              className="h-2.5 w-2.5 rounded-full bg-blue-base shadow-lg opacity-50 origin-center"
+              className="rounded-full bg-blue-base shadow-lg opacity-50 origin-center"
               style={{
+                width:size/2.3,
+                height:size/2.3,
                 animation: `pulse 0.999s ease-in-out infinite`,
                 animationDelay: `${-0.875 * index * 0.9}s`,
                 boxShadow: "0 0 20px rgba(18, 31, 53, 0.3)",
