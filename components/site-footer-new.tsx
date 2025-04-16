@@ -1,4 +1,5 @@
 import CookieConsent from "@/app/cookies-consent/cookies-consent-message";
+import { useContactUs } from "@/app/store/contactUs";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
 import Image from "next/image";
@@ -10,11 +11,15 @@ interface SiteFooterProps {
 }
 
 export function SiteFooterNew({ className }: SiteFooterProps) {
+  const { setOpen, open } = useContactUs();
+  const handleContactUs = () => {
+    setOpen(true);
+  };
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
       <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
-        <div className="hidden relative lg:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
+        <div className="relative lg:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
           <Image
             src="/images/footer/background.png"
             alt="background"
@@ -27,27 +32,41 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             <Image
               src="/images/footer/icon-footer.png"
               alt="background"
-              className="w-[186px] h-[206px] object-contain z-49"
+              className="w-[70px] h-[78px] sm:w-[128px] sm:h-[142px] lg:w-[186px] lg:h-[206px] object-contain z-49"
               quality={100}
               width={1000}
               height={1000}
             />
             <div className="flex flex-col gap-4">
-              <span className="font-semibold text-[23px]">
+              <span className="font-semibold text-[9px] sm:text-[16px] lg:text-[23px]">
                 We work hard to improve the platform every day
               </span>
-              <span className="font-normal text-[14px]">
+              <span className="font-normal text-[5.3px] sm:text-[10px] lg:text-[14px]">
                 You have feedback, comments or even found a bug? Send us a
                 message or contact us on Discord.
               </span>
               <div className="flex flex-row items-center justify-center gap-4">
                 <button className="btn-secondary rounded-full h-[48px] min-w-[333px] flex flex-row items-center justify-center gap-2">
-                  <FaDiscord size={20} color={"#000"} />
-                  Contact us on Discord
+                  <FaDiscord
+                    className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
+                    color={"#000"}
+                  />
+                  <span className="text-[8px] sm:text-[11px] lg:text-[16px]">
+                    Contact us on Discord
+                  </span>
                 </button>
-                <button className="btn-primary rounded-full h-[48px] min-w-[333px] flex flex-row items-center justify-center gap-2">
-                  <Send size={17} color={"#fff"} fill="#fff" />
-                  Send us a message
+                <button
+                  onClick={handleContactUs}
+                  className="btn-primary rounded-full h-[48px] min-w-[333px] flex flex-row items-center justify-center gap-2"
+                >
+                  <Send
+                    className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
+                    color={"#fff"}
+                    fill="#fff"
+                  />
+                  <span className="text-[8px] sm:text-[11px] lg:text-[16px]">
+                    Send us a message
+                  </span>
                 </button>
               </div>
             </div>

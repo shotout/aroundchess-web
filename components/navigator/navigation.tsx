@@ -5,6 +5,7 @@ import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { ConfirmLogin } from "../modal/ConfirmLogin";
 import { useAuth } from "@clerk/nextjs";
+import { ContactUs } from "../modal/ContactUs";
 
 export default function Navigation({
   children,
@@ -67,9 +68,10 @@ export default function Navigation({
 
           {/* Main content */}
           <div className="relative z-10">
-          {/* <div className="relative z-10 lg:min-h-[calc(100vh-97px)]"> */}
+            {/* <div className="relative z-10 lg:min-h-[calc(100vh-97px)]"> */}
             {children}
             <ConfirmLogin />
+            <ContactUs />
           </div>
 
           <div className="z-49 relative">
