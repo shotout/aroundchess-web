@@ -3,6 +3,7 @@ import { Eye, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { QuestionPanelProps } from "../types/default-pgn";
+import Image from "next/image";
 
 const QuestionPanel: React.FC<QuestionPanelProps> = ({
   gameQuestion,
@@ -26,10 +27,17 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
       <div className="mb-6">
         <div className="flex items-center justify-between border-b pb-4 p-6">
           <div className="flex items-center">
-            <Eye className="h-5 w-5 text-indigo-600 mr-2" />
+            {/* <Eye className="h-5 w-5 text-indigo-600 mr-2" /> */}
+            <Image
+              src={"/board-vision/board-vision.png"}
+              alt="board vision"
+              width={40}
+              height={40}
+              className="mr-2"
+            />
             <span className="font-bold text-xl">Board Vision</span>
           </div>
-          <div className="text-indigo-600">
+          <div className="text-blue-base">
             {isGameEnd
               ? "The End"
               : `Question ${gameQuestionNumber} of ${gameMaxQuestions}`}
@@ -43,7 +51,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
             <Card className="mb-6 shadow-sm">
               <CardContent className="p-0">
                 <div className="rounded-md overflow-hidden">
-                  <div className="p-5 bg-gradient-to-r from-teal-400 to-teal-500">
+                  <div className="p-5 bg-gradient-to-b from-[#25CEDA] to-[#146E74]">
                     <p className="text-white text-center font-medium text-lg">
                       {gameQuestion.text}
                     </p>
@@ -59,7 +67,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
                     key={i}
                     className={`border rounded-md p-3 flex items-center justify-between cursor-pointer shadow-sm ${
                       gameSelectedAnswer === answer
-                        ? "bg-teal-400 text-white"
+                        ? "bg-turqouise-base text-white"
                         : "bg-white hover:bg-teal-50"
                     }`}
                     onClick={() =>

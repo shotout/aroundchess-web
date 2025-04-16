@@ -13,11 +13,8 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
   gameSelectedAnswer,
   handleGameNextQuestion,
   startGameAgain,
-  setShowSetupPopup,
   getRandomQuestion,
   isChangingQuestion,
-  routeToDefault,
-  isUserPGN = false,
 }) => {
   const isCorrect =
     gameQuestion && gameSelectedAnswer === gameQuestion.correctAnswer;
@@ -38,14 +35,16 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
               className={`relative ${
                 isCorrect
                   ? "bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100%"
-                  : "bg-gradient-to-r from-[#fff]/30 from-0% via-[#C01B1B] via-50% to-[#fff]/30 to-100%"
+                  : "bg-gradient-to-r from-[#C01B1B]/30 from-0% via-[#C01B1B] via-50% to-[#C01B1B]/30 to-100%"
               } border rounded-lg p-4 pl-10 flex items-center gap-2`}
             >
               <Image
                 width={20}
                 height={20}
                 alt="check icon"
-                src={"/handbooks/check.png"}
+                src={
+                  isCorrect ? "/handbooks/check.png" : "/board-vision/cross.png"
+                }
                 className="h-5 w-5 text-green-500"
               />
               <h1 className="text-black font-medium">
@@ -53,18 +52,28 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                 {gameQuestion?.correctAnswer}.
               </h1>
 
-              <Image
-                width={200}
-                height={200}
-                alt="sparks"
-                src={"/handbooks/sparks.png"}
-                className="absolute top-0 right-12"
-              />
+              {isCorrect ? (
+                <Image
+                  width={200}
+                  height={200}
+                  alt="sparks"
+                  src={"/handbooks/sparks.png"}
+                  className="absolute top-0 right-12"
+                />
+              ) : (
+                <Image
+                  width={200}
+                  height={200}
+                  alt="sparks"
+                  src={"/board-vision/wrong.png"}
+                  className="absolute top-0 right-12"
+                />
+              )}
             </div>
 
             <Button
               onClick={handleGameNextQuestion}
-              className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 py-5 text-lg"
+              className="w-full flex items-center justify-center bg-blue-base py-5 text-lg hover:bg-blue-base"
               variant="default"
             >
               Next Question
@@ -82,19 +91,11 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
           >
             <Button
               onClick={startGameAgain}
-              className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 py-5 text-lg"
+              className="w-full flex items-center justify-center bg-blue-base py-5 text-lg"
               variant="default"
             >
-              Play Again
+              New Puzzle
               <RefreshCw className="h-5 w-5 ml-2" />
-            </Button>
-
-            <Button
-              onClick={() => setShowSetupPopup(true)}
-              className="w-full flex items-center justify-center py-5 text-lg"
-              variant="outline"
-            >
-              {isUserPGN ? "Change Username" : "Enter Chess.com Username"}
             </Button>
           </motion.div>
         ) : (
@@ -106,7 +107,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
             exit="exit"
             className="p-6 border-t rounded-2xl space-y-3"
           >
-            {/* Show Change Questions button for both DefaultPGN and UserPGN */}
             {getRandomQuestion && (
               <Button
                 onClick={getRandomQuestion}
@@ -127,18 +127,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                 )}
               </Button>
             )}
-
-            {/* Only show Try Default Questions button for UserPGN */}
-            {/* {isUserPGN && routeToDefault && (
-              <Button
-                onClick={routeToDefault}
-                className="w-full flex items-center justify-center py-5 text-lg"
-                variant="outline"
-              >
-                <RefreshCw className="h-5 w-5 mr-2" />
-                Try Default Questions
-              </Button>
-            )} */}
           </motion.div>
         )}
       </AnimatePresence>
