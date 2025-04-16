@@ -76,10 +76,18 @@ export default function Playing() {
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
   >({});
+  const [currentSquare, setCurrentSquare] = useState<Square | undefined>(
+    undefined
+  );
+  const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
+    undefined
+  );
+
   useEffect(() => {
     let is3D = StyleChoosed == "3d" ? true : false;
     setIs3DMode(is3D);
   }, [StyleChoosed]);
+
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({
       square,
@@ -105,8 +113,8 @@ export default function Playing() {
     });
     newSquares[square] = {
       background: "#F5F682",
-      // background:"#25CEDA"
     };
+
     setOptionSquares(newSquares);
     return true;
   };
@@ -118,7 +126,10 @@ export default function Playing() {
     // from square
     if (!moveFrom) {
       const hasMoveOptions = getMoveOptions(square);
-      if (hasMoveOptions) setMoveFrom(square);
+      if (hasMoveOptions) {
+        setPreviousSquare(square);
+        setMoveFrom(square);
+      }
       return;
     }
 
@@ -143,7 +154,7 @@ export default function Playing() {
 
       // valid move
       setMoveTo(square);
-
+      setCurrentSquare(square);
       // if promotion move
       if (
         (foundMove.color === "w" &&
@@ -195,6 +206,7 @@ export default function Playing() {
       promoteFromSquare,
       promoteToSquare
     );
+
     if (piece) {
       game.move({
         from: promoteFromSquare || moveFrom,
@@ -222,6 +234,15 @@ export default function Playing() {
       },
     });
   };
+  const prevCurrentColor = {
+    ...(previousSquare && {
+      [previousSquare]: { backgroundColor: "#B9CA43" }, // Yellow for previous
+    }),
+    ...(currentSquare && {
+      [currentSquare]: { backgroundColor: "#F5F682" }, // Green for current
+    }),
+  };
+
   const findBestMove = () => {
     let isYourTurn = myColor == "white" ? "w" : "b";
     console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
@@ -797,19 +818,7 @@ export default function Playing() {
             />
             <span className="font-medium text-xs mt-1">Share</span>
           </button>
-          <button
-            onClick={handleSettingsGame}
-            className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
-          >
-            <Image
-              src={"/images/play-vs-ai/settings-filled.png"}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[16px] h-[16px] object-contain"
-            />
-            <span className="font-medium text-xs mt-1">Settings</span>
-          </button>
+        
           <button
             onClick={handleDownload}
             className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
@@ -924,102 +933,122 @@ export default function Playing() {
             <div className="flex flex-col justify-center items-center gap-3 ">
               {buttonBoard()}
               <motion.div
-            initial={{ rotateX: 180 }}
-            animate={
-              !is3DMode
-                ? { opacity: 0, display: "hidden" }
-                : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
-            }
-            transition={{
-              duration: 0.6,
-              stiffness: 500,
-              damping: 30,
-              ease: [0.4, 0.0, 0.2, 1],
-              type: "tween",
-            }}
-            style={{
-              width: boardSize,
-              display: is3DMode ? "flex" : "none",
-              backfaceVisibility: "hidden",
-              transformStyle: "preserve-3d",
-            }}
-          >
-            {is3DMode && (
-              <ThreeDBoard
-                boardWidth={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                initial={{ rotateX: 180 }}
+                animate={
+                  !is3DMode
+                    ? { opacity: 0, display: "hidden" }
+                    : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
                 }
-                orientation={orientation}
-                position={game.fen()}
-                onSquareClick={function (square: Square): void {
-                  throw new Error("Function not implemented.");
+                transition={{
+                  duration: 0.6,
+                  stiffness: 500,
+                  damping: 30,
+                  ease: [0.4, 0.0, 0.2, 1],
+                  type: "tween",
                 }}
-                onSquareRightClick={function (square: Square): void {
-                  throw new Error("Function not implemented.");
+                style={{
+                  width: boardSize,
+                  display: is3DMode ? "flex" : "none",
+                  backfaceVisibility: "hidden",
+                  transformStyle: "preserve-3d",
                 }}
-                onPromotionPieceSelect={function (
-                  piece?: PromotionPieceOption,
-                  promoteFromSquare?: Square,
-                  promoteToSquare?: Square
-                ): boolean {
-                  throw new Error("Function not implemented.");
-                }}
-                promotionToSquare={null}
-                showPromotionDialog={false}
-                customArrows={undefined}
-                areArrowsAllowed={false}
-                customArrowColor={""}
-              />
-            )}
-          </motion.div>
-          <motion.div
-            initial={{ rotateX: 180 }}
-            animate={
-              is3DMode
-                ? { opacity: 0, display: "none" }
-                : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-            }
-            transition={{
-              duration: 0.5,
-              stiffness: 500,
-              damping: 35,
-              ease: [0.4, 0.0, 0.2, 1],
-              type: "tween",
-            }}
-            style={{
-              width: boardSize,
-              display: !is3DMode ? "flex" : "none",
-              backfaceVisibility: "hidden",
-            }}
-          >
-            {!is3DMode && (
-              <TwoDChessboard
-                boardWidth={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+              >
+                {is3DMode && (
+                  <ThreeDBoard
+                    arePiecesDraggable={false}
+                    orientation={orientation}
+                    boardWidth={boardSize}
+                    position={gamePosition}
+                    onSquareClick={onSquareClick}
+                    onSquareRightClick={onSquareRightClick}
+                    onPromotionPieceSelect={onPromotionPieceSelect}
+                    customSquareStyles={{
+                      ...moveSquares,
+                      ...optionSquares,
+                      ...rightClickedSquares,
+                      ...prevCurrentColor,
+                    }}
+                    areArrowsAllowed={true}
+                    customArrows={
+                      bestLine &&
+                      bestLine.length > 0 &&
+                      bestLine?.split(" ")?.[0]
+                        ? [
+                            [
+                              bestLine
+                                ?.split(" ")?.[0]
+                                .substring(0, 2) as Square,
+                              bestLine
+                                ?.split(" ")?.[0]
+                                .substring(2, 4) as Square,
+                            ],
+                          ]
+                        : null
+                    }
+                    customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+                    promotionToSquare={moveTo}
+                    showPromotionDialog={showPromotionDialog}
+                  />
+                )}
+              </motion.div>
+              <motion.div
+                initial={{ rotateX: 180 }}
+                animate={
+                  is3DMode
+                    ? { opacity: 0, display: "none" }
+                    : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
                 }
-                orientation={orientation}
-                position={game.fen()}
-                onSquareClick={function (square: Square): void {
-                  throw new Error("Function not implemented.");
+                transition={{
+                  duration: 0.5,
+                  stiffness: 500,
+                  damping: 35,
+                  ease: [0.4, 0.0, 0.2, 1],
+                  type: "tween",
                 }}
-                onSquareRightClick={function (square: Square): void {
-                  throw new Error("Function not implemented.");
+                style={{
+                  width: boardSize,
+                  display: !is3DMode ? "flex" : "none",
+                  backfaceVisibility: "hidden",
                 }}
-                onPromotionPieceSelect={function (
-                  piece?: PromotionPieceOption,
-                  promoteFromSquare?: Square,
-                  promoteToSquare?: Square
-                ): boolean {
-                  throw new Error("Function not implemented.");
-                }}
-                promotionToSquare={null}
-                showPromotionDialog={false}
-                customArrows={undefined}
-                areArrowsAllowed={false}
-                customArrowColor={""}
-              />
-            )}
-          </motion.div>
+              >
+                {!is3DMode && (
+                  <TwoDChessboard
+                    arePiecesDraggable={false}
+                    orientation={orientation}
+                    boardWidth={boardSize}
+                    position={gamePosition}
+                    onSquareClick={onSquareClick}
+                    onSquareRightClick={onSquareRightClick}
+                    onPromotionPieceSelect={onPromotionPieceSelect}
+                    customSquareStyles={{
+                      ...moveSquares,
+                      ...optionSquares,
+                      ...rightClickedSquares,
+                      ...prevCurrentColor,
+                    }}
+                    areArrowsAllowed={true}
+                    customArrows={
+                      bestLine &&
+                      bestLine.length > 0 &&
+                      bestLine?.split(" ")?.[0]
+                        ? [
+                            [
+                              bestLine
+                                ?.split(" ")?.[0]
+                                .substring(0, 2) as Square,
+                              bestLine
+                                ?.split(" ")?.[0]
+                                .substring(2, 4) as Square,
+                            ],
+                          ]
+                        : null
+                    }
+                    customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+                    promotionToSquare={moveTo}
+                    showPromotionDialog={showPromotionDialog}
+                  />
+                )}
+              </motion.div>
 
               <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
                 <div className="flex flex-row items-center justify-center gap-1">
