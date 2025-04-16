@@ -11,7 +11,7 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 
 export default function AnalysisPage() {
