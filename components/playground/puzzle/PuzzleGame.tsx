@@ -193,7 +193,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     () =>
       isAtCurrentMove
         ? possibleMoves.map(({ square, isCapture }) =>
-            getMoveHighlightStyle(square, isCapture, boardOrientation,"#25CEDA")
+            getMoveHighlightStyle(
+              square,
+              isCapture,
+              boardOrientation,
+              "#25CEDA"
+            )
           )
         : [],
     [possibleMoves, boardOrientation, isAtCurrentMove]
@@ -554,7 +559,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 2.4 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 2.93 : 480;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
@@ -632,7 +637,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         >
           <RefreshCcw size={20} />
 
-          <span className="font-medium text-[11px] lg:text-[14px] xl:mt-1 ">
+          <span className="font-medium text-[11px] md:text-[12px] lg:text-[14px] xl:mt-1 ">
             Change Puzzle Topic
           </span>
         </button>
@@ -716,10 +721,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </motion.div>
     );
   };
-  let firstTurn = boardOrientation == "white"? capturedBlack:capturedWhite
+  let firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
-      <div className="flex flex-col w-full gap-4">
+      <div
+        className="flex flex-col w-full gap-4"
+        style={{ minHeight: heightScreen * 0.86 }}
+      >
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
           <button onClick={resetPuzzle}>
             <ArrowLeft color="black" size={24} />
@@ -884,7 +892,17 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                         boardOrientation,
                         "rgba(245, 246, 130, 0.5)"
                       )}
-                    />
+                    >
+                      {isGameOver && (
+                        <Image
+                          src="/images/puzzle/check.png"
+                          alt="check win"
+                          width={1000}
+                          height={1000}
+                          className="w-[24px] h-[24px] absolute right-0"
+                        />
+                      )}
+                    </div>
                   </>
                 )}
 
@@ -952,7 +970,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       {/* {buttonBoardColumn()} */}
 
       <div
-        style={{ height: heightScreen * 0.965 }}
+        style={{ height: heightScreen * 0.86 }}
         className="flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
       >
         <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
