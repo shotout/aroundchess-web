@@ -60,7 +60,9 @@ export default function Navigation({
             />
           )}
 
+          {/* Main content */}
           <div className="relative z-10">
+            {/* <div className="relative z-10 min-h-[calc(100vh-10rem)]"> */}
             {children}
             <ConfirmLogin />
           </div>

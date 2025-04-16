@@ -15,36 +15,41 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { motion } from "framer-motion";
 
 interface ThreeDBoardProps {
-  position: string;
-  boardWidth: number;
-  orientation: BoardOrientation | undefined;
-  // onPieceDrop?: (
-  //   sourceSquare: Square,
-  //   targetSquare: Square,
-  //   piece: string
-  // ) => boolean;
-  arePiecesDraggable?: boolean;
-  onSquareClick: (square: Square) => void;
-  onSquareRightClick: (square: Square) => void;
-  onPromotionPieceSelect: (
-    piece?: PromotionPieceOption,
-    promoteFromSquare?: Square,
-    promoteToSquare?: Square
-  ) => boolean;
-
-  promotionToSquare: Square | null;
-  showPromotionDialog: boolean;
-  customSquareStyles?: Record<string, React.CSSProperties>;
-  customArrows: any;
-  areArrowsAllowed: boolean;
-  customArrowColor: string;
+   position?: string;
+    boardWidth: number;
+    orientation?: BoardOrientation | undefined;
+    onPieceDragBegin?: ((piece: string, sourceSquare: string) => any) | undefined;
+    onPieceDragEnd?: ((piece: string, sourceSquare: string) => any) | undefined;
+    onPieceDrop?: (
+      sourceSquare: Square,
+      targetSquare: Square,
+      piece: string
+    ) => boolean;
+    arePiecesDraggable?: boolean;
+    onSquareClick?: (square: Square) => void;
+    onSquareRightClick?: (square: Square) => void;
+    onPromotionPieceSelect: (
+      piece?: PromotionPieceOption,
+      promoteFromSquare?: Square,
+      promoteToSquare?: Square
+    ) => boolean;
+    onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
+    promotionToSquare?: Square | null;
+    showPromotionDialog?: boolean;
+    customSquareStyles?: Record<string, React.CSSProperties>;
+    customArrows?: any;
+    areArrowsAllowed?: boolean;
+    arePremovesAllowed?: boolean;
+    customArrowColor?: string;
 }
 
 const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   position,
   boardWidth,
   orientation,
-  // onPieceDrop,
+  onPieceDrop,
+  onPieceDragEnd,
+  onPieceDragBegin,
   arePiecesDraggable = null,
   onSquareClick,
   onSquareRightClick,
@@ -55,6 +60,8 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   customArrows,
   areArrowsAllowed,
   customArrowColor,
+  onPieceClick,
+  arePremovesAllowed,
 }) => {
   const {
     StyleChoosed,
@@ -244,6 +251,19 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           >
             {arePiecesDraggable != null ? (
               <Chessboard
+                arePremovesAllowed={arePremovesAllowed}
+                onPieceDrop={onPieceDrop}
+                onPieceDragBegin={
+                  onPieceDragBegin
+                    ? (piece, sourceSquare) =>
+                        onPieceDragBegin(
+                          piece as string,
+                          sourceSquare as string
+                        )
+                    : undefined
+                }
+                onPieceDragEnd={onPieceDragEnd}
+                onPieceClick={onPieceClick}
                 arePiecesDraggable={arePiecesDraggable}
                 customArrowColor={customArrowColor}
                 boardOrientation={orientation}
