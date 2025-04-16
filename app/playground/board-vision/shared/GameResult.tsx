@@ -44,7 +44,7 @@ const GameResult: React.FC<GameResultProps> = ({ gameCorrects, isGameEnd }) => {
         description: `You have ${gameCorrects} correct answers. Let's practice a bit more to improve your Score!`,
         icon: (
           <Image
-            src="/board-vision/improvement.png"
+            src="/board-vision/improve.png"
             alt="Frown"
             width={80}
             height={80}
@@ -60,13 +60,13 @@ const GameResult: React.FC<GameResultProps> = ({ gameCorrects, isGameEnd }) => {
   const valuation = getPerformanceValuation();
 
   return (
-    <div className="flex flex-col justify-center items-center p-6">
-      <div
-        className={`${valuation.bgColor} p-6 rounded-lg mb-6 w-full text-center`}
-      >
-        <div className="flex justify-center mb-2">{valuation.icon}</div>
+    <div className="flex flex-col justify-center items-center w-full">
+      <div className={`${valuation.bgColor} rounded-lg w-full p-6 shadow-md`}>
+        <div className="flex justify-center mb-4">{valuation.icon}</div>
 
-        <p className={`mb-2 ${valuation.textColor} text-base font-semibold`}>
+        <p
+          className={`${valuation.textColor} text-base font-semibold text-center`}
+        >
           {valuation.description}
         </p>
       </div>

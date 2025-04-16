@@ -15,7 +15,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   opponentProfilePic,
   opponentName,
 }) => {
-  // Safety check for invalid FEN data
   const isValidPosition =
     currentPosition &&
     currentPosition.fen &&
@@ -38,30 +37,32 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
 
   return (
     <motion.div
-      className="border border-gray-200 md:col-span-6 p-4 rounded-md flex items-center justify-center"
+      className="xl:border border-gray-200 md:col-span-6 xl:p-4 p-0 mb-4 xl:mb-0 rounded-md flex flex-col justify-center"
       variants={leftPanelVariants}
     >
-      <div
-        style={{ width: "100%", maxWidth: "750px" }}
-        className="flex flex-col gap-y-4"
-      >
-        <PlayerInfo profilePic={userProfilePic} playerName={username} />
+      <PlayerInfo profilePic={userProfilePic} playerName={username} />
 
-        <Chessboard
-          id="board-vision-board"
-          boardWidth={600}
-          position={currentPosition.fen}
-          areArrowsAllowed={true}
-          customSquareStyles={highlightedSquares}
-          customArrows={
-            gameQuestion && gameQuestion.text.includes("legal moves")
-              ? []
-              : arrows
-          }
-        />
-
-        <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
+      <div className="relative w-full flex justify-center items-center my-4">
+        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[600px] max-h-[700px]">
+          <div className="w-full h-full">
+            <Chessboard
+              id="board-vision-board"
+              arePiecesDraggable={false}
+              position={currentPosition.fen}
+              areArrowsAllowed={true}
+              customSquareStyles={highlightedSquares}
+              customArrowColor="#221AE980"
+              customArrows={
+                gameQuestion && gameQuestion.text.includes("legal moves")
+                  ? []
+                  : arrows
+              }
+            />
+          </div>
+        </div>
       </div>
+
+      <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
     </motion.div>
   );
 };
