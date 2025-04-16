@@ -341,6 +341,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
+    setPgn(value)
   };
 
   return (
