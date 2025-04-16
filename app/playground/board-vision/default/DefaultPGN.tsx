@@ -44,7 +44,6 @@ const DefaultPGN: React.FC = () => {
     loadDefaultPositions();
   }, [loadDefaultPositions]);
 
-  // Check if game is loaded correctly
   if (!currentPosition || !gameQuestion) {
     return (
       <>

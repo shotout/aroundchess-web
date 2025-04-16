@@ -10,7 +10,6 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
   arrows,
   leftPanelVariants,
 }) => {
-  // Safety check for invalid FEN data
   const isValidPosition =
     currentPosition &&
     currentPosition.fen &&
@@ -33,37 +32,37 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
 
   return (
     <motion.div
-      className="border border-gray-200 md:col-span-6 p-4 rounded-md flex items-center justify-center"
+      className="xl:border xl:border-gray-200 md:col-span-6 p-4 rounded-md flex flex-col"
       variants={leftPanelVariants}
     >
-      <div
-        style={{ width: "100%", maxWidth: "750px" }}
-        className="flex flex-col gap-y-4"
-      >
-        <Chessboard
-          id="board-vision-board"
-          boardWidth={700}
-          position={currentPosition.fen}
-          areArrowsAllowed={true}
-          customSquareStyles={highlightedSquares}
-          customArrows={
-            gameQuestion && gameQuestion.text.includes("legal moves")
-              ? []
-              : arrows
-          }
-        />
-
-        {currentPosition.white && currentPosition.black && (
-          <a
-            href={currentPosition.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-black hover:underline text-xl text-center flex items-center justify-center"
-          >
-            {currentPosition.white} vs {currentPosition.black}
-          </a>
-        )}
+      <div className="relative w-full flex justify-center items-center">
+        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[750px] max-h-[700px]">
+          <div className="w-full h-full px-1 lg:p-2 2xl:p-5">
+            <Chessboard
+              id="board-vision-board"
+              position={currentPosition.fen}
+              areArrowsAllowed={true}
+              customSquareStyles={highlightedSquares}
+              customArrows={
+                gameQuestion && gameQuestion.text.includes("legal moves")
+                  ? []
+                  : arrows
+              }
+            />
+          </div>
+        </div>
       </div>
+
+      {currentPosition.white && currentPosition.black && (
+        <a
+          href={currentPosition.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-black hover:underline text-xl text-center flex items-center justify-center mt-4"
+        >
+          {currentPosition.white} vs {currentPosition.black}
+        </a>
+      )}
     </motion.div>
   );
 };
