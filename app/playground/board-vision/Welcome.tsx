@@ -3,12 +3,10 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Popup from "./Popup";
 
 const Welcome: React.FC = () => {
   const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const headerHeight = 97;
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -25,10 +23,7 @@ const Welcome: React.FC = () => {
   };
 
   return (
-    <main
-      className="w-full p-0 xl:p-8 xl:mt-8"
-      style={{ height: `calc(100vh - ${headerHeight}px)` }}
-    >
+    <main className="w-full h-full xl:p-8">
       <div className="relative mx-auto w-full h-full flex items-center justify-center rounded-xl overflow-hidden border">
         {isMobile ? (
           <div className="absolute inset-0 z-0">

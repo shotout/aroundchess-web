@@ -1,3 +1,4 @@
+// Updated BoardVisionStore.ts
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
 import { ChessService } from './BoardVisionService';
@@ -82,6 +83,18 @@ const createInitialGameState = (): GameState => ({
   arrows: [],
 });
 
+// Helper function to validate FEN strings
+const isValidFEN = (fen: string): boolean => {
+  try {
+    const chess = new Chess();
+    chess.load(fen);
+    return true;
+  } catch (e) {
+    console.error(`Invalid FEN detected: ${fen}`, e);
+    return false;
+  }
+};
+
 export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
   // App state
   appState: "welcome",
@@ -117,7 +130,17 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
   // Actions - Default Game
   loadDefaultPositions: () => {
     const positions = defaultPositions();
-    const shuffledPositions = shuffle(positions);
+    
+    // Filter out invalid FEN positions
+    const validPositions = positions.filter(pos => isValidFEN(pos.fen));
+    
+    if (validPositions.length === 0) {
+      console.error("No valid positions found in default positions");
+      set({ loadingError: "No valid chess positions found. Please contact support." });
+      return;
+    }
+    
+    const shuffledPositions = shuffle(validPositions);
     
     set({
       defaultGame: {
@@ -147,53 +170,58 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     
     // Visualize threats if current question type is about threats or checks
     if (defaultGame.currentPosition && defaultGame.gameQuestion) {
-      const chess = new Chess(defaultGame.currentPosition.fen);
-      const allMoves = chess.moves({ verbose: true });
-      const newHighlightedSquares: HighlightedSquares = {};
-      const newArrows: Arrow[] = [];
-      
-      if (defaultGame.gameQuestion.text.includes("legal moves")) {
-        // Highlight all legal moves
-        allMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            borderRadius: "100px",
-            border: "3px solid #0000C8",
-          };
-          // Optionally add arrows for all legal moves
-          newArrows.push([move.from, move.to]);
-        });
-      } else if (defaultGame.gameQuestion.text.includes("check moves")) {
-        // Highlight check moves
-        const checkMoves = allMoves.filter(move => move.san.includes('+'));
-        checkMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            border: "3px solid #FF0000",
-            borderRadius: "4px",
-          };
-          newArrows.push([move.from, move.to]);
-        });
-      } else if (defaultGame.gameQuestion.text.includes("capture moves")) {
-        // Highlight capture moves (threats)
-        const captureMoves = allMoves.filter(move => move.flags.includes('c'));
-        captureMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            border: "3px solid #00CC00",
-            borderRadius: "4px",
-          };
-          newArrows.push([move.from, move.to]);
-        });
-      }
-      
-      set({
-        defaultGame: {
-          ...get().defaultGame,
-          highlightedSquares: newHighlightedSquares,
-          arrows: newArrows
+      try {
+        const chess = new Chess(defaultGame.currentPosition.fen);
+        const allMoves = chess.moves({ verbose: true });
+        const newHighlightedSquares: HighlightedSquares = {};
+        const newArrows: Arrow[] = [];
+        
+        if (defaultGame.gameQuestion.text.includes("legal moves")) {
+          // Highlight all legal moves
+          allMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              borderRadius: "100px",
+              border: "3px solid #0000C8",
+            };
+            // Optionally add arrows for all legal moves
+            newArrows.push([move.from, move.to]);
+          });
+        } else if (defaultGame.gameQuestion.text.includes("check moves")) {
+          // Highlight check moves
+          const checkMoves = allMoves.filter(move => move.san.includes('+'));
+          checkMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              border: "3px solid #FF0000",
+              borderRadius: "4px",
+            };
+            newArrows.push([move.from, move.to]);
+          });
+        } else if (defaultGame.gameQuestion.text.includes("capture moves")) {
+          // Highlight capture moves (threats)
+          const captureMoves = allMoves.filter(move => move.flags.includes('c'));
+          captureMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              border: "3px solid #00CC00",
+              borderRadius: "4px",
+            };
+            newArrows.push([move.from, move.to]);
+          });
         }
-      });
+        
+        set({
+          defaultGame: {
+            ...get().defaultGame,
+            highlightedSquares: newHighlightedSquares,
+            arrows: newArrows
+          }
+        });
+      } catch (error) {
+        console.error("Error highlighting moves:", error);
+        // Don't update the highlighted squares or arrows if there's an error
+      }
     }
   },
   
@@ -309,16 +337,19 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     try {
       const positions = await ChessService.getUserGames(username, year, month);
       
+      // Filter out invalid FEN positions
+      const validPositions = positions.filter(pos => isValidFEN(pos.fen));
+      
       // Only require 1 game now instead of 10
-      if (positions.length < 1) {
+      if (validPositions.length < 1) {
         set({ 
           isLoading: false,
-          loadingError: `No games found for ${username} in ${month}/${year}. Please try another month or username.`
+          loadingError: `No valid games found for ${username} in ${month}/${year}. Please try another month or username.`
         });
         return;
       }
       
-      const shuffledPositions = shuffle(positions);
+      const shuffledPositions = shuffle(validPositions);
       
       set({ 
         username,
@@ -360,53 +391,58 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     
     // Visualize threats if current question type is about threats or checks
     if (userGame.currentPosition && userGame.gameQuestion) {
-      const chess = new Chess(userGame.currentPosition.fen);
-      const allMoves = chess.moves({ verbose: true });
-      const newHighlightedSquares: HighlightedSquares = {};
-      const newArrows: Arrow[] = [];
-      
-      if (userGame.gameQuestion.text.includes("legal moves")) {
-        // Highlight all legal moves
-        allMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            borderRadius: "100px",
-            border: "3px solid #0000C8",
-          };
-          // Optionally add arrows for all legal moves
-          newArrows.push([move.from, move.to]);
-        });
-      } else if (userGame.gameQuestion.text.includes("check moves")) {
-        // Highlight check moves
-        const checkMoves = allMoves.filter(move => move.san.includes('+'));
-        checkMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            border: "3px solid #FF0000",
-            borderRadius: "4px",
-          };
-          newArrows.push([move.from, move.to]);
-        });
-      } else if (userGame.gameQuestion.text.includes("capture moves")) {
-        // Highlight capture moves (threats)
-        const captureMoves = allMoves.filter(move => move.flags.includes('c'));
-        captureMoves.forEach((move) => {
-          newHighlightedSquares[move.to] = {
-            background: "none",
-            border: "3px solid #00CC00",
-            borderRadius: "4px",
-          };
-          newArrows.push([move.from, move.to]);
-        });
-      }
-      
-      set({
-        userGame: {
-          ...get().userGame,
-          highlightedSquares: newHighlightedSquares,
-          arrows: newArrows
+      try {
+        const chess = new Chess(userGame.currentPosition.fen);
+        const allMoves = chess.moves({ verbose: true });
+        const newHighlightedSquares: HighlightedSquares = {};
+        const newArrows: Arrow[] = [];
+        
+        if (userGame.gameQuestion.text.includes("legal moves")) {
+          // Highlight all legal moves
+          allMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              borderRadius: "100px",
+              border: "3px solid #1C16C2",
+            };
+            // Optionally add arrows for all legal moves
+            newArrows.push([move.from, move.to]);
+          });
+        } else if (userGame.gameQuestion.text.includes("check moves")) {
+          // Highlight check moves
+          const checkMoves = allMoves.filter(move => move.san.includes('+'));
+          checkMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              border: "3px solid #FF0000",
+              borderRadius: "4px",
+            };
+            newArrows.push([move.from, move.to]);
+          });
+        } else if (userGame.gameQuestion.text.includes("capture moves")) {
+          // Highlight capture moves (threats)
+          const captureMoves = allMoves.filter(move => move.flags.includes('c'));
+          captureMoves.forEach((move) => {
+            newHighlightedSquares[move.to] = {
+              background: "none",
+              border: "3px solid #00CC00",
+              borderRadius: "4px",
+            };
+            newArrows.push([move.from, move.to]);
+          });
         }
-      });
+        
+        set({
+          userGame: {
+            ...get().userGame,
+            highlightedSquares: newHighlightedSquares,
+            arrows: newArrows
+          }
+        });
+      } catch (error) {
+        console.error("Error highlighting moves:", error);
+        // Don't update the highlighted squares or arrows if there's an error
+      }
     }
   },
   
@@ -509,69 +545,102 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
   generateGameQuestion: (position, forUserGame = false) => {
     if (!position) return;
     
-    // Analyze the position
-    const analysis = ChessService.analyzePosition(position.fen);
-    
-    // Define question types
-    const questionTypes = [
-      { id: "legal_white", text: "How many legal moves does White have?" },
-      { id: "legal_black", text: "How many legal moves does Black have?" },
-      { id: "checks_white", text: "How many check moves does White have?" },
-      { id: "checks_black", text: "How many check moves does Black have?" },
-      { id: "threat_white", text: "How many capture moves does White have?" },
-      { id: "threat_black", text: "How many capture moves does Black have?" }
-    ];
-    
-    // Filter questions based on the current color to move
-    const availableQuestions = questionTypes.filter(q => 
-      q.id.includes(analysis.turn === 'w' ? "white" : "black")
-    );
-    
-    // Select a random question
-    const questionType = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-    
-    // Get the correct answer based on the question type
-    let correctAnswer = 0;
-    switch (questionType.id) {
-      case "legal_white": correctAnswer = analysis.legal_white; break;
-      case "legal_black": correctAnswer = analysis.legal_black; break;
-      case "checks_white": correctAnswer = analysis.checks_white; break;
-      case "checks_black": correctAnswer = analysis.checks_black; break;
-      case "threat_white": correctAnswer = analysis.threat_white; break;
-      case "threat_black": correctAnswer = analysis.threat_black; break;
-    }
-    
-    // Generate random answers
-    const answers = [correctAnswer];
-    while (answers.length < 4) {
-      const randomAnswer = Math.max(0, correctAnswer + Math.floor(Math.random() * 13) - 6);
-      if (!answers.includes(randomAnswer)) {
-        answers.push(randomAnswer);
+    try {
+      // Validate FEN before analyzing
+      if (!isValidFEN(position.fen)) {
+        throw new Error(`Invalid FEN: ${position.fen}`);
       }
-    }
-    
-    // Create the question
-    const question: GameQuestion = {
-      text: questionType.text,
-      answers: shuffle(answers),
-      correctAnswer
-    };
-    
-    // Update either default or user game state
-    if (forUserGame) {
-      set({
-        userGame: {
-          ...get().userGame,
-          gameQuestion: question
+      
+      // Analyze the position
+      const analysis = ChessService.analyzePosition(position.fen);
+      
+      // Define question types
+      const questionTypes = [
+        { id: "legal_white", text: "How many legal moves does White have?" },
+        { id: "legal_black", text: "How many legal moves does Black have?" },
+        { id: "checks_white", text: "How many check moves does White have?" },
+        { id: "checks_black", text: "How many check moves does Black have?" },
+        { id: "threat_white", text: "How many capture moves does White have?" },
+        { id: "threat_black", text: "How many capture moves does Black have?" }
+      ];
+      
+      // Filter questions based on the current color to move
+      const availableQuestions = questionTypes.filter(q => 
+        q.id.includes(analysis.turn === 'w' ? "white" : "black")
+      );
+      
+      // Select a random question
+      const questionType = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+      
+      // Get the correct answer based on the question type
+      let correctAnswer = 0;
+      switch (questionType.id) {
+        case "legal_white": correctAnswer = analysis.legal_white; break;
+        case "legal_black": correctAnswer = analysis.legal_black; break;
+        case "checks_white": correctAnswer = analysis.checks_white; break;
+        case "checks_black": correctAnswer = analysis.checks_black; break;
+        case "threat_white": correctAnswer = analysis.threat_white; break;
+        case "threat_black": correctAnswer = analysis.threat_black; break;
+      }
+      
+      // Generate random answers
+      const answers = [correctAnswer];
+      while (answers.length < 4) {
+        const randomAnswer = Math.max(0, correctAnswer + Math.floor(Math.random() * 13) - 6);
+        if (!answers.includes(randomAnswer)) {
+          answers.push(randomAnswer);
         }
-      });
-    } else {
-      set({
-        defaultGame: {
-          ...get().defaultGame,
-          gameQuestion: question
-        }
-      });
+      }
+      
+      // Create the question
+      const question: GameQuestion = {
+        text: questionType.text,
+        answers: shuffle(answers),
+        correctAnswer
+      };
+      
+      // Update either default or user game state
+      if (forUserGame) {
+        set({
+          userGame: {
+            ...get().userGame,
+            gameQuestion: question
+          }
+        });
+      } else {
+        set({
+          defaultGame: {
+            ...get().defaultGame,
+            gameQuestion: question
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error generating question:", error);
+      
+      // Create a fallback question
+      const fallbackQuestion: GameQuestion = {
+        text: "How many legal moves are available?",
+        answers: [0, 1, 2, 3],
+        correctAnswer: 0
+      };
+      
+      // Update with fallback question
+      if (forUserGame) {
+        set({
+          userGame: {
+            ...get().userGame,
+            gameQuestion: fallbackQuestion
+          }
+        });
+      } else {
+        set({
+          defaultGame: {
+            ...get().defaultGame,
+            gameQuestion: fallbackQuestion
+          }
+        });
+      }
     }
   },
   

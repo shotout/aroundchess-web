@@ -44,7 +44,6 @@ const UserPGN: React.FC = () => {
   } = userGame;
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
-  const headerHeight = 97;
 
   // Show toast when loading error occurs
   useEffect(() => {
@@ -107,12 +106,9 @@ const UserPGN: React.FC = () => {
 
   return (
     <>
-      <main
-        className="w-full p-0 xl:p-8 xl:mt-8"
-        style={{ height: `calc(100vh - ${headerHeight}px)` }}
-      >
+      <main className="w-full h-full p-8">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-10 min-h-full bg-white gap-5"
+          className="grid grid-cols-1 xl:grid-cols-10 h-full xl:gap-5 overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -130,9 +126,8 @@ const UserPGN: React.FC = () => {
           />
 
           <motion.div
-            className="border border-gray-200 md:col-span-4 rounded-md flex flex-col"
+            className="border border-gray-200 md:col-span-4 rounded-md flex flex-col overflow-auto"
             variants={rightPanelVariants}
-            style={{ minHeight: "600px" }}
           >
             <QuestionPanel
               gameQuestion={gameQuestion}

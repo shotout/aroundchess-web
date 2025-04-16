@@ -1,14 +1,20 @@
 import React from "react";
 import { Chessboard } from "react-chessboard";
-import { motion } from "framer-motion";
 import { BoardDisplayProps } from "../../types/default-pgn";
+import { motion } from "framer-motion";
 
-const BoardDisplay: React.FC<BoardDisplayProps> = ({
+// Update the interface to include className
+interface ExtendedBoardDisplayProps extends BoardDisplayProps {
+  className?: string;
+}
+
+const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
   currentPosition,
   gameQuestion,
   highlightedSquares,
   arrows,
   leftPanelVariants,
+  className = "",
 }) => {
   const isValidPosition =
     currentPosition &&
@@ -19,7 +25,7 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
   if (!isValidPosition) {
     return (
       <motion.div
-        className="border border-gray-200 md:col-span-6 p-4 rounded-md flex items-center justify-center"
+        className={`border border-gray-200 p-4 rounded-md flex items-center justify-center md:col-span-6 ${className}`}
         variants={leftPanelVariants}
       >
         <div className="text-center">
@@ -32,17 +38,19 @@ const BoardDisplay: React.FC<BoardDisplayProps> = ({
 
   return (
     <motion.div
-      className="xl:border xl:border-gray-200 md:col-span-6 p-4 rounded-md flex flex-col"
+      className={`xl:border border-gray-200 p-4 rounded-md flex flex-col md:col-span-6 ${className}`}
       variants={leftPanelVariants}
     >
       <div className="relative w-full flex justify-center items-center">
-        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[750px] max-h-[700px]">
-          <div className="w-full h-full px-1 lg:p-2 2xl:p-5">
+        <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[750px] max-h-[700px]">
+          <div className="w-full h-full">
             <Chessboard
               id="board-vision-board"
               position={currentPosition.fen}
               areArrowsAllowed={true}
               customSquareStyles={highlightedSquares}
+              arePiecesDraggable={false}
+              customArrowColor="rgba(34, 26, 233, 0.8)"
               customArrows={
                 gameQuestion && gameQuestion.text.includes("legal moves")
                   ? []
