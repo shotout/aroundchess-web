@@ -50,11 +50,11 @@ export const FamousGameButton = () => {
     }
   };
   return (
-    <div className="max-w-[668px] mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-[32px] flex flex-col gap-2 sm:justify-center lg:justify-start">
-      <p className="w-full block text-[#040404] text-start font-medium text-[28px] ">
+    <div className="max-w-[668px] mt-2 lg:mt-48 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-[20px] sm:p-[32px] flex flex-col gap-2 sm:justify-center lg:justify-start">
+      <p className="w-full block text-[#040404] text-start font-medium text-[26px] sm:text-[28px] ">
         Discover our Advanced Chess Analysis
       </p>
-      <p className="block mb-3 text-[20px] text-start font-medium text-[#2e2e2e]">
+      <p className="block mb-3 text-[16px] sm:text-[20px] text-start font-medium text-[#2e2e2e]">
         See a sample Analysis of the legendary Game Vladislav Kovalev vs Magnus
         Carlsen before you start analyzing your own Games!
       </p>

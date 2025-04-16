@@ -156,7 +156,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState(15);
+  const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { sessionId } = useAuth();
@@ -341,6 +341,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
+    setPgn(value)
   };
 
   return (
@@ -360,7 +361,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl h-4/5">
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl overflow-y-auto max-h-[90%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
