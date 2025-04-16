@@ -310,7 +310,7 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
             alt="background"
             width={1000}
             height={1000}
-            className="w-full min-h-[489px] sm:max-h-[617px] xl:min-w-[1077px] xl:h-[709px] xl:rounded-[32px] xl:mx-8 object-cover bg-cover"
+            className="w-full min-h-[489px] sm:min-h-[617px] md:max-h-[617px] xl:min-w-[1077px] xl:h-[709px] xl:rounded-[32px] xl:mx-8 object-cover bg-cover"
           />
         </div>
         <div className="absolute inset-0 flex items-center justify-center m-4">
