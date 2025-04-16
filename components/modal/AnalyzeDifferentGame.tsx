@@ -156,7 +156,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState(15);
+  const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { sessionId } = useAuth();
