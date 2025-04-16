@@ -58,6 +58,10 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
     }
   }, [fenHistory])
 
+  const changeTopicPuzzle = ()=>{
+    setCurrentPuzzle(null)
+  }
+
   // Load a puzzle by its index
   const loadPuzzleByIndex = (index: number, forceReload = false) => {
     if (index === currentPuzzleIndex && !forceReload) {
@@ -172,6 +176,7 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
   }, [currentSolutionIndex, solutionHistory])
 
   return {
+    changeTopicPuzzle,
     currentPuzzle,
     getRandomPuzzle,
     getNextPuzzle,
