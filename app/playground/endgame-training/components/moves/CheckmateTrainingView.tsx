@@ -1,11 +1,5 @@
 import React from "react";
-
-interface CheckmateTrainingViewProps {
-  slug: string;
-  data: string[][];
-  onPositionSelect: (positionIndex: number) => void;
-  onBackClick: () => void;
-}
+import { CheckmateTrainingViewProps } from "../../types/EndgameTrainingTypes";
 
 export default function CheckmateTrainingView({
   slug,

@@ -2,7 +2,7 @@
     "categories": [
         {
             "icons": [
-                "elementary.svg"
+                "Basic.png"
             ],
             "name": "Basic",
             "subcategories": [
@@ -173,7 +173,7 @@
         },
         {
             "icons": [
-                "P.svg"
+                "Pawn.png"
             ],
             "name": "Pawn",
             "subcategories": [
@@ -2890,7 +2890,7 @@
         },
         {
             "icons": [
-                "B.svg"
+                "Bishop.png"
             ],
             "name": "Bishop",
             "subcategories": [
@@ -4159,7 +4159,7 @@
         },
         {
             "icons": [
-                "N.svg"
+                "Knight.png"
             ],
             "name": "Knight",
             "subcategories": [
@@ -5597,8 +5597,7 @@
         },
         {
             "icons": [
-                "N.svg",
-                "B.svg"
+                "Knight-Bishop.png"
             ],
             "name": "Knight-Bishop",
             "subcategories": [
@@ -6759,8 +6758,7 @@
         },
         {
             "icons": [
-                "R.svg",
-                "P.svg"
+                "Rook-Pawn.png"
             ],
             "name": "Rook-Pawn",
             "subcategories": [
@@ -9176,9 +9174,7 @@
         },
         {
             "icons": [
-                "R.svg",
-                "B.svg",
-                "N.svg"
+                "Rook-Pieces.png"
             ],
             "name": "Rook-Pieces",
             "subcategories": [
@@ -11786,7 +11782,7 @@
         },
         {
             "icons": [
-                "Q.svg"
+                "Queen.png"
             ],
             "name": "Queen",
             "subcategories": [
