@@ -287,12 +287,16 @@ export function useApiClient() {
     },
     [apiRequest]
   );
-  const getVSAILogs = useCallback(() => {
-    return apiRequest({
-      method: "GET",
-      path: `${process.env.BASE_URL}/playground/vs-ai-logs`,
-    });
-  }, [apiRequest]);
+  const getVSAILogs = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        params,
+        path: `${process.env.BASE_URL}/playground/vs-ai-logs`,
+      });
+    },
+    [apiRequest]
+  );
 
   const postVSAILogs = useCallback(
     (body: any) => {
