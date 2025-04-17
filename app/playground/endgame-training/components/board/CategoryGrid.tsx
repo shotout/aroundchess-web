@@ -1,20 +1,28 @@
 // CategoryGrid.tsx
 import React from "react";
-import CategoryItem from "./CategoryItem";
-import { EndgameData } from "../types/EndgameTrainingTypes";
+import { EndgameData } from "../../types/EndgameTrainingTypes";
+import { CategoryItem } from "../CategoryItem";
 
 interface CategoryGridProps {
   data: EndgameData | null;
   onCategorySelect: (categorySlug: string) => void;
 }
 
-const CategoryGrid: React.FC<CategoryGridProps> = ({
+export const CategoryGrid: React.FC<CategoryGridProps> = ({
   data,
   onCategorySelect,
 }) => {
+  if (!data || !data.categories) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No categories available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 mx-auto max-w-6xl">
-      {data?.categories.map((category, index) => (
+      {data.categories.map((category, index) => (
         <CategoryItem
           key={index}
           category={category}
@@ -24,5 +32,3 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     </div>
   );
 };
-
-export default CategoryGrid;

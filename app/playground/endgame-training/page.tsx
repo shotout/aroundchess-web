@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Navigation from "@/components/navigator/navigation";
 import EndgameTrainingPage from "./EndgameTrainingPage";
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Navigation from "@/components/navigator/navigation";
-import StageDetailView from "../../../components/StageDetailView";
+import StageDetailView from "../../../components/board/StageDetailView";
 
 export default function Page({
   params,

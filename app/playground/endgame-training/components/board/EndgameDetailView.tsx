@@ -2,10 +2,11 @@
 
 import React from "react";
 import { Chessboard } from "react-chessboard";
-
-interface EndgameDetailViewProps {
-  endgameSubcategory: any;
-}
+import {
+  EndgameDetailViewProps,
+  EndgameSubcategory,
+  Game,
+} from "../../types/EndgameTrainingTypes";
 
 export default function EndgameDetailView({
   endgameSubcategory,
@@ -15,16 +16,19 @@ export default function EndgameDetailView({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {endgameSubcategory.games.length > 0 ? (
-        endgameSubcategory.games.map((game: any, index: number) => (
+        endgameSubcategory.games.map((game: Game, index: number) => (
           <div
             key={index}
             className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-all"
           >
             <h3 className="font-semibold text-lg mb-2">Position {index + 1}</h3>
             <p className="text-sm text-gray-600 mb-3">FEN: {game.fen}</p>
-            <p className="text-sm text-gray-600 mb-3">Target: {game.target}</p>
+            {game.target && (
+              <p className="text-sm text-gray-600 mb-3">
+                Target: {game.target}
+              </p>
+            )}
 
-            {/* Chess board */}
             <div className="mb-4">
               <Chessboard position={game.fen} />
             </div>

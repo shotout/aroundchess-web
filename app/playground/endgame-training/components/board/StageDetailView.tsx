@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ArrowLeft, ArrowRight } from "lucide-react";
 import { Chessboard } from "react-chessboard";
-import { useEndgametraining } from "../store/EndgameTrainingStore";
+import { useEndgametraining } from "../../store/EndgameTrainingStore";
+import { useNavigationStore } from "../../store/NavigationStore";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -22,6 +23,9 @@ export default function StageDetailView({
   const [targetPosition, setTargetPosition] = useState<string | null>(null);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [isSolved, setIsSolved] = useState<boolean>(false);
+
+  // Get the previous route from the navigation store
+  const { previousRoute } = useNavigationStore();
 
   // Parse stage number
   const stageNum = parseInt(stageNumber);
@@ -109,14 +113,19 @@ export default function StageDetailView({
 
   // Go back to the subcategory view
   const goBackToSelection = () => {
-    router.push(`/playground/endgame-training/${categorySlug}`);
+    // Use the previous route from the store if available
+    if (previousRoute) {
+      router.push(previousRoute);
+    } else {
+      // Fallback to the category page
+      router.push(`/playground/endgame-training/${categorySlug}`);
+    }
   };
 
   // Reset the current position
   const resetPosition = () => {
     setMoveHistory([]);
     setIsSolved(false);
-    // In a real implementation, we would reset the board to the initial FEN
   };
 
   if (isLoading) {
