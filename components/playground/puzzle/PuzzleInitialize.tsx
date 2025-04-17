@@ -327,7 +327,7 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
               alt="asset"
               width={1000}
               height={1000}
-              className="absolute inset-0 z-0 self-center justify-self-center w-1/2 h-auto"
+              className="absolute inset-0 z-0 self-center justify-self-center w-1/3 h-auto"
             />
             <span className="font-medium text-lg xl:text-xl">
               Puzzle Training
