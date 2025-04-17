@@ -1,5 +1,6 @@
 "use client";
 
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import {
   Dialog,
@@ -10,16 +11,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import DotSpinner from "../game-history/Spinner";
 
 export function StartPlayVSAI() {
-  const {
-    AIChoosed, setAIChoosed
-  } = usePlayVSAIStore();
-  const router = useRouter()
+  const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
+  const { getVSAILogs, isLoading } = useApiClient();
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const router = useRouter();
+
   const [selectedColor, setSelectedColor] = useState<string>("white");
+  const [isLimit, setIsLimit] = useState<boolean>(false);
   const [selectedOpponent, setSelectedOpponent] = useState<number>(0);
   const [difficulty, setDifficulty] = useState<string>("beginner");
 
@@ -87,31 +92,55 @@ export function StartPlayVSAI() {
     { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
   ];
   const [open, setOpen] = useState(false);
-  useEffect(() => {}, []);
+  useEffect(() => {
+    checkLimit();
+  }, []);
+  const checkLimit = () => {
+    getVSAILogs({ limit: 20, page: 1 }).then((res: any) => {
+      if (res.data.length >= 20) {
+        setOpenConfirmLogin(true);
+        setIsLimit(true);
+      } else {
+        setIsLimit(false);
+      }
+    });
+  };
+
   const handlePlayNow = () => {
-    let index = opponents.findIndex((o) => o.id == selectedOpponent);
-    let ELO =
-      opponents[index].elo +
-      difficulties.findIndex((d) => d.key == difficulty) * 650;
-      let opponentData = opponents[index]
-      opponentData.elo = ELO
-    let body = {
-      color: selectedColor,
-      difficulty: difficulty,
-      opponent:opponentData ,
-    };
-    console.log("body",body)
-    setAIChoosed(body);
-    router.push("/playground/play-vs-ai/playing")
+    if (isLimit) {
+      setOpenConfirmLogin(true);
+    } else {
+      let index = opponents.findIndex((o) => o.id == selectedOpponent);
+      let ELO =
+        opponents[index].elo +
+        difficulties.findIndex((d) => d.key == difficulty) * 650;
+      let opponentData = opponents[index];
+      opponentData.elo = ELO;
+      let body = {
+        color: selectedColor,
+        difficulty: difficulty,
+        opponent: opponentData,
+      };
+      console.log("body", body);
+      setAIChoosed(body);
+      router.push("/playground/play-vs-ai/playing");
+    }
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button onClick={()=>setOpen(true)} className="w-full px-4 py-2 btn-primary rounded-full">
-          Start Now
-        </button>
+      <DialogTrigger asChild disabled={isLoading}>
+        {isLoading ? (
+          <DotSpinner />
+        ) : (
+          <button
+            onClick={() => setOpen(true)}
+            className="w-full px-4 py-2 btn-primary rounded-full"
+          >
+            Start Now
+          </button>
+        )}
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:min-w-[640px] md:max-w-xl lg:max-h-[600px] lg:max-w-[902px] xl:max-w-[1141px] bg-white overflow-y-auto">
+      <DialogContent className="rounded-lg max-w-sm sm:min-w-[640px] md:max-w-xl lg:max-h-[90vh] lg:max-w-[902px] xl:max-w-[1141px] bg-white overflow-y-auto">
         <DialogHeader className="gap-1 mb-2">
           <DialogTitle>
             <h2 className="text-[18px] font-semibold text-center">
@@ -171,7 +200,7 @@ export function StartPlayVSAI() {
               >
                 <div className="flex flex-row items-center justify-center gap-1">
                   <Image
-                    src={difficulty === diff.key ?diff.iconActive:diff.icon}
+                    src={difficulty === diff.key ? diff.iconActive : diff.icon}
                     alt={diff.icon}
                     width={1000}
                     height={1000}
@@ -199,7 +228,7 @@ export function StartPlayVSAI() {
                 <button
                   key={opponent.name}
                   onClick={() => {
-                    setSelectedOpponent(opponent.id)
+                    setSelectedOpponent(opponent.id);
                   }}
                   className={`flex flex-col items-center max-w-[82px] p-1 rounded-sm gap-1 ${
                     selectedOpponent === opponent.id

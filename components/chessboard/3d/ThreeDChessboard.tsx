@@ -15,32 +15,32 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { motion } from "framer-motion";
 
 interface ThreeDBoardProps {
-   position?: string;
-    boardWidth: number;
-    orientation?: BoardOrientation | undefined;
-    onPieceDragBegin?: ((piece: string, sourceSquare: string) => any) | undefined;
-    onPieceDragEnd?: ((piece: string, sourceSquare: string) => any) | undefined;
-    onPieceDrop?: (
-      sourceSquare: Square,
-      targetSquare: Square,
-      piece: string
-    ) => boolean;
-    arePiecesDraggable?: boolean;
-    onSquareClick?: (square: Square) => void;
-    onSquareRightClick?: (square: Square) => void;
-    onPromotionPieceSelect: (
-      piece?: PromotionPieceOption,
-      promoteFromSquare?: Square,
-      promoteToSquare?: Square
-    ) => boolean;
-    onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
-    promotionToSquare?: Square | null;
-    showPromotionDialog?: boolean;
-    customSquareStyles?: Record<string, React.CSSProperties>;
-    customArrows?: any;
-    areArrowsAllowed?: boolean;
-    arePremovesAllowed?: boolean;
-    customArrowColor?: string;
+  position?: string;
+  boardWidth: number;
+  orientation?: BoardOrientation | undefined;
+  onPieceDragBegin?: ((piece: string, sourceSquare: string) => any) | undefined;
+  onPieceDragEnd?: ((piece: string, sourceSquare: string) => any) | undefined;
+  onPieceDrop?: (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ) => boolean;
+  arePiecesDraggable?: boolean;
+  onSquareClick?: (square: Square) => void;
+  onSquareRightClick?: (square: Square) => void;
+  onPromotionPieceSelect: (
+    piece?: PromotionPieceOption,
+    promoteFromSquare?: Square,
+    promoteToSquare?: Square
+  ) => boolean;
+  onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
+  promotionToSquare?: Square | null;
+  showPromotionDialog?: boolean;
+  customSquareStyles?: Record<string, React.CSSProperties>;
+  customArrows?: any;
+  areArrowsAllowed?: boolean;
+  arePremovesAllowed?: boolean;
+  customArrowColor?: string;
 }
 
 const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
@@ -50,7 +50,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   onPieceDrop,
   onPieceDragEnd,
   onPieceDragBegin,
-  arePiecesDraggable = null,
+  arePiecesDraggable = true,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
@@ -188,10 +188,10 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width: squareWidth * pieceHeight,
             height: squareWidth,
             position: "relative",
-            pointerEvents: "none",
+            
           }}
         >
-          <Image
+          <img
             src={`/3d-pieces/${PieceChoosed}/${piece}.png`}
             alt="Chess board pieces"
             width={squareWidth * pieceHeight}
@@ -199,8 +199,8 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             style={{
               position: "absolute",
               bottom: `${0.12 * squareWidth}px`,
+              objectFit: "contain",
             }}
-            priority
           />
         </div>
       );
@@ -212,34 +212,35 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   if (loading) return <DotSpinner />;
   return (
     <div
-      className="flex flex-col items-center justify-center"
+      className="relative flex flex-col items-center justify-center"
       style={{
         width: boardWidth,
         height: boardWidth,
-        pointerEvents: "none",
-        transform: `scale(${scale + ``})`,
       }}
     >
       <div
-        className="relative flex items-center justify-center"
+        className="relative flex items-center justify-center "
         style={{
           width: 480,
           height: 480,
-        }}
+          
+        transform: `scale(${scale + ``})`,
+      }}
       >
         <Image
           src={`/boards/3d-${BoardChoosed}-board.png`}
           alt="Chess board frame"
           width={1000}
           height={1000}
-          className={`absolute z-2 w-[480px] h-[480px] object-contain`}
+          className={`absolute z-2 w-[480px] h-[480px] object-contain `}
           priority
         />
         <div
           style={{
             marginTop: -paddingTop,
+            
           }}
-          className={`z-10 flex items-center justify-center`}
+          className={`z-10 flex items-center justify-center `}
         >
           <motion.div
             animate={{ opacity: 1 }}
@@ -247,6 +248,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             style={{
               display: "flex",
               justifyContent: "start",
+              
             }}
           >
             {arePiecesDraggable != null ? (
@@ -264,11 +266,11 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 }
                 onPieceDragEnd={onPieceDragEnd}
                 onPieceClick={onPieceClick}
-                arePiecesDraggable={arePiecesDraggable}
+                arePiecesDraggable={false}
                 customArrowColor={customArrowColor}
                 boardOrientation={orientation}
                 boardWidth={Math.round(480 * 0.779)}
-                id="Styled3DBoard"
+                id="3DBoard"
                 position={position}
                 onSquareClick={onSquareClick}
                 onSquareRightClick={onSquareRightClick}
@@ -290,7 +292,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#00000080",
+                  // backgroundColor: "#FF000080",
                 }}
                 customDarkSquareStyle={{
                   backgroundColor: "transparent",
@@ -301,7 +303,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customSquareStyles={customSquareStyles}
                 promotionToSquare={promotionToSquare}
                 showPromotionDialog={showPromotionDialog}
-                animationDuration={200}
+                animationDuration={100}
               />
             ) : (
               <Chessboard
@@ -316,18 +318,14 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                   // background:"black"
                 }}
                 customPieces={threeDPieces}
-                customLightSquareStyle={
-                  {
-                    // backgroundColor: "transparent",
-                    // backgroundColor: "#00000080",
-                  }
-                }
-                customDarkSquareStyle={
-                  {
-                    // backgroundColor: "transparent",
-                    // backgroundColor: "#00000070",
-                  }
-                }
+                customLightSquareStyle={{
+                  backgroundColor: "transparent",
+                  // backgroundColor: "#00000080",
+                }}
+                customDarkSquareStyle={{
+                  backgroundColor: "transparent",
+                  // backgroundColor: "#00000070",
+                }}
                 animationDuration={100}
               />
             )}

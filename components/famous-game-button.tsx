@@ -22,6 +22,7 @@ export const FamousGameButton = () => {
   const fetchPgnFamousGame = async () => {
     let arr = null;
     try {
+      setIsLoading(true);
       const resFamousGame = await fetch("/local-data/famous-game.txt");
       const pgnLocal = await resFamousGame.text();
       setPgn(pgnLocal);
@@ -43,7 +44,9 @@ export const FamousGameButton = () => {
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       if (arr != null) {
-        router.push("/analysis");
+        setTimeout(() => {
+          router.push("/analysis");
+        }, 4000);
       } else {
         setIsLoading(false);
       }
