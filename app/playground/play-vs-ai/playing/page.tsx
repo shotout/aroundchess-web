@@ -557,13 +557,16 @@ export default function Playing() {
   const handleAnalyzeGame = () => {
     fetchPgnLocal();
   };
-  const handleNewGame = () => {
+  const handleRematch = () => {
     game.reset();
     setGamePosition(game.fen());
     setStatusGame("Ongoing");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
   };
+  const handleNewGame =()=>{
+    router.back()
+  }
   const handleSaveLog = async () => {
     let body = {
       enemyTag: AIChoosed.opponent.name,
@@ -609,7 +612,7 @@ export default function Playing() {
     return (
       <div
         style={{ width: boardSize }}
-        className="xl:hidden flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
+        className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
       >
         <button onClick={handleSwitch}>
           <Image
@@ -812,14 +815,14 @@ export default function Playing() {
             (!hintClicked && bestLine?.length == null)
           }
           onClick={handleHint}
-          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#221AE9] bg-[#221AE908] text-[#221AE9] rounded-[8px] hover:bg-blue-100 gap-1"
+          className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${hintClicked?`border-[#221AE9] bg-[#221AE908] text-[#221AE9]`:`border-[#DEDEDE] bg-white`} rounded-[8px] hover:bg-blue-100 gap-1`}
         >
           {!hintClicked && bestLine?.length == null ? (
             <DotSpinner size={5} />
           ) : (
             <>
               <Image
-                src={"/images/play-vs-ai/hint.png"}
+                src={`${hintClicked?`/images/play-vs-ai/hint.png`:`/images/play-vs-ai/hint-icon.png`} `}
                 alt="icon"
                 width={1000}
                 height={1000}
@@ -885,7 +888,7 @@ export default function Playing() {
             </div>
           </button>
           <button
-            onClick={handleResign}
+            onClick={handleRematch}
             className="btn-tertiary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
           >
             <div className="flex flex-row items-center justify-center gap-2">
@@ -980,7 +983,7 @@ export default function Playing() {
     return (
       <motion.div
         variants={fadeInUp}
-        className={`relative w-[96%] rounded-[8px] ${gradColor} border border-[${color}] mx-2 p-[1px]`}
+        className={`relative justify-self-center w-[100%] mt-4 rounded-[8px] ${gradColor} border border-[${color}] p-[1px]`}
       >
         <div
           className={`flex h-[56px] flex-row items-center rounded-[8px] border-2 border-dashed border-[${color}] gap-3`}
@@ -1040,8 +1043,10 @@ export default function Playing() {
           </div>
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
             {orientation != "white" ? whitePlayer() : blackPlayer()}
+            <div className="flex items-center justify-end mb-2">{buttonBoard()}</div>
+
             <div className="flex flex-col justify-center items-center gap-3 ">
-              {buttonBoard()}
+              {/* {buttonBoard()} */}
               <motion.div
                 initial={{ rotateX: 180 }}
                 animate={
@@ -1190,7 +1195,7 @@ export default function Playing() {
             {orientation == "white" ? whitePlayer() : blackPlayer()}
           </div>
         </div>
-        {buttonBoardColumn()}
+        {/* {buttonBoardColumn()} */}
         <Tabs defaultValue="current" className="w-full">
           <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
             <TabsTrigger
@@ -1254,12 +1259,12 @@ export default function Playing() {
                 style={{
                   height:
                     statusGame == "Ongoing"
-                      ? heightScreen * 0.75
-                      : heightScreen * 0.45,
+                      ? heightScreen * 0.65
+                      : heightScreen * 0.5,
                 }}
-                className="px-4 w-full xl:max-h-[65vh] overflow-y-auto"
+                className="px-4 w-full"
               >
-                <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-collapse border-[#BDD0F9]">
+                <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-y-auto border-collapse border-[#BDD0F9]">
                   <thead>
                     <tr className="bg-[#D7E3FB] ">
                       <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
@@ -1333,8 +1338,8 @@ export default function Playing() {
                       })}
                   </tbody>
                 </table>
-              </div>
               {statusGame != "Ongoing" && renderCommentaryGame()}
+              </div>
               {statusGame == "Ongoing"
                 ? renderButtonPlaying()
                 : renderButtonFinish()}
