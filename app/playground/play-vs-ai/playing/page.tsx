@@ -431,7 +431,7 @@ export default function Playing() {
     }
   };
   useEffect(() => {
-    getVSAILogs().then((res: any) => {
+    getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
       console.log("res getVSAILogs", res);
       setPastGames(res.data);
     });
@@ -564,9 +564,9 @@ export default function Playing() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
   };
-  const handleNewGame =()=>{
-    router.back()
-  }
+  const handleNewGame = () => {
+    router.back();
+  };
   const handleSaveLog = async () => {
     let body = {
       enemyTag: AIChoosed.opponent.name,
@@ -815,14 +815,22 @@ export default function Playing() {
             (!hintClicked && bestLine?.length == null)
           }
           onClick={handleHint}
-          className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${hintClicked?`border-[#221AE9] bg-[#221AE908] text-[#221AE9]`:`border-[#DEDEDE] bg-white`} rounded-[8px] hover:bg-blue-100 gap-1`}
+          className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${
+            hintClicked
+              ? `border-[#221AE9] bg-[#221AE908] text-[#221AE9]`
+              : `border-[#DEDEDE] bg-white`
+          } rounded-[8px] hover:bg-blue-100 gap-1`}
         >
           {!hintClicked && bestLine?.length == null ? (
             <DotSpinner size={5} />
           ) : (
             <>
               <Image
-                src={`${hintClicked?`/images/play-vs-ai/hint.png`:`/images/play-vs-ai/hint-icon.png`} `}
+                src={`${
+                  hintClicked
+                    ? `/images/play-vs-ai/hint.png`
+                    : `/images/play-vs-ai/hint-icon.png`
+                } `}
                 alt="icon"
                 width={1000}
                 height={1000}
@@ -1043,7 +1051,9 @@ export default function Playing() {
           </div>
           <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
             {orientation != "white" ? whitePlayer() : blackPlayer()}
-            <div className="flex items-center justify-end mb-2">{buttonBoard()}</div>
+            <div className="flex items-center justify-end mb-2">
+              {buttonBoard()}
+            </div>
 
             <div className="flex flex-col justify-center items-center gap-3 ">
               {/* {buttonBoard()} */}
@@ -1338,7 +1348,7 @@ export default function Playing() {
                       })}
                   </tbody>
                 </table>
-              {statusGame != "Ongoing" && renderCommentaryGame()}
+                {statusGame != "Ongoing" && renderCommentaryGame()}
               </div>
               {statusGame == "Ongoing"
                 ? renderButtonPlaying()
