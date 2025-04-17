@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import { subjectForm } from "@/app/store/constants";
+import emailjs from "@emailjs/browser";
+import { toast } from "sonner";
 
 export function ContactUs() {
   const router = useRouter();
@@ -43,8 +45,27 @@ export function ContactUs() {
     console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const handleSendMessage = () => {};
+  const handleSendMessage = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    const { current } = form;
+    emailjs
+      .sendForm("service_kj7oisp", "template_zc6g14o", current, {
+        publicKey: "jTUGjAIqTwezcSh2k",
+      })
+      .then(
+        () => {
+          toast.success("Form send successfully!");
+          form.current?.reset();
 
+          // window.location.reload();
+          console.log("SUCCESS!");
+        },
+        (error) => {
+          toast.error(error.text);
+          console.log("FAILED...", error.text);
+        }
+      );
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="rounded-[16px] max-w-sm sm:max-w-[640px] bg-white max-h-[90%]">
@@ -61,7 +82,9 @@ export function ContactUs() {
 
         <DialogHeader className="flex flex-col justify-center items-center z-20">
           <DialogTitle>
-            <span className="font-medium text-[18px] lg:text-[32px]">Contact Us</span>
+            <span className="font-medium text-[18px] lg:text-[32px]">
+              Contact Us
+            </span>
           </DialogTitle>
           <DialogDescription>
             <span className="font-normal text-[14px] lg:text-[20px]">

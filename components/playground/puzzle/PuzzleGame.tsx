@@ -617,10 +617,16 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       >
         <button
           onClick={onGetHint}
-          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#C0CED4] bg-white text-[#364152] rounded-[8px] hover:bg-blue-100 gap-1"
+          className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${
+            hint
+              ? `border-[#221AE9] bg-[#221AE908] text-[#221AE9]`
+              : `border-[#DEDEDE] bg-white`
+          } rounded-[8px] hover:bg-blue-100 gap-1`}
         >
           <Image
-            src={"/images/puzzle/hint-icon.png"}
+            src={`${
+              hint ? `/images/puzzle/hint.png` : `/images/puzzle/hint-icon.png`
+            } `}
             alt="icon"
             width={1000}
             height={1000}
