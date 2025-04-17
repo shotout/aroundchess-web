@@ -37,14 +37,14 @@ const PgnPlayer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size
   const [mounted, setMounted] = useState(false);
-  const [is3DMode, setIs3DMode] = useState<boolean>(false);
+  const [is3DMode, setIs3DMode] = useState<boolean>(true);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
-    setIs3DMode(is3D);
-    console.log("StyleChoosed", StyleChoosed);
-  }, [StyleChoosed]);
+  // useEffect(() => {
+  //   let is3D = StyleChoosed == "3d" ? true : false;
+  //   setIs3DMode(is3D);
+  //   console.log("StyleChoosed", StyleChoosed);
+  // }, [StyleChoosed]);
 
   const manuallyPlayPgn = (pgnText: string) => {
     try {

@@ -15,6 +15,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
   const handleContactUs = () => {
     setOpen(true);
   };
+  
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
