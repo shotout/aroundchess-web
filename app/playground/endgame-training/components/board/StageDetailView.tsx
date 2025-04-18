@@ -1,11 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ArrowLeft,
+  Settings,
+  AlertCircle,
+  RotateCcw,
+  Download,
+  MoveRightIcon,
+} from "lucide-react";
 import { Chessboard } from "react-chessboard";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
-import { useNavigationStore } from "../../store/NavigationStore";
+import { Chess, Square } from "chess.js";
+import { Engine } from "@/components/playground/src/lib/stockfish";
+import Image from "next/image";
+import {
+  ChessPiece,
+  ChessPieceType,
+  getPieceConfig,
+} from "../../utils/ChessPieceUtils";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -20,23 +35,50 @@ export default function StageDetailView({
 }: StageDetailViewProps) {
   const router = useRouter();
   const [position, setPosition] = useState<string | null>(null);
+  const [initialFen, setInitialFen] = useState<string | null>(null);
   const [targetPosition, setTargetPosition] = useState<string | null>(null);
-  const [moveHistory, setMoveHistory] = useState<string[]>([]);
+  const [moveHistory, setMoveHistory] = useState<any[]>([]);
   const [isSolved, setIsSolved] = useState<boolean>(false);
+  const [categoryData, setCategoryData] = useState<string | any>("");
+  const [subcategoryName, setSubcategoryName] = useState<string>("");
+  const [pieceConfig, setPieceConfig] = useState<any>(null);
 
-  // Get the previous route from the navigation store
-  const { previousRoute } = useNavigationStore();
+  const [gameStatus, setGameStatus] = useState<string>("ongoing");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [alertClass, setAlertClass] = useState<string>("");
 
-  // Parse stage number
+  const [optionSquares, setOptionSquares] = useState<
+    Record<string, { background: string }>
+  >({});
+  const [moveSquares, setMoveSquares] = useState<
+    Record<string, { background: string }>
+  >({});
+  const [moveFrom, setMoveFrom] = useState<string>("");
+  const [moveTo, setMoveTo] = useState<Square | null>(null);
+  const [showPromotionDialog, setShowPromotionDialog] =
+    useState<boolean>(false);
+
+  const [bestMove, setBestMove] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState<boolean>(false);
+
   const stageNum = parseInt(stageNumber);
-
-  // Get endgame data
   const { data, isLoading, error, fetchData } = useEndgametraining();
-
-  // Track if fetch is in progress to prevent multiple fetches
   const fetchInProgress = React.useRef(false);
 
-  // Extract category, subcategory and fetch data
+  const game = useMemo(() => new Chess(), []);
+  const engine = useMemo(() => new Engine(), []);
+
+  const isMounted = React.useRef(true);
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (engine) {
+        engine.destroy();
+      }
+    };
+  }, [engine]);
+
   useEffect(() => {
     const fetchEndgameData = async () => {
       if (!data && !fetchInProgress.current) {
@@ -52,81 +94,393 @@ export default function StageDetailView({
     fetchEndgameData();
   }, [data, fetchData]);
 
-  // Get position data once data is loaded
   useEffect(() => {
     if (!data || !data.categories) return;
 
-    // Find the category
     const category = data.categories.find(
       (cat) => cat.name.toLowerCase().replace(/\s+/g, "-") === categorySlug
     );
-
     if (!category) return;
+    setCategoryData(category);
 
-    // Find the subcategory
     const subcategory = category.subcategories.find(
       (sub) => sub.name.toLowerCase().replace(/\s+/g, "-") === subcategorySlug
     );
-
     if (!subcategory || !subcategory.games) return;
+    setSubcategoryName(subcategory.name);
+    setPieceConfig(getPieceConfig(subcategory.name));
 
-    // Get the game data for this stage (array index is 0-based, but stage numbers start at 1)
-    const game = subcategory.games[stageNum - 1];
-
-    if (game) {
-      setPosition(game.fen);
-      setTargetPosition(game.target);
+    const gameData = subcategory.games[stageNum - 1];
+    if (gameData) {
+      try {
+        game.load(gameData.fen);
+        setPosition(gameData.fen);
+        setInitialFen(gameData.fen);
+        setTargetPosition(gameData.target || null);
+        setGameStatus("ongoing");
+        setShowAlert(false);
+        setMoveHistory([]);
+        setIsSolved(false);
+        setMoveSquares({});
+        setOptionSquares({});
+      } catch (e) {
+        console.error("Invalid FEN position:", e);
+      }
     }
-  }, [data, categorySlug, subcategorySlug, stageNum]);
+  }, [data, categorySlug, subcategorySlug, stageNum, game]);
 
-  // Handle user move
-  const onDrop = (sourceSquare: string, targetSquare: string) => {
-    // In a real implementation, we would validate if this move brings us closer to the target position
-    // For now, we'll just track the moves
-    const move = `${sourceSquare}-${targetSquare}`;
-    setMoveHistory([...moveHistory, move]);
-
-    // Check if the player has made enough moves to potentially solve the puzzle
-    if (moveHistory.length >= 2) {
-      // In a real implementation, we would check if the current position matches the target
-      // For demo purposes, let's say the puzzle is solved after 3 moves
-      setIsSolved(true);
+  const checkGameStatus = useCallback(() => {
+    if (game.isGameOver()) {
+      if (game.isCheckmate()) {
+        const winner = game.turn() === "w" ? "black" : "white";
+        if (winner === "white") {
+          setGameStatus("win");
+          setAlertMessage("Checkmate! You won!");
+          setAlertClass("bg-green-500");
+        } else {
+          setGameStatus("lose");
+          setAlertMessage("You lost the game.");
+          setAlertClass("bg-red-500");
+        }
+        setIsSolved(true);
+      } else if (game.isDraw()) {
+        setGameStatus("draw");
+        setAlertMessage("Game ended in a draw.");
+        setAlertClass("bg-blue-500");
+        setIsSolved(true);
+      }
+      setShowAlert(true);
+    } else if (game.turn() === "b" && gameStatus === "ongoing") {
+      makeStockfishMove();
     }
+  }, [game]);
 
-    return true; // Allow the move
-  };
+  const getMoveOptions = useCallback(
+    (square: Square) => {
+      const moves = game.moves({
+        square,
+        verbose: true,
+      });
 
-  // Navigate to the next or previous stage
-  const navigateToStage = (direction: "next" | "previous") => {
-    let newStageNum = stageNum;
+      if (moves.length === 0) {
+        setOptionSquares({});
+        return false;
+      }
 
-    if (direction === "next") {
-      newStageNum = stageNum + 1;
-    } else {
-      newStageNum = Math.max(1, stageNum - 1);
+      const newSquares: Record<string, { background: string }> = {};
+      moves.forEach((move) => {
+        newSquares[move.to] = {
+          background:
+            game.get(move.to) &&
+            game.get(move.to)?.color !== game.get(square)?.color
+              ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)"
+              : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
+        };
+      });
+
+      newSquares[square] = {
+        background: "rgba(255, 255, 0, 0.4)",
+      };
+
+      setOptionSquares(newSquares);
+      return true;
+    },
+    [game]
+  );
+
+  const onSquareClick = useCallback(
+    (square: Square) => {
+      if (game.turn() !== "w") return;
+
+      setShowHint(false);
+
+      if (!moveFrom) {
+        const piece = game.get(square);
+        if (piece && piece.color !== "w") return;
+
+        const hasMoveOptions = getMoveOptions(square);
+        if (hasMoveOptions) {
+          setMoveFrom(square);
+        }
+        return;
+      }
+
+      if (!moveTo) {
+        const moves = game.moves({
+          square: moveFrom as Square,
+          verbose: true,
+        });
+        const foundMove = moves.find(
+          (m) => m.from === moveFrom && m.to === square
+        );
+
+        if (!foundMove) {
+          const piece = game.get(square);
+          if (piece && piece.color === "w") {
+            const hasMoveOptions = getMoveOptions(square);
+            setMoveFrom(hasMoveOptions ? square : "");
+          } else {
+            setMoveFrom("");
+            setOptionSquares({});
+          }
+          return;
+        }
+
+        setMoveTo(square);
+
+        if (
+          (foundMove.color === "w" &&
+            foundMove.piece === "p" &&
+            square[1] === "8") ||
+          (foundMove.color === "b" &&
+            foundMove.piece === "p" &&
+            square[1] === "1")
+        ) {
+          setShowPromotionDialog(true);
+          return;
+        }
+
+        const move = game.move({
+          from: moveFrom,
+          to: square,
+        });
+
+        if (move === null) {
+          const hasMoveOptions = getMoveOptions(square);
+          if (hasMoveOptions) setMoveFrom(square);
+          return;
+        }
+
+        setMoveHistory(game.history({ verbose: true }));
+        setPosition(game.fen());
+        setMoveSquares({
+          [moveFrom]: { background: "rgba(255, 255, 0, 0.4)" },
+          [square]: { background: "rgba(255, 255, 0, 0.4)" },
+        });
+
+        setMoveFrom("");
+        setMoveTo(null);
+        setOptionSquares({});
+
+        checkGameStatus();
+
+        return;
+      }
+    },
+    [moveFrom, moveTo, game, getMoveOptions, checkGameStatus]
+  );
+
+  const onPromotionPieceSelect = useCallback(
+    (piece: string, fromSquare: Square, toSquare: Square) => {
+      const promotionPiece = piece?.charAt(1)?.toLowerCase() || "q";
+
+      const move = game.move({
+        from: fromSquare,
+        to: toSquare,
+        promotion: promotionPiece,
+      });
+
+      if (move) {
+        setMoveHistory(game.history({ verbose: true }));
+        setPosition(game.fen());
+        checkGameStatus();
+        setMoveSquares({
+          [fromSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+          [toSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+        });
+      }
+
+      setMoveFrom("");
+      setMoveTo(null);
+      setShowPromotionDialog(false);
+      setOptionSquares({});
+
+      return true;
+    },
+    [game, checkGameStatus]
+  );
+
+  const onDrop = useCallback(
+    (sourceSquare: string, targetSquare: string) => {
+      if (game.turn() !== "w") return false;
+
+      setShowHint(false);
+
+      try {
+        const piece = game.get(sourceSquare as Square);
+        const isPromotion =
+          piece?.type === "p" &&
+          ((piece.color === "w" && targetSquare[1] === "8") ||
+            (piece.color === "b" && targetSquare[1] === "1"));
+
+        if (isPromotion) {
+          const move = game.move({
+            from: sourceSquare as Square,
+            to: targetSquare as Square,
+            promotion: "q",
+          });
+
+          if (move === null) return false;
+        } else {
+          const move = game.move({
+            from: sourceSquare as Square,
+            to: targetSquare as Square,
+          });
+
+          if (move === null) return false;
+        }
+
+        setMoveHistory(game.history({ verbose: true }));
+        setPosition(game.fen());
+        setMoveSquares({
+          [sourceSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+          [targetSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+        });
+
+        checkGameStatus();
+
+        return true;
+      } catch (e) {
+        console.error("Move error:", e);
+        return false;
+      }
+    },
+    [game, checkGameStatus]
+  );
+
+  const makeStockfishMove = useCallback(() => {
+    if (!position || gameStatus !== "ongoing") return;
+
+    engine.evaluatePosition(game.fen(), 1);
+
+    engine.onMessage(({ bestMove }) => {
+      if (bestMove) {
+        try {
+          const move = game.move({
+            from: bestMove.substring(0, 2) as Square,
+            to: bestMove.substring(2, 4) as Square,
+            promotion: bestMove.substring(4, 5) || undefined,
+          });
+
+          if (move) {
+            setMoveHistory(game.history({ verbose: true }));
+            setPosition(game.fen());
+            setMoveSquares({
+              [bestMove.substring(0, 2)]: {
+                background: "rgba(255, 255, 0, 0.4)",
+              },
+              [bestMove.substring(2, 4)]: {
+                background: "rgba(255, 255, 0, 0.4)",
+              },
+            });
+
+            if (game.isGameOver()) {
+              if (game.isCheckmate()) {
+                setGameStatus("lose");
+                setAlertMessage("Checkmate! You lost the game.");
+                setAlertClass("bg-red-500");
+                setIsSolved(true);
+                setShowAlert(true);
+              } else if (game.isDraw()) {
+                setGameStatus("draw");
+                setAlertMessage("Game ended in a draw.");
+                setAlertClass("bg-blue-500");
+                setIsSolved(true);
+                setShowAlert(true);
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Error making Stockfish move:", e);
+        }
+      }
+    });
+  }, [game, engine, position, gameStatus]);
+
+  const handleHint = useCallback(() => {
+    if (!position) return;
+
+    setShowHint(true);
+    engine.evaluatePosition(game.fen(), 15);
+
+    engine.onMessage(({ bestMove }) => {
+      if (bestMove) {
+        setBestMove(bestMove);
+        setMoveSquares({
+          [bestMove.substring(0, 2)]: { background: "rgba(0, 0, 255, 0.4)" },
+          [bestMove.substring(2, 4)]: { background: "rgba(0, 0, 255, 0.4)" },
+        });
+      }
+    });
+  }, [game, engine, position]);
+
+  const showSolution = useCallback(() => {
+    if (!position) return;
+    engine.evaluatePosition(game.fen(), 15);
+
+    engine.onMessage(({ bestMove }) => {
+      if (bestMove) {
+        setBestMove(bestMove);
+        setMoveSquares({
+          [bestMove.substring(0, 2)]: { background: "rgba(0, 0, 255, 0.4)" },
+          [bestMove.substring(2, 4)]: { background: "rgba(0, 0, 255, 0.4)" },
+        });
+      }
+    });
+  }, [position, engine, game]);
+
+  const resetPosition = useCallback(() => {
+    if (initialFen) {
+      try {
+        game.load(initialFen);
+        setPosition(initialFen);
+        setMoveHistory([]);
+        setIsSolved(false);
+        setGameStatus("ongoing");
+        setShowAlert(false);
+        setShowHint(false);
+        setBestMove(null);
+        setOptionSquares({});
+        setMoveSquares({});
+      } catch (e) {
+        console.error("Error resetting position:", e);
+      }
     }
+  }, [game, initialFen]);
 
-    router.push(
-      `/playground/endgame-training/${categorySlug}/${subcategorySlug}/stage-${newStageNum}`
-    );
-  };
+  const navigateToStage = useCallback(
+    (direction: "next" | "previous") => {
+      const newStageNum =
+        direction === "next" ? stageNum + 1 : Math.max(1, stageNum - 1);
 
-  // Go back to the subcategory view
-  const goBackToSelection = () => {
-    // Use the previous route from the store if available
-    if (previousRoute) {
-      router.push(previousRoute);
-    } else {
-      // Fallback to the category page
-      router.push(`/playground/endgame-training/${categorySlug}`);
+      router.push(
+        `/playground/endgame-training/${categorySlug}/${subcategorySlug}/${newStageNum}`
+      );
+    },
+    [router, categorySlug, subcategorySlug, stageNum]
+  );
+
+  const goBackToSelection = useCallback(() => {
+    router.push(`/playground/endgame-training/`);
+  }, [router]);
+
+  const retryFetch = useCallback(() => {
+    if (!fetchInProgress.current) {
+      fetchInProgress.current = true;
+      fetchData().finally(() => {
+        fetchInProgress.current = false;
+      });
     }
-  };
+  }, [fetchData]);
 
-  // Reset the current position
-  const resetPosition = () => {
-    setMoveHistory([]);
-    setIsSolved(false);
-  };
+  const navigateNext = useCallback(
+    () => navigateToStage("next"),
+    [navigateToStage]
+  );
+  const navigatePrevious = useCallback(
+    () => navigateToStage("previous"),
+    [navigateToStage]
+  );
 
   if (isLoading) {
     return (
@@ -142,14 +496,7 @@ export default function StageDetailView({
         <p className="text-red-500 mb-4">{error}</p>
         <button
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-          onClick={() => {
-            if (!fetchInProgress.current) {
-              fetchInProgress.current = true;
-              fetchData().finally(() => {
-                fetchInProgress.current = false;
-              });
-            }
-          }}
+          onClick={retryFetch}
         >
           Retry
         </button>
@@ -173,105 +520,216 @@ export default function StageDetailView({
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      {/* Header with back button */}
-      <div className="mb-6 flex items-center">
-        <button
-          onClick={goBackToSelection}
-          className="text-blue-600 flex items-center gap-1"
+    <div className="w-full h-[calc(100vh-56px)] xl:h-[calc(100vh-97px)] flex justify-center items-center">
+      <main className="w-full h-full p-4 xl:p-8 flex flex-col space-y-4">
+        <div
+          className="w-full flex items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
+         border-b border-gray-200 p-4 rounded-md"
         >
-          <ChevronLeft className="h-4 w-4" />
-          Back to stage selection
-        </button>
-        <h1 className="text-2xl font-bold text-gray-800 ml-4">
-          Stage {stageNum}
-        </h1>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Left side - Chessboard */}
-        <div className="w-full md:w-1/2">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <Chessboard
-              position={position}
-              onPieceDrop={onDrop}
-              boardWidth={500}
-            />
+          <div className="flex items-center space-x-4">
+            <button onClick={goBackToSelection} className="p-2">
+              <ArrowLeft className="h-6 w-h-6 text-gray-600" />
+            </button>
+            <div className="flex items-center space-x-2">
+              <Image
+                src={`/endgame-training/${categoryData.icons}`}
+                alt={`${categoryData.name} icon`}
+                width={45}
+                height={45}
+              />
+              <span className="font-bold text-lg">
+                {categoryData.name || "Loading..."}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Right side - Information and controls */}
-        <div className="w-full md:w-1/2">
-          <div className="bg-white rounded-xl shadow-md p-6 h-full">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">
-                Position Information
-              </h2>
-              <p className="text-gray-600 mb-2">FEN: {position}</p>
-              <p className="text-gray-600 mb-4">
-                Target: {targetPosition || "Reach the target position"}
-              </p>
-
-              <div className="border-t pt-4 mt-4">
-                <h3 className="font-semibold mb-2">Your Moves:</h3>
-                <div className="bg-gray-50 p-3 rounded-lg min-h-24 mb-4">
-                  {moveHistory.length > 0 ? (
-                    moveHistory.map((move, idx) => (
-                      <div key={idx} className="mb-1">
-                        <span className="font-medium">{idx + 1}:</span> {move}
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500">
-                      Make your moves on the board
-                    </p>
+          <div className="flex items-center space-x-2">
+            <div className="p-3 rounded-md flex justify-center">
+              {pieceConfig && pieceConfig.pieces ? (
+                <div
+                  className="flex space-x-2 items-end overflow-visible border border-gray-200 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF] p-2 rounded-md"
+                  style={{ minHeight: "40px", display: "inline-flex" }}
+                >
+                  {pieceConfig.pieces.map(
+                    (
+                      piece: {
+                        type: string;
+                        color: string | undefined;
+                        count: number | undefined;
+                      },
+                      i: React.Key | null | undefined
+                    ) => (
+                      <ChessPiece
+                        key={i}
+                        type={piece.type as ChessPieceType}
+                        color={piece.color}
+                        count={piece.count}
+                        width={20}
+                        height={20}
+                        vsWidth={22}
+                        vsHeight={22}
+                      />
+                    )
                   )}
                 </div>
-              </div>
-
-              {/* Feedback message */}
-              {isSolved && (
-                <div className="mt-4 p-3 rounded-lg bg-green-100 text-green-800 mb-4">
-                  Great job! You've solved this position.
-                </div>
+              ) : (
+                <div>Loading pieces...</div>
               )}
             </div>
+            <div className="mx-4">{subcategoryName || "Loading..."}</div>
+          </div>
 
-            {/* Action buttons */}
-            <div className="flex flex-wrap gap-3 mt-auto">
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={resetPosition}
-              >
-                Reset Position
-              </button>
+          <div className="flex items-center space-x-4">
+            <div className="font-bold text-lg">Stage {stageNum}</div>
+          </div>
+        </div>
 
-              <div className="flex-grow"></div>
-
-              {/* Navigation buttons */}
-              <div className="flex gap-2">
-                {stageNum > 1 && (
-                  <button
-                    onClick={() => navigateToStage("previous")}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 flex items-center"
+        <div className="grid grid-cols-1 xl:grid-cols-10 min-h-0 flex-grow bg-white xl:gap-5">
+          <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col xl:col-span-6">
+            <div className="relative w-full flex  justify-center items-center">
+              <div className="aspect-square  bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
+                {showAlert && (
+                  <div
+                    className={`absolute top-0 left-0 right-0 z-10 p-4 text-center text-white font-bold ${alertClass}`}
                   >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Previous Stage
-                  </button>
+                    {alertMessage}
+                  </div>
                 )}
 
+                <div className="w-full h-full">
+                  <Chessboard
+                    position={position}
+                    onPieceDrop={onDrop}
+                    onSquareClick={onSquareClick}
+                    onPromotionPieceSelect={onPromotionPieceSelect}
+                    customSquareStyles={{
+                      ...optionSquares,
+                      ...moveSquares,
+                    }}
+                    promotionToSquare={moveTo}
+                    showPromotionDialog={showPromotionDialog}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4 mt-4 xl:mt-0">
+            <div className="flex flex-col space-y-5 h-full p-6">
+              <div className="bg-blue-base/10 p-6 border border-blue-base rounded-md flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center">
+                  <div className="text-blue-base mr-2">
+                    <AlertCircle className="h-6 w-6 text-blue-base" />
+                  </div>
+                  <h1 className=" text-xl">White to Checkmate</h1>
+                </div>
+                <div className="bg-white w-full p-4 rounded-md border border-gray-200 text-center">
+                  {position}
+                </div>
+              </div>
+
+              <div className="flex-grow ">
+                <div className="max-h-[250px] overflow-y-auto ">
+                  <table className="w-full border-collapse">
+                    <thead className="bg-blue-100 sticky top-0 z-10">
+                      <tr>
+                        <th className="p-4 text-left border border-gray-200">
+                          #
+                        </th>
+                        <th className="p-4 text-center border border-gray-200">
+                          White (You)
+                        </th>
+                        <th className="p-4 text-center border border-gray-200">
+                          Black (Engine)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {moveHistory.length === 0 ? (
+                        <tr>
+                          <td
+                            className="p-4 text-center border border-gray-200"
+                            colSpan={3}
+                          >
+                            No moves yet
+                          </td>
+                        </tr>
+                      ) : (
+                        Array.from({
+                          length: Math.ceil(moveHistory.length / 2),
+                        }).map((_, i) => {
+                          const whiteIdx = i * 2;
+                          const blackIdx = i * 2 + 1;
+
+                          return (
+                            <tr key={i}>
+                              <td className="p-4 text-center border border-gray-200">
+                                {i + 1}
+                              </td>
+                              <td className="p-4 text-center border border-gray-200">
+                                {moveHistory[whiteIdx]?.san || ""}
+                              </td>
+                              <td className="p-4 text-center border border-gray-200">
+                                {blackIdx < moveHistory.length
+                                  ? moveHistory[blackIdx]?.san || ""
+                                  : ""}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="mt-auto p-4 grid grid-cols-3 gap-4">
                 <button
-                  onClick={() => navigateToStage("next")}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+                  className="flex items-center justify-center p-3 bg-blue-100 text-blue-600 rounded-md border border-blue-200"
+                  onClick={handleHint}
+                  disabled={gameStatus !== "ongoing"}
                 >
-                  Next Stage
-                  <ArrowRight className="h-4 w-4 ml-1" />
+                  <span className="mr-2">💡</span> Hint
                 </button>
+                <button
+                  className="flex items-center justify-center p-3 bg-gray-100 text-gray-700 rounded-md border border-gray-200"
+                  onClick={showSolution}
+                  disabled={gameStatus !== "ongoing"}
+                >
+                  <span className="mr-2">➡️</span> Solution
+                </button>
+                <button
+                  onClick={resetPosition}
+                  className="flex items-center justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-md border border-blue-200"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2 text-blue-base" />
+                  Rematch
+                </button>
+                <button
+                  onClick={navigateNext}
+                  className="col-span-3 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-blue-600"
+                >
+                  <span className="mr-2">➡️</span> Next Stage
+                </button>
+                <div className="col-span-1 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-gray-200">
+                  <Download
+                    className="h-6 w-6 mr-2 text-blue-base"
+                    fill="#3871EC29"
+                    fillOpacity={16}
+                  />
+                </div>
+                <div className="col-span-2 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-gray-200">
+                  <Settings
+                    className="h-6 w-6 mr-2 text-blue-base"
+                    fill="#3871EC29"
+                    fillOpacity={16}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import React from "react";
-import { FileText, Upload } from "lucide-react";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { TabType } from "../types/EndgameTrainingTypes";
 
 interface TabSelectorProps {
-  activeTab: TabType;
+  activeTab: string;
   onTabChange: (tab: TabType) => void;
 }
 
@@ -22,7 +22,16 @@ const TabSelector: React.FC<TabSelectorProps> = ({
         }`}
         onClick={() => onTabChange("board")}
       >
-        <FileText className="h-4 w-4" />
+        <Image
+          src={
+            activeTab === "board"
+              ? "/endgame-training/board-selector-blue.png"
+              : "/endgame-training/board-selector.png"
+          }
+          alt="Board icon"
+          width={30}
+          height={30}
+        />
         <h1>Board Presentation</h1>
       </button>
       <button
@@ -33,8 +42,16 @@ const TabSelector: React.FC<TabSelectorProps> = ({
         }`}
         onClick={() => onTabChange("move")}
       >
-        <Upload className="h-4 w-4" />
-
+        <Image
+          src={
+            activeTab === "move"
+              ? "/endgame-training/moves-selector-blue.png"
+              : "/endgame-training/moves-selector.png"
+          }
+          alt="Moves icon"
+          width={30}
+          height={30}
+        />
         <h1>Moves Until Checkmate</h1>
       </button>
     </Card>

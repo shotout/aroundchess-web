@@ -1,5 +1,5 @@
 import { CheckmateData } from "../../types/EndgameTrainingTypes";
-import { CheckmateCategoryItem } from "../CheckmateCategoryItem";
+import { CheckmateCategoryItem } from "./CheckmateCategoryItem";
 
 interface CheckmateCategoryGridProps {
   data: CheckmateData | null;

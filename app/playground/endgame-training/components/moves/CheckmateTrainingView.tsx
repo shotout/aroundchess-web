@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { CheckmateTrainingViewProps } from "../../types/EndgameTrainingTypes";
 
 export default function CheckmateTrainingView({
@@ -8,13 +8,13 @@ export default function CheckmateTrainingView({
   onBackClick,
 }: CheckmateTrainingViewProps) {
   // Extract the move count from slug for checkmate mode
-  const movesToCheckmate = React.useMemo(() => {
+  const movesToCheckmate = useMemo(() => {
     const match = slug.match(/checkmate-(\d+)/);
     return match ? parseInt(match[1]) : 0;
   }, [slug]);
 
   // Get positions for this checkmate category
-  const checkmatePositions = React.useMemo(() => {
+  const checkmatePositions = useMemo(() => {
     if (
       !data ||
       !Array.isArray(data) ||

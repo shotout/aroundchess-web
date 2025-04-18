@@ -54,7 +54,7 @@ export const handleBackToCategories = (
 
 export const handleBackToSubcategories = (
   setViewState: (state: ViewState) => void,
-  currentViewState: ViewState
+  currentViewState: any
 ): void => {
   setViewState({
     view: "subcategories",
@@ -64,8 +64,8 @@ export const handleBackToSubcategories = (
 };
 
 export const handleNextPosition = (
-  activeTab: TabType,
-  viewState: ViewState,
+  activeTab: string,
+  viewState: any,
   data: any[],
   setViewState: (state: ViewState) => void
 ): void => {
@@ -87,8 +87,8 @@ export const handleNextPosition = (
 };
 
 export const handlePreviousPosition = (
-  activeTab: TabType,
-  viewState: ViewState,
+  activeTab: string,
+  viewState: any,
   setViewState: (state: ViewState) => void
 ): void => {
   if (
@@ -106,8 +106,8 @@ export const handlePreviousPosition = (
 };
 
 export const handleTabChange = (
-  tab: TabType,
-  setActiveTab: (tab: TabType) => void,
+  tab: string,
+  setActiveTab: (tab: string) => void,
   setViewState: (state: ViewState) => void
 ): void => {
   setActiveTab(tab);

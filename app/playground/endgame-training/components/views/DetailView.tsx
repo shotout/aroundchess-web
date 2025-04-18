@@ -1,7 +1,6 @@
 import React from "react";
 import {
   ViewState,
-  TabType,
   EndgameData,
   CheckmateData,
   EndgameSubcategory,
@@ -15,8 +14,8 @@ import {
 } from "../../utils/SlugUtils";
 
 interface DetailViewProps {
-  activeTab: TabType;
-  data: EndgameData | CheckmateData;
+  activeTab: string;
+  data: EndgameData | CheckmateData | any;
   viewState: ViewState;
   onBackClick: () => void;
   onNextPosition: () => void;

@@ -21,6 +21,7 @@ export interface EndgameData {
 export type TabType = "board" | "move";
 
 export interface Category {
+  icons: any;
   name: string;
   subcategories: Subcategory[];
 }
