@@ -9,7 +9,6 @@ import {
   AlertCircle,
   RotateCcw,
   Download,
-  MoveRightIcon,
 } from "lucide-react";
 import { Chessboard } from "react-chessboard";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
@@ -78,6 +77,39 @@ export default function StageDetailView({
       }
     };
   }, [engine]);
+
+  const findBestMove = useCallback(() => {
+    if (game.isGameOver() || gameStatus !== "ongoing") return;
+    engine.evaluatePosition(game.fen(), 1);
+
+    engine.onMessage(({ bestMove }) => {
+      if (bestMove) {
+        try {
+          game.move({
+            from: bestMove.substring(0, 2) as Square,
+            to: bestMove.substring(2, 4) as Square,
+            promotion: bestMove.substring(4, 5) || undefined,
+          });
+
+          setMoveHistory(game.history({ verbose: true }));
+          setPosition(game.fen());
+          setMoveSquares({
+            [bestMove.substring(0, 2)]: {
+              background: "rgba(255, 255, 0, 0.4)",
+            },
+            [bestMove.substring(2, 4)]: {
+              background: "rgba(255, 255, 0, 0.4)",
+            },
+          });
+
+          checkGameStatus();
+        } catch (e) {
+          console.error("Error making Stockfish move:", e);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, engine, gameStatus]);
 
   useEffect(() => {
     const fetchEndgameData = async () => {
@@ -150,10 +182,16 @@ export default function StageDetailView({
         setIsSolved(true);
       }
       setShowAlert(true);
-    } else if (game.turn() === "b" && gameStatus === "ongoing") {
-      makeStockfishMove();
+      return true;
     }
-  }, [game]);
+
+    // If game isn't over and it's black's turn, make the AI move
+    if (game.turn() === "b" && gameStatus === "ongoing") {
+      findBestMove();
+    }
+
+    return false;
+  }, [game, gameStatus, findBestMove]);
 
   const getMoveOptions = useCallback(
     (square: Square) => {
@@ -190,7 +228,7 @@ export default function StageDetailView({
 
   const onSquareClick = useCallback(
     (square: Square) => {
-      if (game.turn() !== "w") return;
+      if (game.turn() !== "w" || gameStatus !== "ongoing") return;
 
       setShowHint(false);
 
@@ -267,11 +305,13 @@ export default function StageDetailView({
         return;
       }
     },
-    [moveFrom, moveTo, game, getMoveOptions, checkGameStatus]
+    [moveFrom, moveTo, game, getMoveOptions, checkGameStatus, gameStatus]
   );
 
   const onPromotionPieceSelect = useCallback(
-    (piece: string, fromSquare: Square, toSquare: Square) => {
+    (piece?: string, fromSquare?: Square, toSquare?: Square) => {
+      if (!piece || !fromSquare || !toSquare) return false;
+
       const promotionPiece = piece?.charAt(1)?.toLowerCase() || "q";
 
       const move = game.move({
@@ -302,7 +342,7 @@ export default function StageDetailView({
 
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string) => {
-      if (game.turn() !== "w") return false;
+      if (game.turn() !== "w" || gameStatus !== "ongoing") return false;
 
       setShowHint(false);
 
@@ -345,63 +385,14 @@ export default function StageDetailView({
         return false;
       }
     },
-    [game, checkGameStatus]
+    [game, checkGameStatus, gameStatus]
   );
-
-  const makeStockfishMove = useCallback(() => {
-    if (!position || gameStatus !== "ongoing") return;
-
-    engine.evaluatePosition(game.fen(), 1);
-
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        try {
-          const move = game.move({
-            from: bestMove.substring(0, 2) as Square,
-            to: bestMove.substring(2, 4) as Square,
-            promotion: bestMove.substring(4, 5) || undefined,
-          });
-
-          if (move) {
-            setMoveHistory(game.history({ verbose: true }));
-            setPosition(game.fen());
-            setMoveSquares({
-              [bestMove.substring(0, 2)]: {
-                background: "rgba(255, 255, 0, 0.4)",
-              },
-              [bestMove.substring(2, 4)]: {
-                background: "rgba(255, 255, 0, 0.4)",
-              },
-            });
-
-            if (game.isGameOver()) {
-              if (game.isCheckmate()) {
-                setGameStatus("lose");
-                setAlertMessage("Checkmate! You lost the game.");
-                setAlertClass("bg-red-500");
-                setIsSolved(true);
-                setShowAlert(true);
-              } else if (game.isDraw()) {
-                setGameStatus("draw");
-                setAlertMessage("Game ended in a draw.");
-                setAlertClass("bg-blue-500");
-                setIsSolved(true);
-                setShowAlert(true);
-              }
-            }
-          }
-        } catch (e) {
-          console.error("Error making Stockfish move:", e);
-        }
-      }
-    });
-  }, [game, engine, position, gameStatus]);
 
   const handleHint = useCallback(() => {
     if (!position) return;
 
     setShowHint(true);
-    engine.evaluatePosition(game.fen(), 15);
+    engine.evaluatePosition(game.fen(), 5);
 
     engine.onMessage(({ bestMove }) => {
       if (bestMove) {
@@ -416,7 +407,7 @@ export default function StageDetailView({
 
   const showSolution = useCallback(() => {
     if (!position) return;
-    engine.evaluatePosition(game.fen(), 15);
+    engine.evaluatePosition(game.fen(), 5);
 
     engine.onMessage(({ bestMove }) => {
       if (bestMove) {
@@ -633,10 +624,10 @@ export default function StageDetailView({
                   <table className="w-full border-collapse">
                     <thead className="bg-blue-100 sticky top-0 z-10">
                       <tr>
-                        <th className="p-4 text-left border border-gray-200">
+                        <th className="p-4 text-left border border-gray-200 border-r">
                           #
                         </th>
-                        <th className="p-4 text-center border border-gray-200">
+                        <th className="p-4 text-center border border-gray-200 border-r">
                           White (You)
                         </th>
                         <th className="p-4 text-center border border-gray-200">
@@ -663,10 +654,10 @@ export default function StageDetailView({
 
                           return (
                             <tr key={i}>
-                              <td className="p-4 text-center border border-gray-200">
+                              <td className="p-4 text-center border border-gray-200 border-r">
                                 {i + 1}
                               </td>
-                              <td className="p-4 text-center border border-gray-200">
+                              <td className="p-4 text-center border border-gray-200 border-r">
                                 {moveHistory[whiteIdx]?.san || ""}
                               </td>
                               <td className="p-4 text-center border border-gray-200">
