@@ -45,7 +45,7 @@ export default function CheckmateTrainingView({
 
   // Render checkmate positions grid
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
       {checkmatePositions.length > 0 ? (
         checkmatePositions.map((fen: string, index: number) => (
           <div

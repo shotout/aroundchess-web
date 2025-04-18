@@ -68,10 +68,11 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   if (type === "vs") {
     return (
       <div
-        className="inline-block"
+        className="inline-block px-2"
         style={{
           verticalAlign: "bottom",
           transform: alignBottom ? vsTransform : "none",
+          margin: "0 4px",
         }}
       >
         <Image
@@ -98,16 +99,17 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   if (count > 1) {
     return (
       <div
-        className="flex space-x-1"
+        className="flex space-x-2"
         style={{
           display: "inline-flex",
           alignItems: "flex-end",
+          margin: "0 4px",
         }}
       >
         {Array.from({ length: count }).map((_, index) => (
           <div
             key={index}
-            className="inline-block"
+            className="inline-block px-1"
             style={{
               verticalAlign: "bottom",
               transform: `translateY(${verticalAdjustment}px)`,
@@ -128,10 +130,11 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
 
   return (
     <div
-      className="inline-block"
+      className="inline-block px-1"
       style={{
         verticalAlign: "bottom",
         transform: `translateY(${verticalAdjustment}px)`,
+        margin: "0 4px",
       }}
     >
       <Image
@@ -247,8 +250,6 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
 
       const leftWithoutKing = leftPieces.filter((p) => p.type !== "king");
       const rightWithoutKing = rightPieces.filter((p) => p.type !== "king");
-      const leftHasKing = leftPieces.some((p) => p.type === "king");
-      const rightHasKing = rightPieces.some((p) => p.type === "king");
 
       for (const piece of leftWithoutKing) {
         finalPieces.push({
