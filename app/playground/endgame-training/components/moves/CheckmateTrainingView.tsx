@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { CheckmateTrainingViewProps } from "../../types/EndgameTrainingTypes";
 
 export default function CheckmateTrainingView({
@@ -7,13 +10,13 @@ export default function CheckmateTrainingView({
   onPositionSelect,
   onBackClick,
 }: CheckmateTrainingViewProps) {
-  // Extract the move count from slug for checkmate mode
+  const router = useRouter();
+
   const movesToCheckmate = useMemo(() => {
     const match = slug.match(/checkmate-(\d+)/);
     return match ? parseInt(match[1]) : 0;
   }, [slug]);
 
-  // Get positions for this checkmate category
   const checkmatePositions = useMemo(() => {
     if (
       !data ||
@@ -24,11 +27,24 @@ export default function CheckmateTrainingView({
       return [];
     }
 
-    // Array is 0-indexed, but our moves count starts at 1
     return data[movesToCheckmate - 1] || [];
   }, [data, movesToCheckmate]);
 
-  // Check if valid moveCount
+  const handlePositionSelect = (index: number) => {
+    // Call the original handler to maintain state consistency
+    if (onPositionSelect) {
+      onPositionSelect(index);
+    }
+
+    // Redirect to the StageDetailView with appropriate parameters
+    // Using movesToCheckmate as categorySlug, "checkmate" as subcategorySlug, and index+1 as stageNumber
+    router.push(
+      `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
+        index + 1
+      }/stage-${index + 1}`
+    );
+  };
+
   if (movesToCheckmate === 0 || checkmatePositions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -43,7 +59,6 @@ export default function CheckmateTrainingView({
     );
   }
 
-  // Render checkmate positions grid
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
       {checkmatePositions.length > 0 ? (
@@ -53,36 +68,16 @@ export default function CheckmateTrainingView({
             className="rounded-xl p-4 border border-gray-200 bg-white flex items-center justify-between hover:shadow-md transition-all"
           >
             <div className="flex items-center space-x-3 overflow-hidden">
-              <div className="flex-shrink-0">
-                <div className="h-5 w-5 text-blue-600">♟️</div>
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-semibold text-lg truncate">
-                  Position {index + 1}
-                </h3>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {`${movesToCheckmate} move checkmate puzzle`}
-                </p>
-              </div>
+              <h3 className="font-semibold text-lg truncate">
+                Position {index + 1}
+              </h3>
             </div>
             <div className="flex-shrink-0">
               <button
-                onClick={() => onPositionSelect(index)}
+                onClick={() => handlePositionSelect(index)}
                 className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-sm flex items-center space-x-1 hover:bg-blue-700 transition-colors whitespace-nowrap"
               >
                 <span>Start practice</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
               </button>
             </div>
           </div>

@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useEndgametraining } from "./store/EndgameTrainingStore";
 import { useCheckmateTraining } from "./store/CheckmateStore";
 import DotSpinner from "@/components/game-history/Spinner";
 import TabSelector from "./components/TabSelector";
 import CategoryView from "./components/views/CategoryView";
 import SubcategoryView from "./components/views/SubCategoryView";
-import DetailView from "./components/views/DetailView";
 import ErrorDisplay from "./components/ErrorDisplay";
 
 import {
@@ -30,14 +29,6 @@ export default function EndgameTrainingPage() {
 
   const endgame = useEndgametraining();
   const checkmate = useCheckmateTraining();
-
-  // Debug logging
-  useEffect(() => {
-    console.log("Navigation state:", { activeTab, viewState, hydrated });
-  }, [activeTab, viewState, hydrated]);
-
-  // We'll use this flag to conditionally render content
-  // but we won't return early, as that breaks React's hook rules
 
   const currentTabData = useMemo(
     () => (activeTab === "board" ? endgame : checkmate),
@@ -103,8 +94,6 @@ export default function EndgameTrainingPage() {
     [activeTab, currentTabData.data, setActiveTab, setViewState, viewState]
   );
 
-  // Move content rendering logic to a regular function instead of a useCallback
-  // This avoids potential hook-related issues
   const renderContent = () => {
     const { data, isLoading, error, fetchData } = currentTabData;
 
@@ -133,17 +122,6 @@ export default function EndgameTrainingPage() {
               memoizedHandlers.onCheckmatePositionSelect
             }
             onBackClick={memoizedHandlers.onBackToCategories}
-          />
-        );
-      case "detail":
-        return (
-          <DetailView
-            activeTab={activeTab}
-            data={data}
-            viewState={viewState}
-            onBackClick={memoizedHandlers.onBackToSubcategories}
-            onNextPosition={memoizedHandlers.onNextPosition}
-            onPreviousPosition={memoizedHandlers.onPreviousPosition}
           />
         );
       default:

@@ -75,9 +75,9 @@ export const useCheckmateTraining = create<CheckmateStore>()(
       }
     }),
     {
-      name: 'checkmate-storage', // unique name for localStorage key
+      name: 'checkmate-storage', 
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ data: state.data }), // only store the data, not loading state or error
+      partialize: (state) => ({ data: state.data }), 
     }
   )
 );

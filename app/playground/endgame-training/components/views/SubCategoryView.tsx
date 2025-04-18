@@ -48,20 +48,6 @@ export default function SubcategoryView({
         </>
       ) : activeTab === "move" && viewState.movesToCheckmate ? (
         <>
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">
-              {`${viewState.movesToCheckmate} ${
-                viewState.movesToCheckmate === 1 ? "Move" : "Moves"
-              } to Checkmate`}
-            </h1>
-            <p className="text-gray-600">
-              {`Select a position to practice your ${
-                viewState.movesToCheckmate
-              } ${
-                viewState.movesToCheckmate === 1 ? "move" : "moves"
-              } checkmate skills`}
-            </p>
-          </div>
           <CheckmateTrainingView
             slug={`checkmate-${viewState.movesToCheckmate}`}
             data={data as CheckmateData}
