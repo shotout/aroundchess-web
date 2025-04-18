@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
   const { isSignedIn } = useUser();
-
+  const [token, setToken] = useState(0);
   // Check if desktop on initial load and when window resizes
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -98,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {/* Auth buttons - visible on desktop only (xl+) */}
 
         {!isSignedIn ? (
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-5">
             <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               <Link href="/login">Sign-In</Link>
             </button>
@@ -107,10 +107,17 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             </button>
           </div>
         ) : (
-          <>
-            {/* <UserButton showName={true} /> */}
-            <LogoutButton />
-          </>
+          <div className="hidden sm:flex items-center gap-[8px]">
+            <span className="block text-[16px] text-[#221AE9] font-medium">
+              Remaining Tokens: <span className={`font-bold ${token == 0 ?`text-[#FD0000]`:``}`}>{token}</span>
+            </span>
+            <button className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <Link href="/login">Buy Tokens</Link>
+            </button>
+            <button className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+              Go Unlimited
+            </button>
+          </div>
         )}
 
         {/* Tablet view - Analytics button next to hamburger */}
