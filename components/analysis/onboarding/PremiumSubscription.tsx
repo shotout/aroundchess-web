@@ -16,6 +16,7 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
+import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -39,7 +40,7 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
   onGetPremium,
 }: PremiumSubscriptionProps) => {
   const [isDesktop, setIsDesktop] = useState(false);
-
+  const [isMember, setIsMember] = useState<boolean>(false);
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -94,18 +95,36 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
               </p>
             </div>
 
-            <PremiumSubsContent onGetPremium={onGetPremium} />
+            <PremiumSubsContent
+              onGetPremium={onGetPremium}
+              isMember={isMember}
+            />
+            <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
+              <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
+              <p className="text-gray-700">
+                Are you interested in getting an AroundChess Subscription for
+                your Chess Club?{" "}
+                <a
+                  href="#"
+                  className="text-blue-base hover:underline font-medium"
+                >
+                  Click here{" "}
+                </a>
+                to contact us now for an individual offer.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
-export const PremiumSubsContent: React.FC<{ onGetPremium?: () => void }> = ({
-  onGetPremium,
-}) => {
+export const PremiumSubsContent: React.FC<{
+  onGetPremium?: () => void;
+  isMember?: boolean;
+}> = ({ onGetPremium, isMember }) => {
   return (
-    <div className="mb-6">
+    <div className="mb-4">
       <p className="text-sm text-black mb-2 text-center">
         Discover our Suite of Powerful Features with the AroundChess{" "}
         <span className="text-blue-base font-medium">
@@ -153,27 +172,28 @@ export const PremiumSubsContent: React.FC<{ onGetPremium?: () => void }> = ({
             <BenefitItem text="Board Vision Training" />
             <BenefitItem text="Chess Handbook" />
           </div>
+          {!isMember && (
+            <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+              <Image
+                src="/onboarding/currentPackage.png"
+                alt="Free Icon"
+                className=""
+                width={50}
+                height={50}
+              />
+              <p className="text-sm font-medium text-black">
+                You are on this Package
+              </p>
 
-          <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-            <Image
-              src="/onboarding/currentPackage.png"
-              alt="Free Icon"
-              className=""
-              width={50}
-              height={50}
-            />
-            <p className="text-sm font-medium text-black">
-              You are on this Package
-            </p>
-
-            <Image
-              width={200}
-              height={200}
-              alt="member"
-              src={"/onboarding/member.png"}
-              className="absolute top-0 right-12"
-            />
-          </div>
+              <Image
+                width={200}
+                height={200}
+                alt="member"
+                src={"/onboarding/member.png"}
+                className="absolute top-0 right-12"
+              />
+            </div>
+          )}
         </div>
 
         <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-5 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
@@ -215,26 +235,54 @@ export const PremiumSubsContent: React.FC<{ onGetPremium?: () => void }> = ({
             <BenefitItem text="Chess Handbook" light />
             <BenefitItem text="Early Feature Update" light />
           </div>
-
-          <button
-            onClick={onGetPremium}
-            className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
-          >
-            Get Premium
-          </button>
+          {!isMember && (
+            <button
+              onClick={onGetPremium}
+              className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+            >
+              Get Premium
+            </button>
+          )}
+          {isMember && (
+            <>
+              <motion.div
+                variants={fadeInUp}
+                className={`mt-[32px] relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+              >
+                <div
+                  className={`flex h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                >
+                  <Image
+                    src={`/icons/onboarding-popup.png`}
+                    alt="icon"
+                    width={1000}
+                    height={1000}
+                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                  />
+                  <span className="font-medium text-[14px] z-10 text-black">
+                    {
+                      "You are on this Package. The Subscription automatically renews on 21/03/2026."
+                    }
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    <Image
+                      src={`/icons/sparks-member.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-full h-[56px] object-cover"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+              <button className="mt-4">
+                <span className="font-medium text-[16px] text-white">
+                  Cancel Subscription
+                </span>
+              </button>
+            </>
+          )}
         </div>
-      </div>
-
-      <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
-        <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
-        <p className="text-gray-700">
-          Are you interested in getting an AroundChess Subscription for your
-          Chess Club?{" "}
-          <a href="#" className="text-blue-base hover:underline font-medium">
-            Click here{" "}
-          </a>
-          to contact us now for an individual offer.
-        </p>
       </div>
     </div>
   );

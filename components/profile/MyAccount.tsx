@@ -2,15 +2,17 @@ import { Lock, LogOut, Mail } from "lucide-react";
 import Image from "next/image";
 import { FC, useState } from "react";
 import { Input } from "../ui/input";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usechangePassword } from "@/app/store/changePassword";
+import { useRouter } from "next/navigation";
 type MyAccountProps = {};
 
 const MyAccount: FC<MyAccountProps> = () => {
   const { user } = useUser();
   const { open, setOpen } = usechangePassword();
-
+  const { signOut } = useClerk();
+  const router = useRouter();
   const { username } = usePgnStore();
   const [form, setForm] = useState<any>({
     email: user?.primaryEmailAddress?.emailAddress ?? "",
@@ -23,6 +25,11 @@ const MyAccount: FC<MyAccountProps> = () => {
   };
   const handleChangePassword = () => {
     setOpen(true);
+  };
+  const handleSignOut = async () => {
+    localStorage.removeItem("token");
+    await signOut();
+    router.push("/");
   };
   return (
     <div className={`flex flex-col gap-4`}>
