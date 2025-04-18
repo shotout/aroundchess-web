@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Chessboard } from "react-chessboard";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
+import { useCheckmateTraining } from "../../store/CheckmateStore";
 import { Chess, Square } from "chess.js";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import Image from "next/image";
@@ -20,6 +21,7 @@ import {
   ChessPieceType,
   getPieceConfig,
 } from "../../utils/ChessPieceUtils";
+import { useEndgameNavigation } from "../../store/NavigationStore";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -41,6 +43,8 @@ export default function StageDetailView({
   const [categoryData, setCategoryData] = useState<string | any>("");
   const [subcategoryName, setSubcategoryName] = useState<string>("");
   const [pieceConfig, setPieceConfig] = useState<any>(null);
+  const [isCheckmateMode, setIsCheckmateMode] = useState<boolean>(false);
+  const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
   const [gameStatus, setGameStatus] = useState<string>("ongoing");
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -62,7 +66,18 @@ export default function StageDetailView({
   const [showHint, setShowHint] = useState<boolean>(false);
 
   const stageNum = parseInt(stageNumber);
-  const { data, isLoading, error, fetchData } = useEndgametraining();
+  const {
+    data: endgameData,
+    isLoading: isEndgameLoading,
+    error: endgameError,
+    fetchData: fetchEndgameData,
+  } = useEndgametraining();
+  const {
+    data: checkmateData,
+    isLoading: isCheckmateLoading,
+    error: checkmateError,
+    fetchData: fetchCheckmateData,
+  } = useCheckmateTraining();
   const fetchInProgress = React.useRef(false);
 
   const game = useMemo(() => new Chess(), []);
@@ -77,6 +92,26 @@ export default function StageDetailView({
       }
     };
   }, [engine]);
+
+  // Check if this is checkmate mode
+  useEffect(() => {
+    if (categorySlug.startsWith("checkmate-")) {
+      setIsCheckmateMode(true);
+      const moves = parseInt(categorySlug.replace("checkmate-", ""));
+      setMovesToCheckmate(moves);
+
+      // Set the active tab if we're in checkmate mode
+      const { setActiveTab } = useEndgameNavigation.getState();
+      if (setActiveTab) setActiveTab("move");
+    } else {
+      setIsCheckmateMode(false);
+      setMovesToCheckmate(null);
+
+      // Set the active tab if we're in board mode
+      const { setActiveTab } = useEndgameNavigation.getState();
+      if (setActiveTab) setActiveTab("board");
+    }
+  }, [categorySlug]);
 
   const findBestMove = useCallback(() => {
     if (game.isGameOver() || gameStatus !== "ongoing") return;
@@ -112,54 +147,121 @@ export default function StageDetailView({
   }, [game, engine, gameStatus]);
 
   useEffect(() => {
-    const fetchEndgameData = async () => {
-      if (!data && !fetchInProgress.current) {
-        fetchInProgress.current = true;
-        try {
-          await fetchData();
-        } finally {
-          fetchInProgress.current = false;
+    const fetchData = async () => {
+      if (fetchInProgress.current) return;
+
+      fetchInProgress.current = true;
+      try {
+        // Load both data sources - we'll determine which to use based on the mode
+        if (!endgameData) {
+          await fetchEndgameData();
         }
+
+        if (!checkmateData) {
+          await fetchCheckmateData();
+        }
+      } finally {
+        fetchInProgress.current = false;
       }
     };
 
-    fetchEndgameData();
-  }, [data, fetchData]);
+    fetchData();
+  }, [endgameData, checkmateData, fetchEndgameData, fetchCheckmateData]);
 
   useEffect(() => {
-    if (!data || !data.categories) return;
+    if (isCheckmateMode) {
+      // Handle checkmate mode
+      if (!checkmateData || !Array.isArray(checkmateData) || !movesToCheckmate)
+        return;
 
-    const category = data.categories.find(
-      (cat) => cat.name.toLowerCase().replace(/\s+/g, "-") === categorySlug
-    );
-    if (!category) return;
-    setCategoryData(category);
+      // Get positions for this checkmate-in-X category
+      const moveIndex = movesToCheckmate - 1;
+      if (moveIndex < 0 || moveIndex >= checkmateData.length) return;
 
-    const subcategory = category.subcategories.find(
-      (sub) => sub.name.toLowerCase().replace(/\s+/g, "-") === subcategorySlug
-    );
-    if (!subcategory || !subcategory.games) return;
-    setSubcategoryName(subcategory.name);
-    setPieceConfig(getPieceConfig(subcategory.name));
+      const positions = checkmateData[moveIndex];
+      if (!positions || !Array.isArray(positions)) return;
 
-    const gameData = subcategory.games[stageNum - 1];
-    if (gameData) {
+      // Get specific position
+      const posIndex = stageNum - 1;
+      if (posIndex < 0 || posIndex >= positions.length) return;
+
+      const fen = positions[posIndex];
+
       try {
-        game.load(gameData.fen);
-        setPosition(gameData.fen);
-        setInitialFen(gameData.fen);
-        setTargetPosition(gameData.target || null);
+        game.load(fen);
+        setPosition(fen);
+        setInitialFen(fen);
+        setTargetPosition(null); // Checkmate positions don't have explicit targets
         setGameStatus("ongoing");
         setShowAlert(false);
         setMoveHistory([]);
         setIsSolved(false);
         setMoveSquares({});
         setOptionSquares({});
+
+        // Set display information
+        setSubcategoryName(`Checkmate in ${movesToCheckmate}`);
+        setPieceConfig({
+          text: `Checkmate in ${movesToCheckmate}`,
+          pieces: [
+            { type: "king", color: "text-blue-500" },
+            { type: "vs", color: "text-blue-500" },
+            { type: "king", color: "text-indigo-700" },
+          ],
+        });
+
+        setCategoryData({
+          name: `Checkmate in ${movesToCheckmate}`,
+          icons: "check.png",
+        });
       } catch (e) {
         console.error("Invalid FEN position:", e);
       }
+    } else {
+      // Handle standard endgame mode
+      if (!endgameData || !endgameData.categories) return;
+
+      const category = endgameData.categories.find(
+        (cat) => cat.name.toLowerCase().replace(/\s+/g, "-") === categorySlug
+      );
+      if (!category) return;
+      setCategoryData(category);
+
+      const subcategory = category.subcategories.find(
+        (sub) => sub.name.toLowerCase().replace(/\s+/g, "-") === subcategorySlug
+      );
+      if (!subcategory || !subcategory.games) return;
+      setSubcategoryName(subcategory.name);
+      setPieceConfig(getPieceConfig(subcategory.name));
+
+      const gameData = subcategory.games[stageNum - 1];
+      if (gameData) {
+        try {
+          game.load(gameData.fen);
+          setPosition(gameData.fen);
+          setInitialFen(gameData.fen);
+          setTargetPosition(gameData.target || null);
+          setGameStatus("ongoing");
+          setShowAlert(false);
+          setMoveHistory([]);
+          setIsSolved(false);
+          setMoveSquares({});
+          setOptionSquares({});
+        } catch (e) {
+          console.error("Invalid FEN position:", e);
+        }
+      }
     }
-  }, [data, categorySlug, subcategorySlug, stageNum, game]);
+  }, [
+    endgameData,
+    checkmateData,
+    categorySlug,
+    subcategorySlug,
+    stageNum,
+    game,
+    isCheckmateMode,
+    movesToCheckmate,
+  ]);
 
   const checkGameStatus = useCallback(() => {
     if (game.isGameOver()) {
@@ -444,25 +546,58 @@ export default function StageDetailView({
       const newStageNum =
         direction === "next" ? stageNum + 1 : Math.max(1, stageNum - 1);
 
-      router.push(
-        `/playground/endgame-training/${categorySlug}/${subcategorySlug}/${newStageNum}`
-      );
+      // Create the appropriate path based on the mode
+      let path;
+      if (isCheckmateMode) {
+        path = `/playground/endgame-training/${categorySlug}/${subcategorySlug}/stage-${newStageNum}`;
+      } else {
+        path = `/playground/endgame-training/${categorySlug}/${subcategorySlug}/${newStageNum}`;
+      }
+
+      router.push(path);
     },
-    [router, categorySlug, subcategorySlug, stageNum]
+    [router, categorySlug, subcategorySlug, stageNum, isCheckmateMode]
   );
 
   const goBackToSelection = useCallback(() => {
+    // Update the navigation state to reflect the correct tab
+    const { setActiveTab, setViewState } = useEndgameNavigation.getState();
+
+    if (isCheckmateMode) {
+      setActiveTab("move");
+      if (movesToCheckmate) {
+        setViewState({
+          view: "subcategories",
+          movesToCheckmate: movesToCheckmate,
+        });
+      } else {
+        setViewState({ view: "categories" });
+      }
+    } else {
+      setActiveTab("board");
+      setViewState({
+        view: "subcategories",
+        category: categorySlug,
+      });
+    }
+
     router.push(`/playground/endgame-training/`);
-  }, [router]);
+  }, [router, isCheckmateMode, movesToCheckmate, categorySlug]);
 
   const retryFetch = useCallback(() => {
     if (!fetchInProgress.current) {
       fetchInProgress.current = true;
-      fetchData().finally(() => {
-        fetchInProgress.current = false;
-      });
+      if (isCheckmateMode) {
+        fetchCheckmateData().finally(() => {
+          fetchInProgress.current = false;
+        });
+      } else {
+        fetchEndgameData().finally(() => {
+          fetchInProgress.current = false;
+        });
+      }
     }
-  }, [fetchData]);
+  }, [fetchCheckmateData, fetchEndgameData, isCheckmateMode]);
 
   const navigateNext = useCallback(
     () => navigateToStage("next"),
@@ -472,6 +607,9 @@ export default function StageDetailView({
     () => navigateToStage("previous"),
     [navigateToStage]
   );
+
+  const isLoading = isEndgameLoading || isCheckmateLoading;
+  const error = isCheckmateMode ? checkmateError : endgameError;
 
   if (isLoading) {
     return (
@@ -523,7 +661,9 @@ export default function StageDetailView({
             </button>
             <div className="flex items-center space-x-2">
               <Image
-                src={`/endgame-training/${categoryData.icons}`}
+                src={`/endgame-training/${
+                  isCheckmateMode ? "check.png" : categoryData.icons
+                }`}
                 alt={`${categoryData.name} icon`}
                 width={45}
                 height={45}
@@ -571,7 +711,9 @@ export default function StageDetailView({
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="font-bold text-lg">Stage {stageNum}</div>
+            <div className="font-bold text-lg">
+              {isCheckmateMode ? `Position ${stageNum}` : `Stage ${stageNum}`}
+            </div>
           </div>
         </div>
 
@@ -612,7 +754,13 @@ export default function StageDetailView({
                   <div className="text-blue-base mr-2">
                     <AlertCircle className="h-6 w-6 text-blue-base" />
                   </div>
-                  <h1 className=" text-xl">White to Checkmate</h1>
+                  <h1 className="text-xl">
+                    {isCheckmateMode
+                      ? `Find the ${movesToCheckmate} ${
+                          movesToCheckmate === 1 ? "move" : "moves"
+                        } to checkmate`
+                      : "White to Checkmate"}
+                  </h1>
                 </div>
                 <div className="bg-white w-full p-4 rounded-md border border-gray-200 text-center">
                   {position}
@@ -700,7 +848,8 @@ export default function StageDetailView({
                   onClick={navigateNext}
                   className="col-span-3 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-blue-600"
                 >
-                  <span className="mr-2">➡️</span> Next Stage
+                  <span className="mr-2">➡️</span>
+                  {isCheckmateMode ? "Next Position" : "Next Stage"}
                 </button>
                 <div className="col-span-1 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-gray-200">
                   <Download
