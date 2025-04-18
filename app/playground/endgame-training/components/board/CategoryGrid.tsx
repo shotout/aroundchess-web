@@ -1,7 +1,7 @@
 // CategoryGrid.tsx
 import React from "react";
 import { EndgameData } from "../../types/EndgameTrainingTypes";
-import { CategoryItem } from "../CategoryItem";
+import { CategoryItem } from "./CategoryItem";
 
 interface CategoryGridProps {
   data: EndgameData | null;

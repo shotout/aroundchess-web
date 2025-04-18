@@ -1,15 +1,11 @@
 import React from "react";
-import {
-  TabType,
-  EndgameData,
-  CheckmateData,
-} from "../../types/EndgameTrainingTypes";
+import { EndgameData, CheckmateData } from "../../types/EndgameTrainingTypes";
 import { CategoryGrid } from "../board/CategoryGrid";
 import { CheckmateCategoryGrid } from "../moves/CheckmateCategoryGrid";
 
 interface CategoryViewProps {
-  activeTab: TabType;
-  data: EndgameData | CheckmateData;
+  activeTab: string;
+  data: EndgameData | CheckmateData | any;
   onCategorySelect: (categorySlug: string) => void;
   onCheckmateSelect: (movesToCheckmate: number) => void;
 }

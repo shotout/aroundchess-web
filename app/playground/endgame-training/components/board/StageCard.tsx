@@ -1,7 +1,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useNavigationStore } from "../../store/NavigationStore";
 
 interface StageCardProps {
   stageNumber: number;
@@ -18,13 +17,10 @@ const StageCard: React.FC<StageCardProps> = ({
   subcategorySlug,
 }) => {
   const router = useRouter();
-  const { setPreviousRoute } = useNavigationStore();
 
   const handleStageClick = () => {
-    setPreviousRoute(`/playground/endgame-training/${categorySlug}`);
-
     router.push(
-      `/playground/endgame-training/${categorySlug}/${subcategorySlug}/stage-${stageNumber}`
+      `/playground/endgame-training/${categorySlug}/${subcategorySlug}/${stageNumber}`
     );
   };
 
