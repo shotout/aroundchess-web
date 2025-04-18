@@ -1,15 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, UserButton, useUser } from "@clerk/nextjs";
+import { AnimatePresence, motion } from "framer-motion";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -145,25 +153,15 @@ const sidebarLinks: SidebarLink[] = [
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const router = useRouter();
+
   const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { isSignedIn } = useAuth();
   const isMobile = !!onClose; // If onClose is provided, we're on mobile
-  const [widthContainer, setWidthContainer] = useState<number>(240);
-  const [mounted, setMounted] = useState<boolean>(true);
-  useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
-
-    // Initial size calculation
-    handleResize();
-
-    // Add event listeners
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [mounted]);
-  const handleResize = () => {
-    let widthC = window?.innerWidth * 0.2;
-    // console.log("widthC", widthC);
-    setWidthContainer(widthC);
+  useEffect(() => {}, []);
+  const handleToProfile = () => {
+    router.push("/profile");
   };
   return (
     <div className="flex h-full flex-col">
@@ -335,16 +333,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
                               <span>{child.name}</span>
                             </div>
-                            {!isSignedIn && !child.permission && child.href!= "#" && (
-                              <Image
-                                src="/icons/lock.png"
-                                alt="lock"
-                                className="w-4 h-4 object-contain"
-                                quality={100}
-                                width={1000}
-                                height={1000}
-                              />
-                            )}
+                            {!isSignedIn &&
+                              !child.permission &&
+                              child.href != "#" && (
+                                <Image
+                                  src="/icons/lock.png"
+                                  alt="lock"
+                                  className="w-4 h-4 object-contain"
+                                  quality={100}
+                                  width={1000}
+                                  height={1000}
+                                />
+                              )}
                           </Link>
                         );
                       })}
@@ -356,6 +356,37 @@ export default function Sidebar({ onClose }: SidebarProps) {
           })}
         </nav>
       </ScrollArea>
+      <motion.div
+        className="mt-auto border-t border-gray-200 p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <motion.button
+          onClick={handleToProfile}
+          className="flex w-full items-center gap-3 h-[80px] rounded-[8px] p-[16px] border border-[#221AE9] bg-[#221AE910]"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          {user?.imageUrl && (
+            <Image
+              src={user.imageUrl}
+              alt={user?.fullName || "User"}
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+          )}
+          <div className="flex-1 text-left">
+            <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
+              {user?.fullName}
+            </p>
+            <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
+              {user?.primaryEmailAddress?.emailAddress}
+            </p>
+          </div>
+        </motion.button>
+      </motion.div>
     </div>
   );
 }

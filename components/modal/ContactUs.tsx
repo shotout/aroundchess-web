@@ -27,6 +27,7 @@ import { toast } from "sonner";
 export function ContactUs() {
   const router = useRouter();
   const { open, setOpen } = useContactUs();
+  const [widthC, setWidthC] = useState<number>(0);
   const [form, setForm] = useState<any>({
     firstName: "",
     lastName: "",
@@ -34,17 +35,16 @@ export function ContactUs() {
     topic: "",
     message: "",
   });
-  const [widthC, setWidthC] = useState<number>(0);
+  const handleOnChange = (e: any) => {
+    console.log("handleOnChange", e);
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
   useEffect(() => {
     setWidthC(window?.innerWidth);
 
     setOpen(open);
   }, [open]);
 
-  const handleOnChange = (e: any) => {
-    console.log("handleOnChange", e);
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
   const handleSendMessage = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const { current } = form;
@@ -142,7 +142,7 @@ export function ContactUs() {
             <Input
               id="email"
               name="email"
-              type="text"
+              type="email"
               placeholder="Type here..."
               className={`w-full shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
                 form.email.length > 0 ? `border-[#2E3133]` : `border-[#C0CED4]`
