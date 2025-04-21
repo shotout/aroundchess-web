@@ -13,6 +13,7 @@ interface GameControlsProps {
   navigateNext: () => void;
   navigatePrevious: () => void;
   isCheckmateMode: boolean;
+  playerColor: "w" | "b"; // Added player color prop
 }
 
 export default function GameControls({
@@ -21,8 +22,13 @@ export default function GameControls({
   showSolution,
   resetPosition,
   navigateNext,
+  navigatePrevious,
   isCheckmateMode,
+  playerColor, // Added prop
 }: GameControlsProps) {
+  // Get color name for display purposes
+  const colorName = playerColor === "w" ? "White" : "Black";
+
   return (
     <div className="flex flex-col w-full">
       {/* First group: Hint, Solution, Rematch with shared border */}
@@ -77,7 +83,7 @@ export default function GameControls({
         >
           <Image
             src={"/endgame-training/next-stage.png"}
-            alt="hint icon"
+            alt="next icon"
             width={20}
             height={20}
           />{" "}

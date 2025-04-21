@@ -15,12 +15,13 @@ import { useEndgameNavigation } from "../../store/NavigationStore";
 import { Chess } from "chess.js";
 import { getPieceConfig } from "../../utils/ChessPieceUtils";
 import { Square } from "react-chessboard/dist/chessboard/types";
-import GameAlert from "../GameAlert";
 import ChessboardWrapper from "../ChessboardWrapper";
 import MoveHistory from "../MoveHistory";
 import StockfishEngine from "../SF";
 import GameControls from "../GameControl";
 import GameHeader from "../GameHeader";
+import GameAlertDialog from "../GameAlertDialog";
+import GameAlertDebug from "../GameAlertDebug";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -36,29 +37,25 @@ export default function StageDetailView({
   const router = useRouter();
   const stageNum = parseInt(stageNumber);
 
-  // Game state
   const [position, setPosition] = useState<string | null>(null);
   const [initialFen, setInitialFen] = useState<string | null>(null);
   const [targetPosition, setTargetPosition] = useState<string | null>(null);
   const [moveHistory, setMoveHistory] = useState<any[]>([]);
   const [isSolved, setIsSolved] = useState<boolean>(false);
+  const [playerColor, setPlayerColor] = useState<"w" | "b">("w");
 
-  // UI state
   const [categoryData, setCategoryData] = useState<string | any>("");
   const [subcategoryName, setSubcategoryName] = useState<string>("");
   const [pieceConfig, setPieceConfig] = useState<any>(null);
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
+    "white"
+  );
 
-  // Mode state
   const [isCheckmateMode, setIsCheckmateMode] = useState<boolean>(false);
   const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
-  // Game status
-  const [gameStatus, setGameStatus] = useState<string>("ongoing");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = useState<string>("");
-  const [alertClass, setAlertClass] = useState<string>("");
+  const [showGameEndDialog, setShowGameEndDialog] = useState<boolean>(false);
 
-  // Move highlighting
   const [optionSquares, setOptionSquares] = useState<
     Record<string, { background: string }>
   >({});
@@ -70,11 +67,9 @@ export default function StageDetailView({
   const [showPromotionDialog, setShowPromotionDialog] =
     useState<boolean>(false);
 
-  // Engine state
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
 
-  // Data fetching
   const {
     data: endgameData,
     isLoading: isEndgameLoading,
@@ -93,41 +88,35 @@ export default function StageDetailView({
   const game = useMemo(() => new Chess(), []);
   const isMounted = useRef(true);
 
-  // Effect for cleanup
   useEffect(() => {
     return () => {
       isMounted.current = false;
     };
   }, []);
 
-  // Determine if we're in checkmate mode
   useEffect(() => {
     if (categorySlug.startsWith("checkmate-")) {
       setIsCheckmateMode(true);
       const moves = parseInt(categorySlug.replace("checkmate-", ""));
       setMovesToCheckmate(moves);
 
-      // Set the active tab if we're in checkmate mode
       const { setActiveTab } = useEndgameNavigation.getState();
       if (setActiveTab) setActiveTab("move");
     } else {
       setIsCheckmateMode(false);
       setMovesToCheckmate(null);
 
-      // Set the active tab if we're in board mode
       const { setActiveTab } = useEndgameNavigation.getState();
       if (setActiveTab) setActiveTab("board");
     }
   }, [categorySlug]);
 
-  // Fetch data effect
   useEffect(() => {
     const fetchData = async () => {
       if (fetchInProgress.current) return;
 
       fetchInProgress.current = true;
       try {
-        // Load both data sources - we'll determine which to use based on the mode
         if (!endgameData) {
           await fetchEndgameData();
         }
@@ -143,21 +132,26 @@ export default function StageDetailView({
     fetchData();
   }, [endgameData, checkmateData, fetchEndgameData, fetchCheckmateData]);
 
-  // Initialize game position based on mode
+  const setPlayerColorFromFen = useCallback((fen: string) => {
+    const parts = fen.split(" ");
+    if (parts.length > 1) {
+      const activeColor = parts[1] as "w" | "b";
+      setPlayerColor(activeColor);
+      setBoardOrientation(activeColor === "w" ? "white" : "black");
+    }
+  }, []);
+
   useEffect(() => {
     if (isCheckmateMode) {
-      // Handle checkmate mode
       if (!checkmateData || !Array.isArray(checkmateData) || !movesToCheckmate)
         return;
 
-      // Get positions for this checkmate-in-X category
       const moveIndex = movesToCheckmate - 1;
       if (moveIndex < 0 || moveIndex >= checkmateData.length) return;
 
       const positions = checkmateData[moveIndex];
       if (!positions || !Array.isArray(positions)) return;
 
-      // Get specific position
       const posIndex = stageNum - 1;
       if (posIndex < 0 || posIndex >= positions.length) return;
 
@@ -167,15 +161,15 @@ export default function StageDetailView({
         game.load(fen);
         setPosition(fen);
         setInitialFen(fen);
-        setTargetPosition(null); // Checkmate positions don't have explicit targets
-        setGameStatus("ongoing");
-        setShowAlert(false);
+        setTargetPosition(null);
+        setShowGameEndDialog(false);
         setMoveHistory([]);
         setIsSolved(false);
         setMoveSquares({});
         setOptionSquares({});
 
-        // Set display information
+        setPlayerColorFromFen(fen);
+
         setSubcategoryName(`Checkmate in ${movesToCheckmate}`);
         setPieceConfig({
           text: `Checkmate in ${movesToCheckmate}`,
@@ -194,7 +188,6 @@ export default function StageDetailView({
         console.error("Invalid FEN position:", e);
       }
     } else {
-      // Handle standard endgame mode
       if (!endgameData || !endgameData.categories) return;
 
       const category = endgameData.categories.find(
@@ -217,12 +210,13 @@ export default function StageDetailView({
           setPosition(gameData.fen);
           setInitialFen(gameData.fen);
           setTargetPosition(gameData.target || null);
-          setGameStatus("ongoing");
-          setShowAlert(false);
+          setShowGameEndDialog(false);
           setMoveHistory([]);
           setIsSolved(false);
           setMoveSquares({});
           setOptionSquares({});
+
+          setPlayerColorFromFen(gameData.fen);
         } catch (e) {
           console.error("Invalid FEN position:", e);
         }
@@ -237,15 +231,18 @@ export default function StageDetailView({
     game,
     isCheckmateMode,
     movesToCheckmate,
+    setPlayerColorFromFen,
   ]);
 
-  // Navigate to different stage
+  const handleCloseAlert = useCallback(() => {
+    setShowGameEndDialog(false);
+  }, []);
+
   const navigateToStage = useCallback(
     (direction: "next" | "previous") => {
       const newStageNum =
         direction === "next" ? stageNum + 1 : Math.max(1, stageNum - 1);
 
-      // Create the appropriate path based on the mode
       let path;
       if (isCheckmateMode) {
         path = `/playground/endgame-training/${categorySlug}/${subcategorySlug}/stage-${newStageNum}`;
@@ -258,9 +255,7 @@ export default function StageDetailView({
     [router, categorySlug, subcategorySlug, stageNum, isCheckmateMode]
   );
 
-  // Back to selection screen
   const goBackToSelection = useCallback(() => {
-    // Update the navigation state to reflect the correct tab
     const { setActiveTab, setViewState } = useEndgameNavigation.getState();
 
     if (isCheckmateMode) {
@@ -284,7 +279,6 @@ export default function StageDetailView({
     router.push(`/playground/endgame-training/`);
   }, [router, isCheckmateMode, movesToCheckmate, categorySlug]);
 
-  // Retry fetch if there was an error
   const retryFetch = useCallback(() => {
     if (!fetchInProgress.current) {
       fetchInProgress.current = true;
@@ -309,7 +303,6 @@ export default function StageDetailView({
     [navigateToStage]
   );
 
-  // Reset position to initial state
   const resetPosition = useCallback(() => {
     if (initialFen) {
       try {
@@ -317,49 +310,38 @@ export default function StageDetailView({
         setPosition(initialFen);
         setMoveHistory([]);
         setIsSolved(false);
-        setGameStatus("ongoing");
-        setShowAlert(false);
+        setShowGameEndDialog(false);
         setShowHint(false);
         setBestMove(null);
         setOptionSquares({});
         setMoveSquares({});
+
+        setPlayerColorFromFen(initialFen);
       } catch (e) {
         console.error("Error resetting position:", e);
       }
     }
-  }, [game, initialFen]);
+  }, [game, initialFen, setPlayerColorFromFen]);
 
-  // Check game status and handle AI move if needed
   const checkGameStatus = useCallback(() => {
-    if (game.isGameOver()) {
-      if (game.isCheckmate()) {
-        const winner = game.turn() === "w" ? "black" : "white";
-        if (winner === "white") {
-          setGameStatus("win");
-          setAlertMessage("Checkmate! You won!");
-          setAlertClass("bg-green-500");
-        } else {
-          setGameStatus("lose");
-          setAlertMessage("You lost the game.");
-          setAlertClass("bg-red-500");
-        }
-        setIsSolved(true);
-      } else if (game.isDraw()) {
-        setGameStatus("draw");
-        setAlertMessage("Game ended in a draw.");
-        setAlertClass("bg-blue-500");
-        setIsSolved(true);
-      }
-      setShowAlert(true);
-      return true;
-    }
+    if (!game) return false;
 
-    if (game.turn() === "b" && gameStatus === "ongoing") {
-      return false;
+    try {
+      if (game.isGameOver()) {
+        setIsSolved(true);
+        setShowGameEndDialog(true);
+        return true;
+      }
+
+      if (game.turn() !== playerColor && !game.isGameOver()) {
+        return false;
+      }
+    } catch (error) {
+      console.error("Error checking game status:", error);
     }
 
     return false;
-  }, [game, gameStatus]);
+  }, [game, playerColor]);
 
   const isLoading = isEndgameLoading || isCheckmateLoading;
   const error = isCheckmateMode ? checkmateError : endgameError;
@@ -402,7 +384,14 @@ export default function StageDetailView({
   }
 
   return (
-    <div className="w-full h-[calc(100vh-56px)] xl:h-[calc(100vh-97px)] flex justify-center items-center">
+    <div className="w-full h-auto xl:h-[calc(100vh-97px)] flex justify-center items-center">
+      <GameAlertDialog
+        open={showGameEndDialog}
+        game={game || null}
+        playerColor={playerColor}
+        onRematch={resetPosition}
+        onClose={handleCloseAlert}
+      />
       <main className="w-full h-full p-4 xl:p-8 flex flex-col space-y-4">
         <GameHeader
           categoryData={categoryData}
@@ -417,12 +406,6 @@ export default function StageDetailView({
           <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col xl:col-span-6">
             <div className="relative w-full flex justify-center items-center">
               <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
-                <GameAlert
-                  showAlert={showAlert}
-                  alertMessage={alertMessage}
-                  alertClass={alertClass}
-                />
-
                 <ChessboardWrapper
                   game={game}
                   position={position}
@@ -437,10 +420,12 @@ export default function StageDetailView({
                   showPromotionDialog={showPromotionDialog}
                   setShowPromotionDialog={setShowPromotionDialog}
                   setShowHint={setShowHint}
-                  gameStatus={gameStatus}
+                  gameStatus={isSolved ? "solved" : "ongoing"}
                   setMoveHistory={setMoveHistory}
                   setPosition={setPosition}
                   checkGameStatus={checkGameStatus}
+                  boardOrientation={boardOrientation}
+                  playerColor={playerColor}
                 />
               </div>
             </div>
@@ -448,21 +433,23 @@ export default function StageDetailView({
 
           <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4 mt-4 xl:mt-0">
             <div className="flex flex-col space-y-5 h-full">
-              <div className="bg-blue-base/10 p-6 border border-blue-base rounded-md flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center">
-                  <div className="text-blue-base mr-2">
-                    <AlertCircle className="h-6 w-6 text-blue-base" />
+              <div className="w-full p-4 h-auto">
+                <div className="flex flex-col items-center justify-center gap-y-4 bg-blue-base/10 border border-blue-base rounded-xl p-6">
+                  <div className="flex flex-row items-center justify-center gap-x-3">
+                    <AlertCircle className="h-8 w-8 text-blue-base" />
+                    <h1 className="text-xl text-black">
+                      {isCheckmateMode
+                        ? `Find the ${movesToCheckmate} ${
+                            movesToCheckmate === 1 ? "move" : "moves"
+                          } to checkmate`
+                        : playerColor === "w"
+                        ? "White to Checkmate"
+                        : "Black to Checkmate"}
+                    </h1>
                   </div>
-                  <h1 className="text-xl">
-                    {isCheckmateMode
-                      ? `Find the ${movesToCheckmate} ${
-                          movesToCheckmate === 1 ? "move" : "moves"
-                        } to checkmate`
-                      : "White to Checkmate"}
-                  </h1>
-                </div>
-                <div className="bg-white w-full p-4 rounded-md border border-gray-200 text-center">
-                  {position}
+                  <div className="bg-white rounded-md border border-gray-200 text-center p-2 w-full">
+                    {position}
+                  </div>
                 </div>
               </div>
 
@@ -471,29 +458,32 @@ export default function StageDetailView({
               <StockfishEngine
                 game={game}
                 position={position}
-                gameStatus={gameStatus}
+                gameStatus={isSolved ? "solved" : "ongoing"}
                 setMoveHistory={setMoveHistory}
                 setPosition={setPosition}
                 setMoveSquares={setMoveSquares}
                 checkGameStatus={checkGameStatus}
                 setBestMove={setBestMove}
                 showHint={showHint}
+                playerColor={playerColor}
               />
 
               <GameControls
                 game={game}
-                gameStatus={gameStatus}
+                gameStatus={isSolved ? "solved" : "ongoing"}
                 handleHint={() => setShowHint(true)}
                 showSolution={() => setShowHint(true)}
                 resetPosition={resetPosition}
                 navigateNext={navigateNext}
                 navigatePrevious={navigatePrevious}
                 isCheckmateMode={isCheckmateMode}
+                playerColor={playerColor}
               />
             </div>
           </div>
         </div>
       </main>
+      {process.env.NODE_ENV === "development" && <GameAlertDebug />}
     </div>
   );
 }
