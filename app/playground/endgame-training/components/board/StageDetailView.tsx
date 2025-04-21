@@ -431,8 +431,8 @@ export default function StageDetailView({
             </div>
           </div>
 
-          <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4 mt-4 xl:mt-0">
-            <div className="flex flex-col space-y-5 h-full">
+          <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4">
+            <div className="flex flex-col h-full">
               <div className="w-full p-4 h-auto">
                 <div className="flex flex-col items-center justify-center gap-y-4 bg-blue-base/10 border border-blue-base rounded-xl p-6">
                   <div className="flex flex-row items-center justify-center gap-x-3">
