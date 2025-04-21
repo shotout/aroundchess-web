@@ -16,6 +16,8 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
+import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { useCancelSubscription } from "@/app/store/cancelSubscription";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -39,7 +41,7 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
   onGetPremium,
 }: PremiumSubscriptionProps) => {
   const [isDesktop, setIsDesktop] = useState(false);
-
+  const [isMember, setIsMember] = useState<boolean>(false);
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -49,7 +51,6 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
-
   if (!visible) return null;
 
   return (
@@ -94,162 +95,200 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
               </p>
             </div>
 
-            <div className="mb-6">
-              <p className="text-sm text-black mb-2 text-center">
-                Discover our Suite of Powerful Features with the AroundChess{" "}
-                <span className="text-blue-base font-medium">
-                  Premium Subscription:
-                </span>
-              </p>
-
-              <div className="flex justify-center mb-6">
-                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full xl:w-[70%] 2xl:w-[70%]">
-                  <FeatureIcon icon={<Cat />} label="Analyze Games" />
-                  <FeatureIcon icon={<Book />} label="Handbook: Chess Theory" />
-                  <FeatureIcon icon={<Bot />} label="Playground: Play VS AI" />
-                  <FeatureIcon
-                    icon={<Settings />}
-                    label="Playground: Chess Puzzles"
-                  />
-                  <FeatureIcon
-                    icon={<Target />}
-                    label="Playground: Board Vision"
-                  />
-                  <FeatureIcon
-                    icon={<Zap />}
-                    label="Playground: Endgame Training"
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-blue-50 rounded-full">
-                      <Image
-                        src="/onboarding/free.png"
-                        alt="Free Icon"
-                        width={64}
-                        height={64}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-black">
-                        Free Package
-                      </h3>
-                      <div className="text-2xl font-semibold text-black">
-                        $0
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-700 text-sm mb-4">
-                    Our Basic Package for free limited Access!
-                  </p>
-
-                  <div className="space-y-3 flex-grow">
-                    <BenefitItem text="1 Game Analysis every 72h" />
-                    <BenefitItem text="Limited Access to the Feedback Log" />
-                    <BenefitItem text="20 Puzzles per month" />
-                    <BenefitItem text="Play vs. AI" />
-                    <BenefitItem text="Board Vision Training" />
-                    <BenefitItem text="Chess Handbook" />
-                  </div>
-
-                  <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-                    <Image
-                      src="/onboarding/currentPackage.png"
-                      alt="Free Icon"
-                      className=""
-                      width={50}
-                      height={50}
-                    />
-                    <p className="text-sm font-medium text-black">
-                      You are on this Package
-                    </p>
-
-                    <Image
-                      width={200}
-                      height={200}
-                      alt="member"
-                      src={"/onboarding/member.png"}
-                      className="absolute top-0 right-12"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-5 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
-                  <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                    <div className="bg-[#A855F7] px-4 py-1 xl:px-8 xl:py-2 rounded-full text-xs font-medium">
-                      For frequent Chess Players
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 mb-4 pt-2">
-                    <div className="p-2 rounded-full">
-                      <Image
-                        src="/onboarding/premium.png"
-                        alt="Premium Icon"
-                        width={64}
-                        height={64}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        Premium Package (Yearly)
-                      </h3>
-                      <div className="text-2xl font-semibold">
-                        $99.99{" "}
-                        <span className="text-sm font-normal">/year</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-sm mb-4">
-                    Our Unlimited Package for frequent Chess Players!
-                  </p>
-
-                  <div className="space-y-3 flex-grow">
-                    <BenefitItem text="1,000 Analyses per year" light />
-                    <BenefitItem text="Full Access to the Feedback Log" light />
-                    <BenefitItem text="Unlimited Puzzles" light />
-                    <BenefitItem text="Play vs. AI" light />
-                    <BenefitItem text="Board Vision Training" light />
-                    <BenefitItem text="Chess Handbook" light />
-                    <BenefitItem text="Early Feature Update" light />
-                  </div>
-
-                  <button
-                    onClick={onGetPremium}
-                    className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
-                  >
-                    Get Premium
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
-                <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
-                <p className="text-gray-700">
-                  Are you interested in getting an AroundChess Subscription for
-                  your Chess Club?{" "}
-                  <a
-                    href="#"
-                    className="text-blue-base hover:underline font-medium"
-                  >
-                    Click here{" "}
-                  </a>
-                  to contact us now for an individual offer.
-                </p>
-              </div>
-            </div>
+            <PremiumSubsContent
+              onGetPremium={onGetPremium}
+              isMember={isMember}
+            />
           </div>
         </div>
       </div>
     </div>
   );
 };
+export const PremiumSubsContent: React.FC<{
+  onGetPremium?: () => void;
+  isMember?: boolean;
+}> = ({ onGetPremium, isMember }) => {
+  const { setOpen } = useCancelSubscription();
+  const handleCancelSubscription = () => {
+    setOpen(true);
+  };
 
+  return (
+    <div className="mb-4">
+      <p className="text-sm text-black mb-2 text-center">
+        Discover our Suite of Powerful Features with the AroundChess{" "}
+        <span className="text-blue-base font-medium">
+          Premium Subscription:
+        </span>
+      </p>
+
+      <div className="flex justify-center mb-6">
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full xl:w-[70%] 2xl:w-[70%]">
+          <FeatureIcon icon={<Cat />} label="Analyze Games" />
+          <FeatureIcon icon={<Book />} label="Handbook: Chess Theory" />
+          <FeatureIcon icon={<Bot />} label="Playground: Play VS AI" />
+          <FeatureIcon icon={<Settings />} label="Playground: Chess Puzzles" />
+          <FeatureIcon icon={<Target />} label="Playground: Board Vision" />
+          <FeatureIcon icon={<Zap />} label="Playground: Endgame Training" />
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-blue-50 rounded-full">
+              <Image
+                src="/onboarding/free.png"
+                alt="Free Icon"
+                width={64}
+                height={64}
+              />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-black">Free Package</h3>
+              <div className="text-2xl font-semibold text-black">$0</div>
+            </div>
+          </div>
+
+          <p className="text-gray-700 text-sm mb-4">
+            Our Basic Package for free limited Access!
+          </p>
+
+          <div className="space-y-3 flex-grow">
+            <BenefitItem text="1 Game Analysis every 72h" />
+            <BenefitItem text="Limited Access to the Feedback Log" />
+            <BenefitItem text="20 Puzzles per month" />
+            <BenefitItem text="Play vs. AI" />
+            <BenefitItem text="Board Vision Training" />
+            <BenefitItem text="Chess Handbook" />
+          </div>
+          {!isMember && (
+            <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+              <Image
+                src="/onboarding/currentPackage.png"
+                alt="Free Icon"
+                className=""
+                width={50}
+                height={50}
+              />
+              <p className="text-sm font-medium text-black">
+                You are on this Package
+              </p>
+
+              <Image
+                width={200}
+                height={200}
+                alt="member"
+                src={"/onboarding/member.png"}
+                className="absolute top-0 right-12"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-5 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
+          <div className="absolute -top-3 left-0 right-0 flex justify-center">
+            <div className="bg-[#A855F7] px-4 py-1 xl:px-8 xl:py-2 rounded-full text-xs font-medium">
+              For frequent Chess Players
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 mb-4 pt-2">
+            <div className="p-2 rounded-full">
+              <Image
+                src="/onboarding/premium.png"
+                alt="Premium Icon"
+                width={64}
+                height={64}
+              />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">
+                Premium Package (Yearly)
+              </h3>
+              <div className="text-2xl font-semibold">
+                $99.99 <span className="text-sm font-normal">/year</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-sm mb-4">
+            Our Unlimited Package for frequent Chess Players!
+          </p>
+
+          <div className="space-y-3 flex-grow">
+            <BenefitItem text="1,000 Analyses per year" light />
+            <BenefitItem text="Full Access to the Feedback Log" light />
+            <BenefitItem text="Unlimited Puzzles" light />
+            <BenefitItem text="Play vs. AI" light />
+            <BenefitItem text="Board Vision Training" light />
+            <BenefitItem text="Chess Handbook" light />
+            <BenefitItem text="Early Feature Update" light />
+          </div>
+          {!isMember && (
+            <button
+              onClick={onGetPremium}
+              className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+            >
+              Get Premium
+            </button>
+          )}
+          {isMember && (
+            <>
+              <motion.div
+                variants={fadeInUp}
+                className={`mt-[32px] relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+              >
+                <div
+                  className={`flex h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                >
+                  <Image
+                    src={`/icons/onboarding-popup.png`}
+                    alt="icon"
+                    width={1000}
+                    height={1000}
+                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                  />
+                  <span className="font-medium text-[14px] z-10 text-black">
+                    {
+                      "You are on this Package. The Subscription automatically renews on 21/03/2026."
+                    }
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    <Image
+                      src={`/icons/sparks-member.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-full h-[56px] object-cover"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+              <button className="mt-4" onClick={handleCancelSubscription}>
+                <span className="font-medium text-[16px] text-white">
+                  Cancel Subscription
+                </span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
+        <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
+        <p className="text-gray-700">
+          Are you interested in getting an AroundChess Subscription for your
+          Chess Club?{" "}
+          <a href="#" className="text-blue-base hover:underline font-medium">
+            Click here{" "}
+          </a>
+          to contact us now for an individual offer.
+        </p>
+      </div>
+    </div>
+  );
+};
 const FeatureIcon: React.FC<FeatureIconProps> = ({ icon, label }) => {
   const hasColon = label.includes(":");
 

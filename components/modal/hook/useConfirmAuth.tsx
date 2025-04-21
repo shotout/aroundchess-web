@@ -67,7 +67,7 @@ export const useRequireAuth = (redirectUrl: string = "/login") => {
     if (!isLoading && !isAuthenticated) {
       // Redirect to login page with the current path as a return URL
       const returnPath = encodeURIComponent(router.asPath);
-      router.push(`${redirectUrl}?returnTo=${returnPath}`);
+      // router.push(`${redirectUrl}?returnTo=${returnPath}`);
     }
   }, [isAuthenticated, isLoading, redirectUrl, router]);
 

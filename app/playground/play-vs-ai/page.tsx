@@ -1,11 +1,30 @@
 "use client";
+import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 import Navigation from "@/components/navigator/navigation";
+import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
+import { useState } from "react";
+import { toast } from "sonner";
 export default function PlayVSAI() {
+  const { isLoading } = useApiClient();
+  const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
+
+  const handleGetPremium = () => {
+    setShowPremiumDialog(false);
+    toast.success("Thank you for subscribing to Premium!");
+  };
   return (
     <Navigation>
       <div className="flex-1 relative w-full min-h-[489px] sm:min-h-[617px] xl:rounded-[32px] xl:my-8 xl:items-center xl:justify-center">
+        <PremiumSubscription
+          visible={showPremiumDialog && !isLoading}
+          onClose={handleClosePremium}
+          onGetPremium={handleGetPremium}
+        />
         <div className="absolute w-full z-2 inset-0 flex items-center justify-center">
           <Image
             src={"/images/play-vs-ai/background-board.png"}
@@ -29,7 +48,9 @@ export default function PlayVSAI() {
               Challenge AI to improve your accuracy and enhance your chess
               skills.
             </span>
-           <StartPlayVSAI/>
+            <StartPlayVSAI
+              onLimit={(infoLimit) => setShowPremiumDialog(infoLimit)}
+            />
           </div>
         </div>
       </div>
