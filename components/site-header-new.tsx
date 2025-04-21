@@ -320,7 +320,7 @@ function MobileNav(props: mobileProps) {
             </button>
           </div>
         ) : (
-          <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
+          <div className="flex flex-col xl:flex-row w-full items-center justify-center gap-[8px]">
             <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
               Remaining Tokens:{" "}
               <span
@@ -332,16 +332,16 @@ function MobileNav(props: mobileProps) {
               </span>
             </span>
             {!props.isMember && (
-              <div className="w-full flex flex-row gap-[8px] ">
+              <div className="w-full flex flex-col gap-[16px] ">
                 <button
                   onClick={() => props.handleOpenOffer("token")}
-                  className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Buy Tokens
                 </button>
                 <button
                   onClick={() => props.handleOpenOffer("subscription")}
-                  className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+                  className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
                 >
                   Go Unlimited
                 </button>
