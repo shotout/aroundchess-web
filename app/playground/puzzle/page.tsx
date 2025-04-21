@@ -74,6 +74,7 @@ export default function Puzzle() {
     await getPuzzle().then((res) => {
       let logs = res.data;
       setPuzzleLog(logs);
+      console.log("log puzzle", logs);
       if (logs.length >= 20) {
         // kondisi kalo udah 20
         setShowPremiumDialog(true);

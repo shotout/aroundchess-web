@@ -12,6 +12,7 @@ import { BenefitsOf } from "@/components/benefits-of";
 import { usePgnStore } from "./store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useEffect, useState } from "react";
+import { PricingOffer } from "@/components/modal/PricingOffer";
 
 export default function Home() {
   const { isLoading, dataAnalysis, setDataAnalysis } = usePgnStore();
@@ -32,6 +33,7 @@ export default function Home() {
         <LoadingPage />
       ) : (
         <>
+          <PricingOffer />
           <SiteHeaderNew />
           <HeroSection />
           <FeaturesSection />

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface ContactUsState {
+interface changePasswordState {
   open: boolean;
   setOpen: (open: any) => void;
 }
 
-export const useContactUs = create<ContactUsState>((set) => ({
+export const usechangePassword = create<changePasswordState>((set) => ({
   open: false,
   setOpen: (open) => set({ open }),
 }));

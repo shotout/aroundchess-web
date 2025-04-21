@@ -20,7 +20,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
       <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
-        <div className="relative lg:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
+        <div className="relative hidden sm:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
           <Image
             src="/images/footer/background.png"
             alt="background"
@@ -47,7 +47,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 message or contact us on Discord.
               </span>
               <div className="flex flex-row items-center justify-center gap-4">
-                <button className="btn-secondary rounded-full h-[48px] min-w-[333px] flex flex-row items-center justify-center gap-2">
+                <button className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[333px] flex flex-row items-center justify-center gap-2">
                   <FaDiscord
                     className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
                     color={"#000"}
@@ -58,7 +58,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 </button>
                 <button
                   onClick={handleContactUs}
-                  className="btn-primary rounded-full h-[48px] min-w-[333px] flex flex-row items-center justify-center gap-2"
+                  className="btn-primary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[333px] flex flex-row items-center justify-center gap-2"
                 >
                   <Send
                     className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
