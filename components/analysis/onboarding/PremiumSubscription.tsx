@@ -17,6 +17,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { useCancelSubscription } from "@/app/store/cancelSubscription";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -50,7 +51,6 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
-
   if (!visible) return null;
 
   return (
@@ -99,20 +99,6 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
               onGetPremium={onGetPremium}
               isMember={isMember}
             />
-            <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
-              <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
-              <p className="text-gray-700">
-                Are you interested in getting an AroundChess Subscription for
-                your Chess Club?{" "}
-                <a
-                  href="#"
-                  className="text-blue-base hover:underline font-medium"
-                >
-                  Click here{" "}
-                </a>
-                to contact us now for an individual offer.
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -123,6 +109,11 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
   isMember?: boolean;
 }> = ({ onGetPremium, isMember }) => {
+  const { setOpen } = useCancelSubscription();
+  const handleCancelSubscription = () => {
+    setOpen(true);
+  };
+
   return (
     <div className="mb-4">
       <p className="text-sm text-black mb-2 text-center">
@@ -275,7 +266,7 @@ export const PremiumSubsContent: React.FC<{
                   </div>
                 </div>
               </motion.div>
-              <button className="mt-4">
+              <button className="mt-4" onClick={handleCancelSubscription}>
                 <span className="font-medium text-[16px] text-white">
                   Cancel Subscription
                 </span>
@@ -283,6 +274,17 @@ export const PremiumSubsContent: React.FC<{
             </>
           )}
         </div>
+      </div>
+      <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
+        <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
+        <p className="text-gray-700">
+          Are you interested in getting an AroundChess Subscription for your
+          Chess Club?{" "}
+          <a href="#" className="text-blue-base hover:underline font-medium">
+            Click here{" "}
+          </a>
+          to contact us now for an individual offer.
+        </p>
       </div>
     </div>
   );

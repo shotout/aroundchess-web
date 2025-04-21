@@ -164,7 +164,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     router.push("/profile");
   };
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col z-100">
       <div className="flex h-24 items-center px-6 justify-center border-b">
         <Link href="/" className="flex items-center justify-center">
           <Image
