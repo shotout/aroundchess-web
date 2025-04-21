@@ -1,27 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useRouter } from "next/navigation";
-import {
-  ChevronLeft,
-  ArrowLeft,
-  Settings,
-  AlertCircle,
-  RotateCcw,
-  Download,
-} from "lucide-react";
-import { Chessboard } from "react-chessboard";
+import { ChevronLeft, AlertCircle } from "lucide-react";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
 import { useCheckmateTraining } from "../../store/CheckmateStore";
-import { Chess, Square } from "chess.js";
-import { Engine } from "@/components/playground/src/lib/stockfish";
-import Image from "next/image";
-import {
-  ChessPiece,
-  ChessPieceType,
-  getPieceConfig,
-} from "../../utils/ChessPieceUtils";
 import { useEndgameNavigation } from "../../store/NavigationStore";
+import { Chess } from "chess.js";
+import { getPieceConfig } from "../../utils/ChessPieceUtils";
+import { Square } from "react-chessboard/dist/chessboard/types";
+import GameAlert from "../GameAlert";
+import ChessboardWrapper from "../ChessboardWrapper";
+import MoveHistory from "../MoveHistory";
+import StockfishEngine from "../SF";
+import GameControls from "../GameControl";
+import GameHeader from "../GameHeader";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -35,22 +34,31 @@ export default function StageDetailView({
   stageNumber,
 }: StageDetailViewProps) {
   const router = useRouter();
+  const stageNum = parseInt(stageNumber);
+
+  // Game state
   const [position, setPosition] = useState<string | null>(null);
   const [initialFen, setInitialFen] = useState<string | null>(null);
   const [targetPosition, setTargetPosition] = useState<string | null>(null);
   const [moveHistory, setMoveHistory] = useState<any[]>([]);
   const [isSolved, setIsSolved] = useState<boolean>(false);
+
+  // UI state
   const [categoryData, setCategoryData] = useState<string | any>("");
   const [subcategoryName, setSubcategoryName] = useState<string>("");
   const [pieceConfig, setPieceConfig] = useState<any>(null);
+
+  // Mode state
   const [isCheckmateMode, setIsCheckmateMode] = useState<boolean>(false);
   const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
+  // Game status
   const [gameStatus, setGameStatus] = useState<string>("ongoing");
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
   const [alertClass, setAlertClass] = useState<string>("");
 
+  // Move highlighting
   const [optionSquares, setOptionSquares] = useState<
     Record<string, { background: string }>
   >({});
@@ -62,38 +70,37 @@ export default function StageDetailView({
   const [showPromotionDialog, setShowPromotionDialog] =
     useState<boolean>(false);
 
+  // Engine state
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
 
-  const stageNum = parseInt(stageNumber);
+  // Data fetching
   const {
     data: endgameData,
     isLoading: isEndgameLoading,
     error: endgameError,
     fetchData: fetchEndgameData,
   } = useEndgametraining();
+
   const {
     data: checkmateData,
     isLoading: isCheckmateLoading,
     error: checkmateError,
     fetchData: fetchCheckmateData,
   } = useCheckmateTraining();
-  const fetchInProgress = React.useRef(false);
 
+  const fetchInProgress = useRef(false);
   const game = useMemo(() => new Chess(), []);
-  const engine = useMemo(() => new Engine(), []);
+  const isMounted = useRef(true);
 
-  const isMounted = React.useRef(true);
+  // Effect for cleanup
   useEffect(() => {
     return () => {
       isMounted.current = false;
-      if (engine) {
-        engine.destroy();
-      }
     };
-  }, [engine]);
+  }, []);
 
-  // Check if this is checkmate mode
+  // Determine if we're in checkmate mode
   useEffect(() => {
     if (categorySlug.startsWith("checkmate-")) {
       setIsCheckmateMode(true);
@@ -113,39 +120,7 @@ export default function StageDetailView({
     }
   }, [categorySlug]);
 
-  const findBestMove = useCallback(() => {
-    if (game.isGameOver() || gameStatus !== "ongoing") return;
-    engine.evaluatePosition(game.fen(), 1);
-
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        try {
-          game.move({
-            from: bestMove.substring(0, 2) as Square,
-            to: bestMove.substring(2, 4) as Square,
-            promotion: bestMove.substring(4, 5) || undefined,
-          });
-
-          setMoveHistory(game.history({ verbose: true }));
-          setPosition(game.fen());
-          setMoveSquares({
-            [bestMove.substring(0, 2)]: {
-              background: "rgba(255, 255, 0, 0.4)",
-            },
-            [bestMove.substring(2, 4)]: {
-              background: "rgba(255, 255, 0, 0.4)",
-            },
-          });
-
-          checkGameStatus();
-        } catch (e) {
-          console.error("Error making Stockfish move:", e);
-        }
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game, engine, gameStatus]);
-
+  // Fetch data effect
   useEffect(() => {
     const fetchData = async () => {
       if (fetchInProgress.current) return;
@@ -168,6 +143,7 @@ export default function StageDetailView({
     fetchData();
   }, [endgameData, checkmateData, fetchEndgameData, fetchCheckmateData]);
 
+  // Initialize game position based on mode
   useEffect(() => {
     if (isCheckmateMode) {
       // Handle checkmate mode
@@ -263,284 +239,7 @@ export default function StageDetailView({
     movesToCheckmate,
   ]);
 
-  const checkGameStatus = useCallback(() => {
-    if (game.isGameOver()) {
-      if (game.isCheckmate()) {
-        const winner = game.turn() === "w" ? "black" : "white";
-        if (winner === "white") {
-          setGameStatus("win");
-          setAlertMessage("Checkmate! You won!");
-          setAlertClass("bg-green-500");
-        } else {
-          setGameStatus("lose");
-          setAlertMessage("You lost the game.");
-          setAlertClass("bg-red-500");
-        }
-        setIsSolved(true);
-      } else if (game.isDraw()) {
-        setGameStatus("draw");
-        setAlertMessage("Game ended in a draw.");
-        setAlertClass("bg-blue-500");
-        setIsSolved(true);
-      }
-      setShowAlert(true);
-      return true;
-    }
-
-    // If game isn't over and it's black's turn, make the AI move
-    if (game.turn() === "b" && gameStatus === "ongoing") {
-      findBestMove();
-    }
-
-    return false;
-  }, [game, gameStatus, findBestMove]);
-
-  const getMoveOptions = useCallback(
-    (square: Square) => {
-      const moves = game.moves({
-        square,
-        verbose: true,
-      });
-
-      if (moves.length === 0) {
-        setOptionSquares({});
-        return false;
-      }
-
-      const newSquares: Record<string, { background: string }> = {};
-      moves.forEach((move) => {
-        newSquares[move.to] = {
-          background:
-            game.get(move.to) &&
-            game.get(move.to)?.color !== game.get(square)?.color
-              ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)"
-              : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
-        };
-      });
-
-      newSquares[square] = {
-        background: "rgba(255, 255, 0, 0.4)",
-      };
-
-      setOptionSquares(newSquares);
-      return true;
-    },
-    [game]
-  );
-
-  const onSquareClick = useCallback(
-    (square: Square) => {
-      if (game.turn() !== "w" || gameStatus !== "ongoing") return;
-
-      setShowHint(false);
-
-      if (!moveFrom) {
-        const piece = game.get(square);
-        if (piece && piece.color !== "w") return;
-
-        const hasMoveOptions = getMoveOptions(square);
-        if (hasMoveOptions) {
-          setMoveFrom(square);
-        }
-        return;
-      }
-
-      if (!moveTo) {
-        const moves = game.moves({
-          square: moveFrom as Square,
-          verbose: true,
-        });
-        const foundMove = moves.find(
-          (m) => m.from === moveFrom && m.to === square
-        );
-
-        if (!foundMove) {
-          const piece = game.get(square);
-          if (piece && piece.color === "w") {
-            const hasMoveOptions = getMoveOptions(square);
-            setMoveFrom(hasMoveOptions ? square : "");
-          } else {
-            setMoveFrom("");
-            setOptionSquares({});
-          }
-          return;
-        }
-
-        setMoveTo(square);
-
-        if (
-          (foundMove.color === "w" &&
-            foundMove.piece === "p" &&
-            square[1] === "8") ||
-          (foundMove.color === "b" &&
-            foundMove.piece === "p" &&
-            square[1] === "1")
-        ) {
-          setShowPromotionDialog(true);
-          return;
-        }
-
-        const move = game.move({
-          from: moveFrom,
-          to: square,
-        });
-
-        if (move === null) {
-          const hasMoveOptions = getMoveOptions(square);
-          if (hasMoveOptions) setMoveFrom(square);
-          return;
-        }
-
-        setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen());
-        setMoveSquares({
-          [moveFrom]: { background: "rgba(255, 255, 0, 0.4)" },
-          [square]: { background: "rgba(255, 255, 0, 0.4)" },
-        });
-
-        setMoveFrom("");
-        setMoveTo(null);
-        setOptionSquares({});
-
-        checkGameStatus();
-
-        return;
-      }
-    },
-    [moveFrom, moveTo, game, getMoveOptions, checkGameStatus, gameStatus]
-  );
-
-  const onPromotionPieceSelect = useCallback(
-    (piece?: string, fromSquare?: Square, toSquare?: Square) => {
-      if (!piece || !fromSquare || !toSquare) return false;
-
-      const promotionPiece = piece?.charAt(1)?.toLowerCase() || "q";
-
-      const move = game.move({
-        from: fromSquare,
-        to: toSquare,
-        promotion: promotionPiece,
-      });
-
-      if (move) {
-        setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen());
-        checkGameStatus();
-        setMoveSquares({
-          [fromSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-          [toSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-        });
-      }
-
-      setMoveFrom("");
-      setMoveTo(null);
-      setShowPromotionDialog(false);
-      setOptionSquares({});
-
-      return true;
-    },
-    [game, checkGameStatus]
-  );
-
-  const onDrop = useCallback(
-    (sourceSquare: string, targetSquare: string) => {
-      if (game.turn() !== "w" || gameStatus !== "ongoing") return false;
-
-      setShowHint(false);
-
-      try {
-        const piece = game.get(sourceSquare as Square);
-        const isPromotion =
-          piece?.type === "p" &&
-          ((piece.color === "w" && targetSquare[1] === "8") ||
-            (piece.color === "b" && targetSquare[1] === "1"));
-
-        if (isPromotion) {
-          const move = game.move({
-            from: sourceSquare as Square,
-            to: targetSquare as Square,
-            promotion: "q",
-          });
-
-          if (move === null) return false;
-        } else {
-          const move = game.move({
-            from: sourceSquare as Square,
-            to: targetSquare as Square,
-          });
-
-          if (move === null) return false;
-        }
-
-        setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen());
-        setMoveSquares({
-          [sourceSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-          [targetSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-        });
-
-        checkGameStatus();
-
-        return true;
-      } catch (e) {
-        console.error("Move error:", e);
-        return false;
-      }
-    },
-    [game, checkGameStatus, gameStatus]
-  );
-
-  const handleHint = useCallback(() => {
-    if (!position) return;
-
-    setShowHint(true);
-    engine.evaluatePosition(game.fen(), 5);
-
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        setBestMove(bestMove);
-        setMoveSquares({
-          [bestMove.substring(0, 2)]: { background: "rgba(0, 0, 255, 0.4)" },
-          [bestMove.substring(2, 4)]: { background: "rgba(0, 0, 255, 0.4)" },
-        });
-      }
-    });
-  }, [game, engine, position]);
-
-  const showSolution = useCallback(() => {
-    if (!position) return;
-    engine.evaluatePosition(game.fen(), 5);
-
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        setBestMove(bestMove);
-        setMoveSquares({
-          [bestMove.substring(0, 2)]: { background: "rgba(0, 0, 255, 0.4)" },
-          [bestMove.substring(2, 4)]: { background: "rgba(0, 0, 255, 0.4)" },
-        });
-      }
-    });
-  }, [position, engine, game]);
-
-  const resetPosition = useCallback(() => {
-    if (initialFen) {
-      try {
-        game.load(initialFen);
-        setPosition(initialFen);
-        setMoveHistory([]);
-        setIsSolved(false);
-        setGameStatus("ongoing");
-        setShowAlert(false);
-        setShowHint(false);
-        setBestMove(null);
-        setOptionSquares({});
-        setMoveSquares({});
-      } catch (e) {
-        console.error("Error resetting position:", e);
-      }
-    }
-  }, [game, initialFen]);
-
+  // Navigate to different stage
   const navigateToStage = useCallback(
     (direction: "next" | "previous") => {
       const newStageNum =
@@ -559,6 +258,7 @@ export default function StageDetailView({
     [router, categorySlug, subcategorySlug, stageNum, isCheckmateMode]
   );
 
+  // Back to selection screen
   const goBackToSelection = useCallback(() => {
     // Update the navigation state to reflect the correct tab
     const { setActiveTab, setViewState } = useEndgameNavigation.getState();
@@ -584,6 +284,7 @@ export default function StageDetailView({
     router.push(`/playground/endgame-training/`);
   }, [router, isCheckmateMode, movesToCheckmate, categorySlug]);
 
+  // Retry fetch if there was an error
   const retryFetch = useCallback(() => {
     if (!fetchInProgress.current) {
       fetchInProgress.current = true;
@@ -607,6 +308,61 @@ export default function StageDetailView({
     () => navigateToStage("previous"),
     [navigateToStage]
   );
+
+  // Reset position to initial state
+  const resetPosition = useCallback(() => {
+    if (initialFen) {
+      try {
+        game.load(initialFen);
+        setPosition(initialFen);
+        setMoveHistory([]);
+        setIsSolved(false);
+        setGameStatus("ongoing");
+        setShowAlert(false);
+        setShowHint(false);
+        setBestMove(null);
+        setOptionSquares({});
+        setMoveSquares({});
+      } catch (e) {
+        console.error("Error resetting position:", e);
+      }
+    }
+  }, [game, initialFen]);
+
+  // Check game status and handle AI move if needed
+  const checkGameStatus = useCallback(() => {
+    if (game.isGameOver()) {
+      if (game.isCheckmate()) {
+        const winner = game.turn() === "w" ? "black" : "white";
+        if (winner === "white") {
+          setGameStatus("win");
+          setAlertMessage("Checkmate! You won!");
+          setAlertClass("bg-green-500");
+        } else {
+          setGameStatus("lose");
+          setAlertMessage("You lost the game.");
+          setAlertClass("bg-red-500");
+        }
+        setIsSolved(true);
+      } else if (game.isDraw()) {
+        setGameStatus("draw");
+        setAlertMessage("Game ended in a draw.");
+        setAlertClass("bg-blue-500");
+        setIsSolved(true);
+      }
+      setShowAlert(true);
+      return true;
+    }
+
+    // If game isn't over and it's black's turn, trigger AI move
+    if (game.turn() === "b" && gameStatus === "ongoing") {
+      // We'll use the StockfishEngine component to handle this
+      // The actual AI move will be triggered via a useEffect in that component
+      return false; // Return false to indicate game is not over
+    }
+
+    return false;
+  }, [game, gameStatus]);
 
   const isLoading = isEndgameLoading || isCheckmateLoading;
   const error = isCheckmateMode ? checkmateError : endgameError;
@@ -651,98 +407,44 @@ export default function StageDetailView({
   return (
     <div className="w-full h-[calc(100vh-56px)] xl:h-[calc(100vh-97px)] flex justify-center items-center">
       <main className="w-full h-full p-4 xl:p-8 flex flex-col space-y-4">
-        <div
-          className="w-full flex items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
-         border-b border-gray-200 p-4 rounded-md"
-        >
-          <div className="flex items-center space-x-4">
-            <button onClick={goBackToSelection} className="p-2">
-              <ArrowLeft className="h-6 w-h-6 text-gray-600" />
-            </button>
-            <div className="flex items-center space-x-2">
-              <Image
-                src={`/endgame-training/${
-                  isCheckmateMode ? "check.png" : categoryData.icons
-                }`}
-                alt={`${categoryData.name} icon`}
-                width={45}
-                height={45}
-              />
-              <span className="font-bold text-lg">
-                {categoryData.name || "Loading..."}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="p-3 rounded-md flex justify-center">
-              {pieceConfig && pieceConfig.pieces ? (
-                <div
-                  className="flex space-x-2 items-end overflow-visible border border-gray-200 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF] p-2 rounded-md"
-                  style={{ minHeight: "40px", display: "inline-flex" }}
-                >
-                  {pieceConfig.pieces.map(
-                    (
-                      piece: {
-                        type: string;
-                        color: string | undefined;
-                        count: number | undefined;
-                      },
-                      i: React.Key | null | undefined
-                    ) => (
-                      <ChessPiece
-                        key={i}
-                        type={piece.type as ChessPieceType}
-                        color={piece.color}
-                        count={piece.count}
-                        width={20}
-                        height={20}
-                        vsWidth={22}
-                        vsHeight={22}
-                      />
-                    )
-                  )}
-                </div>
-              ) : (
-                <div>Loading pieces...</div>
-              )}
-            </div>
-            <div className="mx-4">{subcategoryName || "Loading..."}</div>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <div className="font-bold text-lg">
-              {isCheckmateMode ? `Position ${stageNum}` : `Stage ${stageNum}`}
-            </div>
-          </div>
-        </div>
+        <GameHeader
+          categoryData={categoryData}
+          subcategoryName={subcategoryName}
+          pieceConfig={pieceConfig}
+          stageNum={stageNum}
+          isCheckmateMode={isCheckmateMode}
+          goBackToSelection={goBackToSelection}
+        />
 
         <div className="grid grid-cols-1 xl:grid-cols-10 min-h-0 flex-grow bg-white xl:gap-5">
           <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col xl:col-span-6">
-            <div className="relative w-full flex  justify-center items-center">
-              <div className="aspect-square  bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
-                {showAlert && (
-                  <div
-                    className={`absolute top-0 left-0 right-0 z-10 p-4 text-center text-white font-bold ${alertClass}`}
-                  >
-                    {alertMessage}
-                  </div>
-                )}
+            <div className="relative w-full flex justify-center items-center">
+              <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
+                <GameAlert
+                  showAlert={showAlert}
+                  alertMessage={alertMessage}
+                  alertClass={alertClass}
+                />
 
-                <div className="w-full h-full">
-                  <Chessboard
-                    position={position}
-                    onPieceDrop={onDrop}
-                    onSquareClick={onSquareClick}
-                    onPromotionPieceSelect={onPromotionPieceSelect}
-                    customSquareStyles={{
-                      ...optionSquares,
-                      ...moveSquares,
-                    }}
-                    promotionToSquare={moveTo}
-                    showPromotionDialog={showPromotionDialog}
-                  />
-                </div>
+                <ChessboardWrapper
+                  game={game}
+                  position={position}
+                  optionSquares={optionSquares}
+                  moveSquares={moveSquares}
+                  moveFrom={moveFrom}
+                  setMoveFrom={setMoveFrom}
+                  moveTo={moveTo}
+                  setMoveTo={setMoveTo}
+                  setOptionSquares={setOptionSquares}
+                  setMoveSquares={setMoveSquares}
+                  showPromotionDialog={showPromotionDialog}
+                  setShowPromotionDialog={setShowPromotionDialog}
+                  setShowHint={setShowHint}
+                  gameStatus={gameStatus}
+                  setMoveHistory={setMoveHistory}
+                  setPosition={setPosition}
+                  checkGameStatus={checkGameStatus}
+                />
               </div>
             </div>
           </div>
@@ -767,105 +469,30 @@ export default function StageDetailView({
                 </div>
               </div>
 
-              <div className="flex-grow ">
-                <div className="max-h-[250px] overflow-y-auto ">
-                  <table className="w-full border-collapse">
-                    <thead className="bg-blue-100 sticky top-0 z-10">
-                      <tr>
-                        <th className="p-4 text-left border border-gray-200 border-r">
-                          #
-                        </th>
-                        <th className="p-4 text-center border border-gray-200 border-r">
-                          White (You)
-                        </th>
-                        <th className="p-4 text-center border border-gray-200">
-                          Black (Engine)
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {moveHistory.length === 0 ? (
-                        <tr>
-                          <td
-                            className="p-4 text-center border border-gray-200"
-                            colSpan={3}
-                          >
-                            No moves yet
-                          </td>
-                        </tr>
-                      ) : (
-                        Array.from({
-                          length: Math.ceil(moveHistory.length / 2),
-                        }).map((_, i) => {
-                          const whiteIdx = i * 2;
-                          const blackIdx = i * 2 + 1;
+              <MoveHistory moveHistory={moveHistory} />
 
-                          return (
-                            <tr key={i}>
-                              <td className="p-4 text-center border border-gray-200 border-r">
-                                {i + 1}
-                              </td>
-                              <td className="p-4 text-center border border-gray-200 border-r">
-                                {moveHistory[whiteIdx]?.san || ""}
-                              </td>
-                              <td className="p-4 text-center border border-gray-200">
-                                {blackIdx < moveHistory.length
-                                  ? moveHistory[blackIdx]?.san || ""
-                                  : ""}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <StockfishEngine
+                game={game}
+                position={position}
+                gameStatus={gameStatus}
+                setMoveHistory={setMoveHistory}
+                setPosition={setPosition}
+                setMoveSquares={setMoveSquares}
+                checkGameStatus={checkGameStatus}
+                setBestMove={setBestMove}
+                showHint={showHint}
+              />
 
-              <div className="mt-auto p-4 grid grid-cols-3 gap-4">
-                <button
-                  className="flex items-center justify-center p-3 bg-blue-100 text-blue-600 rounded-md border border-blue-200"
-                  onClick={handleHint}
-                  disabled={gameStatus !== "ongoing"}
-                >
-                  <span className="mr-2">💡</span> Hint
-                </button>
-                <button
-                  className="flex items-center justify-center p-3 bg-gray-100 text-gray-700 rounded-md border border-gray-200"
-                  onClick={showSolution}
-                  disabled={gameStatus !== "ongoing"}
-                >
-                  <span className="mr-2">➡️</span> Solution
-                </button>
-                <button
-                  onClick={resetPosition}
-                  className="flex items-center justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-md border border-blue-200"
-                >
-                  <RotateCcw className="h-4 w-4 mr-2 text-blue-base" />
-                  Rematch
-                </button>
-                <button
-                  onClick={navigateNext}
-                  className="col-span-3 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-blue-600"
-                >
-                  <span className="mr-2">➡️</span>
-                  {isCheckmateMode ? "Next Position" : "Next Stage"}
-                </button>
-                <div className="col-span-1 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-gray-200">
-                  <Download
-                    className="h-6 w-6 mr-2 text-blue-base"
-                    fill="#3871EC29"
-                    fillOpacity={16}
-                  />
-                </div>
-                <div className="col-span-2 flex items-center justify-center p-3 bg-white text-blue-600 rounded-md border border-gray-200">
-                  <Settings
-                    className="h-6 w-6 mr-2 text-blue-base"
-                    fill="#3871EC29"
-                    fillOpacity={16}
-                  />
-                </div>
-              </div>
+              <GameControls
+                game={game}
+                gameStatus={gameStatus}
+                handleHint={() => setShowHint(true)}
+                showSolution={() => setShowHint(true)}
+                resetPosition={resetPosition}
+                navigateNext={navigateNext}
+                navigatePrevious={navigatePrevious}
+                isCheckmateMode={isCheckmateMode}
+              />
             </div>
           </div>
         </div>
