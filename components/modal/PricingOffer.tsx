@@ -27,8 +27,8 @@ export const PricingOffer: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [activeTab, setActiveTab] = useState("tokens");
-  const { open, setOpen,tabType } = usePricingOffer();
-  const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription,  } =
+  const { open, setOpen, tabType } = usePricingOffer();
+  const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
@@ -45,9 +45,9 @@ export const PricingOffer: React.FC = () => {
 
     setOpen(open);
   }, [open]);
-  useEffect(()=>{
-    setActiveTab(tabType)
-  },[tabType])
+  useEffect(() => {
+    setActiveTab(tabType);
+  }, [tabType]);
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -64,7 +64,7 @@ export const PricingOffer: React.FC = () => {
     setWidthC(width);
   };
   const handleGetPremium = () => {
-    setOpen(false)
+    setOpen(false);
     setOpenSuccessSubscription(true);
   };
 
@@ -272,13 +272,19 @@ export const PricingOffer: React.FC = () => {
                       <div className="font-normal text-[12px] xl:text-[14px]">
                         Enter Amount
                       </div>
-                      <div className="flex items-center justify-center gap-2">
+                      <div
+                        onClick={() => setSelectedToken(5)}
+                        className="flex items-center justify-center gap-2"
+                      >
                         <input
                           type="number"
                           className="w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
                           value={customAmount}
                           onChange={(e) => setCustomAmount(e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            setSelectedToken(5);
+                            e.stopPropagation();
+                          }}
                         />
                         <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
                           Token
