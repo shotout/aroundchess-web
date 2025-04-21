@@ -354,11 +354,8 @@ export default function StageDetailView({
       return true;
     }
 
-    // If game isn't over and it's black's turn, trigger AI move
     if (game.turn() === "b" && gameStatus === "ongoing") {
-      // We'll use the StockfishEngine component to handle this
-      // The actual AI move will be triggered via a useEffect in that component
-      return false; // Return false to indicate game is not over
+      return false;
     }
 
     return false;
@@ -450,7 +447,7 @@ export default function StageDetailView({
           </div>
 
           <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4 mt-4 xl:mt-0">
-            <div className="flex flex-col space-y-5 h-full p-6">
+            <div className="flex flex-col space-y-5 h-full">
               <div className="bg-blue-base/10 p-6 border border-blue-base rounded-md flex flex-col items-center justify-center">
                 <div className="flex items-center justify-center">
                   <div className="text-blue-base mr-2">

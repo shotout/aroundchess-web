@@ -13,7 +13,7 @@ export const CheckmateCategoryItem: React.FC<CheckmateCategoryItemProps> = ({
 }) => {
   return (
     <div className="rounded-xl p-4 border border-gray-200 bg-white flex items-center hover:shadow-md transition-all h-40 xl:min-w-[343px]">
-      <div className="flex w-full h-full border rounded-md p-3">
+      <div className="flex w-full h-full border border-[#DEDEDE] shadow-md rounded-md p-3 bg-[url(/endgame-training/bg-check.png)] bg-cover">
         <div className="w-3/5 flex flex-col justify-center">
           <h3 className="font-semibold text-lg mb-3">
             Checkmate in {movesToCheckmate}
@@ -23,7 +23,7 @@ export const CheckmateCategoryItem: React.FC<CheckmateCategoryItemProps> = ({
             className="btn-primary text-white px-3 py-1.5 rounded-full text-sm flex items-center space-x-1  whitespace-nowrap w-fit"
           >
             <div className="flex space-x-2">
-              <h1>Play this set</h1>
+              <h1>Play</h1>
               <ArrowRight className="w-5 h-5" />
             </div>
           </button>

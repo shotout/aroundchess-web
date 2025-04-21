@@ -12,8 +12,8 @@ export default function StagesSection({
   onPositionSelect,
 }: StagesSectionProps) {
   return (
-    <div className="bg-white relative overflow-hidden rounded-lg border border-gray-200 px-10 py-8 flex flex-col space-y-5">
-      <div className="flex justify-center space-x-5 items-center mb-6 relative">
+    <div className="xl:bg-white relative overflow-hidden rounded-lg xl:border border-gray-200 xl:px-10 xl:py-8 flex flex-col space-y-5">
+      <div className="flex xl:justify-center space-x-5 items-center xl:mb-6 relative border xl:border-none rounded-md overflow-hidden xl:overflow-visible p-2">
         <div className="border border-[#DEDEDE] p-4 flex justify-center items-center rounded-sm bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]">
           <Image
             src="/endgame-training/sword-full.png"
@@ -41,38 +41,23 @@ export default function StagesSection({
           />
         </div>
 
-        <h4 className="text-center text-xl">Select a Stage . . . </h4>
+        <h4 className="text-center text-xl hidden xl:flex">
+          Select a Stage . . .{" "}
+        </h4>
+        <h4 className="text-center flex xl:hidden">Select a Stage</h4>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-        {[1, 2, 3, 4, 5].map((stageNum) => (
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 xl:gap-4">
+        {selectedSubcategoryData?.games.map((stageNum, i) => (
           <StageCard
-            key={stageNum}
-            stageNumber={stageNum}
-            active={stageNum === 1}
-            categorySlug={slug}
-            subcategorySlug={selectedSubcategory}
-            fen={
-              selectedSubcategoryData?.games &&
-              selectedSubcategoryData.games[stageNum - 1]?.fen
-            }
-            //@ts-expect-error
-            onClick={() => onPositionSelect(selectedSubcategory, stageNum - 1)}
-          />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {[6, 7, 8, 9, 10].map((stageNum) => (
-          <StageCard
-            key={stageNum}
-            stageNumber={stageNum}
+            key={i}
+            stageNumber={i + 1}
             active={false}
             categorySlug={slug}
             subcategorySlug={selectedSubcategory}
             fen={
               selectedSubcategoryData?.games &&
-              selectedSubcategoryData.games[stageNum - 1]?.fen
+              selectedSubcategoryData.games[i - 1]?.fen
             }
             //@ts-expect-error
             onClick={() => onPositionSelect(selectedSubcategory, stageNum - 1)}
