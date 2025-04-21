@@ -2,10 +2,14 @@ import { create } from "zustand";
 
 interface PricingOfferState {
   open: boolean;
-  setOpen: (PricingOffern: any) => void;
+  setOpen: (open: any) => void;
+  tabType:string;
+  setTabType: (tabType:string) =>void
 }
 
 export const usePricingOffer = create<PricingOfferState>((set) => ({
   open: false,
   setOpen: (open) => set({ open }),
+  tabType: "analyses",
+  setTabType: (tabType) => set({ tabType }),
 }));

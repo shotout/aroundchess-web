@@ -26,9 +26,9 @@ interface TokenOption {
 export const PricingOffer: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [activeTab, setActiveTab] = useState("analyses");
-  const { open, setOpen } = usePricingOffer();
-  const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
+  const [activeTab, setActiveTab] = useState("tokens");
+  const { open, setOpen,tabType } = usePricingOffer();
+  const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription,  } =
     useSuccessSubscription();
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
@@ -45,6 +45,9 @@ export const PricingOffer: React.FC = () => {
 
     setOpen(open);
   }, [open]);
+  useEffect(()=>{
+    setActiveTab(tabType)
+  },[tabType])
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -93,9 +96,9 @@ export const PricingOffer: React.FC = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
               <TabsTrigger
-                value="analyses"
+                value="tokens"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab === "analyses"
+                  activeTab === "tokens"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}
@@ -115,7 +118,7 @@ export const PricingOffer: React.FC = () => {
               <TabsTrigger
                 value="subscription"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab !== "analyses"
+                  activeTab !== "tokens"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}
@@ -136,7 +139,7 @@ export const PricingOffer: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="analyses">
+            <TabsContent value="tokens">
               <div className="gap-[16px] flex flex-col">
                 <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
                   Purchase Tokens to unlock more Analyses right now!
