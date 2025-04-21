@@ -13,7 +13,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   onTabChange,
 }) => {
   return (
-    <Card className="flex gap-3 bg-[#F9FAFC] border border-gray-100 p-2 max-w-96">
+    <Card className="flex gap-3 bg-[#F9FAFC] border border-gray-100 p-1 md:p-2 w-full md:max-w-96 ">
       <button
         className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-xs ${
           activeTab === "board"

@@ -99,7 +99,6 @@ export default function EndgameTrainingPage() {
 
     if (isLoading) return <DotSpinner />;
     if (error) return <ErrorDisplay error={error} onRetry={fetchData} />;
-    if (!data) return <h2 className="text-center mt-8">No data available</h2>;
 
     switch (viewState.view) {
       case "categories":
@@ -137,12 +136,22 @@ export default function EndgameTrainingPage() {
         </div>
       ) : (
         <>
-          <TabSelector
-            activeTab={activeTab}
-            onTabChange={memoizedHandlers.onTabChange}
-          />
+          <div className="flex justify-center items-center md:justify-start md:items-start">
+            <TabSelector
+              activeTab={activeTab}
+              onTabChange={memoizedHandlers.onTabChange}
+            />
+          </div>
           <PageHeader activeTab={activeTab} viewState={viewState} />
-          {renderContent()}
+          <div
+            className={`flex  ${
+              viewState.view === "subcategories"
+                ? "justify-start items-start"
+                : "justify-center items-center"
+            } w-full`}
+          >
+            {renderContent()}
+          </div>
         </>
       )}
     </main>

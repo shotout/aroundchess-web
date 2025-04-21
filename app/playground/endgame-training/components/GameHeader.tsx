@@ -25,7 +25,7 @@ export default function GameHeader({
   return (
     <div
       className="w-full flex items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
-     border-b border-gray-200 p-4 rounded-md"
+     border border-[#C0CED4] p-4 rounded-md"
     >
       <div className="flex items-center space-x-4">
         <button onClick={goBackToSelection} className="p-2">
@@ -47,11 +47,11 @@ export default function GameHeader({
       </div>
 
       <div className="flex items-center space-x-2">
-        <div className="p-3 rounded-md flex justify-center">
+        <div className="p-2 rounded-md flex justify-center">
           {pieceConfig && pieceConfig.pieces ? (
             <div
-              className="flex space-x-2 items-end overflow-visible border border-gray-200 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF] p-2 rounded-md"
-              style={{ minHeight: "40px", display: "inline-flex" }}
+              className="flex space-x-1 items-center overflow-hidden  rounded-md"
+              style={{ maxHeight: "36px", maxWidth: "160px" }}
             >
               {pieceConfig.pieces.map(
                 (
@@ -67,10 +67,10 @@ export default function GameHeader({
                     type={piece.type as ChessPieceType}
                     color={piece.color}
                     count={piece.count}
-                    width={20}
-                    height={20}
-                    vsWidth={22}
-                    vsHeight={22}
+                    width={16}
+                    height={16}
+                    vsWidth={18}
+                    vsHeight={18}
                   />
                 )
               )}
@@ -83,8 +83,11 @@ export default function GameHeader({
       </div>
 
       <div className="flex items-center space-x-4">
-        <div className="font-bold text-lg">
-          {isCheckmateMode ? `Position ${stageNum}` : `Stage ${stageNum}`}
+        <div className="font-semibold text-xl relative z-10">Stage</div>
+        <div
+          className={`text-[33px] xl:text-[45px] font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}
+        >
+          {stageNum}
         </div>
       </div>
     </div>

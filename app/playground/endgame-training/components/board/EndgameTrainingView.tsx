@@ -5,7 +5,7 @@ import { Category } from "../../types/EndgameTrainingTypes";
 import { EndgameTrainingViewProps } from "./type";
 import SubcategoriesGrid from "./SubCategoriesGrid";
 import StagesSection from "./StagesSection";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 export default function EndgameTrainingView({
   slug,
@@ -16,7 +16,7 @@ export default function EndgameTrainingView({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null
   );
-  const [categoryData, setCategoryData] = useState<Category | null>(null);
+  const [categoryData, setCategoryData] = useState<Category | any>(null);
 
   const endgameCategory = useMemo<Category | null>(() => {
     if (!data?.categories) return null;
@@ -37,7 +37,7 @@ export default function EndgameTrainingView({
     if (!categoryData || !selectedSubcategory) return null;
     return (
       categoryData.subcategories.find(
-        (sub) =>
+        (sub: { name: string }) =>
           sub.name.toLowerCase().replace(/\s+/g, "-") === selectedSubcategory
       ) || null
     );
@@ -49,43 +49,28 @@ export default function EndgameTrainingView({
     );
   };
 
-  if (!data || !categoryData) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <p className="text-lg">Category not found: {slug}</p>
-        <button
-          onClick={onBackClick}
-          className="mt-4 text-blue-600 flex items-center gap-1"
-        >
-          <span className="text-sm">←</span>
-          Back to categories
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
-      <div className="border rounded-md ">
-        <div>
-          <div className="flex items-center space-x-4 border-b p-4 bg-gradient-to-b from-[#FFFFFF] to-[#F3F8FB]">
-            <button onClick={onBackClick} className="p-2">
-              <ArrowLeft className="h-6 w-h-6 text-gray-600" />
+      <div className="xl:border rounded-md flex flex-col space-y-4">
+        <div className="border rounded-md border-primary-gray shadow-md xl:shadow-none xl:border-none">
+          <div className="flex items-center space-x-4 xl:border-b p-2 xl:p-4 bg-primary-white xl:bg-gradient-to-b from-[#FFFFFF] to-[#F3F8FB]">
+            <button onClick={onBackClick}>
+              <ChevronLeft className="h-10 w-10 text-gray-600" />
             </button>
             <div className="flex items-center space-x-2">
               <Image
-                src={`/endgame-training/${categoryData.icons}`}
-                alt={`${categoryData.name} icon`}
-                width={45}
-                height={45}
+                src={`/endgame-training/${categoryData?.icons}`}
+                alt={`${categoryData?.name} icon`}
+                width={50}
+                height={50}
               />
               <span className="font-bold text-lg">
-                {categoryData.name || "Loading..."}
+                {categoryData?.name || "Loading..."}
               </span>
             </div>
           </div>
         </div>
-        <div className="p-4">
+        <div className="xl:p-4">
           <SubcategoriesGrid
             category={categoryData}
             selectedSubcategory={selectedSubcategory}

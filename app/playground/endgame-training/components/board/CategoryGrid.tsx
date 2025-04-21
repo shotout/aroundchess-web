@@ -20,7 +20,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 mx-auto max-w-6xl">
+    <div className="grid grid-cols-2 gap-3 xl:gap-8 xl:p-4 mx-auto max-w-6xl">
       {data.categories.map((category, index) => (
         <CategoryItem
           key={index}

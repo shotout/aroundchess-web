@@ -8,8 +8,8 @@ interface MoveHistoryProps {
 
 export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
   return (
-    <div className="flex-grow">
-      <div className="max-h-[250px] overflow-y-auto">
+    <div className="flex-grow p-4">
+      <div className="max-h-[250px] rounded-md overflow-y-auto">
         <table className="w-full border-collapse">
           <thead className="bg-blue-100 sticky top-0 z-10">
             <tr>
@@ -17,11 +17,9 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
                 #
               </th>
               <th className="p-4 text-center border border-gray-200 border-r">
-                White (You)
+                White
               </th>
-              <th className="p-4 text-center border border-gray-200">
-                Black (Engine)
-              </th>
+              <th className="p-4 text-center border border-gray-200">Black</th>
             </tr>
           </thead>
           <tbody>
@@ -43,10 +41,10 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
 
                 return (
                   <tr key={i}>
-                    <td className="p-4 text-center border border-gray-200 border-r">
+                    <td className="p-4 text-center border border-gray-200">
                       {i + 1}
                     </td>
-                    <td className="p-4 text-center border border-gray-200 border-r">
+                    <td className="p-4 text-center border border-gray-200">
                       {moveHistory[whiteIdx]?.san || ""}
                     </td>
                     <td className="p-4 text-center border border-gray-200">

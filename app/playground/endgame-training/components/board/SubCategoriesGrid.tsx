@@ -7,19 +7,9 @@ export default function SubcategoriesGrid({
   selectedSubcategory,
   onSelectSubcategory,
 }: SubcategoriesGridProps) {
-  if (category.subcategories.length === 0) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-3 text-center py-8">
-          <p className="text-gray-500">No scenarios found for this category.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-      {category.subcategories.map((subcategory, index) => {
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 xl:gap-5">
+      {category?.subcategories?.map((subcategory, index) => {
         const subcategorySlug = subcategory.name
           .toLowerCase()
           .replace(/\s+/g, "-");
