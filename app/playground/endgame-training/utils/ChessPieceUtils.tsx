@@ -21,12 +21,10 @@ export interface ChessPieceProps {
   alignBottom?: boolean;
 }
 
-// Helper function to get vertical adjustment for each piece type
 const getVerticalAdjustment = (
   type: ChessPieceType,
   height: number
 ): number => {
-  // Adjustments relative to piece height (proportional to size)
   const adjustmentFactor = height / 30; // Based on original height of 30px
 
   switch (type) {
@@ -59,7 +57,6 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   vsHeight = 50,
   alignBottom = true,
 }) => {
-  // Calculate VS transform based on size
   const vsTransform =
     vsHeight < 30
       ? `translateY(-${Math.max(2, vsHeight * 0.15)}px)`
@@ -91,7 +88,6 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
     isBlackPiece ? "black-" : ""
   }${type}-icon.png`;
 
-  // Get vertical adjustment for this piece type to align them at the bottom
   const verticalAdjustment = alignBottom
     ? getVerticalAdjustment(type, height)
     : 0;
@@ -241,12 +237,15 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
   if (parsedPieces.length > 0) {
     const vsIndex = parsedPieces.findIndex((p) => p.type === "vs");
 
-    let finalPieces: { type: ChessPieceType; color: string; count?: number }[] =
-      [];
+    const finalPieces: {
+      type: ChessPieceType;
+      color: string;
+      count?: number;
+    }[] = [];
 
     if (vsIndex >= 0) {
-      let leftPieces = parsedPieces.slice(0, vsIndex);
-      let rightPieces = parsedPieces.slice(vsIndex + 1);
+      const leftPieces = parsedPieces.slice(0, vsIndex);
+      const rightPieces = parsedPieces.slice(vsIndex + 1);
 
       const leftWithoutKing = leftPieces.filter((p) => p.type !== "king");
       const rightWithoutKing = rightPieces.filter((p) => p.type !== "king");
