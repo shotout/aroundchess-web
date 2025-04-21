@@ -37,14 +37,14 @@ const GameAlertDialog = ({
 
         if (isPlayerWinner) {
           return {
-            title: "Victory!",
+            title: "Checkmate!",
             message: "You won this game by checkmate!",
             color: "green",
           };
         } else {
           return {
-            title: "Defeat",
-            message: "Your opponent won by checkmate.",
+            title: "Loss - Checkmate!",
+            message: "Your game ended in Checkmate.",
             color: "red",
           };
         }
@@ -53,9 +53,9 @@ const GameAlertDialog = ({
       if (game.isStalemate()) {
         return {
           title: "Draw - Stalemate",
-          message: "The game ended in a draw by stalemate.",
+          message: "Keep practicing, you'll get it!",
           description:
-            "Stalemate occurs when a player has no legal moves but their king is not in check.",
+            "Why Draw? Stalemate is a kind of Draw that happens when one side has no legal moves to make. If the King is not in check, but no piece can be moved without putting the king in check, then the Game will end with a Stalemate Draw.",
           color: "blue",
         };
       }
@@ -63,9 +63,9 @@ const GameAlertDialog = ({
       if (game.isThreefoldRepetition()) {
         return {
           title: "Draw - Threefold Repetition",
-          message: "The same position has occurred three times.",
+          message: "Keep practicing, you'll get it!",
           description:
-            "The game is drawn when the same position occurs three times with the same player to move.",
+            "Why Draw? The threefold repetition rule states that if a game reaches the same position three times, a Draw can be Claimed.",
           color: "blue",
         };
       }
@@ -73,9 +73,9 @@ const GameAlertDialog = ({
       if (game.isInsufficientMaterial()) {
         return {
           title: "Draw - Insufficient Material",
-          message: "Neither player has enough pieces to force a checkmate.",
+          message: "Keep practicing, you'll get it!",
           description:
-            "This typically happens with king vs king, king+bishop vs king, or king+knight vs king.",
+            "Why Draw? The 'Insufficient material' rule dictates that a game is automatically declared a Draw if there is no way to end the game in checkmate",
           color: "blue",
         };
       }
@@ -136,41 +136,43 @@ const GameAlertDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 border-0 overflow-hidden bg-transparent sm:rounded-lg">
+      <DialogContent className="p-2 max-w-[343px] max-h-[140px] border-none shadow-none bg-transparent sm:rounded-lg [&>button]:hidden">
         <div
-          className={`relative ${colorStyles.background} border-4 ${colorStyles.border} rounded-3xl p-8 pt-16 pb-12 w-full max-w-md mx-auto`}
+          className={`relative ${colorStyles.background} border-2 ${colorStyles.border} rounded-xl w-full mx-auto p-4`}
         >
           <button
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
-            className="absolute top-4 right-4 text-[#0a142f] hover:text-black"
+            className="absolute top-1 right-1 text-[#0a142f] hover:text-black"
           >
-            <X size={32} />
+            <X size={16} />
           </button>
 
-          <div className="flex flex-col items-center text-center z-10 relative">
-            <h1 className={`text-5xl font-bold ${colorStyles.text} mb-6`}>
+          <div className="flex flex-col items-start z-10 relative">
+            <h1
+              className={`text-lg font-bold ${colorStyles.text} mb-1 text-left w-full`}
+            >
               {title}
             </h1>
-            <p className="text-2xl text-[#0a142f] font-medium mb-6">
+            <p className="text-sm text-[#0a142f] font-medium mb-1 text-left w-full">
               {message}
             </p>
 
             {description && (
-              <p className="text-lg text-[#0a142f] opacity-80 mb-12">
+              <p className="text-xs text-[#0a142f] opacity-80 mb-2 text-left w-full">
                 {description}
               </p>
             )}
 
-            <div className="flex w-full mt-4 space-x-4">
+            <div className="flex w-full mt-1 space-x-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
                 }}
-                className="flex-1 bg-[#2336f3] text-white py-5 px-6 rounded-full text-xl font-bold hover:bg-[#1a29d1] transition-colors"
+                className="flex-1 bg-[#2336f3] text-white py-1 px-2 rounded-full text-xs font-bold hover:bg-[#1a29d1] transition-colors"
               >
                 New Game
               </button>
@@ -181,9 +183,9 @@ const GameAlertDialog = ({
                   onRematch();
                   onClose();
                 }}
-                className="flex-1 bg-[#e5f3ff] text-[#2336f3] py-5 px-6 rounded-full text-xl font-bold border-2 border-[#d6e8fc] hover:bg-[#d6e8fc] transition-colors flex items-center justify-center"
+                className="flex-1 bg-[#e5f3ff] text-[#2336f3] py-1 px-2 rounded-full text-xs font-bold border border-[#d6e8fc] hover:bg-[#d6e8fc] transition-colors flex items-center justify-center"
               >
-                <RotateCcw className="mr-2 h-5 w-5" />
+                <RotateCcw className="mr-1 h-3 w-3" />
                 Rematch
               </button>
             </div>
