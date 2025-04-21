@@ -110,6 +110,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
   const [heightScreen, setHeightScreen] = useState<number>(0);
+  const [widthScreen, setWidthScreen] = useState<number>(0);
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -553,8 +554,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [mounted, hideDiv, is3DMode]);
 
   const handleResize = () => {
+    
     setHeightScreen(window?.innerHeight);
-
+    setWidthScreen(window?.innerWidth)
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
@@ -732,7 +734,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
         className="flex flex-col w-full gap-4"
-        style={{ minHeight: heightScreen * 0.86 }}
+        style={{ minHeight: widthScreen > 1024? heightScreen * 0.86: heightScreen * 0.6 }}
       >
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
           <button onClick={resetPuzzle}>

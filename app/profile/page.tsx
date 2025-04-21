@@ -8,12 +8,12 @@ import MySubscription from "@/components/profile/MySubscription";
 export default function Profile() {
   return (
     <Navigation>
-        <ChangePassword/>
-      <div className="flex flex-col p-[32px] gap-4">
+      <ChangePassword />
+      <div className="flex flex-col z-10 p-[32px] gap-4">
         <MyAccount />
         <MySubscription />
         <MyRemainingAnalysisTokens />
-        <MyRemainingPuzzle/>
+        <MyRemainingPuzzle />
       </div>
     </Navigation>
   );

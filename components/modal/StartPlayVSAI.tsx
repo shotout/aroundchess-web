@@ -17,7 +17,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
 
-export function StartPlayVSAI() {
+interface StartPlayVSAIProps {
+  onLimit: (isLimit: boolean) => void;
+}
+
+export function StartPlayVSAI({ onLimit }: StartPlayVSAIProps) {
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { getVSAILogs, isLoading } = useApiClient();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
@@ -98,8 +102,8 @@ export function StartPlayVSAI() {
   const checkLimit = () => {
     getVSAILogs({ limit: 20, page: 1 }).then((res: any) => {
       if (res.data.length >= 20) {
-        setOpenConfirmLogin(true);
         setIsLimit(true);
+        onLimit(true)
       } else {
         setIsLimit(false);
       }
@@ -107,24 +111,20 @@ export function StartPlayVSAI() {
   };
 
   const handlePlayNow = () => {
-    if (isLimit) {
-      setOpenConfirmLogin(true);
-    } else {
-      let index = opponents.findIndex((o) => o.id == selectedOpponent);
-      let ELO =
-        opponents[index].elo +
-        difficulties.findIndex((d) => d.key == difficulty) * 650;
-      let opponentData = opponents[index];
-      opponentData.elo = ELO;
-      let body = {
-        color: selectedColor,
-        difficulty: difficulty,
-        opponent: opponentData,
-      };
-      console.log("body", body);
-      setAIChoosed(body);
-      router.push("/playground/play-vs-ai/playing");
-    }
+    let index = opponents.findIndex((o) => o.id == selectedOpponent);
+    let ELO =
+      opponents[index].elo +
+      difficulties.findIndex((d) => d.key == difficulty) * 650;
+    let opponentData = opponents[index];
+    opponentData.elo = ELO;
+    let body = {
+      color: selectedColor,
+      difficulty: difficulty,
+      opponent: opponentData,
+    };
+    console.log("body", body);
+    setAIChoosed(body);
+    router.push("/playground/play-vs-ai/playing");
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

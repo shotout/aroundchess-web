@@ -14,6 +14,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -24,6 +26,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const [isDesktop, setIsDesktop] = useState(false);
   const { isSignedIn } = useUser();
   const [token, setToken] = useState(0);
+  const [isMember, setIsMember] = useState<boolean>(false);
+  const { setOpen: setOpenSubscribe } = usePricingOffer();
   // Check if desktop on initial load and when window resizes
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -37,7 +41,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
-
+  const handleOpenOffer = (type: string) => {
+    setOpenSubscribe(true);
+  };
   return (
     <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b h-[72px]  lg:h-[97px]">
       {/* Left section - Logo and navigation (on desktop only) */}
@@ -107,16 +113,62 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             </button>
           </div>
         ) : (
-          <div className="hidden sm:flex items-center gap-[8px]">
-            <span className="block text-[16px] text-[#221AE9] font-medium">
-              Remaining Tokens: <span className={`font-bold ${token == 0 ?`text-[#FD0000]`:``}`}>{token}</span>
+          <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
+            <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
+              Remaining Tokens:{" "}
+              <span
+                className={`font-bold ${token == 0 ? `text-[#FD0000]` : ``}`}
+              >
+                {token}
+              </span>
             </span>
-            <button className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              <Link href="/login">Buy Tokens</Link>
-            </button>
-            <button className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-              Go Unlimited
-            </button>
+
+            {!isMember && (
+              <div className="w-full flex flex-row gap-[8px] ">
+                <button
+                  onClick={() => handleOpenOffer("token")}
+                  className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  <Link href="/login">Buy Tokens</Link>
+                </button>
+                <button
+                  onClick={() => handleOpenOffer("subscribe")}
+                  className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Go Unlimited
+                </button>
+              </div>
+            )}
+            {isMember && (
+              <motion.div
+                variants={fadeInUp}
+                className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+              >
+                <div
+                  className={`flex xl:min-w-[240px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                >
+                  <Image
+                    src={`/icons/onboarding-popup.png`}
+                    alt="icon"
+                    width={1000}
+                    height={1000}
+                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                  />
+                  <span className="font-medium text-[14px] z-10 text-black">
+                    {"You are on this Package!"}
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    <Image
+                      src={`/icons/sparks-member.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-full h-[56px] object-cover"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         )}
 
@@ -130,7 +182,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
             >
               <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-              <span className="font-normal text-[18px]">Analytics</span>
+              <span className="font-normal text-[14px] lg:text-[18px]">
+                Analytics
+              </span>
             </Button>
 
             {/* Hamburger menu */}

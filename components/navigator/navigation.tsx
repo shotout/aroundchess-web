@@ -6,6 +6,9 @@ import Header from "@/components/navigator/header";
 import { ConfirmLogin } from "../modal/ConfirmLogin";
 import { useAuth } from "@clerk/nextjs";
 import { ContactUs } from "../modal/ContactUs";
+import { CancelSubscription } from "../modal/CancelSubscription";
+import { PricingOffer } from "../modal/PricingOffer";
+import { SuccessSubscription } from "../modal/SuccessSubscription";
 
 export default function Navigation({
   children,
@@ -62,11 +65,14 @@ export default function Navigation({
           )}
 
           {/* Main content */}
-          <div className="relative z-10">
+          <div className="relative">
             {/* <div className="relative z-10 lg:min-h-[calc(100vh-97px)]"> */}
             {children}
             <ConfirmLogin />
             <ContactUs />
+            <SuccessSubscription />
+            <CancelSubscription />
+            <PricingOffer />
           </div>
 
           <div className="z-49 relative">
@@ -78,11 +84,11 @@ export default function Navigation({
       {!isDesktop && isSidebarOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-100"
             onClick={() => setSidebarOpen(false)}
           />
 
-          <div className="fixed inset-y-0 left-0 z-49 w-64 bg-white border-r border-gray-200">
+          <div className="fixed inset-y-0 left-0 z-100 w-64 bg-white border-r border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
         </>
