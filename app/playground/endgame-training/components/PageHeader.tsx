@@ -30,7 +30,7 @@ export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
         )}
       </div>
       {activeTab === "move" && viewState.view === "categories" && (
-        <div className="text-black border p-3 rounded-md text-sm w-auto h-[45px] flex items-center">
+        <div className="text-black border p-3 rounded-md text-xs md:text-sm w-auto h-[60px] xl:h-[45px] flex items-center">
           <h1 className="">
             Challenge yourself and achieve Checkmate in a{" "}
             <span className="font-bold">specific amount of moves.</span>{" "}

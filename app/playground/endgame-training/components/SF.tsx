@@ -16,6 +16,7 @@ interface StockfishEngineProps {
   checkGameStatus: () => boolean;
   setBestMove: React.Dispatch<React.SetStateAction<string | null>>;
   showHint: boolean;
+  playerColor: "w" | "b"; // Added player color prop
 }
 
 export default function StockfishEngine({
@@ -28,20 +29,17 @@ export default function StockfishEngine({
   checkGameStatus,
   setBestMove,
   showHint,
+  playerColor, // Added player color
 }: StockfishEngineProps) {
   const engine = useMemo(() => new Engine(), []);
 
-  // useEffect(() => {
-  //   return () => {
-  //     if (engine) {
-  //       engine.stop();
-  //       engine.destroy();
-  //     }
-  //   };
-  // }, [engine]);
-
   const findBestMove = useCallback(() => {
-    if (game.turn() !== "b" || game.isGameOver() || gameStatus !== "ongoing") {
+    // Computer should move when it's not player's turn
+    if (
+      game.turn() === playerColor ||
+      game.isGameOver() ||
+      gameStatus !== "ongoing"
+    ) {
       return;
     }
 
@@ -74,6 +72,7 @@ export default function StockfishEngine({
     setPosition,
     setMoveSquares,
     checkGameStatus,
+    playerColor, // Added dependency
   ]);
 
   const handleHint = useCallback(() => {
@@ -93,14 +92,15 @@ export default function StockfishEngine({
   }, [position, game, engine, gameStatus, setBestMove, setMoveSquares]);
 
   useEffect(() => {
-    if (position && game.turn() === "b" && gameStatus === "ongoing") {
+    // Computer should move when it's not player's turn
+    if (position && game.turn() !== playerColor && gameStatus === "ongoing") {
       const timeoutId = setTimeout(() => {
         findBestMove();
       }, 300);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [position, game, gameStatus, findBestMove]);
+  }, [position, game, gameStatus, findBestMove, playerColor]); // Added playerColor dependency
 
   useEffect(() => {
     if (showHint && position && gameStatus === "ongoing") {
