@@ -15,7 +15,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useClerk, UserButton, useUser } from "@clerk/nextjs";
-import { motion } from "framer-motion";
 import {
   BarChart2,
   DollarSign,
@@ -27,63 +26,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
-
-const navItems = {
-  main: [
-    { title: "Home", href: "/", icon: Home },
-    { title: "About", href: "/about", icon: Info },
-    {
-      title: "Analysis",
-      href: "/analysis",
-      icon: BarChart2,
-      items: [
-        {
-          title: "My Statistics",
-          href: "/analysis/stats",
-          description: "View detailed performance metrics",
-        },
-        {
-          title: "My Game History",
-          href: "/analysis/history",
-          description: "Browse and analyze your past games",
-        },
-        {
-          title: "My Reports",
-          href: "/analysis/reports",
-          description: "Get insights into your playing style",
-        },
-        {
-          title: "My Goals",
-          href: "/analysis/goals",
-          description: "Set and track your chess objectives",
-        },
-        {
-          title: "My Progress",
-          href: "/analysis/progress",
-          description: "Monitor your rating and improvements",
-        },
-        {
-          title: "My Training",
-          href: "/analysis/training",
-          description: "Review your training activities",
-        },
-        {
-          title: "Daily Plan",
-          href: "/analysis/daily",
-          description: "Your personalized daily training",
-        },
-        {
-          title: "Weekly Plan",
-          href: "/analysis/weekly",
-          description: "Weekly training schedule and goals",
-        },
-      ],
-    },
-    { title: "FAQ", href: "/faq", icon: HelpCircle },
-    { title: "Pricing", href: "/pricing", icon: DollarSign },
-  ],
-};
-
+import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 interface SiteHeaderProps {
   children?: React.ReactNode;
   onSidebarOpen?: () => void;
@@ -94,6 +38,9 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const { signOut } = useClerk();
   const clearAll = usePgnStore((state) => state.clearAll);
   const { isSignedIn } = useUser();
+  const [token, setToken] = React.useState(0);
+  const [isMember, setIsMember] = React.useState<boolean>(false);
+  const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -113,9 +60,13 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     // Optional: redirect to login page or home page
     // window.location.href = '/';
   };
+  const handleOpenOffer = (type: string) => {
+    setOpenSubscribe(true);
+    setTabType(type);
+  };
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full bg-white py-2"
+      className="sticky top-0 z-20 w-full bg-white py-2"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -196,23 +147,84 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <div id="mobile-nav-description" className="sr-only">
                 Mobile navigation menu for AroundChess
               </div>
-              <MobileNav isSignedIn={isSignedIn} handleLogout={handleLogout} />
+              <MobileNav
+                isSignedIn={isSignedIn}
+                handleLogout={handleLogout}
+                isMember={isMember}
+                token={token}
+                handleOpenOffer={handleOpenOffer}
+              />
             </SheetContent>
           </Sheet>
           <div className="hidden xl:flex items-center gap-2">
             {!isSignedIn ? (
-              <div className="hidden sm:flex items-center gap-2">
-                <button className="btn-secondary rounded-full w-20 h-8 text-xs px-2 py-2">
-                  <Link href="/login">Sign In</Link>
+              <div className="hidden sm:flex items-center gap-5">
+                <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <Link href="/login">Sign-In</Link>
                 </button>
-                <button className="btn-primary rounded-full w-20 text-xs px-2 py-2">
-                  <Link href="/register">Try Now</Link>
+                <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                  Try Now
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button onClick={handleLogout}>Logout</button>
-                <UserButton showName={true} />
+              <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
+                <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
+                  Remaining Tokens:{" "}
+                  <span
+                    className={`font-bold ${
+                      token == 0 ? `text-[#FD0000]` : ``
+                    }`}
+                  >
+                    {token}
+                  </span>
+                </span>
+
+                {!isMember && (
+                  <div className="w-full flex flex-row gap-[8px] ">
+                    <button
+                      onClick={() => handleOpenOffer("token")}
+                      className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Buy Tokens
+                    </button>
+                    <button
+                      onClick={() => handleOpenOffer("subscription")}
+                      className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      Go Unlimited
+                    </button>
+                  </div>
+                )}
+                {isMember && (
+                  <motion.div
+                    variants={fadeInUp}
+                    className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                  >
+                    <div
+                      className={`flex xl:min-w-[240px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                    >
+                      <Image
+                        src={`/icons/onboarding-popup.png`}
+                        alt="icon"
+                        width={1000}
+                        height={1000}
+                        className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                      />
+                      <span className="font-medium text-[14px] z-10 text-black">
+                        {"You are on this Package!"}
+                      </span>
+                      <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                        <Image
+                          src={`/icons/sparks-member.png`}
+                          alt="icon"
+                          width={1000}
+                          height={1000}
+                          className="w-full h-[56px] object-cover"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             )}
           </div>
@@ -250,8 +262,14 @@ const ListItem = React.forwardRef<
 });
 
 ListItem.displayName = "ListItem";
-
-function MobileNav(props: { isSignedIn: any; handleLogout: ()=>void }) {
+interface mobileProps {
+  isSignedIn: any;
+  handleLogout: () => void;
+  token: number;
+  isMember: boolean;
+  handleOpenOffer: (type: string) => void;
+}
+function MobileNav(props: mobileProps) {
   return (
     <div className="flex flex-col ml-4 self-center ">
       <div className="flex items-center justify-between mb-8">
@@ -293,17 +311,73 @@ function MobileNav(props: { isSignedIn: any; handleLogout: ()=>void }) {
 
       <div className="flex flex-1 gap-2 mt-8">
         {!props.isSignedIn ? (
-          <div className="sm:flex sm:flex-col w-full items-center gap-2">
-            <button className="btn-secondary rounded-full mb-2 w-full h-8 sm:h-12 text-xs px-2 py-1">
-              <Link href="/login">Sign In</Link>
+          <div className="hidden sm:flex items-center gap-5">
+            <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <Link href="/login">Sign-In</Link>
             </button>
-            <button className="btn-primary rounded-full w-full text-xs h-8 sm:h-12 px-2 py-1">
-              <Link href="/register">Try Now</Link>
+            <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+              Try Now
             </button>
           </div>
         ) : (
-          // <UserButton showName={true} />
-          <button onClick={props.handleLogout}>Logout</button>
+          <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
+            <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
+              Remaining Tokens:{" "}
+              <span
+                className={`font-bold ${
+                  props.token == 0 ? `text-[#FD0000]` : ``
+                }`}
+              >
+                {props.token}
+              </span>
+            </span>
+            {!props.isMember && (
+              <div className="w-full flex flex-row gap-[8px] ">
+                <button
+                  onClick={() => props.handleOpenOffer("token")}
+                  className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Buy Tokens
+                </button>
+                <button
+                  onClick={() => props.handleOpenOffer("subscription")}
+                  className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Go Unlimited
+                </button>
+              </div>
+            )}
+            {props.isMember && (
+              <motion.div
+                variants={fadeInUp}
+                className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+              >
+                <div
+                  className={`flex xl:min-w-[240px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                >
+                  <Image
+                    src={`/icons/onboarding-popup.png`}
+                    alt="icon"
+                    width={1000}
+                    height={1000}
+                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                  />
+                  <span className="font-medium text-[14px] z-10 text-black">
+                    {"You are on this Package!"}
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    <Image
+                      src={`/icons/sparks-member.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-full h-[56px] object-cover"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
         )}
       </div>
     </div>
