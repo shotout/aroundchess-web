@@ -155,6 +155,8 @@ const AnalysisResult: React.FC = () => {
       // Extract history of moves
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
 
+      console.log("history", history);
+      setParsedMoves(history);
       comments.forEach((c) => {
         let index = history.findIndex(({ after }) => after == c.fen);
         // console.log( index);
@@ -223,11 +225,9 @@ const AnalysisResult: React.FC = () => {
       } else {
         setBoardOrientation("white");
       }
-      console.log("history", history);
       // Reset the current game
       const newGame = new Chess();
       setGame(newGame);
-      setParsedMoves(history);
       setCurrentMoveWhite(0);
       setCurrentMoveBlack(0);
       setCurrentMoveIndex(0);
@@ -353,7 +353,10 @@ const AnalysisResult: React.FC = () => {
     );
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
     setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+    console.log("storePgn",storePgn)
+
     console.log("masuk");
+    parsePgn(storePgn)
   }, [chessMove]);
 
   useEffect(() => {
@@ -510,12 +513,14 @@ const AnalysisResult: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-          <Watch size={16} />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-            {currentMoveBlack == 0 ? startTime : currentMoveBlack}
-          </span>
-        </div>
+        {game.getComments().length > 0 && (
+          <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+            <Watch size={16} />
+            <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+              {currentMoveBlack == 0 ? startTime : currentMoveBlack}
+            </span>
+          </div>
+        )}
       </div>
     );
   };
@@ -583,12 +588,14 @@ const AnalysisResult: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-          <Watch size={16} />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-            {currentMoveWhite == 0 ? startTime : currentMoveWhite}
-          </span>
-        </div>
+        {game.getComments().length > 0 && (
+          <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+            <Watch size={16} />
+            <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+              {currentMoveWhite == 0 ? startTime : currentMoveWhite}
+            </span>
+          </div>
+        )}
       </div>
     );
   };

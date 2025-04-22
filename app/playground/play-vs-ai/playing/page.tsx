@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import {
   BoardOrientation,
   PromotionPieceOption,
@@ -41,6 +41,7 @@ import {
   formatDatePgn,
   formatTimePgn,
 } from "@/functions/format-date";
+import { ChessCountdown } from "@/utils/chessCountdown";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
 export default function Playing() {
@@ -67,6 +68,11 @@ export default function Playing() {
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
+  const [whiteTime, setWhiteTime] = useState("10:00");
+  const [blackTime, setBlackTime] = useState("10:00");
+  const whiteTimer = useRef<ChessCountdown>();
+  const blackTimer = useRef<ChessCountdown>();
+
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
@@ -104,6 +110,37 @@ export default function Playing() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
+  useEffect(() => {
+    whiteTimer.current = new ChessCountdown(10, 0, {
+      onTick: (time) => setWhiteTime(time),
+      onEnd: () => console.log("White lost on time!"),
+    });
+
+    blackTimer.current = new ChessCountdown(10, 0, {
+      onTick: (time) => setBlackTime(time),
+      onEnd: () => console.log("Black lost on time!"),
+    });
+
+    whiteTimer.current.start();
+
+    return () => {
+      whiteTimer.current?.pause();
+      blackTimer.current?.pause();
+    };
+  }, []);
+
+  const switchTurn = (turn: string) => {
+    if (turn == "w") {
+      whiteTimer.current?.applyIncrement();
+      whiteTimer.current?.pause();
+      blackTimer.current?.resume();
+    } else {
+      blackTimer.current?.applyIncrement();
+      blackTimer.current?.pause();
+      whiteTimer.current?.resume();
+    }
+  };
+
   const fetchPgnLocal = async () => {
     let headers = game.getHeaders();
     let dataGames = {
@@ -249,8 +286,10 @@ export default function Playing() {
       }
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+      let isYourTurn = myColor == "white" ? "w" : "b";
       setTimeout(() => {
         findBestMove();
+        switchTurn(isYourTurn);
       }, 1000);
       setMoveFrom("");
       setMoveTo(null);
@@ -330,12 +369,16 @@ export default function Playing() {
           to: bestMove.substring(2, 4),
           promotion: bestMove.substring(4, 5),
         });
+
         setBestline("");
         setHintClicked(false);
         setGamePosition(game.fen());
         setCurrentTurn((turnColor) =>
           turnColor != "White" ? "White" : "Black"
         );
+        let isEnemyTurn = myColor != "white" ? "w" : "b";
+
+        switchTurn(isEnemyTurn);
       }
     });
   };
@@ -752,6 +795,9 @@ export default function Playing() {
             }`}
           >
             {myColor != "white" ? "You" : AIChoosed.opponent.name}
+            {/* <div className="text-center">
+              <h2 className="text-xl">{blackTime}</h2>
+            </div> */}
           </span>
         </div>
         <div className="flex flex-row items-center ">
@@ -821,6 +867,10 @@ export default function Playing() {
             }`}
           >
             {myColor == "white" ? "You" : AIChoosed.opponent.name}
+
+            {/* <div className="text-center">
+              <span className="text-xl">{whiteTime}</span>
+            </div> */}
           </span>
         </div>
         <div className="flex flex-row items-center ">
