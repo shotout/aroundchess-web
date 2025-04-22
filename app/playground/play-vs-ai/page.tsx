@@ -48,9 +48,7 @@ export default function PlayVSAI() {
               Challenge AI to improve your accuracy and enhance your chess
               skills.
             </span>
-            <StartPlayVSAI
-              onLimit={(infoLimit) => setShowPremiumDialog(infoLimit)}
-            />
+            <StartPlayVSAI />
           </div>
         </div>
       </div>

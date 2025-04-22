@@ -72,7 +72,7 @@ export const PricingOffer: React.FC = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 bg-black/50" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[90%] rounded-lg p-4 shadow-xl">
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl">
           <Image
             src={`/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
@@ -98,7 +98,7 @@ export const PricingOffer: React.FC = () => {
               <TabsTrigger
                 value="tokens"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab === "tokens"
+                  activeTab == "token"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}
@@ -118,7 +118,7 @@ export const PricingOffer: React.FC = () => {
               <TabsTrigger
                 value="subscription"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab !== "tokens"
+                  activeTab == "subscription"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}

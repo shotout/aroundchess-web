@@ -18,6 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useProfileStore } from "@/app/store/profile";
+import { fadeInUp } from "@/utils/motion";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -154,6 +156,7 @@ const sidebarLinks: SidebarLink[] = [
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
+  const { isMember, token } = useProfileStore();
   const router = useRouter();
 
   const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
@@ -165,7 +168,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   };
   return (
     <div className="flex h-full flex-col z-100">
-      <div className="flex h-24 items-center px-6 justify-center border-b">
+      <div className="flex h-24 items-center px-6 justify-center sm:border-b">
         <Link href="/" className="flex items-center justify-center">
           <Image
             src="/icons/logo.png"
@@ -187,7 +190,60 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </button>
         )} */}
       </div>
-
+      <div className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b">
+        <div className="flex flex-row items-center justify-center gap-2">
+          <Image
+            src={`/images/pricing/token-icon.png`}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[20px] h-[20px] object-contain"
+          />
+          <span className="block lg:text-[16px] text-[#221AE9] font-medium">
+            Remaining Tokens:{" "}
+            <span
+              className={`font-bold ${
+                token.balance == 0 ? `text-[#FD0000]` : ``
+              }`}
+            >
+              {token.balance}
+            </span>
+          </span>
+        </div>
+        {isMember && (
+          <motion.div
+            variants={fadeInUp}
+            className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+          >
+            <div
+              className={`flex xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+            >
+              <Image
+                src={`/icons/onboarding-popup.png`}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[42px] h-[44px] object-contain m-4 mr-0"
+              />
+              <span className="block font-medium text-[14px] z-10 text-black">
+                {"You are on "}
+                <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                  {"Premium package!"}
+                </span>
+              </span>
+              <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                <Image
+                  src={`/icons/sparks-member.png`}
+                  alt="icon"
+                  width={1000}
+                  height={1000}
+                  className="w-[56px] h-[56px] object-cover"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
       <ScrollArea className="flex-1 py-3">
         <nav className="space-y-5 px-2">
           {sidebarLinks.map((section: any) => {
@@ -356,39 +412,38 @@ export default function Sidebar({ onClose }: SidebarProps) {
           })}
         </nav>
       </ScrollArea>
-      {user&&(
-
-      <motion.div
-        className="mt-auto border-t border-gray-200 p-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <motion.button
-          onClick={handleToProfile}
-          className="flex w-full items-center gap-3 h-[80px] rounded-[8px] p-[16px] border border-[#221AE9] bg-[#221AE910]"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+      {user && (
+        <motion.div
+          className="mt-auto border-t border-gray-200 p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
         >
-          {user?.imageUrl && (
-            <Image
-              src={user.imageUrl}
-              alt={user?.fullName || "User"}
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
-          )}
-          <div className="flex-1 text-left">
-            <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-              {user?.fullName}
-            </p>
-            <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
-              {user?.primaryEmailAddress?.emailAddress}
-            </p>
-          </div>
-        </motion.button>
-      </motion.div>
+          <motion.button
+            onClick={handleToProfile}
+            className="flex w-full items-center gap-3 h-[80px] rounded-[8px] p-[16px] border border-[#221AE9] bg-[#221AE910]"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {user?.imageUrl && (
+              <Image
+                src={user.imageUrl}
+                alt={user?.fullName || "User"}
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+            )}
+            <div className="flex-1 text-left">
+              <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
+                {user?.fullName}
+              </p>
+              <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
+                {user?.primaryEmailAddress?.emailAddress}
+              </p>
+            </div>
+          </motion.button>
+        </motion.div>
       )}
     </div>
   );
