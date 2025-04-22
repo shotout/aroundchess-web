@@ -28,6 +28,7 @@ import Link from "next/link";
 import * as React from "react";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
 interface SiteHeaderProps {
   children?: React.ReactNode;
   onSidebarOpen?: () => void;
@@ -39,7 +40,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const clearAll = usePgnStore((state) => state.clearAll);
   const { isSignedIn } = useUser();
   const [token, setToken] = React.useState(0);
-  const [isMember, setIsMember] = React.useState<boolean>(false);
+  
+  const {isMember} = useProfileStore()
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   React.useEffect(() => {
@@ -211,7 +213,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                         className="w-[42px] h-[44px] object-contain m-4 mr-0"
                       />
                       <span className="font-medium text-[14px] z-10 text-black">
-                        {"You are on this Package!"}
+                        {"You are on Premium!"}
                       </span>
                       <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                         <Image
@@ -219,7 +221,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                           alt="icon"
                           width={1000}
                           height={1000}
-                          className="w-full h-[56px] object-cover"
+                          className="w-[56px] h-[56px] object-cover"
                         />
                       </div>
                     </div>
@@ -363,7 +365,7 @@ function MobileNav(props: mobileProps) {
                     className="w-[42px] h-[44px] object-contain m-4 mr-0"
                   />
                   <span className="font-medium text-[14px] z-10 text-black">
-                    {"You are on this Package!"}
+                    {"You are on Premium!"}
                   </span>
                   <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                     <Image
@@ -371,7 +373,7 @@ function MobileNav(props: mobileProps) {
                       alt="icon"
                       width={1000}
                       height={1000}
-                      className="w-full h-[56px] object-cover"
+                      className="w-[56px] h-[56px] object-cover"
                     />
                   </div>
                 </div>

@@ -1,10 +1,11 @@
 import Image from "next/image";
 import { FC } from "react";
 type CurrentInfoProps = {
-  textButton: string;
+  textButton: string | null;
   image: string;
   title: string;
   children: React.ReactNode;
+  handleOnClick: () => void;
 };
 
 const CurrentInfo: FC<CurrentInfoProps> = ({
@@ -12,6 +13,7 @@ const CurrentInfo: FC<CurrentInfoProps> = ({
   image,
   title,
   textButton,
+  handleOnClick,
 }) => {
   return (
     <div
@@ -25,7 +27,7 @@ const CurrentInfo: FC<CurrentInfoProps> = ({
         className="object-contain"
       />
       {/* here is image offside */}
-       <Image
+      <Image
         alt="icon"
         src={image}
         width={122}
@@ -34,7 +36,14 @@ const CurrentInfo: FC<CurrentInfoProps> = ({
       />
       <span className="font-normal text-[14px]">{title}</span>
       {children}
-      <button className="btn-primary rounded-full w-full h-[40px]">{textButton}</button>
+      {textButton && (
+        <button
+          onClick={handleOnClick}
+          className="btn-primary rounded-full w-full h-[40px]"
+        >
+          {textButton}
+        </button>
+      )}
     </div>
   );
 };

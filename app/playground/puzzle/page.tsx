@@ -1,6 +1,7 @@
 "use client";
 
 import { usePuzzles } from "@/app/hooks/usePuzzles";
+import { useProfileStore } from "@/app/store/profile";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import Navigation from "@/components/navigator/navigation";
 import { PuzzleGame } from "@/components/playground/puzzle/PuzzleGame";
@@ -53,6 +54,7 @@ export default function Puzzle() {
     showConfirmationBox,
     handleConfirm,
   } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
+  const { isMember } = useProfileStore();
   const { postPuzzle, getPuzzle, isLoading } = useApiClient();
   const [puzzleLog, setPuzzleLog] = useState<any[]>([]);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -75,7 +77,7 @@ export default function Puzzle() {
       let logs = res.data;
       setPuzzleLog(logs);
       console.log("log puzzle", logs);
-      if (logs.length >= 20) {
+      if (logs.length >= 20 && !isMember) {
         // kondisi kalo udah 20
         setShowPremiumDialog(true);
       }
