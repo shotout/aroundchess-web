@@ -1,9 +1,8 @@
 import { FC, useState } from "react";
 import CurrentInfo from "./CurrentInfo";
 import Image from "next/image";
-type MyRemainingAnalysisTokensProps = {};
 
-const MyRemainingAnalysisTokens: FC<MyRemainingAnalysisTokensProps> = () => {
+const MyRemainingAnalysisTokens = () => {
   const [tokens, setTokens] = useState<number>(14);
   return (
     <div className={`flex flex-col gap-4`}>
@@ -24,7 +23,9 @@ const MyRemainingAnalysisTokens: FC<MyRemainingAnalysisTokensProps> = () => {
             width={40}
             height={40}
           />
-          <span className="font-semibold text-[40px] text-[#221AE9]">{tokens}</span>
+          <span className="font-semibold text-[40px] text-[#221AE9]">
+            {tokens}
+          </span>
         </div>
       </CurrentInfo>
     </div>
