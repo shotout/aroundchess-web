@@ -90,8 +90,11 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem className="hidden sm:flex ">
-                  <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
+                  <Link href="/analysis" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      
+                      className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2"
+                    >
                       <Button color="primary" variant="outlineprimary">
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analytics
@@ -284,10 +287,12 @@ function MobileNav(props: mobileProps) {
           />
         </Link>
       </div>
-      <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
-        <BarChart2 className="mr-2 h-4 w-4" />
-        Analytics
-      </div>
+      <Link href="/analysis">
+        <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
+          <BarChart2 className="mr-2 h-4 w-4" />
+          Analytics
+        </div>
+      </Link>
       <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6">
         <Link href="/about" legacyBehavior passHref>
           <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
