@@ -60,16 +60,18 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
-    console.log("dataAnalysis",dataAnalysis)
-    console.log("pgn.length",pgn.length)
-    console.log("isSignedIn",isSignedIn)
-    if (pgn.length == 0 || !isSignedIn) {
-      fetchPgnFamousGame();
+    console.log("dataAnalysis", dataAnalysis);
+    console.log("pgn.length", pgn);
+    console.log("isSignedIn", isSignedIn);
+    if (isSignedIn != undefined) {
+      if (dataAnalysis==null || !isSignedIn) {
+        fetchPgnFamousGame();
+      }
+      if (isSignedIn) {
+        fetchMistakePrevious();
+      }
     }
-    if (isSignedIn) {
-      fetchMistakePrevious();
-    }
-  }, []);
+  }, [isSignedIn]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;

@@ -356,6 +356,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
           })}
         </nav>
       </ScrollArea>
+      {user&&(
+
       <motion.div
         className="mt-auto border-t border-gray-200 p-4"
         initial={{ opacity: 0, y: 20 }}
@@ -387,6 +389,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </div>
         </motion.button>
       </motion.div>
+      )}
     </div>
   );
 }
