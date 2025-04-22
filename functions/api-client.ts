@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -16,7 +17,7 @@ interface RequestOptions {
 
 export function useApiClient() {
   const { sessionId } = useAuth();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { setIsLoading, isLoading } = useLoadingAPI();
   const [error, setError] = useState<Error | null>(null);
 
   const apiRequest = useCallback(
@@ -27,9 +28,9 @@ export function useApiClient() {
       params,
       headers = {},
     }: RequestOptions): Promise<T> => {
-      setIsLoading(true);
-      setError(null);
       try {
+        setIsLoading(true);
+        setError(null);
         let url = path;
         const token = localStorage.getItem("token");
 
@@ -360,7 +361,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/profile`,
+        path: `${process.env.BASE_URL}/profile`,
         params,
       });
     },
@@ -370,7 +371,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/tokens/balance`,
+        path: `${process.env.BASE_URL}/tokens/balance`,
         params,
       });
     },
@@ -380,7 +381,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/tokens/packages`,
+        path: `${process.env.BASE_URL}/tokens/packages`,
         params,
       });
     },
@@ -390,7 +391,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/tokens/history`,
+        path: `${process.env.BASE_URL}/tokens/history`,
         params,
       });
     },
@@ -400,7 +401,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/tokens/purchase-history`,
+        path: `${process.env.BASE_URL}/tokens/purchase-history`,
         params,
       });
     },
@@ -421,7 +422,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/membership/active`,
+        path: `${process.env.BASE_URL}/membership/active`,
         params,
       });
     },
@@ -432,7 +433,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/membership/packages`,
+        path: `${process.env.BASE_URL}/membership/packages`,
         params,
       });
     },
@@ -442,7 +443,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/membership/history`,
+        path: `${process.env.BASE_URL}/membership/history`,
         params,
       });
     },
@@ -452,7 +453,7 @@ export function useApiClient() {
     (params: any) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/api/membership/check-analysis-access`,
+        path: `${process.env.BASE_URL}/membership/check-analysis-access`,
         params,
       });
     },
@@ -511,5 +512,6 @@ export function useApiClient() {
     getTokenUsageHistory,
     postPurchaseToken,
     getCheckAnalysisAccess,
+    getProfile,
   };
 }

@@ -16,6 +16,9 @@ import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -25,9 +28,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
   const { isSignedIn } = useUser();
-  const [token, setToken] = useState(0);
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const { isLoading } = useApiClient();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
+  const { token, isMember } = useProfileStore();
+
   // Check if desktop on initial load and when window resizes
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -118,12 +122,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
               Remaining Tokens:{" "}
               <span
-                className={`font-bold ${token == 0 ? `text-[#FD0000]` : ``}`}
+                className={`font-bold ${
+                  token.balance == 0 ? `text-[#FD0000]` : ``
+                }`}
               >
-                {token}
+                {token.balance}
               </span>
             </span>
-
+            {/* {isLoading && <DotSpinner />} */}
             {!isMember && (
               <div className="w-full flex flex-row gap-[8px] ">
                 <button
@@ -156,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                     className="w-[42px] h-[44px] object-contain m-4 mr-0"
                   />
                   <span className="font-medium text-[14px] z-10 text-black">
-                    {"You are on this Package!"}
+                    {"You are on Premium!"}
                   </span>
                   <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                     <Image
@@ -164,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                       alt="icon"
                       width={1000}
                       height={1000}
-                      className="w-full h-[56px] object-cover"
+                      className="w-[56px] h-[56px] object-cover"
                     />
                   </div>
                 </div>
