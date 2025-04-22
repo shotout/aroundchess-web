@@ -19,7 +19,10 @@ import { useAuth } from "@clerk/nextjs";
 
 interface ChessLessonPageProps<T extends ChessLesson> {
   lessonType: LessonType;
-  lessonStore: ChessLessonState<T>;
+  lessonStore: ChessLessonState<T> & {
+    readStatusMap?: Record<string, boolean>;
+    checkReadStatus?: (id: string, sessionId?: string) => Promise<boolean>;
+  };
   title: string;
   description: string;
 }
@@ -69,33 +72,24 @@ function ChessLessonPage<T extends ChessLesson>({
     filteredLessons
   );
 
-  const fetchLessonDetailsWithAuth = async (id: string) => {
-    try {
-      return await fetchLessonDetails(id, sessionId || undefined);
-    } catch (error) {
-      console.error(`Error fetching ${lessonType} with auth:`, error);
-      return await fetchLessonDetails(id);
-    }
-  };
-
+  // Simplified fetch with authentication - no longer need separate fetchLessonDetailsWithAuth
   const fetchWithAuth = async () => {
     try {
+      // This single call will handle authentication properly
       await fetchAllLessons(sessionId || undefined);
     } catch (error) {
-      console.error(`Error fetching ${lessonType} with auth:`, error);
-      await fetchAllLessons();
+      console.error(`Error fetching ${lessonType}:`, error);
     }
   };
 
   useEffect(() => {
+    // Only fetch if not initialized
     if (!initialized) {
       fetchWithAuth();
     } else {
-      // Only apply filters when mounting or when initialized changes
-      // Don't call this on every render
+      // Just apply filters when already initialized
       applyFilters();
     }
-    // Remove applyFilters from the dependency array to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, sessionId]);
 
@@ -129,7 +123,7 @@ function ChessLessonPage<T extends ChessLesson>({
                   slug={slug}
                   lessonType={lessonType}
                   getFenFromMoves={getFenFromMoves}
-                  fetchDetails={fetchLessonDetailsWithAuth}
+                  fetchDetails={fetchLessonDetails}
                 />
               );
             })}
