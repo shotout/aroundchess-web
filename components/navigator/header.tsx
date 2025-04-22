@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     setTabType(type);
   };
   return (
-    <header className="fixed xl:sticky top-0 z-30 flex w-full items-center justify-between bg-white px-6 border-b h-[72px]  lg:h-[97px]">
+    <header className="fixed xl:sticky top-0 z-100 flex w-full items-center justify-between bg-white px-6 border-b h-[72px]  lg:h-[97px]">
       {/* Left section - Logo and navigation (on desktop only) */}
       <div className="flex items-center h-[70px] lg:h-[100px]">
         {/* Logo/Title - Always visible */}
