@@ -9,7 +9,7 @@ const MyRemainingAnalysisTokens = () => {
   const { token } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const handleOpenOffer = (type: string) => {
-    console.log("BUKA")
+    console.log("BUKA");
     setOpenSubscribe(true);
     setTabType(type);
   };
@@ -20,24 +20,26 @@ const MyRemainingAnalysisTokens = () => {
           My Remaining Analysis Tokens
         </span>
       </div>
-      <CurrentInfo
-        handleOnClick={() => handleOpenOffer("token")}
-        title="Remaining Tokens:"
-        textButton="Buy More Tokens"
-        image="/icons/icon-member-tokens.png"
-      >
-        <div className="flex flex-row items-center justify-center">
-          <Image
-            alt="tokens"
-            src="/icons/tokens-icon.png"
-            width={40}
-            height={40}
-          />
-          <span className="font-semibold text-[40px] text-[#221AE9]">
-            {token.balance}
-          </span>
-        </div>
-      </CurrentInfo>
+      <div className="flex justify-center items-center sm:justify-start">
+        <CurrentInfo
+          handleOnClick={() => handleOpenOffer("token")}
+          title="Remaining Tokens:"
+          textButton="Buy More Tokens"
+          image="/icons/icon-member-tokens.png"
+        >
+          <div className="flex flex-row items-center justify-center">
+            <Image
+              alt="tokens"
+              src="/icons/tokens-icon.png"
+              width={40}
+              height={40}
+            />
+            <span className="font-semibold text-[40px] text-[#221AE9]">
+              {token.balance}
+            </span>
+          </div>
+        </CurrentInfo>
+      </div>
     </div>
   );
 };
