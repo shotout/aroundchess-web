@@ -356,6 +356,118 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getProfile = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/profile`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenBalance = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/tokens/balance`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenPackage = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/tokens/packages`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenUsageHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/tokens/history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenPurchaseHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/tokens/purchase-history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const postPurchaseToken = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/tokens/purchase`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  const getActiveMembership = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/membership/active`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const getAllMembershipPackage = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/membership/packages`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getMembershipHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/membership/history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getCheckAnalysisAccess = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/api/membership/check-analysis-access`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const postPurchaseMembership = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/membership/purchase`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -389,5 +501,15 @@ export function useApiClient() {
     saveMistakeLog,
     unsaveMistakeLog,
     getMistakePreviousDetail,
+    getActiveMembership,
+    getAllMembershipPackage,
+    getMembershipHistory,
+    postPurchaseMembership,
+    getTokenBalance,
+    getTokenPackage,
+    getTokenPurchaseHistory,
+    getTokenUsageHistory,
+    postPurchaseToken,
+    getCheckAnalysisAccess,
   };
 }
