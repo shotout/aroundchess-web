@@ -33,6 +33,18 @@ export interface Prerequisite {
   prerequisite: string;
 }
 
+export interface StrategicIdea {
+  id: number;
+  handbookId: string;
+  idea: string;
+}
+
+export interface TacticalIdea {
+  id: number;
+  handbookId: string;
+  idea: string;
+}
+
 export interface BaseLesson {
   id: string;
   title: string;
@@ -40,7 +52,7 @@ export interface BaseLesson {
   category: string;
   difficulty: DifficultyLevel;
   estimatedTime: string;
-  forColor: string;
+  forColor: string | null;
   popularityLevel: number;
   recommendedFor: string[];
   relatedTopics: string[];
@@ -49,6 +61,15 @@ export interface BaseLesson {
   prerequisites: Prerequisite[];
   objectives: Objective[];
   resources: Resource[];
+  strategicIdeas: StrategicIdea[];
+  tacticalIdeas: TacticalIdea[];
+  readStatus?: boolean;
+}
+
+// Common overview structure for all lesson types
+export interface LessonOverview {
+  learningObjectives: Objective[];
+  prerequisites: Prerequisite[];
 }
 
 // Opening-specific interfaces
@@ -67,8 +88,13 @@ export interface Variation {
   keyIdeas: KeyIdea[];
 }
 
+export interface OpeningOverview extends LessonOverview {
+  // No additional fields for opening overview
+}
+
 export interface OpeningLesson extends BaseLesson {
   variations: Variation[];
+  overview?: OpeningOverview;
 }
 
 // Middlegame-specific interfaces
@@ -96,11 +122,18 @@ export interface StrategicConcept {
   concept: string;
 }
 
-export interface MiddlegameLesson extends BaseLesson {
-  patterns: Pattern[];
-  commonThemes: CommonTheme[];
-  tacticalMotifs: TacticalMotif[];
+export interface MiddlegameOverview extends LessonOverview {
   strategicConcepts: StrategicConcept[];
+}
+
+export interface MiddlegamePatterns {
+  commonPatterns: Pattern[];
+  tacticalMotifs: TacticalMotif[];
+}
+
+export interface MiddlegameLesson extends BaseLesson {
+  patterns?: MiddlegamePatterns;
+  overview?: MiddlegameOverview;
 }
 
 // Endgame-specific interfaces
@@ -140,13 +173,21 @@ export interface DrawingTechnique {
   technique: string;
 }
 
-export interface EndgameLesson extends BaseLesson {
+export interface EndgameOverview extends LessonOverview {
+  theoreticalKnowledge: TheoreticalKnowledge[];
+}
+
+export interface EndgamePatterns {
   winningTechniques: WinningTechnique[];
   fundamentalPositions: FundamentalPosition[];
-  theoreticalKnowledge: TheoreticalKnowledge[];
-  practicalTips: PracticalTip[];
-  commonMistakes: CommonMistake[];
-  drawingTechniques: DrawingTechnique[];
+  practicalTips?: PracticalTip[];
+  commonMistakes?: CommonMistake[];
+  drawingTechniques?: DrawingTechnique[];
+}
+
+export interface EndgameLesson extends BaseLesson {
+  patterns?: EndgamePatterns;
+  overview?: EndgameOverview;
 }
 
 // Generic lesson type that can be any of the three
@@ -185,11 +226,11 @@ export function isOpeningLesson(lesson: ChessLesson): lesson is OpeningLesson {
 }
 
 export function isMiddlegameLesson(lesson: ChessLesson): lesson is MiddlegameLesson {
-  return lesson.category === 'middlegame' && 'tacticalMotifs' in lesson;
+  return lesson.category === 'middlegame';
 }
 
 export function isEndgameLesson(lesson: ChessLesson): lesson is EndgameLesson {
-  return lesson.category === 'endgame' && ('winningTechniques' in lesson || 'fundamentalPositions' in lesson);
+  return lesson.category === 'endgame';
 }
 
 // Helper function to get the appropriate base URL path based on lesson type
