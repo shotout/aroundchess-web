@@ -66,14 +66,16 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {/* Navigation tabs - visible on desktop only (xl+) */}
         <div className="hidden xl:flex xl:items-center space-x-2">
           <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
-            <Button
-              color="primary"
-              variant="outlineprimary"
-              className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-            >
-              <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-              <span className="font-normal text-[18px]">Analytics</span>
-            </Button>
+            <Link href={"/analysis"}>
+              <Button
+                color="primary"
+                variant="outlineprimary"
+                className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+              >
+                <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+                <span className="font-normal text-[18px]">Analytics</span>
+              </Button>
+            </Link>
           </div>
           {/* Grouped navigation tabs */}
           <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
@@ -177,16 +179,18 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {!isDesktop && (
           <div className="flex items-center space-x-3">
             {/* Analytics button - visible on tablet */}
-            <Button
-              color="primary"
-              variant="outlineprimary"
-              className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-            >
-              <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-              <span className="font-normal text-[14px] lg:text-[18px]">
-                Analytics
-              </span>
-            </Button>
+            <Link href={"/analysis"}>
+              <Button
+                color="primary"
+                variant="outlineprimary"
+                className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+              >
+                <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+                <span className="font-normal text-[14px] lg:text-[18px]">
+                  Analytics
+                </span>
+              </Button>
+            </Link>
 
             {/* Hamburger menu */}
             <button
