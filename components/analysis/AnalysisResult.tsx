@@ -356,7 +356,6 @@ const AnalysisResult: React.FC = () => {
     console.log("storePgn",storePgn)
 
     console.log("masuk");
-    parsePgn(storePgn)
   }, [chessMove]);
 
   useEffect(() => {
