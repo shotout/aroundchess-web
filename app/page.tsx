@@ -20,7 +20,6 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(false);
-    setDataAnalysis(null);
   }, []);
 
   useEffect(() => {
