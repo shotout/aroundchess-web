@@ -23,6 +23,7 @@ export default function AnalysisPage() {
     username,
     pgn,
     setPgn,
+    dataAnalysis,
     setDataAnalysis,
   } = usePgnStore();
   const { getMistakePrevious, isLoading: fetchLoading } = useApiClient();
@@ -59,6 +60,9 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
+    console.log("dataAnalysis",dataAnalysis)
+    console.log("pgn.length",pgn.length)
+    console.log("isSignedIn",isSignedIn)
     if (pgn.length == 0 || !isSignedIn) {
       fetchPgnFamousGame();
     }
