@@ -15,7 +15,7 @@ const CurrentInfo: FC<CurrentInfoProps> = ({
 }) => {
   return (
     <div
-      className={`relative overflow-visible z-50 flex flex-col items-center w-[264px] gap-2 border-2 border-[#221AE9] rounded-[8px] p-[16px] bg-[#E6F7FE]`}
+      className={`relative overflow-visible z-10 flex flex-col items-center w-[264px] gap-2 border-2 border-[#221AE9] rounded-[8px] p-[16px] bg-[#E6F7FE]`}
     >
       <Image
         alt="icon"
