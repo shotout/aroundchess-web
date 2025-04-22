@@ -13,7 +13,6 @@ import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetu
 
 const DEV_MODE = false;
 
-
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
   const {
