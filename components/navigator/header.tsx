@@ -119,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
         ) : (
           <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
-            <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
+            <span className="hidden xl:block lg:text-[16px] w-full text-[#221AE9] font-medium">
               Remaining Tokens:{" "}
               <span
                 className={`font-bold ${
@@ -149,10 +149,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             {isMember && (
               <motion.div
                 variants={fadeInUp}
-                className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                className={`hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
               >
                 <div
-                  className={`flex xl:min-w-[240px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                  className={`flex min-w-[280px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
                 >
                   <Image
                     src={`/icons/onboarding-popup.png`}
@@ -161,8 +161,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                     height={1000}
                     className="w-[42px] h-[44px] object-contain m-4 mr-0"
                   />
-                  <span className="font-medium text-[14px] z-10 text-black">
-                    {"You are on Premium!"}
+                  <span className="block font-medium text-[14px] z-10 text-black">
+                    {"You are on "}
+                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                      {"Premium package!"}
+                    </span>
                   </span>
                   <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                     <Image
@@ -181,19 +184,63 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
         {/* Tablet view - Analytics button next to hamburger */}
         {!isDesktop && (
-          <div className="flex items-center space-x-3">
-            {/* Analytics button - visible on tablet */}
-            <Button
-              color="primary"
-              variant="outlineprimary"
-              className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-            >
-              <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-              <span className="font-normal text-[14px] lg:text-[18px]">
-                Analytics
+          <div className="flex items-center space-x-3 w-full">
+            <span className="hidden sm:block lg:text-[16px] w-full text-[#221AE9] font-medium">
+              Remaining Tokens:{" "}
+              <span
+                className={`font-bold ${
+                  token.balance == 0 ? `text-[#FD0000]` : ``
+                }`}
+              >
+                {token.balance}
               </span>
-            </Button>
-
+            </span>
+            {!isMember && (
+              <Button
+                color="primary"
+                variant="outlineprimary"
+                className=" rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+              >
+                <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+                <span className="font-normal text-[14px] lg:text-[18px]">
+                  Analytics
+                </span>
+              </Button>
+            )}
+            {/* Analytics button - visible on tablet */}
+            {isMember && (
+              <motion.div
+                variants={fadeInUp}
+                className={`hidden sm:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+              >
+                <div
+                  className={`flex min-w-[280px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                >
+                  <Image
+                    src={`/icons/onboarding-popup.png`}
+                    alt="icon"
+                    width={1000}
+                    height={1000}
+                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                  />
+                  <span className="block font-medium text-[14px] z-10 text-black">
+                    {"You are on "}
+                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                      {"Premium package!"}
+                    </span>
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    <Image
+                      src={`/icons/sparks-member.png`}
+                      alt="icon"
+                      width={1000}
+                      height={1000}
+                      className="w-[56px] h-[56px] object-cover"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
             {/* Hamburger menu */}
             <button
               type="button"
