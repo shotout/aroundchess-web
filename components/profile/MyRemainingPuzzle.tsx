@@ -1,9 +1,8 @@
 import { FC, useState } from "react";
 import CurrentInfo from "./CurrentInfo";
 import Image from "next/image";
-type MyRemainingPuzzleProps = {};
 
-const MyRemainingPuzzle: FC<MyRemainingPuzzleProps> = () => {
+const MyRemainingPuzzle = () => {
   const [limits, setLimits] = useState<number>(14);
   return (
     <div className={`flex flex-col gap-4`}>
@@ -23,7 +22,9 @@ const MyRemainingPuzzle: FC<MyRemainingPuzzleProps> = () => {
             height={40}
           />
           <div className="block gap-1 max-w-fill">
-            <span className="font-semibold text-[40px] text-[#221AE9]">{limits}</span>
+            <span className="font-semibold text-[40px] text-[#221AE9]">
+              {limits}
+            </span>
             <span className="font-medium text-[20px]">/20</span>
           </div>
         </div>

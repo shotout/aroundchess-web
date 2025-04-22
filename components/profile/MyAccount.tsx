@@ -6,9 +6,8 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
-type MyAccountProps = {};
 
-const MyAccount: FC<MyAccountProps> = () => {
+const MyAccount = () => {
   const { user } = useUser();
   const { open, setOpen } = usechangePassword();
   const { signOut } = useClerk();
