@@ -47,7 +47,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 message or contact us on Discord.
               </span>
               <div className="flex flex-row items-center justify-center gap-4">
-                <button className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[333px] flex flex-row items-center justify-center gap-2">
+                <button className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2">
                   <FaDiscord
                     className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
                     color={"#000"}
@@ -58,7 +58,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 </button>
                 <button
                   onClick={handleContactUs}
-                  className="btn-primary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[333px] flex flex-row items-center justify-center gap-2"
+                  className="btn-primary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2"
                 >
                   <Send
                     className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
