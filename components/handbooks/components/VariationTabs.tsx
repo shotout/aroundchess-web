@@ -30,20 +30,18 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
       transition={{ duration: 0.2 }}
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {processedVariations && processedVariations.length > 0 ? (
             processedVariations.map((variation, index) => (
               <div
                 key={variation?.id || `variation-${index}`}
-                className="border rounded-lg shadow-sm overflow-hidden"
+                className="border rounded-lg shadow-sm overflow-hidden p-4 flex flex-col h-full"
               >
-                <div className="p-4 bg-gray-50">
-                  <h3 className="text-sm md:text-base font-bold">
-                    {variation?.name || `Variation ${index + 1}`}
+                <div className="flex flex-col space-y-3">
+                  <h3 className="text-xs md:text-base font-bold">
+                    {variation?.name || `Variation ${index + 1}`}:
                   </h3>
-                </div>
 
-                <div className="p-4">
                   <p className="text-xs text-gray-600">
                     {variation?.description || "No description available"}
                   </p>
@@ -51,7 +49,7 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                   {variation?.keyIdeas &&
                   Array.isArray(variation.keyIdeas) &&
                   variation.keyIdeas.length > 0 ? (
-                    <div className="mt-3">
+                    <div>
                       <ul className="space-y-2">
                         {variation.keyIdeas.map(
                           (
@@ -60,10 +58,10 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                           ) => (
                             <li
                               key={keyIdea?.id || `idea-${pointIndex}`}
-                              className="flex items-start gap-2"
+                              className="flex items-center justify-start gap-x-2"
                             >
-                              <Target className="w-4 h-4 text-blue-base flex-shrink-0 mt-0.5" />
-                              <span className="text-xs">
+                              <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
+                              <span className="text-sm">
                                 {keyIdea?.idea || "No idea specified"}
                               </span>
                             </li>
@@ -72,7 +70,7 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                       </ul>
                     </div>
                   ) : (
-                    <div className="mt-3">
+                    <div>
                       <h4 className="text-xs font-semibold mb-2">Key Ideas:</h4>
                       <div className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-blue-base flex-shrink-0" />

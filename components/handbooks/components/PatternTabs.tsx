@@ -28,27 +28,26 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
         transition={{ duration: 0.2 }}
       >
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Fundamental Positions Section */}
-            <div className="border rounded-lg shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50">
-                <h3 className="text-sm md:text-base font-bold">
-                  Fundamental Positions
-                </h3>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full p-4 gap-y-3">
+              <h3 className="text-sm md:text-base font-bold">
+                Fundamental Positions
+              </h3>
 
-              <div className="p-4">
+              <div className="flex-grow">
                 {fundamentalPositions.length > 0 ? (
                   <ul className="space-y-2">
-                    {fundamentalPositions.map((position, index) => (
-                      <li
-                        key={position?.id || `position-${index}`}
-                        className="flex items-start gap-2"
-                      >
-                        <Target className="w-4 h-4 text-blue-base flex-shrink-0 mt-0.5" />
-                        <span className="text-xs">{position.position}</span>
-                      </li>
-                    ))}
+                    {fundamentalPositions.map(
+                      (position: any, index: number) => (
+                        <li
+                          key={position?.id || `position-${index}`}
+                          className="flex items-center gap-x-2"
+                        >
+                          <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
+                          <span className="text-xs">{position.position}</span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -62,22 +61,20 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
             </div>
 
             {/* Winning Techniques Section */}
-            <div className="border rounded-lg shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50">
-                <h3 className="text-sm md:text-base font-bold">
-                  Winning Techniques
-                </h3>
-              </div>
+            <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full p-4 gap-y-3">
+              <h3 className="text-sm md:text-base font-bold">
+                Winning Techniques
+              </h3>
 
-              <div className="p-4">
+              <div className="flex-grow">
                 {winningTechniques.length > 0 ? (
                   <ul className="space-y-2">
-                    {winningTechniques.map((technique, index) => (
+                    {winningTechniques.map((technique: any, index: number) => (
                       <li
                         key={technique?.id || `technique-${index}`}
-                        className="flex items-start gap-2"
+                        className="flex items-center gap-x-2"
                       >
-                        <Target className="w-4 h-4 text-blue-base flex-shrink-0 mt-0.5" />
+                        <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
                         <span className="text-xs">{technique.technique}</span>
                       </li>
                     ))}
@@ -111,22 +108,20 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Common Patterns Section */}
-            <div className="border rounded-lg shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50">
-                <h3 className="text-sm md:text-base font-bold">
-                  Common Patterns
-                </h3>
-              </div>
+            <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col gap-y-3 h-full p-4">
+              <h3 className="text-sm md:text-base font-bold">
+                Common Patterns
+              </h3>
 
-              <div className="p-4">
+              <div className="flex-grow">
                 {commonPatterns.length > 0 ? (
                   <ul className="space-y-2">
-                    {commonPatterns.map((pattern, index) => (
+                    {commonPatterns.map((pattern: any, index: number) => (
                       <li
                         key={pattern?.id || `pattern-${index}`}
-                        className="flex items-start gap-2"
+                        className="flex items-center gap-2"
                       >
-                        <Target className="w-4 h-4 text-blue-base flex-shrink-0 mt-0.5" />
+                        <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
                         <span className="text-xs">{pattern.pattern}</span>
                       </li>
                     ))}
@@ -141,22 +136,20 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
             </div>
 
             {/* Tactical Motifs Section */}
-            <div className="border rounded-lg shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50">
-                <h3 className="text-sm md:text-base font-bold">
-                  Tactical Motifs
-                </h3>
-              </div>
+            <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full gap-y-3 p-4">
+              <h3 className="text-sm md:text-base font-bold">
+                Tactical Motifs
+              </h3>
 
-              <div className="p-4">
+              <div className="flex-grow">
                 {tacticalMotifs.length > 0 ? (
                   <ul className="space-y-2">
-                    {tacticalMotifs.map((motif, index) => (
+                    {tacticalMotifs.map((motif: any, index: number) => (
                       <li
                         key={motif?.id || `motif-${index}`}
-                        className="flex items-start gap-2"
+                        className="flex items-center gap-x-2"
                       >
-                        <Target className="w-4 h-4 text-blue-base flex-shrink-0 mt-0.5" />
+                        <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
                         <span className="text-xs">{motif.motif}</span>
                       </li>
                     ))}
@@ -175,7 +168,6 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
     );
   }
 
-  // If no pattern data was found
   return (
     <motion.div
       key="patterns"
