@@ -109,7 +109,7 @@ export default function ChessFAQ() {
               className="w-1/2 h-full absolute left- inset-0 object-cover z-0"
             />
             <button
-              className={`z-1 flex flex-col items-start justify-center bg-[#ffffff80] max-w-[160px] p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-end ${
+              className={`z-10 flex flex-col items-start justify-center bg-[#ffffff80] max-w-[160px] p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-end ${
                 activeTab === tab.id
                   ? "text-[#221AE9] border border-[#221AE9]"
                   : "bg-white border border-gray-300 rounded-md"
