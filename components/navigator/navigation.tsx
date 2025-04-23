@@ -23,55 +23,7 @@ export default function Navigation({
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const { sessionId } = useAuth();
-  const { setUsername } = usePgnStore();
-  const {
-    getTokenBalance,
-    getProfile,
-    getActiveMembership,
-    getAllMembershipPackage,
-    getPuzzle,
-  } = useApiClient();
-  const {
-    token,
-    setToken,
-    setActiveMembership,
-    setAllMembershipPackages,
-    setProfile,
-    setPuzzleLog,
-    setIsMember,
-  } = useProfileStore();
-  useEffect(() => {
-    if (sessionId) {
-      localStorage.setItem("token", sessionId);
-      getProfile({}).then((response) => {
-        let data = response.data;
-        console.log("getProfile", data);
-        setProfile(data);
-        setUsername(data.username);
-      });
-      getTokenBalance({}).then((response) => {
-        let data = response.data;
-        console.log("getTokenBalance", data);
-        setToken(data);
-      });
-      getActiveMembership({}).then((response) => {
-        let data = response.data;
-        console.log("getActiveMembership", data);
-        setIsMember(data.status == "ACTIVE");
-        setActiveMembership(data);
-      });
-      getAllMembershipPackage({}).then((response) => {
-        let data = response.data;
-        console.log("getAllMembershipPackage", data);
-        setAllMembershipPackages(data);
-      });
-      getPuzzle().then((res) => {
-        let logs = res.data;
-        setPuzzleLog(logs);
-        console.log("log puzzle", logs);
-      });
-    }
-  }, [sessionId]);
+ 
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

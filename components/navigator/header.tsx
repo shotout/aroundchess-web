@@ -135,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             {!isMember && (
               <div className="w-full flex flex-row gap-[8px] ">
                 <button
-                  onClick={() => handleOpenOffer("token")}
+                  onClick={() => handleOpenOffer("tokens")}
                   className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Buy Tokens
