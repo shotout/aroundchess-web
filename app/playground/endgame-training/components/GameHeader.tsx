@@ -37,7 +37,7 @@ export default function GameHeader({
               isCheckmateMode ? "check.png" : categoryData.icons
             }`}
             alt={`${categoryData.name} icon`}
-            width={45}
+            width={isCheckmateMode ? 30 : 45}
             height={45}
           />
           <span className="font-bold text-lg">
@@ -97,19 +97,25 @@ export default function GameHeader({
             <div>Loading pieces...</div>
           )}
         </div>
-        <div className="mx-4 hidden xl:block">
-          {subcategoryName || "Loading..."}
-        </div>
+        {isCheckmateMode ? null : (
+          <div className="mx-4 hidden xl:block">
+            {subcategoryName || "Loading..."}
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center space-x-4 xl:mr-32">
-        <div className="font-semibold text-xl relative z-10">Stage</div>
-        <div
-          className={`text-[33px] xl:text-[45px] font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}
-        >
-          {stageNum}
+      {isCheckmateMode ? (
+        <div></div>
+      ) : (
+        <div className="flex items-center space-x-4 xl:mr-32">
+          <div className="font-semibold text-xl relative z-10">Stage</div>
+          <div
+            className={`text-[33px] xl:text-[45px] font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}
+          >
+            {stageNum}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

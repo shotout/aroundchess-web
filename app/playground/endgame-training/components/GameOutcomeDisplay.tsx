@@ -122,30 +122,6 @@ export default function GameOutcomeDisplay({
 
   return (
     <div className="flex flex-col">
-      {/* New game and Rematch buttons */}
-      <div className="flex w-full space-x-2 mb-2">
-        <button
-          onClick={onNewGame}
-          className="flex-1 bg-blue-600 text-white py-1.5 px-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-colors"
-        >
-          New Game
-        </button>
-
-        <button
-          onClick={onRematch}
-          className="flex-1 bg-white text-blue-600 py-1.5 px-2 rounded-full text-sm font-bold border border-blue-200 hover:bg-blue-50 transition-colors flex items-center justify-center"
-        >
-          <Image
-            src="/endgame-training/rematch.png"
-            alt="rematch icon"
-            width={16}
-            height={16}
-            className="mr-1"
-          />
-          Rematch
-        </button>
-      </div>
-
       <div
         className="w-full rounded-lg p-3 relative overflow-hidden"
         style={{
