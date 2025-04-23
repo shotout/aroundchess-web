@@ -1,8 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Cat } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Chessboard } from "react-chessboard";
 import { ChessLesson, LessonType } from "../ChessLessonTypes";
 import Simple2DChess from "./Simple2DChess";
 
@@ -75,14 +74,25 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
                           {getLessonTypeLabel()}
                         </span>
-                        <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full">
-                          <Image
-                            src={"/handbooks/finished.png"}
-                            alt="finish lesson icon"
-                            fill
-                            className="p-1"
-                          />
-                        </div>
+                        {!topic.readStatus ? (
+                          <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
+                            <Image
+                              src={"/handbooks/not-finished.png"}
+                              alt="finish lesson icon"
+                              fill
+                              className="p-1"
+                            />
+                          </div>
+                        ) : (
+                          <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
+                            <Image
+                              src={"/handbooks/finished.png"}
+                              alt="finish lesson icon"
+                              fill
+                              className="p-1"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2">
