@@ -74,13 +74,13 @@ export const PricingOffer: React.FC = () => {
     setOpenSuccessSubscription(true);
   };
   const handlePurchaseToken = () => {
-    let tokenSelected =
+    let tokenAmount =
       selectedToken != null && selectedToken != 5
         ? tokenOptions[selectedToken].amount
         : 0;
-    let qty = parseInt(customAmount != "" ? customAmount : tokenSelected);
+    let qty = customAmount != "" ? customAmount : tokenAmount;
     let body = {
-      quantity: qty,
+      quantity: parseInt(qty.toString()),
       paymentMethodId: "stripe",
     };
     postPurchaseToken(body).then((result) => {
