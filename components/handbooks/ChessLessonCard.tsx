@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, BookOpen } from "lucide-react";
+import { AlertCircle, BookOpen, Cat } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { LessonType, getLessonBasePath } from "./ChessLessonTypes";
@@ -13,6 +13,7 @@ interface ChessLessonCardProps {
     title: string;
     difficulty: string;
     moves: string | null;
+    readStatus?: boolean;
   };
   slug: string;
   lessonType: LessonType;
@@ -53,14 +54,25 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                   />
                 </div>
               </div>
-              <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#00858E] p-1 rounded-full">
-                <Image
-                  src={"/handbooks/finished.png"}
-                  alt="finish lesson icon"
-                  fill
-                  className="p-1"
-                />
-              </div>
+              {!lesson.readStatus ? (
+                <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
+                  <Image
+                    src={"/handbooks/not-finished.png"}
+                    alt="finish lesson icon"
+                    fill
+                    className="p-1"
+                  />
+                </div>
+              ) : (
+                <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
+                  <Image
+                    src={"/handbooks/finished.png"}
+                    alt="finish lesson icon"
+                    fill
+                    className="p-1"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="xl:px-4 flex flex-col gap-y-4 xl:gap-y-2 h-auto mx-1 lg:mx-2">
@@ -109,6 +121,7 @@ export default React.memo(ChessLessonCard, (prevProps, nextProps) => {
     prevProps.lesson.title === nextProps.lesson.title &&
     prevProps.lesson.difficulty === nextProps.lesson.difficulty &&
     prevProps.lesson.moves === nextProps.lesson.moves &&
+    prevProps.lesson.readStatus === nextProps.lesson.readStatus &&
     prevProps.lessonType === nextProps.lessonType
   );
 });

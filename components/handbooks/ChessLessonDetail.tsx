@@ -33,6 +33,7 @@ interface ChessLessonDetailProps<T extends ChessLesson> {
   lessonStore: ChessLessonState<T> & {
     readStatusMap?: Record<string, boolean>;
     checkReadStatus?: (id: string, sessionId?: string) => Promise<boolean>;
+    markLessonAsRead?: (id: string, sessionId?: string) => Promise<boolean>;
   };
 }
 
@@ -48,6 +49,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);
+  const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
 
   const {
     allLessons,
@@ -69,6 +71,12 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const isBookRead: boolean = readStatusMap ? readStatusMap[lessonId] : false;
 
   useEffect(() => {
+    if (isBookRead) {
+      setLessonFinished(true);
+    }
+  }, [isBookRead]);
+
+  useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
         if (!initialized) {
@@ -80,7 +88,10 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         }
 
         if (checkReadStatus && sessionId) {
-          await checkReadStatus(lessonId, sessionId);
+          const isRead = await checkReadStatus(lessonId, sessionId);
+          if (isRead) {
+            setLessonFinished(true);
+          }
         }
       } catch (error) {
         console.error("Error loading lesson details:", error);
@@ -98,9 +109,78 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     setTimeout(navigateToLesson, 200);
   };
 
-  const handleFinishLesson = (): void => {
-    if (lesson) {
-      setLessonFinished(true);
+  const markLessonAsRead = async (
+    id: string,
+    sessionId?: string
+  ): Promise<boolean> => {
+    if (!sessionId) {
+      return false;
+    }
+
+    try {
+      const apiBaseUrl = process.env.BASE_URL;
+      const apiUrl = `${apiBaseUrl}/handbooks/read/`;
+
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionId}`,
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ id: id }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (lessonStore && typeof lessonStore.set === "function") {
+          lessonStore.set((state: any) => ({
+            readStatusMap: {
+              ...state.readStatusMap,
+              [id]: true,
+            },
+          }));
+        }
+
+        return true;
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to mark lesson as read:", errorData);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error marking lesson as read:", error);
+      return false;
+    }
+  };
+
+  const handleFinishLesson = async (): Promise<void> => {
+    if (lesson && !lessonFinished && sessionId) {
+      setIsMarkingAsRead(true);
+      try {
+        if (lessonStore.markLessonAsRead) {
+          const success = await lessonStore.markLessonAsRead(
+            lessonId,
+            sessionId
+          );
+          if (success) {
+            setLessonFinished(true);
+          }
+        } else {
+          const success = await markLessonAsRead(lessonId, sessionId);
+          if (success) {
+            setLessonFinished(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error finishing lesson:", error);
+      } finally {
+        setIsMarkingAsRead(false);
+      }
+    } else if (!sessionId) {
+      console.warn("Cannot mark lesson as read: User not authenticated");
     }
   };
 
@@ -148,12 +228,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
                   {lesson.difficulty || "Not specified"}
                 </span>
-
-                {isBookRead && (
-                  <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-green-500 text-green-500">
-                    Already Read
-                  </span>
-                )}
               </div>
 
               {lessonFinished && <FinishedBanner />}
@@ -177,10 +251,14 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                     lessonFinished ? "bg-green-500" : "bg-blue-base"
                   }`}
                   onClick={handleFinishLesson}
-                  disabled={lessonFinished}
+                  disabled={lessonFinished || isMarkingAsRead}
                 >
                   <Check className="mr-2 h-5 w-5" />
-                  {lessonFinished ? "Lesson Finished" : "Finish Lesson"}
+                  {lessonFinished
+                    ? "Lesson Finished"
+                    : isMarkingAsRead
+                    ? "Saving..."
+                    : "Finish Lesson"}
                 </Button>
               </div>
             </div>
