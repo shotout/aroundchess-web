@@ -19,7 +19,7 @@ import {
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import { formatDate, formatDateHistory } from "@/functions/format-date";
+import { formatDate, formatDateHistory, formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
@@ -131,7 +131,7 @@ export const PremiumSubsContent: React.FC<{
     };
     postPurchaseMembership(body).then((result) => {
       console.log("postPurchaseMembership", result);
-      setCallFetch(formatDate());
+      setCallFetch(formatTimePgn());
     });
   };
   return (
