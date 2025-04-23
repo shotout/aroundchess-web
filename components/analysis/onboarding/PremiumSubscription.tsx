@@ -18,6 +18,11 @@ import {
 } from "lucide-react";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
+import { useProfileStore } from "@/app/store/profile";
+import { formatDate, formatDateHistory, formatTimePgn } from "@/functions/format-date";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "@/components/game-history/Spinner";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -41,7 +46,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
   onGetPremium,
 }: PremiumSubscriptionProps) => {
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const { allMembershipPackages, activeMembership, isMember } =
+    useProfileStore();
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -50,7 +56,7 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
     checkIfDesktop();
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
-  }, []);
+  }, [activeMembership]);
   if (!visible) return null;
 
   return (
@@ -95,10 +101,7 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
               </p>
             </div>
 
-            <PremiumSubsContent
-              onGetPremium={onGetPremium}
-              isMember={isMember}
-            />
+            <PremiumSubsContent onGetPremium={onGetPremium} />
           </div>
         </div>
       </div>
@@ -107,13 +110,30 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 };
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
-  isMember?: boolean;
-}> = ({ onGetPremium, isMember }) => {
+}> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
+  const { allMembershipPackages, activeMembership, isMember } =
+    useProfileStore();
+  const { setCallFetch } = useProfileFetch();
+  const { postPurchaseMembership, isLoading } = useApiClient();
+
+  let free = allMembershipPackages[0];
+  let premium = allMembershipPackages[1];
+
   const handleCancelSubscription = () => {
     setOpen(true);
   };
-
+  const handleGetPremium = () => {
+    let body = {
+      membershipType: "YEARLY",
+      paymentMethodId: "test",
+      useSpecialOffer: false,
+    };
+    postPurchaseMembership(body).then((result) => {
+      console.log("postPurchaseMembership", result);
+      setCallFetch(formatTimePgn());
+    });
+  };
   return (
     <div className="mb-4">
       <p className="text-sm text-black mb-2 text-center">
@@ -147,7 +167,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
             <div>
               <h3 className="text-lg font-semibold text-black">Free Package</h3>
-              <div className="text-2xl font-semibold text-black">$0</div>
+              <div className="text-2xl font-semibold text-black">${0}</div>
             </div>
           </div>
 
@@ -163,7 +183,8 @@ export const PremiumSubsContent: React.FC<{
             <BenefitItem text="Board Vision Training" />
             <BenefitItem text="Chess Handbook" />
           </div>
-          {!isMember && (
+          {isLoading && <DotSpinner />}
+          {!isMember && !isLoading && (
             <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
               <Image
                 src="/onboarding/currentPackage.png"
@@ -226,9 +247,10 @@ export const PremiumSubsContent: React.FC<{
             <BenefitItem text="Chess Handbook" light />
             <BenefitItem text="Early Feature Update" light />
           </div>
-          {!isMember && (
+          {isLoading && <DotSpinner />}
+          {!isMember && !isLoading && (
             <button
-              onClick={onGetPremium}
+              onClick={handleGetPremium}
               className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
             >
               Get Premium
@@ -238,7 +260,7 @@ export const PremiumSubsContent: React.FC<{
             <>
               <motion.div
                 variants={fadeInUp}
-                className={`mt-[32px] relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                className={`mt-[12px] relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
               >
                 <div
                   className={`flex h-[56px] flex-row items-center rounded-[8px] gap-2`}
@@ -250,10 +272,10 @@ export const PremiumSubsContent: React.FC<{
                     height={1000}
                     className="w-[42px] h-[44px] object-contain m-4 mr-0"
                   />
-                  <span className="font-medium text-[14px] z-10 text-black">
-                    {
-                      "You are on this Package. The Subscription automatically renews on 21/03/2026."
-                    }
+                  <span className="font-medium text-[11px] xl:text-[14px] z-10 text-black">
+                    {"You are on this Package. The Subscription automatically renews on " +
+                      formatDateHistory(activeMembership.endDate) +
+                      "."}
                   </span>
                   <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                     <Image
@@ -266,11 +288,11 @@ export const PremiumSubsContent: React.FC<{
                   </div>
                 </div>
               </motion.div>
-              <button className="mt-4" onClick={handleCancelSubscription}>
+              {/* <button className="mt-4" onClick={handleCancelSubscription}>
                 <span className="font-medium text-[16px] text-white">
                   Cancel Subscription
                 </span>
-              </button>
+              </button> */}
             </>
           )}
         </div>

@@ -132,6 +132,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [whiteMaterialDifference, setWhiteMaterialDifference] = useState(0);
   const [blackMaterialDifference, setBlackMaterialDifference] = useState(0);
   const [invalidMoveSquares, setInvalidMoveSquares] = useState<string[]>([]);
+  const [orientation, setOrientation] = useState<BoardOrientation>("white");
 
   const prevFenHistory = useRef<string[]>([]);
 
@@ -554,9 +555,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [mounted, hideDiv, is3DMode]);
 
   const handleResize = () => {
-    
     setHeightScreen(window?.innerHeight);
-    setWidthScreen(window?.innerWidth)
+    setWidthScreen(window?.innerWidth);
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
@@ -579,7 +579,46 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
-
+  const handleSwitch = () => {
+    setOrientation((prev) => {
+      if (prev == "white") {
+        return "black";
+      } else {
+        return "white";
+      }
+    });
+  };
+  const handleThreeD = () => {
+    setIs3DMode(!is3DMode);
+  };
+  const buttonBoard = () => {
+    return (
+      <div
+        style={{ width: boardSize }}
+        className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
+      >
+        <button onClick={handleSwitch}>
+          <Image
+            src={"/images/play-vs-ai/switch.png"}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[20px] h-[20px] rounded-full object-contain"
+          />
+        </button>
+        <SettingBoard />
+        <button onClick={handleThreeD}>
+          <Image
+            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[22px] h-[27px] object-contain"
+          />
+        </button>
+      </div>
+    );
+  };
   const cardPlayer = () => {
     return (
       <div
@@ -734,7 +773,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
         className="flex flex-col w-full gap-4"
-        style={{ minHeight: widthScreen > 1024? heightScreen * 0.86: heightScreen * 0.6 }}
+        style={{
+          minHeight:
+            widthScreen > 1024 ? heightScreen * 0.86 : heightScreen * 0.6,
+        }}
       >
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
           <button onClick={resetPuzzle}>
@@ -755,6 +797,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
         <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
           {cardPlayer()}
+          <div className="flex items-center justify-end mb-2">
+            {buttonBoard()}
+          </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
             {/* {buttonBoard()} */}
             <motion.div
@@ -780,17 +825,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {is3DMode && (
                 <ThreeDBoard
-                  showPromotionDialog={false}
-                  onPromotionPieceSelect={function (
-                    piece?: PromotionPieceOption,
-                    promoteFromSquare?: Square,
-                    promoteToSquare?: Square
-                  ): boolean {
-                    throw new Error("Function not implemented.");
-                  }}
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={boardOrientation === "white" ? "white" : "black"}
+                  orientation={orientation}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -814,6 +851,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   }}
                   arePremovesAllowed={true}
                   promotionToSquare={moveTo}
+                  showPromotionDialog={false}
+                  onPromotionPieceSelect={function (
+                    piece?: PromotionPieceOption,
+                    promoteFromSquare?: Square,
+                    promoteToSquare?: Square
+                  ): boolean {
+                    throw new Error("Function not implemented.");
+                  }}
                 />
               )}
             </motion.div>
@@ -841,7 +886,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <TwoDChessboard
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={boardOrientation === "white" ? "white" : "black"}
+                  orientation={orientation}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -875,75 +920,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   }}
                 />
               )}
-              <div
-                style={{
-                  width: Math.round(boardSize - boardSize / 8.4),
-                  height: Math.round(boardSize - boardSize / 8.4),
-                  // background: "rgba(225,0,0,0.5)",
-                  margin: Math.round(boardSize / 16.5),
-                  pointerEvents: "none",
-                }}
-                className="flex items-center justify-center rounded-lg shadow-lg absolute"
-              >
-                {lastMove && isAtCurrentMove && (
-                  <>
-                    <div
-                      style={getLastMoveHighlightStyle(
-                        lastMove.from,
-                        boardOrientation,
-                        "rgba(185, 202, 67, 0.5)"
-                      )}
-                    />
-                    <div
-                      style={getLastMoveHighlightStyle(
-                        lastMove.to,
-                        boardOrientation,
-                        "rgba(245, 246, 130, 0.5)"
-                      )}
-                    >
-                      {isGameOver && (
-                        <Image
-                          src="/images/puzzle/check.png"
-                          alt="check win"
-                          width={1000}
-                          height={1000}
-                          className="w-[24px] h-[24px] absolute right-0"
-                        />
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {hint && isAtCurrentMove && !isComputerTurn && (
-                  <div
-                    style={getHintHighlightStyle(
-                      hint,
-                      boardOrientation,
-                      "#221AE950"
-                    )}
-                  />
-                )}
-
-                {isAtCurrentMove &&
-                  selectedSquare &&
-                  highlightStyles.map((style, index) => (
-                    <div
-                      key={`${possibleMoves[index].square}-${index}`}
-                      style={style}
-                    />
-                  ))}
-                {invalidMoveSquares.map((square) => (
-                  <div
-                    key={square}
-                    style={getInvalidMoveHighlightStyle(
-                      square,
-                      boardOrientation
-                    )}
-                  >
-                    ❌
-                  </div>
-                ))}
-              </div>
             </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
@@ -960,7 +936,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#25CEDA]" />
+                <div className="w-[14px] h-[14px] rounded-full bg-[#1C16C2]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Possible Move
                 </span>

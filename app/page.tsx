@@ -13,14 +13,65 @@ import { usePgnStore } from "./store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useEffect, useState } from "react";
 import { PricingOffer } from "@/components/modal/PricingOffer";
+import { useProfileStore } from "./store/profile";
+import { useApiClient } from "@/functions/api-client";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Home() {
   const { isLoading, dataAnalysis, setDataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const { sessionId } = useAuth();
+  const { setUsername } = usePgnStore();
+  const {
+    getTokenBalance,
+    getProfile,
+    getActiveMembership,
+    getAllMembershipPackage,
+    getPuzzle,
+  } = useApiClient();
+  const {
+    token,
+    setToken,
+    setActiveMembership,
+    setAllMembershipPackages,
+    setProfile,
+    setPuzzleLog,
+    setIsMember,
+  } = useProfileStore();
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem("token", sessionId);
+      getProfile({}).then((response) => {
+        let data = response.data;
+        console.log("getProfile", data);
+        setProfile(data);
+        setUsername(data.username);
+      });
+      getTokenBalance({}).then((response) => {
+        let data = response.data;
+        console.log("getTokenBalance", data);
+        setToken(data);
+      });
+      getActiveMembership({}).then((response) => {
+        let data = response.data;
+        console.log("getActiveMembership", data);
+        setIsMember(data.status == "ACTIVE");
+        setActiveMembership(data);
+      });
+      getAllMembershipPackage({}).then((response) => {
+        let data = response.data;
+        console.log("getAllMembershipPackage", data);
+        setAllMembershipPackages(data);
+      });
+      getPuzzle().then((res) => {
+        let logs = res.data;
+        setPuzzleLog(logs);
+        console.log("log puzzle", logs);
+      });
+    }
+  }, [sessionId]);
   useEffect(() => {
     setLoading(false);
-    setDataAnalysis(null);
   }, []);
 
   useEffect(() => {

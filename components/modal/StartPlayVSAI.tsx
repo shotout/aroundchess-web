@@ -21,14 +21,12 @@ interface StartPlayVSAIProps {
   onLimit: (isLimit: boolean) => void;
 }
 
-export function StartPlayVSAI({ onLimit }: StartPlayVSAIProps) {
+export function StartPlayVSAI() {
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { getVSAILogs, isLoading } = useApiClient();
-  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const router = useRouter();
 
   const [selectedColor, setSelectedColor] = useState<string>("white");
-  const [isLimit, setIsLimit] = useState<boolean>(false);
   const [selectedOpponent, setSelectedOpponent] = useState<number>(0);
   const [difficulty, setDifficulty] = useState<string>("beginner");
 
@@ -96,19 +94,6 @@ export function StartPlayVSAI({ onLimit }: StartPlayVSAIProps) {
     { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
   ];
   const [open, setOpen] = useState(false);
-  useEffect(() => {
-    checkLimit();
-  }, []);
-  const checkLimit = () => {
-    getVSAILogs({ limit: 20, page: 1 }).then((res: any) => {
-      if (res.data.length >= 20) {
-        setIsLimit(true);
-        onLimit(true)
-      } else {
-        setIsLimit(false);
-      }
-    });
-  };
 
   const handlePlayNow = () => {
     let index = opponents.findIndex((o) => o.id == selectedOpponent);

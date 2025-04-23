@@ -140,7 +140,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
       },
       {
         piece: "wQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.4,
       },
       {
         piece: "wK",
@@ -164,7 +164,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
       },
       {
         piece: "bQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.4,
       },
       {
         piece: "bK",
@@ -188,7 +188,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width: squareWidth * pieceHeight,
             height: squareWidth,
             position: "relative",
-            
           }}
         >
           <img
@@ -223,9 +222,9 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         style={{
           width: 480,
           height: 480,
-          
-        transform: `scale(${scale + ``})`,
-      }}
+
+          transform: `scale(${scale + ``})`,
+        }}
       >
         <Image
           src={`/boards/3d-${BoardChoosed}-board.png`}
@@ -238,7 +237,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         <div
           style={{
             marginTop: -paddingTop,
-            
           }}
           className={`z-10 flex items-center justify-center `}
         >
@@ -248,7 +246,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             style={{
               display: "flex",
               justifyContent: "start",
-              
             }}
           >
             {arePiecesDraggable != null ? (

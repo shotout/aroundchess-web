@@ -1,12 +1,12 @@
 "use client";
-import { SiteFooterNew } from "@/components/site-footer-new";
-import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
-import { ConfirmLogin } from "../modal/ConfirmLogin";
+import { SiteFooterNew } from "@/components/site-footer-new";
 import { useAuth } from "@clerk/nextjs";
-import { ContactUs } from "../modal/ContactUs";
+import { useEffect, useState } from "react";
 import { CancelSubscription } from "../modal/CancelSubscription";
+import { ConfirmLogin } from "../modal/ConfirmLogin";
+import { ContactUs } from "../modal/ContactUs";
 import { PricingOffer } from "../modal/PricingOffer";
 import { SuccessSubscription } from "../modal/SuccessSubscription";
 
@@ -20,10 +20,7 @@ export default function Navigation({
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const { sessionId } = useAuth();
-  useEffect(() => {
-    if (sessionId) localStorage.setItem("token", sessionId);
-    console.log("sessionId/token", sessionId);
-  }, [sessionId]);
+ 
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

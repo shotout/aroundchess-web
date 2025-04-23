@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -16,7 +17,7 @@ interface RequestOptions {
 
 export function useApiClient() {
   const { sessionId } = useAuth();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { setIsLoading, isLoading } = useLoadingAPI();
   const [error, setError] = useState<Error | null>(null);
 
   const apiRequest = useCallback(
@@ -27,9 +28,9 @@ export function useApiClient() {
       params,
       headers = {},
     }: RequestOptions): Promise<T> => {
-      setIsLoading(true);
-      setError(null);
       try {
+        setIsLoading(true);
+        setError(null);
         let url = path;
         const token = localStorage.getItem("token");
 
@@ -356,6 +357,118 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getProfile = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/profile`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenBalance = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/tokens/balance`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenPackage = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/tokens/packages`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenUsageHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/tokens/history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getTokenPurchaseHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/tokens/purchase-history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const postPurchaseToken = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/tokens/purchase`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  const getActiveMembership = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/membership/active`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const getAllMembershipPackage = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/membership/packages`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getMembershipHistory = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/membership/history`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getCheckAnalysisAccess = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/membership/check-analysis-access`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const postPurchaseMembership = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/membership/purchase`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -389,5 +502,16 @@ export function useApiClient() {
     saveMistakeLog,
     unsaveMistakeLog,
     getMistakePreviousDetail,
+    getActiveMembership,
+    getAllMembershipPackage,
+    getMembershipHistory,
+    postPurchaseMembership,
+    getTokenBalance,
+    getTokenPackage,
+    getTokenPurchaseHistory,
+    getTokenUsageHistory,
+    postPurchaseToken,
+    getCheckAnalysisAccess,
+    getProfile,
   };
 }

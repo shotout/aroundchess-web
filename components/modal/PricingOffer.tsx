@@ -16,6 +16,11 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import Image from "next/image";
 import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
 import { useSuccessSubscription } from "@/app/store/successSubscription";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
+import { useProfileFetch } from "../navigator/hook/useProfileFetch";
+import { formatDate, formatTimePgn } from "@/functions/format-date";
+import { useProfileStore } from "@/app/store/profile";
 
 interface TokenOption {
   amount: number;
@@ -25,9 +30,14 @@ interface TokenOption {
 
 export const PricingOffer: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
-  const [customAmount, setCustomAmount] = useState<string>("");
+  const [customAmount, setCustomAmount] = useState<string>("0");
+  const [pricePerToken, setPricePerToken] = useState<string>("0.99");
+  const [totalPrice, setTotalPrice] = useState<string>("0.99");
   const [activeTab, setActiveTab] = useState("tokens");
   const { open, setOpen, tabType } = usePricingOffer();
+  const { postPurchaseToken, isLoading } = useApiClient();
+  const { callFetch, setCallFetch } = useProfileFetch();
+  const { tokenPackage } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const [widthC, setWidthC] = useState<number>(0);
@@ -67,12 +77,46 @@ export const PricingOffer: React.FC = () => {
     setOpen(false);
     setOpenSuccessSubscription(true);
   };
+  const handlePurchaseToken = () => {
+    let tokenAmount =
+      selectedToken != null && selectedToken != 5
+        ? tokenOptions[selectedToken].amount
+        : customAmount;
+    let body = {
+      quantity: parseInt(tokenAmount.toString()),
+      paymentMethodId: "stripe",
+    };
+    postPurchaseToken(body).then((result) => {
+      console.log("postPurchaseToken", result);
+      setCallFetch(formatTimePgn());
+      setOpen(false);
+    });
+  };
+  const handleOnChange = (e: any) => {
+    let value = parseInt(e.target.value);
 
+    let conditionedValue = value > 100 ? 100 : isNaN(value) ? 0 : value;
+    setCustomAmount(conditionedValue.toString());
+    if (conditionedValue > 0) {
+      let dataPrice = tokenPackage.find(
+        (price: any) => price.quantity == conditionedValue
+      );
+      let perToken = dataPrice.pricePerToken;
+      let totalPrice = dataPrice.totalPrice;
+      // console.log("token package", tokenPackage);
+      // console.log("dataPrice package", dataPrice);
+      setPricePerToken(perToken);
+      setTotalPrice(totalPrice);
+    } else {
+      setPricePerToken("0.00");
+      setTotalPrice("0.00");
+    }
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 bg-black/50" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[90%] rounded-lg p-4 shadow-xl">
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl">
           <Image
             src={`/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
@@ -98,7 +142,7 @@ export const PricingOffer: React.FC = () => {
               <TabsTrigger
                 value="tokens"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab === "tokens"
+                  activeTab == "token"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}
@@ -118,7 +162,7 @@ export const PricingOffer: React.FC = () => {
               <TabsTrigger
                 value="subscription"
                 className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
-                  activeTab !== "tokens"
+                  activeTab == "subscription"
                     ? "font-semibold border border-[#C0CED4]"
                     : "font-normal"
                 }`}
@@ -273,14 +317,18 @@ export const PricingOffer: React.FC = () => {
                         Enter Amount
                       </div>
                       <div
-                        onClick={() => setSelectedToken(5)}
+                        onClick={() => {
+                          setSelectedToken(5);
+                          setCustomAmount("1");
+                        }}
                         className="flex items-center justify-center gap-2"
                       >
                         <input
                           type="number"
-                          className="w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                          max={100}
+                          className="font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
                           value={customAmount}
-                          onChange={(e) => setCustomAmount(e.target.value)}
+                          onChange={handleOnChange}
                           onClick={(e) => {
                             setSelectedToken(5);
                             e.stopPropagation();
@@ -291,18 +339,26 @@ export const PricingOffer: React.FC = () => {
                         </span>
                       </div>
                       <div className="font-medium text-[20px] xl:text-[24px]">
-                        $0.00
+                        ${totalPrice}.00
                       </div>
                       <div className="text-[14px] font-normal text-[#221AE9]">
-                        $0.00/Token
+                        ${pricePerToken}/Token
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
-                  <button className="btn-primary w-full xl:w-1/2 h-[48px] rounded-full">
-                    Purchase Now
-                  </button>
+                  {isLoading ? (
+                    <DotSpinner />
+                  ) : (
+                    <button
+                      disabled={isLoading}
+                      onClick={handlePurchaseToken}
+                      className="btn-primary w-full xl:w-1/2 h-[48px] rounded-full"
+                    >
+                      Purchase Now
+                    </button>
+                  )}
                 </div>
               </div>
             </TabsContent>
