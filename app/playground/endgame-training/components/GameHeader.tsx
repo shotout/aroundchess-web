@@ -24,7 +24,7 @@ export default function GameHeader({
 }: GameHeaderProps) {
   return (
     <div
-      className="w-full flex items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
+      className="w-full flex relative overflow-hidden items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
      border border-[#C0CED4] p-4 rounded-md"
     >
       <div className="flex items-center space-x-4">
@@ -44,6 +44,24 @@ export default function GameHeader({
             {categoryData.name || "Loading..."}
           </span>
         </div>
+      </div>
+
+      <div className="absolute hidden xl:block left-1/2 -translate-x-1/2 top-0 pointer-events-none">
+        <Image
+          src="/endgame-training/board-stage.png"
+          alt="chess board"
+          width={250}
+          height={250}
+        />
+      </div>
+
+      <div className="absolute hidden xl:block  top-0 right-0 pointer-events-none">
+        <Image
+          src="/endgame-training/sword-stage.png"
+          alt="sword bg"
+          width={100}
+          height={100}
+        />
       </div>
 
       <div className="flex items-center space-x-2">
@@ -79,10 +97,12 @@ export default function GameHeader({
             <div>Loading pieces...</div>
           )}
         </div>
-        <div className="mx-4">{subcategoryName || "Loading..."}</div>
+        <div className="mx-4 hidden xl:block">
+          {subcategoryName || "Loading..."}
+        </div>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 xl:mr-32">
         <div className="font-semibold text-xl relative z-10">Stage</div>
         <div
           className={`text-[33px] xl:text-[45px] font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}

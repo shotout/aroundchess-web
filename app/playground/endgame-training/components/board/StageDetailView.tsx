@@ -22,6 +22,7 @@ import GameControls from "../GameControl";
 import GameHeader from "../GameHeader";
 import GameAlertDialog from "../GameAlertDialog";
 import GameAlertDebug from "../GameAlertDebug";
+import GameOutcomeDisplay from "../GameOutcomeDisplay";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -55,6 +56,8 @@ export default function StageDetailView({
   const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
   const [showGameEndDialog, setShowGameEndDialog] = useState<boolean>(false);
+  const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
+  const [gameEndTime, setGameEndTime] = useState<number | undefined>(undefined);
 
   const [optionSquares, setOptionSquares] = useState<
     Record<string, { background: string }>
@@ -167,6 +170,8 @@ export default function StageDetailView({
         setIsSolved(false);
         setMoveSquares({});
         setOptionSquares({});
+        setGameStartTime(Date.now());
+        setGameEndTime(undefined);
 
         setPlayerColorFromFen(fen);
 
@@ -215,6 +220,8 @@ export default function StageDetailView({
           setIsSolved(false);
           setMoveSquares({});
           setOptionSquares({});
+          setGameStartTime(Date.now());
+          setGameEndTime(undefined);
 
           setPlayerColorFromFen(gameData.fen);
         } catch (e) {
@@ -259,15 +266,9 @@ export default function StageDetailView({
     const { setActiveTab, setViewState } = useEndgameNavigation.getState();
 
     if (isCheckmateMode) {
+      // Modified this part to go directly to categories view instead of subcategories
       setActiveTab("move");
-      if (movesToCheckmate) {
-        setViewState({
-          view: "subcategories",
-          movesToCheckmate: movesToCheckmate,
-        });
-      } else {
-        setViewState({ view: "categories" });
-      }
+      setViewState({ view: "categories" });
     } else {
       setActiveTab("board");
       setViewState({
@@ -277,7 +278,7 @@ export default function StageDetailView({
     }
 
     router.push(`/playground/endgame-training/`);
-  }, [router, isCheckmateMode, movesToCheckmate, categorySlug]);
+  }, [router, isCheckmateMode, categorySlug]);
 
   const retryFetch = useCallback(() => {
     if (!fetchInProgress.current) {
@@ -315,6 +316,8 @@ export default function StageDetailView({
         setBestMove(null);
         setOptionSquares({});
         setMoveSquares({});
+        setGameStartTime(Date.now());
+        setGameEndTime(undefined);
 
         setPlayerColorFromFen(initialFen);
       } catch (e) {
@@ -323,6 +326,55 @@ export default function StageDetailView({
     }
   }, [game, initialFen, setPlayerColorFromFen]);
 
+  // Handle new game by selecting a new random position
+  const handleNewGame = useCallback(() => {
+    const { setViewState } = useEndgameNavigation.getState();
+
+    if (isCheckmateMode && movesToCheckmate) {
+      // Get all positions for the current "Checkmate in X" category
+      if (
+        !checkmateData ||
+        !Array.isArray(checkmateData) ||
+        movesToCheckmate <= 0 ||
+        movesToCheckmate > checkmateData.length
+      ) {
+        return;
+      }
+
+      const positions = checkmateData[movesToCheckmate - 1];
+      if (!positions || positions.length === 0) {
+        return;
+      }
+
+      // Select a random position index different from the current one
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * positions.length);
+      } while (randomIndex === stageNum - 1 && positions.length > 1);
+
+      // Navigate to the new position
+      router.push(
+        `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
+          randomIndex + 1
+        }/stage-${randomIndex + 1}`
+      );
+    } else {
+      // For regular endgame training, go back to subcategory selection
+      setViewState({
+        view: "subcategories",
+        category: categorySlug,
+      });
+      router.push(`/playground/endgame-training/`);
+    }
+  }, [
+    router,
+    isCheckmateMode,
+    movesToCheckmate,
+    categorySlug,
+    checkmateData,
+    stageNum,
+  ]);
+
   const checkGameStatus = useCallback(() => {
     if (!game) return false;
 
@@ -330,6 +382,7 @@ export default function StageDetailView({
       if (game.isGameOver()) {
         setIsSolved(true);
         setShowGameEndDialog(true);
+        setGameEndTime(Date.now());
         return true;
       }
 
@@ -434,7 +487,7 @@ export default function StageDetailView({
           <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4">
             <div className="flex flex-col h-full">
               <div className="w-full p-4 h-auto">
-                <div className="flex flex-col items-center justify-center gap-y-4 bg-blue-base/10 border border-blue-base rounded-xl p-6">
+                <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
                   <div className="flex flex-row items-center justify-center gap-x-3">
                     <AlertCircle className="h-8 w-8 text-blue-base" />
                     <h1 className="text-xl text-black">
@@ -454,6 +507,23 @@ export default function StageDetailView({
               </div>
 
               <MoveHistory moveHistory={moveHistory} />
+
+              {isSolved && (
+                <div className="w-full overflow-hidden p-4">
+                  <GameOutcomeDisplay
+                    game={game}
+                    playerColor={playerColor}
+                    moveHistory={moveHistory}
+                    pieceConfig={pieceConfig}
+                    subcategoryName={subcategoryName}
+                    startTime={gameStartTime}
+                    endTime={gameEndTime}
+                    isGameOver={isSolved}
+                    onNewGame={handleNewGame}
+                    onRematch={resetPosition}
+                  />
+                </div>
+              )}
 
               <StockfishEngine
                 game={game}
@@ -483,7 +553,7 @@ export default function StageDetailView({
           </div>
         </div>
       </main>
-      {process.env.NODE_ENV === "development" && <GameAlertDebug />}
+      {/* {process.env.NODE_ENV === "development" && <GameAlertDebug />} */}
     </div>
   );
 }

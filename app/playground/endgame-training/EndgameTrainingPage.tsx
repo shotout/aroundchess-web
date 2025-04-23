@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useEndgametraining } from "./store/EndgameTrainingStore";
 import { useCheckmateTraining } from "./store/CheckmateStore";
 import DotSpinner from "@/components/game-history/Spinner";
@@ -24,6 +25,7 @@ import PageHeader from "./components/PageHeader";
 import { useEndgameNavigation } from "./store/NavigationStore";
 
 export default function EndgameTrainingPage() {
+  const router = useRouter();
   const { activeTab, setActiveTab, viewState, setViewState, hydrated } =
     useEndgameNavigation();
 
@@ -47,8 +49,39 @@ export default function EndgameTrainingPage() {
       onCategorySelect: (categorySlug: string) =>
         handleCategorySelect(setViewState, categorySlug),
 
-      onCheckmateSelect: (movesToCheckmate: number) =>
-        handleCheckmateSelect(setViewState, movesToCheckmate),
+      onCheckmateSelect: (movesToCheckmate: number) => {
+        // Get checkmate data for this category
+        if (
+          !checkmate.data ||
+          !Array.isArray(checkmate.data) ||
+          movesToCheckmate <= 0 ||
+          movesToCheckmate > checkmate.data.length
+        ) {
+          return;
+        }
+
+        const positions = checkmate.data[movesToCheckmate - 1];
+        if (!positions || positions.length === 0) {
+          return;
+        }
+
+        // Select a random position index
+        const randomIndex = Math.floor(Math.random() * positions.length);
+
+        // Update the view state to detail view
+        setViewState({
+          view: "detail",
+          movesToCheckmate,
+          positionIndex: randomIndex,
+        });
+
+        // Navigate directly to StageDetailView with the random position
+        router.push(
+          `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
+            randomIndex + 1
+          }/stage-${randomIndex + 1}`
+        );
+      },
 
       onPositionSelect: (
         categorySlug: string,
@@ -91,7 +124,15 @@ export default function EndgameTrainingPage() {
       onTabChange: (tab: string) =>
         handleTabChange(tab, setActiveTab, setViewState),
     }),
-    [activeTab, currentTabData.data, setActiveTab, setViewState, viewState]
+    [
+      activeTab,
+      currentTabData.data,
+      setActiveTab,
+      setViewState,
+      viewState,
+      router,
+      checkmate.data,
+    ]
   );
 
   const renderContent = () => {
