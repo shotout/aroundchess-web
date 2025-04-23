@@ -11,7 +11,6 @@ interface GameControlsProps {
   showSolution: () => void;
   resetPosition: () => void;
   navigateNext: () => void;
-  navigatePrevious: () => void;
   isCheckmateMode: boolean;
   playerColor: "w" | "b";
 }
@@ -22,7 +21,6 @@ export default function GameControls({
   showSolution,
   resetPosition,
   navigateNext,
-  navigatePrevious,
   isCheckmateMode,
   playerColor,
 }: GameControlsProps) {
@@ -76,42 +74,71 @@ export default function GameControls({
         </div>
       )}
 
-      {/* Second group: Next Stage/Position button with its own border - Always visible */}
-      <div className="border-b border-light/60 p-3 w-full">
-        <button
-          onClick={navigateNext}
-          className="w-full flex gap-x-3 items-center justify-center p-3 bg-white text-black rounded-md border border-blue-600"
-        >
-          <Image
-            src={"/endgame-training/next-stage.png"}
-            alt="next icon"
-            width={20}
-            height={20}
-          />{" "}
-          {isCheckmateMode ? "Next Position" : "Next Stage"}
-        </button>
-      </div>
+      {isGameOver ? (
+        <div className="grid grid-cols-3 gap-4 rounded-lg p-3 w-full">
+          <button className="flex gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200">
+            <Image
+              src={"/endgame-training/download.png"}
+              alt="download icon"
+              width={20}
+              height={20}
+            />
+            Download PGN
+          </button>
+          <button
+            onClick={resetPosition}
+            className="flex gap-x-2 items-center justify-center p-3 bg-white rounded-full btn-tertiary"
+          >
+            <Image
+              src={"/endgame-training/download.png"}
+              alt="download icon"
+              width={20}
+              height={20}
+            />
+            Restart
+          </button>
+          <button
+            onClick={navigateNext}
+            className="flex gap-x-2 items-center justify-center p-3 btn-primary rounded-full border "
+          >
+            Next Stage
+            <Image
+              src={"/endgame-training/Union.png"}
+              alt="arrow right icon"
+              width={20}
+              height={20}
+            />
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="border-b border-light/60 p-3 w-full">
+            <button
+              onClick={navigateNext}
+              className="w-full flex gap-x-3 items-center justify-center p-3 bg-white text-black rounded-md border border-blue-600"
+            >
+              <Image
+                src={"/endgame-training/next-stage.png"}
+                alt="next icon"
+                width={20}
+                height={20}
+              />{" "}
+              Next Position
+            </button>
+          </div>
 
-      {/* Third group: Download and Settings buttons with equal width - Always visible */}
-      <div className="grid grid-cols-2 gap-4 rounded-lg p-3 w-full">
-        <button className="flex items-center justify-center p-3 bg-white rounded-md border border-gray-200">
-          <Image
-            src={"/endgame-training/download.png"}
-            alt="download icon"
-            width={20}
-            height={20}
-          />
-        </button>
-
-        <button className="flex items-center justify-center p-3 bg-white rounded-md border border-gray-200">
-          <Image
-            src={"/endgame-training/gear.png"}
-            alt="settings icon"
-            width={20}
-            height={20}
-          />
-        </button>
-      </div>
+          <div className="grid grid-cols-1 gap-4 rounded-lg p-3 w-full">
+            <button className="flex items-center justify-center p-3 bg-white rounded-md border border-gray-200">
+              <Image
+                src={"/endgame-training/download.png"}
+                alt="download icon"
+                width={20}
+                height={20}
+              />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

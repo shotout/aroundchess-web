@@ -21,7 +21,6 @@ import StockfishEngine from "../SF";
 import GameControls from "../GameControl";
 import GameHeader from "../GameHeader";
 import GameAlertDialog from "../GameAlertDialog";
-import GameAlertDebug from "../GameAlertDebug";
 import GameOutcomeDisplay from "../GameOutcomeDisplay";
 
 interface StageDetailViewProps {
@@ -299,10 +298,6 @@ export default function StageDetailView({
     () => navigateToStage("next"),
     [navigateToStage]
   );
-  const navigatePrevious = useCallback(
-    () => navigateToStage("previous"),
-    [navigateToStage]
-  );
 
   const resetPosition = useCallback(() => {
     if (initialFen) {
@@ -326,12 +321,10 @@ export default function StageDetailView({
     }
   }, [game, initialFen, setPlayerColorFromFen]);
 
-  // Handle new game by selecting a new random position
   const handleNewGame = useCallback(() => {
     const { setViewState } = useEndgameNavigation.getState();
 
     if (isCheckmateMode && movesToCheckmate) {
-      // Get all positions for the current "Checkmate in X" category
       if (
         !checkmateData ||
         !Array.isArray(checkmateData) ||
@@ -346,7 +339,6 @@ export default function StageDetailView({
         return;
       }
 
-      // Select a random position index different from the current one
       let randomIndex;
       do {
         randomIndex = Math.floor(Math.random() * positions.length);
@@ -364,7 +356,7 @@ export default function StageDetailView({
         view: "subcategories",
         category: categorySlug,
       });
-      router.push(`/playground/endgame-training/`);
+      router.push(`/playground/endgame-training`);
     }
   }, [
     router,
@@ -545,7 +537,6 @@ export default function StageDetailView({
                 showSolution={() => setShowHint(true)}
                 resetPosition={resetPosition}
                 navigateNext={navigateNext}
-                navigatePrevious={navigatePrevious}
                 isCheckmateMode={isCheckmateMode}
                 playerColor={playerColor}
               />

@@ -4,6 +4,7 @@ import { BookOpen } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Chessboard } from "react-chessboard";
 import { ChessLesson, LessonType } from "../ChessLessonTypes";
+import Simple2DChess from "./Simple2DChess";
 
 interface RelatedLessonsProps {
   relatedLessons: ChessLesson[];
@@ -64,16 +65,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                       <div className="relative">
                         <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
                           <div className="w-full h-full p-2 md:p-3 xl:p-4">
-                            <Chessboard
+                            <Simple2DChess
                               id={`next-topic-${topicSlug}`}
                               position={topicFen}
                               arePiecesDraggable={false}
-                              customDarkSquareStyle={{
-                                backgroundColor: "#9E7555",
-                              }}
-                              customLightSquareStyle={{
-                                backgroundColor: "#F0DFC7",
-                              }}
                             />
                           </div>
                         </div>
@@ -90,7 +85,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         </div>
                       </div>
 
-                      <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2 xl:mb-4">
+                      <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2">
                         <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
                           {topic.difficulty}
                         </span>
