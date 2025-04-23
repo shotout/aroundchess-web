@@ -85,6 +85,7 @@ export default function EndgameTrainingView({
           selectedSubcategory={selectedSubcategory}
           selectedSubcategoryData={selectedSubcategoryData}
           onPositionSelect={onPositionSelect}
+          onSelectSubcategory={selectSubcategory}
         />
       )}
     </>

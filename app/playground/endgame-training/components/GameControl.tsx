@@ -13,7 +13,7 @@ interface GameControlsProps {
   navigateNext: () => void;
   navigatePrevious: () => void;
   isCheckmateMode: boolean;
-  playerColor: "w" | "b"; // Added player color prop
+  playerColor: "w" | "b";
 }
 
 export default function GameControls({
@@ -24,58 +24,59 @@ export default function GameControls({
   navigateNext,
   navigatePrevious,
   isCheckmateMode,
-  playerColor, // Added prop
+  playerColor,
 }: GameControlsProps) {
   // Get color name for display purposes
   const colorName = playerColor === "w" ? "White" : "Black";
+  const isGameOver = gameStatus === "solved";
 
   return (
     <div className="flex flex-col w-full">
-      {/* First group: Hint, Solution, Rematch with shared border */}
-      <div className="grid grid-cols-3 gap-4 p-4 border-b border-t border-gray-200 w-full">
-        <button
-          className="flex gap-x-3 items-center justify-center p-3 bg-blue-base/10 text-blue-base rounded-md border border-blue-base"
-          onClick={handleHint}
-          disabled={gameStatus !== "ongoing"}
-        >
-          <Image
-            src={"/endgame-training/hint.png"}
-            alt="hint icon"
-            width={20}
-            height={20}
-          />{" "}
-          Hint
-        </button>
+      {/* First group: Hint, Solution, Rematch with shared border - Hide when game is over */}
+      {!isGameOver && (
+        <div className="grid grid-cols-3 gap-4 p-4 border-b border-t border-gray-200 w-full">
+          <button
+            className="flex gap-x-3 items-center justify-center p-3 bg-blue-base/10 text-blue-base rounded-md border border-blue-base"
+            onClick={handleHint}
+          >
+            <Image
+              src={"/endgame-training/hint.png"}
+              alt="hint icon"
+              width={20}
+              height={20}
+            />{" "}
+            Hint
+          </button>
 
-        <button
-          className="flex gap-x-3 items-center justify-center p-3 bg-white text-gray-700 rounded-md border border-light/60"
-          onClick={showSolution}
-          disabled={gameStatus !== "ongoing"}
-        >
-          <Image
-            src={"/endgame-training/show-solution.png"}
-            alt="solution icon"
-            width={20}
-            height={20}
-          />
-          Solution
-        </button>
+          <button
+            className="flex gap-x-3 items-center justify-center p-3 bg-white text-gray-700 rounded-md border border-light/60"
+            onClick={showSolution}
+          >
+            <Image
+              src={"/endgame-training/show-solution.png"}
+              alt="solution icon"
+              width={20}
+              height={20}
+            />
+            Solution
+          </button>
 
-        <button
-          onClick={resetPosition}
-          className="flex gap-x-3 items-center btn-tertiary justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-full border border-blue-200"
-        >
-          <Image
-            src={"/endgame-training/rematch.png"}
-            alt="rematch icon"
-            width={20}
-            height={20}
-          />
-          Rematch
-        </button>
-      </div>
+          <button
+            onClick={resetPosition}
+            className="flex gap-x-3 items-center btn-tertiary justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-full border border-blue-200"
+          >
+            <Image
+              src={"/endgame-training/rematch.png"}
+              alt="rematch icon"
+              width={20}
+              height={20}
+            />
+            Rematch
+          </button>
+        </div>
+      )}
 
-      {/* Second group: Next Stage/Position button with its own border */}
+      {/* Second group: Next Stage/Position button with its own border - Always visible */}
       <div className="border-b border-light/60 p-3 w-full">
         <button
           onClick={navigateNext}
@@ -91,7 +92,7 @@ export default function GameControls({
         </button>
       </div>
 
-      {/* Third group: Download and Settings buttons with equal width */}
+      {/* Third group: Download and Settings buttons with equal width - Always visible */}
       <div className="grid grid-cols-2 gap-4 rounded-lg p-3 w-full">
         <button className="flex items-center justify-center p-3 bg-white rounded-md border border-gray-200">
           <Image

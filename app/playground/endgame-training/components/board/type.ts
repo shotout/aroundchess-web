@@ -17,5 +17,6 @@ export interface StagesSectionProps {
   slug: string;
   selectedSubcategory: string;
   selectedSubcategoryData: Subcategory | null;
+  onSelectSubcategory: (slug: string) => void;
   onPositionSelect: (positionSlug: string, positionIndex?: number) => void;
 }

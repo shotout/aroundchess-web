@@ -5,7 +5,6 @@ import {
   CheckmateData,
 } from "../../types/EndgameTrainingTypes";
 import EndgameTrainingView from "../board/EndgameTrainingView";
-import CheckmateTrainingView from "../moves/CheckmateTrainingView";
 
 interface SubcategoryViewProps {
   activeTab: string;
@@ -28,7 +27,6 @@ export default function SubcategoryView({
   data,
   viewState,
   onPositionSelect,
-  onCheckmatePositionSelect,
   onBackClick,
 }: SubcategoryViewProps) {
   if (viewState.view !== "subcategories") return null;
@@ -42,17 +40,6 @@ export default function SubcategoryView({
             data={data as EndgameData}
             onPositionSelect={(positionSlug: string) =>
               onPositionSelect(viewState.category!, positionSlug)
-            }
-            onBackClick={onBackClick}
-          />
-        </>
-      ) : activeTab === "move" && viewState.movesToCheckmate ? (
-        <>
-          <CheckmateTrainingView
-            slug={`checkmate-${viewState.movesToCheckmate}`}
-            data={data as CheckmateData}
-            onPositionSelect={(index) =>
-              onCheckmatePositionSelect(viewState.movesToCheckmate!, index)
             }
             onBackClick={onBackClick}
           />

@@ -1,4 +1,3 @@
-// 1. Main Component File (ChessLessonDetail.tsx)
 "use client";
 
 import { useRouter } from "next/navigation";

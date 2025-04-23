@@ -14,7 +14,6 @@ interface CreateStoreOptions {
   apiEndpoint: string;
 }
 
-// Extended state to include read status
 interface ExtendedChessLessonState<T extends ChessLesson>
   extends ChessLessonState<T> {
   readStatusMap: Record<string, boolean>;
@@ -281,14 +280,11 @@ export function createChessLessonStore<T extends ChessLesson>({
           }
         },
 
-        // New method to check and update read status
         checkReadStatus: async (id: string, sessionId?: string) => {
-          // If we don't have a session ID, we can't check read status
           if (!sessionId) {
             return false;
           }
 
-          // If we already know the read status, return it
           const { readStatusMap } = get();
           if (readStatusMap[id] !== undefined) {
             return readStatusMap[id];
@@ -296,7 +292,7 @@ export function createChessLessonStore<T extends ChessLesson>({
 
           try {
             const apiBaseUrl = process.env.BASE_URL;
-            const apiUrl = `${apiBaseUrl}/api/handbooks/read/`;
+            const apiUrl = `${apiBaseUrl}/handbooks/read/`;
 
             const headers: HeadersInit = {
               "Content-Type": "application/json",
@@ -349,7 +345,7 @@ export function createChessLessonStore<T extends ChessLesson>({
           allLessons: state.allLessons,
           lessonDetails: state.lessonDetails,
           initialized: state.initialized,
-          readStatusMap: state.readStatusMap, // Persist read status
+          readStatusMap: state.readStatusMap,
         }),
       }
     )
