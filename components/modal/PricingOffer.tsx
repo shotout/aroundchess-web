@@ -16,6 +16,10 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import Image from "next/image";
 import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
 import { useSuccessSubscription } from "@/app/store/successSubscription";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
+import { useProfileFetch } from "../navigator/hook/useProfileFetch";
+import { formatDate } from "@/functions/format-date";
 
 interface TokenOption {
   amount: number;
@@ -28,6 +32,8 @@ export const PricingOffer: React.FC = () => {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [activeTab, setActiveTab] = useState("tokens");
   const { open, setOpen, tabType } = usePricingOffer();
+  const { postPurchaseToken, isLoading } = useApiClient();
+  const { callFetch, setCallFetch } = useProfileFetch();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const [widthC, setWidthC] = useState<number>(0);
@@ -67,7 +73,22 @@ export const PricingOffer: React.FC = () => {
     setOpen(false);
     setOpenSuccessSubscription(true);
   };
-
+  const handlePurchaseToken = () => {
+    let tokenSelected =
+      selectedToken != null && selectedToken != 5
+        ? tokenOptions[selectedToken].amount
+        : 0;
+    let qty = parseInt(customAmount != "" ? customAmount : tokenSelected);
+    let body = {
+      quantity: qty,
+      paymentMethodId: "stripe",
+    };
+    postPurchaseToken(body).then((result) => {
+      console.log("postPurchaseToken", result);
+      setCallFetch(formatDate());
+      setOpen(false);
+    });
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
@@ -278,7 +299,8 @@ export const PricingOffer: React.FC = () => {
                       >
                         <input
                           type="number"
-                          className="w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                          max={100}
+                          className="font-medium w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
                           value={customAmount}
                           onChange={(e) => setCustomAmount(e.target.value)}
                           onClick={(e) => {
@@ -291,18 +313,26 @@ export const PricingOffer: React.FC = () => {
                         </span>
                       </div>
                       <div className="font-medium text-[20px] xl:text-[24px]">
-                        $0.00
+                        ${0.99 * parseInt(customAmount)}.00
                       </div>
                       <div className="text-[14px] font-normal text-[#221AE9]">
-                        $0.00/Token
+                        $0.99/Token
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
-                  <button className="btn-primary w-full xl:w-1/2 h-[48px] rounded-full">
-                    Purchase Now
-                  </button>
+                  {isLoading ? (
+                    <DotSpinner />
+                  ) : (
+                    <button
+                      disabled={isLoading}
+                      onClick={handlePurchaseToken}
+                      className="btn-primary w-full xl:w-1/2 h-[48px] rounded-full"
+                    >
+                      Purchase Now
+                    </button>
+                  )}
                 </div>
               </div>
             </TabsContent>

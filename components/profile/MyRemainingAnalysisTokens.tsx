@@ -9,7 +9,6 @@ const MyRemainingAnalysisTokens = () => {
   const { token } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const handleOpenOffer = (type: string) => {
-    console.log("BUKA");
     setOpenSubscribe(true);
     setTabType(type);
   };
@@ -22,7 +21,7 @@ const MyRemainingAnalysisTokens = () => {
       </div>
       <div className="flex justify-center items-center sm:justify-start">
         <CurrentInfo
-          handleOnClick={() => handleOpenOffer("token")}
+          handleOnClick={() => handleOpenOffer("tokens")}
           title="Remaining Tokens:"
           textButton="Buy More Tokens"
           image="/icons/icon-member-tokens.png"

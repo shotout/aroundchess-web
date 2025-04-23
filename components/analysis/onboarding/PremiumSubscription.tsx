@@ -22,6 +22,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { formatDate, formatDateHistory } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -113,6 +114,7 @@ export const PremiumSubsContent: React.FC<{
   const { setOpen } = useCancelSubscription();
   const { allMembershipPackages, activeMembership, isMember } =
     useProfileStore();
+  const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 
   let free = allMembershipPackages[0];
@@ -129,6 +131,7 @@ export const PremiumSubsContent: React.FC<{
     };
     postPurchaseMembership(body).then((result) => {
       console.log("postPurchaseMembership", result);
+      setCallFetch(formatDate());
     });
   };
   return (
