@@ -95,11 +95,11 @@ export default function ChessFAQ() {
       </div>
 
       {/* Tabs > Mobile width*/}
-      <div className="hidden md:flex w-full flex-row items-center justify-around gap-1 mx-[16px] z-10 mt-[100px]">
+      <div className="hidden md:flex w-full flex-row items-center justify-center gap-8 mx-[16px] z-10 mt-[100px] rounded-[8px]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className="relative flex flex flex-row items-center justify-end bg-[#FFF] min-w-[227px] py-[24px] pr-[9px] min-h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            className="relative flex flex flex-row items-center justify-end bg-[#FFF] min-w-[200px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
               src={tab.img}
@@ -131,22 +131,29 @@ export default function ChessFAQ() {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`flex flex-row items-center justify-center min-w-[70px] px-[12px] h-[42px] rounded-[12px] ${
+            className={`flex flex-col items-center justify-center min-w-[23%] px-[12px] h-[42px] rounded-[12px] ${
               activeTab === tab.id
                 ? "text-[#221AE9] border border-[#221AE9]"
                 : "bg-white border border-gray-300 rounded-md"
             }`}
             onClick={() => setActiveTab(tab.id)}
           >
-            <span className="block text-[11px] font-medium text-start">
-              {tab.label}
-            </span>
+            <div className="flex flex-col items-start">
+              <span className="text-[8px] font-medium text-start">
+                {tab.title}
+              </span>
+              <span className="block text-[11px] font-medium text-start">
+                {tab.label}
+              </span>
+            </div>
           </button>
         ))}
       </div>
 
       {/* Category Title */}
-      <h2 className="text-[16px] md:text-[24px] font-medium mx-4">{activeTab}</h2>
+      <h2 className="text-[16px] md:text-[24px] font-medium mx-4">
+        {activeTab}
+      </h2>
 
       {/* Accordion FAQ items */}
       <div className="space-y-3 mx-4 mb-[32px]">
@@ -156,7 +163,9 @@ export default function ChessFAQ() {
               onClick={() => toggleQuestion(index)}
               className="w-full px-[20px] py-2 text-left flex justify-between items-center"
             >
-              <span className="font-bold text-[12px] md:text-[18px]">{faq.question}</span>
+              <span className="font-bold text-[12px] md:text-[18px]">
+                {faq.question}
+              </span>
               {openQuestion === index ? (
                 <ChevronUp size={20} />
               ) : (
@@ -168,7 +177,10 @@ export default function ChessFAQ() {
               <div className="px-[20px] py-[5px] md:py-[10px] border-t">
                 <ul className="list-disc pl-6 space-y-1">
                   {faq.answer.map((line, i) => (
-                    <li key={i} className="font-normal text-[12px] md:text-[18px]">
+                    <li
+                      key={i}
+                      className="font-normal text-[12px] md:text-[18px]"
+                    >
                       {line}
                     </li>
                   ))}
