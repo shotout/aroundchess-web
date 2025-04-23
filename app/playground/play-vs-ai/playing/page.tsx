@@ -643,6 +643,15 @@ export default function Playing() {
   };
   const handleResign = () => {
     setStatusGame("Loss");
+    setHeaderGameFinish();
+    // Determine the winner based on the player who was in checkmate
+    let loserColor = game.turn(); // 'w' for white, 'b' for black
+    let winnerColor = loserColor === "w" ? "black" : "white";
+    let losserColor = loserColor != "w" ? "black" : "white";
+    let isUserWin = myColor === winnerColor;
+    setWinnerColor(winnerColor);
+    setLoserColor(losserColor);
+    console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
     fetchPgnLocal();
@@ -650,6 +659,9 @@ export default function Playing() {
   const handleRematch = () => {
     game.reset();
     setGamePosition(game.fen());
+    setHeaderGameStart();
+    setLoserColor("")
+    setWinnerColor("")
     setStatusGame("Ongoing");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
