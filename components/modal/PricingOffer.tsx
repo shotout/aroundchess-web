@@ -300,7 +300,7 @@ export const PricingOffer: React.FC = () => {
                         <input
                           type="number"
                           max={100}
-                          className="font-medium w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                          className="font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
                           value={customAmount}
                           onChange={(e) => setCustomAmount(e.target.value)}
                           onClick={(e) => {
