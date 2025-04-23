@@ -22,6 +22,7 @@ import GameControls from "../GameControl";
 import GameHeader from "../GameHeader";
 import GameAlertDialog from "../GameAlertDialog";
 import GameOutcomeDisplay from "../GameOutcomeDisplay";
+import GameAlertDebug from "../GameAlertDebug";
 
 interface StageDetailViewProps {
   categorySlug: string;

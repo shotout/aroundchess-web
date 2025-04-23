@@ -120,7 +120,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
         />
       </div>
 
-      <div className="relative z-10 w-full h-full px-4 pb-[23px] 2xl:p-[25px]">
+      <div className="relative w-full h-full px-4 pb-24 pt-5 lg:p-[15px] xl:p-[23px] 2xl:p-[25px]">
         <div className="w-full h-full">
           <Chessboard
             id={`board-${id}`}

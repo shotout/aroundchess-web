@@ -4,6 +4,7 @@ import React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { RotateCcw, X } from "lucide-react";
 import { Chess } from "chess.js";
+import Image from "next/image";
 
 interface GameAlertDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ type GameEndState = {
   message: string;
   description?: string;
   color: "green" | "red" | "blue" | "gray";
+  image: string;
 };
 
 const GameAlertDialog = ({
@@ -40,12 +42,14 @@ const GameAlertDialog = ({
             title: "Checkmate!",
             message: "You won this game by checkmate!",
             color: "green",
+            image: "Won-Checkmate",
           };
         } else {
           return {
             title: "Loss - Checkmate!",
             message: "Your game ended in Checkmate.",
             color: "red",
+            image: "Loss",
           };
         }
       }
@@ -57,6 +61,7 @@ const GameAlertDialog = ({
           description:
             "Why Draw? Stalemate is a kind of Draw that happens when one side has no legal moves to make. If the King is not in check, but no piece can be moved without putting the king in check, then the Game will end with a Stalemate Draw.",
           color: "blue",
+          image: "Draw-Stalemate",
         };
       }
 
@@ -67,6 +72,7 @@ const GameAlertDialog = ({
           description:
             "Why Draw? The threefold repetition rule states that if a game reaches the same position three times, a Draw can be Claimed.",
           color: "blue",
+          image: "Draw-Threefold-Repetition",
         };
       }
 
@@ -77,6 +83,7 @@ const GameAlertDialog = ({
           description:
             "Why Draw? The 'Insufficient material' rule dictates that a game is automatically declared a Draw if there is no way to end the game in checkmate",
           color: "blue",
+          image: "Draw-Insufficient-Material",
         };
       }
 
@@ -87,6 +94,7 @@ const GameAlertDialog = ({
           description:
             "This may be due to the 50-move rule or another draw condition.",
           color: "blue",
+          image: "Draw-Stalemate",
         };
       }
     } catch (error) {
@@ -98,10 +106,11 @@ const GameAlertDialog = ({
       title: "Game Over",
       message: "The game has ended.",
       color: "gray",
+      image: "",
     };
   };
 
-  const { title, message, description, color } = getGameEndState();
+  const { title, message, description, color, image } = getGameEndState();
 
   const getColorStyles = () => {
     switch (color) {
@@ -140,6 +149,14 @@ const GameAlertDialog = ({
         <div
           className={`relative ${colorStyles.background} border-2 ${colorStyles.border} rounded-xl w-full mx-auto p-4`}
         >
+          <div className="absolute right-0 top-0">
+            <Image
+              src={`/endgame-training/dialog/${image}.png`}
+              alt=""
+              width={200}
+              height={200}
+            />
+          </div>
           <button
             onClick={(e) => {
               e.stopPropagation();
