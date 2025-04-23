@@ -29,10 +29,12 @@ export const useProfileFetch = () => {
     getActiveMembership,
     getAllMembershipPackage,
     getPuzzle,
+    getTokenPackage
   } = useApiClient();
   const {
     token,
     setToken,
+    setTokenPackage,
     setActiveMembership,
     setAllMembershipPackages,
     setProfile,
@@ -52,6 +54,11 @@ export const useProfileFetch = () => {
         let data = response.data;
         console.log("getTokenBalance", data);
         setToken(data);
+      });
+      getTokenPackage({}).then((response) => {
+        let data = response.data;
+        console.log("getTokenPackage", data);
+        setTokenPackage(data);
       });
       getActiveMembership({}).then((response) => {
         let data = response.data;

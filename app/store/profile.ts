@@ -6,13 +6,14 @@ interface ProfileState {
   setProfile: (profile: any) => void;
   token: any;
   setToken: (token: any) => void;
+  tokenPackage: any;
+  setTokenPackage: (token: any) => void;
   activeMembership: any;
   setActiveMembership: (activeMembership: any) => void;
   allMembershipPackages: any;
   setAllMembershipPackages: (allMembershipPackages: any) => void;
   puzzleLog: any;
   setPuzzleLog: (puzzleLog: any) => void;
-
 
   isMember: any;
   setIsMember: (isMember: any) => void;
@@ -23,6 +24,8 @@ export const useProfileStore = create<ProfileState>()(
     (set) => ({
       profile: {},
       setProfile: (profile) => set({ profile }),
+      tokenPackage: {},
+      setTokenPackage: (tokenPackage) => set({ tokenPackage }),
       token: {},
       setToken: (token) => set({ token }),
       activeMembership: {},
@@ -32,8 +35,8 @@ export const useProfileStore = create<ProfileState>()(
         set({ allMembershipPackages }),
       puzzleLog: {},
       setPuzzleLog: (puzzleLog) => set({ puzzleLog }),
-      isMember:false,
-      setIsMember:(isMember)=>set({isMember})
+      isMember: false,
+      setIsMember: (isMember) => set({ isMember }),
     }),
     {
       name: "AI-storage", // unique name for the storage

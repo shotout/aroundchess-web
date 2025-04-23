@@ -1,17 +1,14 @@
 "use client";
-import { SiteFooterNew } from "@/components/site-footer-new";
-import { useEffect, useState } from "react";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
-import { ConfirmLogin } from "../modal/ConfirmLogin";
+import { SiteFooterNew } from "@/components/site-footer-new";
 import { useAuth } from "@clerk/nextjs";
-import { ContactUs } from "../modal/ContactUs";
+import { useEffect, useState } from "react";
 import { CancelSubscription } from "../modal/CancelSubscription";
+import { ConfirmLogin } from "../modal/ConfirmLogin";
+import { ContactUs } from "../modal/ContactUs";
 import { PricingOffer } from "../modal/PricingOffer";
 import { SuccessSubscription } from "../modal/SuccessSubscription";
-import { useApiClient } from "@/functions/api-client";
-import { useProfileStore } from "@/app/store/profile";
-import { usePgnStore } from "@/app/store/zustandStore";
 
 export default function Navigation({
   children,
