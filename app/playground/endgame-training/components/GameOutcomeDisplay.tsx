@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Chess } from "chess.js";
 import Image from "next/image";
 import { ChessPiece } from "../utils/ChessPieceUtils";
-import { Cat, Clock, Trophy } from "lucide-react";
+import { Cat, Clock, Trophy, X, Info } from "lucide-react";
 
 interface GameOutcomeDisplayProps {
   game: Chess;
@@ -19,6 +19,17 @@ interface GameOutcomeDisplayProps {
   onRematch?: () => void;
 }
 
+type GameOutcomeState = {
+  isWin: boolean;
+  title: string;
+  subtitle: string;
+  description?: string;
+  bgClass: string;
+  borderClass: string;
+  iconBgClass: string;
+  iconType: "trophy" | "checkmate" | "draw";
+};
+
 export default function GameOutcomeDisplay({
   game,
   playerColor,
@@ -32,14 +43,11 @@ export default function GameOutcomeDisplay({
   onRematch,
 }: GameOutcomeDisplayProps) {
   const [elapsedTime, setElapsedTime] = useState<string>("0 minutes");
-  const [outcomeState, setOutcomeState] = useState<{
-    isWin: boolean;
-    title: string;
-    subtitle: string;
-    color: string;
-  } | null>(null);
+  const [outcomeState, setOutcomeState] = useState<GameOutcomeState | null>(
+    null
+  );
+  const [showDescription, setShowDescription] = useState<boolean>(false);
 
-  // Calculate elapsed time
   useEffect(() => {
     if (startTime) {
       const calculateTime = () => {
@@ -58,15 +66,13 @@ export default function GameOutcomeDisplay({
 
       calculateTime();
 
-      // Only set up the interval if we don't have an endTime
       if (!endTime) {
-        const interval = setInterval(calculateTime, 10000); // Update every 10 seconds
+        const interval = setInterval(calculateTime, 10000);
         return () => clearInterval(interval);
       }
     }
   }, [startTime, endTime]);
 
-  // Determine game outcome
   useEffect(() => {
     if (!isGameOver) {
       setOutcomeState(null);
@@ -74,45 +80,106 @@ export default function GameOutcomeDisplay({
     }
 
     try {
-      if (game.isCheckmate()) {
-        const winner = game.turn() === "w" ? "black" : "white";
-        const isPlayerWinner =
-          (winner === "white" && playerColor === "w") ||
-          (winner === "black" && playerColor === "b");
+      const winner = game.turn() === "w" ? "black" : "white";
+      const isPlayerWinner =
+        (winner === "white" && playerColor === "w") ||
+        (winner === "black" && playerColor === "b");
 
-        if (isPlayerWinner) {
-          setOutcomeState({
-            isWin: true,
-            title: "Game Won",
-            subtitle: "You have won by Checkmate!",
-            color: "#edfaed",
-          });
-        } else {
-          setOutcomeState({
+      let outcome = null;
+
+      switch (true) {
+        case game.isCheckmate():
+          outcome = isPlayerWinner
+            ? {
+                isWin: true,
+                title: "Game Won",
+                subtitle: "You have won by Checkmate!",
+                bgClass: "bg-[#edfaed]",
+                borderClass: "border-[#29A709]",
+                iconBgClass: "bg-[#00a000]",
+                iconType: "trophy",
+              }
+            : {
+                isWin: false,
+                title: "Game Lost",
+                subtitle: "Your opponent won by Checkmate",
+                bgClass: "bg-[#fdeded]",
+                borderClass: "border-[#d00000]",
+                iconBgClass: "bg-[#d00000]",
+                iconType: "checkmate",
+              };
+          break;
+
+        case game.isStalemate():
+          outcome = {
             isWin: false,
-            title: "Game Lost",
-            subtitle: "You have lost by Checkmate!",
-            color: "#fdeded",
-          });
-        }
-      } else if (game.isDraw()) {
-        let reason = "Draw";
+            title: "Game Drawn",
+            subtitle: "Draw by Stalemate",
+            description:
+              "Stalemate is a kind of Draw that happens when one side has no legal moves to make. If the King is not in check, but no piece can be moved without putting the king in check, then the Game will end with a Stalemate Draw.",
+            bgClass: "bg-[#e5f3ff]",
+            borderClass: "border-[#2336f3]",
+            iconBgClass: "bg-[#2336f3]",
+            iconType: "draw",
+          };
+          break;
 
-        if (game.isStalemate()) {
-          reason = "Stalemate";
-        } else if (game.isThreefoldRepetition()) {
-          reason = "Threefold Repetition";
-        } else if (game.isInsufficientMaterial()) {
-          reason = "Insufficient Material";
-        }
+        case game.isThreefoldRepetition():
+          outcome = {
+            isWin: false,
+            title: "Game Drawn",
+            subtitle: "Draw by Threefold Repetition",
+            description:
+              "The threefold repetition rule states that if a game reaches the same position three times, a Draw can be Claimed.",
+            bgClass: "bg-[#e5f3ff]",
+            borderClass: "border-[#2336f3]",
+            iconBgClass: "bg-[#2336f3]",
+            iconType: "draw",
+          };
+          break;
 
-        setOutcomeState({
-          isWin: false,
-          title: "Game Drawn",
-          subtitle: `The game ended in a draw by ${reason}!`,
-          color: "#e5f3ff",
-        });
+        case game.isInsufficientMaterial():
+          outcome = {
+            isWin: false,
+            title: "Game Drawn",
+            subtitle: "Draw by Insufficient Material",
+            description:
+              "The 'Insufficient material' rule dictates that a game is automatically declared a Draw if there is no way to end the game in checkmate.",
+            bgClass: "bg-[#e5f3ff]",
+            borderClass: "border-[#2336f3]",
+            iconBgClass: "bg-[#2336f3]",
+            iconType: "draw",
+          };
+          break;
+
+        case game.isDraw():
+          outcome = {
+            isWin: false,
+            title: "Game Drawn",
+            subtitle: "Draw by Rule",
+            description:
+              "This may be due to the 50-move rule or another draw condition.",
+            bgClass: "bg-[#e5f3ff]",
+            borderClass: "border-[#2336f3]",
+            iconBgClass: "bg-[#2336f3]",
+            iconType: "draw",
+          };
+          break;
+
+        default:
+          outcome = {
+            isWin: false,
+            title: "Game Over",
+            subtitle: "The game has ended",
+            bgClass: "bg-[#f0f0f0]",
+            borderClass: "border-gray-400",
+            iconBgClass: "bg-gray-400",
+            iconType: "draw",
+          };
+          break;
       }
+
+      setOutcomeState(outcome);
     } catch (error) {
       console.error("Error determining game outcome:", error);
     }
@@ -123,58 +190,56 @@ export default function GameOutcomeDisplay({
   return (
     <div className="flex flex-col">
       <div
-        className="w-full rounded-lg p-3 relative overflow-hidden"
-        style={{
-          backgroundColor: outcomeState.color,
-          border: `2px solid ${
-            outcomeState.isWin
-              ? "#00a000"
-              : outcomeState.color === "#e5f3ff"
-              ? "#2336f3"
-              : "#d00000"
-          }`,
-        }}
+        className={`w-full rounded-lg p-3 relative overflow-hidden ${outcomeState.bgClass} border-2 ${outcomeState.borderClass}`}
       >
-        {/* Background trophy watermark */}
-        <div className="absolute -right-5 -bottom-5 opacity-10 pointer-events-none">
-          {/* <Image
-            src={
-              outcomeState.isWin
-                ? "/endgame-training/trophy-bg.png"
-                : "/endgame-training/checkmate-bg.png"
-            }
-            alt="background"
-            width={100}
-            height={100}
-          /> */}
-        </div>
+        <div className="absolute -right-5 -bottom-5 opacity-10 pointer-events-none"></div>
 
         <div className="flex flex-col">
-          {/* Compact Header */}
           <div className="flex items-center mb-2">
-            <div className="w-10 h-10 rounded-full bg-green-400 mr-3 flex items-center justify-center">
-              {/* <Image
-                src={
-                  outcomeState.isWin
-                    ? "/endgame-training/trophy.png"
-                    : "/endgame-training/checkmate-icon.png"
-                }
-                alt="outcome icon"
-                width={25}
-                height={25}
-              /> */}
-              <Trophy />
+            <div
+              className={`w-10 h-10 rounded-full mr-3 flex items-center justify-center ${outcomeState.iconBgClass}`}
+            >
+              {outcomeState.iconType === "trophy" ? (
+                <Trophy className="text-white" size={25} />
+              ) : outcomeState.iconType === "checkmate" ? (
+                <X className="text-white" size={25} />
+              ) : (
+                <Clock className="text-white" size={25} />
+              )}
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-lg font-bold">{outcomeState.title}</h2>
               <p className="text-sm">{outcomeState.subtitle}</p>
             </div>
+
+            {outcomeState.description && (
+              <button
+                onClick={() => setShowDescription(!showDescription)}
+                className="bg-white rounded-full p-1 hover:bg-gray-100"
+              >
+                <Info
+                  size={16}
+                  className={outcomeState.borderClass.replace(
+                    "border-",
+                    "text-"
+                  )}
+                />
+              </button>
+            )}
           </div>
 
-          {/* Game stats with pieces on left, stats stacked on right */}
+          {showDescription && outcomeState.description && (
+            <div className="mb-3 p-2 bg-white bg-opacity-50 rounded-md">
+              <p className="text-xs text-gray-800">
+                {outcomeState.description}
+              </p>
+            </div>
+          )}
+
           <div className="flex space-x-3">
-            {/* Chess pieces display - LEFT */}
-            <div className="w-1/2 bg-white rounded-md p-2 flex justify-center items-center">
+            <div
+              className={`w-1/2 bg-white rounded-md p-2 flex justify-center items-center border-2 ${outcomeState.borderClass}`}
+            >
               {pieceConfig && pieceConfig.pieces ? (
                 <div className="flex items-center justify-center space-x-2">
                   {pieceConfig.pieces.map((piece: any, i: number) => (
@@ -195,37 +260,19 @@ export default function GameOutcomeDisplay({
               )}
             </div>
 
-            {/* Stats display - RIGHT (stacked vertically) */}
             <div className="w-1/2 flex flex-col space-y-1">
-              {/* Elapsed time - TOP */}
-              <div className="bg-blue-base text-white  rounded-md p-1.5 flex items-center">
-                {/* <Image
-                  src="/endgame-training/clock.png"
-                  alt="time"
-                  width={16}
-                  height={16}
-                  className="mr-2"
-                /> */}
-                <Clock />
+              <div className="bg-blue-500 text-white rounded-md p-1.5 flex items-center">
+                <Clock size={16} className="mr-2" />
                 <span className="text-xs font-medium">{elapsedTime}</span>
               </div>
 
-              {/* Moves count - MIDDLE */}
               <div className="p-1.5 flex items-center">
-                {/* <Image
-                  src="/endgame-training/moves.png"
-                  alt="moves"
-                  width={16}
-                  height={16}
-                  className="mr-2"
-                /> */}
-                <Cat />
+                <Cat size={16} className="mr-2" />
                 <span className="text-xs font-medium">
                   {moveHistory.length} Moves
                 </span>
               </div>
 
-              {/* Subcategory name - BOTTOM */}
               <div className="p-1.5 flex items-center">
                 <span className="text-xs font-medium truncate">
                   {subcategoryName}

@@ -14,7 +14,7 @@ export default function StagesSection({
   onSelectSubcategory,
 }: StagesSectionProps) {
   return (
-    <div className="xl:bg-white relative overflow-hidden rounded-lg xl:border border-gray-200 xl:px-4 flex flex-col space-y-5">
+    <div className="xl:bg-white relative overflow-hidden rounded-lg xl:border border-gray-200 xl:px-4 flex flex-col space-y-5 xl:space-y-4">
       {/* Mobile view - Better styled header with smaller sword */}
       <div className="border border-gray-300 rounded-md shadow-md xl:hidden overflow-hidden">
         <div className="flex items-center space-x-4 p-2 bg-primary-white relative">
@@ -56,7 +56,7 @@ export default function StagesSection({
       </div>
 
       {/* Desktop view - Original code preserved */}
-      <div className="hidden xl:flex justify-center space-x-5 items-center relative overflow-hidden p-2">
+      <div className="hidden xl:flex justify-center space-x-5  items-center relative  p-2">
         {/* ChevronLeft is hidden on desktop per requirements */}
         <button
           className="hidden"
@@ -83,7 +83,7 @@ export default function StagesSection({
           />
         </div>
 
-        <div className="absolute top-0 right-0 pointer-events-none">
+        <div className="absolute -top-4 right-0 pointer-events-none">
           <Image
             src="/endgame-training/sword-stage.png"
             alt="sword bg"

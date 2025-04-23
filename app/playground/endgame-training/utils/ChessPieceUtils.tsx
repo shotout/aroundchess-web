@@ -21,32 +21,6 @@ export interface ChessPieceProps {
   alignBottom?: boolean;
 }
 
-const getVerticalAdjustment = (
-  type: ChessPieceType,
-  height: number
-): number => {
-  const adjustmentFactor = height / 30; // Based on original height of 30px
-
-  switch (type) {
-    case "king":
-      return 0;
-    case "queen":
-      return 0;
-    case "rook":
-      return 0;
-    case "bishop":
-      return 1 * adjustmentFactor;
-    case "knight":
-      return 1 * adjustmentFactor;
-    case "pawn":
-      return 3 * adjustmentFactor;
-    case "vs":
-      return 0;
-    default:
-      return 0;
-  }
-};
-
 export const ChessPiece: React.FC<ChessPieceProps> = ({
   type,
   color = "text-blue-500",
@@ -88,10 +62,6 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
     isBlackPiece ? "black-" : ""
   }${type}-icon.png`;
 
-  const verticalAdjustment = alignBottom
-    ? getVerticalAdjustment(type, height)
-    : 0;
-
   if (count > 1) {
     return (
       <div
@@ -103,14 +73,7 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
         }}
       >
         {Array.from({ length: count }).map((_, index) => (
-          <div
-            key={index}
-            className="inline-block px-1"
-            style={{
-              verticalAlign: "bottom",
-              transform: `translateY(${verticalAdjustment}px)`,
-            }}
-          >
+          <div key={index} className="inline-block px-1">
             <Image
               src={imagePath}
               alt={`${type} chess piece`}
@@ -125,14 +88,7 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   }
 
   return (
-    <div
-      className="inline-block px-1"
-      style={{
-        verticalAlign: "bottom",
-        transform: `translateY(${verticalAdjustment}px)`,
-        margin: "0 4px",
-      }}
-    >
+    <div className="inline-block px-1">
       <Image
         src={imagePath}
         alt={`${type} chess piece`}
