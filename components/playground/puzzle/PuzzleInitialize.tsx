@@ -1,4 +1,5 @@
 /* eslint-disable */
+import DotSpinner from "@/components/game-history/Spinner";
 import {
   Select,
   SelectContent,
@@ -373,12 +374,16 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
                 </SelectContent>
               </Select>
             </div>
-            <button
-              onClick={handleStartGame}
-              className="w-full px-4 py-2 btn-primary rounded-full"
-            >
-              Start Puzzles
-            </button>
+            {isFetching ? (
+              <DotSpinner />
+            ) : (
+              <button
+                onClick={handleStartGame}
+                className="w-full px-4 py-2 btn-primary rounded-full"
+              >
+                Start Puzzles
+              </button>
+            )}
           </div>
         </div>
       </div>

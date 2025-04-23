@@ -71,23 +71,23 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wB",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "wQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.6,
       },
       {
         piece: "wK",
@@ -95,23 +95,23 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
       },
       {
         piece: "bP",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bB",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.6,
       },
       {
         piece: "bQ",
-        pieceHeight: 1.5,
+        pieceHeight: 1.6,
       },
       {
         piece: "bK",
@@ -137,6 +137,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             pointerEvents: "none",
           }}
         >
+          
           <img
             src={`/pieces/${PieceChoosed}/${piece}.png`}
             width={squareWidth}

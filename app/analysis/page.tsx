@@ -13,7 +13,6 @@ import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetu
 
 const DEV_MODE = false;
 
-
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
   const {
@@ -24,6 +23,7 @@ export default function AnalysisPage() {
     username,
     pgn,
     setPgn,
+    dataAnalysis,
     setDataAnalysis,
   } = usePgnStore();
   const { getMistakePrevious, isLoading: fetchLoading } = useApiClient();
@@ -60,13 +60,18 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
-    if (pgn.length == 0 || !isSignedIn) {
-      fetchPgnFamousGame();
+    console.log("dataAnalysis", dataAnalysis);
+    console.log("pgn.length", pgn);
+    console.log("isSignedIn", isSignedIn);
+    if (isSignedIn != undefined) {
+      if (dataAnalysis==null || !isSignedIn) {
+        fetchPgnFamousGame();
+      }
+      if (isSignedIn) {
+        fetchMistakePrevious();
+      }
     }
-    if (isSignedIn) {
-      fetchMistakePrevious();
-    }
-  }, []);
+  }, [isSignedIn]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;

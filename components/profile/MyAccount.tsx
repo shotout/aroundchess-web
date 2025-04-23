@@ -1,30 +1,41 @@
 import { Lock, LogOut, Mail } from "lucide-react";
 import Image from "next/image";
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
-type MyAccountProps = {};
+import { useApiClient } from "@/functions/api-client";
+import { useProfileStore } from "@/app/store/profile";
 
-const MyAccount: FC<MyAccountProps> = () => {
+const MyAccount = () => {
   const { user } = useUser();
+  const { getProfile } = useApiClient();
   const { open, setOpen } = usechangePassword();
+  const { profile, setProfile } = useProfileStore();
   const { signOut } = useClerk();
   const router = useRouter();
-  const { username } = usePgnStore();
+  const { username, setUsername } = usePgnStore();
   const [form, setForm] = useState<any>({
     email: user?.primaryEmailAddress?.emailAddress ?? "",
     defaultUsername: username,
     password: "",
   });
+  useEffect(() => {
+    getProfile({}).then((response) => {
+      let data = response.data;
+      console.log("getProfile", data);
+      setProfile(data);
+      setUsername(data.username);
+    });
+  }, []);
   const handleOnChange = (e: any) => {
     console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleChangePassword = () => {
-    setOpen(true);
+    router.push("/change-password")
   };
   const handleSignOut = async () => {
     localStorage.removeItem("token");
@@ -35,7 +46,10 @@ const MyAccount: FC<MyAccountProps> = () => {
     <div className={`flex flex-col gap-4`}>
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
         <span className="text-[18px] font-semibold">My Account</span>
-        <button className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1">
+        <button
+          onClick={handleSignOut}
+          className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
+        >
           <LogOut size={18} />
           <span>Sign-out</span>
         </button>

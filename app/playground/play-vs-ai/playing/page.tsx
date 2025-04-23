@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import {
   BoardOrientation,
   PromotionPieceOption,
@@ -36,6 +36,12 @@ import { toast } from "sonner";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import axios from "axios";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import {
+  formatDate,
+  formatDatePgn,
+  formatTimePgn,
+} from "@/functions/format-date";
+import { ChessCountdown } from "@/utils/chessCountdown";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
 export default function Playing() {
@@ -51,6 +57,7 @@ export default function Playing() {
     setDataGames,
     setError,
     username,
+    setDataGamesImport,
   } = usePgnStore();
   const { user } = useUser();
   const { sessionId } = useAuth();
@@ -61,6 +68,11 @@ export default function Playing() {
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
+  const [whiteTime, setWhiteTime] = useState("10:00");
+  const [blackTime, setBlackTime] = useState("10:00");
+  const whiteTimer = useRef<ChessCountdown>();
+  const blackTimer = useRef<ChessCountdown>();
+
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
@@ -98,21 +110,64 @@ export default function Playing() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
+  useEffect(() => {
+    whiteTimer.current = new ChessCountdown(10, 0, {
+      onTick: (time) => setWhiteTime(time),
+      onEnd: () => console.log("White lost on time!"),
+    });
+
+    blackTimer.current = new ChessCountdown(10, 0, {
+      onTick: (time) => setBlackTime(time),
+      onEnd: () => console.log("Black lost on time!"),
+    });
+
+    whiteTimer.current.start();
+
+    return () => {
+      whiteTimer.current?.pause();
+      blackTimer.current?.pause();
+    };
+  }, []);
+
+  const switchTurn = (turn: string) => {
+    if (turn == "w") {
+      whiteTimer.current?.applyIncrement();
+      whiteTimer.current?.pause();
+      blackTimer.current?.resume();
+    } else {
+      blackTimer.current?.applyIncrement();
+      blackTimer.current?.pause();
+      whiteTimer.current?.resume();
+    }
+  };
+
   const fetchPgnLocal = async () => {
+    let headers = game.getHeaders();
+    let dataGames = {
+      white: {
+        result: headers.Result == "0-1" ? "lose" : "win",
+        username: headers.White,
+      },
+      black: {
+        result: headers.Result == "0-1" ? "win" : "lose",
+        username: headers.Black,
+      },
+      date: headers.Date,
+    };
+    setDataGamesImport(dataGames);
     let arr = null;
     try {
       setIsLoading(true);
       setDataAnalysis(arr);
       console.log("body analysis", JSON.stringify(game.pgn()), username);
-
+      setPgn(game.pgn());
       const responseAnalysis = await proceedAnalysis(
-        JSON.stringify(game.pgn()),
+        game.pgn(),
         username,
         10,
         60000
       );
       setDataAnalysis(responseAnalysis.data);
-      setIsLoading(false);
       arr = responseAnalysis.data;
 
       console.log("responseAnalysis:", responseAnalysis);
@@ -231,8 +286,10 @@ export default function Playing() {
       }
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+      let isYourTurn = myColor == "white" ? "w" : "b";
       setTimeout(() => {
         findBestMove();
+        switchTurn(isYourTurn);
       }, 1000);
       setMoveFrom("");
       setMoveTo(null);
@@ -312,12 +369,16 @@ export default function Playing() {
           to: bestMove.substring(2, 4),
           promotion: bestMove.substring(4, 5),
         });
+
         setBestline("");
         setHintClicked(false);
         setGamePosition(game.fen());
         setCurrentTurn((turnColor) =>
           turnColor != "White" ? "White" : "Black"
         );
+        let isEnemyTurn = myColor != "white" ? "w" : "b";
+
+        switchTurn(isEnemyTurn);
       }
     });
   };
@@ -436,10 +497,39 @@ export default function Playing() {
       setPastGames(res.data);
     });
   }, []);
+  const setHeaderGameStart = () => {
+    let date = formatDatePgn();
+    let time = formatTimePgn();
+    let whiteName =
+      AIChoosed.color == "white" ? AIChoosed.opponent.name + " (AI)" : username;
+    let blackName =
+      AIChoosed.color != "white" ? AIChoosed.opponent.name + " (AI)" : username;
+    // set header
+    game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
+    game.header("Site", "aroundchess.com");
+    game.header("Date", date);
+    game.header("White", whiteName);
+    game.header("Black", blackName);
+    game.header("Timezone", "UTC");
+    game.header("UTCDate", date);
+    game.header("UTCTime", time);
+  };
+  const setHeaderGameFinish = () => {
+    let date = formatDatePgn();
+    let time = formatTimePgn();
+    let isWhiteWin = winnerColor == "white" ? "1" : "0";
+    let isBlackWin = winnerColor != "white" ? "1" : "0";
+    let winResult = isWhiteWin + "-" + isBlackWin;
+    // set header
+    game.header("Result", winResult);
+    game.header("EndDate", date);
+    game.header("EndTime", time);
+  };
   useEffect(() => {
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
     console.log("AIChoosed.color", AIChoosed.color);
+    setHeaderGameStart();
     if (AIChoosed.color == "black") {
       setTimeout(() => {
         findBestMove();
@@ -553,6 +643,15 @@ export default function Playing() {
   };
   const handleResign = () => {
     setStatusGame("Loss");
+    setHeaderGameFinish();
+    // Determine the winner based on the player who was in checkmate
+    let loserColor = game.turn(); // 'w' for white, 'b' for black
+    let winnerColor = loserColor === "w" ? "black" : "white";
+    let losserColor = loserColor != "w" ? "black" : "white";
+    let isUserWin = myColor === winnerColor;
+    setWinnerColor(winnerColor);
+    setLoserColor(losserColor);
+    console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
     fetchPgnLocal();
@@ -560,6 +659,9 @@ export default function Playing() {
   const handleRematch = () => {
     game.reset();
     setGamePosition(game.fen());
+    setHeaderGameStart();
+    setLoserColor("")
+    setWinnerColor("")
     setStatusGame("Ongoing");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
@@ -581,17 +683,20 @@ export default function Playing() {
   const checkStatusGame = () => {
     let isUserWin = false;
     let isDraw = false;
+    console.log("game.isGameOver()", game.isGameOver(), formatTimePgn());
     if (game.isGameOver()) {
+      setHeaderGameFinish();
+      // Determine the winner based on the player who was in checkmate
+      let loserColor = game.turn(); // 'w' for white, 'b' for black
+      let winnerColor = loserColor === "w" ? "black" : "white";
+      let losserColor = loserColor != "w" ? "black" : "white";
+      isUserWin = myColor === winnerColor;
+      setWinnerColor(winnerColor);
+      setLoserColor(losserColor);
+      console.log(`The ${winnerColor} player wins!`);
+
       if (game.isCheckmate()) {
         console.log("Game Over! Checkmate!");
-        // Determine the winner based on the player who was in checkmate
-        let loserColor = game.turn(); // 'w' for white, 'b' for black
-        let winnerColor = loserColor === "w" ? "black" : "white";
-        let losserColor = loserColor != "w" ? "black" : "white";
-        isUserWin = myColor === winnerColor;
-        setWinnerColor(winnerColor);
-        setLoserColor(losserColor);
-        console.log(`The ${winnerColor} player wins!`);
 
         let gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
         setStatusGame(gameStatus);
@@ -702,6 +807,9 @@ export default function Playing() {
             }`}
           >
             {myColor != "white" ? "You" : AIChoosed.opponent.name}
+            {/* <div className="text-center">
+              <h2 className="text-xl">{blackTime}</h2>
+            </div> */}
           </span>
         </div>
         <div className="flex flex-row items-center ">
@@ -740,14 +848,14 @@ export default function Playing() {
     let isLoss = loserColor == "white";
     return (
       <div
-        className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border ${
+        className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
           isWin
             ? "border-[#00B427] bg-[#00B42716]"
             : isDraw
             ? "border-[#221AE9] bg-[#221AE916]"
             : isLoss
-            ? "border-[#FD0000] bg-[#FD000020]"
-            : "border-[#DEDEDE]"
+            ? "border-[#FD0000] bg-[#FD000016]"
+            : "border-[#DEDEDE] bg-white"
         } p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -771,6 +879,10 @@ export default function Playing() {
             }`}
           >
             {myColor == "white" ? "You" : AIChoosed.opponent.name}
+
+            {/* <div className="text-center">
+              <span className="text-xl">{whiteTime}</span>
+            </div> */}
           </span>
         </div>
         <div className="flex flex-row items-center ">
@@ -991,7 +1103,7 @@ export default function Playing() {
     return (
       <motion.div
         variants={fadeInUp}
-        className={`relative justify-self-center w-[100%] mt-4 rounded-[8px] ${gradColor} border border-[${color}] p-[1px]`}
+        className={`relative justify-self-center w-[95%] mt-4 rounded-[8px] ${gradColor} border border-[${color}] p-[1px]`}
       >
         <div
           className={`flex h-[56px] flex-row items-center rounded-[8px] border-2 border-dashed border-[${color}] gap-3`}
@@ -1270,11 +1382,11 @@ export default function Playing() {
                   height:
                     statusGame == "Ongoing"
                       ? heightScreen * 0.65
-                      : heightScreen * 0.5,
+                      : heightScreen * 0.45,
                 }}
-                className="px-4 w-full"
+                className="px-4 w-full overflow-y-auto "
               >
-                <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-y-auto border-collapse border-[#BDD0F9]">
+                <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] border-collapse border-[#BDD0F9]">
                   <thead>
                     <tr className="bg-[#D7E3FB] ">
                       <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
@@ -1348,8 +1460,8 @@ export default function Playing() {
                       })}
                   </tbody>
                 </table>
-                {statusGame != "Ongoing" && renderCommentaryGame()}
               </div>
+              {statusGame != "Ongoing" && renderCommentaryGame()}
               {statusGame == "Ongoing"
                 ? renderButtonPlaying()
                 : renderButtonFinish()}
