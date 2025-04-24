@@ -81,11 +81,11 @@ export default function Navigation({
       {!isDesktop && isSidebarOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-100"
+            className="fixed inset-0 bg-black/50 z-10"
             onClick={() => setSidebarOpen(false)}
           />
 
-          <div className="fixed inset-y-0 left-0 z-100 w-64 bg-white border-r border-gray-200">
+          <div className="fixed inset-y-0 left-0 z-10 w-64 bg-white border-r border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
         </>

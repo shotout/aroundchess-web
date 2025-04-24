@@ -94,10 +94,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               />
               About
             </button>
+            <Link href="/faq" legacyBehavior passHref>
             <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
               <HelpCircle className="h-[20px] w-[20px] mr-2" />
               FAQ
             </button>
+            </Link>
             <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
               <DollarSign className="h-[20px] w-[20px] mr-2" />
               Pricing
@@ -125,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               Remaining Tokens:{" "}
               <span
                 className={`font-bold ${
-                  token.balance == 0 ? `text-[#FD0000]` : ``
+                  token.balance == 0 ? `text-[#FD0000]` : `text-[#221AE9]`
                 }`}
               >
                 {token.balance}
@@ -154,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 className={`hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
               >
                 <div
-                  className={`flex min-w-[280px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                  className={`flex min-w-[240px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
                 >
                   <Image
                     src={`/icons/onboarding-popup.png`}
@@ -187,16 +189,18 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {/* Tablet view - Analytics button next to hamburger */}
         {!isDesktop && (
           <div className="flex items-center space-x-3 w-full">
-            <span className="hidden sm:block lg:text-[16px] w-full text-[#221AE9] font-medium">
-              Remaining Tokens:{" "}
+            <div className="hidden sm:flex flex-row w-full ">
+              <span className="lg:text-[16px] text-[#221AE9] font-medium">
+                Tokens:&nbsp;
+              </span>
               <span
                 className={`font-bold ${
-                  token.balance == 0 ? `text-[#FD0000]` : ``
+                  token.balance == 0 ? `text-[#FD0000]` : `text-[#221AE9]`
                 }`}
               >
                 {token.balance}
               </span>
-            </span>
+            </div>
             {!isMember && (
               <Button
                 color="primary"

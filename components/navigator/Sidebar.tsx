@@ -203,7 +203,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             Remaining Tokens:{" "}
             <span
               className={`font-bold ${
-                token.balance == 0 ? `text-[#FD0000]` : ``
+                token.balance == 0 ? `text-[#FD0000]` : `text-[#221AE9]`
               }`}
             >
               {token.balance}
