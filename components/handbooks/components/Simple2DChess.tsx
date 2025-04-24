@@ -1,4 +1,4 @@
-import React, { Key, useMemo } from "react";
+import React, { Key, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Chessboard } from "react-chessboard";
 
@@ -18,7 +18,24 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
   keys,
 }) => {
   const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
+  const [boardSize, setBoardSize] = useState<number | undefined>(700); // Default size
+  const [mounted, setMounted] = useState<boolean>(true);
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
 
+    // Initial size calculation
+    handleResize();
+
+    // Add event listeners
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
+  }, [mounted]);
+  const handleResize = () => {
+    console.log("ref.current?.clientWidth", ref.current?.clientWidth);
+    let boxW = ref.current?.clientWidth;
+    setBoardSize(boxW);
+  };
   const twoDPieces = useMemo(() => {
     const pieces = [
       {
@@ -114,13 +131,18 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
         <Image
           src={`/boards/wood.png`}
           alt="wood board"
-          fill
+          width={boardSize}
+          height={boardSize}
           objectFit="contain"
           priority
         />
       </div>
 
-      <div className="relative w-full h-full p-6 ">
+      <div
+        className="relative w-full h-full"
+        ref={ref}
+        style={{ padding: boardSize && Math.round(boardSize / 16.5) }}
+      >
         <div className="w-full h-full">
           <Chessboard
             id={`board-${id}`}
