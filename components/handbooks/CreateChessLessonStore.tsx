@@ -14,15 +14,21 @@ interface CreateStoreOptions {
   apiEndpoint: string;
 }
 
-/**
- * Factory function to create a Zustand store for a specific chess lesson type
- */
+interface ExtendedChessLessonState<T extends ChessLesson>
+  extends ChessLessonState<T> {
+  readStatusMap: Record<string, boolean>;
+  checkReadStatus: (id: string, sessionId?: string) => Promise<boolean>;
+  markLessonAsRead: (id: string, sessionId?: string) => Promise<boolean>;
+  isLoadingDetails: Record<string, boolean>;
+  set: any;
+}
+
 export function createChessLessonStore<T extends ChessLesson>({
   storeName,
   lessonType,
   apiEndpoint,
 }: CreateStoreOptions) {
-  return create<ChessLessonState<T>>()(
+  return create<ExtendedChessLessonState<T>>()(
     persist(
       (set, get) => ({
         allLessons: [],
@@ -35,12 +41,14 @@ export function createChessLessonStore<T extends ChessLesson>({
         isLoadingMore: false,
         error: null,
         initialized: false,
+        readStatusMap: {},
+        isLoadingDetails: {},
+        set,
 
         applyFilters: () => {
           const { allLessons, difficultyFilter, searchTerm, filteredLessons } =
             get();
 
-          // Early return if there are no filters and we already have the same array reference
           if (
             !difficultyFilter &&
             !searchTerm &&
@@ -49,7 +57,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             return;
           }
 
-          // Return all lessons if no filters are applied
           if (!difficultyFilter && !searchTerm) {
             set({ filteredLessons: allLessons });
             return;
@@ -68,7 +75,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             return lesson.title.toLowerCase().includes(searchTermLower);
           });
 
-          // Only set state if the filtered result is different
           if (JSON.stringify(filtered) !== JSON.stringify(filteredLessons)) {
             set({ filteredLessons: filtered });
           }
@@ -94,7 +100,7 @@ export function createChessLessonStore<T extends ChessLesson>({
             set({ isLoading: true, error: null });
 
             const apiBaseUrl = process.env.BASE_URL;
-            const initialUrl = `${apiBaseUrl}/${apiEndpoint}?page=1&limit=100&category=${lessonType}`;
+            const initialUrl = `${apiBaseUrl}/${apiEndpoint}?page=1&limit=250&category=${lessonType}`;
 
             const headers: HeadersInit = {};
             if (sessionId) {
@@ -112,14 +118,23 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             const totalPages = initialData.pagination.totalPages;
 
-            if (totalPages > 1) {
+            if (
+              totalPages > 1 &&
+              initialData.pagination.total > initialData.data.length
+            ) {
               set({ isLoadingMore: true });
 
-              const remainingRequests = [];
-              for (let page = 2; page <= totalPages; page++) {
-                const url = `${apiBaseUrl}/${apiEndpoint}?page=${page}&limit=100&category=${lessonType}`;
-                remainingRequests.push(
-                  fetch(url, { headers })
+              const remainingPages = Array.from(
+                { length: totalPages - 1 },
+                (_, i) => i + 2
+              );
+              const batchSize = 3;
+
+              for (let i = 0; i < remainingPages.length; i += batchSize) {
+                const currentBatch = remainingPages.slice(i, i + batchSize);
+                const batchRequests = currentBatch.map((page) => {
+                  const url = `${apiBaseUrl}/${apiEndpoint}?page=${page}&limit=250&category=${lessonType}`;
+                  return fetch(url, { headers })
                     .then((response) => {
                       if (!response.ok) {
                         throw new Error(
@@ -128,15 +143,15 @@ export function createChessLessonStore<T extends ChessLesson>({
                       }
                       return response.json();
                     })
-                    .then((data) => data.data)
-                );
-              }
+                    .then((data) => data.data);
+                });
 
-              try {
-                const remainingData = await Promise.all(remainingRequests);
-                allData = [...allData, ...remainingData.flat()];
-              } catch (fetchError) {
-                console.error("Error fetching additional pages:", fetchError);
+                try {
+                  const batchData = await Promise.all(batchRequests);
+                  allData = [...allData, ...batchData.flat()];
+                } catch (fetchError) {
+                  console.error("Error fetching batch:", fetchError);
+                }
               }
 
               set({ isLoadingMore: false });
@@ -160,6 +175,26 @@ export function createChessLessonStore<T extends ChessLesson>({
               total: allData.length,
             };
 
+            if (sessionId) {
+              const readStatusPromises = allData.map((lesson) =>
+                get().checkReadStatus(lesson.id, sessionId)
+              );
+
+              const batchSize = 5;
+              const readStatuses: boolean[] = [];
+
+              for (let i = 0; i < readStatusPromises.length; i += batchSize) {
+                const batch = readStatusPromises.slice(i, i + batchSize);
+                const batchResults = await Promise.all(batch);
+                readStatuses.push(...batchResults);
+              }
+
+              allData = allData.map((lesson, index) => ({
+                ...lesson,
+                readStatus: readStatuses[index] || false,
+              }));
+            }
+
             set({
               allLessons: allData,
               filteredLessons: allData,
@@ -181,24 +216,37 @@ export function createChessLessonStore<T extends ChessLesson>({
         },
 
         fetchLessonDetails: async (id: string, sessionId?: string) => {
+          const { lessonDetails, isLoadingDetails } = get();
+
+          if (lessonDetails[id] && !isLoadingDetails[id]) {
+            return lessonDetails[id];
+          }
+
+          if (isLoadingDetails[id]) {
+            const waitForLoading = () => {
+              return new Promise<T | null>((resolve) => {
+                const checkLoading = () => {
+                  const currentState = get();
+                  if (!currentState.isLoadingDetails[id]) {
+                    resolve(currentState.lessonDetails[id] || null);
+                  } else {
+                    setTimeout(checkLoading, 100);
+                  }
+                };
+                checkLoading();
+              });
+            };
+
+            return waitForLoading();
+          }
+
           try {
-            const existingLesson = get().lessonDetails[id];
-            if (existingLesson) {
-              return existingLesson;
-            }
-
-            const lessonFromAll = get().allLessons.find((l) => l.id === id);
-            if (lessonFromAll) {
-              set((state) => ({
-                lessonDetails: { ...state.lessonDetails, [id]: lessonFromAll },
-              }));
-              return lessonFromAll;
-            }
-
-            set({ isLoading: true, error: null });
+            set((state) => ({
+              isLoadingDetails: { ...state.isLoadingDetails, [id]: true },
+            }));
 
             const apiBaseUrl = process.env.BASE_URL;
-            const apiUrl = `${apiBaseUrl}/${apiEndpoint}/${id}`;
+            const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
 
             const headers: HeadersInit = {};
             if (sessionId) {
@@ -211,25 +259,224 @@ export function createChessLessonStore<T extends ChessLesson>({
               throw new Error(`API Error: ${response.status}`);
             }
 
-            const data = await response.json();
+            const responseData = await response.json();
+
+            if (!responseData.success || !responseData.data) {
+              throw new Error("Invalid response structure from API");
+            }
+
+            const isRead = await get().checkReadStatus(id, sessionId);
+
+            const lessonData = {
+              ...responseData.data,
+              readStatus: isRead,
+            };
+
             set((state) => ({
-              lessonDetails: { ...state.lessonDetails, [id]: data.data },
-              isLoading: false,
+              lessonDetails: {
+                ...state.lessonDetails,
+                [id]: lessonData,
+              },
+              isLoadingDetails: { ...state.isLoadingDetails, [id]: false },
             }));
-            return data.data;
+
+            return lessonData;
           } catch (error) {
             console.error(
               `Error fetching ${lessonType} details for ${id}:`,
               error
             );
-            set({
+            set((state) => ({
               error:
                 error instanceof Error
                   ? error.message
                   : `Failed to fetch ${lessonType} details for ${id}`,
-              isLoading: false,
-            });
+              isLoadingDetails: { ...state.isLoadingDetails, [id]: false },
+            }));
             return null;
+          }
+        },
+
+        checkReadStatus: async (id: string, sessionId?: string) => {
+          if (!sessionId) {
+            return false;
+          }
+
+          const { readStatusMap } = get();
+          if (readStatusMap[id] !== undefined) {
+            return readStatusMap[id];
+          }
+
+          try {
+            const apiBaseUrl = process.env.BASE_URL;
+            const apiUrl = `${apiBaseUrl}/handbooks/read/`;
+
+            const headers: HeadersInit = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionId}`,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ id: id }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+
+              set((state) => ({
+                readStatusMap: {
+                  ...state.readStatusMap,
+                  [id]: !!data.isRead,
+                },
+              }));
+
+              if (get().lessonDetails[id]) {
+                set((state) => ({
+                  lessonDetails: {
+                    ...state.lessonDetails,
+                    [id]: {
+                      ...state.lessonDetails[id],
+                      readStatus: !!data.isRead,
+                    },
+                  },
+                }));
+              }
+
+              set((state) => ({
+                allLessons: state.allLessons.map((lesson) =>
+                  lesson.id === id
+                    ? { ...lesson, readStatus: !!data.isRead }
+                    : lesson
+                ),
+                filteredLessons: state.filteredLessons.map((lesson) =>
+                  lesson.id === id
+                    ? { ...lesson, readStatus: !!data.isRead }
+                    : lesson
+                ),
+              }));
+
+              return !!data.isRead;
+            } else {
+              console.log(
+                "Book read status check failed:",
+                await response.json()
+              );
+              return false;
+            }
+          } catch (error) {
+            console.error("Error checking read status:", error);
+            return false;
+          }
+        },
+
+        markLessonAsRead: async (id: string, sessionId?: string) => {
+          if (!sessionId) {
+            return false;
+          }
+
+          try {
+            const apiBaseUrl = process.env.BASE_URL;
+            const apiUrl = `${apiBaseUrl}/handbooks/read/`;
+
+            const headers: HeadersInit = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionId}`,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                id: id,
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Mark as read response:", data);
+
+              set((state) => ({
+                readStatusMap: {
+                  ...state.readStatusMap,
+                  [id]: true,
+                },
+              }));
+
+              if (get().lessonDetails[id]) {
+                set((state) => ({
+                  lessonDetails: {
+                    ...state.lessonDetails,
+                    [id]: {
+                      ...state.lessonDetails[id],
+                      readStatus: true,
+                    },
+                  },
+                }));
+              }
+
+              set((state) => ({
+                allLessons: state.allLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: true } : lesson
+                ),
+                filteredLessons: state.filteredLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: true } : lesson
+                ),
+              }));
+
+              return true;
+            } else {
+              const errorData = await response.json();
+              console.error("Failed to mark lesson as read:", errorData);
+
+              set((state) => ({
+                readStatusMap: {
+                  ...state.readStatusMap,
+                  [id]: true,
+                },
+              }));
+
+              if (get().lessonDetails[id]) {
+                set((state) => ({
+                  lessonDetails: {
+                    ...state.lessonDetails,
+                    [id]: {
+                      ...state.lessonDetails[id],
+                      readStatus: true,
+                    },
+                  },
+                }));
+              }
+
+              set((state) => ({
+                allLessons: state.allLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: true } : lesson
+                ),
+                filteredLessons: state.filteredLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: true } : lesson
+                ),
+              }));
+
+              return true;
+            }
+          } catch (error) {
+            console.error("Error marking lesson as read:", error);
+
+            set((state) => ({
+              readStatusMap: {
+                ...state.readStatusMap,
+                [id]: true,
+              },
+              allLessons: state.allLessons.map((lesson) =>
+                lesson.id === id ? { ...lesson, readStatus: true } : lesson
+              ),
+              filteredLessons: state.filteredLessons.map((lesson) =>
+                lesson.id === id ? { ...lesson, readStatus: true } : lesson
+              ),
+            }));
+
+            return true;
           }
         },
 

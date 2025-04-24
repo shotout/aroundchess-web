@@ -488,10 +488,8 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     // Set loading state
     set({ isChangingQuestion: true });
     
-    // Count each question change as a mistake
     const currentCorrects = userGame.gameCorrects;
     
-    // Simulate a slight delay to show loading state
     setTimeout(() => {
       // Get a random position
       const randomIndex = Math.floor(Math.random() * userGame.positions.length);
@@ -554,7 +552,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       // Analyze the position
       const analysis = ChessService.analyzePosition(position.fen);
       
-      // Define question types
       const questionTypes = [
         { id: "legal_white", text: "How many legal moves does White have?" },
         { id: "legal_black", text: "How many legal moves does Black have?" },
