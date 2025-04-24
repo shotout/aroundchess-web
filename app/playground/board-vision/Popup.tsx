@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, Check, X, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -21,6 +20,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import Image from "next/image";
+import axios from "axios";
+
+const endpoint = process.env.BASE_URL;
 
 interface PopupProps {
   isOpen: boolean;
@@ -28,12 +32,11 @@ interface PopupProps {
 }
 
 const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
+  const { sessionId } = useAuth();
   const router = useRouter();
   const {
     username,
     setUsername,
-    currentYear,
-    currentMonth,
     loadUserPositions,
     loadDefaultPositions,
     isLoading,
@@ -41,47 +44,75 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   } = useBoardVisionStore();
 
   const [usernameInput, setUsernameInput] = useState(username);
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
+  const [availableGames, setAvailableGames] = useState<any[]>([]);
+  const [selectedGame, setSelectedGame] = useState<string | undefined>(
+    undefined
+  );
+  const [debouncedQuery, setDebouncedQuery] = useState(usernameInput);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
-  const currentSystemYear = new Date().getFullYear();
-  const yearOptions = Array.from(
-    { length: 10 },
-    (_, i) => currentSystemYear - i
-  );
+  // Debounce username input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
+    return () => clearTimeout(timer);
+  }, [usernameInput]);
 
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  // Fetch games when username input is debounced
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery.trim() !== "") {
+      setUsernameStatus("loading");
+      fetchUserGames();
+    }
+  }, [debouncedQuery, sessionId]);
+
+  const fetchUserGames = async () => {
+    try {
+      // Use the correct endpoint with sessionId as required
+      const url = `${endpoint}/games/get-data/${debouncedQuery}`;
+
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      if (response.status === 200 && response.data.data?.length > 0) {
+        setUsernameStatus("found");
+        setAvailableGames(response.data.data);
+        setSelectedGame(response.data.data[0].value);
+      } else {
+        setUsernameStatus("not-found");
+        setAvailableGames([]);
+        setSelectedGame(undefined);
+      }
+    } catch (error) {
+      console.error("Error fetching user games:", error);
+      setUsernameStatus("not-found");
+      setAvailableGames([]);
+      setSelectedGame(undefined);
+    }
+  };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsernameInput(e.target.value);
-  };
-
-  const handleYearChange = (value: string) => {
-    setYear(parseInt(value));
-  };
-
-  const handleMonthChange = (value: string) => {
-    setMonth(parseInt(value));
+    if (e.target.value.trim() === "") {
+      setUsernameStatus("idle");
+      setAvailableGames([]);
+      setSelectedGame(undefined);
+    }
   };
 
   const handleDefaultPositionClick = () => {
     loadDefaultPositions();
     onClose();
     router.push("/playground/board-vision/default");
+  };
+
+  const handleGameSelect = (value: string) => {
+    setSelectedGame(value);
   };
 
   const handleStartClick = async () => {
@@ -93,9 +124,9 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     setUsername(usernameInput);
 
     try {
-      await loadUserPositions(usernameInput, year, month);
-
-      if (!loadingError) {
+      if (usernameStatus === "found" && selectedGame) {
+        // We pass the full PGN string to the loadUserPositions function
+        await loadUserPositions(selectedGame, usernameInput);
         router.push("/playground/board-vision/user");
         onClose();
       } else {
@@ -149,48 +180,12 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           <div className="relative mb-2">
             <div className="text-cyan-400 flex items-center justify-center">
               <div className="relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg width="120" height="120" viewBox="0 0 140 140">
-                    <circle cx="70" cy="70" r="40" fill="transparent" />
-                    <circle cx="85" cy="55" r="4" fill="#13CDD9" />
-                    <circle cx="100" cy="70" r="4" fill="#13CDD9" />
-                    <circle cx="55" cy="55" r="4" fill="#13CDD9" />
-                    <circle cx="40" cy="70" r="4" fill="#13CDD9" />
-                  </svg>
-                </div>
-                <svg
-                  width="80"
-                  height="80"
-                  viewBox="0 0 100 100"
-                  className="relative"
-                >
-                  <path
-                    d="M50 20 C 45 40, 35 50, 35 70 L 65 70 C 65 50, 55 40, 50 20"
-                    fill="#13CDD9"
-                  />
-                  <circle cx="50" cy="35" r="15" fill="#13CDD9" />
-                  <rect
-                    x="30"
-                    y="70"
-                    width="40"
-                    height="10"
-                    rx="5"
-                    fill="#13CDD9"
-                  />
-                  <rect
-                    x="25"
-                    y="80"
-                    width="50"
-                    height="10"
-                    rx="5"
-                    fill="#13CDD9"
-                  />
-                </svg>
-                <div className="absolute bottom-0 right-0">
-                  <div className="bg-blue-500 text-white rounded-full p-1">
-                    <Check className="h-4 w-4" />
-                  </div>
-                </div>
+                <Image
+                  src={"/board-vision/board-icon.png"}
+                  alt=""
+                  width={100}
+                  height={100}
+                />
               </div>
             </div>
           </div>
@@ -208,48 +203,57 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
             <span>Chess.com Username</span>
           </div>
 
-          <Input
-            placeholder="Blitzmystic"
-            value={usernameInput}
-            onChange={handleUsernameChange}
-            className="w-full"
-          />
+          <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input
+              type="text"
+              id="username"
+              value={usernameInput}
+              placeholder="Enter your Chess.com Username"
+              onChange={handleUsernameChange}
+              className="w-full bg-transparent h-[24px] focus:outline-none"
+            />
+            <div className="flex items-center">
+              {usernameStatus === "loading" && (
+                <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+              )}
+              {usernameStatus === "found" && (
+                <div className="flex items-center text-green-500 whitespace-nowrap">
+                  <Check className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Username found</span>
+                </div>
+              )}
+              {usernameStatus === "not-found" && (
+                <div className="flex items-center text-red-500 whitespace-nowrap">
+                  <X className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Username not found</span>
+                </div>
+              )}
+            </div>
+          </div>
 
-          <div>
-            <p className="mb-1 text-sm">
-              Show questions for my Games in the following month:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
+          {usernameStatus === "found" && (
+            <div className="space-y-2 mx-1">
+              <p className="block text-base sm:text-sm text-black">
+                Select Game
+              </p>
               <Select
-                value={month.toString()}
-                onValueChange={handleMonthChange}
+                name="game"
+                value={selectedGame}
+                onValueChange={handleGameSelect}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={monthNames[month - 1]} />
+                  <SelectValue placeholder="Select your game" />
                 </SelectTrigger>
                 <SelectContent>
-                  {monthNames.map((name, index) => (
-                    <SelectItem key={index + 1} value={(index + 1).toString()}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={year.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={year.toString()} />
-                </SelectTrigger>
-                <SelectContent>
-                  {yearOptions.map((yearOption) => (
-                    <SelectItem key={yearOption} value={yearOption.toString()}>
-                      {yearOption}
+                  {availableGames.map((game, index) => (
+                    <SelectItem key={index} value={game.value}>
+                      {game.text} ({game.result})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Button
@@ -265,7 +269,9 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               variant="default"
               className="w-full py-2 rounded-full bg-blue-600 text-white"
               onClick={handleStartClick}
-              disabled={isLoading}
+              disabled={
+                isLoading || (usernameStatus === "found" && !selectedGame)
+              }
             >
               {isLoading ? (
                 <>
@@ -287,7 +293,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               <DialogTitle>Error</DialogTitle>
               <DialogDescription>
                 {loadingError ||
-                  "There was an error loading the games. Please try another month or username."}
+                  "There was an error loading the games. Please try another game or username."}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
