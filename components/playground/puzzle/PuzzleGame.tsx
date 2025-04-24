@@ -99,7 +99,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 }) => {
   const router = useRouter();
   const chessGame = useMemo(() => new Chess(), []);
-
+  const refBoard = useRef<HTMLDivElement | null>(null);
   const { isLoading } = useApiClient();
   const { user } = useUser();
   const { sessionId } = useAuth();
@@ -111,6 +111,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [boardSize, setBoardSize] = useState<number>(700);
   const [heightScreen, setHeightScreen] = useState<number>(0);
   const [widthScreen, setWidthScreen] = useState<number>(0);
+  const [heightBoard, setHeightBoard] = useState<number | undefined>(0)
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -555,6 +556,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [mounted, hideDiv, is3DMode]);
 
   const handleResize = () => {
+    setHeightBoard(refBoard.current?.clientHeight)
     setHeightScreen(window?.innerHeight);
     setWidthScreen(window?.innerWidth);
     const width = window.innerWidth;
@@ -795,7 +797,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <div className="flex " />
         </div>
 
-        <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
+        <div
+          className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
+          ref={refBoard}
+        >
           {cardPlayer()}
           <div className="flex items-center justify-end mb-2">
             {buttonBoard()}
@@ -954,7 +959,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       {/* {buttonBoardColumn()} */}
 
       <div
-        style={{ height: heightScreen * 0.86 }}
+        style={{ maxHeight: heightBoard }}
         className="flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
       >
         <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
