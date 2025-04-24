@@ -246,7 +246,7 @@ export default function StageDetailView({
   }, []);
 
   const navigateToStage = useCallback(
-    (direction: "next" | "previous") => {
+    (direction: "next") => {
       const newStageNum =
         direction === "next" ? stageNum + 1 : Math.max(1, stageNum - 1);
 
@@ -266,7 +266,6 @@ export default function StageDetailView({
     const { setActiveTab, setViewState } = useEndgameNavigation.getState();
 
     if (isCheckmateMode) {
-      // Modified this part to go directly to categories view instead of subcategories
       setActiveTab("move");
       setViewState({ view: "categories" });
     } else {
@@ -483,7 +482,7 @@ export default function StageDetailView({
                 <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
                   <div className="flex flex-row items-center justify-center gap-x-3">
                     <AlertCircle className="h-8 w-8 text-blue-base" />
-                    <h1 className="text-xl text-black">
+                    <h1 className="text-lg xl:text-xl text-black">
                       {isCheckmateMode
                         ? `Find the ${movesToCheckmate} ${
                             movesToCheckmate === 1 ? "move" : "moves"
@@ -493,7 +492,7 @@ export default function StageDetailView({
                         : "Black to Checkmate"}
                     </h1>
                   </div>
-                  <div className="bg-white rounded-md border border-gray-200 text-center p-2 w-full">
+                  <div className="bg-white text-xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
                     {position}
                   </div>
                 </div>
@@ -535,7 +534,6 @@ export default function StageDetailView({
                 game={game}
                 gameStatus={isSolved ? "solved" : "ongoing"}
                 handleHint={() => setShowHint(true)}
-                showSolution={() => setShowHint(true)}
                 resetPosition={resetPosition}
                 navigateNext={navigateNext}
                 isCheckmateMode={isCheckmateMode}
