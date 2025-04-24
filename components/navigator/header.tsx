@@ -94,10 +94,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               />
               About
             </button>
+            <Link href="/faq" legacyBehavior passHref>
             <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
               <HelpCircle className="h-[20px] w-[20px] mr-2" />
               FAQ
             </button>
+            </Link>
             <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
               <DollarSign className="h-[20px] w-[20px] mr-2" />
               Pricing
