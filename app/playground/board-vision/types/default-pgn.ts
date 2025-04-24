@@ -1,5 +1,11 @@
 import { Variants } from "framer-motion";
 
+export interface PlayerInfoProps {
+  profilePic: any;
+  playerName: string;
+  countryCode?: string;
+}
+
 export interface HighlightedSquare {
   background: string;
   border?: string;

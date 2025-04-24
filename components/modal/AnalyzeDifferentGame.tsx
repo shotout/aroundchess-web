@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, SetStateAction } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,104 +22,22 @@ import { Clipboard, UploadCloud, Check, X } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Chess } from "chess.js";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
-const AnalysisUrl = process.env.BASE_URL! + "/analyze";
-const mockData = {
-  success: true,
-  message: "Game options retrieved successfully",
-  data: [
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.09 newbiepisan vs hharo70",
-      color: "White",
-      result: "1-0",
-      opponent: "hharo70",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 newbiepisan vs timmytim3",
-      color: "White",
-      result: "1-0",
-      opponent: "timmytim3",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 honvan04 vs newbiepisan",
-      color: "Black",
-      result: "0-1",
-      opponent: "honvan04",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 newbiepisan vs jayjays66",
-      color: "White",
-      result: "1-0",
-      opponent: "jayjays66",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.13 sertkaya500 vs newbiepisan",
-      color: "Black",
-      result: "0-1",
-      opponent: "sertkaya500",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.13 1a2ii vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "1a2ii",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 newbiepisan vs socrateskaiser",
-      color: "White",
-      result: "1-0",
-      opponent: "socrateskaiser",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 newbiepisan vs shuchi4203",
-      color: "White",
-      result: "1-0",
-      opponent: "shuchi4203",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 Rodi_00 vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "Rodi_00",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.15 tf2011 vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "tf2011",
-    },
-  ],
-};
 
 interface AnalyzeDifferentGameProps {
   openPopup?: boolean;
 }
 
 export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
-  const router = useRouter();
   const { proceedAnalysis } = useStockfishAnalysis();
   const {
     setPgn,
     setIsLoading,
     setError,
-    isLoading,
-    dataAnalysis,
     setDataAnalysis,
     setDataGamesImport,
   } = usePgnStore();
@@ -158,7 +76,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const { sessionId } = useAuth();
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
@@ -178,13 +95,14 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
-    return () => clearTimeout(timer); // Cleanup
+    return () => clearTimeout(timer);
   }, [username]);
 
   useEffect(() => {
     if (openPopup != null && open != true) {
       setOpen(openPopup);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openPopup]);
 
   useEffect(() => {
@@ -192,6 +110,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       setUsernameStatus("loading");
       getByUsername();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery]);
 
   const getByUsername = async () => {
@@ -298,11 +217,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       processAnalyze(pgnText);
       setDataGamesImport(null);
     }
-    // else if (fileName) {
-    //   console.log("File uploaded:", file);
-    //   setDataGamesImport(null);
-    //   processAnalyze(file);
-    // }
   };
   const processAnalyze = async (pgn: string | any) => {
     let arr = null;
@@ -341,7 +255,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
-    setPgn(value)
+    setPgn(value);
   };
 
   return (
@@ -361,7 +275,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl md:max-w-xl overflow-y-auto max-h-[90%]">
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">

@@ -45,7 +45,6 @@ const UserPGN: React.FC = () => {
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
 
-  // Show toast when loading error occurs
   useEffect(() => {
     if (loadingError) {
       toast.error("Error loading games", {
@@ -58,7 +57,6 @@ const UserPGN: React.FC = () => {
     }
   }, [loadingError]);
 
-  // Determine which player is current user
   const getUserInfo = () => {
     if (!currentPosition || !username)
       return {
@@ -85,7 +83,6 @@ const UserPGN: React.FC = () => {
     router.push("/playground/board-vision/default");
   };
 
-  // Check if game is loaded correctly
   if (!currentPosition || !gameQuestion) {
     return (
       <>
