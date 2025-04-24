@@ -59,14 +59,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   customArrowColor,
   arePremovesAllowed,
 }) => {
-  const {
-    StyleChoosed,
-    setStyleChoosed,
-    BoardChoosed,
-    setBoardChoosed,
-    PieceChoosed,
-    setPieceChoosed,
-  } = useChessBoardThemeStore();
+  const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
   const twoDPieces = useMemo(() => {
     const pieces = [
       {
@@ -137,7 +130,6 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             pointerEvents: "none",
           }}
         >
-          
           <img
             src={`/pieces/${PieceChoosed}/${piece}.png`}
             width={squareWidth}
