@@ -8,7 +8,6 @@ interface GameControlsProps {
   game: Chess;
   gameStatus: string;
   handleHint: () => void;
-  showSolution: () => void;
   resetPosition: () => void;
   navigateNext: () => void;
   isCheckmateMode: boolean;
@@ -18,50 +17,53 @@ interface GameControlsProps {
 export default function GameControls({
   gameStatus,
   handleHint,
-  showSolution,
   resetPosition,
   navigateNext,
   isCheckmateMode,
   playerColor,
 }: GameControlsProps) {
-  // Get color name for display purposes
   const colorName = playerColor === "w" ? "White" : "Black";
   const isGameOver = gameStatus === "solved";
 
   return (
     <div className="flex flex-col w-full">
-      {/* First group: Hint, Solution, Rematch with shared border - Hide when game is over */}
       {!isGameOver && (
-        <div className="grid grid-cols-3 gap-4 p-4 border-b border-t border-gray-200 w-full">
+        <div
+          className={`grid ${
+            isCheckmateMode ? "grid-cols-2" : "grid-cols-3  "
+          } gap-4 p-4 border-b border-t border-gray-200 w-full`}
+        >
           <button
-            className="flex gap-x-3 items-center justify-center p-3 bg-blue-base/10 text-blue-base rounded-md border border-blue-base"
+            className="flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
             onClick={handleHint}
           >
             <Image
               src={"/endgame-training/hint.png"}
               alt="hint icon"
-              width={20}
-              height={20}
+              width={15}
+              height={15}
             />{" "}
             Hint
           </button>
 
-          <button
-            className="flex gap-x-3 items-center justify-center p-3 bg-white text-gray-700 rounded-md border border-light/60"
-            onClick={showSolution}
-          >
-            <Image
-              src={"/endgame-training/show-solution.png"}
-              alt="solution icon"
-              width={20}
-              height={20}
-            />
-            Solution
-          </button>
+          {!isCheckmateMode && (
+            <button
+              className="flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
+              onClick={handleHint}
+            >
+              <Image
+                src={"/endgame-training/show-solution.png"}
+                alt="solution icon"
+                width={15}
+                height={15}
+              />{" "}
+              Show Solution
+            </button>
+          )}
 
           <button
             onClick={resetPosition}
-            className="flex gap-x-3 items-center btn-tertiary justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-full border border-blue-200"
+            className="flex gap-x-3 text-xs xl:text-base items-center btn-tertiary justify-center p-3 bg-blue-50 text-blue-base font-semibold rounded-full border border-blue-200"
           >
             <Image
               src={"/endgame-training/rematch.png"}
@@ -69,44 +71,48 @@ export default function GameControls({
               width={20}
               height={20}
             />
-            Rematch
+            Restart
           </button>
         </div>
       )}
 
       {isGameOver ? (
-        <div className="grid grid-cols-3 gap-4 rounded-lg p-3 w-full">
-          <button className="flex gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200">
+        <div className="grid grid-cols-3 gap-2 2xl:gap-4 rounded-lg p-2 sm:p-3 w-full">
+          <button className="flex gap-x-1 xl:gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200">
             <Image
               src={"/endgame-training/download.png"}
               alt="download icon"
-              width={20}
-              height={20}
+              width={16}
+              height={16}
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
-            Download PGN
+
+            <h1 className="text-xs lg:text-sm text-nowrap">Download PGN</h1>
           </button>
           <button
             onClick={resetPosition}
-            className="flex gap-x-2 items-center justify-center p-3 bg-white rounded-full btn-tertiary"
+            className="flex gap-x-1 sm:gap-x-2 items-center justify-center p-3 bg-white rounded-full btn-tertiary"
           >
             <Image
-              src={"/endgame-training/download.png"}
+              src={"/endgame-training/rematch.png"}
               alt="download icon"
-              width={20}
-              height={20}
+              width={16}
+              height={16}
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
-            Restart
+            <span className="text-xs sm:text-sm">Restart</span>
           </button>
           <button
             onClick={navigateNext}
-            className="flex gap-x-2 items-center justify-center p-3 btn-primary rounded-full border "
+            className="flex gap-x-1 sm:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
           >
-            Next Stage
+            <span className="text-xs sm:text-sm">Next Stage</span>
             <Image
               src={"/endgame-training/Union.png"}
               alt="arrow right icon"
-              width={20}
-              height={20}
+              width={16}
+              height={16}
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </button>
         </div>

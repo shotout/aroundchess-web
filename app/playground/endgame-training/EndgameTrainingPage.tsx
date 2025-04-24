@@ -50,7 +50,6 @@ export default function EndgameTrainingPage() {
         handleCategorySelect(setViewState, categorySlug),
 
       onCheckmateSelect: (movesToCheckmate: number) => {
-        // Get checkmate data for this category
         if (
           !checkmate.data ||
           !Array.isArray(checkmate.data) ||
@@ -65,17 +64,14 @@ export default function EndgameTrainingPage() {
           return;
         }
 
-        // Select a random position index
         const randomIndex = Math.floor(Math.random() * positions.length);
 
-        // Update the view state to detail view
         setViewState({
           view: "detail",
           movesToCheckmate,
           positionIndex: randomIndex,
         });
 
-        // Navigate directly to StageDetailView with the random position
         router.push(
           `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
             randomIndex + 1
@@ -165,7 +161,7 @@ export default function EndgameTrainingPage() {
           />
         );
       default:
-        return <h2 className="text-center mt-8">Invalid view state</h2>;
+        return <DotSpinner />;
     }
   };
 

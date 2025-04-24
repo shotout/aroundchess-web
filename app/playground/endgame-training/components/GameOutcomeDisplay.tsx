@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Chess } from "chess.js";
 import Image from "next/image";
 import { ChessPiece } from "../utils/ChessPieceUtils";
-import { Cat, Clock, Trophy, X, Info } from "lucide-react";
+import { Clock, Info } from "lucide-react";
 
 interface GameOutcomeDisplayProps {
   game: Chess;
@@ -26,9 +26,9 @@ type GameOutcomeState = {
   description?: string;
   bgClass: string;
   borderClass: string;
-  iconBgClass: string;
-  iconType: "trophy" | "checkmate" | "draw";
-};
+  iconType: "win" | "loss" | "draw";
+  bgImage: string;
+} | null;
 
 export default function GameOutcomeDisplay({
   game,
@@ -96,8 +96,8 @@ export default function GameOutcomeDisplay({
                 subtitle: "You have won by Checkmate!",
                 bgClass: "bg-[#edfaed]",
                 borderClass: "border-[#29A709]",
-                iconBgClass: "bg-[#00a000]",
-                iconType: "trophy",
+                iconType: "win-icon.png",
+                bgImage: "Won-Checkmate.png",
               }
             : {
                 isWin: false,
@@ -105,8 +105,8 @@ export default function GameOutcomeDisplay({
                 subtitle: "Your opponent won by Checkmate",
                 bgClass: "bg-[#fdeded]",
                 borderClass: "border-[#d00000]",
-                iconBgClass: "bg-[#d00000]",
-                iconType: "checkmate",
+                iconType: "loss-icon.png",
+                bgImage: "Loss.png",
               };
           break;
 
@@ -119,8 +119,8 @@ export default function GameOutcomeDisplay({
               "Stalemate is a kind of Draw that happens when one side has no legal moves to make. If the King is not in check, but no piece can be moved without putting the king in check, then the Game will end with a Stalemate Draw.",
             bgClass: "bg-[#e5f3ff]",
             borderClass: "border-[#2336f3]",
-            iconBgClass: "bg-[#2336f3]",
-            iconType: "draw",
+            iconType: "draw-icon.png",
+            bgImage: "Draw-Stalemate.png",
           };
           break;
 
@@ -133,8 +133,8 @@ export default function GameOutcomeDisplay({
               "The threefold repetition rule states that if a game reaches the same position three times, a Draw can be Claimed.",
             bgClass: "bg-[#e5f3ff]",
             borderClass: "border-[#2336f3]",
-            iconBgClass: "bg-[#2336f3]",
-            iconType: "draw",
+            iconType: "draw-icon.png",
+            bgImage: "Draw-Threefold-Repetition.png",
           };
           break;
 
@@ -147,8 +147,8 @@ export default function GameOutcomeDisplay({
               "The 'Insufficient material' rule dictates that a game is automatically declared a Draw if there is no way to end the game in checkmate.",
             bgClass: "bg-[#e5f3ff]",
             borderClass: "border-[#2336f3]",
-            iconBgClass: "bg-[#2336f3]",
-            iconType: "draw",
+            iconType: "draw-icon.png",
+            bgImage: "Draw-Insufficient-Material.png",
           };
           break;
 
@@ -161,8 +161,8 @@ export default function GameOutcomeDisplay({
               "This may be due to the 50-move rule or another draw condition.",
             bgClass: "bg-[#e5f3ff]",
             borderClass: "border-[#2336f3]",
-            iconBgClass: "bg-[#2336f3]",
-            iconType: "draw",
+            iconType: "draw-icon.png",
+            bgImage: "Draw-Stalemate.png",
           };
           break;
 
@@ -173,13 +173,13 @@ export default function GameOutcomeDisplay({
             subtitle: "The game has ended",
             bgClass: "bg-[#f0f0f0]",
             borderClass: "border-gray-400",
-            iconBgClass: "bg-gray-400",
-            iconType: "draw",
+            iconType: "draw-icon.png",
+            bgImage: "Draw-Stalemate.png",
           };
           break;
       }
 
-      setOutcomeState(outcome);
+      setOutcomeState(outcome as any);
     } catch (error) {
       console.error("Error determining game outcome:", error);
     }
@@ -188,24 +188,23 @@ export default function GameOutcomeDisplay({
   if (!outcomeState) return null;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex relative flex-col">
       <div
-        className={`w-full rounded-lg p-3 relative overflow-hidden ${outcomeState.bgClass} border-2 ${outcomeState.borderClass}`}
+        className={`w-full rounded-lg p-4 relative overflow-hidden ${outcomeState.bgClass} border-2 ${outcomeState.borderClass}`}
       >
         <div className="absolute -right-5 -bottom-5 opacity-10 pointer-events-none"></div>
 
-        <div className="flex flex-col">
-          <div className="flex items-center mb-2">
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center">
             <div
-              className={`w-10 h-10 rounded-full mr-3 flex items-center justify-center ${outcomeState.iconBgClass}`}
+              className={`w-auto h-auto rounded-full flex items-center justify-center mr-3`}
             >
-              {outcomeState.iconType === "trophy" ? (
-                <Trophy className="text-white" size={25} />
-              ) : outcomeState.iconType === "checkmate" ? (
-                <X className="text-white" size={25} />
-              ) : (
-                <Clock className="text-white" size={25} />
-              )}
+              <Image
+                src={`/endgame-training/${outcomeState.iconType}`}
+                alt={`${outcomeState.iconType} icon`}
+                width={50}
+                height={50}
+              />
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-bold">{outcomeState.title}</h2>
@@ -229,16 +228,16 @@ export default function GameOutcomeDisplay({
           </div>
 
           {showDescription && outcomeState.description && (
-            <div className="mb-3 p-2 bg-white bg-opacity-50 rounded-md">
+            <div className="p-2 bg-white bg-opacity-50 rounded-md">
               <p className="text-xs text-gray-800">
                 {outcomeState.description}
               </p>
             </div>
           )}
 
-          <div className="flex space-x-3">
+          <div className="flex">
             <div
-              className={`w-1/2 bg-white rounded-md p-2 flex justify-center items-center border-2 ${outcomeState.borderClass}`}
+              className={`w-1/2 bg-white rounded-md p-2 flex justify-center items-center border-2 ${outcomeState.borderClass} mr-3`}
             >
               {pieceConfig && pieceConfig.pieces ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -260,27 +259,41 @@ export default function GameOutcomeDisplay({
               )}
             </div>
 
-            <div className="w-1/2 flex flex-col space-y-1">
-              <div className="bg-blue-500 text-white rounded-md p-1.5 flex items-center">
-                <Clock size={16} className="mr-2" />
+            <div className="w-1/2 flex flex-col space-y-2">
+              <div className="bg-blue-base w-[100px] gap-x-2 text-white rounded-md p-1 flex items-center">
+                <Clock size={16} className="text-blue-base" fill="white" />
                 <span className="text-xs font-medium">{elapsedTime}</span>
               </div>
 
-              <div className="p-1.5 flex items-center">
-                <Cat size={16} className="mr-2" />
-                <span className="text-xs font-medium">
+              <div className="flex items-center">
+                <Image
+                  src="/endgame-training/move-icon.png"
+                  alt="move icon"
+                  width={30}
+                  height={30}
+                  className="mr-2"
+                />
+                <span className="text-sm font-medium">
                   {moveHistory.length} Moves
                 </span>
               </div>
 
-              <div className="p-1.5 flex items-center">
-                <span className="text-xs font-medium truncate">
+              <div className="flex items-center">
+                <span className="text-sm font-medium truncate">
                   {subcategoryName}
                 </span>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="absolute right-0 top-0 pointer-events-none">
+        <Image
+          src={`/endgame-training/dialog/${outcomeState.bgImage}`}
+          alt="chess board"
+          width={300}
+          height={300}
+        />
       </div>
     </div>
   );
