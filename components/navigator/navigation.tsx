@@ -9,6 +9,7 @@ import { ConfirmLogin } from "../modal/ConfirmLogin";
 import { ContactUs } from "../modal/ContactUs";
 import { PricingOffer } from "../modal/PricingOffer";
 import { SuccessSubscription } from "../modal/SuccessSubscription";
+import { StatusPurchaseTokens } from "../modal/StatusPurchaseTokens";
 
 export default function Navigation({
   children,
@@ -69,6 +70,7 @@ export default function Navigation({
             <ContactUs />
             <SuccessSubscription />
             <CancelSubscription />
+            <StatusPurchaseTokens />
             <PricingOffer />
           </div>
 
