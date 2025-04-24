@@ -8,7 +8,10 @@ import PatternsTab from "./PatternTabs";
 interface LessonTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  tabOptions: any;
+  tabOptions: Array<{
+    id: string;
+    label: string | React.ReactNode;
+  }>;
   lesson: ChessLesson;
   router: AppRouterInstance;
   basePath: string;
@@ -22,27 +25,26 @@ const LessonTabs: React.FC<LessonTabsProps> = ({
   router,
   basePath,
 }) => {
+  // Check if the variations property exists on the lesson
+  const hasVariations =
+    "variations" in lesson && Array.isArray(lesson.variations);
+
   return (
     <div className="overflow-hidden flex flex-col gap-6">
       <div className="p-2 flex bg-[#F9FAFC] rounded-lg border h-auto items-center">
-        {tabOptions.map(
-          (tab: {
-            id: React.Key | null | undefined;
-            label: string | React.ReactNode;
-          }) => (
-            <button
-              key={tab.id}
-              className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
-                activeTab === tab.id
-                  ? "bg-white shadow-md text-black font-bold"
-                  : "text-gray-600 font-normal hover:bg-gray-100"
-              }`}
-              onClick={() => setActiveTab(tab.id as string)}
-            >
-              {tab.label}
-            </button>
-          )
-        )}
+        {tabOptions.map((tab) => (
+          <button
+            key={tab.id}
+            className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
+              activeTab === tab.id
+                ? "bg-white shadow-md text-black font-bold"
+                : "text-gray-600 font-normal hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveTab(tab.id as string)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-col gap-6 bg-white">
@@ -54,8 +56,11 @@ const LessonTabs: React.FC<LessonTabsProps> = ({
               router={router}
               basePath={basePath}
             />
-          ) : activeTab === "variations" ? (
-            <VariationsTab key="variations" variations={lesson?.variations} />
+          ) : activeTab === "variations" && hasVariations ? (
+            <VariationsTab
+              key="variations"
+              variations={(lesson as any).variations}
+            />
           ) : activeTab === "patterns" ? (
             <PatternsTab key="patterns" lesson={lesson} />
           ) : (

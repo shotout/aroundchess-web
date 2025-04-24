@@ -34,6 +34,13 @@ interface ChessLessonDetailProps<T extends ChessLesson> {
     readStatusMap?: Record<string, boolean>;
     checkReadStatus?: (id: string, sessionId?: string) => Promise<boolean>;
     markLessonAsRead?: (id: string, sessionId?: string) => Promise<boolean>;
+    set?: (
+      updater: (
+        state: any
+      ) => Partial<
+        ChessLessonState<T> & { readStatusMap?: Record<string, boolean> }
+      >
+    ) => void;
   };
 }
 
