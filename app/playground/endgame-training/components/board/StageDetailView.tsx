@@ -12,17 +12,21 @@ import { ChevronLeft, AlertCircle } from "lucide-react";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
 import { useCheckmateTraining } from "../../store/CheckmateStore";
 import { useEndgameNavigation } from "../../store/NavigationStore";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { Chess } from "chess.js";
 import { getPieceConfig } from "../../utils/ChessPieceUtils";
 import { Square } from "react-chessboard/dist/chessboard/types";
-import ChessboardWrapper from "../ChessboardWrapper";
 import MoveHistory from "../MoveHistory";
 import StockfishEngine from "../SF";
 import GameControls from "../GameControl";
 import GameHeader from "../GameHeader";
 import GameAlertDialog from "../GameAlertDialog";
 import GameOutcomeDisplay from "../GameOutcomeDisplay";
-import GameAlertDebug from "../GameAlertDebug";
+import SyzygyAnalysis from "../SyzygyAnalysis";
+import { getSyzygyMove } from "@/lib/stockfish/syzygy-positions";
+import Image from "next/image";
+import ChessboardWrapper from "../ChessboardWrapper";
+import { SettingBoard } from "@/components/modal/SettingBoard";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -37,6 +41,7 @@ export default function StageDetailView({
 }: StageDetailViewProps) {
   const router = useRouter();
   const stageNum = parseInt(stageNumber);
+  const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
 
   const [position, setPosition] = useState<string | null>(null);
   const [initialFen, setInitialFen] = useState<string | null>(null);
@@ -55,6 +60,12 @@ export default function StageDetailView({
   const [isCheckmateMode, setIsCheckmateMode] = useState<boolean>(false);
   const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
+  // New state for Syzygy analysis
+  const [syzygyMateDistance, setSyzygyMateDistance] = useState<number | null>(
+    null
+  );
+  const [isSyzygyLoading, setIsSyzygyLoading] = useState<boolean>(false);
+
   const [showGameEndDialog, setShowGameEndDialog] = useState<boolean>(false);
   const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
   const [gameEndTime, setGameEndTime] = useState<number | undefined>(undefined);
@@ -65,6 +76,10 @@ export default function StageDetailView({
   const [moveSquares, setMoveSquares] = useState<
     Record<string, { background: string }>
   >({});
+  const [rightClickedSquares, setRightClickedSquares] = useState<
+    Record<string, { backgroundColor: string }>
+  >({});
+
   const [moveFrom, setMoveFrom] = useState<string>("");
   const [moveTo, setMoveTo] = useState<Square | null>(null);
   const [showPromotionDialog, setShowPromotionDialog] =
@@ -72,6 +87,7 @@ export default function StageDetailView({
 
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
+  const [is3DMode, setIs3DMode] = useState<boolean>(false);
 
   const {
     data: endgameData,
@@ -90,6 +106,55 @@ export default function StageDetailView({
   const fetchInProgress = useRef(false);
   const game = useMemo(() => new Chess(), []);
   const isMounted = useRef(true);
+
+  interface SyzygyResult {
+    mateDistance?: number;
+    needStockfish?: boolean;
+    syzygyCandidates?: Array<{ checkmate: boolean }>;
+  }
+
+  const updateSyzygyAnalysis = useCallback(async () => {
+    if (!position || isSolved) return;
+
+    setIsSyzygyLoading(true);
+    try {
+      const result = (await getSyzygyMove(position, game, {
+        value: game.turn(),
+      })) as SyzygyResult;
+
+      if (result && result.mateDistance !== undefined) {
+        setSyzygyMateDistance(result.mateDistance);
+      } else if (result && result.needStockfish && result.syzygyCandidates) {
+        const checkmateMoves = result.syzygyCandidates.filter(
+          (move) => move.checkmate
+        );
+        if (checkmateMoves.length > 0) {
+          setSyzygyMateDistance(1);
+        } else {
+          setSyzygyMateDistance(null);
+        }
+      } else {
+        setSyzygyMateDistance(null);
+      }
+    } catch (error) {
+      console.error("Error fetching Syzygy analysis:", error);
+      setSyzygyMateDistance(null);
+    } finally {
+      setIsSyzygyLoading(false);
+    }
+  }, [position, game, isSolved]);
+
+  // Update Syzygy analysis when position changes
+  useEffect(() => {
+    if (position) {
+      updateSyzygyAnalysis();
+    }
+  }, [position, updateSyzygyAnalysis]);
+
+  useEffect(() => {
+    const is3D = StyleChoosed === "3d" ? true : false;
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
 
   useEffect(() => {
     return () => {
@@ -170,8 +235,12 @@ export default function StageDetailView({
         setIsSolved(false);
         setMoveSquares({});
         setOptionSquares({});
+        setRightClickedSquares({});
+        setBestMove(null);
+        setShowHint(false);
         setGameStartTime(Date.now());
         setGameEndTime(undefined);
+        setSyzygyMateDistance(null); // Reset Syzygy mate distance
 
         setPlayerColorFromFen(fen);
 
@@ -220,8 +289,12 @@ export default function StageDetailView({
           setIsSolved(false);
           setMoveSquares({});
           setOptionSquares({});
+          setRightClickedSquares({});
+          setBestMove(null);
+          setShowHint(false);
           setGameStartTime(Date.now());
           setGameEndTime(undefined);
+          setSyzygyMateDistance(null);
 
           setPlayerColorFromFen(gameData.fen);
         } catch (e) {
@@ -311,15 +384,20 @@ export default function StageDetailView({
         setBestMove(null);
         setOptionSquares({});
         setMoveSquares({});
+        setRightClickedSquares({});
         setGameStartTime(Date.now());
         setGameEndTime(undefined);
+        setSyzygyMateDistance(null); // Reset Syzygy mate distance
 
         setPlayerColorFromFen(initialFen);
+
+        // After reset, update Syzygy analysis for the initial position
+        updateSyzygyAnalysis();
       } catch (e) {
         console.error("Error resetting position:", e);
       }
     }
-  }, [game, initialFen, setPlayerColorFromFen]);
+  }, [game, initialFen, setPlayerColorFromFen, updateSyzygyAnalysis]);
 
   const handleNewGame = useCallback(() => {
     const { setViewState } = useEndgameNavigation.getState();
@@ -344,14 +422,12 @@ export default function StageDetailView({
         randomIndex = Math.floor(Math.random() * positions.length);
       } while (randomIndex === stageNum - 1 && positions.length > 1);
 
-      // Navigate to the new position
       router.push(
         `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
           randomIndex + 1
         }/stage-${randomIndex + 1}`
       );
     } else {
-      // For regular endgame training, go back to subcategory selection
       setViewState({
         view: "subcategories",
         category: categorySlug,
@@ -387,6 +463,11 @@ export default function StageDetailView({
 
     return false;
   }, [game, playerColor]);
+
+  // Rotate board function
+  const handleSwitch = useCallback(() => {
+    setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
+  }, []);
 
   const isLoading = isEndgameLoading || isCheckmateLoading;
   const error = isCheckmateMode ? checkmateError : endgameError;
@@ -447,31 +528,58 @@ export default function StageDetailView({
           goBackToSelection={goBackToSelection}
         />
 
-        <div className="grid grid-cols-1 xl:grid-cols-10 min-h-0 flex-grow bg-white xl:gap-5">
-          <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col xl:col-span-6">
-            <div className="relative w-full flex justify-center items-center">
-              <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
-                <ChessboardWrapper
-                  game={game}
-                  position={position}
-                  optionSquares={optionSquares}
-                  moveSquares={moveSquares}
-                  moveFrom={moveFrom}
-                  setMoveFrom={setMoveFrom}
-                  moveTo={moveTo}
-                  setMoveTo={setMoveTo}
-                  setOptionSquares={setOptionSquares}
-                  setMoveSquares={setMoveSquares}
-                  showPromotionDialog={showPromotionDialog}
-                  setShowPromotionDialog={setShowPromotionDialog}
-                  setShowHint={setShowHint}
-                  gameStatus={isSolved ? "solved" : "ongoing"}
-                  setMoveHistory={setMoveHistory}
-                  setPosition={setPosition}
-                  checkGameStatus={checkGameStatus}
-                  boardOrientation={boardOrientation}
-                  playerColor={playerColor}
+        <div className="grid grid-cols-1 xl:grid-cols-10 bg-white xl:gap-5">
+          <div className="xl:col-span-6 flex flex-col">
+            <div className="flex flex-row self-end justify-end items-center gap-x-2 mb-2">
+              <button onClick={handleSwitch}>
+                <Image
+                  src={"/images/play-vs-ai/switch.png"}
+                  alt="icon"
+                  width={20}
+                  height={20}
+                  className="rounded-full object-contain"
                 />
+              </button>
+              <SettingBoard />
+
+              <button onClick={() => setIs3DMode(!is3DMode)}>
+                <Image
+                  src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
+                  alt="icon"
+                  width={is3DMode ? 15 : 20}
+                  height={is3DMode ? 15 : 20}
+                  className="object-contain"
+                />
+              </button>
+            </div>
+            <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col">
+              <div className="relative w-full flex flex-col justify-center items-center">
+                <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
+                  <ChessboardWrapper
+                    game={game}
+                    position={position}
+                    optionSquares={optionSquares}
+                    moveSquares={moveSquares}
+                    moveFrom={moveFrom}
+                    setMoveFrom={setMoveFrom}
+                    moveTo={moveTo}
+                    setMoveTo={setMoveTo}
+                    setOptionSquares={setOptionSquares}
+                    setMoveSquares={setMoveSquares}
+                    showPromotionDialog={showPromotionDialog}
+                    setShowPromotionDialog={setShowPromotionDialog}
+                    setShowHint={setShowHint}
+                    gameStatus={isSolved ? "solved" : "ongoing"}
+                    setMoveHistory={setMoveHistory}
+                    setPosition={setPosition}
+                    checkGameStatus={checkGameStatus}
+                    boardOrientation={boardOrientation}
+                    playerColor={playerColor}
+                    bestMove={bestMove}
+                    is3DMode={is3DMode}
+                    showHint={showHint}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -499,6 +607,13 @@ export default function StageDetailView({
               </div>
 
               <MoveHistory moveHistory={moveHistory} />
+
+              <SyzygyAnalysis
+                mateDistance={syzygyMateDistance}
+                playerColor={playerColor}
+                currentTurn={game.turn()}
+                isLoading={isSyzygyLoading}
+              />
 
               {isSolved && (
                 <div className="w-full overflow-hidden p-4">
@@ -528,6 +643,7 @@ export default function StageDetailView({
                 setBestMove={setBestMove}
                 showHint={showHint}
                 playerColor={playerColor}
+                depth={15}
               />
 
               <GameControls
@@ -543,7 +659,6 @@ export default function StageDetailView({
           </div>
         </div>
       </main>
-      {/* {process.env.NODE_ENV === "development" && <GameAlertDebug />} */}
     </div>
   );
 }

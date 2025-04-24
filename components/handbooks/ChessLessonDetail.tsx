@@ -140,7 +140,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
 
         if (lessonStore && typeof lessonStore.set === "function") {
           lessonStore.set((state: any) => ({

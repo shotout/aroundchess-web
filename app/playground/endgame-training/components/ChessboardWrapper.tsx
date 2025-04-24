@@ -1,35 +1,12 @@
 "use client";
 
-import React, { useCallback } from "react";
-import { Chessboard } from "react-chessboard";
-import { Chess, Square } from "chess.js";
-import { BoardPosition } from "react-chessboard/dist/chessboard/types";
-
-interface ChessboardWrapperProps {
-  game: Chess;
-  position: string | BoardPosition | undefined;
-  optionSquares: Record<string, { background: string }>;
-  moveSquares: Record<string, { background: string }>;
-  moveFrom: string;
-  setMoveFrom: React.Dispatch<React.SetStateAction<string>>;
-  moveTo: Square | null;
-  setMoveTo: React.Dispatch<React.SetStateAction<Square | null>>;
-  setOptionSquares: React.Dispatch<
-    React.SetStateAction<Record<string, { background: string }>>
-  >;
-  setMoveSquares: React.Dispatch<
-    React.SetStateAction<Record<string, { background: string }>>
-  >;
-  showPromotionDialog: boolean;
-  setShowPromotionDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowHint: React.Dispatch<React.SetStateAction<boolean>>;
-  gameStatus: string;
-  setMoveHistory: React.Dispatch<React.SetStateAction<any[]>>;
-  setPosition: React.Dispatch<React.SetStateAction<string | null>>;
-  checkGameStatus: () => boolean;
-  boardOrientation: "white" | "black"; // Added prop for board orientation
-  playerColor: "w" | "b"; // Added prop for player color
-}
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Square } from "chess.js";
+import { motion } from "framer-motion";
+import { MoveRightIcon } from "lucide-react";
+import { ChessboardWrapperProps } from "../types/ChessboardWrapperType";
+import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 
 export default function ChessboardWrapper({
   game,
@@ -49,10 +26,52 @@ export default function ChessboardWrapper({
   setMoveHistory,
   setPosition,
   checkGameStatus,
-  boardOrientation, // Added prop
-  playerColor, // Added prop
+  boardOrientation,
+  playerColor,
+  bestMove,
+  showHint,
+  is3DMode,
 }: ChessboardWrapperProps) {
-  // Handle getting valid move options for a square
+  const [boardSize, setBoardSize] = useState<number | undefined>(650);
+  const [mounted, _] = useState<boolean>(true);
+  const [rightClickedSquares, setRightClickedSquares] = useState<
+    Record<string, { backgroundColor: string }>
+  >({});
+  const [hintClicked, setHintClicked] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    handleResize();
+
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
+  }, [mounted]);
+
+  useEffect(() => {
+    setHintClicked(showHint ?? false);
+  }, [showHint]);
+
+  const handleResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    const minPadding = 0;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
+    console.log("Resizing board...", isPortrait, window.innerWidth);
+
+    if (isPortrait) {
+      const availableWidth = width - minPadding * 2;
+      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+    } else {
+      const availableHeight = height - minPadding * 2;
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
+    }
+  };
+
   const getMoveOptions = useCallback(
     (square: Square) => {
       const moves = game.moves({
@@ -71,13 +90,13 @@ export default function ChessboardWrapper({
           background:
             game.get(move.to) &&
             game.get(move.to)?.color !== game.get(square)?.color
-              ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)"
-              : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
+              ? "radial-gradient(circle, rgba(34,26,233) 30%, transparent 30%)"
+              : "radial-gradient(circle, rgba(34,26,233) 25%, transparent 25%)",
         };
       });
 
       newSquares[square] = {
-        background: "rgba(255, 255, 0, 0.4)",
+        background: "#F5F682",
       };
 
       setOptionSquares(newSquares);
@@ -86,19 +105,35 @@ export default function ChessboardWrapper({
     [game, setOptionSquares]
   );
 
-  // Handle clicking on a square
+  const onSquareRightClick = useCallback(
+    (square: Square) => {
+      const colour = "rgba(0, 0, 255, 0.4)";
+      setRightClickedSquares({
+        ...rightClickedSquares,
+        [square]: {
+          backgroundColor:
+            rightClickedSquares[square]?.backgroundColor === colour
+              ? ""
+              : colour,
+        },
+      });
+    },
+    [rightClickedSquares]
+  );
+
   const onSquareClick = useCallback(
     (square: Square) => {
-      // Only allow interaction if it's player's turn and game is ongoing
+      setRightClickedSquares({} as Record<string, { backgroundColor: string }>);
+
+      if (hintClicked) {
+        setHintClicked(false);
+        setShowHint(false);
+      }
+
       if (game.turn() !== playerColor || gameStatus !== "ongoing") return;
 
-      // Clear any hint highlighting
-      setShowHint(false);
-
-      // First click - selecting a piece
       if (!moveFrom) {
         const piece = game.get(square);
-        // Only allow selecting player's pieces
         if (piece && piece.color !== playerColor) return;
 
         const hasMoveOptions = getMoveOptions(square);
@@ -108,7 +143,6 @@ export default function ChessboardWrapper({
         return;
       }
 
-      // Second click - making a move or selecting a different piece
       if (!moveTo) {
         const moves = game.moves({
           square: moveFrom as Square,
@@ -118,15 +152,12 @@ export default function ChessboardWrapper({
           (m) => m.from === moveFrom && m.to === square
         );
 
-        // If clicking on an invalid destination
         if (!foundMove) {
           const piece = game.get(square);
-          // If clicking on another of player's pieces, switch selection
           if (piece && piece.color === playerColor) {
             const hasMoveOptions = getMoveOptions(square);
             setMoveFrom(hasMoveOptions ? square : "");
           } else {
-            // Otherwise clear selection
             setMoveFrom("");
             setOptionSquares({});
           }
@@ -135,7 +166,6 @@ export default function ChessboardWrapper({
 
         setMoveTo(square);
 
-        // Check for pawn promotion
         if (
           (foundMove.color === "w" &&
             foundMove.piece === "p" &&
@@ -148,7 +178,6 @@ export default function ChessboardWrapper({
           return;
         }
 
-        // Execute the move
         const move = game.move({
           from: moveFrom,
           to: square,
@@ -160,47 +189,43 @@ export default function ChessboardWrapper({
           return;
         }
 
-        // Update game state after successful move
         setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen()); // This will trigger the StockfishEngine to make opponent's move
+        setPosition(game.fen());
 
-        // Highlight the move that was just made
         setMoveSquares({
           [moveFrom]: { background: "rgba(255, 255, 0, 0.4)" },
           [square]: { background: "rgba(255, 255, 0, 0.4)" },
         });
 
-        // Reset selection state
         setMoveFrom("");
         setMoveTo(null);
         setOptionSquares({});
 
-        // Check if game is over after the move
         checkGameStatus();
 
         return;
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      hintClicked,
+      game,
+      playerColor,
+      gameStatus,
       moveFrom,
       moveTo,
-      game,
+      setShowHint,
       getMoveOptions,
-      checkGameStatus,
-      gameStatus,
       setMoveFrom,
       setMoveTo,
-      setOptionSquares,
-      setMoveSquares,
       setMoveHistory,
       setPosition,
-      setShowHint,
-      playerColor,
+      setMoveSquares,
+      setOptionSquares,
+      checkGameStatus,
+      setShowPromotionDialog,
     ]
   );
 
-  // Handle promoting a pawn
   const onPromotionPieceSelect = useCallback(
     (piece?: string, fromSquare?: Square, toSquare?: Square) => {
       if (!piece || !fromSquare || !toSquare) return false;
@@ -243,95 +268,131 @@ export default function ChessboardWrapper({
     ]
   );
 
-  // Handle drag and drop moves
-  const onDrop = useCallback(
-    (sourceSquare: string, targetSquare: string) => {
-      // Only allow moves when it's player's turn and game is ongoing
-      if (game.turn() !== playerColor || gameStatus !== "ongoing") return false;
-
-      setShowHint(false);
-
-      try {
-        console.log(
-          `Attempting drag-drop move from ${sourceSquare} to ${targetSquare}`
-        );
-
-        // Check if this is a pawn promotion
-        const piece = game.get(sourceSquare as Square);
-        const isPromotion =
-          piece?.type === "p" &&
-          ((piece.color === "w" && targetSquare[1] === "8") ||
-            (piece.color === "b" && targetSquare[1] === "1"));
-
-        // Execute the move
-        let move;
-        if (isPromotion) {
-          // Auto-promote to queen for simplicity
-          move = game.move({
-            from: sourceSquare as Square,
-            to: targetSquare as Square,
-            promotion: "q",
-          });
-        } else {
-          move = game.move({
-            from: sourceSquare as Square,
-            to: targetSquare as Square,
-          });
-        }
-
-        if (move === null) {
-          console.log("Invalid move attempted");
-          return false;
-        }
-
-        console.log("Move successful:", move);
-
-        // Update game state after successful move
-        setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen()); // This triggers StockfishEngine to make opponent's move
-
-        // Highlight the move that was just made
-        setMoveSquares({
-          [sourceSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-          [targetSquare]: { background: "rgba(255, 255, 0, 0.4)" },
-        });
-
-        // Check if game is over after the move
-        checkGameStatus();
-
-        return true;
-      } catch (e) {
-        console.error("Move error:", e);
-        return false;
-      }
-    },
-    [
-      game,
-      checkGameStatus,
-      gameStatus,
-      setMoveHistory,
-      setPosition,
-      setMoveSquares,
-      setShowHint,
-      playerColor, // Added to dependency array
-    ]
-  );
+  const getCustomArrows = () => {
+    if (bestMove && showHint) {
+      return [
+        [
+          bestMove.substring(0, 2) as Square,
+          bestMove.substring(2, 4) as Square,
+        ],
+      ];
+    }
+    return null;
+  };
 
   return (
-    <div className="w-full h-full">
-      <Chessboard
-        position={position}
-        onPieceDrop={onDrop}
-        onSquareClick={onSquareClick}
-        onPromotionPieceSelect={onPromotionPieceSelect}
-        customSquareStyles={{
-          ...optionSquares,
-          ...moveSquares,
+    <div className="flex flex-col justify-center items-center gap-3">
+      <motion.div
+        initial={{ rotateX: 180 }}
+        animate={
+          !is3DMode
+            ? { opacity: 0, display: "hidden" }
+            : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
+        }
+        transition={{
+          duration: 0.6,
+          stiffness: 500,
+          damping: 30,
+          ease: [0.4, 0.0, 0.2, 1],
+          type: "tween",
         }}
-        promotionToSquare={moveTo}
-        showPromotionDialog={showPromotionDialog}
-        boardOrientation={boardOrientation} // Set the board orientation
-      />
+        style={{
+          width: boardSize,
+          display: is3DMode ? "flex" : "none",
+          backfaceVisibility: "hidden",
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {is3DMode && (
+          <ThreeDBoard
+            boardWidth={boardSize ?? 0}
+            arePiecesDraggable={false}
+            orientation={boardOrientation}
+            position={position ?? undefined}
+            onSquareClick={onSquareClick}
+            onSquareRightClick={onSquareRightClick}
+            onPromotionPieceSelect={onPromotionPieceSelect}
+            customSquareStyles={{
+              ...moveSquares,
+              ...optionSquares,
+              ...rightClickedSquares,
+            }}
+            areArrowsAllowed={true}
+            customArrows={getCustomArrows()}
+            customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+            promotionToSquare={moveTo}
+            showPromotionDialog={showPromotionDialog}
+          />
+        )}
+      </motion.div>
+
+      <motion.div
+        initial={{ rotateX: 180 }}
+        animate={
+          is3DMode
+            ? { opacity: 0, display: "none" }
+            : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
+        }
+        transition={{
+          duration: 0.5,
+          stiffness: 500,
+          damping: 35,
+          ease: [0.4, 0.0, 0.2, 1],
+          type: "tween",
+        }}
+        style={{
+          width: boardSize,
+          display: !is3DMode ? "flex" : "none",
+          backfaceVisibility: "hidden",
+        }}
+      >
+        {!is3DMode && (
+          <TwoDChessboard
+            boardWidth={boardSize ?? 0}
+            arePiecesDraggable={false}
+            orientation={boardOrientation}
+            position={position ?? undefined}
+            onSquareClick={onSquareClick}
+            onSquareRightClick={onSquareRightClick}
+            onPromotionPieceSelect={onPromotionPieceSelect}
+            customSquareStyles={{
+              ...moveSquares,
+              ...optionSquares,
+              ...rightClickedSquares,
+            }}
+            areArrowsAllowed={true}
+            customArrows={getCustomArrows()}
+            customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+            promotionToSquare={moveTo}
+            showPromotionDialog={showPromotionDialog}
+          />
+        )}
+      </motion.div>
+
+      <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
+        <div className="flex flex-row items-center justify-center gap-1">
+          <div className="w-[14px] h-[14px] bg-[#F5F682]" />
+          <span className="h-[14px] font-normal text-[11px]">Current Move</span>
+        </div>
+        <div className="flex flex-row items-center justify-center gap-1">
+          <div className="w-[14px] h-[14px] rounded-full bg-[#1C16C2]" />
+          <span className="h-[14px] font-normal text-[11px]">
+            Possible Move
+          </span>
+        </div>
+        <div className="flex flex-row items-center justify-center gap-1">
+          <MoveRightIcon color="#221AE950" size={16} />
+          <span className="h-[14px] font-normal text-[11px]">
+            Move Recommendation
+          </span>
+        </div>
+        <div className="flex flex-row items-center justify-center gap-1">
+          <div className="w-[14px] h-[14px] bg-[rgba(0, 0, 255, 0.4)]" />
+          <span className="h-[14px] font-normal text-[11px]">
+            Right-click Mark
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
