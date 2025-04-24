@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Square } from "chess.js";
 
@@ -16,7 +16,8 @@ interface StockfishEngineProps {
   checkGameStatus: () => boolean;
   setBestMove: React.Dispatch<React.SetStateAction<string | null>>;
   showHint: boolean;
-  playerColor: "w" | "b"; // Added player color prop
+  playerColor: "w" | "b";
+  depth?: number; // Added depth parameter
 }
 
 export default function StockfishEngine({
@@ -29,9 +30,12 @@ export default function StockfishEngine({
   checkGameStatus,
   setBestMove,
   showHint,
-  playerColor, // Added player color
+  playerColor,
+  depth = 10, // Default to depth 10
 }: StockfishEngineProps) {
   const engine = useMemo(() => new Engine(), []);
+  const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
+  const [possibleMate, setPossibleMate] = useState<string>("");
 
   const findBestMove = useCallback(() => {
     // Computer should move when it's not player's turn
@@ -43,6 +47,7 @@ export default function StockfishEngine({
       return;
     }
 
+    // Use a depth of 5 for computer moves (can be adjusted)
     engine.evaluatePosition(game.fen(), 5);
 
     engine.onMessage(({ bestMove }) => {
@@ -53,15 +58,21 @@ export default function StockfishEngine({
           promotion: bestMove.substring(4, 5) || undefined,
         });
 
-        setMoveHistory(game.history({ verbose: true }));
-        setPosition(game.fen());
+        if (move) {
+          setMoveHistory(game.history({ verbose: true }));
+          setPosition(game.fen());
 
-        setMoveSquares({
-          [bestMove.substring(0, 2)]: { background: "rgba(255, 255, 0, 0.4)" },
-          [bestMove.substring(2, 4)]: { background: "rgba(255, 255, 0, 0.4)" },
-        });
+          setMoveSquares({
+            [bestMove.substring(0, 2)]: {
+              background: "rgba(255, 255, 0, 0.4)",
+            },
+            [bestMove.substring(2, 4)]: {
+              background: "rgba(255, 255, 0, 0.4)",
+            },
+          });
 
-        checkGameStatus();
+          checkGameStatus();
+        }
       }
     });
   }, [
@@ -72,27 +83,59 @@ export default function StockfishEngine({
     setPosition,
     setMoveSquares,
     checkGameStatus,
-    playerColor, // Added dependency
+    playerColor,
   ]);
 
   const handleHint = useCallback(() => {
     if (!position || gameStatus !== "ongoing") return;
 
-    engine.evaluatePosition(game.fen(), 10);
+    setBestMove(null);
+    engine.evaluatePosition(game.fen(), depth);
+    engine.onMessage(
+      ({
+        positionEvaluation,
+        possibleMate,
+        pv,
+        depth: responseDepth,
+        bestMove,
+      }) => {
+        if (responseDepth && responseDepth < Math.floor(depth / 2)) return;
 
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
-        setBestMove(bestMove);
-        setMoveSquares({
-          [bestMove.substring(0, 2)]: { background: "rgba(0, 0, 255, 0.4)" },
-          [bestMove.substring(2, 4)]: { background: "rgba(0, 0, 255, 0.4)" },
-        });
+        if (positionEvaluation) {
+          setPositionEvaluation(
+            ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+          );
+        }
+
+        if (possibleMate) {
+          setPossibleMate(possibleMate);
+        }
+
+        if (bestMove && game.turn() === playerColor) {
+          setBestMove(bestMove);
+          setMoveSquares({
+            [bestMove.substring(0, 2)]: {
+              background: "rgba(0, 120, 255, 0.4)",
+            },
+            [bestMove.substring(2, 4)]: {
+              background: "rgba(0, 120, 255, 0.4)",
+            },
+          });
+        }
       }
-    });
-  }, [position, game, engine, gameStatus, setBestMove, setMoveSquares]);
+    );
+  }, [
+    position,
+    game,
+    engine,
+    gameStatus,
+    setBestMove,
+    setMoveSquares,
+    depth,
+    playerColor,
+  ]);
 
   useEffect(() => {
-    // Computer should move when it's not player's turn
     if (position && game.turn() !== playerColor && gameStatus === "ongoing") {
       const timeoutId = setTimeout(() => {
         findBestMove();
@@ -100,7 +143,7 @@ export default function StockfishEngine({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [position, game, gameStatus, findBestMove, playerColor]); // Added playerColor dependency
+  }, [position, game, gameStatus, findBestMove, playerColor]);
 
   useEffect(() => {
     if (showHint && position && gameStatus === "ongoing") {

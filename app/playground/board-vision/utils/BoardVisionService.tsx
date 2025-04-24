@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Chess } from "chess.js";
 import { shuffle } from "./UtilFunctions";
 
@@ -72,24 +71,19 @@ export const ChessService = {
     }
   ): Promise<Position[]> {
     try {
-      // Get all FEN positions from the PGN
       const fenList = this.pgnToFenList(pgn, false);
 
-      // Filter out beginning and ending positions (to focus on middle game)
-      // Skip the first 10 positions and last 5 positions
       const filteredFens = fenList.filter((_, index) => {
         const moveNumber = index + 1;
         return moveNumber > 10 && moveNumber < fenList.length - 5;
       });
 
-      // Select 10 random positions or all if less than 10
       const shuffledFens = shuffle([...filteredFens]);
       const selectedFens = shuffledFens.slice(
         0,
         Math.min(10, shuffledFens.length)
       );
 
-      // Extract game metadata from PGN
       const chess = new Chess();
       chess.loadPgn(pgn);
 
@@ -97,7 +91,6 @@ export const ChessService = {
       let black = "Opponent";
       let url = "#";
 
-      // Try to extract header information
       try {
         const headers = chess.header();
         white = headers.White || username;
@@ -107,7 +100,6 @@ export const ChessService = {
         console.error("Error extracting PGN headers:", e);
       }
 
-      // Set profile information
       const whiteProfilePic =
         username.toLowerCase() === white.toLowerCase()
           ? profileInfo?.userProfilePic
@@ -118,7 +110,6 @@ export const ChessService = {
           ? profileInfo?.userProfilePic
           : profileInfo?.opponentProfilePic;
 
-      // Create Position objects
       const positions = selectedFens.map((fen) => ({
         fen,
         white,
@@ -198,7 +189,6 @@ export const ChessService = {
 
   analyzePosition(fen: string): PositionAnalysis {
     try {
-      // First validate the FEN
       if (!this.isValidFen(fen)) {
         throw new Error(`Invalid FEN: ${fen}`);
       }
@@ -206,7 +196,6 @@ export const ChessService = {
       const chess = new Chess(fen);
       const turn = chess.turn();
 
-      // For more accurate analysis, we need to check both sides' moves
       let legal_white = 0;
       let legal_black = 0;
       let checks_white = 0;
@@ -214,7 +203,6 @@ export const ChessService = {
       let threat_white = 0;
       let threat_black = 0;
 
-      // Analyze current position
       const allMoves = chess.moves({ verbose: true });
 
       if (turn === "w") {
@@ -254,13 +242,8 @@ export const ChessService = {
     }
   },
 
-  /**
-   * Enhanced version of analyzePosition that checks moves for both sides
-   * This is a more comprehensive analysis that can be used for more detailed questions
-   */
   analyzePositionComprehensive(fen: string): PositionAnalysis {
     try {
-      // Validate FEN first
       if (!this.isValidFen(fen)) {
         throw new Error(`Invalid FEN: ${fen}`);
       }
@@ -268,7 +251,6 @@ export const ChessService = {
       const chess = new Chess(fen);
       const turn = chess.turn();
 
-      // Analysis logic for both white and black
       let legal_white = 0;
       let legal_black = 0;
       let checks_white = 0;

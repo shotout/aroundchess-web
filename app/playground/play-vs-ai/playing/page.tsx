@@ -210,7 +210,6 @@ export default function Playing() {
           game?.get(move.to)?.color !== game?.get(square)?.color
             ? "radial-gradient(circle, rgba(34,26,233) 30%, transparent 30%)"
             : "radial-gradient(circle, rgba(34,26,233) 25%, transparent 25%)",
-        borderRadius: "50%",
       };
       return move;
     });
@@ -660,8 +659,8 @@ export default function Playing() {
     game.reset();
     setGamePosition(game.fen());
     setHeaderGameStart();
-    setLoserColor("")
-    setWinnerColor("")
+    setLoserColor("");
+    setWinnerColor("");
     setStatusGame("Ongoing");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
