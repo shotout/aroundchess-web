@@ -99,27 +99,27 @@ export default function ChessFAQ() {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className="relative flex flex flex-row items-center justify-end bg-[#FFF] min-w-[200px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            className="relative flex flex flex-row items-center justify-end bg-[#FFF] sm:min-w-[140px] lg:min-w-[200px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
               src={tab.img}
               alt="background"
               width={1000}
               height={1000}
-              className="w-1/2 h-full absolute left- inset-0 object-cover z-0"
+              className="sm:w-2/3 lg:w-1/2 h-full absolute left- inset-0 object-cover z-0"
             />
             <button
               className={`z-10 flex flex-col items-start justify-center bg-[#ffffff80] max-w-[160px] p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-end ${
                 activeTab === tab.id
                   ? "text-[#221AE9] border border-[#221AE9]"
-                  : "bg-white border border-gray-300 rounded-md"
+                  : "border border-gray-300 rounded-md"
               }`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <span className="text-[16px] font-medium text-start">
+              <span className="sm:text-[10px] lg:text-[16px] font-medium text-start">
                 {tab.title}
               </span>
-              <span className="text-[20px] font-medium text-start">
+              <span className="sm:text-[12px] lg:text-[20px] font-medium text-start">
                 {tab.label}
               </span>
             </button>
