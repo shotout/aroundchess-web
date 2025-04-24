@@ -50,13 +50,13 @@ export default function PlayingPage() {
   const { user } = useUser();
   const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
+  const refBoard = useRef<HTMLDivElement | null>(null);
+
   const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
-  const whiteTimer = useRef<ChessCountdown>();
-  const blackTimer = useRef<ChessCountdown>();
 
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(true);
@@ -65,6 +65,7 @@ export default function PlayingPage() {
   const game = useMemo(() => new Chess(), []);
   const [pastGames, setPastGames] = useState<any[]>([]);
   const [heightScreen, setHeightScreen] = useState<number>(0);
+  const [heightBoard, setHeightBoard] = useState<number | undefined>(0);
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
   const [bestLine, setBestline] = useState<string | null>("");
@@ -95,18 +96,6 @@ export default function PlayingPage() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
-
-  const switchTurn = (turn: string) => {
-    if (turn == "w") {
-      whiteTimer.current?.applyIncrement();
-      whiteTimer.current?.pause();
-      blackTimer.current?.resume();
-    } else {
-      blackTimer.current?.applyIncrement();
-      blackTimer.current?.pause();
-      whiteTimer.current?.resume();
-    }
-  };
 
   const fetchPgnLocal = async () => {
     let headers = game.getHeaders();
@@ -253,10 +242,8 @@ export default function PlayingPage() {
       }
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
-      let isYourTurn = myColor == "white" ? "w" : "b";
       setTimeout(() => {
         findBestMove();
-        switchTurn(isYourTurn);
       }, 1000);
       setMoveFrom("");
       setMoveTo(null);
@@ -343,9 +330,6 @@ export default function PlayingPage() {
         setCurrentTurn((turnColor) =>
           turnColor != "White" ? "White" : "Black"
         );
-        let isEnemyTurn = myColor != "white" ? "w" : "b";
-
-        switchTurn(isEnemyTurn);
       }
     });
   };
@@ -503,6 +487,7 @@ export default function PlayingPage() {
       }, 1000);
     }
     setHeightScreen(window?.innerHeight);
+    setHeightBoard(refBoard.current?.clientHeight);
   }, []);
   const getStockfishDepth = (elo: number) => {
     if (elo < 250) return 1;
@@ -712,7 +697,10 @@ export default function PlayingPage() {
             </span>
           </div>
         </div>
-        <div className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]">
+        <div
+          className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
+          ref={refBoard}
+        >
           {orientation != "white" ? (
             <WhitePlayer
               myColor={myColor}
@@ -960,7 +948,10 @@ export default function PlayingPage() {
         </TabsList>
 
         <TabsContent value="current" className="gap-2">
-          <div className="flex flex-col items-center justify-center rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 ">
+          <div
+            className="flex flex-col items-center justify-center rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
+            style={{ maxHeight: heightBoard }}
+          >
             <span className="font-semibold text-[16px] my-2 xl:my-4">
               Movement Details
             </span>
@@ -968,8 +959,8 @@ export default function PlayingPage() {
               style={{
                 height:
                   statusGame == "Ongoing"
-                    ? heightScreen * 0.65
-                    : heightScreen * 0.45,
+                    ? (heightBoard ?? 0) * 0.65
+                    : (heightBoard ?? 0)  * 0.45,
               }}
               className="px-4 w-full overflow-y-auto "
             >
