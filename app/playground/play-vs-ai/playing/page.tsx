@@ -1373,7 +1373,7 @@ export default function Playing() {
           </TabsList>
 
           <TabsContent value="current" className="gap-2">
-            <div className="flex flex-col items-center justify-center rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
+            <div className="flex flex-col items-center justify-center rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 ">
               <span className="font-semibold text-[16px] my-2 xl:my-4">
                 Movement Details
               </span>
