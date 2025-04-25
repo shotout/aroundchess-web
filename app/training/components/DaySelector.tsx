@@ -1,4 +1,3 @@
-// components/DaySelector.tsx
 import React from "react";
 import { DaySelectorProps } from "./types";
 
@@ -8,16 +7,24 @@ const DaySelector: React.FC<DaySelectorProps> = ({
   onSelect,
 }) => {
   const activeClasses = isActive
-    ? "bg-blue-600 text-white border-blue-600"
-    : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200";
+    ? "bg-blue-base/5 text-black border-blue-base"
+    : "text-gray-700 border-gray-200";
 
   return (
     <button
-      className={`flex flex-col items-center justify-center min-w-20 h-16 rounded-lg border ${activeClasses} transition-colors`}
+      className={`flex flex-col items-center justify-center h-24 flex-1 px-2 py-4 rounded-lg border ${activeClasses} transition-colors`}
       onClick={onSelect}
     >
-      <div className="font-bold text-lg">{day.date}</div>
-      <div className="text-sm">{day.name}</div>
+      <div
+        className={`font-bold text-sm ${
+          isActive
+            ? "text-white bg-blue-base rounded-full w-8 h-8 flex items-center justify-center"
+            : ""
+        } `}
+      >
+        {day.date}
+      </div>
+      <div className="text-sm mt-2">{day.name}</div>
     </button>
   );
 };

@@ -1,8 +1,5 @@
-import React from "react";
-import { FileText } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { TrainingPlanCardProps } from "./types";
+import Image from "next/image";
 
 const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
   onCreatePlan,
@@ -13,24 +10,38 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
   }
 
   return (
-    <Card className="border border-gray-100 bg-white">
-      <CardContent className="p-8 flex flex-col items-center text-center">
-        <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-          <FileText className="h-8 w-8 text-blue-600" />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Create your Training Plan</h2>
-        <p className="text-gray-600 mb-6">
+    <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border rounded-md overflow-hidden">
+      {/* Background Image */}
+      <Image
+        src="/training-plan/background.jpg"
+        alt="Chess background"
+        fill
+        priority
+        className="object-cover  opacity-60"
+      />
+
+      <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
+        <Image
+          src={"/training-plan/check-big.png"}
+          alt="background"
+          width={100}
+          height={100}
+        />
+        <span className="font-medium text-lg xl:text-xl">
+          Create Your Training Plan
+        </span>
+        <span className="font-normal text-md xl:mx-20 text-center">
           You have not set your Training Plan yet. Click the Button below to
           create your Training Plan.
-        </p>
-        <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 h-auto"
+        </span>
+        <button
+          className="btn-primary w-full p-2 rounded-full"
           onClick={onCreatePlan}
         >
-          Create Training Plan
-        </Button>
-      </CardContent>
-    </Card>
+          Create Your Training Plan
+        </button>
+      </div>
+    </div>
   );
 };
 
