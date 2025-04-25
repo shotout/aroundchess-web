@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
-import { ChessCountdown } from "@/utils/chessCountdown";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useUser } from "@clerk/nextjs";
 import { Chess, Square } from "chess.js";
@@ -243,7 +242,7 @@ export default function PlayingPage() {
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
       setTimeout(() => {
-        findBestMove();
+        findEnemyMove();
       }, 1000);
       setMoveFrom("");
       setMoveTo(null);
@@ -274,7 +273,7 @@ export default function PlayingPage() {
       });
       setGamePosition(game.fen());
       setTimeout(() => {
-        findBestMove();
+        findEnemyMove();
       }, 1000);
     }
     setMoveFrom("");
@@ -310,18 +309,19 @@ export default function PlayingPage() {
     }),
   };
 
-  const findBestMove = () => {
+  const findEnemyMove = () => {
     let isYourTurn = myColor == "white" ? "w" : "b";
-    console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
+    // console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove }) => {
-      if (bestMove) {
+    engine.onMessage(({ bestMove, depth, pv }) => {
+      console.log("message:", depth, bestMove, pv);
+      if (depth == stockfishLevel && pv) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
         game.move({
-          from: bestMove.substring(0, 2),
-          to: bestMove.substring(2, 4),
-          promotion: bestMove.substring(4, 5),
+          from: pv.substring(0, 2),
+          to: pv.substring(2, 4),
+          promotion: pv.substring(4, 5),
         });
 
         setBestline("");
@@ -483,7 +483,7 @@ export default function PlayingPage() {
     setHeaderGameStart();
     if (AIChoosed.color == "black") {
       setTimeout(() => {
-        findBestMove();
+        findEnemyMove();
       }, 1000);
     }
     setHeightScreen(window?.innerHeight);
@@ -960,7 +960,7 @@ export default function PlayingPage() {
                 height:
                   statusGame == "Ongoing"
                     ? (heightBoard ?? 0) * 0.65
-                    : (heightBoard ?? 0)  * 0.45,
+                    : (heightBoard ?? 0) * 0.45,
               }}
               className="px-4 w-full overflow-y-auto "
             >
