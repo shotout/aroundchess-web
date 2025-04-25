@@ -67,7 +67,7 @@ export default function EndgameTrainingPage() {
         const randomIndex = Math.floor(Math.random() * positions.length);
 
         setViewState({
-          view: "detail",
+          view: "categories",
           movesToCheckmate,
           positionIndex: randomIndex,
         });
