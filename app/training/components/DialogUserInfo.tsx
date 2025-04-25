@@ -1,4 +1,3 @@
-// components/DialogUserInfo.tsx
 import React from "react";
 import { Info, Clock } from "lucide-react";
 import { DialogUserInfoProps } from "./types";
@@ -18,22 +17,22 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-md p-3 mb-3">
+      <div className="bg-[#F7F7F7] rounded-md p-3 mb-3">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-            <Info className="h-3 w-3 text-blue-600" />
+            <Info className="h-3 w-3 text-black" />
           </div>
-          <div className="text-sm font-semibold text-blue-900">
+          <div className="text-sm font-semibold text-black">
             Your key to reach the next Level:
           </div>
         </div>
-        <p className="text-sm text-blue-800">{keyInfo.keyToReachNextLevel}</p>
+        <p className="text-sm text-black">{keyInfo.keyToReachNextLevel}</p>
       </div>
 
       <div className="bg-blue-50 rounded-md p-3">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-            <Clock className="h-3 w-3 text-blue-600" />
+            <Clock className="h-3 w-3 text-black" />
           </div>
           <div className="text-sm font-semibold text-blue-900">
             Approximate Duration:

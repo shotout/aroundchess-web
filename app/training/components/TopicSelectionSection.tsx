@@ -2,6 +2,7 @@
 import React from "react";
 import IndividualTrainingTopic from "./IndividualTrainingTopic";
 import { TopicSelectionSectionProps } from "./types";
+import Image from "next/image";
 
 const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
   categoryId,
@@ -13,7 +14,6 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
   selectedTopics,
   onToggleTopic,
 }) => {
-  // Filter topics by category
   const getTopicsBySubcategory = (subcategoryId: string) => {
     return topics.filter((topic) => topic.category === subcategoryId);
   };
@@ -21,9 +21,7 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
   return (
     <div className="border border-gray-200 rounded-lg p-4">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-6 h-6 bg-blue-100 text-blue-800 flex items-center justify-center rounded">
-          {icon}
-        </div>
+        <Image src={icon} width={35} height={35} alt="" />
         <h3 className="font-semibold">{title}</h3>
       </div>
 

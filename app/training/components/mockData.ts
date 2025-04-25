@@ -47,7 +47,7 @@ export const userProfileData: UserProfile = {
   level: "Beginner",
   currentElo: 800,
   targetElo: 1200,
-  avatar: null, // This will be set in the component
+  avatar: null, 
 };
 
 
@@ -314,7 +314,7 @@ export const topicCategoryInfo = [
   {
     id: "opening",
     title: "Opening Topics",
-    icon: "♘",
+    icon: "/training-plan/oc.png",
     description: "Select 1 White and 2 Black Opening Topic:",
     subcategories: [
       {
@@ -332,14 +332,14 @@ export const topicCategoryInfo = [
   {
     id: "middlegame",
     title: "Middlegame Concepts",
-    icon: "♗",
+    icon: "/training-plan/mc.png",
     description: "Select 5-7 Middlegame Topics:",
     subcategories: []
   },
   {
     id: "endgame",
     title: "Endgame Concepts",
-    icon: "♔",
+    icon: "/training-plan/ec.png",
     description: "Select 3-4 Endgame Topics:",
     subcategories: []
   }

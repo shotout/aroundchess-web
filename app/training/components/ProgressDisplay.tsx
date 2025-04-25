@@ -1,5 +1,5 @@
 // components/ProgressDisplay.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   CartesianGrid,
@@ -9,6 +9,9 @@ import {
   XAxis,
   YAxis,
   Tooltip as RechartsTooltip,
+  Bar,
+  BarChart,
+  Cell,
 } from "recharts";
 import {
   BrainIcon,
@@ -48,6 +51,13 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
   accuracyPercentage,
   accuracyImprovement,
 }) => {
+  const [trainingData] = useState([
+    { category: "Tactics", hours: 4.5, fill: "#3b82f6" },
+    { category: "Openings", hours: 7, fill: "#FFE492" },
+    { category: "Middlegame", hours: 6, fill: "#50C878" },
+    { category: "Endgame", hours: 8, fill: "#FF6B6B" },
+    { category: "Analysis", hours: 6.5, fill: "#9370DB" },
+  ]);
   return (
     <div className="space-y-6">
       {/* Overall Improvement - Level and Accuracy Cards */}
@@ -104,7 +114,8 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
         <div className="md:col-span-3 flex flex-col gap-6">
           <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden flex-1">
             <CardContent className="p-4 h-full flex flex-col">
-              <h3 className="text-lg font-semibold mb-3">Rating Progress</h3>
+              <h3 className="text-lg font-semibold mb-3">YourProgress</h3>
+              <p>Your ELO Rating Progress</p>
               <div className="flex-1">
                 <ResponsiveContainer width="100%" height="100%" minHeight={180}>
                   <LineChart
@@ -150,45 +161,42 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
 
           <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden flex-1">
             <CardContent className="p-4 h-full flex flex-col">
-              <h3 className="text-lg font-semibold mb-3">Accuracy Progress</h3>
+              <h3 className="text-lg font-semibold mb-3">
+                Last Week’s Training Distribution
+              </h3>
+              <p>Minutes spent on different aspects</p>
               <div className="flex-1">
                 <ResponsiveContainer width="100%" height="100%" minHeight={180}>
-                  <LineChart
-                    data={ratingChartData}
-                    margin={{ top: 20, right: 10, left: -20, bottom: 10 }}
-                    className="text-xs"
+                  <BarChart
+                    data={trainingData}
+                    margin={{ top: 20, right: 10, left: -40, bottom: 10 }}
                   >
                     <CartesianGrid
-                      strokeDasharray="3 3"
+                      strokeDasharray="5 5"
                       stroke="#999"
-                      vertical={true}
+                      horizontal={true}
+                      vertical={false}
                     />
-                    <XAxis dataKey="month" axisLine={true} tickLine={true} />
+                    <XAxis
+                      dataKey="category"
+                      axisLine={true}
+                      tickLine={true}
+                      padding={{ left: 2, right: 2 }}
+                      className="text-xs"
+                    />
                     <YAxis
-                      domain={[0, 2000]}
-                      ticks={[0, 500, 1000, 1500, 2000]}
+                      domain={[0, 8]}
+                      ticks={[0, 2, 4, 6, 8]}
                       axisLine={true}
                       tickLine={true}
                     />
-                    <RechartsTooltip
-                      content={
-                        <CustomTooltipContent active={false} payload={[]} />
-                      }
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="accuracy"
-                      stroke="#22c55e"
-                      strokeWidth={2}
-                      dot={{
-                        stroke: "#22c55e",
-                        strokeWidth: 2,
-                        fill: "#22c55e",
-                        r: 4,
-                      }}
-                      activeDot={{ r: 6, fill: "#22c55e" }}
-                    />
-                  </LineChart>
+                    <RechartsTooltip />
+                    <Bar dataKey="hours" radius={[4, 4, 0, 0]}>
+                      {trainingData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
