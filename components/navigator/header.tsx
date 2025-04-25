@@ -83,24 +83,33 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
           {/* Grouped navigation tabs */}
           <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
-            <button
-              className={`flex items-center text-[18px] font-medium ${
-                pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
-              } hover:bg-gray-50`}
-            >
-              <InfoIcon
-                className="h-[20px] w-[20px] mr-2"
-                color={pathname == "/about-us" ? "#221AE9" : "black"}
-              />
-              About
-            </button>
-            <Link href="/faq" legacyBehavior passHref>
-            <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
-              <HelpCircle className="h-[20px] w-[20px] mr-2" />
-              FAQ
-            </button>
+            <Link href={"/about-us"}>
+              <button
+                className={`flex items-center text-[18px] font-medium ${
+                  pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
+                } hover:bg-gray-50`}
+              >
+                <InfoIcon
+                  className="h-[20px] w-[20px] mr-2"
+                  color={pathname == "/about-us" ? "#221AE9" : "black"}
+                />
+                About
+              </button>
             </Link>
-            <button className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50">
+            <Link href="/faq" legacyBehavior passHref>
+              <button
+                className={`flex items-center text-[18px] font-medium ${
+                  pathname == "/faq" ? "text-[#221AE9]" : "text-black"
+                } hover:bg-gray-50`}
+              >
+                <HelpCircle className="h-[20px] w-[20px] mr-2" />
+                FAQ
+              </button>
+            </Link>
+            <button
+              onClick={() => handleOpenOffer("subscription")}
+              className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50"
+            >
               <DollarSign className="h-[20px] w-[20px] mr-2" />
               Pricing
             </button>

@@ -25,6 +25,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
+import { useProfileStore } from "@/app/store/profile";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -33,6 +34,11 @@ interface AnalyzeDifferentGameProps {
 }
 
 export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
+<<<<<<< HEAD
+=======
+  const router = useRouter();
+  const { isMember } = useProfileStore();
+>>>>>>> main
   const { proceedAnalysis } = useStockfishAnalysis();
   const {
     setPgn,
@@ -48,6 +54,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
+      mustMember: false,
     },
     {
       image: "/icons/board-medium-analysis.png",
@@ -55,6 +62,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
+      mustMember: true,
     },
     {
       image: "/icons/board-large-analysis.png",
@@ -62,6 +70,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
+      mustMember: true,
     },
   ];
 
@@ -275,7 +284,11 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
+<<<<<<< HEAD
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]">
+=======
+      <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
+>>>>>>> main
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
@@ -284,7 +297,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
             for a detailed Game Analysis.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="overflow-auto md:max-w-lg max-h-[480px] md:max-h-screen ">
+        <ScrollArea className="overflow-auto md:max-w-[640px] max-h-[480px] md:max-h-screen ">
           <Tabs defaultValue="auto" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
               <TabsTrigger value="auto">
@@ -370,13 +383,20 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
                 {depths.map((depth, index) => {
                   return (
-                    <div
+                    <button
                       onClick={() => setDepthChoosed(depth.value)}
                       key={index}
-                      className={`flex flex-col justify-between relative px-3 py-3 md:h-[230px] gap-2 items-center shadow-md border ${
+                      disabled={depth.mustMember && !isMember}
+                      className={`relative flex flex-col justify-around relative px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
+                        depth.mustMember && !isMember
+                          ? `bg-[#C0CED4]`
+                          : `bg-white`
+                      } border ${
                         depthChoosed == depth.value
                           ? `border-[#221AE9]`
-                          : `border-input`
+                          : isMember
+                          ? `border-[#DEDEDE]`
+                          : `border-[#99A5A9]`
                       } rounded-md`}
                     >
                       <Image
@@ -384,21 +404,41 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                         alt={depth.title}
                         width={1000}
                         height={1000}
-                        className="w-[80px] h-[80px] object-cover relative"
+                        className="w-[80px] h-[80px] object-contain relative"
                         priority
                       />
+                      {depth.mustMember && !isMember && (
+                        <Image
+                          src={`/icons/premium-info.png`}
+                          alt={"premium-info"}
+                          width={1000}
+                          height={1000}
+                          className="w-[72px] h-[23px] object-cover absolute left-2"
+                          priority
+                        />
+                      )}
                       <div
                         className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
-                          depthChoosed == depth.value
+                          depth.mustMember && !isMember
+                            ? `bg-[#99A5A9] border-1 border-[#737C7F]`
+                            : depthChoosed == depth.value
                             ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
                             : `border-input border-2`
                         } `}
                       />
                       <span className="font-normal text-sm">{depth.title}</span>
-                      <span className="font-light text-[#585858] text-center text-[11px] px-2">
+                      <span className="font-light text-[#364152] text-center text-[11px]">
                         {depth.description}
                       </span>
-                    </div>
+                      <div className="flex flex-col gap-1 items-center">
+                        <span className="font-medium text-[11px]">
+                          Analysis can take up to:
+                        </span>
+                        <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]">
+                          {"XX"} Minutes
+                        </span>
+                      </div>
+                    </button>
                   );
                 })}
               </div>

@@ -123,7 +123,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: 0,
+              bottom: -1.5,
               objectFit: "contain",
               width: "100%",
               height: "auto",
