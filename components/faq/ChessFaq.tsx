@@ -95,11 +95,11 @@ export default function ChessFAQ() {
       </div>
 
       {/* Tabs > Mobile width*/}
-      <div className="hidden md:flex w-full flex-row items-center justify-center gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
+      <div className="hidden md:flex w-[95%] self-center flex-row items-center justify-center xl:justify-around gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className="relative flex flex flex-row items-center justify-end bg-[#FFF] sm:min-w-[140px] lg:min-w-[200px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            className="relative flex flex flex-row items-center justify-end bg-[#FFF] sm:min-w-[140px] lg:min-w-[200px] xl:min-w-[240px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
               src={tab.img}
