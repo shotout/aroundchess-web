@@ -96,10 +96,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem className="hidden sm:flex ">
                   <Link href="/analysis" legacyBehavior passHref>
-                    <NavigationMenuLink
-                      
-                      className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2"
-                    >
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
                       <Button color="primary" variant="outlineprimary">
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analyze Now
@@ -110,7 +107,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                 <div className="hidden xl:flex border border-input rounded-md py-0.5 px-1">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                     <NavigationMenuItem>
-                      <Link href="/about" legacyBehavior passHref>
+                      <Link href="/about-us" legacyBehavior passHref>
                         <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
                           <Info className="mr-2 h-4 w-4" />
                           About
@@ -316,7 +313,7 @@ function MobileNav(props: mobileProps) {
         Analyze Now
       </div>
       <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6">
-        <Link href="/about" legacyBehavior passHref>
+        <Link href="/about-us" legacyBehavior passHref>
           <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <Info className="mr-2 h-4 w-4" />
             About
