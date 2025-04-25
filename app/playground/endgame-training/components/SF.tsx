@@ -17,7 +17,7 @@ interface StockfishEngineProps {
   setBestMove: React.Dispatch<React.SetStateAction<string | null>>;
   showHint: boolean;
   playerColor: "w" | "b";
-  depth?: number; // Added depth parameter
+  depth?: number;
 }
 
 export default function StockfishEngine({
@@ -31,14 +31,13 @@ export default function StockfishEngine({
   setBestMove,
   showHint,
   playerColor,
-  depth = 10, // Default to depth 10
+  depth = 10,
 }: StockfishEngineProps) {
   const engine = useMemo(() => new Engine(), []);
-  const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
-  const [possibleMate, setPossibleMate] = useState<string>("");
+  const [_, setPositionEvaluation] = useState<number>(0);
+  const [, setPossibleMate] = useState<string>("");
 
   const findBestMove = useCallback(() => {
-    // Computer should move when it's not player's turn
     if (
       game.turn() === playerColor ||
       game.isGameOver() ||
@@ -47,7 +46,6 @@ export default function StockfishEngine({
       return;
     }
 
-    // Use a depth of 5 for computer moves (can be adjusted)
     engine.evaluatePosition(game.fen(), 5);
 
     engine.onMessage(({ bestMove }) => {

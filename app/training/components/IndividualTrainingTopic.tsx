@@ -1,4 +1,3 @@
-// components/IndividualTrainingTopic.tsx
 import React from "react";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +9,7 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const bgColor = isSelected ? "bg-blue-100" : "bg-white";
+  const bgColor = isSelected ? "bg-indigo-100" : "bg-white";
   const borderColor = isSelected ? "border-blue-500" : "border-gray-200";
 
   let badgeColor = "";
@@ -18,19 +17,19 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   switch (topic.level) {
     case "Beginner":
-      badgeColor = "bg-blue-100 text-blue-800";
-      badgeIcon = "B";
+      badgeColor = "bg-blue-600 text-white";
+      badgeIcon = "b";
       break;
     case "Intermediate":
-      badgeColor = "bg-purple-100 text-purple-800";
+      badgeColor = "bg-purple-600 text-white";
       badgeIcon = "I";
       break;
     case "Advanced":
-      badgeColor = "bg-pink-100 text-pink-800";
+      badgeColor = "bg-pink-600 text-white";
       badgeIcon = "A";
       break;
     case "Expert":
-      badgeColor = "bg-orange-100 text-orange-800";
+      badgeColor = "bg-orange-600 text-white";
       badgeIcon = "E";
       break;
   }
@@ -41,58 +40,29 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   return (
     <div
-      className={`relative border ${borderColor} ${bgColor} rounded-lg p-3 mb-3 cursor-pointer transition-all hover:border-blue-400`}
+      className={`relative border ${borderColor} ${bgColor} rounded-xl p-6 mb-3 cursor-pointer transition-all hover:border-blue-400 overflow-hidden`}
       onClick={handleClick}
       data-testid={`topic-${topic.id}`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Badge
-            className={`${badgeColor} flex items-center gap-1 font-semibold`}
-          >
-            {badgeIcon} {topic.level}
-          </Badge>
-          <div className="font-medium text-blue-900">{topic.title}</div>
+      <div className="relative z-10">
+        <div className="">
+          <div className="inline-flex items-center">
+            <Badge
+              className={`${badgeColor} flex text-xs items-center gap-2 font-bold rounded-full`}
+            >
+              {badgeIcon} {topic.level}
+            </Badge>
+          </div>
+
+          {/* Main title */}
+          <h2 className=" font-bold text-blue-900">{topic.title}</h2>
         </div>
-        <Checkbox
-          checked={isSelected}
-          className={
-            isSelected
-              ? "data-[state=checked]:bg-blue-500 data-[state=checked]:text-white"
-              : ""
-          }
-          onClick={(e) => {
-            // Prevent event bubbling to parent div
-            e.stopPropagation();
-            handleClick();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleClick();
-            }
-          }}
-        />
-      </div>
-      {isSelected && (
-        <div className="absolute -right-1 -top-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-          <Check className="h-4 w-4 text-white" />
-        </div>
-      )}
-      {/* Visual pattern background (only visible on hover) */}
-      <div className="absolute inset-0 bg-blue-50 bg-opacity-70 pointer-events-none opacity-0 hover:opacity-20 transition-opacity">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-blue-200 bg-opacity-40"
-            style={{
-              width: `${20 + Math.random() * 30}px`,
-              height: `${20 + Math.random() * 30}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-          ></div>
-        ))}
+
+        {isSelected && (
+          <div className="absolute top-4 right-4 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <Check className="h-5 w-5 text-white" />
+          </div>
+        )}
       </div>
     </div>
   );

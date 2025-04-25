@@ -12,6 +12,7 @@ import DialogUserInfo from "./DialogUserInfo";
 import DialogLevelProgress from "./DialogLevelProgress";
 import TopicSelectionSection from "./TopicSelectionSection";
 import { ChessTrainingPlanDialogProps } from "./types";
+import Image from "next/image";
 
 const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   open,
@@ -42,25 +43,23 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-        <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between border-b">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <div></div>
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <div className="text-blue-600 w-6 h-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
-                <path d="M12 12.59l-2.3-2.3a1 1 0 0 0-1.4 1.42L12 15.41l3.7-3.7a1 1 0 1 0-1.4-1.42L12 12.59z" />
-              </svg>
-            </div>
+            <Image
+              src={"/training-plan/checklist.png"}
+              alt=""
+              width={30}
+              height={30}
+            />
             Create Training Plan
           </DialogTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onOpenChange(false)}
+            className="border"
           >
             <X className="h-4 w-4" />
           </Button>
