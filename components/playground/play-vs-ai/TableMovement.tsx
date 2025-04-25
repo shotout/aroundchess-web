@@ -7,7 +7,12 @@ interface TableMovementProps {
   PieceChoosed: string;
 }
 
-export const TableMovement = ({ myColor, capturedWhite, capturedBlack, PieceChoosed }: TableMovementProps) => {
+export const TableMovement = ({
+  myColor,
+  capturedWhite,
+  capturedBlack,
+  PieceChoosed,
+}: TableMovementProps) => {
   return (
     <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] border-collapse border-[#BDD0F9]">
       <thead>
@@ -24,9 +29,24 @@ export const TableMovement = ({ myColor, capturedWhite, capturedBlack, PieceChoo
         </tr>
       </thead>
       <tbody>
+        {capturedWhite && capturedWhite.length == 0 && (
+          <tr className="text-center">
+            <td
+              className={`p-2 border font-normal text-xs border-[#BDD0F9] rounded-bl-[8px]`}
+            ></td>
+            <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
+              <span className="font-normal text-[12px]">No moves yet.</span>
+            </td>
+            <td
+              className={`text-center align-middle p-2 border border-[#BDD0F9] rounded-br-[8px]`}
+            >
+              <span className="font-normal text-[12px]">No moves yet.</span>
+            </td>
+          </tr>
+        )}
         {capturedWhite &&
           capturedWhite.length > 0 &&
-          capturedWhite.map((captured:any, index:any) => {
+          capturedWhite.map((captured: any, index: any) => {
             let move = captured.san;
             let icon = captured.capturedTheme;
             return (
