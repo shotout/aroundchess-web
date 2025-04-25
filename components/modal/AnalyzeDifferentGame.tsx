@@ -212,7 +212,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
       setSelectedGame(response.data.data[0].value);
-      setPgn(response.data.data[0].value);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -256,7 +255,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const pgnText = e.target.result;
-        setPgn(pgnText);
         setPgnText(pgnText);
         console.log("PGN loaded:", pgnText);
       };
@@ -298,9 +296,11 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       console.log("Selected game:", selectedGame);
       setDataGamesImport(availableGames[0]?.data_games);
       processAnalyze(selectedGame);
+      setPgn(selectedGame);
     } else if (pgnText) {
       console.log("PGN text provided", pgnText);
       processAnalyze(pgnText);
+      setPgn(pgnText);
       setDataGamesImport(null);
     }
     // else if (fileName) {
@@ -346,7 +346,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
-    setPgn(value);
   };
 
   return (

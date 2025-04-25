@@ -30,6 +30,15 @@ import { ButtonPlaying } from "./ButtonPlaying";
 import { CommentarGame } from "./CommentaryGame";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
+type MoveClassification =
+  | "best"
+  | "brilliant"
+  | "excellent"
+  | "good"
+  | "neutral"
+  | "inaccuracy"
+  | "mistake"
+  | "blunder";
 
 export default function PlayingPage() {
   const router = useRouter();
@@ -69,6 +78,7 @@ export default function PlayingPage() {
   const [stockfishLevel, setStockfishLevel] = useState<number>(2);
   const [bestLine, setBestline] = useState<string | null>("");
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
+  const [moveClassification, setMoveClassification] = useState<string>("");
   const [depth, setDepth] = useState<number>(20);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
@@ -180,7 +190,6 @@ export default function PlayingPage() {
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
 
-    console.log("onSquareClick", square);
     // from square
     if (!moveFrom) {
       const hasMoveOptions = getMoveOptions(square);
@@ -213,6 +222,8 @@ export default function PlayingPage() {
       // valid move
       setMoveTo(square);
       setCurrentSquare(square);
+      getClassificationMove();
+
       // if promotion move
       if (
         (foundMove.color === "w" &&
@@ -232,7 +243,6 @@ export default function PlayingPage() {
         to: square,
         promotion: "q",
       });
-
       // if invalid, setMoveFrom and getMoveOptions
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
@@ -249,6 +259,42 @@ export default function PlayingPage() {
       setOptionSquares({});
       return;
     }
+  };
+  const classifyMove = (
+    evaluation: string | undefined,
+    bestMove: string,
+    actualMove: string | undefined
+  ): MoveClassification => {
+    let evaluationValue = parseInt(evaluation ?? "0");
+    // Compare actual move to best move
+    if (actualMove === bestMove) {
+      return "best";
+    }
+
+    // For simplicity, we're using centipawn thresholds to classify moves
+    if (evaluationValue >= 100) return "brilliant";
+    if (evaluationValue >= 50) return "excellent";
+    if (evaluationValue >= 10) return "good";
+    if (evaluationValue >= -10) return "neutral";
+    if (evaluationValue >= -50) return "inaccuracy";
+    if (evaluationValue >= -150) return "mistake";
+    return "blunder";
+  };
+  const getClassificationMove = () => {
+    engine.evaluatePosition(game.fen(), 10);
+    engine.onMessage((msg) => {
+      console.log("onSquareClick", msg);
+      let { bestMove, depth, positionEvaluation, pv } = msg;
+      if (depth == 10) {
+        let moveUserClassification = classifyMove(
+          positionEvaluation,
+          bestMove,
+          pv
+        );
+        setMoveClassification(moveUserClassification);
+        console.log("moveUserClassification", depth, moveUserClassification);
+      }
+    });
   };
   const onPromotionPieceSelect = (
     piece?: string,
@@ -724,7 +770,10 @@ export default function PlayingPage() {
               PieceChoosed={PieceChoosed}
             />
           )}
-          <div className="flex items-center justify-end mb-2">
+          <div className="flex items-center justify-between mb-2">
+            <span>
+            {/* {moveClassification} */}
+            </span>
             <ButtonBoard
               handleSwitch={handleSwitch}
               handleThreeD={handleThreeD}
