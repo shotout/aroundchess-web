@@ -5,6 +5,8 @@ import { motion } from "@/utils/motion";
 import { CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 const improveData = [
   {
@@ -27,6 +29,8 @@ const improveData = [
   },
 ];
 export function ImproveSection() {
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [width, setWidth] = useState(0);
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
@@ -35,7 +39,13 @@ export function ImproveSection() {
     return () => window.removeEventListener("resize", handleResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const handleAnalyze = () => {
+    if (isSignedIn) {
+      router.push("/analysis");
+    } else {
+      router.push("/register");
+    }
+  };
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">
       <div className="container px-4 sm:px-6 lg:px-8">
@@ -121,15 +131,15 @@ export function ImproveSection() {
                 </div>
 
                 <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6">
-                  <Button className="w-fill px-10 sm:px-12 py-6 sm:py-4 font-normal text-xs sm:text-md bg-white text-primary">
+                  <Button
+                    onClick={handleAnalyze}
+                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-normal text-xs sm:text-md bg-white text-primary"
+                  >
                     Analyze your most recent Game now
                   </Button>
-                  <Button
-                    variant="link"
-                    className="w-fill px-16 font-normal text-xs sm:text-md text-white"
-                  >
+                  <span className="w-fill px-16 font-normal text-xs sm:text-md text-white my-3">
                     No Sign-Up required
-                  </Button>
+                  </span>
                 </div>
               </div>
             </div>

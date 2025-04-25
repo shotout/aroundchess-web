@@ -25,7 +25,7 @@ export function BasedOnAI() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-3xl transform -rotate-3"></div>
             <Image
-              src="/images/play-anywhere.jpg"
+              src="/images/homepage/image-banner.png"
               alt="Person using AroundChess mobile app to analyze a chess game while enjoying coffee"
               width={600}
               height={600}
