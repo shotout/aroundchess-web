@@ -60,7 +60,7 @@ export class Engine {
     }
 
     if (!this.messageCallback) return;
-
+    // console.log("handleMessage",data)
     // Parse info messages for moves
     if (data.startsWith('info')) {
       // Look for score and pv
@@ -70,7 +70,7 @@ export class Engine {
       
       if (pvMatch) {
         const move = pvMatch[1];
-        console.log('Found move:', move);
+        console.log('Found move, depth move:',depthMatch, move);
         this.messageCallback({
           pv: move,
           depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
@@ -122,7 +122,7 @@ export class Engine {
     this.stop();
     
     // Set position and start analysis
-    console.log('Evaluating position:', fen);
+    // console.log('Evaluating position:', fen);
     this.worker.postMessage('position fen ' + fen);
     this.worker.postMessage(`go depth ${stockfishLevel}`);
     this.worker.postMessage('go movetime 2000'); // Just use movetime for faster response
