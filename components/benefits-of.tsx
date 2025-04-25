@@ -4,6 +4,8 @@ import Image from "next/image";
 import { motion } from "@/utils/motion";
 import { CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 const benefits = [
   {
@@ -42,8 +44,16 @@ const benefits = [
       "Set and monitor your chess improvement goals with detailed progress reports.",
   },
 ];
-
 export function BenefitsOf() {
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const handleAnalyze = () => {
+    if (isSignedIn) {
+      router.push("/analysis");
+    } else {
+      router.push("/register");
+    }
+  };
   return (
     <section className="py-2 sm:py-2 lg:py-2 xl:py-4 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,7 +83,10 @@ export function BenefitsOf() {
           <div className="flex w-full overflow-x-auto sm:flex-row sm:overflow-hidden sm:flex-wrap sm:justify-around md:gap-4 lg:gap-10">
             {benefits.map((item, index) => {
               return (
-                <div key={index} className="min-w-[224px] h-[150px] mr-4 sm:mr-0 xl:max-w-[372px] md:max-w-[216px] sm:h-auto md:items-center flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8 md:p-4">
+                <div
+                  key={index}
+                  className="min-w-[224px] h-[150px] mr-4 sm:mr-0 xl:max-w-[372px] md:max-w-[216px] sm:h-auto md:items-start flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8 md:p-4"
+                >
                   <Image
                     className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
                     src={item.image}
@@ -85,7 +98,7 @@ export function BenefitsOf() {
                   <span className="text-black text-sm md:text-md md:text-center lg:text-xl font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-[#585858] text-xs md:mt-1 lg:mt-2 md:text-sm md:text-center lg:text-lg font-light">
+                  <span className="text-[#585858] text-xs md:mt-1 lg:mt-2 md:text-sm lg:text-lg font-light">
                     {item.description}
                   </span>
                 </div>
@@ -94,12 +107,17 @@ export function BenefitsOf() {
           </div>
         </motion.div>
         <div className="flex flex-col items-center justify-center pt-6">
-          <Button className="w-fill px-12 py-6 font-normal text-sm sm:text-md">
+          <Button
+            onClick={handleAnalyze}
+            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-md"
+          >
             Analyze your most recent Game now
           </Button>
-          <Button variant="link" className="w-fill px-16 font-normal text-black text-sm sm:text-md">
+          <span
+            className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3"
+          >
             No Sign-Up required
-          </Button>
+          </span>
         </div>
       </div>
     </section>
