@@ -21,6 +21,7 @@ import DotSpinner from "../game-history/Spinner";
 import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import { formatDate, formatTimePgn } from "@/functions/format-date";
 import { useProfileStore } from "@/app/store/profile";
+import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
 
 interface TokenOption {
   amount: number;
@@ -40,6 +41,12 @@ export const PricingOffer: React.FC = () => {
   const { tokenPackage } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
+  const {
+    setOpen: setOpenStatusPurchase,
+    status,
+    setStatus,
+    setQuantity,
+  } = useStatusPurchaseTokens();
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
 
@@ -86,11 +93,25 @@ export const PricingOffer: React.FC = () => {
       quantity: parseInt(tokenAmount.toString()),
       paymentMethodId: "stripe",
     };
-    postPurchaseToken(body).then((result) => {
-      console.log("postPurchaseToken", result);
-      setCallFetch(formatTimePgn());
-      setOpen(false);
-    });
+    setQuantity(body.quantity);
+    setStatus("waiting");
+    setOpenStatusPurchase(true);
+    setOpen(false);
+    postPurchaseToken(body)
+      .then((result) => {
+        console.log("postPurchaseToken", result);
+        setCallFetch(formatTimePgn());
+        setStatus("success");
+        setOpen(false);
+      })
+      .catch((error) => {
+        setStatus("failed");
+      })
+      .finally(() => {
+        // setTimeout(() => {
+        //   setOpenStatusPurchase(false);
+        // }, 5000);
+      });
   };
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
