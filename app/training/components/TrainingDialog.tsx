@@ -1,4 +1,3 @@
-// components/ChessTrainingPlanDialog.tsx
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,10 +23,8 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   keyInfo,
   onPlanCreated,
 }) => {
-  // State to track selected topics
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  // Toggle individual topic selection
   const toggleTopic = (topicId: string) => {
     setSelectedTopics((prev) =>
       prev.includes(topicId)
@@ -36,7 +33,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     );
   };
 
-  // Get topics for a specific category
   const getTopicsByCategory = (categoryId: string) => {
     return trainingTopics.filter((topic) => topic.category === categoryId);
   };
@@ -66,18 +62,15 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         </DialogHeader>
 
         <div className="p-6">
-          {/* Rise to the next Level section */}
           <h2 className="text-lg font-semibold mb-4">Rise to the next Level</h2>
 
           <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
             <div className="flex items-start gap-4">
-              {/* Left section with user info */}
               <DialogUserInfo
                 username={userProfile.username}
                 keyInfo={keyInfo}
               />
 
-              {/* Right section with progression */}
               <DialogLevelProgress
                 skillLevels={skillLevels}
                 currentElo={userProfile.currentElo}
@@ -106,17 +99,12 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             ))}
           </div>
 
-          {/* Create Training Plan button */}
           <div className="mt-6 flex justify-center">
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 h-auto w-96 text-lg"
+              className="btn-primary rounded-full px-8 py-2 h-auto w-96 text-lg"
               onClick={() => {
-                console.log(
-                  "Creating training plan with selected topics:",
-                  selectedTopics
-                );
                 onOpenChange(false);
-                onPlanCreated(); // Notify parent that plan has been created
+                onPlanCreated();
               }}
             >
               Create Training Plan

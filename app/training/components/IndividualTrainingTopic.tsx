@@ -1,36 +1,60 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { IndividualTrainingTopicProps } from "./types";
+import Image from "next/image";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   topic,
   isSelected,
   onSelect,
 }) => {
-  const bgColor = isSelected ? "bg-indigo-100" : "bg-white";
-  const borderColor = isSelected ? "border-blue-500" : "border-gray-200";
+  const bgColor = isSelected ? "bg-blue-base/5" : "bg-white";
+  const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
 
-  let badgeColor = "";
-  let badgeIcon = null;
+  let bgImage = "";
+  switch (topic.level) {
+    case "Beginner":
+      bgImage = "bg-[url('/training-plan/bns.png')]";
+      break;
+    case "Intermediate":
+      bgImage = "bg-[url('/training-plan/bis.png')]";
+      break;
+    case "Advanced":
+      bgImage = "bg-[url('/training-plan/bans.png')]";
+      break;
+    case "Expert":
+      bgImage = "bg-[url('/training-plan/bans.png')]";
+      break;
+    default:
+      bgImage = "bg-[url('/training-plan/default-bg.png')]";
+  }
+
+  let badgeIcon: string | StaticImport = "";
+  let width: number = 10;
+  let height: number = 10;
 
   switch (topic.level) {
     case "Beginner":
-      badgeColor = "bg-blue-600 text-white";
-      badgeIcon = "b";
+      badgeIcon = "/training-plan/beginner.png";
+      width = 8;
+      height = 8;
       break;
     case "Intermediate":
-      badgeColor = "bg-purple-600 text-white";
-      badgeIcon = "I";
+      badgeIcon = "/training-plan/intermediate.png";
+      width = 15;
+      height = 15;
       break;
     case "Advanced":
-      badgeColor = "bg-pink-600 text-white";
-      badgeIcon = "A";
+      badgeIcon = "/training-plan/advanced.png";
+      width = 15;
+      height = 15;
       break;
     case "Expert":
-      badgeColor = "bg-orange-600 text-white";
-      badgeIcon = "E";
+      badgeIcon = "/training-plan/advanced.png";
+      width = 15;
+      height = 15;
       break;
   }
 
@@ -40,29 +64,44 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   return (
     <div
-      className={`relative border ${borderColor} ${bgColor} rounded-xl p-6 mb-3 cursor-pointer transition-all hover:border-blue-400 overflow-hidden`}
+      className={`relative border ${borderColor} ${bgColor} ${bgImage} bg-no-repeat bg-cover rounded-xl p-4 mb-3 cursor-pointer transition-all overflow-hidden`}
       onClick={handleClick}
       data-testid={`topic-${topic.id}`}
     >
       <div className="relative z-10">
-        <div className="">
-          <div className="inline-flex items-center">
-            <Badge
-              className={`${badgeColor} flex text-xs items-center gap-2 font-bold rounded-full`}
-            >
-              {badgeIcon} {topic.level}
-            </Badge>
-          </div>
+        <div className="flex items-center justify-between">
+          <Badge
+            className={`flex text-xs items-center gap-1 py-1 px-2 font-bold rounded-sm bg-white border-blue-base text-blue-base`}
+          >
+            <span className="flex items-center justify-center">
+              <Image
+                src={badgeIcon}
+                width={width}
+                height={height}
+                alt=""
+                className="inline-block"
+              />
+            </span>
 
-          {/* Main title */}
-          <h2 className=" font-bold text-blue-900">{topic.title}</h2>
+            <span className="inline-block">{topic.level}</span>
+          </Badge>
+
+          <div
+            className={`w-5 h-5 p-1 border rounded-sm border-[#d0cffa] flex items-center ${
+              isSelected ? "bg-blue-base" : ""
+            } justify-center`}
+          >
+            {isSelected && <Check className="h-6 w-6 text-white" />}
+          </div>
         </div>
 
-        {isSelected && (
-          <div className="absolute top-4 right-4 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <Check className="h-5 w-5 text-white" />
-          </div>
-        )}
+        <h2
+          className={`font-bold ${
+            isSelected ? "text-blue-base" : "text-black"
+          } `}
+        >
+          {topic.title}
+        </h2>
       </div>
     </div>
   );
