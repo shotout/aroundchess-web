@@ -13,16 +13,26 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   const bgColor = isSelected ? "bg-blue-base/5" : "bg-white";
   const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
 
+  // Determine if this is an opening topic
+  const isOpeningTopic =
+    topic.category === "whiteOpening" || topic.category === "blackOpening";
+
   let bgImage = "";
   switch (topic.level) {
     case "Beginner":
-      bgImage = "bg-[url('/training-plan/bns.png')]";
+      bgImage = isSelected
+        ? "bg-[url('/training-plan/bs.png')]"
+        : "bg-[url('/training-plan/bns.png')]";
       break;
     case "Intermediate":
-      bgImage = "bg-[url('/training-plan/bis.png')]";
+      bgImage = isSelected
+        ? "bg-[url('/training-plan/bins.png')]"
+        : "bg-[url('/training-plan/bis.png')]";
       break;
     case "Advanced":
-      bgImage = "bg-[url('/training-plan/bans.png')]";
+      bgImage = isSelected
+        ? "bg-[url('/training-plan/bans.png')]"
+        : "bg-[url('/training-plan/bans.png')]";
       break;
     case "Expert":
       bgImage = "bg-[url('/training-plan/bans.png')]";
@@ -64,7 +74,9 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   return (
     <div
-      className={`relative border ${borderColor} ${bgColor} ${bgImage} bg-no-repeat bg-cover rounded-xl p-4 mb-3 cursor-pointer transition-all overflow-hidden`}
+      className={`relative border bg-no-repeat bg-cover ${borderColor} ${bgColor} ${bgImage} rounded-xl p-4 mb-3 cursor-pointer transition-all overflow-hidden ${
+        isOpeningTopic ? "h-24" : "h-auto"
+      }`}
       onClick={handleClick}
       data-testid={`topic-${topic.id}`}
     >

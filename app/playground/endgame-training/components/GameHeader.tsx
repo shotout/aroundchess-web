@@ -77,7 +77,7 @@ export default function GameHeader({
         <>
           <div className="flex items-center space-x-4">
             <button onClick={goBackToSelection} className="p-2">
-              <ArrowLeft className="h-6 w-h-6 text-gray-600" />
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
             </button>
             <div className="flex items-center space-x-2">
               <Image

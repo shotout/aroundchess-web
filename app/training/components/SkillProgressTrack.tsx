@@ -10,13 +10,13 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   skillLevels,
   currentElo,
 }) => {
-  // Calculate the progress percentage based on current ELO
-  const calculateProgress = (): number => {
-    const totalELO = skillLevels[skillLevels.length - 1].elo;
-    return (currentElo / totalELO) * 100;
+  // Calculate the exact position based on ELO value
+  const calculateEloPosition = (): number => {
+    const maxELO = skillLevels[skillLevels.length - 1].elo;
+    return (currentElo / maxELO) * 100;
   };
 
-  // Determine which level the user is currently in
+  // Find the current level index based on ELO
   const getCurrentLevelIndex = (): number => {
     for (let i = 0; i < skillLevels.length; i++) {
       if (currentElo < skillLevels[i].elo) {
@@ -26,10 +26,30 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
     return skillLevels.length - 1; // If all levels are passed
   };
 
+  // Find the next goal level index (nearest higher ELO level)
+  const getNextGoalLevelIndex = (): number => {
+    for (let i = 0; i < skillLevels.length; i++) {
+      if (currentElo < skillLevels[i].elo) {
+        return i;
+      }
+    }
+    return skillLevels.length - 1; // If all levels are passed
+  };
+
+  // Get ELO position percentage for markers
+  const currentEloPosition = calculateEloPosition();
+  const nextGoalIndex = getNextGoalLevelIndex();
+  const currentLevelIndex = getCurrentLevelIndex();
+
   return (
     <div className="relative">
-      {/* Next goal badge */}
-      <div className="absolute -top-12 left-1/2 -translate-x-1/2 transform">
+      {/* Next goal badge - positioned at the next level */}
+      <div
+        className="absolute -top-12 transform -translate-x-1/2"
+        style={{
+          left: `${nextGoalIndex * (100 / (skillLevels.length - 1))}%`,
+        }}
+      >
         <Badge className="bg-amber-400 text-amber-950 px-4 py-2 text-sm font-semibold">
           Your Next Goal
         </Badge>
@@ -64,8 +84,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 imagePath = "/training-plan/default.png";
             }
 
-            const currentLevelIndex = getCurrentLevelIndex();
-            const isReached = index <= currentLevelIndex;
+            // Determine if this level has been reached based on ELO value
+            const isReached = currentElo >= level.elo;
 
             return (
               <div key={level.id} className="flex flex-col items-center">
@@ -79,8 +99,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                     className="object-contain"
                   />
 
-                  {/* Checkmark positioned at the top */}
-                  {level.completed && (
+                  {/* Checkmark positioned at the top for completed levels */}
+                  {isReached && index < currentLevelIndex && (
                     <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
                       <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center -translate-y-8">
                         <Check className="h-4 w-4 text-white" />
@@ -103,17 +123,16 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
         <div className="relative mt-2">
           {/* Custom progress bar - slightly taller to accommodate circles */}
           <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden relative">
-            {/* Filled portion of progress bar */}
+            {/* Filled portion of progress bar based on exact ELO position */}
             <div
               className="h-full bg-blue-500 rounded-full"
-              style={{ width: `${calculateProgress()}%` }}
+              style={{ width: `${currentEloPosition}%` }}
             ></div>
 
             {/* Progress indicator circles precisely aligned with columns above */}
             <div className="absolute top-0 left-0 w-full grid grid-cols-6 gap-2 h-full">
               {skillLevels.map((level, index) => {
-                const currentLevelIndex = getCurrentLevelIndex();
-                const isReached = index <= currentLevelIndex;
+                const isReached = currentElo >= level.elo;
 
                 return (
                   <div
@@ -131,8 +150,11 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             </div>
           </div>
 
-          {/* Current ELO indicator */}
-          <div className="absolute -bottom-8 left-1/3 transform -translate-x-1/2">
+          {/* Current ELO indicator - positioned at exact current ELO location */}
+          <div
+            className="absolute -bottom-8 transform -translate-x-1/2"
+            style={{ left: `${currentEloPosition}%` }}
+          >
             <Badge className="bg-green-500 text-white px-3 py-1">
               Your current ELO
             </Badge>

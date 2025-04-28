@@ -34,6 +34,19 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   };
 
   const getTopicsByCategory = (categoryId: string) => {
+    const category = topicCategoryInfo.find((cat) => cat.id === categoryId);
+
+    if (
+      category &&
+      category.subcategories &&
+      category.subcategories.length > 0
+    ) {
+      const subcategoryIds = category.subcategories.map((sub) => sub.id);
+      return trainingTopics.filter((topic) =>
+        subcategoryIds.includes(topic.category)
+      );
+    }
+
     return trainingTopics.filter((topic) => topic.category === categoryId);
   };
 
@@ -64,7 +77,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4">Rise to the next Level</h2>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+          <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-4 mb-6">
             <div className="flex items-start gap-4">
               <DialogUserInfo
                 username={userProfile.username}
@@ -78,7 +91,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             </div>
           </div>
 
-          {/* Topic selection section */}
           <h2 className="text-lg font-semibold mb-4">
             Select your primary topics to improve your Skills
           </h2>

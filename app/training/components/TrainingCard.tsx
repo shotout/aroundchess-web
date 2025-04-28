@@ -11,7 +11,6 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
 
   return (
     <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border rounded-md overflow-hidden">
-      {/* Background Image */}
       <Image
         src="/training-plan/background.jpg"
         alt="Chess background"
