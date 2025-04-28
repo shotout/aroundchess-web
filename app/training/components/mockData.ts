@@ -45,7 +45,7 @@ export interface WeekDay {
 export const userProfileData: UserProfile = {
   username: "Blitzmystic",
   level: "Beginner",
-  currentElo: 800,
+  currentElo: 900,
   targetElo: 1200,
   avatar: null, 
 };

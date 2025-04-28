@@ -27,32 +27,36 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
 
       <p className="text-sm mb-3">{description}</p>
 
-      {subcategories.length > 0
-        ? // For categories with subcategories (like Opening Topics with White and Black)
-          subcategories.map((subcategory) => (
-            <div key={subcategory.id} className="mb-3">
+      {subcategories.length > 0 ? (
+        <div className="grid grid-cols-2 gap-4">
+          {subcategories.map((subcategory) => (
+            <div key={subcategory.id} className="mb-3 w-full">
               <h4 className="font-medium mb-2">{subcategory.title}</h4>
-              {getTopicsBySubcategory(subcategory.id).map((topic) => (
-                <IndividualTrainingTopic
-                  key={topic.id}
-                  topic={topic}
-                  isSelected={selectedTopics.includes(topic.id)}
-                  onSelect={onToggleTopic}
-                />
-              ))}
+              <div className="space-y-3">
+                {getTopicsBySubcategory(subcategory.id).map((topic) => (
+                  <IndividualTrainingTopic
+                    key={topic.id}
+                    topic={topic}
+                    isSelected={selectedTopics.includes(topic.id)}
+                    onSelect={onToggleTopic}
+                  />
+                ))}
+              </div>
             </div>
+          ))}
+        </div>
+      ) : (
+        topics
+          .filter((topic) => topic.category === categoryId)
+          .map((topic) => (
+            <IndividualTrainingTopic
+              key={topic.id}
+              topic={topic}
+              isSelected={selectedTopics.includes(topic.id)}
+              onSelect={onToggleTopic}
+            />
           ))
-        : // For categories without subcategories (like Middlegame and Endgame)
-          topics
-            .filter((topic) => topic.category === categoryId)
-            .map((topic) => (
-              <IndividualTrainingTopic
-                key={topic.id}
-                topic={topic}
-                isSelected={selectedTopics.includes(topic.id)}
-                onSelect={onToggleTopic}
-              />
-            ))}
+      )}
     </div>
   );
 };
