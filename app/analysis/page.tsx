@@ -126,7 +126,7 @@ export default function AnalysisPage() {
 
   return (
     <>
-      {!isLoading ? (
+      {isLoading ? (
         <LoadingPage />
       ) : (
         <Navigation>
