@@ -108,6 +108,16 @@
   }
 }
 
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 .recharts-wrapper {
   margin : 0 auto;
 }

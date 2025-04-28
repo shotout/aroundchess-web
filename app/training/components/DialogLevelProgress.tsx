@@ -1,19 +1,28 @@
-// components/DialogLevelProgress.tsx
 import React from "react";
 import { Check } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { DialogLevelProgressProps } from "./types";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   skillLevels,
   currentElo,
+  className,
 }) => {
-  // Calculate the exact position based on ELO value - same as SkillProgressTrack
-  const calculateEloPosition = (): number => {
-    const maxELO = skillLevels[skillLevels.length - 1].elo;
-    return (currentElo / maxELO) * 100;
+  // Constants for the ELO range
+  const MIN_ELO = 0;
+  const MAX_ELO = 2400; // Grand Master level
+
+  // Calculate the exact position based on ELO value (from 0 to 100%)
+  const calculateEloPercentage = (): number => {
+    // Ensure ELO is within bounds
+    const boundedElo = Math.max(MIN_ELO, Math.min(currentElo, MAX_ELO));
+    return (boundedElo / MAX_ELO) * 100;
+  };
+
+  const getEloPositionPercentage = (elo: number): number => {
+    return (elo / MAX_ELO) * 100;
   };
 
   // Find the current level index based on ELO
@@ -62,41 +71,13 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const currentLevelIndex = getCurrentLevelIndex();
   const nextLevelIndex = getNextLevelIndex();
   const displayLevels = getDisplayLevels();
-  const progressPercentage = calculateEloPosition();
-
-  // Determine which of the displayed levels is current and which is next
-  const currentDisplayIndex = displayLevels.findIndex(
-    (level) => level.id === skillLevels[currentLevelIndex].id
-  );
-
-  const nextDisplayIndex = displayLevels.findIndex(
-    (level) => level.id === skillLevels[nextLevelIndex].id
-  );
+  const progressPercentage = calculateEloPercentage();
 
   return (
-    <div className="flex-1">
-      <div className="relative mb-6">
-        {/* Next goal badge - positioned above the next level */}
-        <div
-          className="absolute -top-3 transform -translate-x-1/2"
-          style={{
-            left: `${
-              nextDisplayIndex === 0
-                ? "16.7%"
-                : nextDisplayIndex === 1
-                ? "50%"
-                : "83.3%"
-            }`,
-          }}
-        >
-          <Badge className="bg-amber-400 text-amber-950 px-4 py-1">
-            Your Next Goal
-          </Badge>
-        </div>
-
-        <div className="flex justify-between items-end mt-4">
+    <div className={cn("relative w-full flex justify-center", className)}>
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="grid grid-cols-3 gap-2 mb-1">
           {displayLevels.map((level, index) => {
-            // Use the same chess piece images as in SkillProgressTrack
             let imagePath;
             switch (level.title) {
               case "Novice":
@@ -121,21 +102,26 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                 imagePath = "/training-plan/default.png";
             }
 
-            // Highlight current level
-            const isCurrentLevel = index === currentDisplayIndex;
-            const bgClass = isCurrentLevel ? "bg-blue-50" : "";
-
-            // Check if this level is completed
-            const isCompleted =
-              level.elo <= currentElo &&
-              level.title !== skillLevels[currentLevelIndex].title;
+            const isReached = currentElo >= level.elo;
+            const isNextGoal = level.id === skillLevels[nextLevelIndex].id;
+            const isCompleted = isReached && !isNextGoal;
 
             return (
-              <div
-                key={level.id}
-                className={`flex flex-col items-center w-1/3 p-2 rounded-lg ${bgClass}`}
-              >
-                {/* Chess piece with checkmark for completed levels */}
+              <div key={level.id} className="flex flex-col items-center">
+                <div className="h-8 flex items-center justify-center mb-1">
+                  {isCompleted && (
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+
+                  {isNextGoal && (
+                    <Badge className="bg-amber-400 text-amber-950 px-4 py-1 text-sm font-semibold">
+                      Your Next Goal
+                    </Badge>
+                  )}
+                </div>
+
                 <div className="relative mb-4 w-10 h-14 flex items-center justify-center">
                   <Image
                     src={imagePath}
@@ -144,45 +130,67 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                     height={56}
                     className="object-contain"
                   />
-
-                  {/* Checkmark for completed levels */}
-                  {isCompleted && (
-                    <div className="absolute top-0 left-0 right-0 flex justify-center z-20">
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center -translate-y-8">
-                        <Check className="h-4 w-4 text-white" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                <div className="text-center">
+                <div className="text-center mb-4">
                   <div className="font-semibold text-sm">{level.title}</div>
-                  <div className="text-xs text-gray-600">
-                    ELO {level.elo.toLocaleString()}
-                  </div>
+                  <div className="text-xs text-gray-600">ELO {level.elo}</div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Progress bar */}
-        <div className="mt-4 relative">
-          <Progress value={progressPercentage} className="h-2 bg-gray-200" />
+        <div className="relative mt-2">
+          <div className="w-full h-4 bg-gray-200 rounded-full relative">
+            <div
+              className="h-full bg-blue-600 rounded-full"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
 
-          {/* Current ELO indicator */}
+            <div className="absolute top-0 left-0 w-full h-full">
+              {displayLevels.map((level) => {
+                const isReached = currentElo >= level.elo;
+                const positionPercentage = getEloPositionPercentage(level.elo);
+
+                return (
+                  <div
+                    key={`indicator-${level.id}`}
+                    className="absolute top-0 h-full flex items-center justify-center"
+                    style={{
+                      left: `${positionPercentage}%`,
+                      transform: "translateX(-50%)",
+                    }}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 absolute ${
+                        isReached
+                          ? "bg-purple-600 border-blue-600"
+                          : "bg-gray-300"
+                      }`}
+                    ></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div
-            className="absolute -bottom-6 transform -translate-x-1/2"
+            className="flex justify-center mt-3"
             style={{
-              // Use same position calculation as SkillProgressTrack
+              position: "absolute",
               left: `${progressPercentage}%`,
+              transform: "translateX(-50%)",
+              top: "12px",
             }}
           >
-            <Badge className="bg-green-500 text-white px-3 py-1">
+            <div className="bg-green-500 min-w-52 rounded-full text-center flex justify-center items-center text-white px-3 py-1">
               Your current ELO ({currentElo})
-            </Badge>
+            </div>
           </div>
         </div>
+
+        <div className="h-10"></div>
       </div>
     </div>
   );

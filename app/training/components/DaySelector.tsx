@@ -5,15 +5,21 @@ const DaySelector: React.FC<DaySelectorProps> = ({
   day,
   isActive,
   onSelect,
+  disabled = false,
 }) => {
   const activeClasses = isActive
     ? "bg-blue-base/5 text-black border-blue-base"
     : "text-gray-700 border-gray-200";
 
+  const disabledClasses = disabled
+    ? "opacity-50 cursor-not-allowed"
+    : "cursor-pointer";
+
   return (
     <button
-      className={`flex flex-col items-center justify-center h-24 flex-1 px-2 py-4 rounded-lg border ${activeClasses} transition-colors`}
+      className={`flex flex-col items-center justify-center h-24 w-full px-2 py-4 rounded-lg border ${activeClasses} ${disabledClasses} transition-colors`}
       onClick={onSelect}
+      disabled={disabled}
     >
       <div
         className={`font-bold text-sm ${
