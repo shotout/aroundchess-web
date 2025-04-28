@@ -1,29 +1,41 @@
-// components/UserProfileCard.tsx
 import React from "react";
-import { AlertCircle, Brain } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import SkillProgressTrack from "./SkillProgressTrack";
 import GoalsSection from "./GoalsSection";
 import { UserProfileCardProps } from "./types";
+import { UserProfile, Goal, Duration } from "./mockData";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
-  skillLevels,
-  goals,
+  skillLevels = [],
+  goals = [],
   duration,
+  hasPlan = false,
 }) => {
+  // Default values for userProfile if it's undefined
+  const defaultUserProfile: UserProfile = {
+    username: "User",
+    level: "Beginner",
+    currentElo: 0,
+    targetElo: 0,
+    avatar: null,
+  };
+
+  // Use the provided userProfile or the default one
+  const profile = userProfile || defaultUserProfile;
+
   return (
-    <Card className="border border-blue-base bg-blue-base/5 shadow-sm">
+    <Card className="xl:border xl:border-blue-base bg-blue-base/5 shadow-sm">
       <CardContent className="p-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
           <div className="bg-white items-center py-3 gap-x-3 px-4 rounded-full justify-center flex">
             <div className="bg-white p-1 rounded-full">
-              <Brain className="text-blue-500" />
+              {/* If avatar is a component, render it */}
+              {profile.avatar}
             </div>
             <div className="text-base font-semibold">
-              {userProfile.username} • {userProfile.level} • ELO{" "}
-              {userProfile.currentElo}
+              {profile.username} • {profile.level} • ELO {profile.currentElo}
             </div>
           </div>
           <button>
@@ -34,11 +46,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         <div className="mt-8">
           <SkillProgressTrack
             skillLevels={skillLevels}
-            currentElo={userProfile.currentElo}
+            // currentElo={profile.currentElo}
+            currentElo={1600}
           />
         </div>
 
-        <GoalsSection goals={goals} duration={duration} />
+        {duration && goals.length > 0 && (
+          <GoalsSection goals={goals} duration={duration} />
+        )}
       </CardContent>
     </Card>
   );

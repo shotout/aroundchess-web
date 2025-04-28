@@ -4,10 +4,11 @@ import { SkillLevel, TrainingTopic, UserProfile, Goal, Duration, WeekDay } from 
 
 // Props for components
 export interface UserProfileCardProps {
-  userProfile: UserProfile;
-  skillLevels: SkillLevel[];
-  goals: Goal[];
-  duration: Duration;
+  userProfile?: UserProfile;
+  skillLevels?: SkillLevel[];
+  goals?: Goal[];
+  duration?: Duration;
+  hasPlan?: boolean
 }
 
 export interface SkillProgressTrackProps {
@@ -150,11 +151,11 @@ export interface DialogUserInfoProps {
   };
 }
 
-// New interfaces for training plan display
 export interface DaySelectorProps {
   day: WeekDay;
   isActive: boolean;
   onSelect: () => void;
+  disabled?: boolean; // Add disabled prop
 }
 
 export interface TrainingTopicCardProps {
@@ -181,4 +182,68 @@ export interface TrainingPlanDisplayProps {
   activeDay: string;
   onDaySelect: (dayId: string) => void;
   trainingPlan: TrainingPlan;
+}
+
+// Add this to your types.ts file
+
+// API Response types
+export interface ScheduleDate {
+  date: number;
+  month: number;
+  year: number;
+  day: string;
+}
+
+export interface TrainingScheduleResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    eloRange: string;
+    userProfile: {
+      username: string;
+      elo: number;
+      avatar: string;
+    };
+    schedule: {
+      startDate: string;
+      startDay: string;
+      trainingScheduleDates: ScheduleDate[];
+      todayScheduleDate: ScheduleDate;
+    };
+    durations: {
+      avgMinutesDaily: number;
+      openingTime: number;
+      tacticsTime: number;
+      middlegameTime: number;
+      endgameTime: number;
+    };
+    topics: {
+      openings: Array<{
+        id: string;
+        title: string;
+        difficulty: string;
+      }>;
+      middlegames: Array<{
+        id: string;
+        title: string;
+        difficulty: string;
+      }>;
+      endgames: Array<{
+        id: string;
+        title: string;
+        difficulty: string;
+      }>;
+      tactics: boolean;
+    };
+  };
+}
+
+// Update existing TrainingPlanDisplayProps to include the API data
+export interface TrainingPlanDisplayProps {
+  weekDays: WeekDay[];
+  activeDay: string;
+  onDaySelect: (dayId: string) => void;
+  trainingPlan: TrainingPlan;
+  schedule?: TrainingScheduleResponse; // Add optional schedule from API
 }
