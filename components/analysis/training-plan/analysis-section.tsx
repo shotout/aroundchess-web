@@ -260,7 +260,8 @@ export function AnalysisSection() {
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center pt-6 md:pt-2 lg:pt-6">
-                  <Button className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md">
+                  <Button 
+                  className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md">
                     Analyze your most recent Game now
                   </Button>
                   <Button
