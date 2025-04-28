@@ -59,50 +59,36 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
     { category: "Analysis", hours: 6.5, fill: "#9370DB" },
   ]);
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 p-4 xl:p-0">
       {/* Overall Improvement - Level and Accuracy Cards */}
       <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-4 flex flex-col gap-y-4">
           <h2 className="text-2xl font-bold">Overall Improvement</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Level Card */}
-            <div className="rounded-lg bg-purple-500 text-white p-6 relative overflow-hidden">
-              <div className="flex items-center">
-                <span className="inline-block mr-2 w-3 h-3 bg-white rotate-45"></span>
-                <span className="text-lg text-white/90">My Current Level:</span>
-              </div>
-
-              <div className="relative border-l-2 border-r-2 bg-white/10 rounded-md flex flex-col justify-center  ">
-                <div className="text-4xl font-bold mb-2">{currentLevel}</div>
-                <div className="text-6xl font-bold mb-2">
-                  {currentElo.toLocaleString()}
-                </div>
-                <div className="text-xl text-white/90 flex items-center">
-                  ELO Rating
+            <div className="bg-purple-500 flex items-start gap-y-2 justify-center flex-col rounded-lg  max-h-[150px] text-white p-6 relative overflow-hidden">
+              <h1 className="text-xl">my current level</h1>
+              <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
+                <h1 className="text-xl font-semibold">Beginner</h1>
+                <div className="flex items-center gap-x-2">
+                  <h1 className="text-4xl font-bold">1,000</h1>
+                  <h1>
+                    elo rating<span className="ml-2">⭐</span>
+                  </h1>
                 </div>
               </div>
             </div>
 
             {/* Accuracy Card */}
-            <div className="rounded-lg bg-amber-50 border border-amber-100 p-6">
-              <div className="mb-6 flex items-center">
-                <div className="w-8 h-8 rounded-full border-2 border-amber-400 flex items-center justify-center mr-3">
-                  <div className="w-4 h-4 rounded-full bg-amber-400"></div>
-                </div>
-                <span className="text-xl font-bold text-gray-800">
-                  Accuracy
-                </span>
+            <div className="bg-amber-50 flex items-start gap-y-2 justify-center flex-col rounded-lg p-6  max-h-[150px] text-black relative overflow-hidden">
+              <div className="flex items-center gap-x-2">
+                <TargetIcon className="w-5 h-5 text-black" />
+                <h1 className="text-xl">Accuracy</h1>
               </div>
 
-              <div className="text-center">
-                <div className="text-6xl font-bold text-amber-500 mb-3">
-                  {accuracyPercentage}%
-                </div>
-                <div className="text-amber-600 font-medium">
-                  +{accuracyImprovement}% improvement
-                </div>
-              </div>
+              <h1 className="text-4xl">85%</h1>
+              <div className="text-black font-medium">+5% improvement</div>
             </div>
           </div>
         </CardContent>

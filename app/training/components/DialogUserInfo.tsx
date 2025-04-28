@@ -7,7 +7,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   keyInfo,
 }) => {
   return (
-    <div className="w-72 border-gray-200 p-2 bg-white rounded-md">
+    <div className="lg:w-72 w-full border-gray-200 p-2 bg-white rounded-md">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
           <div className="w-full h-full bg-blue-100"></div>
@@ -35,12 +35,12 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
             <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
               <Clock className="h-3 w-3 text-black" />
             </div>
-            <div className="text-sm font-semibold text-black">
+            <h1 className="text-sm font-semibold text-black">
               Approximate Duration:
-            </div>
-          </div>
-          <div className="bg-[#5E84FF] text-white text-sm py-1 px-2 rounded inline-block">
-            {keyInfo.approximateDuration}
+            </h1>
+            <p className="bg-[#5E84FF] text-white text-sm py-1 px-2 rounded inline-block">
+              {keyInfo.approximateDuration}
+            </p>
           </div>
         </div>
       </div>

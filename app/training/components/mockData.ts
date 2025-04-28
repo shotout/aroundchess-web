@@ -11,11 +11,11 @@ export interface SkillLevel {
 }
 
 export interface UserProfile {
-  username: string;
-  level: string;
-  currentElo: number;
-  targetElo: number;
-  avatar: React.ReactNode;
+  username?: string;
+  level?: string;
+  currentElo?: number;
+  targetElo?: number;
+  avatar?: React.ReactNode;
 }
 
 export interface Goal {
