@@ -30,15 +30,20 @@ import { ButtonPlaying } from "./ButtonPlaying";
 import { CommentarGame } from "./CommentaryGame";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
+import { CommentaryMove } from "./CommentaryMove";
+import { GameEndStatus } from "@/components/modal/GameEndStatus";
+import { useGameEndStatus } from "@/app/store/gameEndStatus";
 type MoveClassification =
-  | "best"
-  | "brilliant"
-  | "excellent"
-  | "good"
-  | "neutral"
-  | "inaccuracy"
-  | "mistake"
-  | "blunder";
+  | "best-move"
+  | "brilliant-move"
+  | "excellent-move"
+  | "good-move"
+  | "neutral-move"
+  | "inaccuracy-move"
+  | "mistake-move"
+  | "blunder-move"
+  | "checkmate-you"
+  | "checkmate-opponent";
 
 export default function PlayingPage() {
   const router = useRouter();
@@ -58,6 +63,7 @@ export default function PlayingPage() {
   const { user } = useUser();
   const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
+  const { open, setOpen: setOpenGameStatus } = useGameEndStatus();
   const refBoard = useRef<HTMLDivElement | null>(null);
 
   const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
@@ -253,7 +259,7 @@ export default function PlayingPage() {
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
       setTimeout(() => {
         findEnemyMove();
-      }, 1000);
+      }, 2500);
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
@@ -268,17 +274,17 @@ export default function PlayingPage() {
     let evaluationValue = parseInt(evaluation ?? "0");
     // Compare actual move to best move
     if (actualMove === bestMove) {
-      return "best";
+      return "best-move";
     }
 
     // For simplicity, we're using centipawn thresholds to classify moves
-    if (evaluationValue >= 100) return "brilliant";
-    if (evaluationValue >= 50) return "excellent";
-    if (evaluationValue >= 10) return "good";
-    if (evaluationValue >= -10) return "neutral";
-    if (evaluationValue >= -50) return "inaccuracy";
-    if (evaluationValue >= -150) return "mistake";
-    return "blunder";
+    if (evaluationValue >= 100) return "brilliant-move";
+    if (evaluationValue >= 50) return "excellent-move";
+    if (evaluationValue >= 10) return "good-move";
+    if (evaluationValue >= -10) return "neutral-move";
+    if (evaluationValue >= -50) return "inaccuracy-move";
+    if (evaluationValue >= -150) return "mistake-move";
+    return "blunder-move";
   };
   const getClassificationMove = () => {
     engine.evaluatePosition(game.fen(), 10);
@@ -369,7 +375,10 @@ export default function PlayingPage() {
           to: pv.substring(2, 4),
           promotion: pv.substring(4, 5),
         });
+        setPreviousSquare(pv.substring(0, 2) as Square);
+        setCurrentSquare(pv.substring(2, 4) as Square);
 
+        setMoveClassification("");
         setBestline("");
         setHintClicked(false);
         setGamePosition(game.fen());
@@ -641,6 +650,9 @@ export default function PlayingPage() {
   };
   const handleResign = () => {
     setStatusGame("Loss");
+    setTimeout(() => {
+      setOpenGameStatus(true);
+    }, 1000);
     setHeaderGameFinish();
     // Determine the winner based on the player who was in checkmate
     let loserColor = game.turn(); // 'w' for white, 'b' for black
@@ -697,11 +709,20 @@ export default function PlayingPage() {
         console.log("Game Over! Checkmate!");
 
         let gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
+        let commentar =
+          gameStatus == "Win" ? "checkmate-you" : "checkmate-opponent";
+        setMoveClassification(commentar);
         setStatusGame(gameStatus);
+        setTimeout(() => {
+          setOpenGameStatus(true);
+        }, 1000);
       } else {
         isDraw = true;
         console.log("Game Over! Stalemate or Draw.");
         setStatusGame("Draw");
+        setTimeout(() => {
+          setOpenGameStatus(true);
+        }, 1000);
       }
     }
   };
@@ -715,6 +736,7 @@ export default function PlayingPage() {
   if (loadingAnalyze) return <LoadingPage />;
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
+      <GameEndStatus gameStatus={statusGame.toLowerCase()} />
       <div className="flex flex-col w-full gap-4 ">
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
           <button>
@@ -769,11 +791,18 @@ export default function PlayingPage() {
               user={user}
               PieceChoosed={PieceChoosed}
             />
-          )}
+          )}{" "}
           <div className="flex items-center justify-between mb-2">
-            <span>
-            {moveClassification}
-            </span>
+            {moveClassification != "" &&
+            moveClassification != "good-move" &&
+            moveClassification != "excellent-move" &&
+            moveClassification != "neutral-move" &&
+            moveClassification != "mistake-move" &&
+            moveClassification != "inaccuracy-move" ? (
+              <CommentaryMove classify={moveClassification} />
+            ) : (
+              <div />
+            )}
             <ButtonBoard
               handleSwitch={handleSwitch}
               handleThreeD={handleThreeD}
@@ -781,7 +810,6 @@ export default function PlayingPage() {
               boardSize={boardSize}
             />
           </div>
-
           <div className="flex flex-col justify-center items-center gap-3 ">
             {/* {buttonBoard()} */}
             <motion.div
