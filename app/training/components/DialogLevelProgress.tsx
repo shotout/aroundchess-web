@@ -8,15 +8,11 @@ import Image from "next/image";
 const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   skillLevels,
   currentElo,
-  className,
 }) => {
-  // Constants for the ELO range
   const MIN_ELO = 0;
-  const MAX_ELO = 2400; // Grand Master level
+  const MAX_ELO = 2400;
 
-  // Calculate the exact position based on ELO value (from 0 to 100%)
   const calculateEloPercentage = (): number => {
-    // Ensure ELO is within bounds
     const boundedElo = Math.max(MIN_ELO, Math.min(currentElo, MAX_ELO));
     return (boundedElo / MAX_ELO) * 100;
   };
@@ -25,7 +21,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     return (elo / MAX_ELO) * 100;
   };
 
-  // Find the current level index based on ELO
   const getCurrentLevelIndex = (): number => {
     for (let i = 0; i < skillLevels.length; i++) {
       if (currentElo < skillLevels[i].elo) {
@@ -35,7 +30,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     return skillLevels.length - 1; // If all levels are passed
   };
 
-  // Get the next level index (for goal)
   const getNextLevelIndex = (): number => {
     for (let i = 0; i < skillLevels.length; i++) {
       if (currentElo < skillLevels[i].elo) {
@@ -45,22 +39,18 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     return skillLevels.length - 1;
   };
 
-  // Get three relevant levels to display
   const getDisplayLevels = () => {
     const currentIndex = getCurrentLevelIndex();
     const nextIndex = getNextLevelIndex();
 
-    // Handle beginning of progression (first three levels)
     if (currentIndex === 0) {
       return skillLevels.slice(0, 3);
     }
 
-    // Handle end of progression (last three levels)
     if (currentIndex >= skillLevels.length - 2) {
       return skillLevels.slice(skillLevels.length - 3, skillLevels.length);
     }
 
-    // Standard case - current level in the middle
     return [
       skillLevels[currentIndex - 1],
       skillLevels[currentIndex],
@@ -74,7 +64,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const progressPercentage = calculateEloPercentage();
 
   return (
-    <div className={cn("relative w-full flex justify-center", className)}>
+    <div className={cn("relative w-full flex justify-center")}>
       <div className="w-full max-w-6xl mx-auto">
         <div className="grid grid-cols-3 gap-2 mb-1">
           {displayLevels.map((level, index) => {

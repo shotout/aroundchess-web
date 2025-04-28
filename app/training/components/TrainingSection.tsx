@@ -31,7 +31,7 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
     typeof icon === "string" ? icon : "/training-plan/default.png";
 
   return (
-    <div className="mb-6 border border-gray-200 rounded-lg p-4">
+    <div className=" border border-gray-200 rounded-lg p-4">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-2">
           <Image src={iconSrc} alt={title} width={50} height={50} />

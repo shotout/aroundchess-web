@@ -45,6 +45,12 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     reset,
   } = useTrainingPlanStore();
 
+  // State for active category on mobile/tablet
+  const [activeCategory, setActiveCategory] = useState("opening");
+
+  // Categories for toggling
+  const categories = ["opening", "middlegame", "endgame"];
+
   // Combine all selected topics from the store
   const selectedTopics = [
     ...selectedWhiteOpenings,
@@ -211,7 +217,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl rounded-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader className="flex flex-row items-center justify-between">
           <div></div>
           <DialogTitle className="flex items-center gap-2 text-xl">
@@ -242,13 +248,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             <p>Error loading training topics: {error}</p>
           </div>
         ) : (
-          <div className="p-6">
+          <div className=" lg:p-6">
             <h2 className="text-lg font-semibold mb-4">
               Rise to the next Level
             </h2>
 
             <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-4 mb-6">
-              <div className="flex items-start gap-4">
+              <div className="flex flex-col lg:flex-row items-start gap-4">
                 <DialogUserInfo
                   username={displayUserProfile?.username || "User"}
                   keyInfo={keyInfo}
@@ -267,25 +273,58 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               Select your primary topics to improve your Skills
             </h2>
 
-            <div className="grid grid-cols-3 gap-4">
+            {/* Category toggle for mobile and tablet */}
+            <div className="block lg:hidden mb-4">
+              <div className="flex w-full justify-center">
+                <div className="p-2 flex-1 flex bg-[#F9FAFC] rounded-lg border h-auto items-center w-full">
+                  {categories.map((category, i) => (
+                    <button
+                      key={i}
+                      className={`flex-1 p-[10px] font-medium text-center transition-all ${
+                        activeCategory === category
+                          ? "bg-white rounded-lg shadow-md text-black font-bold"
+                          : "text-gray-600 font-normal hover:bg-gray-100"
+                      }`}
+                      onClick={() => setActiveCategory(category)}
+                    >
+                      {category === "opening"
+                        ? "Opening"
+                        : category === "middlegame"
+                        ? "Middlegame"
+                        : "Endgame"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Responsive grid that shows only active category on mobile/tablet */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {transformCategoryInfo().map((category) => (
-                <TopicSelectionSection
+                <div
                   key={category.id}
-                  categoryId={category.id}
-                  title={category.title}
-                  icon={category.icon}
-                  description={category.description}
-                  subcategories={category.subcategories}
-                  topics={getTopicsByCategory(category.id)}
-                  selectedTopics={selectedTopics}
-                  onToggleTopic={handleToggleTopic}
-                />
+                  className={`${
+                    activeCategory === category.id ? "block" : "hidden"
+                  } lg:block`}
+                >
+                  <TopicSelectionSection
+                    key={category.id}
+                    categoryId={category.id}
+                    title={category.title}
+                    icon={category.icon}
+                    description={category.description}
+                    subcategories={category.subcategories}
+                    topics={getTopicsByCategory(category.id)}
+                    selectedTopics={selectedTopics}
+                    onToggleTopic={handleToggleTopic}
+                  />
+                </div>
               ))}
             </div>
 
             <div className="mt-6 flex justify-center">
               <Button
-                className="btn-primary rounded-full px-8 py-2 h-auto w-96 text-lg"
+                className="btn-primary rounded-full px-8 py-2 h-auto w-full sm:w-96 text-lg"
                 onClick={handleCreatePlan}
                 disabled={isLoading}
               >

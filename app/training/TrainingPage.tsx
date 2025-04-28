@@ -29,6 +29,7 @@ const ChessProgressionUI: React.FC = () => {
   const [hasPlan, setHasPlan] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
+  const [debugMode, setDebugMode] = useState(false);
 
   const {
     schedule,
@@ -58,6 +59,7 @@ const ChessProgressionUI: React.FC = () => {
   useEffect(() => {
     if (schedule) {
       setHasPlan(true);
+      console.log("i", schedule);
     }
   }, [schedule]);
 
@@ -83,10 +85,9 @@ const ChessProgressionUI: React.FC = () => {
           hasPlan={hasPlan}
         />
 
-        {/* Tab buttons */}
         {hasPlan && (
-          <div className="flex w-full justify-between">
-            <div className="p-2 flex-1 flex bg-[#F9FAFC] rounded-lg border h-auto items-center max-w-96">
+          <div className="flex w-full justify-center lg:justify-between px-4 py-1 lg:p-0">
+            <div className="p-2 flex-1 flex bg-[#F9FAFC] rounded-lg border h-auto items-center w-full lg:max-w-96">
               {states.map((tab, i) => (
                 <button
                   key={i}
@@ -101,7 +102,7 @@ const ChessProgressionUI: React.FC = () => {
                 </button>
               ))}
             </div>
-            <div className="flex justify-center items-center">
+            <div className="lg:flex justify-center items-center hidden ">
               {hasPlan && (
                 <Button
                   className="btn-secondary rounded-full"
@@ -137,6 +138,26 @@ const ChessProgressionUI: React.FC = () => {
         )}
       </div>
 
+      {/* Debug Panel */}
+      {debugMode && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-md z-50 shadow-lg">
+          <div className="font-bold mb-2">Debug Controls</div>
+          <div className="flex flex-col gap-2">
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => setDialogOpen(true)}
+            >
+              Open Training Dialog
+            </Button>
+            <Button
+              className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              onClick={() => setHasPlan(!hasPlan)}
+            >
+              Toggle Has Plan: {hasPlan ? "Yes" : "No"}
+            </Button>
+          </div>
+        </div>
+      )}
       <ChessTrainingPlanDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

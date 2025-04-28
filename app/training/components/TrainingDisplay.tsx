@@ -48,9 +48,9 @@ interface TrainingScheduleResponse {
 }
 
 interface TrainingPlanDisplayProps {
-  schedule: TrainingScheduleResponse | null;
-  isLoading: boolean;
-  error: string | null;
+  schedule?: TrainingScheduleResponse | null;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
@@ -64,7 +64,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
           <div className="text-center py-8">Loading your training plan...</div>
         </CardContent>
@@ -74,7 +74,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
 
   if (error) {
     return (
-      <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
           <div className="text-center py-8 text-red-500">
             Error loading your training plan. Please try again later.
@@ -127,8 +127,8 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     schedule.topics.tactics !== undefined ? schedule.topics.tactics : true;
 
   return (
-    <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-      <CardContent className="p-6 flex w-full flex-col gap-y-4">
+    <div className="xl:border xl:border-gray-200 p-4 rounded-lg shadow-sm overflow-hidden">
+      <div className="flex w-full flex-col gap-y-4">
         {/* Week day selector */}
         <h1 className="font-bold text-lg">Your Training Plan</h1>
 
@@ -218,14 +218,14 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
             </div>
 
             <div className="flex justify-center">
-              <Button className="btn-primary rounded-full py-2 px-6 w-72">
+              <Button className="btn-primary rounded-full py-2 px-6 w-full">
                 Start Puzzles
               </Button>
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

@@ -4,16 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import SkillProgressTrack from "./SkillProgressTrack";
 import GoalsSection from "./GoalsSection";
 import { UserProfileCardProps } from "./types";
-import { UserProfile, Goal, Duration } from "./mockData";
+import { UserProfile } from "./mockData";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
   skillLevels = [],
   goals = [],
   duration,
-  hasPlan = false,
 }) => {
-  // Default values for userProfile if it's undefined
   const defaultUserProfile: UserProfile = {
     username: "User",
     level: "Beginner",
@@ -22,7 +20,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     avatar: null,
   };
 
-  // Use the provided userProfile or the default one
   const profile = userProfile || defaultUserProfile;
 
   return (
@@ -30,10 +27,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       <CardContent className="p-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
           <div className="bg-white items-center py-3 gap-x-3 px-4 rounded-full justify-center flex">
-            <div className="bg-white p-1 rounded-full">
-              {/* If avatar is a component, render it */}
-              {profile.avatar}
-            </div>
+            <div className="bg-white p-1 rounded-full">{profile.avatar}</div>
             <div className="text-base font-semibold">
               {profile.username} • {profile.level} • ELO {profile.currentElo}
             </div>
