@@ -772,7 +772,7 @@ export default function PlayingPage() {
           )}
           <div className="flex items-center justify-between mb-2">
             <span>
-            {/* {moveClassification} */}
+            {moveClassification}
             </span>
             <ButtonBoard
               handleSwitch={handleSwitch}

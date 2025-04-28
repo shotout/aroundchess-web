@@ -91,14 +91,13 @@ const MyAccount = () => {
             Default Chess.com Username
           </label>
           <Input
+            disabled={true}
             id="username"
             name="defaultUsername"
             type="text"
             placeholder="Type here..."
-            className={`w-full shadow-sm min-h-[44px] bg-[#F2FBFE] border ${
-              form.defaultUsername.length > 0
-                ? `border-[#2E3133]`
-                : `border-[#C0CED4]`
+            className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border ${
+              form.defaultUsername.length > 0 ? `border-[#737c7f]` : `border-[#C0CED4]`
             } px-[16px] py-[12px]`}
             value={form.defaultUsername}
             onChange={handleOnChange}
