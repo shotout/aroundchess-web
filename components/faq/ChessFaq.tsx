@@ -2,13 +2,54 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
+import { searchFAQs } from "./search";
+interface Question {
+  question: string;
+  answer: string[];
+}
 
+interface Category {
+  id: string;
+  label: string;
+  questions: Question[];
+}
+
+const tabs = [
+  { id: "General", label: "General", img: "/images/faq/question-mark.png" },
+  { id: "Analysis", label: "Analysis", img: "/images/faq/analysis-mark.png" },
+  {
+    id: "Theory",
+    title: "Handbook: ",
+    label: "Chess Theory",
+    img: "/images/faq/theory-mark.png",
+  },
+  {
+    id: "Practice",
+    title: "Playground: ",
+    label: "Practice",
+    img: "/images/faq/practice-mark.png",
+  },
+];
 export default function ChessFAQ() {
-  const [activeTab, setActiveTab] = useState<string>("General");
+  const { getFAQ, isLoading } = useApiClient();
+  const [activeTab, setActiveTab] = useState<string>("");
+  const [query, setQuery] = useState<string>("");
+  const [data, setData] = useState<any[]>([]);
+  const [question, setQuestion] = useState<any[]>([]);
   const [openQuestion, setOpenQuestion] = useState<number>(0);
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
+  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<
+    { id: string; label: string; questions: Question[] }[]
+  >([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
+  useEffect(() => {
+    fetchFAQ();
+  }, []);
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -23,38 +64,45 @@ export default function ChessFAQ() {
     let widthC = window?.innerWidth;
     setWidthContainer(widthC);
   };
-  const tabs = [
-    { id: "General", label: "General", img: "/images/faq/question-mark.png" },
-    { id: "Analysis", label: "Analysis", img: "/images/faq/analysis-mark.png" },
-    {
-      id: "Theory",
-      title: "Handbook: ",
-      label: "Chess Theory",
-      img: "/images/faq/theory-mark.png",
-    },
-    {
-      id: "Practice",
-      title: "Playground: ",
-      label: "Practice",
-      img: "/images/faq/practice-mark.png",
-    },
-  ];
-
-  // Sample FAQ questions - replace with your actual content
-  const faqs = [
-    {
-      question: "[QUESTION HERE]",
-      answer: ["[SENTENCE ANSWER HERE]", "[SENTENCE ANSWER HERE]"],
-    },
-    { question: "[QUESTION HERE]", answer: ["[SENTENCE ANSWER HERE]"] },
-    { question: "[QUESTION HERE]", answer: ["[SENTENCE ANSWER HERE]"] },
-    { question: "[QUESTION HERE]", answer: ["[SENTENCE ANSWER HERE]"] },
-  ];
+  const fetchFAQ = () => {
+    getFAQ({})
+      .then((response) => {
+        setData(response.data);
+        setFilteredData(response.data);
+        setQuestion(response.data[0].questions);
+        setActiveTab(response.data[0].label);
+        console.log("getFAQ", response.data);
+      })
+      .finally(() => {});
+  };
 
   const toggleQuestion = (index: any) => {
     setOpenQuestion(openQuestion === index ? null : index);
   };
+  useEffect(() => {
+    if (query.length >= 3) {
+      const timer = setTimeout(() => {
+        setSearchLoading(true);
+        const results = searchFAQs(data, query);
+        setSearchResults(results);
+        setActiveTab(results[0].label);
+        setQuestion(results[0].questions);
+        setFilteredData(results);
+        console.log("results", results);
+        setSearchLoading(false);
+      }, 300); // Debounce for better performance
+      return () => clearTimeout(timer);
+    } else {
+      setQuestion(data[0].questions);
+      setActiveTab(data[0].label);
+      setFilteredData(data);
+    }
+  }, [query, data]);
 
+  const handleOnSearch = (e: any) => {
+    setQuery(e.target.value);
+  };
+  if (isLoading) return <DotSpinner />;
   return (
     <div className="flex flex-col w-full bg-gradient-to-b from-[#BDD5FF] via-[#FCFCFD] to-[#FCFCFD] gap-3">
       {/* Header with logo */}
@@ -88,21 +136,23 @@ export default function ChessFAQ() {
       <div className="relative flex flex-row items-center md:w-[445px] md:self-center mx-[16px] p-3 gap-2 bg-[#F8F9FC] rounded-md border border-[#DEDEDE]">
         <Search size={20} color="#73778B" className="pl-1" />
         <input
+          value={query}
           type="text"
           placeholder="Search"
-          className="font-normal text-[12px] w-full h-full bg-[#F8F9FC]"
+          className="font-normal text-[12px] w-full h-full bg-[#F8F9FC] focus:border-0 focus:outline-none"
+          onChange={handleOnSearch}
         />
       </div>
 
       {/* Tabs > Mobile width*/}
       <div className="hidden md:flex w-[95%] self-center flex-row items-center justify-center xl:justify-around gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
-        {tabs.map((tab) => (
+        {filteredData.map((tab, index) => (
           <button
             key={tab.id}
             className="relative flex flex flex-row items-center justify-end bg-[#FFF] sm:min-w-[140px] lg:min-w-[200px] xl:min-w-[240px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
-              src={tab.img}
+              src={tabs[index].img}
               alt="background"
               width={1000}
               height={1000}
@@ -110,15 +160,15 @@ export default function ChessFAQ() {
             />
             <button
               className={`z-10 flex flex-col items-start justify-center bg-[#ffffff80] max-w-[160px] p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-end ${
-                activeTab === tab.id
+                activeTab === tab.label
                   ? "text-[#221AE9] border border-[#221AE9]"
                   : "border border-gray-300 rounded-md"
               }`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setQuestion(tab.questions);
+                setActiveTab(tab.label);
+              }}
             >
-              <span className="sm:text-[10px] lg:text-[16px] font-medium text-start">
-                {tab.title}
-              </span>
               <span className="sm:text-[12px] lg:text-[20px] font-medium text-start">
                 {tab.label}
               </span>
@@ -128,20 +178,20 @@ export default function ChessFAQ() {
       </div>
       {/* Tabs Mobile width*/}
       <div className="md:hidden flex flex-row items-center gap-1 mx-[16px]">
-        {tabs.map((tab) => (
+        {filteredData.map((tab) => (
           <button
             key={tab.id}
             className={`flex flex-col items-center justify-center min-w-[23%] px-[12px] h-[42px] rounded-[12px] ${
-              activeTab === tab.id
+              activeTab === tab.label
                 ? "text-[#221AE9] border border-[#221AE9]"
                 : "bg-white border border-gray-300 rounded-md"
             }`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setQuestion(tab.questions);
+              setActiveTab(tab.label);
+            }}
           >
             <div className="flex flex-col items-start">
-              <span className="text-[8px] font-medium text-start">
-                {tab.title}
-              </span>
               <span className="block text-[11px] font-medium text-start">
                 {tab.label}
               </span>
@@ -157,38 +207,40 @@ export default function ChessFAQ() {
 
       {/* Accordion FAQ items */}
       <div className="space-y-3 mx-4 mb-[32px]">
-        {faqs.map((faq, index) => (
-          <div key={index} className="bg-white rounded-md shadow">
-            <button
-              onClick={() => toggleQuestion(index)}
-              className="w-full px-[20px] py-2 text-left flex justify-between items-center"
-            >
-              <span className="font-bold text-[12px] md:text-[18px]">
-                {faq.question}
-              </span>
-              {openQuestion === index ? (
-                <ChevronUp size={20} />
-              ) : (
-                <ChevronDown size={20} />
-              )}
-            </button>
+        {question &&
+          question.length &&
+          question.map((faq: any, index: number) => (
+            <div key={index} className="bg-white rounded-md shadow">
+              <button
+                onClick={() => toggleQuestion(index)}
+                className="w-full px-[20px] py-2 text-left flex justify-between items-center"
+              >
+                <span className="font-bold text-[12px] md:text-[18px]">
+                  {faq.question}
+                </span>
+                {openQuestion === index ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
 
-            {openQuestion === index && (
-              <div className="px-[20px] py-[5px] md:py-[10px] border-t">
-                <ul className="list-disc pl-6 space-y-1">
-                  {faq.answer.map((line, i) => (
-                    <li
-                      key={i}
-                      className="font-normal text-[12px] md:text-[18px]"
-                    >
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ))}
+              {openQuestion === index && (
+                <div className="px-[20px] py-[5px] md:py-[10px] border-t">
+                  <ul className="list-disc pl-6 space-y-1">
+                    {faq.answer.map((line: any, i: number) => (
+                      <li
+                        key={i}
+                        className="font-normal text-[12px] md:text-[18px]"
+                      >
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ))}
       </div>
     </div>
   );

@@ -469,6 +469,69 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getNewsCategories = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/categories`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const getNews = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/articles`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getNewsById = useCallback(
+    (params: any, id: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/articles/${id}`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const getNewsSaved = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/articles/saved`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
+  const toggleSaveNews = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/news/articles/toggle-save`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+  const getFAQ = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/faq`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+
   return {
     isLoading,
     error,
@@ -513,5 +576,11 @@ export function useApiClient() {
     postPurchaseToken,
     getCheckAnalysisAccess,
     getProfile,
+    getNewsCategories,
+    getNews,
+    getNewsById,
+    getNewsSaved,
+    toggleSaveNews,
+    getFAQ,
   };
 }

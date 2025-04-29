@@ -5,6 +5,9 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { unixFormatDate } from "@/functions/unix-format-date";
 import { Chess } from "chess.js";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import ReactCountryFlag from "react-country-flag";
+import { useLoadingAPI } from "@/app/store/loadingApi";
+import { createCountdown } from "@/functions/create-countdown";
 
 const LoadingPage: React.FC = (props) => {
   const {
@@ -14,10 +17,27 @@ const LoadingPage: React.FC = (props) => {
     dataGamesImport,
     setDataGamesImport,
   } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    estimateMinute,
+    estimateSecond,
+    setEstimateMinute,
+    setEstimateSecond,
+  } = useLoadingAPI();
   const { gameInfo, summary } = dataAnalysis ?? {};
+
+  const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
+
+  const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
+    ?.country
+    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const dataGame = dataGamesImport != null ? dataGamesImport : dataGames;
   const [headerPGN, setHeaderPGN] = useState<any>({});
-  useEffect(() => {
+  const [countDown, setCountDown] = useState<string>("");
+  useEffect(() => { 
     getHeaders();
   }, [storePgn]);
   const getHeaders = () => {
@@ -43,10 +63,38 @@ const LoadingPage: React.FC = (props) => {
     setDataGamesImport(dataGames);
     console.log("tempGame.getHeaders()", headers);
   };
+  useEffect(() => {
+    if (estimateSecond != 0) {
+      const countdown = createCountdown(
+        estimateMinute,
+        estimateSecond,
+        (min, sec) => {
+          setCountDown(`${min}:${sec}`);
+        },
+        () => console.log("Countdown complete!")
+      );
+      countdown.start();
+    }
+  }, [estimateSecond]);
   return (
     <>
       <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
+        {estimateSecond != 0 && (
+          <div
+            style={{
+              background: `linear-gradient(to bottom, #E7F3F7 0%,#DAF2FB 43%,#DAF2FB 100%)`,
+            }}
+            className="flex rounded-[4px] shadow-md border-2 border-[#ffffff] justify-center items-center p-[8px] h-[36px] min-w-[311px] mt-[16px]"
+          >
+            <span className="font-medium text-[14px]">
+              Time Remaining{" "}
+              <span className="font-bold text-[#221AE9] text-[14px]">
+                {countDown}
+              </span>
+            </span>
+          </div>
+        )}
         {dataGame && (
           <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 my-4 mx-4">
             {dataGame?.date && gameInfo == null && (
@@ -79,9 +127,21 @@ const LoadingPage: React.FC = (props) => {
                 }`}
               >
                 {" "}
+                <ReactCountryFlag
+                  countryCode={blackCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
+                  title={blackCountry}
+                />
                 vs {dataGame?.black?.username}{" "}
               </span>{" "}
               (Black)
+              <ReactCountryFlag
+                  countryCode={whiteCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
+                  title={whiteCountry}
+                />
             </span>
           </div>
         )}
