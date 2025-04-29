@@ -3,9 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useApiClient } from "@/functions/api-client";
 import { formatDateNews } from "@/functions/format-date";
-import {
-  Search
-} from "lucide-react";
+import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -37,6 +35,8 @@ export default function Article() {
   } = useApiClient();
   const { currentData } = usePagination(chessNews);
   const { isLoading: loadingFetch } = useLoadingAPI();
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [query, setQuery] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<number>(1);
   const [pagination, setPagination] = useState<number>(1);
   const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -73,9 +73,26 @@ export default function Article() {
   useEffect(() => {
     fetchArticles();
   }, [selectedTab]);
+  useEffect(() => {
+    if (query.length >= 3) {
+      setSearchLoading(true);
+      const timer = setTimeout(() => {
+        let params = { categoryId: selectedTab, search: query };
+        getNews(params).then((response) => {
+          console.log("getNews search", response.data);
+          setChessNews(response.data);
+          setSearchLoading(false);
+        });
+      }, 300); // Debounce for better performance
+      return () => clearTimeout(timer);
+    }
+  }, [query]);
+  const handleOnSearch = (e: any) => {
+    setQuery(e.target.value);
+  };
   if (isLoading) return <DotSpinner />;
   return (
-    <div className="flex flex-col p-8">
+    <div className="flex flex-col w-full p-[32px] justify-center items-between">
       <div className="flex items-center gap-2">
         <Image
           alt=""
@@ -86,18 +103,19 @@ export default function Article() {
         />
         <h1 className="text-xl md:text-[32px] font-semibold">Chess News</h1>
       </div>
-      <p className="text-gray-600 text-md md:text-[18px]">
+      <p className="text-gray-600 text-md md:text-[18px] py-[8px]">
         Stay updated with the latest chess news, tournaments, and player
         insights from around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
         <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:max-w-[737px]">
           <div className="flex flex-col mt-4 md:mt-0 bg-white">
-            <div className="mt-4 flex items-center gap-0 border border-input rounded-md px-2 bg-[#F8F9FC]">
+            <div className="mt-4 flex items-center bg-[#F8F9FC] border border-input rounded-md px-2 bg-[#F8F9FC] gap-2">
               <Search className="h-6 w-6" color="#73778B" />
-              <Input
+              <input
+                onChange={handleOnSearch}
                 placeholder="Search topics..."
-                className="w-full border-0"
+                className="w-full text-[12px] h-[36px] bg-[#F8F9FC]  focus:border-0 focus:outline-none border-none outline-none"
               />
               {/* <Button>Search</Button> */}
             </div>
@@ -124,18 +142,19 @@ export default function Article() {
               </div>
             </div>
           </div>
-          {loadingFetch && (
+          {(loadingFetch || searchLoading) && (
             <div className="flex w-full h-1/2 items-center justify-center gap-2">
               <DotSpinner />
             </div>
           )}
-          {!loadingFetch && chessNews.length == 0 && (
+          {!searchLoading && !loadingFetch && chessNews.length == 0 && (
             <div className="flex w-full h-1/2 items-center justify-center gap-2">
               <NoData>News is empty</NoData>
             </div>
           )}
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
-            {!loadingFetch &&
+            {!searchLoading &&
+              !loadingFetch &&
               chessNews.map((article: any, index: number) => (
                 <Link href={`/chess-news/${article.id}`} key={index}>
                   <Card className="rounded-md overflow-hidden border border-input shadow-md h-[254px]">
@@ -202,7 +221,7 @@ export default function Article() {
                     <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
                       {formatDateNews(article.publishedAt)}
                     </p>
-                    <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
+                    <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
                       {article.category.name}
                     </span>
                   </div>
