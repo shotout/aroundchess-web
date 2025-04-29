@@ -21,13 +21,13 @@ export const formatDatePgn = (date?: string) => {
 };
 export const formatTimePgn = (date?: string) => {
   let d = date ? new Date(date) : new Date(),
-    second = "" + (d.getSeconds()),
+    second = "" + d.getSeconds(),
     minute = "" + d.getMinutes(),
-    hour = d.getHours(); 
+    hour = d.getHours();
   if (minute.length < 2) minute = "0" + minute;
   if (second.length < 2) second = "0" + second;
 
-  return  [hour, minute, second].join(":");
+  return [hour, minute, second].join(":");
 };
 export const formatDateHistory = (date: string) => {
   let d = new Date(date),
@@ -39,4 +39,15 @@ export const formatDateHistory = (date: string) => {
   if (day.length < 2) day = "0" + day;
 
   return [day, month, year].join("/");
+};
+export const formatDateNews = (date: string) => {
+  let d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+  let monthName = d.toLocaleDateString("EN", { month: "long" });
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return monthName + " " + day + ", " + year;
 };
