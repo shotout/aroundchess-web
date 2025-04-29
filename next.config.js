@@ -47,6 +47,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'api.chess.com',
+      },
+      {
+        protocol:'https',
+        hostname:'www.chess.com'
       }
     ],
   },
