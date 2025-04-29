@@ -80,22 +80,24 @@ export default function ChessFAQ() {
     setOpenQuestion(openQuestion === index ? null : index);
   };
   useEffect(() => {
-    if (query.length >= 3) {
-      const timer = setTimeout(() => {
-        setSearchLoading(true);
-        const results = searchFAQs(data, query);
-        setSearchResults(results);
-        setActiveTab(results[0].label);
-        setQuestion(results[0].questions);
-        setFilteredData(results);
-        console.log("results", results);
-        setSearchLoading(false);
-      }, 300); // Debounce for better performance
-      return () => clearTimeout(timer);
-    } else {
-      setQuestion(data[0].questions);
-      setActiveTab(data[0].label);
-      setFilteredData(data);
+    if (data.length>0) {
+      if (query.length >= 3) {
+        const timer = setTimeout(() => {
+          setSearchLoading(true);
+          const results = searchFAQs(data, query);
+          setSearchResults(results);
+          setActiveTab(results[0].label);
+          setQuestion(results[0].questions);
+          setFilteredData(results);
+          console.log("results", results);
+          setSearchLoading(false);
+        }, 300); // Debounce for better performance
+        return () => clearTimeout(timer);
+      } else {
+        setQuestion(data[0].questions);
+        setActiveTab(data[0].label);
+        setFilteredData(data);
+      }
     }
   }, [query, data]);
 
