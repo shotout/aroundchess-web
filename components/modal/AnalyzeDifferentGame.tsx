@@ -28,6 +28,7 @@ import { Chess } from "chess.js";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
 import { useProfileStore } from "@/app/store/profile";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -116,6 +117,13 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const router = useRouter();
   const { isMember } = useProfileStore();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
+
+  const {
+    estimateMinute,
+    estimateSecond,
+    setEstimateMinute,
+    setEstimateSecond,
+  } = useLoadingAPI();
   const {
     setPgn,
     setIsLoading,
@@ -155,6 +163,9 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [username, setUsername] = useState("");
   const [pgnText, setPgnText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [timeBasic, setTimeBasic] = useState<any>({});
+  const [timeStandard, setTimeStandard] = useState<any>({});
+  const [timeDeep, setTimeDeep] = useState<any>({});
   const [estimateBasic, setEstimateBasic] = useState<string>("");
   const [estimateStandard, setEstimateStandard] = useState<string>("");
   const [estimateDeep, setEstimateDeep] = useState<string>("");
@@ -354,30 +365,33 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     let basic = 6;
     let standard = 19;
     let deep = 51;
-    
+
     let basicResult = pgn && pgn?.length * basic;
     let standardResult = pgn && pgn?.length * standard;
     let deepResult = pgn && pgn?.length * deep;
 
-    let basicString = formatTimeToMinutesSeconds(basicResult || 0)
-    let standardString = formatTimeToMinutesSeconds(standardResult || 0)
-    let deepString = formatTimeToMinutesSeconds(deepResult || 0)
-    
+    let basicString = formatTimeToMinutesSeconds(basicResult || 0);
+    let standardString = formatTimeToMinutesSeconds(standardResult || 0);
+    let deepString = formatTimeToMinutesSeconds(deepResult || 0);
+
     console.log("pgn?.length", pgn?.length);
     console.log("basic", basicString);
     console.log("standard", standardString);
     console.log("deep", deepString);
-    
+
+    setTimeBasic(getTime(basicResult || 0));
+    setTimeStandard(getTime(standardResult || 0));
+    setTimeDeep(getTime(deepResult || 0));
+
     setEstimateBasic(basicString);
     setEstimateStandard(standardString);
     setEstimateDeep(deepString);
   }, [selectedGame]);
   const formatTimeToMinutesSeconds = (seconds: number): string => {
     // Calculate minutes and remaining seconds
-    let second = Math.round(seconds / 5) * 5
+    let second = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(second % 60);
-
     // Format as "xx minutes xx seconds"
     if (minutes > 0) {
       return `${minutes} minute${
@@ -387,7 +401,13 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       return `${remainingSeconds} second${remainingSeconds !== 1 ? "s" : ""}`;
     }
   };
-
+  const getTime = (seconds: number): any => {
+    let s = Math.round(seconds / 5) * 5;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(s % 60);
+    let time = { minute: minutes, second: remainingSeconds };
+    return time;
+  };
   return (
     <Dialog
       open={open}
@@ -505,9 +525,20 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                       : index == 1
                       ? estimateStandard
                       : estimateDeep;
+
+                  let time =
+                    index == 0
+                      ? timeBasic
+                      : index == 1
+                      ? timeStandard
+                      : timeDeep;
                   return (
                     <button
-                      onClick={() => setDepthChoosed(depth.value)}
+                      onClick={() => {
+                        setEstimateMinute(time.minute);
+                        setEstimateSecond(time.second);
+                        setDepthChoosed(depth.value);
+                      }}
                       key={index}
                       disabled={depth.mustMember && !isMember}
                       className={`relative flex flex-col justify-around relative px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
@@ -558,7 +589,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                           Analysis can take up to:
                         </span>
                         <span className="font-medium text-[11px]  ">
-                        {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
+                          {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
                           {estimate}
                         </span>
                       </div>
