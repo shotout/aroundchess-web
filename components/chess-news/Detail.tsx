@@ -56,14 +56,14 @@ export default function Detail() {
       });
   };
   const fetchDetailNews = () => {
-    getNewsById({}, params.id).then((response) => {
+    getNewsById({}, params?.id).then((response) => {
       setDetailNews(response.data);
       setIsLoading(false);
       console.log(response.data);
     });
   };
   const toggleSave = (id: number) => {
-    toggleSaveNews({ articleId: params.id }).then((response) => {
+    toggleSaveNews({ articleId: params?.id }).then((response) => {
       console.log(response.data);
       setSaved((prev: any[]) => ({ ...prev, [id]: !prev[id] }));
       fetchDetailNews();
