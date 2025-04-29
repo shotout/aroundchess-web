@@ -37,9 +37,7 @@ const LoadingPage: React.FC = (props) => {
   const dataGame = dataGamesImport != null ? dataGamesImport : dataGames;
   const [headerPGN, setHeaderPGN] = useState<any>({});
   const [countDown, setCountDown] = useState<string>("");
-  useEffect(() => {
-    setEstimateMinute(5);
-    setEstimateSecond(20);
+  useEffect(() => { 
     getHeaders();
   }, [storePgn]);
   const getHeaders = () => {

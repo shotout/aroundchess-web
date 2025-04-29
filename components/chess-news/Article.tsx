@@ -1,80 +1,42 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { useApiClient } from "@/functions/api-client";
+import { formatDateNews } from "@/functions/format-date";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Bookmark,
-  BookmarkCheck,
-  ChevronLeft,
-  ChevronRight,
-  Search,
+  Search
 } from "lucide-react";
-import { useChessNewsStore } from "../../app/store/chessNewsStore";
+import Image from "next/image";
 import Link from "next/link";
-
-const tournaments = [
-  {
-    date: "Mar 26, 2024",
-    title: "How clever kids in Ukraine are on World Chess Day",
-    image: "/images/auth-background.png",
-    category: "Tournaments",
-  },
-  {
-    date: "Mar 20, 2024",
-    title:
-      "Idris Lanza Chess Tournament Held, attended by 330 Chess Players from Jakarta",
-    image: "/images/auth-background.png",
-    category: "Tournaments",
-  },
-];
-const articles = [
-  {
-    id: 1,
-    title:
-      "Idris Lane Chess Tournament Held, attend by 330 Chess Players from Jakarta",
-    date: "Mar 24, 2024",
-    image: "/images/auth-background.png",
-    category: "Tournaments",
-  },
-  {
-    id: 2,
-    title: "Hall of Fame: The 50 Greatest Chess Players of All Time",
-    date: "Mar 24, 2024",
-    image: "/images/auth-background.png",
-    category: "Players",
-  },
-  {
-    id: 3,
-    title: "World Rapid & Blitz Champions",
-    date: "Mar 24, 2024",
-    image: "/images/auth-background.png",
-    category: "Tournaments",
-  },
-  {
-    id: 4,
-    title: "How clever kids in Ukraine are on World Chess Day",
-    date: "Mar 20, 2024",
-    image: "/images/auth-background.png",
-    category: "World",
-  },
-];
+import { useEffect, useState } from "react";
+import { useChessNewsStore } from "../../app/store/chessNewsStore";
+import DotSpinner from "../game-history/Spinner";
+import NoData from "../NoData/NoData";
+import { usePagination } from "../pagination/hook/usePagination";
+import { Pagination } from "../pagination/pagination";
 
 export default function Article() {
   const {
-    isLoading,
-    setIsLoading,
     categories,
     setCategories,
     chessNews,
     setChessNews,
     detailNews,
     setDetailNews,
+    savedArticles,
+    setSavedArticles,
+    setIsLoading,
+    isLoading,
   } = useChessNewsStore();
-
+  const {
+    getNews,
+    getNewsCategories,
+    getNewsById,
+    getNewsSaved,
+    toggleSaveNews,
+  } = useApiClient();
+  const { currentData } = usePagination(chessNews);
+  const { isLoading: loadingFetch } = useLoadingAPI();
   const [selectedTab, setSelectedTab] = useState<number>(1);
   const [pagination, setPagination] = useState<number>(1);
   const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -83,30 +45,35 @@ export default function Article() {
     fetchCategories();
   }, []);
   const fetchCategories = () => {
-    fetch(process.env.BASE_URL + "/news/categories").then((res) => {
-      res.json().then((response) => {
-        setIsLoading(true);
+    setIsLoading(true);
+    getNewsCategories({})
+      .then((response) => {
+        console.log("getNewsCategories", response.data);
         setCategories(response.data);
         setSelectedTab(response.data[0].id);
-        fetchArticles();
+      })
+      .finally(() => {
+        fetchSavedArticle();
       });
+  };
+  const fetchSavedArticle = () => {
+    getNewsSaved({}).then((response) => {
+      console.log("getNewsSaved", response.data);
+      setSavedArticles(response.data);
     });
   };
   const fetchArticles = () => {
-    fetch(
-      process.env.BASE_URL +
-        "/news/articles?page=" +
-        pagination +
-        "&limit=10&categoryId=" +
-        selectedTab
-    ).then((res) => {
-      res.json().then((response) => {
-        console.log(response.data);
-        setChessNews(response.data);
-        setIsLoading(false);
-      });
+    let params = { categoryId: selectedTab, page: pagination };
+    getNews(params).then((response) => {
+      console.log("getNews", response.data);
+      setChessNews(response.data);
+      setIsLoading(false);
     });
   };
+  useEffect(() => {
+    fetchArticles();
+  }, [selectedTab]);
+  if (isLoading) return <DotSpinner />;
   return (
     <div className="flex flex-col p-8">
       <div className="flex items-center gap-2">
@@ -157,92 +124,74 @@ export default function Article() {
               </div>
             </div>
           </div>
+          {loadingFetch && (
+            <div className="flex w-full h-1/2 items-center justify-center gap-2">
+              <DotSpinner />
+            </div>
+          )}
+          {!loadingFetch && chessNews.length == 0 && (
+            <div className="flex w-full h-1/2 items-center justify-center gap-2">
+              <NoData>News is empty</NoData>
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
-            {chessNews.map((article: any, index: number) => (
-              <Link href={`/chess-news/${article.id}`} key={index}>
-              <Card
-                className="rounded-md overflow-hidden border border-input shadow-md"
+            {!loadingFetch &&
+              chessNews.map((article: any, index: number) => (
+                <Link href={`/chess-news/${article.id}`} key={index}>
+                  <Card className="rounded-md overflow-hidden border border-input shadow-md h-[254px]">
+                    <Image
+                      src={article.imageUrl}
+                      alt={article.imageCaption}
+                      width={1000}
+                      height={1000}
+                      className="w-full max-h-[115px] object-cover p-2 rounded-md"
+                    />
+                    <CardContent className="px-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                          {formatDateNews(article.publishedAt)}
+                        </p>
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+                          {article.category.name}
+                        </p>
+                      </div>
+                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
+                        {article.title}
+                      </h2>
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: article.content.replace(
+                            /\*\*(.*?)\*\*/g,
+                            "<b>$1</b>"
+                          ),
+                        }}
+                        className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2"
+                      />
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+          </div>
+          {/* Pagination */}
+          {!loadingFetch && currentData.length > 0 && (
+            <Pagination data={currentData} />
+          )}
+        </div>
+        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/2">
+          <span className="text-md font-bold mt-4">Saved Articles</span>
+          <div className="flex flex-col mt-2 gap-2">
+            {savedArticles.length == 0 && (
+              <div className="flex justify-center items-center">
+                <NoData>Saved is empty</NoData>
+              </div>
+            )}
+            {savedArticles.map((article) => (
+              <div
+                key={article.id}
+                className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3"
               >
                 <Image
                   src={article.imageUrl}
-                  alt={article.imageCaption}
-                  width={1000}
-                  height={1000}
-                  className="w-full min-h-[100px] object-cover p-2 rounded-md"
-                />
-                <CardContent className="px-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                      {article.publishedAt}
-                    </p>
-                    <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
-                      {article.category.name}
-                    </p>
-                  </div>
-                  <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
-                    {article.title}
-                  </h2>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: article.content.replace(
-                        /\*\*(.*?)\*\*/g,
-                        "<b>$1</b>"
-                      ),
-                    }}
-                    className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2"
-                  />
-                </CardContent>
-              </Card>
-              </Link>
-            ))}
-          </div>
-          <div className="flex justify-center items-center mt-6">
-            <button
-              disabled={pagination == 1}
-              onClick={() => setPagination((pagination) => pagination - 1)}
-              className="p-2 "
-            >
-              <ChevronLeft
-                color={pagination == 1 ? "#221AE925" : "#221AE9"}
-                size={28}
-              />
-            </button>
-            <div className="w-1/2 md:w-1/3 gap-1 flex items-center overflow-x-auto">
-              {pages.map((num) => (
-                <button
-                  key={num}
-                  className={`p-4 w-8 h-8 flex items-center justify-center rounded-[8px] text-xs ${
-                    num === pagination
-                      ? "bg-[#81CFF3] text-[#221AE9] font-bold"
-                      : "border"
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
-            <button
-              disabled={pagination == pages.length}
-              onClick={() => setPagination((pagination) => pagination + 1)}
-              className="p-2 "
-            >
-              <ChevronRight
-                color={pagination == pages.length ? "#221AE925" : "#221AE9"}
-                size={28}
-              />
-            </button>
-          </div>
-        </div>
-        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white">
-          <span className="text-md font-bold mt-4">Saved Articles</span>
-          <div className="flex flex-col mt-2 gap-2">
-            {articles.map((article) => (
-              <div
-                key={article.id}
-                className="bg-white flex shadow-md rounded-lg rounded-sm border border-input gap-2 p-3"
-              >
-                <Image
-                  src={article.image}
                   alt={article.title}
                   width={1000}
                   height={1000}
@@ -251,10 +200,10 @@ export default function Article() {
                 <div className="flex flex-col flex-1 gap-2">
                   <div className="flex flex-row justify-between items-center">
                     <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                      {article.date}
+                      {formatDateNews(article.publishedAt)}
                     </p>
                     <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
-                      {article.category}
+                      {article.category.name}
                     </span>
                   </div>
                   <div className="flex flex-row items-center justify-between max-h-[40px] ">
