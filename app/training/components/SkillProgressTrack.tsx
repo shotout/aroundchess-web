@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { SkillProgressTrackProps } from "./types";
 import { Check } from "lucide-react";
 
@@ -8,12 +7,53 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   skillLevels,
   currentElo,
 }) => {
+  const getImagePath = (
+    title: string,
+    isReached: boolean,
+    isNextGoal: boolean
+  ): string => {
+    let status = "grey";
+    if (isReached) {
+      status = "blue";
+    } else if (isNextGoal) {
+      status = "gold";
+    }
+
+    const formattedTitle = title.toLowerCase().replace(/\s+/g, "-");
+    return `/training-plan/${status}/${formattedTitle}.png`;
+  };
   const MIN_ELO = 0;
   const MAX_ELO = 2400;
 
   const calculateEloPercentage = (): number => {
     const boundedElo = Math.max(MIN_ELO, Math.min(currentElo || 0, MAX_ELO));
-    return (boundedElo / MAX_ELO) * 100;
+
+    if (boundedElo < skillLevels[0].elo) {
+      return 0;
+    }
+
+    if (boundedElo >= skillLevels[skillLevels.length - 1].elo) {
+      return 100;
+    }
+
+    for (let i = 0; i < skillLevels.length - 1; i++) {
+      if (
+        boundedElo >= skillLevels[i].elo &&
+        boundedElo < skillLevels[i + 1].elo
+      ) {
+        const segmentStart = (i / (skillLevels.length - 1)) * 100;
+        const segmentEnd = ((i + 1) / (skillLevels.length - 1)) * 100;
+        const segmentWidth = segmentEnd - segmentStart;
+
+        const segmentProgress =
+          (boundedElo - skillLevels[i].elo) /
+          (skillLevels[i + 1].elo - skillLevels[i].elo);
+
+        return segmentStart + segmentProgress * segmentWidth;
+      }
+    }
+
+    return 0;
   };
 
   const getCurrentLevelIndex = (): number => {
@@ -38,55 +78,46 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const currentLevelIndex = getCurrentLevelIndex();
 
+  // Standardized badge class for consistent width and height
+  const badgeClass =
+    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
+
   return (
     <div className="relative">
-      <div className="w-full">
-        {/* Grid with evenly spaced columns to match progress indicators */}
-        <div className="grid grid-cols-6 gap-2 mb-1">
+      <div className="w-full space-y-6">
+        {/* Grid for skill levels */}
+        <div className="grid grid-cols-6 gap-2">
           {skillLevels.map((level, index) => {
-            let imagePath: string;
-            switch (level.title) {
-              case "Novice":
-                imagePath = "/training-plan/pawn.png";
-                break;
-              case "Beginner":
-                imagePath = "/training-plan/rook.png";
-                break;
-              case "Intermediate":
-                imagePath = "/training-plan/knight.png";
-                break;
-              case "Expert":
-                imagePath = "/training-plan/bishop.png";
-                break;
-              case "Master":
-                imagePath = "/training-plan/queen.png";
-                break;
-              case "Grand Master":
-                imagePath = "/training-plan/king.png";
-                break;
-              default:
-                imagePath = "/training-plan/default.png";
-            }
-
             const isReached = (currentElo || 0) >= level.elo;
             const isNextGoal = index === nextGoalIndex;
+            const imagePath = getImagePath(level.id, isReached, isNextGoal);
             const isCompleted = isReached;
+
+            const regularWidth = 40;
+            const regularHeight = 56;
+            const mobileWidth = 30;
+            const mobileHeight = 30;
+
+            const nextGoalWidth = regularWidth * 1.3;
+            const nextGoalHeight = regularHeight * 1.3;
 
             return (
               <div
                 key={level.id}
-                className="flex flex-col items-center relative"
+                className="flex flex-col items-center relative w-full space-y-2"
               >
                 {isNextGoal && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-amber-400 text-amber-950 min-w-[93px] flex justify-center items-center p-0 text-[10px] font-semibold rounded-full">
+                  <div className="absolute -top-6 lg:-top-14 left-1/2 transform -translate-x-1/2">
+                    <div
+                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                    >
                       Your Next Goal
-                    </Badge>
+                    </div>
                     <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                   </div>
                 )}
 
-                <div className="h-8 flex items-center justify-center mb-1">
+                <div className="h-8 flex items-center justify-center">
                   {isCompleted && !isNextGoal && (
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                       <Check className="h-4 w-4 text-white" />
@@ -94,33 +125,42 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   )}
                 </div>
 
-                {/* Image container - justify-center to ensure alignment */}
-                <div className="relative mb-4 w-10 h-14 hidden xl:flex items-center justify-center">
-                  <Image
-                    src={imagePath}
-                    alt={level.title}
-                    width={40}
-                    height={56}
-                    className="object-contain"
-                  />
-                </div>
-
-                <div className="relative mb-4 w-10 h-14 flex xl:hidden items-center justify-center">
-                  <Image
-                    src={imagePath}
-                    alt={level.title}
-                    width={36}
-                    height={50}
-                    className="object-contain"
-                  />
-                </div>
-
-                <div className="text-center mb-4">
-                  <div className="font-semibold text-xs xl:text-sm">
-                    {level.title}
+                {/* Desktop image container - with proper horizontal alignment */}
+                <div className="relative hidden xl:flex h-20 w-16 justify-center">
+                  <div className="absolute bottom-0 flex justify-center">
+                    <Image
+                      src={imagePath}
+                      alt={level.title}
+                      width={isNextGoal ? nextGoalWidth : regularWidth}
+                      height={isNextGoal ? nextGoalHeight : regularHeight}
+                      className={`object-contain ${
+                        isNextGoal ? "origin-bottom scale-150" : ""
+                      }`}
+                    />
                   </div>
-                  <div className="text-[10px] xl:text-xs text-gray-600">
-                    ELO {level.elo}
+                </div>
+
+                {/* Mobile image container - with proper horizontal alignment */}
+                <div className="relative flex xl:hidden h-14 w-10 justify-center">
+                  <div className="absolute bottom-0 flex justify-center">
+                    <Image
+                      src={imagePath}
+                      alt={level.title}
+                      width={mobileWidth}
+                      height={mobileHeight}
+                      className={`object-contain ${
+                        isNextGoal ? "origin-bottom scale-150" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center w-full space-y-1">
+                  <div className="font-semibold text-xs xl:text-sm flex items-center justify-center">
+                    <span className="truncate max-w-full">{level.title}</span>
+                  </div>
+                  <div className="text-[10px] xl:text-xs text-gray-600 flex items-center justify-center">
+                    <span className="whitespace-nowrap">ELO {level.elo}</span>
                   </div>
                 </div>
               </div>
@@ -128,26 +168,30 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
           })}
         </div>
 
-        <div className="relative mt-2">
-          {/* Main progress bar container */}
-          <div className="w-full h-4 bg-gray-200 rounded-full relative">
-            <div
-              className="h-full bg-blue-base rounded-full"
-              style={{ width: `${currentEloPercentage}%` }}
-            ></div>
+        {/* Progress bar container */}
+        <div className="relative h-20">
+          <div className="relative w-full mt-6">
+            {/* Progress bar positioned in the middle of the circles */}
+            <div className="absolute top-1/2 -translate-y-1/2 left-[8.33%] w-[83.33%] h-4 rounded-full bg-gray-200 z-0">
+              <div
+                className="h-full bg-blue-base rounded-full"
+                style={{
+                  width: `${currentEloPercentage}%`,
+                }}
+              ></div>
+            </div>
 
-            {/* Purple circle indicators using the same grid layout as the images */}
-            <div className="absolute top-0 left-0 w-full h-full grid grid-cols-6">
+            {/* Indicators - aligned exactly below each image */}
+            <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
               {skillLevels.map((level, index) => {
                 const isReached = (currentElo || 0) >= level.elo;
-
                 return (
                   <div
                     key={`indicator-${level.id}`}
-                    className="h-full flex items-center justify-center"
+                    className="flex items-center justify-center"
                   >
                     <div
-                      className={`w-5 h-5 rounded-full border-2 ${
+                      className={`w-7 h-7 rounded-full border-4 ${
                         isReached
                           ? "bg-purple-600 border-blue-base"
                           : "bg-gray-300"
@@ -159,23 +203,19 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             </div>
           </div>
 
-          {/* Current ELO indicator */}
           <div
-            className="flex justify-center mt-3"
+            className="absolute -translate-x-1/2 top-8"
             style={{
-              position: "absolute",
-              left: `${currentEloPercentage}%`,
-              transform: "translateX(-50%)",
-              top: "12px",
+              left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+              bottom: 0,
             }}
           >
-            <div className="bg-green-500 min-w-52 rounded-full text-center flex justify-center items-center text-white px-3 py-1">
+            <div className="w-4 h-4 bg-green-500 -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className={`${badgeClass} bg-green-500 text-white`}>
               Your current ELO
             </div>
           </div>
         </div>
-
-        <div className="h-10"></div>
       </div>
     </div>
   );

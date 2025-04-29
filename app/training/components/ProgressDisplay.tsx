@@ -1,6 +1,12 @@
-// components/ProgressDisplay.tsx
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   CartesianGrid,
   Line,
@@ -23,21 +29,104 @@ import {
   TriangleAlert,
   Trophy,
 } from "lucide-react";
-import { keyStatsData, ratingChartData, recentGamesData } from "./mockData";
+import { keyStatsData, recentGamesData } from "./mockData";
 import { ProgressDisplayProps } from "./types";
+
+const monthlyRatingData = {
+  January: [
+    { week: "Week 1", rating: 600 },
+    { week: "Week 2", rating: 650 },
+    { week: "Week 3", rating: 720 },
+    { week: "Week 4", rating: 750 },
+  ],
+  February: [
+    { week: "Week 1", rating: 750 },
+    { week: "Week 2", rating: 790 },
+    { week: "Week 3", rating: 820 },
+    { week: "Week 4", rating: 900 },
+  ],
+  March: [
+    { week: "Week 1", rating: 800 },
+    { week: "Week 2", rating: 870 },
+    { week: "Week 3", rating: 1000 },
+    { week: "Week 4", rating: 1000 },
+  ],
+  April: [
+    { week: "Week 1", rating: 1000 },
+    { week: "Week 2", rating: 1050 },
+    { week: "Week 3", rating: 1100 },
+    { week: "Week 4", rating: 1180 },
+  ],
+  May: [
+    { week: "Week 1", rating: 1180 },
+    { week: "Week 2", rating: 1220 },
+    { week: "Week 3", rating: 1250 },
+    { week: "Week 4", rating: 1300 },
+  ],
+  June: [
+    { week: "Week 1", rating: 1300 },
+    { week: "Week 2", rating: 1350 },
+    { week: "Week 3", rating: 1420 },
+    { week: "Week 4", rating: 1450 },
+  ],
+  July: [
+    { week: "Week 1", rating: 1450 },
+    { week: "Week 2", rating: 1470 },
+    { week: "Week 3", rating: 1500 },
+    { week: "Week 4", rating: 1550 },
+  ],
+  August: [
+    { week: "Week 1", rating: 1550 },
+    { week: "Week 2", rating: 1620 },
+    { week: "Week 3", rating: 1650 },
+    { week: "Week 4", rating: 1700 },
+  ],
+  September: [
+    { week: "Week 1", rating: 1700 },
+    { week: "Week 2", rating: 1750 },
+    { week: "Week 3", rating: 1780 },
+    { week: "Week 4", rating: 1820 },
+  ],
+  October: [
+    { week: "Week 1", rating: 1820 },
+    { week: "Week 2", rating: 1870 },
+    { week: "Week 3", rating: 1900 },
+    { week: "Week 4", rating: 1950 },
+  ],
+  November: [
+    { week: "Week 1", rating: 1950 },
+    { week: "Week 2", rating: 2000 },
+    { week: "Week 3", rating: 2050 },
+    { week: "Week 4", rating: 2100 },
+  ],
+  December: [
+    { week: "Week 1", rating: 2100 },
+    { week: "Week 2", rating: 2150 },
+    { week: "Week 3", rating: 2200 },
+    { week: "Week 4", rating: 2250 },
+  ],
+};
+
+// Training data
+const trainingData = [
+  { category: "Openings", minutes: 180, fill: "#90b1ff" },
+  { category: "Middlegame", minutes: 130, fill: "#f3d48c" },
+  { category: "Endgame", minutes: 120, fill: "#8eeda6" },
+  { category: "Tactics", minutes: 170, fill: "#ff9a9a" },
+];
 
 const CustomTooltipContent = ({
   active,
   payload,
 }: {
   active: boolean;
-  payload: { payload: { month: string; rating: number } }[];
+  payload: any[];
 }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
       <div className="bg-white p-2 border rounded-md shadow-md">
-        <p className="font-semibold">Date: {data.month} 2024</p>
+        <p className="font-semibold">{data.week}</p>
         <p>Rating: {data.rating}</p>
       </div>
     );
@@ -51,143 +140,137 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
   accuracyPercentage,
   accuracyImprovement,
 }) => {
-  const [trainingData] = useState([
-    { category: "Tactics", hours: 4.5, fill: "#3b82f6" },
-    { category: "Openings", hours: 7, fill: "#FFE492" },
-    { category: "Middlegame", hours: 6, fill: "#50C878" },
-    { category: "Endgame", hours: 8, fill: "#FF6B6B" },
-    { category: "Analysis", hours: 6.5, fill: "#9370DB" },
-  ]);
+  const [selectedMonth, setSelectedMonth] = useState("March");
+
   return (
     <div className="space-y-4 p-4 xl:p-0">
-      {/* Overall Improvement - Level and Accuracy Cards */}
-      <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-        <CardContent className="p-4 flex flex-col gap-y-4">
-          <h2 className="text-2xl font-bold">Overall Improvement</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Level Card */}
-            <div className="bg-purple-500 flex items-start gap-y-2 justify-center flex-col rounded-lg  max-h-[150px] text-white p-6 relative overflow-hidden">
-              <h1 className="text-xl">my current level</h1>
-              <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
-                <h1 className="text-xl font-semibold">Beginner</h1>
-                <div className="flex items-center gap-x-2">
-                  <h1 className="text-4xl font-bold">1,000</h1>
-                  <h1>
-                    elo rating<span className="ml-2">⭐</span>
-                  </h1>
-                </div>
-              </div>
-            </div>
-
-            {/* Accuracy Card */}
-            <div className="bg-amber-50 flex items-start gap-y-2 justify-center flex-col rounded-lg p-6  max-h-[150px] text-black relative overflow-hidden">
-              <div className="flex items-center gap-x-2">
-                <TargetIcon className="w-5 h-5 text-black" />
-                <h1 className="text-xl">Accuracy</h1>
-              </div>
-
-              <h1 className="text-4xl">85%</h1>
-              <div className="text-black font-medium">+5% improvement</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Charts and Stats Container with 60/40 split */}
       <div className="md:grid md:grid-cols-5 gap-6">
         {/* Left column - Charts (60%) */}
         <div className="md:col-span-3 flex flex-col gap-6">
-          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden flex-1">
-            <CardContent className="p-4 h-full flex flex-col">
-              <h3 className="text-lg font-semibold mb-3">YourProgress</h3>
-              <p>Your ELO Rating Progress</p>
-              <div className="flex-1">
-                <ResponsiveContainer width="100%" height="100%" minHeight={180}>
-                  <LineChart
-                    data={ratingChartData}
-                    margin={{ top: 20, right: 10, left: -20, bottom: 10 }}
-                    className="text-xs"
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#999"
-                      vertical={true}
-                    />
-                    <XAxis dataKey="month" axisLine={true} tickLine={true} />
-                    <YAxis
-                      domain={[0, 2000]}
-                      ticks={[0, 500, 1000, 1500, 2000]}
-                      axisLine={true}
-                      tickLine={true}
-                    />
-                    <RechartsTooltip
-                      content={
-                        <CustomTooltipContent active={false} payload={[]} />
-                      }
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="rating"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      dot={{
-                        stroke: "#3b82f6",
-                        strokeWidth: 2,
-                        fill: "#221AE9",
-                        r: 4,
-                      }}
-                      activeDot={{ r: 6, fill: "#3b82f6" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+          {/* ELO Rating Chart */}
+          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-2xl font-bold">Your Progress</h3>
+                  <p className="text-base">Your ELO Rating Progress</p>
+                </div>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(monthlyRatingData).map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart
+                  data={
+                    monthlyRatingData[
+                      selectedMonth as keyof typeof monthlyRatingData
+                    ]
+                  }
+                  margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e0e0e0"
+                    vertical={true}
+                    horizontal={true}
+                  />
+                  <XAxis
+                    dataKey="week"
+                    axisLine={true}
+                    tickLine={true}
+                    tick={{ fill: "#000" }}
+                    padding={{ left: 20, right: 20 }}
+                  />
+                  <YAxis
+                    domain={[0, 4000]}
+                    ticks={[
+                      0, 400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600,
+                    ]}
+                    axisLine={true}
+                    tickLine={true}
+                    tick={{ fill: "#000" }}
+                    padding={{ top: 20, bottom: 20 }}
+                  />
+                  <RechartsTooltip
+                    content={
+                      <CustomTooltipContent active={false} payload={[]} />
+                    }
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="rating"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={{
+                      stroke: "#3b82f6",
+                      strokeWidth: 2,
+                      fill: "#3b82f6",
+                      r: 5,
+                    }}
+                    activeDot={{ r: 7, fill: "#3b82f6" }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden flex-1">
-            <CardContent className="p-4 h-full flex flex-col">
-              <h3 className="text-lg font-semibold mb-3">
-                Last Week’s Training Distribution
+          {/* Training Distribution Chart */}
+          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <CardContent className="p-6">
+              <h3 className="text-2xl font-bold mb-1">
+                Last Week's Training Distribution
               </h3>
-              <p>Minutes spent on different aspects</p>
-              <div className="flex-1">
-                <ResponsiveContainer width="100%" height="100%" minHeight={180}>
-                  <BarChart
-                    data={trainingData}
-                    margin={{ top: 20, right: 10, left: -40, bottom: 10 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="5 5"
-                      stroke="#999"
-                      horizontal={true}
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="category"
-                      axisLine={true}
-                      tickLine={true}
-                      padding={{ left: 2, right: 2 }}
-                      className="text-xs"
-                    />
-                    <YAxis
-                      domain={[0, 8]}
-                      ticks={[0, 2, 4, 6, 8]}
-                      axisLine={true}
-                      tickLine={true}
-                    />
-                    <RechartsTooltip />
-                    <Bar dataKey="hours" radius={[4, 4, 0, 0]}>
-                      {trainingData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <p className="text-base mb-4">
+                Minutes spent on different aspects
+              </p>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={trainingData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                  barSize={60}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e0e0e0"
+                    horizontal={true}
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="category"
+                    axisLine={true}
+                    tickLine={true}
+                    tick={{ fill: "#000" }}
+                    padding={{ left: 40, right: 40 }}
+                  />
+                  <YAxis
+                    domain={[0, 1400]}
+                    ticks={[0, 200, 400, 600, 800, 1000, 1200, 1400]}
+                    axisLine={true}
+                    tickLine={true}
+                    tick={{ fill: "#000" }}
+                  />
+                  <RechartsTooltip />
+                  <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
+                    {trainingData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
+
         {/* Right column - Recent Games and Stats (40%) */}
         <div className="md:col-span-2 flex flex-col gap-6 mt-6 md:mt-0">
           {/* Recent Games Section */}

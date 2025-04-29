@@ -254,18 +254,21 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             </h2>
 
             <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-4 mb-6">
-              <div className="flex flex-col lg:flex-row items-start gap-4">
-                <DialogUserInfo
-                  username={displayUserProfile?.username || "User"}
-                  keyInfo={keyInfo}
-                />
-
-                <DialogLevelProgress
-                  skillLevels={skillLevels}
-                  currentElo={
-                    storeUserProfile?.elo || userProfile?.currentElo || 0
-                  }
-                />
+              <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full">
+                <div className="w-full lg:w-2/5">
+                  <DialogUserInfo
+                    username={displayUserProfile?.username || "User"}
+                    keyInfo={keyInfo}
+                  />
+                </div>
+                <div className="w-full lg:w-3/5">
+                  <DialogLevelProgress
+                    skillLevels={skillLevels}
+                    currentElo={
+                      storeUserProfile?.elo || userProfile?.currentElo || 0
+                    }
+                  />
+                </div>
               </div>
             </div>
 
