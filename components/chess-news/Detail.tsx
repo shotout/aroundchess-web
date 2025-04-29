@@ -56,7 +56,7 @@ export default function Detail() {
     return (
       <div className="flex flex-col p-4 gap-2">
         <div className="flex flex-col xl:flex-row gap-4">
-          <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:max-w-[737px]">
+          <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-2/3">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-2 md:mb-3 md:mt-2">
               <div
                 className="flex flex-row items-center gap-2 cursor-pointer"
@@ -93,7 +93,7 @@ export default function Detail() {
               <ShareButton isFull={true} save={toggleSave} />
             </div>
             <span className="text-md font-semibold mt-4">Related Articles</span>
-            <div className="flex flex-row max-w-full overflow-x-auto gap-3">
+            <div className="flex flex-row max-w-full overflow-x-auto gap-3 mt-2">
               {detailNews?.relatedArticles.map(
                 (article: any, index: number) => (
                   <Card
@@ -128,7 +128,7 @@ export default function Detail() {
               )}
             </div>
           </div>
-          <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/2">
+          <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
             <span className="text-md font-semibold mt-4">
               Most Reads Article
             </span>

@@ -33,7 +33,7 @@ export default function Article() {
     getNewsSaved,
     toggleSaveNews,
   } = useApiClient();
-  const { currentData } = usePagination(chessNews);
+  const { currentData,currentPage } = usePagination(chessNews);
   const { isLoading: loadingFetch } = useLoadingAPI();
   const [searchLoading, setSearchLoading] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -63,7 +63,7 @@ export default function Article() {
     });
   };
   const fetchArticles = () => {
-    let params = { categoryId: selectedTab, page: pagination };
+    let params = { categoryId: selectedTab, page: currentPage };
     getNews(params).then((response) => {
       console.log("getNews", response.data);
       setChessNews(response.data);
@@ -108,7 +108,7 @@ export default function Article() {
         insights from around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
-        <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:max-w-[737px]">
+        <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-2/3">
           <div className="flex flex-col mt-4 md:mt-0 bg-white">
             <div className="mt-4 flex items-center bg-[#F8F9FC] border border-input rounded-md px-2 bg-[#F8F9FC] gap-2">
               <Search className="h-6 w-6" color="#73778B" />
@@ -196,7 +196,7 @@ export default function Article() {
             <Pagination data={currentData} />
           )}
         </div>
-        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/2">
+        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
           <span className="text-md font-bold mt-4">Saved Articles</span>
           <div className="flex flex-col mt-2 gap-2">
             {savedArticles.length == 0 && (
