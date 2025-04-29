@@ -14,9 +14,12 @@ import { BookmarkFilledIcon, DiscordLogoIcon } from "@radix-ui/react-icons";
 import { FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { GrThreads } from "react-icons/gr";
 import Image from "next/image";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
 
 const ShareButton = (props: any) => {
   const [open, setOpen] = useState(false);
+  const { isLoading } = useApiClient();
   const [icon, setIcon] = useState([
     {
       name: "link",
@@ -62,7 +65,7 @@ const ShareButton = (props: any) => {
       </div>
     );
   };
-  
+
   const renderIcon = () => {
     return (
       <div className="flex flex-row gap-4 p-3">
@@ -114,12 +117,13 @@ const ShareButton = (props: any) => {
           inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
         }}
       >
-        {props.saved ? 
-        <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-        :
-        <Bookmark className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-        
-        }
+        {isLoading ? (
+          <DotSpinner size={5} />
+        ) : props.saved ? (
+          <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+        ) : (
+          <Bookmark className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+        )}
       </button>
       {/* Dropdown */}
       {open && (
@@ -135,6 +139,5 @@ const ShareButton = (props: any) => {
     </div>
   );
 };
-
 
 export default ShareButton;
