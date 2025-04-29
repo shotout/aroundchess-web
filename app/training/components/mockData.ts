@@ -60,7 +60,7 @@ export const skillLevelsData: SkillLevel[] = [
     elo: 0,
     completed: true,
     current: false,
-    icon: null, // This will be set in the component
+    icon: null,
   },
   {
     id: "beginner",

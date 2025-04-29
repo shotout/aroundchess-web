@@ -29,7 +29,7 @@ const ChessProgressionUI: React.FC = () => {
   const [hasPlan, setHasPlan] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
-  const [debugMode, setDebugMode] = useState(false);
+  const [debugMode, setDebugMode] = useState(true);
 
   const {
     schedule,
@@ -59,7 +59,6 @@ const ChessProgressionUI: React.FC = () => {
   useEffect(() => {
     if (schedule) {
       setHasPlan(true);
-      console.log("i", schedule);
     }
   }, [schedule]);
 
@@ -71,14 +70,15 @@ const ChessProgressionUI: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col xl:gap-6 xl:p-8">
+    <div className="flex flex-col xl:gap-6 lg:gap-4 lg:p-4 xl:p-8">
       <div className="flex items-center">
-        <h1 className="font-bold text-2xl p-4">My Training Plan</h1>
+        <h1 className="font-bold text-2xl p-4 lg:p-0">My Training Plan</h1>
         <p className="xl:hidden">({userProfile.username})</p>
       </div>
       <div className="xl:border xl:p-4 xl:rounded-md flex flex-col gap-y-2 xl:gap-y-4">
         <UserProfileCard
           userProfile={userProfile}
+          avatar={userProfile.avatar}
           skillLevels={skillLevels}
           goals={goalsData}
           duration={durationData}

@@ -113,9 +113,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
 
 ChessLessonCard.displayName = "ChessLessonCard";
 
-// Export with a custom equality function to avoid unnecessary re-renders
 export default React.memo(ChessLessonCard, (prevProps, nextProps) => {
-  // Only re-render if these key properties change
   return (
     prevProps.slug === nextProps.slug &&
     prevProps.lesson.title === nextProps.lesson.title &&

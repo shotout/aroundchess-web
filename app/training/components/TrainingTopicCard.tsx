@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
 
 interface TrainingTopicCardProps {
   topic: {
@@ -18,12 +18,25 @@ const TrainingTopicCard: React.FC<TrainingTopicCardProps> = ({
   topic,
   icon,
 }) => {
-  // Use either level or difficulty, whichever is available
   const displayLevel = topic.level || topic.difficulty || "Beginner";
 
-  // Ensure we have a string for the icon
   const iconSrc =
     typeof icon === "string" ? icon : "/training-plan/default.png";
+
+  // Determine base path based on the prefix in topic.id
+  const getBasePath = (id: string) => {
+    if (id.startsWith("opening_")) {
+      return "/opening-theory";
+    } else if (id.startsWith("middlegame_")) {
+      return "/middlegame-strategy";
+    } else if (id.startsWith("endgame_")) {
+      return "/endgame-mastery";
+    } else {
+      return "/";
+    }
+  };
+
+  const basePath = getBasePath(topic.id);
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 h-full">
@@ -34,9 +47,11 @@ const TrainingTopicCard: React.FC<TrainingTopicCardProps> = ({
         </Badge>
       </div>
       <div className="font-medium mb-4">{topic.title}</div>
-      <Button className="w-full btn-primary rounded-full">
-        Start Training
-      </Button>
+      <Link href={`${basePath}/${topic.id}`}>
+        <button className="w-full btn-primary rounded-full">
+          Start Training
+        </button>
+      </Link>
     </div>
   );
 };

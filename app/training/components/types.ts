@@ -9,6 +9,7 @@ export interface UserProfileCardProps {
   goals?: Goal[];
   duration?: Duration;
   hasPlan?: boolean
+  avatar?:string
 }
 
 export interface SkillProgressTrackProps {
