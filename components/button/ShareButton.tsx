@@ -10,7 +10,7 @@ import {
   MailIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { DiscordLogoIcon } from "@radix-ui/react-icons";
+import { BookmarkFilledIcon, DiscordLogoIcon } from "@radix-ui/react-icons";
 import { FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { GrThreads } from "react-icons/gr";
 import Image from "next/image";
@@ -114,7 +114,12 @@ const ShareButton = (props: any) => {
           inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
         }}
       >
+        {props.saved ? 
+        <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+        :
         <Bookmark className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+        
+        }
       </button>
       {/* Dropdown */}
       {open && (

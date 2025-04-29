@@ -1,36 +1,47 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface ChessNewsState {
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
-  categories:any[];
+  categories: any[];
   setCategories: (categories: any[]) => void;
   chessNews: any[];
-  setChessNews: (chessNews: any[]) => void; 
+  setChessNews: (chessNews: any[]) => void;
+  savedArticles: any[];
+  setSavedArticles: (savedArticles: any[]) => void;
   detailNews: any;
-  setDetailNews: (detailNews: any) => void; 
+  setDetailNews: (detailNews: any) => void;
+
+  mostReadsArticle: any;
+  setMostReadsArticle: (mostReadsArticle: any) => void;
 }
 
-export const useChessNewsStore= create<ChessNewsState>()(
-  persist((set) => ({
-    isLoading: false,
-    setIsLoading: (isLoading) => set({ isLoading }),
-    categories: [],
-    setCategories: (categories) => set({ categories }),
-    chessNews: [],
-    setChessNews: (chessNews) => set({ chessNews }),
-    detailNews: {},
-    setDetailNews: (detailNews) => set({detailNews}),
-   
-  }),
-  {
-    name: 'chess-news-storage', // unique name for the storage
-    storage: createJSONStorage(() => sessionStorage), // use localStorage by default
-    partialize: (state) => ({
-      chessNews: state.chessNews,
-      detailNews: state.detailNews,
+export const useChessNewsStore = create<ChessNewsState>()(
+  persist(
+    (set) => ({
+      isLoading: false,
+      setIsLoading: (isLoading) => set({ isLoading }),
+      categories: [],
+      setCategories: (categories) => set({ categories }),
+      chessNews: [],
+      setChessNews: (chessNews) => set({ chessNews }),
+      savedArticles: [],
+      setSavedArticles: (savedArticles) => set({ savedArticles }),
+      detailNews: {},
+      setDetailNews: (detailNews) => set({ detailNews }),
+      mostReadsArticle: [],
+      setMostReadsArticle: (mostReadsArticle) => set({ mostReadsArticle }),
     }),
-  }
+    {
+      name: "chess-news-storage", // unique name for the storage
+      storage: createJSONStorage(() => sessionStorage), // use localStorage by default
+      partialize: (state) => ({
+        chessNews: state.chessNews,
+        detailNews: state.detailNews,
+        savedArticles: state.savedArticles,
+        mostReadsArticle: state.mostReadsArticle,
+      }),
+    }
   )
-  );
+);
