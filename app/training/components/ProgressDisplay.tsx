@@ -144,6 +144,38 @@ const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
 
   return (
     <div className="space-y-4 p-4 xl:p-0">
+      <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <CardContent className="p-4 flex flex-col gap-y-4">
+          <h2 className="text-2xl font-bold">Overall Improvement</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Level Card */}
+            <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg  max-h-[150px] text-white p-6 relative overflow-hidden">
+              <h1 className="text-xl">my current level</h1>
+              <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
+                <h1 className="text-xl font-semibold">Beginner</h1>
+                <div className="flex items-center gap-x-2">
+                  <h1 className="text-4xl font-bold">1,000</h1>
+                  <h1>
+                    elo rating<span className="ml-2">⭐</span>
+                  </h1>
+                </div>
+              </div>
+            </div>
+
+            {/* Accuracy Card */}
+            <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-2 justify-center flex-col rounded-lg p-6  max-h-[150px] text-black relative overflow-hidden">
+              <div className="flex items-center gap-x-2">
+                <TargetIcon className="w-5 h-5 text-[#FAC933]" />
+                <h1 className="text-xl text-black">Accuracy</h1>
+              </div>
+
+              <h1 className="text-4xl text-[#FAC933]">85%</h1>
+              <div className="text-black font-medium">+5% improvement</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       {/* Charts and Stats Container with 60/40 split */}
       <div className="md:grid md:grid-cols-5 gap-6">
         {/* Left column - Charts (60%) */}
