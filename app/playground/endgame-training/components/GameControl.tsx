@@ -8,19 +8,23 @@ interface GameControlsProps {
   game: Chess;
   gameStatus: string;
   handleHint: () => void;
+  handleShowSolution: () => void;
   resetPosition: () => void;
   navigateNext: () => void;
   isCheckmateMode: boolean;
   playerColor: "w" | "b";
+  isAutoSolution: boolean;
 }
 
 export default function GameControls({
   gameStatus,
   handleHint,
+  handleShowSolution,
   resetPosition,
   navigateNext,
   isCheckmateMode,
   playerColor,
+  isAutoSolution,
 }: GameControlsProps) {
   const colorName = playerColor === "w" ? "White" : "Black";
   const isGameOver = gameStatus === "solved";
@@ -48,8 +52,15 @@ export default function GameControls({
 
           {!isCheckmateMode && (
             <button
-              className="flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
-              onClick={handleHint}
+              className={`flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 ${
+                isAutoSolution
+                  ? "bg-amber-100 text-amber-700"
+                  : "text-blue-base"
+              } rounded-md border ${
+                isAutoSolution ? "border-amber-400" : "border-primary-gray"
+              }`}
+              onClick={handleShowSolution}
+              disabled={isAutoSolution}
             >
               <Image
                 src={"/endgame-training/show-solution.png"}
@@ -57,7 +68,7 @@ export default function GameControls({
                 width={15}
                 height={15}
               />{" "}
-              Show Solution
+              {isAutoSolution ? "Solving..." : "Show Solution"}
             </button>
           )}
 
