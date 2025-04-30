@@ -186,7 +186,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
               onPieceClick={onPieceClick}
               customArrowColor={customArrowColor}
               boardOrientation={orientation}
-              boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
+              boardWidth={Math.round(boardWidth - boardWidth / 8.2)}
               arePiecesDraggable={arePiecesDraggable}
               position={position}
               onSquareClick={onSquareClick}
@@ -201,13 +201,12 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
                 }
                 return false;
               }}
-              // customBoardStyle={{
-              //   borderRadius: "4px",
-              //   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-              // }}
+              customBoardStyle={{
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+              }}
               customPieces={twoDPieces}
               customLightSquareStyle={{
-                // backgroundColor: "#ff000070",
+                // backgroundColor: "#ff00ff70",
                 backgroundColor: "transparent",
               }}
               customDarkSquareStyle={{
@@ -224,10 +223,13 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
           ) : (
             <Chessboard
               boardOrientation={orientation}
-              boardWidth={Math.round(boardWidth - boardWidth / 8.5)}
+              boardWidth={Math.round(boardWidth - boardWidth / 8.2)}
               arePiecesDraggable={arePiecesDraggable}
               position={position}
               customPieces={twoDPieces}
+              customBoardStyle={{
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+              }}
               customLightSquareStyle={{
                 backgroundColor: "transparent",
               }}
