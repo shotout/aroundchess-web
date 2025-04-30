@@ -7,6 +7,8 @@ interface LoadingAPIState {
   setEstimateSecond: (estimateSecond: any) => void;
   estimateMinute: number;
   setEstimateMinute: (estimateMinute: any) => void;
+  analyzeComplete: boolean;
+  setAnalyzeComplete: (analyzeComplete: any) => void; 
 }
 
 export const useLoadingAPI = create<LoadingAPIState>((set) => ({
@@ -16,4 +18,6 @@ export const useLoadingAPI = create<LoadingAPIState>((set) => ({
   setEstimateSecond: (estimateSecond) => set({ estimateSecond }),
   estimateMinute: 0,
   setEstimateMinute: (estimateMinute) => set({ estimateMinute }),
+  analyzeComplete: false,
+  setAnalyzeComplete: (analyzeComplete) => set({ analyzeComplete }),
 }));
