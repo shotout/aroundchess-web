@@ -1,4 +1,5 @@
 "use client";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useLoadingNumber } from "@/app/store/loadingNumber";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
@@ -8,23 +9,68 @@ import { useState, useEffect } from "react";
 export default function LoadingSpinner() {
   const [progress, setProgress] = useState(0);
   const { isLoading, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { length, workingOn } = useLoadingNumber(); // Get PGN from the Zustand store
-  const { proceedAnalysis, isAnalyzing, progress:analysisProgress, error } = useStockfishAnalysis();
+  const {
+    setEstimateMinute,
+    setEstimateSecond,
+    estimateMinute,
+    estimateSecond,
+  } = useLoadingAPI(); //
+  const {
+    proceedAnalysis,
+    isAnalyzing,
+    progress: analysisProgress,
+    error,
+  } = useStockfishAnalysis();
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (dataAnalysis == null && progress <= 95) {
-        setProgress((prev) =>
-          prev < 95 ? prev + 5 : 95
-        // prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
-        );
-      } else if (dataAnalysis != null) {
-        setProgress(100);
-      }
-    }, 3000);
-
+    const totalTimeLeft = estimateMinute * 60 + estimateSecond;
+    setTimeLeft(totalTimeLeft);
+  }, [estimateMinute, estimateSecond]);
+  useEffect(() => {
+    const totalTimeLeft = estimateMinute * 60 + estimateSecond;
+    let interval: string | number | NodeJS.Timeout | undefined;
+    if (dataAnalysis != null) {
+      setProgress(100);
+      setTimeLeft(0);
+    }
+    if (isLoading && progress < 100 && timeLeft != 0 && dataAnalysis == null) {
+      // Update every 50ms for smooth animation
+      interval = setInterval(() => {
+        const newProgress = (1 - timeLeft / totalTimeLeft) * 100;
+        setProgress(newProgress);
+        setTimeLeft((prev) => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            // setIsRunning(false);
+            return 0;
+          }
+          return prev - 0.05; // Decrement by 50ms in seconds
+        });
+      }, 50);
+    } else if (progress >= 100) {
+      setProgress(100);
+      setTimeLeft(0);
+      // setIsRunning(false);
+    }
+    console.log("cek data analysis", dataAnalysis);
     return () => clearInterval(interval);
-  }, [dataAnalysis]);
+  }, [isLoading, progress, timeLeft, dataAnalysis]);
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (dataAnalysis == null && progress <= 95) {
+  //       setProgress((prev) =>
+  //         prev < 95 ? prev + 5 : 95
+  //       // prev < 99 ? prev + Math.floor(Math.random() * 10) + 3 : 99
+  //       );
+  //     } else if (dataAnalysis != null) {
+  //       setProgress(100);
+  //     }
+  //   }, 3000);
+
+  //   return () => clearInterval(interval);
+  // }, [dataAnalysis]);
 
   // Calculate rotation angle for the image
   const rotationAngle = (progress / 100) * 360;
@@ -86,7 +132,7 @@ export default function LoadingSpinner() {
 
         {/* Percentage Text */}
         <div className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-gray-700">
-          {progress}%
+          {Math.round(progress)}%
         </div>
 
         {/* <div

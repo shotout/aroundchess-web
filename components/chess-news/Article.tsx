@@ -60,6 +60,7 @@ export default function Article() {
     getNewsSaved({}).then((response) => {
       console.log("getNewsSaved", response.data);
       setSavedArticles(response.data);
+      setIsLoading(false);
     });
   };
   const fetchArticles = () => {
@@ -67,7 +68,6 @@ export default function Article() {
     getNews(params).then((response) => {
       console.log("getNews", response.data);
       setChessNews(response.data);
-      setIsLoading(false);
     });
   };
   useEffect(() => {

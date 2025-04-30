@@ -19,10 +19,17 @@ import {
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import { formatDate, formatDateHistory, formatTimePgn } from "@/functions/format-date";
+import {
+  formatDate,
+  formatDateHistory,
+  formatTimePgn,
+} from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -112,8 +119,8 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
-  const { allMembershipPackages, activeMembership, isMember } =
-    useProfileStore();
+  const { allMembershipPackages, activeMembership } = useProfileStore();
+  let isMember = false;
   const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 
@@ -123,7 +130,20 @@ export const PremiumSubsContent: React.FC<{
   const handleCancelSubscription = () => {
     setOpen(true);
   };
-  const handleGetPremium = () => {
+  const handleGetPremium = async () => {
+    const res = await fetch("/api/stripe/checkout_sessions", {
+      method: "POST",
+      body: JSON.stringify({
+        productName: "Premium Package (Yearly)",
+        price: premium.price * 100,
+        quantity: 1,
+        description: premium.description,
+      }),
+    });
+
+    const data = await res.json();
+    const stripe = await stripePromise;
+    await stripe?.redirectToCheckout({ sessionId: data.id });
     let body = {
       membershipType: "YEARLY",
       paymentMethodId: "test",

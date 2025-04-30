@@ -6,10 +6,11 @@ import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { motion } from "@/utils/motion";
 
+import { useGameEndStatus } from "@/app/store/gameEndStatus";
 import { usePgnStore } from "@/app/store/zustandStore";
-import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import DotSpinner from "@/components/game-history/Spinner";
+import { GameEndStatus } from "@/components/modal/GameEndStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
@@ -28,11 +29,12 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { CommentarGame } from "./CommentaryGame";
+import { CommentaryMove } from "./CommentaryMove";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
-import { CommentaryMove } from "./CommentaryMove";
-import { GameEndStatus } from "@/components/modal/GameEndStatus";
-import { useGameEndStatus } from "@/app/store/gameEndStatus";
+import { useProfileStore } from "@/app/store/profile";
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -47,11 +49,13 @@ type MoveClassification =
 
 export default function PlayingPage() {
   const router = useRouter();
-  const { proceedAnalysis } = useStockfishAnalysis();
 
+  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
+  const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
+  const { isMember } = useProfileStore();
+  const { setOpen: setOpenPricing } = usePricingOffer();
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const {
-    isLoading: loadingAnalyze,
     setIsLoading,
     setPgn,
     setDataAnalysis,
@@ -156,7 +160,6 @@ export default function PlayingPage() {
       }
     }
   };
-
   useEffect(() => {
     let is3D = StyleChoosed == "3d" ? true : false;
     setIs3DMode(is3D);
@@ -348,15 +351,15 @@ export default function PlayingPage() {
     ...(previousSquare && {
       [previousSquare]: {
         backgroundColor: "#B9CA43",
-        marginLeft: -0.5,
-        marginTop: is3DMode ? 0.5 : -1.5,
+        // marginLeft: -0.5,
+        // marginTop: is3DMode ? 0.5 : -1.5,
       }, // Green for previous
     }),
     ...(currentSquare && {
       [currentSquare]: {
         backgroundColor: "#F5F682",
-        marginLeft: -0.5,
-        marginTop: is3DMode ? 0 : -1.5,
+        // marginLeft: -0.5,
+        // marginTop: is3DMode ? 0 : -1.5,
       }, // Yellow for current
     }),
   };
@@ -544,6 +547,7 @@ export default function PlayingPage() {
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
   }, []);
+
   const getStockfishDepth = (elo: number) => {
     if (elo < 250) return 1;
     if (elo < 500) return 2;
@@ -571,6 +575,7 @@ export default function PlayingPage() {
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
+
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -664,7 +669,11 @@ export default function PlayingPage() {
     console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
-    fetchPgnLocal();
+    if (isMember) {
+      fetchPgnLocal();
+    } else {
+      setOpenPricing(true);
+    }
   };
   const handleRematch = () => {
     game.reset();
@@ -733,7 +742,6 @@ export default function PlayingPage() {
     }
   }, [statusGame]);
 
-  if (loadingAnalyze) return <LoadingPage />;
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
       <GameEndStatus gameStatus={statusGame.toLowerCase()} />
