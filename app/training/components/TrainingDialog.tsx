@@ -10,24 +10,66 @@ import {
 import DialogUserInfo from "./DialogUserInfo";
 import DialogLevelProgress from "./DialogLevelProgress";
 import TopicSelectionSection from "./TopicSelectionSection";
-import { ChessTrainingPlanDialogProps } from "./types";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
-import useTrainingPlanStore from "../service/TrainingPlanStore";
 import DotSpinner from "@/components/game-history/Spinner";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useTrainingPlanStore } from "../store";
+
+interface ChessTrainingPlanDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userProfile: {
+    username?: string;
+    currentElo?: number;
+    avatar?: string;
+  };
+  onPlanCreated: () => void;
+}
+
+const defaultCategoryInfo = [
+  {
+    id: "opening",
+    title: "Opening Topics",
+    icon: "/training-plan/oc.png",
+    description: "Select Opening Topics:",
+    subcategories: [
+      {
+        id: "whiteOpening",
+        title: "White Opening",
+        selectionCount: 1,
+      },
+      {
+        id: "blackOpening",
+        title: "Black Opening",
+        selectionCount: 1,
+      },
+    ],
+  },
+  {
+    id: "middlegame",
+    title: "Middlegame Concepts",
+    icon: "/training-plan/mc.png",
+    description: "Select Middlegame Topics:",
+    subcategories: [],
+  },
+  {
+    id: "endgame",
+    title: "Endgame Concepts",
+    icon: "/training-plan/ec.png",
+    description: "Select Endgame Topics:",
+    subcategories: [],
+  },
+];
 
 const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   open,
   onOpenChange,
   userProfile,
-  skillLevels,
-  topicCategoryInfo: mockTopicCategoryInfo,
-  keyInfo,
   onPlanCreated,
 }) => {
   const { sessionId } = useAuth();
   const {
-    // State from the store
     userProfile: storeUserProfile,
     config,
     topics,
@@ -37,21 +79,15 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     selectedEndgames,
     isLoading,
     error,
-
-    // Actions from the store
     fetchTopics,
     toggleTopic,
     createTrainingPlan,
     reset,
   } = useTrainingPlanStore();
 
-  // State for active category on mobile/tablet
   const [activeCategory, setActiveCategory] = useState("opening");
-
-  // Categories for toggling
   const categories = ["opening", "middlegame", "endgame"];
 
-  // Combine all selected topics from the store
   const selectedTopics = [
     ...selectedWhiteOpenings,
     ...selectedBlackOpenings,
@@ -59,13 +95,11 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     ...selectedEndgames,
   ];
 
-  // Fetch topics when dialog opens
   useEffect(() => {
     if (open && sessionId) {
       fetchTopics(sessionId);
     }
 
-    // Reset selections when dialog closes
     return () => {
       if (!open) {
         reset();
@@ -73,13 +107,11 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     };
   }, [open, sessionId, fetchTopics, reset]);
 
-  // Transform the API topics into the format expected by TopicSelectionSection
   const transformTopics = () => {
     if (!topics) return [];
 
     const transformed: any[] = [];
 
-    // Add white openings
     if (topics.openings?.white) {
       topics.openings.white.forEach((topic: any) => {
         transformed.push({
@@ -90,7 +122,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
       });
     }
 
-    // Add black openings
     if (topics.openings?.black) {
       topics.openings.black.forEach((topic: any) => {
         transformed.push({
@@ -101,7 +132,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
       });
     }
 
-    // Add middlegames
     if (topics.middlegames && topics.middlegames.length > 0) {
       topics.middlegames.forEach((topic: any) => {
         transformed.push({
@@ -112,7 +142,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
       });
     }
 
-    // Add endgames
     if (topics.endgames && topics.endgames.length > 0) {
       topics.endgames.forEach((topic: any) => {
         transformed.push({
@@ -126,9 +155,8 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     return transformed;
   };
 
-  // Generate category info based on API data
   const transformCategoryInfo = () => {
-    if (!config?.requirements) return mockTopicCategoryInfo;
+    if (!config?.requirements) return defaultCategoryInfo;
 
     const requirements = config.requirements;
 
@@ -209,6 +237,55 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   };
 
   const displayUserProfile = storeUserProfile || userProfile;
+  const keyInfo = {
+    keyToReachNextLevel: config?.eloRange
+      ? `Continued practice with improved openings and deeper study of middlegame and endgame concepts for ${config.eloRange} ELO range.`
+      : "Improve your skills with focused training.",
+    approximateDuration: "6-9 Months",
+  };
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[90vw] lg:max-w-6xl rounded-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
+          <DialogHeader className="flex flex-row items-center justify-between">
+            <div></div>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Image
+                src={"/training-plan/check-small.png"}
+                alt=""
+                width={30}
+                height={30}
+              />
+              Create Training Plan
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="border"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          <Alert variant="destructive" className="my-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={() => {
+                if (sessionId) fetchTopics(sessionId);
+              }}
+              className="btn-primary"
+            >
+              Retry
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -238,12 +315,8 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           <div className="p-6 flex items-center justify-center">
             <DotSpinner />
           </div>
-        ) : error ? (
-          <div className="p-6 text-red-500">
-            <p>Error loading training topics: {error}</p>
-          </div>
         ) : (
-          <div className=" lg:p-6">
+          <div className="lg:p-6">
             <h2 className="text-lg font-semibold mb-4">
               Rise to the next Level
             </h2>
@@ -258,9 +331,10 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                 </div>
                 <div className="w-full lg:w-3/5">
                   <DialogLevelProgress
-                    skillLevels={skillLevels}
                     currentElo={
-                      storeUserProfile?.elo || userProfile?.currentElo || 0
+                      (displayUserProfile as any)?.currentElo ??
+                      userProfile?.currentElo ??
+                      0
                     }
                   />
                 </div>
@@ -271,7 +345,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               Select your primary topics to improve your Skills
             </h2>
 
-            {/* Category toggle for mobile and tablet */}
             <div className="block lg:hidden mb-4">
               <div className="flex w-full justify-center">
                 <div className="p-2 flex-1 flex bg-[#F9FAFC] rounded-lg border h-auto items-center w-full">
@@ -296,7 +369,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               </div>
             </div>
 
-            {/* Responsive grid that shows only active category on mobile/tablet */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {transformCategoryInfo().map((category) => (
                 <div

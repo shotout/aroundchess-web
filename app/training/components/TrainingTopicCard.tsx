@@ -23,7 +23,6 @@ const TrainingTopicCard: React.FC<TrainingTopicCardProps> = ({
   const iconSrc =
     typeof icon === "string" ? icon : "/training-plan/default.png";
 
-  // Determine base path based on the prefix in topic.id
   const getBasePath = (id: string) => {
     if (id.startsWith("opening_")) {
       return "/opening-theory";

@@ -57,14 +57,13 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
             dragElastic={0.1}
             dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
             onDrag={(_, info) => {
-              // Manually scroll the container when dragging
               if (scrollRef.current) {
                 scrollRef.current.scrollLeft -= info.delta.x;
               }
             }}
             style={{
               overflowX: "auto",
-              WebkitOverflowScrolling: "touch", // For smooth scrolling on iOS
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {topics.map((topic) => (

@@ -4,12 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useAuth, UserButton, useUser } from "@clerk/nextjs";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import {
   DropdownMenu,
@@ -249,7 +248,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
-              ? pathname.includes(section.href)
+              ? pathname?.includes(section.href) ?? false
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
@@ -342,7 +341,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   {hasChildren && (
                     <div className="ml-6 space-y-2 ">
                       {section.children.map((child: any) => {
-                        const isChildActive = pathname.includes(child.href);
+                        const isChildActive =
+                          pathname?.includes(child.href) ?? false;
                         return (
                           <Link
                             key={child.href}

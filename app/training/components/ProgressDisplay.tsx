@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -29,8 +29,9 @@ import {
   TriangleAlert,
   Trophy,
 } from "lucide-react";
-import { useProgressData } from "../service/useProgressData";
 import DotSpinner from "@/components/game-history/Spinner";
+import { useAuth } from "@clerk/nextjs";
+import { useProgressStore } from "../store";
 
 const CustomTooltipContent = ({
   active,
@@ -67,34 +68,57 @@ const MONTHS = [
 ];
 
 const ProgressDisplay = () => {
+  const { sessionId } = useAuth();
   const currentDate = new Date();
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}`
-  );
-  const [displayMonth, setDisplayMonth] = useState(
-    MONTHS[currentDate.getMonth()]
-  );
+  // Get the current year-month in the format YYYY-MM
+  const getCurrentYearMonth = (monthName: string) => {
+    const monthIndex = MONTHS.indexOf(monthName);
+    const year = currentDate.getFullYear();
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+  };
 
+  // Get the display month name from a YYYY-MM string
+  const getDisplayMonthFromYearMonth = (yearMonth: string) => {
+    const parts = yearMonth.split("-");
+    if (parts.length === 2) {
+      const monthIndex = parseInt(parts[1]) - 1;
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return MONTHS[monthIndex];
+      }
+    }
+    return MONTHS[currentDate.getMonth()];
+  };
+
+  // Use the progress store
   const {
     progressData: apiData,
     isLoading,
     error,
-    refetch,
-  } = useProgressData(selectedMonth);
+    currentMonth,
+    setCurrentMonth,
+    fetchProgressData,
+  } = useProgressStore();
+
+  // Set display month based on the currentMonth in the store
+  const [displayMonth, setDisplayMonth] = useState(
+    getDisplayMonthFromYearMonth(currentMonth)
+  );
+
+  // Fetch progress data when component mounts or month changes
+  useEffect(() => {
+    if (sessionId) {
+      fetchProgressData(sessionId, currentMonth);
+    }
+  }, [sessionId, currentMonth, fetchProgressData]);
 
   const handleMonthChange = (month: string) => {
     setDisplayMonth(month);
-
-    const monthIndex = MONTHS.indexOf(month);
-    const year = currentDate.getFullYear();
-    const formattedMonth = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
-
-    setSelectedMonth(formattedMonth);
-    refetch(formattedMonth);
+    const yearMonth = getCurrentYearMonth(month);
+    setCurrentMonth(yearMonth);
+    if (sessionId) {
+      fetchProgressData(sessionId, yearMonth);
+    }
   };
 
   const trainingData = apiData
