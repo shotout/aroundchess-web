@@ -39,7 +39,8 @@ const LoadingPage: React.FC = (props) => {
     : "XX";
   const dataGame = dataGamesImport != null ? dataGamesImport : dataGames;
   const [headerPGN, setHeaderPGN] = useState<any>({});
-  const [countDown, setCountDown] = useState<string>("");
+  const [countDownBefore, setCountDownBefore] = useState<string>("");
+  const [countDownAfter, setCountDownAfter] = useState<string>("");
   useEffect(() => {
     console.log("basicFormat", estimateMinute, estimateSecond);
     if (!isLoading) {
@@ -92,26 +93,68 @@ const LoadingPage: React.FC = (props) => {
     setDataGamesImport(dataGames);
     console.log("tempGame.getHeaders()", headers);
   };
-  const countdown = createCountdown(
-    estimateMinute,
-    estimateSecond,
-    (min, sec) => {
-      let minuteFormat = min < 10 ? "0" + min : min;
-      let secondFormat = sec < 10 ? "0" + sec : sec;
-      setCountDown(`${minuteFormat}:${secondFormat}`);
-    },
-    () => console.log("Countdown complete!")
-  );
+
   useEffect(() => {
     if (dataAnalysis != null) {
-      setCountDown(`${`00`}:${`00`}`);
+      setCountDownAfter(`${`00`}:${`00`}`);
       setEstimateMinute(0);
       setEstimateSecond(0);
+    }
+  }, [estimateSecond, dataAnalysis]);
+  useEffect(() => {
+    let countdownBefore = createCountdown(
+      estimateMinute,
+      estimateSecond,
+      (min, sec) => {
+        let minuteFormat = min < 10 ? "0" + min : min;
+        let secondFormat = sec < 10 ? "0" + sec : sec;
+        if (!analyzeComplete)
+          setCountDownBefore(`${minuteFormat}:${secondFormat}`);
+      },
+      () => console.log("Countdown complete!")
+    );
+    let countdownAfter = createCountdown(
+      estimateMinute,
+      estimateSecond,
+      (min, sec) => {
+        let minuteFormat = min < 10 ? "0" + min : min;
+        let secondFormat = sec < 10 ? "0" + sec : sec;
+        setCountDownAfter(`${minuteFormat}:${secondFormat}`);
+      },
+      () => console.log("Countdown complete!")
+    );
+    console.log("analyzeComplete", analyzeComplete);
+    if (analyzeComplete) {
+      countdownBefore.stop();
+      if (estimateMinute >= 30) {
+        setEstimateMinute(4);
+        setEstimateSecond(10);
+        countdownAfter.setTime(6, 30);
+        countdownAfter.start();
+      } else if (estimateMinute >= 20) {
+        setEstimateMinute(3);
+        setEstimateSecond(10);
+        countdownAfter.setTime(5, 30);
+        countdownAfter.start();
+      } else if (estimateMinute >= 10) {
+        setEstimateMinute(3);
+        setEstimateSecond(10);
+        countdownAfter.setTime(4, 30);
+        countdownAfter.start();
+      } else if (estimateMinute >= 5) {
+        setEstimateMinute(2);
+        setEstimateSecond(10);
+        countdownAfter.setTime(3, 30);
+        countdownAfter.start();
+      }
     } else {
       console.log("estimateMinute", estimateMinute, estimateSecond);
-      countdown.start();
+      if (!analyzeComplete) {
+        countdownBefore.setTime(estimateMinute, estimateSecond);
+        countdownBefore.start();
+      }
     }
-  }, [estimateSecond, dataAnalysis, analyzeComplete]);
+  }, [analyzeComplete]);
   return (
     <>
       <div className="flex flex-col items-center justify-center py-4">
@@ -125,7 +168,7 @@ const LoadingPage: React.FC = (props) => {
           <span className="font-medium text-[14px]">
             Time Remaining:{" "}
             <span className="font-bold text-[#221AE9] text-[14px]">
-              {countDown}
+              {analyzeComplete ? countDownAfter : countDownBefore}
             </span>
           </span>
         </div>
