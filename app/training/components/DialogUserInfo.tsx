@@ -1,18 +1,46 @@
 import React from "react";
-import { DialogUserInfoProps } from "./types";
 import Image from "next/image";
+import { useUserStore } from "../store";
+
+interface DialogUserInfoProps {
+  username: string;
+  keyInfo: {
+    keyToReachNextLevel: string;
+    approximateDuration: string;
+  };
+}
 
 const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   username,
   keyInfo,
 }) => {
+  const { profile } = useUserStore();
+
+  const displayUsername = profile?.username || username;
+
   return (
     <div className="lg:w-96 w-full border-gray-200 p-2 bg-white rounded-md">
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden"></div>
+        {profile?.avatar ? (
+          <div className="h-12 w-12 rounded-full overflow-hidden">
+            <Image
+              src={profile.avatar}
+              width={48}
+              height={48}
+              alt={`${displayUsername}'s avatar`}
+              className="object-cover w-full h-full"
+            />
+          </div>
+        ) : (
+          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500 font-bold text-lg">
+              {displayUsername.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
         <div className="flex justify-between items-center w-full">
-          <div className="font-semibold">{username}</div>
-          <div>hello</div>
+          <div className="font-semibold">{displayUsername}</div>
+          <div className="text-blue-500 text-sm">{profile?.elo || "0"} ELO</div>
         </div>
       </div>
 

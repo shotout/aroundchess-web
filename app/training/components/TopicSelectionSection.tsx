@@ -1,4 +1,3 @@
-// components/TopicSelectionSection.tsx
 import React from "react";
 import IndividualTrainingTopic from "./IndividualTrainingTopic";
 import { TopicSelectionSectionProps } from "./types";

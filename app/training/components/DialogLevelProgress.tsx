@@ -1,11 +1,48 @@
 import React from "react";
 import Image from "next/image";
-import { DialogLevelProgressProps } from "./types";
-import { Check } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface DialogLevelProgressProps {
+  currentElo: number;
+  skillLevels?: any[];
+}
+
+const DEFAULT_SKILL_LEVELS = [
+  {
+    id: "novice",
+    title: "Novice",
+    elo: 0,
+  },
+  {
+    id: "beginner",
+    title: "Beginner",
+    elo: 800,
+  },
+  {
+    id: "intermediate",
+    title: "Intermediate",
+    elo: 1200,
+  },
+  {
+    id: "expert",
+    title: "Expert",
+    elo: 1600,
+  },
+  {
+    id: "master",
+    title: "Master",
+    elo: 2000,
+  },
+  {
+    id: "grandmaster",
+    title: "Grand Master",
+    elo: 2400,
+  },
+];
 
 const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
-  skillLevels,
   currentElo,
+  skillLevels = DEFAULT_SKILL_LEVELS,
 }) => {
   const getImagePath = (
     title: string,
@@ -63,7 +100,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     ];
   };
 
-  // This function calculates the ELO percentage similarly to SkillProgressTrack
   const calculateEloPercentage = (): number => {
     const boundedElo = Math.max(MIN_ELO, Math.min(currentElo || 0, MAX_ELO));
     const displayLevels = getDisplayLevels();
@@ -101,11 +137,19 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const currentLevelIndex = getCurrentLevelIndex();
 
-  // Standardized badge class for consistent width and height (same as SkillProgressTrack)
   const badgeClass =
     "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
 
-  // Calculate progress width for the blue progress indicator
+  if (!skillLevels || skillLevels.length === 0) {
+    return (
+      <Alert className="mt-4">
+        <AlertDescription>
+          Skill level information not available.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const calculateProgressWidth = (): string => {
     const completedLevels = displayLevels.filter(
       (level) => (currentElo || 0) >= level.elo
@@ -119,22 +163,16 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
       return "100%";
     }
 
-    // For partial progress between indicators
     const lastCompletedIndex = completedLevels - 1;
     const nextLevelElo = displayLevels[lastCompletedIndex + 1].elo;
     const lastCompletedElo = displayLevels[lastCompletedIndex].elo;
 
-    // Calculate percentage between the last completed level and the next level
     const progressBetweenLevels =
       (currentElo - lastCompletedElo) / (nextLevelElo - lastCompletedElo);
 
-    // Calculate total segments (e.g., 0 to 1, 1 to 2, etc.)
     const totalSegments = displayLevels.length - 1;
-
-    // Each segment width as a percentage of the total
     const singleSegmentWidth = 100 / totalSegments;
 
-    // Calculate progress width based on completed segments plus partial progress
     const progressWidth =
       lastCompletedIndex * singleSegmentWidth +
       progressBetweenLevels * singleSegmentWidth;
@@ -145,7 +183,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   return (
     <div className="relative mt-10 2xl:mt-12">
       <div className="w-full space-y-6">
-        {/* Grid for skill levels */}
         <div className="grid grid-cols-3 gap-2">
           {displayLevels.map((level, index) => {
             const isReached = (currentElo || 0) >= level.elo;
@@ -188,7 +225,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                   )}
                 </div>
 
-                {/* Desktop image container - with proper horizontal alignment */}
                 <div className="relative hidden xl:flex h-20 w-16 justify-center">
                   <div className="absolute bottom-0 flex justify-center">
                     <Image
@@ -203,7 +239,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                   </div>
                 </div>
 
-                {/* Mobile image container - with proper horizontal alignment */}
                 <div className="relative flex xl:hidden h-14 w-10 justify-center">
                   <div className="absolute bottom-0 flex justify-center">
                     <Image
@@ -231,10 +266,8 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
           })}
         </div>
 
-        {/* Progress bar container */}
         <div className="relative h-20">
           <div className="relative w-full mt-6">
-            {/* Indicators */}
             <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
               {displayLevels.map((level, index) => {
                 const isReached = (currentElo || 0) >= level.elo;
@@ -255,12 +288,11 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
               })}
             </div>
 
-            {/* Progress bar positioned to align with the indicators */}
             <div
               className="absolute top-1/2 -translate-y-1/2 h-4 bg-gray-200 z-0"
               style={{
-                left: "calc(16.67% + 3.5px)" /* Half of indicator width (7px / 2) */,
-                width: "calc(66.66% - 7px)" /* Account for indicator width */,
+                left: "calc(16.67% + 3.5px)",
+                width: "calc(66.66% - 7px)",
               }}
             >
               <div
@@ -275,7 +307,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
           <div
             className="absolute -translate-x-1/2 top-8"
             style={{
-              // Use the same calculation approach as in SkillProgressTrack for mobile
               left: `${((currentEloPercentage * 0.6666) / 100) * 100 + 16.67}%`,
               bottom: 0,
             }}

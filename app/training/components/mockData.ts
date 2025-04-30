@@ -1,4 +1,3 @@
-// mockData.ts
 import React from 'react';
 
 export interface SkillLevel {
@@ -41,16 +40,8 @@ export interface WeekDay {
   name: string;
 }
 
-// User profile data
-export const userProfileData: UserProfile = {
-  username: "Blitzmystic",
-  level: "Beginner",
-  currentElo: 900,
-  targetElo: 1200,
-  avatar: null, 
-};
 
-// Skill levels data
+
 export const skillLevelsData: SkillLevel[] = [
   {
     id: "novice",
@@ -164,75 +155,7 @@ export const topicCategoryInfo = [
 
 
 
-// Sample training plan data
-export const trainingPlanData = {
-  openingTopics: [
-    {
-      id: "white-opening-1",
-      title: "[White Opening Training topic 1]",
-      level: "Beginner",
-      category: "whiteOpening"
-    },
-    {
-      id: "black-opening-1",
-      title: "[Black Opening Training topic 2]",
-      level: "Beginner",
-      category: "blackOpening"
-    }
-  ],
-  middlegameTopics: [
-    {
-      id: "middlegame-1",
-      title: "[Middlegame Training topic 1]",
-      level: "Beginner",
-      category: "middlegame"
-    },
-    {
-      id: "middlegame-2",
-      title: "[Middlegame Training topic 2]",
-      level: "Beginner",
-      category: "middlegame"
-    },
-    {
-      id: "middlegame-3",
-      title: "[Middlegame Training topic 3]",
-      level: "Beginner",
-      category: "middlegame"
-    },
-    {
-      id: "middlegame-4",
-      title: "[Middlegame Training topic 4]",
-      level: "Intermediate",
-      category: "middlegame"
-    },
-    {
-      id: "middlegame-5",
-      title: "[Middlegame Training topic 5]",
-      level: "Intermediate",
-      category: "middlegame"
-    }
-  ],
-  endgameTopics: [
-    {
-      id: "endgame-1",
-      title: "[Endgame Training topic 1]",
-      level: "Beginner",
-      category: "endgame"
-    },
-    {
-      id: "endgame-2",
-      title: "[Endgame Training topic 2]",
-      level: "Beginner",
-      category: "endgame"
-    },
-    {
-      id: "endgame-3",
-      title: "[Endgame Training topic 3]",
-      level: "Beginner",
-      category: "endgame"
-    }
-  ]
-};
+
 
 // Fallback progress data (now coming from API, but kept for compatibility)
 export const progressData = {

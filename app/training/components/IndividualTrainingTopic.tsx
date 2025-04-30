@@ -13,7 +13,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   const bgColor = isSelected ? "bg-blue-base/5" : "bg-white";
   const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
 
-  // Determine if this is an opening topic
   const isOpeningTopic =
     topic.category === "whiteOpening" || topic.category === "blackOpening";
 

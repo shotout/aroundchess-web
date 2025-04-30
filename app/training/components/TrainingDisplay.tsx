@@ -5,48 +5,10 @@ import DaySelector from "./DaySelector";
 import TrainingSection from "./TrainingSection";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { TrainingSchedule } from "../service/useTrainingSchedule";
-
-interface TrainingTopic {
-  id: string;
-  title: string;
-  difficulty: string;
-}
-
-interface ScheduleDate {
-  date: number;
-  month: number;
-  year: number;
-  day: string;
-}
-
-interface TrainingScheduleResponse {
-  eloRange: string;
-  userProfile: {
-    username: string;
-    elo: number;
-    avatar: string;
-  };
-  schedule: {
-    startDate: string;
-    startDay: string;
-    trainingScheduleDates: ScheduleDate[];
-    todayScheduleDate: ScheduleDate;
-  };
-  durations: {
-    avgMinutesDaily: number;
-    openingTime: number;
-    tacticsTime: number;
-    middlegameTime: number;
-    endgameTime: number;
-  };
-  topics: {
-    openings: TrainingTopic[];
-    middlegames: TrainingTopic[];
-    endgames: TrainingTopic[];
-    tactics: boolean;
-  };
-}
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import DotSpinner from "@/components/game-history/Spinner";
+import { TrainingSchedule } from "../store";
+import { AlertTriangle } from "lucide-react";
 
 interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
@@ -61,13 +23,16 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  console.log(schedule);
-
   if (isLoading) {
     return (
       <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
-          <div className="text-center py-8">Loading your training plan...</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="flex flex-col items-center gap-4">
+              <DotSpinner />
+              <p className="text-gray-600">Loading your training plan...</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -77,9 +42,19 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     return (
       <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
-          <div className="text-center py-8 text-red-500">
-            Error loading your training plan. Please try again later.
-          </div>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Error loading your training plan: {error}
+            </AlertDescription>
+          </Alert>
+          <Button
+            className="mt-4"
+            variant="outline"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
         </CardContent>
       </Card>
     );
@@ -89,38 +64,36 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     return (
       <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
-          <div className="text-center py-8">No training plan available.</div>
+          <Alert>
+            <AlertDescription>
+              No training plan available. Try creating a new plan.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     );
   }
 
-  // Get the days from the API response if available
   const apiDays = schedule.schedule?.trainingScheduleDates || [];
 
-  // Map API days to the format expected by DaySelector
-  const mappedDays = apiDays.map((scheduleDate: ScheduleDate) => ({
+  const mappedDays = apiDays.map((scheduleDate: any) => ({
     id: scheduleDate.day.toLowerCase(),
     date: scheduleDate.date.toString(),
-    name: scheduleDate.day.slice(0, 3), // Take first 3 letters (Mon, Tue, etc.)
+    name: scheduleDate.day.slice(0, 3),
   }));
 
-  // Use API days if available, otherwise generate days
   const weekDays = mappedDays.length === 7 ? mappedDays : generateWeekDays();
 
-  // Get today's date from API if available
   const todayDate = schedule.schedule?.todayScheduleDate;
   const todayId = todayDate ? todayDate.day.toLowerCase() : getTodayId();
 
-  // Get durations from API
-  const openingDuration = `~${schedule.durations?.openingTime || 50} minutes`;
+  const openingDuration = `~${schedule.durations?.openingTime || 30} minutes`;
   const middlegameDuration = `~${
-    schedule.durations?.middlegameTime || 50
+    schedule.durations?.middlegameTime || 30
   } minutes`;
-  const endgameDuration = `~${schedule.durations?.endgameTime || 50} minutes`;
-  const tacticsDuration = `~${schedule.durations?.tacticsTime || 50} minutes`;
+  const endgameDuration = `~${schedule.durations?.endgameTime || 30} minutes`;
+  const tacticsDuration = `~${schedule.durations?.tacticsTime || 30} minutes`;
 
-  // Get topics from API
   const openingTopics = schedule.topics.openings || [];
   const middlegameTopics = schedule.topics.middlegames || [];
   const endgameTopics = schedule.topics.endgames || [];
@@ -130,10 +103,8 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   return (
     <div className="xl:border xl:border-gray-200 p-4 rounded-lg shadow-sm overflow-hidden">
       <div className="flex w-full flex-col gap-y-4">
-        {/* Week day selector */}
         <h1 className="font-bold text-lg">Your Training Plan</h1>
 
-        {/* Scrollable container for days with drag functionality */}
         <div className="overflow-hidden">
           <motion.div
             ref={scrollRef}
@@ -143,30 +114,28 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
             dragElastic={0.1}
             dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
             onDrag={(_, info) => {
-              // Manually scroll the container when dragging
               if (scrollRef.current) {
                 scrollRef.current.scrollLeft -= info.delta.x;
               }
             }}
             style={{
               overflowX: "auto",
-              WebkitOverflowScrolling: "touch", // For smooth scrolling on iOS
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {weekDays.map((day) => (
               <div key={day.id} className="flex-1 flex-shrink-0 min-w-[100px]">
                 <DaySelector
                   day={day}
-                  isActive={day.id === todayId} // Make today's day active
-                  onSelect={() => {}} // No-op since all days except today are disabled
-                  disabled={day.id !== todayId} // Disable all days except today
+                  isActive={day.id === todayId}
+                  onSelect={() => {}}
+                  disabled={day.id !== todayId}
                 />
               </div>
             ))}
           </motion.div>
         </div>
 
-        {/* Opening Concepts Section */}
         <TrainingSection
           icon="/training-plan/oc.png"
           title="Opening Concepts"
@@ -175,7 +144,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
           topics={openingTopics}
         />
 
-        {/* Middlegame Concepts Section */}
         <TrainingSection
           icon="/training-plan/mc.png"
           title="Middlegame Concepts"
@@ -184,7 +152,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
           topics={middlegameTopics}
         />
 
-        {/* Endgame Concepts Section */}
         <TrainingSection
           icon="/training-plan/ec.png"
           title="Endgame Concepts"
@@ -193,7 +160,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
           topics={endgameTopics}
         />
 
-        {/* Tactical Training Section */}
         {showTactics && (
           <div className="mb-6 border border-gray-200 rounded-lg p-4">
             <div className="flex items-start justify-between mb-4">
@@ -209,7 +175,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               <div className="text-blue-700 text-sm font-medium">
                 Estimated total duration per day:{" "}
                 <span className="text-blue-800 font-bold">
-                  {schedule.durations.avgMinutesDaily}
+                  {schedule.durations?.avgMinutesDaily || 60} min
                 </span>
               </div>
             </div>
@@ -230,15 +196,14 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   );
 };
 
-// Helper function to generate week days
 function generateWeekDays() {
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const today = new Date();
-  const currentDayIndex = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+  const currentDayIndex = today.getDay();
 
   return Array.from({ length: 7 }, (_, index) => {
     const dayDate = new Date(today);
-    dayDate.setDate(today.getDate() - currentDayIndex + index); // Adjust to get correct day
+    dayDate.setDate(today.getDate() - currentDayIndex + index);
 
     return {
       id: dayNames[index].toLowerCase(),
@@ -248,7 +213,6 @@ function generateWeekDays() {
   });
 }
 
-// Helper function to get today's day ID
 function getTodayId() {
   const dayNames = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   const today = new Date();

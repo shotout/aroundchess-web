@@ -28,7 +28,6 @@ import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
-import { useRouter } from "next/navigation";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
