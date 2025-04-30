@@ -511,6 +511,16 @@ export function useApiClient() {
     [apiRequest]
   );
 
+  const getMostRead = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/articles/most-reads`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
   const toggleSaveNews = useCallback(
     (body: any) => {
       return apiRequest({
@@ -580,6 +590,7 @@ export function useApiClient() {
     getNews,
     getNewsById,
     getNewsSaved,
+    getMostRead,
     toggleSaveNews,
     getFAQ,
   };

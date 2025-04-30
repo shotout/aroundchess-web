@@ -18,13 +18,14 @@ export function GameEndStatus({ gameStatus }: any) {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-full h-[50%] lg:p-[32px] bg-[#00000090] border-0 shadow-none items-center justify-center">
+      <DialogContent className="min-w-full min-h-full rounded-none lg:p-[32px] bg-[#00000090] border-0 shadow-none items-center justify-center">
         <Image
           src={`/images/play-vs-ai/${gameStatus}-popup.gif`}
           alt="GIF"
-          width={350}
-          height={358}
+          width={1000}
+          height={1000}
           unoptimized={true}
+          className="w-full h-full object-contain"
         />
       </DialogContent>
     </Dialog>
