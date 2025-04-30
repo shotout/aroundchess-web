@@ -23,8 +23,10 @@ export default function Profile() {
   } = useStatusPurchaseTokens();
   useEffect(() => {
     if (status == "successSubscribe") {
+      // http://localhost:3000/profile?status=successSubscribe
       setOpenSuccess(true);
     } else if (status == "cancelSubscribe") {
+      // http://localhost:3000/profile?status=cancelSubscribe
       setOpenCancel(true);
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
