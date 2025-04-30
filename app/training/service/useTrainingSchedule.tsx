@@ -11,10 +11,14 @@ interface TrainingTopic {
   category: string;
 }
 
-interface TrainingSchedule {
+export interface TrainingSchedule {
+  topics: any;
+  durations: any;
   date: string;
   weekDay: string;
   schedule: {
+    trainingScheduleDates: never[];
+    todayScheduleDate: any;
     openingTopics: TrainingTopic[];
     middlegameTopics: TrainingTopic[];
     endgameTopics: TrainingTopic[];

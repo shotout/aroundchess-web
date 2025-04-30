@@ -168,9 +168,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     ];
   };
 
-  // Handle topic selection through the store
   const handleToggleTopic = (topicId: string) => {
-    // Determine category from the topic id or structure
     const transformedTopics = transformTopics();
     const topic = transformedTopics.find((t) => t.id === topicId);
 
@@ -179,7 +177,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     }
   };
 
-  // Filter topics by category
   const getTopicsByCategory = (categoryId: string) => {
     const transformedTopics = transformTopics();
     const category = transformCategoryInfo().find(
@@ -200,7 +197,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     return transformedTopics.filter((topic) => topic.category === categoryId);
   };
 
-  // Handle creating the training plan
   const handleCreatePlan = async () => {
     if (sessionId) {
       const success = await createTrainingPlan(sessionId);
@@ -212,7 +208,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     }
   };
 
-  // Use user profile from API if available, otherwise use passed props
   const displayUserProfile = storeUserProfile || userProfile;
 
   return (
@@ -222,7 +217,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           <div></div>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Image
-              src={"/training-plan/checklist.png"}
+              src={"/training-plan/check-small.png"}
               alt=""
               width={30}
               height={30}

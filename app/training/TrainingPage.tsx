@@ -6,7 +6,6 @@ import TrainingPlanDisplay from "./components/TrainingDisplay";
 import {
   durationData,
   goalsData,
-  progressData,
   skillLevelsData,
   topicCategoryInfo,
   trainingPlanKeyInfo,
@@ -29,7 +28,7 @@ const ChessProgressionUI: React.FC = () => {
   const [hasPlan, setHasPlan] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
-  const [debugMode, setDebugMode] = useState(true);
+  const [debugMode, _] = useState(true);
 
   const {
     schedule,
@@ -71,7 +70,7 @@ const ChessProgressionUI: React.FC = () => {
 
   return (
     <div className="flex flex-col xl:gap-6 lg:gap-4 lg:p-4 xl:p-8">
-      <div className="flex items-center">
+      <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl p-4 lg:p-0">My Training Plan</h1>
         <p className="xl:hidden">({userProfile.username})</p>
       </div>
@@ -129,12 +128,7 @@ const ChessProgressionUI: React.FC = () => {
             />
           )
         ) : (
-          <ProgressDisplay
-            currentLevel={progressData.currentLevel}
-            currentElo={userProfile.currentElo || progressData.currentElo}
-            accuracyPercentage={progressData.accuracyPercentage}
-            accuracyImprovement={progressData.accuracyImprovement}
-          />
+          <ProgressDisplay />
         )}
       </div>
 

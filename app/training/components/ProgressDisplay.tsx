@@ -66,7 +66,7 @@ const MONTHS = [
   "December",
 ];
 
-const ProgressDisplay = ({}) => {
+const ProgressDisplay = () => {
   const currentDate = new Date();
 
   const [selectedMonth, setSelectedMonth] = useState(
