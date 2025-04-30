@@ -2,9 +2,18 @@
 import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Chess } from "chess.js";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 
 export function useStockfishAnalysis() {
   const { sessionId } = useAuth();
+  const {
+    analyzeComplete,
+    setAnalyzeComplete,
+    estimateMinute,
+    estimateSecond,
+    setEstimateMinute,
+    setEstimateSecond,
+  } = useLoadingAPI();
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
@@ -131,7 +140,7 @@ export function useStockfishAnalysis() {
           `${process.env.BASE_URL}/v2/analyze/check-exists`,
           {
             pgn: pgn,
-            depth: depth
+            depth: depth,
           },
           {
             headers: {
@@ -157,7 +166,7 @@ export function useStockfishAnalysis() {
               {
                 pgn: pgn,
                 username: username,
-                depth: depth
+                depth: depth,
               },
               {
                 headers: {
@@ -187,10 +196,10 @@ export function useStockfishAnalysis() {
             depth,
             moveTime
           );
-
           console.log("Analysis complete:", analysisResults);
-
+          setAnalyzeComplete(true);
           try {
+            console.log("Analysis analyze:", estimateMinute, estimateSecond);
             const { default: axios } = await import("axios");
             const response = await axios.post(
               `${process.env.BASE_URL}/v2/analyze`,
@@ -209,6 +218,7 @@ export function useStockfishAnalysis() {
             );
 
             console.log("API response:", response.data);
+            setAnalyzeComplete(false);
             return response.data;
           } catch (apiError) {
             console.error("Error sending analysis to API:", apiError);

@@ -249,7 +249,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
-              ? pathname.includes(section.href)
+              ? pathname?.includes(section.href)
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
@@ -342,7 +342,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   {hasChildren && (
                     <div className="ml-6 space-y-2 ">
                       {section.children.map((child: any) => {
-                        const isChildActive = pathname.includes(child.href);
+                        const isChildActive = pathname?.includes(child.href);
                         return (
                           <Link
                             key={child.href}

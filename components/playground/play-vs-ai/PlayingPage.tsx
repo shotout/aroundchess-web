@@ -676,12 +676,12 @@ export default function PlayingPage() {
     }
   };
   const handleRematch = () => {
+    setStatusGame("Ongoing");
     game.reset();
     setGamePosition(game.fen());
     setHeaderGameStart();
     setLoserColor("");
     setWinnerColor("");
-    setStatusGame("Ongoing");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
   };
