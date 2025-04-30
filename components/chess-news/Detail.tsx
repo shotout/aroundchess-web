@@ -109,7 +109,7 @@ export default function Detail() {
               dangerouslySetInnerHTML={{ __html: detailNews?.content }}
             ></span>
             <div className="flex justify-end my-4">
-              <ShareButton isFull={true} save={toggleSave} />
+              <ShareButton isFull={true} save={toggleSave} saved={detailNews?.isSaved} />
             </div>
             <span className="text-md font-semibold mt-4">Related Articles</span>
             <div className="flex flex-row max-w-full overflow-x-auto gap-3 mt-2">

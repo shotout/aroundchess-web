@@ -32,8 +32,8 @@ export default async function handler(
             quantity,
           },
         ],
-        success_url: `${req.headers.origin}/profile`,
-        cancel_url: `${req.headers.origin}/profile`,
+        success_url: `${req.headers.origin}/profile?status="successSubscribe"`,
+        cancel_url: `${req.headers.origin}/profile?status="cancelSubscribe"`,
       });
 
       res.status(200).json({ id: session.id });
