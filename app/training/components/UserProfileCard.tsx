@@ -8,22 +8,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
 
-const calculateUserLevel = (elo: number, levels: any[]): string => {
-  if (!levels || levels.length === 0) return "Beginner";
-
-  let currentLevel = levels[0].title;
-  for (const level of levels) {
-    if (elo >= level.elo) {
-      currentLevel = level.title;
-    }
-  }
-
-  return currentLevel;
-};
-
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
   avatar,
+  schedule,
 }) => {
   const { sessionId } = useAuth();
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
@@ -148,7 +136,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 Avg. Time to Invest Daily:
               </div>
               <div className="flex items-center gap-1 text-blue-800 text-sm md:text-base font-semibold">
-                ~80 mins
+                ~{schedule?.durations?.avgMinutesDaily || 66} min
               </div>
             </div>
           </div>

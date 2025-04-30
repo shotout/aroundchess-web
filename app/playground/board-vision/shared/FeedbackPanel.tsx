@@ -92,14 +92,12 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
               animate="visible"
               exit="exit"
             >
-              <Button
+              <button
                 onClick={startGameAgain}
-                className="w-full flex items-center justify-center bg-blue-base py-5 text-lg"
-                variant="default"
+                className="w-full flex text-white items-center rounded-full justify-center bg-blue-base py-3 text-lg"
               >
-                New Puzzle
-                <RefreshCw className="h-5 w-5 ml-2" />
-              </Button>
+                New Quiz
+              </button>
             </motion.div>
           ) : (
             <motion.div

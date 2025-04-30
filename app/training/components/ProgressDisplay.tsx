@@ -20,18 +20,18 @@ import {
   Cell,
 } from "recharts";
 import {
-  BrainIcon,
   Clock,
   LucideTrophy,
   Target,
   TargetIcon,
-  TrendingUp,
   TriangleAlert,
+  TriangleAlertIcon,
   Trophy,
 } from "lucide-react";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useAuth } from "@clerk/nextjs";
 import { useProgressStore } from "../store";
+import Image from "next/image";
 
 const CustomTooltipContent = ({
   active,
@@ -71,14 +71,12 @@ const ProgressDisplay = () => {
   const { sessionId } = useAuth();
   const currentDate = new Date();
 
-  // Get the current year-month in the format YYYY-MM
   const getCurrentYearMonth = (monthName: string) => {
     const monthIndex = MONTHS.indexOf(monthName);
     const year = currentDate.getFullYear();
     return `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
   };
 
-  // Get the display month name from a YYYY-MM string
   const getDisplayMonthFromYearMonth = (yearMonth: string) => {
     const parts = yearMonth.split("-");
     if (parts.length === 2) {
@@ -90,7 +88,6 @@ const ProgressDisplay = () => {
     return MONTHS[currentDate.getMonth()];
   };
 
-  // Use the progress store
   const {
     progressData: apiData,
     isLoading,
@@ -100,12 +97,10 @@ const ProgressDisplay = () => {
     fetchProgressData,
   } = useProgressStore();
 
-  // Set display month based on the currentMonth in the store
   const [displayMonth, setDisplayMonth] = useState(
     getDisplayMonthFromYearMonth(currentMonth)
   );
 
-  // Fetch progress data when component mounts or month changes
   useEffect(() => {
     if (sessionId) {
       fetchProgressData(sessionId, currentMonth);
@@ -146,65 +141,31 @@ const ProgressDisplay = () => {
       ]
     : [];
 
-  // Create performance trends from API if available
   const stats = apiData
     ? [
         {
           title: "Games Won",
           value: apiData.performanceTrends.gamesWon.count?.toString() || "0",
-          trend:
-            apiData.performanceTrends.gamesWon.change > 0
-              ? `+${apiData.performanceTrends.gamesWon.change}%`
-              : `${apiData.performanceTrends.gamesWon.change}%`,
-          trendColor:
-            apiData.performanceTrends.gamesWon.change > 0
-              ? "text-green-500"
-              : "text-red-500",
           icon: "trophy",
         },
         {
           title: "ELO Rating",
           value: apiData.performanceTrends.eloRating.rating?.toString() || "0",
-          trend:
-            apiData.performanceTrends.eloRating.change > 0
-              ? `+${apiData.performanceTrends.eloRating.change}`
-              : `${apiData.performanceTrends.eloRating.change}`,
-          trendColor:
-            apiData.performanceTrends.eloRating.change > 0
-              ? "text-green-500"
-              : "text-red-500",
           icon: "target",
         },
         {
           title: "Mistakes",
           value: apiData.performanceTrends.mistakes.count?.toString() || "0",
-          trend:
-            apiData.performanceTrends.mistakes.change > 0
-              ? `+${apiData.performanceTrends.mistakes.change}`
-              : `${apiData.performanceTrends.mistakes.change}`,
-          trendColor:
-            apiData.performanceTrends.mistakes.change < 0
-              ? "text-green-500"
-              : "text-red-500",
-          icon: "brain",
+          icon: "alert-yellow",
         },
         {
           title: "Blunders",
           value: apiData.performanceTrends.blunders.count?.toString() || "0",
-          trend:
-            apiData.performanceTrends.blunders.change > 0
-              ? `+${apiData.performanceTrends.blunders.change}`
-              : `${apiData.performanceTrends.blunders.change}`,
-          trendColor:
-            apiData.performanceTrends.blunders.change < 0
-              ? "text-green-500"
-              : "text-red-500",
-          icon: "trending-up",
+          icon: "alert-red",
         },
       ]
     : [];
 
-  // Format the rating progress data from API
   const getFormattedRatingData = () => {
     if (apiData?.ratingProgress?.data) {
       return apiData.ratingProgress.data.map((item) => ({
@@ -215,7 +176,6 @@ const ProgressDisplay = () => {
     return [];
   };
 
-  // Format the recent games data from API
   const formattedRecentGames = apiData?.recentGames
     ? apiData.recentGames.map((game) => ({
         date: game.date,
@@ -225,11 +185,10 @@ const ProgressDisplay = () => {
         opening: game.opening,
         accuracy: game.analysis.accuracy,
         brilliant: game.analysis.score,
-        mistakes: "N/A", // API doesn't provide this field
+        mistakes: "N/A",
       }))
     : [];
 
-  // Show partial loading indicators instead of full-screen loader
   const isChartLoading = isLoading || !apiData;
 
   return (
@@ -239,7 +198,6 @@ const ProgressDisplay = () => {
           <h2 className="text-2xl font-bold">Overall Improvement</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Level Card */}
             <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-6 relative overflow-hidden">
               <h1 className="text-lg font-medium">my current level</h1>
               {isChartLoading ? (
@@ -263,7 +221,6 @@ const ProgressDisplay = () => {
               )}
             </div>
 
-            {/* Accuracy Card */}
             <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-2 justify-center flex-col rounded-lg p-6 max-h-[150px] text-black relative overflow-hidden">
               <div className="flex items-center gap-x-2">
                 <TargetIcon className="w-5 h-5 text-[#FAC933]" />
@@ -289,11 +246,8 @@ const ProgressDisplay = () => {
         </CardContent>
       </Card>
 
-      {/* Charts and Stats Container with 60/40 split */}
       <div className="md:grid md:grid-cols-5 gap-6">
-        {/* Left column - Charts (60%) */}
         <div className="md:col-span-3 flex flex-col gap-6">
-          {/* ELO Rating Chart */}
           <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -318,60 +272,72 @@ const ProgressDisplay = () => {
                 <div className="h-[400px] flex items-center justify-center">
                   <DotSpinner />
                 </div>
+              ) : getFormattedRatingData().length === 0 ? (
+                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                  <Image
+                    src="/training-plan/no-data.png"
+                    alt="No games found"
+                    className=" mb-2"
+                    width={96}
+                    height={96}
+                  />
+                  <p className="text-lg text-gray-600 font-medium">
+                    No data available
+                  </p>
+                </div>
               ) : (
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart
-                    data={getFormattedRatingData()}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e0e0e0"
-                      vertical={true}
-                      horizontal={true}
-                    />
-                    <XAxis
-                      dataKey="week"
-                      axisLine={true}
-                      tickLine={true}
-                      tick={{ fill: "#000" }}
-                      padding={{ left: 20, right: 20 }}
-                    />
-                    <YAxis
-                      domain={[
-                        (dataMin: number) => Math.max(0, dataMin - 100),
-                        (dataMax: number) => dataMax + 100,
-                      ]}
-                      axisLine={true}
-                      tickLine={true}
-                      tick={{ fill: "#000" }}
-                      padding={{ top: 20, bottom: 20 }}
-                    />
-                    <RechartsTooltip
-                      content={
-                        <CustomTooltipContent active={false} payload={[]} />
-                      }
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="rating"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      dot={{
-                        stroke: "#3b82f6",
-                        strokeWidth: 2,
-                        fill: "#3b82f6",
-                        r: 5,
-                      }}
-                      activeDot={{ r: 7, fill: "#3b82f6" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto">
+                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
+                    <LineChart
+                      data={getFormattedRatingData()}
+                      margin={{ left: 0, right: 8 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e0e0e0"
+                        vertical={true}
+                        horizontal={true}
+                      />
+                      <XAxis
+                        dataKey="week"
+                        axisLine={true}
+                        tickLine={true}
+                        tick={{ fill: "#000", fontSize: 12 }}
+                        padding={{ left: 10, right: 10 }}
+                        tickMargin={5}
+                      />
+                      <YAxis
+                        domain={[0, 2400]}
+                        axisLine={true}
+                        tickLine={true}
+                        tick={{ fill: "#000", fontSize: 12 }}
+                        width={40}
+                      />
+                      <RechartsTooltip
+                        content={
+                          <CustomTooltipContent active={false} payload={[]} />
+                        }
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="rating"
+                        stroke="#3b82f6"
+                        strokeWidth={2}
+                        dot={{
+                          stroke: "#3b82f6",
+                          strokeWidth: 2,
+                          fill: "#3b82f6",
+                          r: 5,
+                        }}
+                        activeDot={{ r: 7, fill: "#3b82f6" }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Training Distribution Chart */}
           <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
             <CardContent className="p-6">
               <h3 className="text-xl font-bold mb-1">
@@ -384,55 +350,70 @@ const ProgressDisplay = () => {
                 <div className="h-[400px] flex items-center justify-center">
                   <DotSpinner />
                 </div>
+              ) : trainingData.length === 0 ? (
+                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                  <Image
+                    src="/training-plan/no-data.png"
+                    alt="No games found"
+                    className=" mb-2"
+                    width={96}
+                    height={96}
+                  />
+                  <p className="text-lg text-gray-600 font-medium">
+                    No data available
+                  </p>
+                </div>
               ) : (
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart
-                    data={trainingData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                    barSize={60}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#e0e0e0"
-                      horizontal={true}
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="category"
-                      axisLine={true}
-                      tickLine={true}
-                      tick={{ fill: "#000" }}
-                      padding={{ left: 40, right: 40 }}
-                    />
-                    <YAxis
-                      domain={[0, "dataMax + 100"]}
-                      axisLine={true}
-                      tickLine={true}
-                      tick={{ fill: "#000" }}
-                    />
-                    <RechartsTooltip />
-                    <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
-                      {trainingData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto">
+                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
+                    <BarChart
+                      data={trainingData}
+                      barSize={60}
+                      margin={{ left: 0, right: 8 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e0e0e0"
+                        horizontal={true}
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="category"
+                        axisLine={true}
+                        tickLine={true}
+                        tick={{ fill: "#000", fontSize: 12 }}
+                        padding={{ left: 20, right: 20 }}
+                        tickMargin={5}
+                      />
+                      <YAxis
+                        domain={[0, 1400]}
+                        axisLine={true}
+                        tickLine={true}
+                        tick={{ fill: "#000", fontSize: 12 }}
+                        width={40}
+                      />
+                      <RechartsTooltip />
+                      <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
+                        {trainingData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Right column - Recent Games and Stats (40%) */}
         <div className="md:col-span-2 flex flex-col gap-6 mt-6 md:mt-0">
-          {/* Recent Games Section */}
           <div className="p-4 rounded-lg shadow-md border border-gray-200">
             <h1 className="text-lg font-bold mb-2">
               Recent Games{" "}
               <span className="text-sm font-normal text-gray-500">
                 {formattedRecentGames.length > 0
                   ? `(Last ${formattedRecentGames.length} games)`
-                  : "(Loading games...)"}
+                  : "--"}
               </span>
             </h1>
 
@@ -441,8 +422,17 @@ const ProgressDisplay = () => {
                 <DotSpinner />
               </div>
             ) : formattedRecentGames.length === 0 ? (
-              <div className="h-[200px] flex items-center justify-center">
-                <p className="text-gray-500 text-base">No recent games found</p>
+              <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                <Image
+                  src="/training-plan/no-data.png"
+                  alt="No games found"
+                  className=" mb-2"
+                  width={96}
+                  height={96}
+                />
+                <p className="text-base text-gray-600 font-medium">
+                  You have not played any Games yet.
+                </p>
               </div>
             ) : (
               <>
@@ -528,7 +518,6 @@ const ProgressDisplay = () => {
             )}
           </div>
 
-          {/* Key Statistics Section */}
           <div className="p-4 rounded-lg shadow-md border border-gray-200">
             <h1 className="text-lg font-bold mb-2">Performance Trends</h1>
             <h1 className="text-sm mb-3">Monthly improvement</h1>
@@ -537,9 +526,16 @@ const ProgressDisplay = () => {
                 <DotSpinner />
               </div>
             ) : stats.length === 0 ? (
-              <div className="h-[200px] flex items-center justify-center">
-                <p className="text-gray-500 text-base">
-                  No performance data available
+              <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                <Image
+                  src="/training-plan/no-data.png"
+                  alt="No games found"
+                  className=" mb-2"
+                  width={96}
+                  height={96}
+                />
+                <p className="text-base text-gray-600 font-medium">
+                  You have not played any Games in the last 7 days
                 </p>
               </div>
             ) : (
@@ -550,48 +546,40 @@ const ProgressDisplay = () => {
                     className="p-6 rounded-xl border bg-white shadow-sm"
                   >
                     <div className="flex flex-col">
-                      <h3 className="font-medium text-gray-700 mb-2 text-lg">
-                        {stat.title}
-                      </h3>
-
                       <div className="flex items-start">
-                        <div className="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center mr-3">
+                        <div className="w-14 h-14 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
                           {stat.icon === "trophy" && (
                             <LucideTrophy
                               className="h-8 w-8 text-green-500"
-                              fill="#22c55e"
+                              // fill="#22c55e"
                               strokeWidth={1.5}
                             />
                           )}
                           {stat.icon === "target" && (
                             <TargetIcon
-                              className="h-8 w-8 text-blue-500"
+                              className="h-8 w-8 text-blue-base"
                               strokeWidth={1.5}
                             />
                           )}
-                          {stat.icon === "brain" && (
-                            <BrainIcon
-                              className="h-8 w-8 text-yellow-500"
+                          {stat.icon === "alert-yellow" && (
+                            <TriangleAlertIcon
+                              className="h-8 w-8 text-[#FAC933]"
                               strokeWidth={1.5}
                             />
                           )}
-                          {stat.icon === "trending-up" && (
-                            <TrendingUp
-                              className="h-8 w-8 text-purple-500"
+                          {stat.icon === "alert-red" && (
+                            <TriangleAlertIcon
+                              className="h-8 w-8 text-[#FD0000]"
                               strokeWidth={1.5}
                             />
                           )}
                         </div>
 
                         <div className="flex-1 flex flex-col">
+                          <h3 className="font-medium text-gray-700 mb-2 text-lg">
+                            {stat.title}
+                          </h3>
                           <h2 className="text-4xl font-bold">{stat.value}</h2>
-                          {stat.trend && (
-                            <p
-                              className={`text-base font-medium ${stat.trendColor} mt-1`}
-                            >
-                              {stat.trend}
-                            </p>
-                          )}
                         </div>
                       </div>
                     </div>

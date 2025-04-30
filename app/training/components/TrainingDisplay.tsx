@@ -172,10 +172,10 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
                 />
                 <h3 className="text-lg font-semibold">Tactical Training</h3>
               </div>
-              <div className="text-blue-700 text-sm font-medium">
+              <div className="text-black text-sm font-medium">
                 Estimated total duration per day:{" "}
                 <span className="text-blue-800 font-bold">
-                  {schedule.durations?.avgMinutesDaily || 60} min
+                  {tacticsDuration}
                 </span>
               </div>
             </div>

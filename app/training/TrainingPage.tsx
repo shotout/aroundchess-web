@@ -121,6 +121,7 @@ const ChessProgressionUI: React.FC = () => {
       </div>
       <div className="xl:border xl:p-4 xl:rounded-md flex flex-col gap-y-2 xl:gap-y-4">
         <UserProfileCard
+          schedule={schedule}
           userProfile={{
             username: userProfile?.username || storeUserProfile?.username || "",
             currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
