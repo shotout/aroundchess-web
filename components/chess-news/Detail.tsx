@@ -9,8 +9,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
+import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Detail() {
+  const { isSignedIn } = useAuth();
+
   const {
     isLoading,
     setIsLoading,
@@ -26,6 +30,7 @@ export default function Detail() {
   } = useChessNewsStore();
   const {
     getNewsById,
+    getNewsBySlug,
     toggleSaveNews,
     getMostRead,
     isLoading: fetchLoading,
@@ -56,7 +61,7 @@ export default function Detail() {
       });
   };
   const fetchDetailNews = () => {
-    getNewsById({}, params?.id).then((response) => {
+    getNewsBySlug({}, params?.id).then((response) => {
       setDetailNews(response.data);
       setIsLoading(false);
       console.log(response.data);
@@ -90,8 +95,12 @@ export default function Detail() {
                   {detailNews?.category?.name}
                 </p>
                 <div className="flex flex-row items-center gap-2">
-                  {}
-                  <ShareButton save={toggleSave} saved={detailNews?.isSaved} />
+                  <ShareButton
+                    save={toggleSave}
+                    saved={detailNews?.isSaved}
+                    title={detailNews?.title}
+                    slug={detailNews?.slug}
+                  />
                 </div>
               </div>
             </div>
@@ -108,8 +117,15 @@ export default function Detail() {
             <span
               dangerouslySetInnerHTML={{ __html: detailNews?.content }}
             ></span>
+
             <div className="flex justify-end my-4">
-              <ShareButton isFull={true} save={toggleSave} saved={detailNews?.isSaved} />
+              <ShareButton
+                isFull={true}
+                save={toggleSave}
+                saved={detailNews?.isSaved}
+                title={detailNews?.title}
+                slug={detailNews?.slug}
+              />
             </div>
             <span className="text-md font-semibold mt-4">Related Articles</span>
             <div className="flex flex-row max-w-full overflow-x-auto gap-3 mt-2">
@@ -118,8 +134,9 @@ export default function Detail() {
                 detailNews?.relatedArticles.map(
                   (article: any, index: number) => (
                     <Card
+                      onClick={() => router.push("/chess-news/" + article.slug)}
                       key={index}
-                      className="rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
+                      className="cursor-pointer rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
                     >
                       <Image
                         src={article.imageUrl}
@@ -131,7 +148,7 @@ export default function Detail() {
                       <CardContent className="px-2">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                            {formatDateNews(article.publishedAt)}
+                            {formatDateNews(article.publishedAt)} {article.slug}
                           </p>
                           <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
                             {detailNews?.category?.name}
@@ -161,8 +178,9 @@ export default function Detail() {
               )}
               {mostReadsArticle.map((article: any) => (
                 <div
+                  onClick={() => router.push("/chess-news/" + article.slug)}
                   key={article.id}
-                  className="bg-white flex shadow-md rounded-lg rounded-sm border border-input gap-2 p-3"
+                  className="cursor-pointer bg-white flex shadow-md rounded-lg rounded-sm border border-input gap-2 p-3"
                 >
                   <Image
                     src={article.imageUrl}

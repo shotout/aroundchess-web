@@ -16,34 +16,82 @@ import { GrThreads } from "react-icons/gr";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 const ShareButton = (props: any) => {
+  const { isSignedIn } = useAuth();
+
   const [open, setOpen] = useState(false);
   const { isLoading } = useApiClient();
+  const shareUrl = window?.location?.hostname + "/chess-news/" + props.slug;
+  const shareTitle = props.title;
+
   const [icon, setIcon] = useState([
     {
       name: "link",
-      onPress: null,
+      onPress: () => {
+        navigator.clipboard
+          .writeText(shareUrl)
+          .then(() => {
+            toast.success("Link copied to clipboard!");
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err);
+            toast.error("Failed to copy link");
+          });
+      },
     },
     {
       name: "mail",
-      onPress: null,
+      onPress: () => {
+        const subject = encodeURIComponent(shareTitle);
+        const body = encodeURIComponent(`Check out this link: ${shareUrl}`);
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
+      },
     },
     {
       name: "discord",
-      onPress: null,
+      onPress: () => {
+        // Discord doesn't have a direct share URL, but users can copy and paste
+        // Some Discord bots support webhooks, but for basic sharing:
+        window.open(`https://discord.com/channels/@me`, "_blank");
+        // After opening Discord, show a toast prompting to paste the link
+        navigator.clipboard
+          .writeText(shareUrl)
+          .then(() => toast.success("Link copied! Now paste it in Discord."))
+          .catch((err) => toast.error("Failed to copy link for Discord"));
+      },
     },
     {
       name: "facebook-circle",
-      onPress: null,
+      onPress: () => {
+        const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          shareUrl
+        )}`;
+        window.open(fbShareUrl, "_blank", "width=600,height=400");
+      },
     },
     {
       name: "whatsapp",
-      onPress: null,
+      onPress: () => {
+        const text = encodeURIComponent(`${shareTitle} ${shareUrl}`);
+        window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+      },
     },
     {
       name: "threads",
-      onPress: null,
+      onPress: () => {
+        // Threads doesn't have a direct web sharing API
+        // But we can open Threads and help copy the URL to clipboard
+        navigator.clipboard
+          .writeText(shareUrl)
+          .then(() => {
+            toast.success("Link copied! Now paste it in Threads.");
+            window.open("https://threads.net", "_blank");
+          })
+          .catch((err) => toast.error("Failed to copy link for Threads"));
+      },
     },
   ]);
   const renderIconRow = () => {
@@ -51,7 +99,7 @@ const ShareButton = (props: any) => {
       <div className="flex flex-row items-end gap-4">
         {icon.map((item: any, index: number) => {
           return (
-            <button key={index}>
+            <button onClick={item.onPress} key={index}>
               <Image
                 src={`/icons/${item.name}.png`}
                 alt={""}
@@ -71,7 +119,7 @@ const ShareButton = (props: any) => {
       <div className="flex flex-row gap-4 p-3">
         {icon.map((item: any, index: number) => {
           return (
-            <button key={index}>
+            <button onClick={item.onPress} key={index}>
               <Image
                 src={`/icons/${item.name}.png`}
                 alt={""}
@@ -109,22 +157,25 @@ const ShareButton = (props: any) => {
         )}
         {props.isFull && renderIconRow()}
       </div>
-      <button
-        onClick={() => props.save()}
-        className="flex items-center gap-2 px-2 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium  "
-        style={{
-          boxShadow: `inset 0px -2px 2px #C6EEFE,
+      {isSignedIn && (
+        <button
+          onClick={() => props.save()}
+          className="flex items-center gap-2 px-2 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium  "
+          style={{
+            boxShadow: `inset 0px -2px 2px #C6EEFE,
           inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
-        }}
-      >
-        {isLoading ? (
-          <DotSpinner size={5} />
-        ) : props.saved ? (
-          <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-        ) : (
-          <Bookmark className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-        )}
-      </button>
+          }}
+        >
+          {isLoading ? (
+            <DotSpinner size={5} />
+          ) : props.saved ? (
+            <BookmarkFilledIcon className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+          ) : (
+            <Bookmark className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
+          )}
+        </button>
+      )}
+
       {/* Dropdown */}
       {open && (
         <motion.div
