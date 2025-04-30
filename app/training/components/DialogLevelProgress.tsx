@@ -105,7 +105,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const badgeClass =
     "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
 
-  // Calculate progress percentage between completed indicators
+  // Calculate progress width for the blue progress indicator
   const calculateProgressWidth = (): string => {
     const completedLevels = displayLevels.filter(
       (level) => (currentElo || 0) >= level.elo
@@ -177,11 +177,14 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                   </div>
                 )}
 
-                <div className="h-8 flex items-center justify-center">
+                <div className="h-4 lg:h-10 flex items-center justify-center">
                   {isCompleted && (
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
-                    </div>
+                    <Image
+                      src={"/training-plan/checked.png"}
+                      width={30}
+                      height={30}
+                      alt=""
+                    />
                   )}
                 </div>
 
@@ -231,7 +234,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
         {/* Progress bar container */}
         <div className="relative h-20">
           <div className="relative w-full mt-6">
-            {/* Indicators and progress bar container */}
+            {/* Indicators */}
             <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
               {displayLevels.map((level, index) => {
                 const isReached = (currentElo || 0) >= level.elo;
@@ -253,7 +256,13 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
             </div>
 
             {/* Progress bar positioned to align with the indicators */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-[16.67%] w-[66.66%] h-4 bg-gray-200 z-0">
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-4 bg-gray-200 z-0"
+              style={{
+                left: "calc(16.67% + 3.5px)" /* Half of indicator width (7px / 2) */,
+                width: "calc(66.66% - 7px)" /* Account for indicator width */,
+              }}
+            >
               <div
                 className="h-full bg-blue-base"
                 style={{
@@ -266,7 +275,8 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
           <div
             className="absolute -translate-x-1/2 top-8"
             style={{
-              left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+              // Use the same calculation approach as in SkillProgressTrack for mobile
+              left: `${((currentEloPercentage * 0.6666) / 100) * 100 + 16.67}%`,
               bottom: 0,
             }}
           >

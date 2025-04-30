@@ -13,7 +13,6 @@ import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetu
 
 const DEV_MODE = false;
 
-
 export default function AnalysisPage() {
   const { isSignedIn } = useAuth();
   const {
@@ -65,7 +64,7 @@ export default function AnalysisPage() {
     console.log("pgn.length", pgn);
     console.log("isSignedIn", isSignedIn);
     if (isSignedIn != undefined) {
-      if (dataAnalysis==null || !isSignedIn) {
+      if (dataAnalysis == null || !isSignedIn) {
         fetchPgnFamousGame();
       }
       if (isSignedIn) {

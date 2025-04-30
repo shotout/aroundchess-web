@@ -25,7 +25,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const MIN_ELO = 0;
   const MAX_ELO = 2400;
 
-  const calculateEloPercentage = (): number => {
+  const calculateEloPercentage = (isFullView = true): number => {
     const boundedElo = Math.max(MIN_ELO, Math.min(currentElo || 0, MAX_ELO));
 
     if (boundedElo < skillLevels[0].elo) {
@@ -36,6 +36,39 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
       return 100;
     }
 
+    // For mobile view with only 3 levels, we need to adjust the calculation
+    if (!isFullView) {
+      const mobileLevels = getMobileDisplayLevels();
+
+      if (boundedElo < mobileLevels[0].elo) {
+        return 0;
+      }
+
+      if (boundedElo >= mobileLevels[mobileLevels.length - 1].elo) {
+        return 100;
+      }
+
+      for (let i = 0; i < mobileLevels.length - 1; i++) {
+        if (
+          boundedElo >= mobileLevels[i].elo &&
+          boundedElo < mobileLevels[i + 1].elo
+        ) {
+          const segmentStart = (i / (mobileLevels.length - 1)) * 100;
+          const segmentEnd = ((i + 1) / (mobileLevels.length - 1)) * 100;
+          const segmentWidth = segmentEnd - segmentStart;
+
+          const segmentProgress =
+            (boundedElo - mobileLevels[i].elo) /
+            (mobileLevels[i + 1].elo - mobileLevels[i].elo);
+
+          return segmentStart + segmentProgress * segmentWidth;
+        }
+      }
+
+      return 0;
+    }
+
+    // Original calculation for desktop view
     for (let i = 0; i < skillLevels.length - 1; i++) {
       if (
         boundedElo >= skillLevels[i].elo &&
@@ -74,9 +107,65 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
     return skillLevels.length - 1;
   };
 
-  const currentEloPercentage = calculateEloPercentage();
+  // Function to get the three levels to display on mobile
+  const getMobileDisplayLevels = () => {
+    const currentIndex = getCurrentLevelIndex();
+    const nextGoalIndex = getNextGoalLevelIndex();
+    const afterGoalIndex = Math.min(nextGoalIndex + 1, skillLevels.length - 1);
+
+    // If all three indexes are the same (user at max level), try to show previous levels
+    if (currentIndex === nextGoalIndex && nextGoalIndex === afterGoalIndex) {
+      const prevIndex = Math.max(0, currentIndex - 1);
+      return [
+        skillLevels[prevIndex],
+        skillLevels[currentIndex],
+        skillLevels[currentIndex],
+      ];
+    }
+
+    // If current = next goal, show current + next two levels
+    if (currentIndex === nextGoalIndex) {
+      const afterAfterGoalIndex = Math.min(
+        afterGoalIndex + 1,
+        skillLevels.length - 1
+      );
+      return [
+        skillLevels[currentIndex],
+        skillLevels[afterGoalIndex],
+        skillLevels[afterAfterGoalIndex],
+      ];
+    }
+
+    // If next goal = after goal (max level), show current + previous + goal
+    if (nextGoalIndex === afterGoalIndex) {
+      const prevIndex = Math.max(0, currentIndex - 1);
+      if (prevIndex === currentIndex) {
+        return [
+          skillLevels[currentIndex],
+          skillLevels[nextGoalIndex],
+          skillLevels[nextGoalIndex],
+        ];
+      }
+      return [
+        skillLevels[prevIndex],
+        skillLevels[currentIndex],
+        skillLevels[nextGoalIndex],
+      ];
+    }
+
+    // Default case: show current, next goal, and one after goal
+    return [
+      skillLevels[currentIndex],
+      skillLevels[nextGoalIndex],
+      skillLevels[afterGoalIndex],
+    ];
+  };
+
+  const currentEloPercentage = calculateEloPercentage(true); // Desktop
+  const mobileEloPercentage = calculateEloPercentage(false); // Mobile
   const nextGoalIndex = getNextGoalLevelIndex();
   const currentLevelIndex = getCurrentLevelIndex();
+  const mobileLevels = getMobileDisplayLevels();
 
   // Standardized badge class for consistent width and height
   const badgeClass =
@@ -85,8 +174,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   return (
     <div className="relative">
       <div className="w-full space-y-6">
-        {/* Grid for skill levels */}
-        <div className="grid grid-cols-6 gap-2">
+        {/* Desktop View - All Levels */}
+        <div className="hidden xl:grid grid-cols-6 gap-2">
           {skillLevels.map((level, index) => {
             const isReached = (currentElo || 0) >= level.elo;
             const isNextGoal = index === nextGoalIndex;
@@ -95,8 +184,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
             const regularWidth = 40;
             const regularHeight = 56;
-            const mobileWidth = 30;
-            const mobileHeight = 30;
 
             const nextGoalWidth = regularWidth * 1.3;
             const nextGoalHeight = regularHeight * 1.3;
@@ -107,7 +194,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 className="flex flex-col items-center relative w-full space-y-2"
               >
                 {isNextGoal && (
-                  <div className="absolute -top-6 lg:-top-14 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
                     <div
                       className={`${badgeClass} bg-amber-400 text-amber-950`}
                     >
@@ -125,8 +212,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   )}
                 </div>
 
-                {/* Desktop image container - with proper horizontal alignment */}
-                <div className="relative hidden xl:flex h-20 w-16 justify-center">
+                {/* Desktop image container */}
+                <div className="relative flex h-20 w-16 justify-center">
                   <div className="absolute bottom-0 flex justify-center">
                     <Image
                       src={imagePath}
@@ -140,26 +227,11 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
                 </div>
 
-                {/* Mobile image container - with proper horizontal alignment */}
-                <div className="relative flex xl:hidden h-14 w-10 justify-center">
-                  <div className="absolute bottom-0 flex justify-center">
-                    <Image
-                      src={imagePath}
-                      alt={level.title}
-                      width={mobileWidth}
-                      height={mobileHeight}
-                      className={`object-contain ${
-                        isNextGoal ? "origin-bottom scale-150" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-
                 <div className="text-center w-full space-y-1">
-                  <div className="font-semibold text-xs xl:text-sm flex items-center justify-center">
+                  <div className="font-semibold text-sm flex items-center justify-center">
                     <span className="truncate max-w-full">{level.title}</span>
                   </div>
-                  <div className="text-[10px] xl:text-xs text-gray-600 flex items-center justify-center">
+                  <div className="text-xs text-gray-600 flex items-center justify-center">
                     <span className="whitespace-nowrap">ELO {level.elo}</span>
                   </div>
                 </div>
@@ -168,26 +240,80 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
           })}
         </div>
 
-        {/* Progress bar container */}
-        <div className="relative h-20">
-          <div className="relative w-full mt-6">
-            {/* Progress bar positioned in the middle of the circles */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-[8.33%] w-[83.33%] h-4 rounded-full bg-gray-200 z-0">
-              <div
-                className="h-full bg-blue-base rounded-full"
-                style={{
-                  width: `${currentEloPercentage}%`,
-                }}
-              ></div>
-            </div>
+        {/* Mobile View - Only 3 Levels */}
+        <div className="grid xl:hidden grid-cols-3 gap-2">
+          {mobileLevels.map((level, mobileIndex) => {
+            const isReached = (currentElo || 0) >= level.elo;
+            const isNextGoal =
+              level.elo > (currentElo || 0) && mobileIndex === 1;
+            const imagePath = getImagePath(level.id, isReached, isNextGoal);
+            const isCompleted = isReached;
 
-            {/* Indicators - aligned exactly below each image */}
+            const mobileWidth = 36;
+            const mobileHeight = 50;
+
+            return (
+              <div
+                key={`mobile-${level.id}`}
+                className="flex flex-col items-center relative w-full space-y-2"
+              >
+                {isNextGoal && (
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                    <div
+                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                    >
+                      Your Next Goal
+                    </div>
+                    <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                  </div>
+                )}
+
+                <div className="h-8 flex items-center justify-center">
+                  {isCompleted && !isNextGoal && (
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile image container */}
+                <div className="relative flex h-16 w-12 justify-center">
+                  <div className="absolute bottom-0 flex justify-center">
+                    <Image
+                      src={imagePath}
+                      alt={level.title}
+                      width={mobileWidth}
+                      height={mobileHeight}
+                      className={`object-contain ${
+                        isNextGoal ? "origin-bottom scale-125" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center w-full space-y-1">
+                  <div className="font-semibold text-xs flex items-center justify-center">
+                    <span className="truncate max-w-full">{level.title}</span>
+                  </div>
+                  <div className="text-[10px] text-gray-600 flex items-center justify-center">
+                    <span className="whitespace-nowrap">ELO {level.elo}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop Progress bar container */}
+        <div className="relative h-20 hidden xl:block">
+          <div className="relative w-full mt-6">
+            {/* Indicators */}
             <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
               {skillLevels.map((level, index) => {
                 const isReached = (currentElo || 0) >= level.elo;
                 return (
                   <div
-                    key={`indicator-${level.id}`}
+                    key={`indicator-desktop-${level.id}`}
                     className="flex items-center justify-center"
                   >
                     <div
@@ -201,12 +327,84 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 );
               })}
             </div>
+
+            {/* Progress bar - positioned exactly between first and last indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              style={{
+                left: "calc(8.33% + 3.5px)" /* Half of indicator width (7px / 2) */,
+                width: "calc(83.33% - 7px)" /* Account for indicator width */,
+              }}
+            >
+              <div
+                className="h-full bg-blue-base rounded-full"
+                style={{
+                  width: `${currentEloPercentage}%`,
+                }}
+              ></div>
+            </div>
           </div>
 
           <div
             className="absolute -translate-x-1/2 top-8"
             style={{
               left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+              bottom: 0,
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className={`${badgeClass} bg-green-500 text-white`}>
+              Your current ELO
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Progress bar container */}
+        <div className="relative h-20 xl:hidden">
+          <div className="relative w-full mt-6">
+            {/* Indicators */}
+            <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
+              {mobileLevels.map((level, index) => {
+                const isReached = (currentElo || 0) >= level.elo;
+                return (
+                  <div
+                    key={`indicator-mobile-${level.id}`}
+                    className="flex items-center justify-center"
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-full border-4 ${
+                        isReached
+                          ? "bg-purple-600 border-blue-base"
+                          : "bg-gray-300"
+                      }`}
+                    ></div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progress bar - positioned exactly between first and last indicator on mobile */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              style={{
+                left: "calc(16.67% + 3.5px)" /* Half of indicator width (7px / 2) */,
+                width: "calc(66.67% - 7px)" /* Account for indicator width */,
+              }}
+            >
+              <div
+                className="h-full bg-blue-base rounded-full"
+                style={{
+                  width: `${mobileEloPercentage}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+
+          <div
+            className="absolute -translate-x-1/2 top-8"
+            style={{
+              // Adjust position calculation to match new progress bar positioning
+              left: `${((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67}%`,
               bottom: 0,
             }}
           >

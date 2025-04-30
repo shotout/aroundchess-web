@@ -5,6 +5,7 @@ import DaySelector from "./DaySelector";
 import TrainingSection from "./TrainingSection";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { TrainingSchedule } from "../service/useTrainingSchedule";
 
 interface TrainingTopic {
   id: string;
@@ -48,7 +49,7 @@ interface TrainingScheduleResponse {
 }
 
 interface TrainingPlanDisplayProps {
-  schedule?: TrainingScheduleResponse | null;
+  schedule?: TrainingSchedule | null;
   isLoading?: boolean;
   error?: string | null;
 }
@@ -98,7 +99,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   const apiDays = schedule.schedule?.trainingScheduleDates || [];
 
   // Map API days to the format expected by DaySelector
-  const mappedDays = apiDays.map((scheduleDate) => ({
+  const mappedDays = apiDays.map((scheduleDate: ScheduleDate) => ({
     id: scheduleDate.day.toLowerCase(),
     date: scheduleDate.date.toString(),
     name: scheduleDate.day.slice(0, 3), // Take first 3 letters (Mon, Tue, etc.)

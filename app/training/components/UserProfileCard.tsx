@@ -48,8 +48,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   console.log(avatar);
 
   return (
-    <Card className="xl:border xl:border-blue-base bg-blue-base/5 shadow-sm">
-      <CardContent className="p-4 gap-y-4 flex flex-col">
+    <div className="xl:border xl:border-blue-base lg:rounded-md bg-blue-base/5 shadow-sm">
+      <div className="p-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
           <div className="bg-white items-center py-3 gap-x-3 px-4 rounded-full justify-center flex">
             <Image src={avatar} width={20} height={20} alt="" />
@@ -72,8 +72,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         {duration && goals.length > 0 && (
           <GoalsSection goals={goals} duration={duration} />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

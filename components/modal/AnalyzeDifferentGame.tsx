@@ -27,6 +27,7 @@ import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import { useRouter } from "next/navigation";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -35,8 +36,6 @@ interface AnalyzeDifferentGameProps {
 }
 
 export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
-<<<<<<< HEAD
-=======
   const router = useRouter();
   const { isMember } = useProfileStore();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
@@ -342,11 +341,8 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
-<<<<<<< HEAD
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]">
-=======
+      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
->>>>>>> main
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
           <DialogDescription className="text-black">
@@ -462,7 +458,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                       }}
                       key={index}
                       disabled={depth.mustMember && !isMember}
-                      className={`relative flex flex-col justify-around relative px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
+                      className={`relative flex flex-col justify-around px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
                         depth.mustMember && !isMember
                           ? `bg-[#C0CED4]`
                           : `bg-white`

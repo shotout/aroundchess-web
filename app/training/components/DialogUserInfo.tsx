@@ -1,28 +1,30 @@
 import React from "react";
-import { Info, Clock } from "lucide-react";
 import { DialogUserInfoProps } from "./types";
+import Image from "next/image";
 
 const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   username,
   keyInfo,
 }) => {
   return (
-    <div className="lg:w-72 w-full border-gray-200 p-2 bg-white rounded-md">
+    <div className="lg:w-96 w-full border-gray-200 p-2 bg-white rounded-md">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-          <div className="w-full h-full bg-blue-100"></div>
-        </div>
-        <div>
+        <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden"></div>
+        <div className="flex justify-between items-center w-full">
           <div className="font-semibold">{username}</div>
+          <div>hello</div>
         </div>
       </div>
 
       <div className="bg-[#F7F7F7] rounded-md">
         <div className="bg-[#F7F7F7] rounded-md p-3">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-              <Info className="h-3 w-3 text-black" />
-            </div>
+            <Image
+              src={"/training-plan/alert.png"}
+              alt=""
+              width={15}
+              height={15}
+            />
             <div className="text-sm font-semibold text-black">
               Your key to reach the next Level:
             </div>
@@ -31,10 +33,13 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
         </div>
 
         <div className="rounded-md p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
-              <Clock className="h-3 w-3 text-black" />
-            </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src={"/training-plan/duration.png"}
+              alt=""
+              width={15}
+              height={15}
+            />
             <h1 className="text-sm font-semibold text-black">
               Approximate Duration:
             </h1>
