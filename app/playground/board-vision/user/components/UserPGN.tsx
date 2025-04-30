@@ -17,6 +17,7 @@ import {
   feedbackVariants,
 } from "@/app/playground/board-vision/shared/animationVariant";
 import Popup from "../../Popup";
+import Image from "next/image";
 
 const UserPGN: React.FC = () => {
   const router = useRouter();
@@ -103,9 +104,9 @@ const UserPGN: React.FC = () => {
 
   return (
     <>
-      <main className="w-full h-full p-8">
+      <main className="w-full h-full p-4 xl:p-8">
         <motion.div
-          className="grid grid-cols-1 xl:grid-cols-10 h-full xl:gap-5 overflow-hidden"
+          className="grid grid-cols-1 xl:grid-cols-10 min-h-full bg-white xl:gap-5"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -123,41 +124,65 @@ const UserPGN: React.FC = () => {
           />
 
           <motion.div
-            className="border border-gray-200 md:col-span-4 rounded-md flex flex-col overflow-auto"
+            className="border border-primary-gray md:col-span-4 rounded-md flex flex-col"
             variants={rightPanelVariants}
           >
-            <QuestionPanel
-              gameQuestion={gameQuestion}
-              gameSelectedAnswer={gameSelectedAnswer}
-              gameShowFeedback={gameShowFeedback}
-              gameQuestionNumber={gameQuestionNumber}
-              gameMaxQuestions={gameMaxQuestions}
-              handleGameSelectAnswer={handleUserGameSelectAnswer}
-              isGameEnd={isGameEnd}
-            />
+            <div className="flex flex-col h-full">
+              {!isGameEnd ? (
+                <div className="flex flex-col h-full">
+                  <QuestionPanel
+                    gameQuestion={gameQuestion}
+                    gameSelectedAnswer={gameSelectedAnswer}
+                    gameShowFeedback={gameShowFeedback}
+                    gameQuestionNumber={gameQuestionNumber}
+                    gameMaxQuestions={gameMaxQuestions}
+                    handleGameSelectAnswer={handleUserGameSelectAnswer}
+                    isGameEnd={isGameEnd}
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between border-b pb-4 p-6">
+                    <div className="flex items-center">
+                      <Image
+                        src={"/board-vision/board-vision.png"}
+                        alt="board vision"
+                        width={40}
+                        height={40}
+                        className="mr-2"
+                      />
+                      <span className="font-bold text-xl">Board Vision</span>
+                    </div>
+                    <div className="text-blue-base">The End</div>
+                  </div>
 
-            {isGameEnd && (
-              <GameResult
-                gameCorrects={gameCorrects}
-                gameMaxQuestions={gameMaxQuestions}
+                  <div className="flex-grow flex flex-col p-4 justify-center items-center w-full">
+                    <GameResult
+                      gameCorrects={gameCorrects}
+                      gameMaxQuestions={gameMaxQuestions}
+                      isGameEnd={isGameEnd}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-auto">
+              <FeedbackPanel
+                feedbackVariants={feedbackVariants}
+                gameShowFeedback={gameShowFeedback}
                 isGameEnd={isGameEnd}
+                gameQuestion={gameQuestion}
+                gameSelectedAnswer={gameSelectedAnswer}
+                handleGameNextQuestion={handleUserGameNextQuestion}
+                startGameAgain={startUserGameAgain}
+                setShowSetupPopup={setShowSetupPopup}
+                getRandomQuestion={getUserRandomQuestion}
+                isChangingQuestion={isChangingQuestion}
+                routeToDefault={routeToDefault}
+                isUserPGN={true}
               />
-            )}
-
-            <FeedbackPanel
-              feedbackVariants={feedbackVariants}
-              gameShowFeedback={gameShowFeedback}
-              isGameEnd={isGameEnd}
-              gameQuestion={gameQuestion}
-              gameSelectedAnswer={gameSelectedAnswer}
-              handleGameNextQuestion={handleUserGameNextQuestion}
-              startGameAgain={startUserGameAgain}
-              setShowSetupPopup={setShowSetupPopup}
-              getRandomQuestion={getUserRandomQuestion}
-              isChangingQuestion={isChangingQuestion}
-              routeToDefault={routeToDefault}
-              isUserPGN={true}
-            />
+            </div>
           </motion.div>
         </motion.div>
       </main>
