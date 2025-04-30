@@ -30,8 +30,7 @@ export interface UserProfileCardProps {
   avatar?: string;
   skillLevels?: any[];
   goals?: { id: string; text: string }[];
-  duration?: { text: string; value: string };
-  hasPlan?: boolean;
+  schedule?:any
 }
 
 export interface SkillProgressTrackProps {

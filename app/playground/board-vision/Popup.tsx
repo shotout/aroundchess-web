@@ -44,7 +44,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   } = useBoardVisionStore();
 
   const [usernameInput, setUsernameInput] = useState(username);
-  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
+  const [usernameStatus, setUsernameStatus] = useState("idle");
   const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
     undefined
@@ -52,23 +52,21 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   const [debouncedQuery, setDebouncedQuery] = useState(usernameInput);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
-  // Debounce username input
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
     return () => clearTimeout(timer);
   }, [usernameInput]);
 
-  // Fetch games when username input is debounced
   useEffect(() => {
     if (debouncedQuery && debouncedQuery.trim() !== "") {
       setUsernameStatus("loading");
       fetchUserGames();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, sessionId]);
 
   const fetchUserGames = async () => {
     try {
-      // Use the correct endpoint with sessionId as required
       const url = `${endpoint}/games/get-data/${debouncedQuery}`;
 
       const response = await axios.get(url, {
@@ -262,7 +260,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               onClick={handleDefaultPositionClick}
               disabled={isLoading}
             >
-              Default Position
+              Default Quiz
             </Button>
 
             <Button
