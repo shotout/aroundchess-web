@@ -10,10 +10,11 @@ import { useEffect } from "react";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useCancelSubscription } from "../store/cancelSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
+import { Suspense } from "react";
+
 export default function Profile() {
   const searchParams = useSearchParams();
-  const status = searchParams?.get("status");
-  const amount = searchParams?.get("amount");
+
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const {
@@ -22,6 +23,8 @@ export default function Profile() {
     setStatus,
   } = useStatusPurchaseTokens();
   useEffect(() => {
+    const status = searchParams?.get("status");
+    const amount = searchParams?.get("amount");
     if (status == "successSubscribe") {
       // http://localhost:3000/profile?status=successSubscribe
       setOpenSuccess(true);
@@ -31,24 +34,26 @@ export default function Profile() {
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
       setOpenPurchaseStatus(true);
-      setQuantity(amount)
+      setQuantity(amount);
       setStatus("success");
     } else if (status == "cancelToken") {
       // http://localhost:3000/profile?status=cancelToken&amount=20
       setOpenPurchaseStatus(true);
-      setQuantity(amount)
+      setQuantity(amount);
       setStatus("failed");
     }
   }, [status]);
   return (
-    <Navigation>
-      <ChangePassword />
-      <div className="flex flex-col z-10 p-[32px] gap-4">
-        <MyAccount />
-        <MySubscription />
-        <MyRemainingAnalysisTokens />
-        <MyRemainingPuzzle />
-      </div>
-    </Navigation>
+    <Suspense>
+      <Navigation>
+        <ChangePassword />
+        <div className="flex flex-col z-10 p-[32px] gap-4">
+          <MyAccount />
+          <MySubscription />
+          <MyRemainingAnalysisTokens />
+          <MyRemainingPuzzle />
+        </div>
+      </Navigation>
+    </Suspense>
   );
 }
