@@ -20,6 +20,7 @@ const LoadingPage: React.FC = (props) => {
   } = usePgnStore(); // Get PGN from the Zustand store
   const { pgnToFenList } = useStockfishAnalysis();
   const {
+    analyzeComplete,
     estimateMinute,
     estimateSecond,
     setEstimateMinute,
@@ -45,7 +46,7 @@ const LoadingPage: React.FC = (props) => {
       setEstimateMinute(0);
       setEstimateSecond(0);
     } else {
-      if (estimateSecond == 0) {
+      if (estimateSecond == 0 && estimateMinute == 0) {
         // set estimate time
         let pgn = pgnToFenList(storePgn);
         let basic = 6;
@@ -55,7 +56,7 @@ const LoadingPage: React.FC = (props) => {
         setEstimateSecond(basicFormat.second);
       }
     }
-  }, [isLoading]);
+  }, [isLoading, estimateSecond]);
 
   const getTime = (seconds: number): any => {
     let s = Math.round(seconds / 5) * 5;
@@ -91,44 +92,43 @@ const LoadingPage: React.FC = (props) => {
     setDataGamesImport(dataGames);
     console.log("tempGame.getHeaders()", headers);
   };
+  const countdown = createCountdown(
+    estimateMinute,
+    estimateSecond,
+    (min, sec) => {
+      let minuteFormat = min < 10 ? "0" + min : min;
+      let secondFormat = sec < 10 ? "0" + sec : sec;
+      setCountDown(`${minuteFormat}:${secondFormat}`);
+    },
+    () => console.log("Countdown complete!")
+  );
   useEffect(() => {
     if (dataAnalysis != null) {
       setCountDown(`${`00`}:${`00`}`);
       setEstimateMinute(0);
-      setEstimateSecond(0)
-    } else if (estimateSecond != 0 && estimateMinute != 0) {
-      const countdown = createCountdown(
-        estimateMinute,
-        estimateSecond,
-        (min, sec) => {
-          let minuteFormat = min < 10 ? "0" + min : min;
-          let secondFormat = sec < 10 ? "0" + sec : sec;
-          setCountDown(`${minuteFormat}:${secondFormat}`);
-        },
-        () => console.log("Countdown complete!")
-      );
+      setEstimateSecond(0);
+    } else {
+      console.log("estimateMinute", estimateMinute, estimateSecond);
       countdown.start();
     }
-  }, [estimateSecond, dataAnalysis]);
+  }, [estimateSecond, dataAnalysis, analyzeComplete]);
   return (
     <>
       <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
-        {estimateSecond != 0 && estimateMinute != 0 && (
-          <div
-            style={{
-              background: `linear-gradient(to bottom, #E7F3F7 0%,#DAF2FB 43%,#DAF2FB 100%)`,
-            }}
-            className="flex rounded-[4px] shadow-md border-2 border-[#ffffff] justify-center items-center p-[8px] h-[36px] min-w-[311px] mt-[16px]"
-          >
-            <span className="font-medium text-[14px]">
-              Time Remaining{" "}
-              <span className="font-bold text-[#221AE9] text-[14px]">
-                {countDown}
-              </span>
+        <div
+          style={{
+            background: `linear-gradient(to bottom, #E7F3F7 0%,#DAF2FB 43%,#DAF2FB 100%)`,
+          }}
+          className="flex rounded-[4px] shadow-md border-2 border-[#ffffff] justify-center items-center p-[8px] h-[36px] min-w-[311px] mt-[16px]"
+        >
+          <span className="font-medium text-[14px]">
+            Time Remaining:{" "}
+            <span className="font-bold text-[#221AE9] text-[14px]">
+              {countDown}
             </span>
-          </div>
-        )}
+          </span>
+        </div>
         {dataGame && (
           <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 my-4 mx-4">
             {dataGame?.date && gameInfo == null && (
@@ -166,10 +166,10 @@ const LoadingPage: React.FC = (props) => {
                   svg
                   className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
                   title={blackCountry}
-                />
+                />{" "}
                 vs {dataGame?.black?.username}{" "}
               </span>{" "}
-              (Black)
+              (Black){" "}
               <ReactCountryFlag
                 countryCode={whiteCountry}
                 svg

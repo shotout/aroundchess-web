@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect, SetStateAction } from "react";
+import { useLoadingAPI } from "@/app/store/loadingApi";
+import { useProfileStore } from "@/app/store/profile";
+import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17,97 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clipboard, UploadCloud, Check, X } from "lucide-react";
-import Image from "next/image";
-import axios from "axios";
-import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { Chess } from "chess.js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
-import { useProfileStore } from "@/app/store/profile";
-import { useLoadingAPI } from "@/app/store/loadingApi";
+import axios from "axios";
+import { Check, Clipboard, UploadCloud, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
-const AnalysisUrl = process.env.BASE_URL! + "/analyze";
-const mockData = {
-  success: true,
-  message: "Game options retrieved successfully",
-  data: [
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.09 newbiepisan vs hharo70",
-      color: "White",
-      result: "1-0",
-      opponent: "hharo70",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 newbiepisan vs timmytim3",
-      color: "White",
-      result: "1-0",
-      opponent: "timmytim3",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 honvan04 vs newbiepisan",
-      color: "Black",
-      result: "0-1",
-      opponent: "honvan04",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.12 newbiepisan vs jayjays66",
-      color: "White",
-      result: "1-0",
-      opponent: "jayjays66",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.13 sertkaya500 vs newbiepisan",
-      color: "Black",
-      result: "0-1",
-      opponent: "sertkaya500",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.13 1a2ii vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "1a2ii",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 newbiepisan vs socrateskaiser",
-      color: "White",
-      result: "1-0",
-      opponent: "socrateskaiser",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 newbiepisan vs shuchi4203",
-      color: "White",
-      result: "1-0",
-      opponent: "shuchi4203",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.14 Rodi_00 vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "Rodi_00",
-    },
-    {
-      value: '[Event "Live Chess"]...',
-      text: "2024.08.15 tf2011 vs newbiepisan",
-      color: "Black",
-      result: "1-0",
-      opponent: "tf2011",
-    },
-  ],
-};
 
 interface AnalyzeDifferentGameProps {
   openPopup?: boolean;
