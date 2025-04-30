@@ -49,6 +49,7 @@ export default function StageDetailView({
   const [moveHistory, setMoveHistory] = useState<any[]>([]);
   const [isSolved, setIsSolved] = useState<boolean>(false);
   const [playerColor, setPlayerColor] = useState<"w" | "b">("w");
+  const [isAutoSolution, setIsAutoSolution] = useState<boolean>(false);
 
   const [categoryData, setCategoryData] = useState<string | any>("");
   const [subcategoryName, setSubcategoryName] = useState<string>("");
@@ -113,6 +114,15 @@ export default function StageDetailView({
     syzygyCandidates?: Array<{ checkmate: boolean }>;
   }
 
+  const handleShowSolution = useCallback(() => {
+    if (!position || isSolved || isAutoSolution) return;
+    setIsAutoSolution(true);
+  }, [position, isSolved, isAutoSolution]);
+
+  const handleSolutionComplete = useCallback(() => {
+    setIsAutoSolution(false);
+  }, []);
+
   const updateSyzygyAnalysis = useCallback(async () => {
     if (!position || isSolved) return;
 
@@ -144,7 +154,6 @@ export default function StageDetailView({
     }
   }, [position, game, isSolved]);
 
-  // Update Syzygy analysis when position changes
   useEffect(() => {
     if (position) {
       updateSyzygyAnalysis();
@@ -375,6 +384,7 @@ export default function StageDetailView({
   const resetPosition = useCallback(() => {
     if (initialFen) {
       try {
+        setIsAutoSolution(false);
         game.load(initialFen);
         setPosition(initialFen);
         setMoveHistory([]);
@@ -644,16 +654,20 @@ export default function StageDetailView({
                 showHint={showHint}
                 playerColor={playerColor}
                 depth={15}
+                isAutoSolution={isAutoSolution}
+                onSolutionComplete={handleSolutionComplete}
               />
 
               <GameControls
                 game={game}
                 gameStatus={isSolved ? "solved" : "ongoing"}
                 handleHint={() => setShowHint(true)}
+                handleShowSolution={handleShowSolution}
                 resetPosition={resetPosition}
                 navigateNext={navigateNext}
                 isCheckmateMode={isCheckmateMode}
                 playerColor={playerColor}
+                isAutoSolution={isAutoSolution}
               />
             </div>
           </div>
