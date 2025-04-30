@@ -119,8 +119,7 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
-  const { allMembershipPackages, activeMembership } = useProfileStore();
-  let isMember = false;
+  const { allMembershipPackages, activeMembership, isMember } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 
