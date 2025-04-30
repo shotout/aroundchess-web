@@ -3,6 +3,7 @@ const nextConfig = {
   env: {
     BASE_URL: process.env.BASE_URL,
     BASE_URL_IP: process.env.BASE_URL_IP,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
 }, 
 
 
@@ -46,6 +47,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'api.chess.com',
+      },
+      {
+        protocol:'https',
+        hostname:'www.chess.com'
       }
     ],
   },

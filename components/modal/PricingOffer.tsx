@@ -23,6 +23,9 @@ import { formatDate, formatTimePgn } from "@/functions/format-date";
 import { useProfileStore } from "@/app/store/profile";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
 
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 interface TokenOption {
   amount: number;
   price: number;
@@ -81,14 +84,32 @@ export const PricingOffer: React.FC = () => {
     setWidthC(width);
   };
   const handleGetPremium = () => {
+    
     setOpen(false);
     setOpenSuccessSubscription(true);
   };
-  const handlePurchaseToken = () => {
+  const handlePurchaseToken = async () => {
     let tokenAmount =
       selectedToken != null && selectedToken != 5
         ? tokenOptions[selectedToken].amount
         : customAmount;
+    let price =
+      selectedToken != null && selectedToken != 5
+        ? tokenOptions[selectedToken].pricePerToken * 100
+        : parseFloat(totalPrice) * 10;
+    const res = await fetch("/api/stripe/checkout_sessions", {
+      method: "POST",
+      body: JSON.stringify({
+        productName: tokenAmount + " tokens",
+        price: price,
+        quantity: tokenAmount,
+      }),
+    });
+
+    const data = await res.json();
+    const stripe = await stripePromise;
+    await stripe?.redirectToCheckout({ sessionId: data.id });
+    // send to backend
     let body = {
       quantity: parseInt(tokenAmount.toString()),
       paymentMethodId: "stripe",
@@ -373,9 +394,17 @@ export const PricingOffer: React.FC = () => {
                     <DotSpinner />
                   ) : (
                     <button
-                      disabled={isLoading}
+                      disabled={
+                        isLoading ||
+                        (customAmount == "0" && selectedToken == null)
+                      }
                       onClick={handlePurchaseToken}
-                      className="btn-primary w-full xl:w-1/2 h-[48px] rounded-full"
+                      className={`${
+                        isLoading ||
+                        (customAmount == "0" && selectedToken == null)
+                          ? `bg-[#C0CED4]`
+                          : `btn-primary`
+                      } w-full xl:w-1/2 h-[48px] rounded-full`}
                     >
                       Purchase Now
                     </button>

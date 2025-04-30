@@ -16,7 +16,9 @@ const LoadingPage: React.FC = (props) => {
     dataGames,
     dataGamesImport,
     setDataGamesImport,
+    isLoading,
   } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgnToFenList } = useStockfishAnalysis();
   const {
     estimateMinute,
     estimateSecond,
@@ -37,7 +39,33 @@ const LoadingPage: React.FC = (props) => {
   const dataGame = dataGamesImport != null ? dataGamesImport : dataGames;
   const [headerPGN, setHeaderPGN] = useState<any>({});
   const [countDown, setCountDown] = useState<string>("");
-  useEffect(() => { 
+  useEffect(() => {
+    console.log("basicFormat", estimateMinute, estimateSecond);
+    if (!isLoading) {
+      setEstimateMinute(0);
+      setEstimateSecond(0);
+    } else {
+      if (estimateSecond == 0) {
+        // set estimate time
+        let pgn = pgnToFenList(storePgn);
+        let basic = 6;
+        let basicResult = pgn && pgn?.length * basic;
+        let basicFormat = getTime(basicResult);
+        setEstimateMinute(basicFormat.minute);
+        setEstimateSecond(basicFormat.second);
+      }
+    }
+  }, [isLoading]);
+
+  const getTime = (seconds: number): any => {
+    let s = Math.round(seconds / 5) * 5;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(s % 60);
+    let time = { minute: minutes, second: remainingSeconds };
+    return time;
+  };
+
+  useEffect(() => {
     getHeaders();
   }, [storePgn]);
   const getHeaders = () => {
@@ -64,23 +92,29 @@ const LoadingPage: React.FC = (props) => {
     console.log("tempGame.getHeaders()", headers);
   };
   useEffect(() => {
-    if (estimateSecond != 0) {
+    if (dataAnalysis != null) {
+      setCountDown(`${`00`}:${`00`}`);
+      setEstimateMinute(0);
+      setEstimateSecond(0)
+    } else if (estimateSecond != 0 && estimateMinute != 0) {
       const countdown = createCountdown(
         estimateMinute,
         estimateSecond,
         (min, sec) => {
-          setCountDown(`${min}:${sec}`);
+          let minuteFormat = min < 10 ? "0" + min : min;
+          let secondFormat = sec < 10 ? "0" + sec : sec;
+          setCountDown(`${minuteFormat}:${secondFormat}`);
         },
         () => console.log("Countdown complete!")
       );
       countdown.start();
     }
-  }, [estimateSecond]);
+  }, [estimateSecond, dataAnalysis]);
   return (
     <>
       <div className="flex flex-col items-center justify-center py-4">
         <Spinner />
-        {estimateSecond != 0 && (
+        {estimateSecond != 0 && estimateMinute != 0 && (
           <div
             style={{
               background: `linear-gradient(to bottom, #E7F3F7 0%,#DAF2FB 43%,#DAF2FB 100%)`,
@@ -137,11 +171,11 @@ const LoadingPage: React.FC = (props) => {
               </span>{" "}
               (Black)
               <ReactCountryFlag
-                  countryCode={whiteCountry}
-                  svg
-                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
-                  title={whiteCountry}
-                />
+                countryCode={whiteCountry}
+                svg
+                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
+                title={whiteCountry}
+              />
             </span>
           </div>
         )}

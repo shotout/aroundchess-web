@@ -21,7 +21,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clipboard, UploadCloud, Check, X } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
-import { usePgnStore } from "@/app/store/zustandStore";
+import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
@@ -146,6 +147,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
       setSelectedGame(response.data.data[0].value);
+      setDepthChoosed(0);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -239,7 +241,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     }
   };
   const processAnalyze = async (pgn: string | any) => {
-    let arr = null;
+    let arr: AnalysisResult | null = null;
     try {
       setIsLoading(true);
       setDataAnalysis(arr);
@@ -251,14 +253,13 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
         60000
       );
       setDataAnalysis(responseAnalysis.data);
-      setIsLoading(false);
-      arr = responseAnalysis.data;
-
-      console.log("responseAnalysis:", responseAnalysis);
-      console.log("Analysis depth:", depthChoosed || "Not selected");
 
       // Close the dialog
       setOpen(false);
+
+      console.log("responseAnalysis:", responseAnalysis);
+      console.log("Analysis depth:", depthChoosed || "Not selected");
+      arr = responseAnalysis.data;
     } catch (err) {
       console.log("error", err);
       toast.error(err + "");
@@ -266,20 +267,23 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      if (arr != null) {
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
+      setTimeout(() => {
+        if (arr != null) {
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
+        }
+      }, 2000);
     }
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
+    setDepthChoosed(0);
   };
   useEffect(() => {
     let pgn = selectedGame && pgnToFenList(selectedGame);
-    let basic = 6;
-    let standard = 19;
+    let basic = 5;
+    let standard = 23;
     let deep = 51;
 
     let basicResult = pgn && pgn?.length * basic;
@@ -583,18 +587,20 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
             <button
               onClick={handleAnalyzeGame}
               className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
-                usernameStatus !== "found" &&
-                !selectedGame &&
-                !pgnText &&
-                !fileName
+                (usernameStatus !== "found" &&
+                  !selectedGame &&
+                  !pgnText &&
+                  !fileName) ||
+                depthChoosed == 0
                   ? "opacity-70 cursor-not-allowed"
                   : ""
               }`}
               disabled={
-                usernameStatus !== "found" &&
-                !selectedGame &&
-                !pgnText &&
-                !fileName
+                (usernameStatus !== "found" &&
+                  !selectedGame &&
+                  !pgnText &&
+                  !fileName) ||
+                depthChoosed == 0
               }
             >
               Analyze Game

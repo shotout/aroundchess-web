@@ -207,7 +207,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     return pieceComponents;
   }, []);
   // Frame dimensions
-  let paddingTop = 50;
+  let paddingTop = 48;
   if (loading) return <DotSpinner />;
   return (
     <div
@@ -236,7 +236,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         />
         <div
           style={{
-            marginTop: -paddingTop,
+            marginTop: -48,
           }}
           className={`z-10 flex items-center justify-center `}
         >
@@ -266,7 +266,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 arePiecesDraggable={false}
                 customArrowColor={customArrowColor}
                 boardOrientation={orientation}
-                boardWidth={Math.round(480 * 0.779)}
+                boardWidth={Math.round(480 * 0.78)}
                 id="3DBoard"
                 position={position}
                 onSquareClick={onSquareClick}
@@ -284,16 +284,16 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customBoardStyle={{
                   transform: "rotateX(27.5deg) scale(1)",
                   transformOrigin: "center",
-                  // background:"black"
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 }}
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#FF000080",
+                  // backgroundColor: "#FFFFFF80",
                 }}
                 customDarkSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#00000070",
+                  // backgroundColor: "#FFFFFF70",
                 }}
                 customArrows={customArrows}
                 areArrowsAllowed={areArrowsAllowed}
