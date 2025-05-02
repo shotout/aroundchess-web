@@ -67,8 +67,8 @@ const sidebarLinks: SidebarLink[] = [
         iconActive: "/icons/sidebar-game-history-active.png",
       },
       {
-        name: "Mistake Log",
-        href: "/mistake-log",
+        name: "Feedback Log",
+        href: "/feedback-log",
         icon: "/icons/sidebar-mistake-log-icon.png",
         iconActive: "/icons/sidebar-mistake-log-icon-active.png",
       },
