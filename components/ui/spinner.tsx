@@ -14,13 +14,7 @@ export default function LoadingSpinner() {
     setEstimateSecond,
     estimateMinute,
     estimateSecond,
-  } = useLoadingAPI(); //
-  const {
-    proceedAnalysis,
-    isAnalyzing,
-    progress: analysisProgress,
-    error,
-  } = useStockfishAnalysis();
+  } = useLoadingAPI();
   const [timeLeft, setTimeLeft] = useState(0);
   const [totalTimeLeft, setTotalTimeLeft] = useState(0);
 

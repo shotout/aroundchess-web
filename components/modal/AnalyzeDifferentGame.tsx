@@ -1,6 +1,7 @@
 "use client";
 
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
 import {
@@ -37,8 +38,9 @@ interface AnalyzeDifferentGameProps {
 
 export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const router = useRouter();
-  const { isMember } = useProfileStore();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
+  const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
+  const { isMember, token } = useProfileStore();
 
   const {
     estimateMinute,
@@ -228,16 +230,21 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
   const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
-    if (selectedGame) {
-      console.log("Selected game:", selectedGame);
-      setDataGamesImport(availableGames[0]?.data_games);
-      processAnalyze(selectedGame);
-      setPgn(selectedGame);
-    } else if (pgnText) {
-      console.log("PGN text provided", pgnText);
-      processAnalyze(pgnText);
-      setPgn(pgnText);
-      setDataGamesImport(null);
+    if (token.balance > 1) {
+      if (selectedGame) {
+        console.log("Selected game:", selectedGame);
+        setDataGamesImport(availableGames[0]?.data_games);
+        processAnalyze(selectedGame);
+        setPgn(selectedGame);
+      } else if (pgnText) {
+        console.log("PGN text provided", pgnText);
+        processAnalyze(pgnText);
+        setPgn(pgnText);
+        setDataGamesImport(null);
+      }
+    } else {
+      setOpenPricing(true);
+      setTabType("tokens");
     }
     // else if (fileName) {
     //   console.log("File uploaded:", file);
