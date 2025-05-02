@@ -327,7 +327,7 @@ const MistakeLog = () => {
     <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
-          <h1 className="text-xl lg:text-[32px] font-semibold">Mistake Log</h1>
+          <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>
           <div className="flex justify-center items-end h-full">
             <p className="text-xs text-gray-500 lg:text-[18px] font-normal">
               {`(${username})`}
@@ -359,7 +359,7 @@ const MistakeLog = () => {
                 tabSelected == "saved" ? `font-semibold` : `font-normal`
               } lg:py-2`}
             >
-              Saved Mistakes
+              Saved Feedback
             </span>
           </TabsTrigger>
           <TabsTrigger
@@ -395,7 +395,7 @@ const MistakeLog = () => {
           ) : (
             <>
               <span className="hidden lg:block font-semibold text-[20px]">
-                Saved Mistakes
+                Saved Feedback
               </span>
               <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
                 <div className="lg:mt-2">
