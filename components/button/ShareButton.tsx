@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Share2,
   ChevronDown,
@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion";
 import { BookmarkFilledIcon, DiscordLogoIcon } from "@radix-ui/react-icons";
 import { FaFacebook, FaWhatsapp } from "react-icons/fa";
-import { GrThreads } from "react-icons/gr";
+import { GrTwitter } from "react-icons/gr";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
@@ -24,9 +24,13 @@ const ShareButton = (props: any) => {
 
   const [open, setOpen] = useState(false);
   const { isLoading } = useApiClient();
-  const shareUrl = window?.location?.hostname + "/chess-news/" + props.slug;
+  const [shareUrl, setShareUrl] = useState(
+    window?.location?.hostname + "/chess-news/" + props.slug
+  );
   const shareTitle = props.title;
-
+  useEffect(() => {
+    setShareUrl(window?.location?.hostname + "/chess-news/" + props.slug);
+  });
   const [icon, setIcon] = useState([
     {
       name: "link",
@@ -82,15 +86,15 @@ const ShareButton = (props: any) => {
     {
       name: "threads",
       onPress: () => {
-        // Threads doesn't have a direct web sharing API
-        // But we can open Threads and help copy the URL to clipboard
+        // twitter doesn't have a direct web sharing API
+        // But we can open twitter and help copy the URL to clipboard
         navigator.clipboard
           .writeText(shareUrl)
           .then(() => {
-            toast.success("Link copied! Now paste it in Threads.");
-            window.open("https://threads.net", "_blank");
+            toast.success("Link copied! Now paste it in twitter.");
+            window.open("https://twitter.com", "_blank");
           })
-          .catch((err) => toast.error("Failed to copy link for Threads"));
+          .catch((err) => toast.error("Failed to copy link for twitter"));
       },
     },
   ]);
