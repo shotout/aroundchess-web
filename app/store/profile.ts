@@ -35,7 +35,7 @@ export const useProfileStore = create<ProfileState>()(
         set({ allMembershipPackages }),
       puzzleLog: {},
       setPuzzleLog: (puzzleLog) => set({ puzzleLog }),
-      isMember: false,
+      isMember: null,
       setIsMember: (isMember) => set({ isMember }),
     }),
     {

@@ -4,12 +4,10 @@ import { NextResponse } from "next/server";
 const publicRoutes = [
   "/",
   "/about",
-  "/contact",
-  "/pricing",
+  "/contact-us",
+  "/chess-news",
   "/api/webhook",
   "/api/webhooks/clerk",
-  "/learn",
-  "/practice",
   "/analysis",
   "/login",
   "/register",
@@ -47,13 +45,12 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
-  const isPublicRoute = publicRoutes.some((route) => req.url.includes(route));
-
-  if (isPublicRoute) {
+  const isPublicRoute = publicRoutes.some((route) => pathname == route);
+  if (isPublicRoute || sessionId != null) {
     return NextResponse.next();
   }
 
-  return NextResponse.redirect(new URL("/", req.url));
+  return NextResponse.redirect(new URL("/login", req.url));
 });
 
 export const config = {

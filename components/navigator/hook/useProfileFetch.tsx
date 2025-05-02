@@ -29,7 +29,7 @@ export const useProfileFetch = () => {
     getActiveMembership,
     getAllMembershipPackage,
     getPuzzle,
-    getTokenPackage
+    getTokenPackage,
   } = useApiClient();
   const {
     token,
@@ -42,7 +42,7 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (sessionId && isSignedIn) {
+    if (sessionId != null && isSignedIn) {
       localStorage.setItem("token", sessionId);
       getProfile({}).then((response) => {
         let data = response.data;
