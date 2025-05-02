@@ -33,13 +33,7 @@ export function HeroSection() {
     setDataAnalysis,
     setDataGames,
     dataGames,
-  } = usePgnStore();
-  const fetcher = () => {
-    console.log("health-check");
-    fetch(process.env.BASE_URL! + "/health-check").then((res) =>
-      res.json().then((data) => console.log(data))
-    );
-  };
+  } = usePgnStore(); 
 
   const fetchPgn = async () => {
     let arr = null;
@@ -85,8 +79,7 @@ export function HeroSection() {
 
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    setDataAnalysis(null);
-    fetcher();
+    setDataAnalysis(null); 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
