@@ -37,7 +37,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
             <span className="font-bold text-xl">Board Vision</span>
           </div>
           <div className="text-blue-base">
-            : {`Question ${gameQuestionNumber} of ${gameMaxQuestions}`}
+            {`Question ${gameQuestionNumber} of ${gameMaxQuestions}`}
           </div>
         </div>
       </div>

@@ -71,6 +71,8 @@ export interface FeedbackPanelProps {
   isChangingQuestion?: boolean;
   routeToDefault?: () => void;
   isUserPGN?: boolean;
+  gameQuestionNumber: number;
+  gameMaxQuestions: number;
 }
 
 export interface LoadingStateProps {
