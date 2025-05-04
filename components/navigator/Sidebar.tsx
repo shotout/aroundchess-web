@@ -248,11 +248,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
-<<<<<<< HEAD
-              ? pathname?.includes(section.href) ?? false
-=======
               ? pathname?.includes(section.href)
->>>>>>> main
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
@@ -281,11 +277,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           width={1000}
                           height={1000}
                           alt={section.href}
-                          src={
-                            isActive
-                              ? section.iconActive
-                              : section.icon
-                          }
+                          src={isActive ? section.iconActive : section.icon}
                           className={cn(
                             "h-5 w-5 transition-colors",
                             isActive
@@ -319,8 +311,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           ? "text-[#221AE9]"
                           : section.disabled
                           ? "text-[#AAA4A4]"
-                          : 
-                          ""
+                          : ""
                       )}
                     >
                       <div className="mr-3">
@@ -346,12 +337,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   {hasChildren && (
                     <div className="ml-6 space-y-2 ">
                       {section.children.map((child: any) => {
-<<<<<<< HEAD
-                        const isChildActive =
-                          pathname?.includes(child.href) ?? false;
-=======
                         const isChildActive = pathname?.includes(child.href);
->>>>>>> main
                         return (
                           <Link
                             key={child.href}
