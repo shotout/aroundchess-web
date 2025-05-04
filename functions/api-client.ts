@@ -57,7 +57,10 @@ export function useApiClient() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          toast.error(errorData.message || "API request failed");
+          console.log("errorData",errorData, response)
+          if (errorData.statusCode != 401) {
+            toast.error(errorData.message || "API request failed");
+          }
           throw new Error(errorData.message || "API request failed");
         }
 
@@ -500,6 +503,16 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getNewsBySlug = useCallback(
+    (params: any, slug: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/news/articles/slug/${slug}`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
   const getNewsSaved = useCallback(
     (params: any) => {
       return apiRequest({
@@ -589,6 +602,7 @@ export function useApiClient() {
     getNewsCategories,
     getNews,
     getNewsById,
+    getNewsBySlug,
     getNewsSaved,
     getMostRead,
     toggleSaveNews,
