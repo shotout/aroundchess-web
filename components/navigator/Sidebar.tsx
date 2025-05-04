@@ -45,7 +45,7 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-news-icon.png",
     iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",
-    // permission: true,
+    permission: true,
   },
   {
     name: "Dashboard",
@@ -66,8 +66,8 @@ const sidebarLinks: SidebarLink[] = [
         iconActive: "/icons/sidebar-game-history-active.png",
       },
       {
-        name: "Mistake Log",
-        href: "/mistake-log",
+        name: "Feedback Log",
+        href: "/feedback-log",
         icon: "/icons/sidebar-mistake-log-icon.png",
         iconActive: "/icons/sidebar-mistake-log-icon-active.png",
       },
@@ -248,7 +248,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
+<<<<<<< HEAD
               ? pathname?.includes(section.href) ?? false
+=======
+              ? pathname?.includes(section.href)
+>>>>>>> main
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
@@ -278,13 +282,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           height={1000}
                           alt={section.href}
                           src={
-                            pathname === section.href
+                            isActive
                               ? section.iconActive
                               : section.icon
                           }
                           className={cn(
                             "h-5 w-5 transition-colors",
-                            pathname === section.href
+                            isActive
                               ? "text-[#221AE9]"
                               : "text-gray-400 group-hover:text-[#221AE9]"
                           )}
@@ -315,7 +319,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           ? "text-[#221AE9]"
                           : section.disabled
                           ? "text-[#AAA4A4]"
-                          : "text-gray-700 hover:bg-[#221AE950] hover:text-[#221AE9] hover:border-r-4 hover:border-[#221AE9]"
+                          : 
+                          ""
                       )}
                     >
                       <div className="mr-3">
@@ -341,8 +346,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   {hasChildren && (
                     <div className="ml-6 space-y-2 ">
                       {section.children.map((child: any) => {
+<<<<<<< HEAD
                         const isChildActive =
                           pathname?.includes(child.href) ?? false;
+=======
+                        const isChildActive = pathname?.includes(child.href);
+>>>>>>> main
                         return (
                           <Link
                             key={child.href}

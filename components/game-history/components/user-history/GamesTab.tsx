@@ -13,9 +13,11 @@ import { toast } from "sonner";
 import Filters from "../Filters";
 import GamesList from "../GameList";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
 
 const GamesTab: React.FC = () => {
-  const {proceedAnalysis} = useStockfishAnalysis()
+  const { proceedAnalysis } = useStockfishAnalysis();
   const router = useRouter();
   const {
     username,
@@ -23,7 +25,8 @@ const GamesTab: React.FC = () => {
     setDataAnalysis,
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
-
+  const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
+  const { isMember, token } = useProfileStore();
   // Fetch games data
   const {
     games,
@@ -52,24 +55,34 @@ const GamesTab: React.FC = () => {
   // Handle game analysis
   const handleAnalyzeClick = useCallback(
     async (game: Game) => {
-      try {
-        setZustandIsLoading(true);
-        setPgn(game.pgn);
+      if (token.balance > 1) {
+        try {
+          setZustandIsLoading(true);
+          setPgn(game.pgn);
 
-        const response = await proceedAnalysis(game?.pgn, username, 15, 60000);
+          const response = await proceedAnalysis(
+            game?.pgn,
+            username,
+            15,
+            60000
+          );
 
-        if (response && response.data) {
-          setDataAnalysis(response.data);
-          router.push("/analysis");
-        } else {
-          throw new Error("Invalid analysis response");
+          if (response && response.data) {
+            setDataAnalysis(response.data);
+            router.push("/analysis");
+          } else {
+            throw new Error("Invalid analysis response");
+          }
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Analysis failed";
+          setDataAnalysis(null);
+          setZustandIsLoading(false);
+          toast.error(errorMessage);
         }
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Analysis failed";
-        setDataAnalysis(null);
-        setZustandIsLoading(false);
-        toast.error(errorMessage);
+      } else {
+        setOpenPricing(true);
+        setTabType("tokens");
       }
     },
     [router, setPgn, setDataAnalysis, setZustandIsLoading, username]

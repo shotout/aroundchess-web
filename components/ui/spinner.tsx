@@ -14,21 +14,18 @@ export default function LoadingSpinner() {
     setEstimateSecond,
     estimateMinute,
     estimateSecond,
-  } = useLoadingAPI(); //
-  const {
-    proceedAnalysis,
-    isAnalyzing,
-    progress: analysisProgress,
-    error,
-  } = useStockfishAnalysis();
+  } = useLoadingAPI();
   const [timeLeft, setTimeLeft] = useState(0);
+  const [totalTimeLeft, setTotalTimeLeft] = useState(0);
 
   useEffect(() => {
-    const totalTimeLeft = estimateMinute * 60 + estimateSecond;
-    setTimeLeft(totalTimeLeft);
+    const totalTime = estimateMinute * 60 + estimateSecond;
+    if (totalTimeLeft == 0) {
+      setTotalTimeLeft(totalTime);
+    }
+    setTimeLeft(totalTime);
   }, [estimateMinute, estimateSecond]);
   useEffect(() => {
-    const totalTimeLeft = estimateMinute * 60 + estimateSecond;
     let interval: string | number | NodeJS.Timeout | undefined;
     if (dataAnalysis != null) {
       setProgress(100);
@@ -53,7 +50,7 @@ export default function LoadingSpinner() {
       setTimeLeft(0);
       // setIsRunning(false);
     }
-    console.log("cek data analysis", dataAnalysis);
+    // console.log("cek data analysis", dataAnalysis);
     return () => clearInterval(interval);
   }, [isLoading, progress, timeLeft, dataAnalysis]);
 

@@ -12,8 +12,10 @@ import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 import { usePagination } from "../pagination/hook/usePagination";
 import { Pagination } from "../pagination/pagination";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Article() {
+  const { isSignedIn } = useAuth();
   const {
     categories,
     setCategories,
@@ -33,7 +35,7 @@ export default function Article() {
     getNewsSaved,
     toggleSaveNews,
   } = useApiClient();
-  const { currentData,currentPage } = usePagination(chessNews);
+  const { currentData, currentPage } = usePagination(chessNews);
   const { isLoading: loadingFetch } = useLoadingAPI();
   const [searchLoading, setSearchLoading] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -53,14 +55,15 @@ export default function Article() {
         setSelectedTab(response.data[0].id);
       })
       .finally(() => {
-        fetchSavedArticle();
+        if (isSignedIn) {
+          fetchSavedArticle();
+        }
       });
   };
   const fetchSavedArticle = () => {
     getNewsSaved({}).then((response) => {
       console.log("getNewsSaved", response.data);
       setSavedArticles(response.data);
-      setIsLoading(false);
     });
   };
   const fetchArticles = () => {
@@ -68,6 +71,7 @@ export default function Article() {
     getNews(params).then((response) => {
       console.log("getNews", response.data);
       setChessNews(response.data);
+      setIsLoading(false);
     });
   };
   useEffect(() => {
@@ -108,7 +112,11 @@ export default function Article() {
         insights from around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
-        <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-2/3">
+        <div
+          className={`md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-${
+            isSignedIn ? `2/3` : `full`
+          }`}
+        >
           <div className="flex flex-col mt-4 md:mt-0 bg-white">
             <div className="mt-4 flex items-center bg-[#F8F9FC] border border-input rounded-md px-2 bg-[#F8F9FC] gap-2">
               <Search className="h-6 w-6" color="#73778B" />
@@ -156,7 +164,7 @@ export default function Article() {
             {!searchLoading &&
               !loadingFetch &&
               chessNews.map((article: any, index: number) => (
-                <Link href={`/chess-news/${article.id}`} key={index}>
+                <Link href={`/chess-news/${article.slug}`} key={index}>
                   <Card className="rounded-md overflow-hidden border border-input shadow-md h-[254px]">
                     <Image
                       src={article.imageUrl}
@@ -196,7 +204,11 @@ export default function Article() {
             <Pagination data={currentData} />
           )}
         </div>
-        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
+        <div
+          className={`md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full ${
+            isSignedIn ? `xl:w-1/3` : `hidden`
+          }`}
+        >
           <span className="text-md font-bold mt-4">Saved Articles</span>
           <div className="flex flex-col mt-2 gap-2">
             {savedArticles.length == 0 && (
@@ -205,33 +217,32 @@ export default function Article() {
               </div>
             )}
             {savedArticles.map((article) => (
-              <div
-                key={article.id}
-                className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3"
-              >
-                <Image
-                  src={article.imageUrl}
-                  alt={article.title}
-                  width={1000}
-                  height={1000}
-                  className="w-16 h-16 rounded-[4px] object-cover"
-                />
-                <div className="flex flex-col flex-1 gap-2">
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                      {formatDateNews(article.publishedAt)}
-                    </p>
-                    <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
-                      {article.category.name}
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-between max-h-[40px] ">
-                    <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold">
-                      {article.title}
-                    </span>
+              <Link href={`/chess-news/${article.slug}`} key={article.id}>
+                <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3">
+                  <Image
+                    src={article.imageUrl}
+                    alt={article.title}
+                    width={1000}
+                    height={1000}
+                    className="w-16 h-16 rounded-[4px] object-cover"
+                  />
+                  <div className="flex flex-col flex-1 gap-2">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                        {formatDateNews(article.publishedAt)}
+                      </p>
+                      <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+                        {article.category.name}
+                      </span>
+                    </div>
+                    <div className="flex flex-row items-center justify-between max-h-[40px] ">
+                      <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold">
+                        {article.title}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

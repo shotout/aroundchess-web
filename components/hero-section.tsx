@@ -33,13 +33,7 @@ export function HeroSection() {
     setDataAnalysis,
     setDataGames,
     dataGames,
-  } = usePgnStore();
-  const fetcher = () => {
-    console.log("health-check");
-    fetch(process.env.BASE_URL! + "/health-check").then((res) =>
-      res.json().then((data) => console.log(data))
-    );
-  };
+  } = usePgnStore(); 
 
   const fetchPgn = async () => {
     let arr = null;
@@ -59,7 +53,7 @@ export function HeroSection() {
       const responseAnalysis = await proceedAnalysis(
         response.data[0].data_games?.pgn,
         username,
-        15,
+        10,
         60000
       );
 
@@ -85,8 +79,7 @@ export function HeroSection() {
 
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    setDataAnalysis(null);
-    fetcher();
+    setDataAnalysis(null); 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -176,8 +169,7 @@ export function HeroSection() {
                 your Chess.com account.
               </p>
             </div>
-            {/* {isSignedIn ? renderInsertUsername() : <FamousGameButton />} */}
-            <FamousGameButton />
+            {isSignedIn ? renderInsertUsername() : <FamousGameButton />}
           </motion.div>
         </motion.div>
       </div>
@@ -185,7 +177,6 @@ export function HeroSection() {
       {/* <div className="hidden lg:block absolute top-0 right-0 w-[200px] sm:w-[250px] md:w-[300px] h-[200px] sm:h-[250px] md:h-[300px] bg-white-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
       <div className="hidden md:block absolute bottom-0 right-0 md:right-20 md:bottom-12 w-[600px] sm:w-[400px] h-[500px] sm:h-[450px] bg-[#25CEDA] rounded-full mix-blend-multiply filter blur-3xl opacity-24 animate-pulse-slow z-1"></div> */}
       <div className="block z-2 absolute  w-[100%] h-[620px] lg:h-auto">
-        
         <Image
           src={
             width > 1024

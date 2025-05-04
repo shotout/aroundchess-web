@@ -54,7 +54,14 @@ export function createCountdown(
     const { minutes, seconds } = getCurrentTime();
     if (onTick) onTick(minutes, seconds);
   };
-
+  // Change the time settings
+  const setTime = (minutes: number, seconds: number) => {
+    stop();
+    totalTimeInSeconds = minutes * 60 + seconds;
+    const { minutes: currentMinutes, seconds: currentSeconds } =
+      getCurrentTime();
+    if (onTick) onTick(currentMinutes, currentSeconds);
+  };
   // Pause the countdown
   const pause = () => {
     stop();
@@ -80,6 +87,7 @@ export function createCountdown(
     resume,
     getFormattedTime,
     getCurrentTime,
+    setTime
   };
 }
 

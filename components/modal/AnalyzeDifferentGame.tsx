@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17,12 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clipboard, UploadCloud, Check, X } from "lucide-react";
-import Image from "next/image";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
-import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
+import { Check, Clipboard, UploadCloud, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useAuth } from "@clerk/clerk-react";
@@ -37,8 +38,9 @@ interface AnalyzeDifferentGameProps {
 
 export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const router = useRouter();
-  const { isMember } = useProfileStore();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
+  const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
+  const { isMember, token } = useProfileStore();
 
   const {
     estimateMinute,
@@ -227,17 +229,27 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
   const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
-    if (selectedGame) {
-      console.log("Selected game:", selectedGame);
-      setDataGamesImport(availableGames[0]?.data_games);
-      processAnalyze(selectedGame);
-      setPgn(selectedGame);
-    } else if (pgnText) {
-      console.log("PGN text provided", pgnText);
-      processAnalyze(pgnText);
-      setPgn(pgnText);
-      setDataGamesImport(null);
+    if (token.balance > 1) {
+      if (selectedGame) {
+        console.log("Selected game:", selectedGame);
+        setDataGamesImport(availableGames[0]?.data_games);
+        processAnalyze(selectedGame);
+        setPgn(selectedGame);
+      } else if (pgnText) {
+        console.log("PGN text provided", pgnText);
+        processAnalyze(pgnText);
+        setPgn(pgnText);
+        setDataGamesImport(null);
+      }
+    } else {
+      setOpenPricing(true);
+      setTabType("tokens");
     }
+    // else if (fileName) {
+    //   console.log("File uploaded:", file);
+    //   setDataGamesImport(null);
+    //   processAnalyze(file);
+    // }
   };
   const processAnalyze = async (pgn: string | any) => {
     let arr: AnalysisResult | null = null;

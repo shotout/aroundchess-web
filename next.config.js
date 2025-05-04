@@ -6,6 +6,9 @@ const nextConfig = {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
 }, 
 
+experimental: {
+  missingSuspenseWithCSRBailout: false,
+},
 
   async headers() {
     return [
