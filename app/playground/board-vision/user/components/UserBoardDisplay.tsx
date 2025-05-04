@@ -1,8 +1,8 @@
 import React from "react";
-import { Chessboard } from "react-chessboard";
 import { motion } from "framer-motion";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
+import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
 
 const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   currentPosition,
@@ -45,7 +45,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       <div className="relative w-full flex justify-center items-center my-4">
         <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[600px] max-h-[700px]">
           <div className="w-full h-full">
-            <Chessboard
+            <Simple2DChess
               id="board-vision-board"
               arePiecesDraggable={false}
               position={currentPosition.fen}

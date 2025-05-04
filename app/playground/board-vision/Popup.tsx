@@ -51,6 +51,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   );
   const [debouncedQuery, setDebouncedQuery] = useState(usernameInput);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [gameCount, setGameCount] = useState("50");
+
+  const gameCountOptions = Array.from({ length: 10 }, (_, i) =>
+    ((i + 1) * 10).toString()
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
@@ -63,11 +68,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       fetchUserGames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, sessionId]);
+  }, [debouncedQuery, sessionId, gameCount]);
 
   const fetchUserGames = async () => {
     try {
-      const url = `${endpoint}/games/get-data/${debouncedQuery}`;
+      const url = `${endpoint}/games/get-data/${debouncedQuery}?limit=${gameCount}`;
 
       const response = await axios.get(url, {
         headers: {
@@ -80,7 +85,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       if (response.status === 200 && response.data.data?.length > 0) {
         setUsernameStatus("found");
         setAvailableGames(response.data.data);
-        setSelectedGame(response.data.data[0].value);
+        // Randomly select a game
+        const randomIndex = Math.floor(
+          Math.random() * response.data.data.length
+        );
+        setSelectedGame(response.data.data[randomIndex].value);
       } else {
         setUsernameStatus("not-found");
         setAvailableGames([]);
@@ -109,8 +118,8 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     router.push("/playground/board-vision/default");
   };
 
-  const handleGameSelect = (value: string) => {
-    setSelectedGame(value);
+  const handleGameCountChange = (value: string) => {
+    setGameCount(value);
   };
 
   const handleStartClick = async () => {
@@ -123,10 +132,14 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
 
     try {
       if (usernameStatus === "found" && selectedGame) {
-        // We pass the full PGN string to the loadUserPositions function
-        await loadUserPositions(selectedGame, usernameInput);
         router.push("/playground/board-vision/user");
         onClose();
+
+        loadUserPositions(selectedGame, usernameInput).catch((error) => {
+          console.error("Error loading user positions:", error);
+        });
+      } else if (usernameStatus === "found") {
+        setShowErrorModal(true);
       } else {
         setShowErrorModal(true);
       }
@@ -135,17 +148,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       setShowErrorModal(true);
     }
   };
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleEscape);
-      return () => window.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -196,62 +198,69 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-blue-700">♞</span>
-            <span>Chess.com Username</span>
-          </div>
+          {/* Two columns side by side layout */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* First column: Chess.com Username */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-700">♞</span>
+                <span>Chess.com Username</span>
+              </div>
 
-          <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <input
-              type="text"
-              id="username"
-              value={usernameInput}
-              placeholder="Enter your Chess.com Username"
-              onChange={handleUsernameChange}
-              className="w-full bg-transparent h-[24px] focus:outline-none"
-            />
-            <div className="flex items-center">
-              {usernameStatus === "loading" && (
-                <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-              )}
-              {usernameStatus === "found" && (
-                <div className="flex items-center text-green-500 whitespace-nowrap">
-                  <Check className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Username found</span>
+              <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input
+                  type="text"
+                  id="username"
+                  value={usernameInput}
+                  placeholder="Enter your Chess.com Username"
+                  onChange={handleUsernameChange}
+                  className="w-full bg-transparent h-[24px] focus:outline-none"
+                />
+                <div className="flex items-center">
+                  {usernameStatus === "loading" && (
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                  )}
+                  {usernameStatus === "found" && (
+                    <div className="flex items-center text-green-500 whitespace-nowrap">
+                      <Check className="h-4 w-4 mr-1" />
+                      <span className="text-xs">Found</span>
+                    </div>
+                  )}
+                  {usernameStatus === "not-found" && (
+                    <div className="flex items-center text-red-500 whitespace-nowrap">
+                      <X className="h-4 w-4 mr-1" />
+                      <span className="text-xs">Not found</span>
+                    </div>
+                  )}
                 </div>
-              )}
-              {usernameStatus === "not-found" && (
-                <div className="flex items-center text-red-500 whitespace-nowrap">
-                  <X className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Username not found</span>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
 
-          {usernameStatus === "found" && (
-            <div className="space-y-2 mx-1">
+            {/* Second column: Ask Questions from my last... */}
+            <div className="space-y-2">
               <p className="block text-base sm:text-sm text-black">
-                Select Game
+                Ask Questions from my last...
               </p>
               <Select
-                name="game"
-                value={selectedGame}
-                onValueChange={handleGameSelect}
+                name="gameCount"
+                value={gameCount}
+                onValueChange={handleGameCountChange}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select your game" />
+                  <SelectValue placeholder="Select number of games" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableGames.map((game, index) => (
-                    <SelectItem key={index} value={game.value}>
-                      {game.text} ({game.result})
+                  {gameCountOptions.map((count) => (
+                    <SelectItem key={count} value={count}>
+                      {count} Games
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
+          </div>
+
+          {/* Game selection has been removed as we now randomize games */}
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Button
