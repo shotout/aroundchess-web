@@ -37,7 +37,7 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
 
   return (
     <div className="flex-grow p-4">
-      <div className="max-h-[250px] rounded-md border border-[#BDD0F9] overflow-y-auto">
+      <div className="max-h-[150px] rounded-md border border-[#BDD0F9] overflow-y-auto">
         <table className="w-full border-collapse table-fixed">
           <thead className="bg-blue-100 sticky top-0 z-10">
             <tr>
@@ -77,7 +77,7 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
                             width={20}
                             height={20}
                             alt={moveHistory[whiteIdx]?.san || ""}
-                            className=" mr-2"
+                            className="mr-2"
                           />
                           <span className="truncate">
                             {moveHistory[whiteIdx]?.san || ""}
