@@ -11,18 +11,18 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      const { productName, price, quantity, description, type } = JSON.parse(
+      const { productName, price, quantity, description, type , idUser} = JSON.parse(
         req.body
       );
       let statusurlSuccess =
         type == "membership"
           ? "status=successSubscribe"
-          : "status=cancelSubscribe";
+          : `status=successToken&amount=${quantity}`;
       let statusurlFailed =
         type == "token"
           ? `status=successToken&amount=${quantity}`
-          : `status=cancelToken&amount=${quantity}`;
-          
+          : `status=cancelSubscribe`;
+
       console.log("req.body", req.body);
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -42,6 +42,7 @@ export default async function handler(
         ],
         metadata: {
           itemType: type,
+          userId:idUser
         },
         success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
         cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,

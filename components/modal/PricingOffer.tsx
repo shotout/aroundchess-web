@@ -41,7 +41,7 @@ export const PricingOffer: React.FC = () => {
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
   const { callFetch, setCallFetch } = useProfileFetch();
-  const { tokenPackage } = useProfileStore();
+  const { tokenPackage, profile } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const {
@@ -103,6 +103,7 @@ export const PricingOffer: React.FC = () => {
         price: price,
         quantity: tokenAmount,
         type: "token",
+        idUser: profile.id,
       }),
     });
 

@@ -119,7 +119,7 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
-  const { allMembershipPackages, activeMembership, isMember } = useProfileStore();
+  const { allMembershipPackages, activeMembership, isMember, profile } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 
@@ -137,7 +137,8 @@ export const PremiumSubsContent: React.FC<{
         price: premium.price * 100,
         quantity: 1,
         description: premium.description,
-        type:"membership"
+        type:"membership",
+        idUser: profile.id,
       }),
     });
 
