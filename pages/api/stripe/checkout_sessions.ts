@@ -1,4 +1,3 @@
-// pages/api/stripe/checkout_session.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
@@ -15,6 +14,15 @@ export default async function handler(
       const { productName, price, quantity, description, type } = JSON.parse(
         req.body
       );
+      let statusurlSuccess =
+        type == "membership"
+          ? "status=successSubscribe"
+          : "status=cancelSubscribe";
+      let statusurlFailed =
+        type == "token"
+          ? `status=successToken&amount=${quantity}`
+          : `status=cancelToken&amount=${quantity}`;
+          
       console.log("req.body", req.body);
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -35,8 +43,8 @@ export default async function handler(
         metadata: {
           itemType: type,
         },
-        success_url: `${req.headers.origin}/profile?status="successSubscribe"`,
-        cancel_url: `${req.headers.origin}/profile?status="cancelSubscribe"`,
+        success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
+        cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,
       });
 
       res.status(200).json({ id: session.id });
