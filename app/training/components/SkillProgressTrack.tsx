@@ -1,0 +1,451 @@
+import React from "react";
+import Image from "next/image";
+import { Check } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface SkillProgressTrackProps {
+  currentElo: number;
+  skillLevels?: any[];
+}
+
+const DEFAULT_SKILL_LEVELS = [
+  {
+    id: "novice",
+    title: "Novice",
+    elo: 0,
+  },
+  {
+    id: "beginner",
+    title: "Beginner",
+    elo: 800,
+  },
+  {
+    id: "intermediate",
+    title: "Intermediate",
+    elo: 1200,
+  },
+  {
+    id: "expert",
+    title: "Expert",
+    elo: 1600,
+  },
+  {
+    id: "master",
+    title: "Master",
+    elo: 2000,
+  },
+  {
+    id: "grandmaster",
+    title: "Grand Master",
+    elo: 2400,
+  },
+];
+
+const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
+  currentElo,
+  skillLevels = DEFAULT_SKILL_LEVELS,
+}) => {
+  const getImagePath = (
+    title: string,
+    isReached: boolean,
+    isNextGoal: boolean
+  ): string => {
+    let status = "grey";
+    if (isReached) {
+      status = "blue";
+    } else if (isNextGoal) {
+      status = "gold";
+    }
+
+    const formattedTitle = title.toLowerCase().replace(/\s+/g, "-");
+    return `/training-plan/${status}/${formattedTitle}.png`;
+  };
+  const MIN_ELO = 0;
+  const MAX_ELO = 2400;
+
+  const calculateEloPercentage = (isFullView = true): number => {
+    const boundedElo = Math.max(MIN_ELO, Math.min(currentElo || 0, MAX_ELO));
+
+    if (boundedElo < skillLevels[0].elo) {
+      return 0;
+    }
+
+    if (boundedElo >= skillLevels[skillLevels.length - 1].elo) {
+      return 100;
+    }
+
+    if (!isFullView) {
+      const mobileLevels = getMobileDisplayLevels();
+
+      if (boundedElo < mobileLevels[0].elo) {
+        return 0;
+      }
+
+      if (boundedElo >= mobileLevels[mobileLevels.length - 1].elo) {
+        return 100;
+      }
+
+      for (let i = 0; i < mobileLevels.length - 1; i++) {
+        if (
+          boundedElo >= mobileLevels[i].elo &&
+          boundedElo < mobileLevels[i + 1].elo
+        ) {
+          const segmentStart = (i / (mobileLevels.length - 1)) * 100;
+          const segmentEnd = ((i + 1) / (mobileLevels.length - 1)) * 100;
+          const segmentWidth = segmentEnd - segmentStart;
+
+          const segmentProgress =
+            (boundedElo - mobileLevels[i].elo) /
+            (mobileLevels[i + 1].elo - mobileLevels[i].elo);
+
+          return segmentStart + segmentProgress * segmentWidth;
+        }
+      }
+
+      return 0;
+    }
+
+    for (let i = 0; i < skillLevels.length - 1; i++) {
+      if (
+        boundedElo >= skillLevels[i].elo &&
+        boundedElo < skillLevels[i + 1].elo
+      ) {
+        const segmentStart = (i / (skillLevels.length - 1)) * 100;
+        const segmentEnd = ((i + 1) / (skillLevels.length - 1)) * 100;
+        const segmentWidth = segmentEnd - segmentStart;
+
+        const segmentProgress =
+          (boundedElo - skillLevels[i].elo) /
+          (skillLevels[i + 1].elo - skillLevels[i].elo);
+
+        return segmentStart + segmentProgress * segmentWidth;
+      }
+    }
+
+    return 0;
+  };
+
+  const getCurrentLevelIndex = (): number => {
+    for (let i = 0; i < skillLevels.length; i++) {
+      if ((currentElo || 0) < skillLevels[i].elo) {
+        return i - 1 >= 0 ? i - 1 : 0;
+      }
+    }
+    return skillLevels.length - 1;
+  };
+
+  const getNextGoalLevelIndex = (): number => {
+    for (let i = 0; i < skillLevels.length; i++) {
+      if ((currentElo || 0) < skillLevels[i].elo) {
+        return i;
+      }
+    }
+    return skillLevels.length - 1;
+  };
+
+  const getMobileDisplayLevels = () => {
+    const currentIndex = getCurrentLevelIndex();
+    const nextGoalIndex = getNextGoalLevelIndex();
+    const afterGoalIndex = Math.min(nextGoalIndex + 1, skillLevels.length - 1);
+
+    if (currentIndex === nextGoalIndex && nextGoalIndex === afterGoalIndex) {
+      const prevIndex = Math.max(0, currentIndex - 1);
+      return [
+        skillLevels[prevIndex],
+        skillLevels[currentIndex],
+        skillLevels[currentIndex],
+      ];
+    }
+
+    if (currentIndex === nextGoalIndex) {
+      const afterAfterGoalIndex = Math.min(
+        afterGoalIndex + 1,
+        skillLevels.length - 1
+      );
+      return [
+        skillLevels[currentIndex],
+        skillLevels[afterGoalIndex],
+        skillLevels[afterAfterGoalIndex],
+      ];
+    }
+
+    if (nextGoalIndex === afterGoalIndex) {
+      const prevIndex = Math.max(0, currentIndex - 1);
+      if (prevIndex === currentIndex) {
+        return [
+          skillLevels[currentIndex],
+          skillLevels[nextGoalIndex],
+          skillLevels[nextGoalIndex],
+        ];
+      }
+      return [
+        skillLevels[prevIndex],
+        skillLevels[currentIndex],
+        skillLevels[nextGoalIndex],
+      ];
+    }
+
+    return [
+      skillLevels[currentIndex],
+      skillLevels[nextGoalIndex],
+      skillLevels[afterGoalIndex],
+    ];
+  };
+
+  const currentEloPercentage = calculateEloPercentage(true);
+  const mobileEloPercentage = calculateEloPercentage(false);
+  const nextGoalIndex = getNextGoalLevelIndex();
+  const currentLevelIndex = getCurrentLevelIndex();
+  const mobileLevels = getMobileDisplayLevels();
+
+  const badgeClass =
+    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
+
+  if (!skillLevels || skillLevels.length === 0) {
+    return (
+      <Alert>
+        <AlertDescription>
+          Skill level information not available.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <div className="w-full space-y-6">
+        <div className="hidden xl:grid grid-cols-6 gap-2">
+          {skillLevels.map((level, index) => {
+            const isReached = (currentElo || 0) >= level.elo;
+            const isNextGoal = index === nextGoalIndex;
+            const imagePath = getImagePath(level.id, isReached, isNextGoal);
+            const isCompleted = isReached;
+
+            const regularWidth = 40;
+            const regularHeight = 56;
+
+            const nextGoalWidth = regularWidth * 1.3;
+            const nextGoalHeight = regularHeight * 1.3;
+
+            return (
+              <div
+                key={level.id}
+                className="flex flex-col items-center relative w-full space-y-2"
+              >
+                {isNextGoal && (
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                    <div
+                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                    >
+                      Your Next Goal
+                    </div>
+                    <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                  </div>
+                )}
+
+                <div className="h-8 flex items-center justify-center">
+                  {isCompleted && !isNextGoal && (
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative flex h-20 w-16 justify-center">
+                  <div className="absolute bottom-0 flex justify-center">
+                    <Image
+                      src={imagePath}
+                      alt={level.title}
+                      width={isNextGoal ? nextGoalWidth : regularWidth}
+                      height={isNextGoal ? nextGoalHeight : regularHeight}
+                      className={`object-contain ${
+                        isNextGoal ? "origin-bottom scale-150" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center w-full space-y-1">
+                  <div className="font-semibold text-sm flex items-center justify-center">
+                    <span className="truncate max-w-full">{level.title}</span>
+                  </div>
+                  <div className="text-xs text-gray-600 flex items-center justify-center">
+                    <span className="whitespace-nowrap">ELO {level.elo}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid xl:hidden grid-cols-3 gap-2">
+          {mobileLevels.map((level, mobileIndex) => {
+            const isReached = (currentElo || 0) >= level.elo;
+            const isNextGoal =
+              level.elo > (currentElo || 0) && mobileIndex === 1;
+            const imagePath = getImagePath(level.id, isReached, isNextGoal);
+            const isCompleted = isReached;
+
+            const mobileWidth = 36;
+            const mobileHeight = 50;
+
+            return (
+              <div
+                key={`mobile-${level.id}`}
+                className="flex flex-col items-center relative w-full space-y-2"
+              >
+                {isNextGoal && (
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                    <div
+                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                    >
+                      Your Next Goal
+                    </div>
+                    <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                  </div>
+                )}
+
+                <div className="h-8 flex items-center justify-center">
+                  {isCompleted && !isNextGoal && (
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative flex h-16 w-12 justify-center">
+                  <div className="absolute bottom-0 flex justify-center">
+                    <Image
+                      src={imagePath}
+                      alt={level.title}
+                      width={mobileWidth}
+                      height={mobileHeight}
+                      className={`object-contain ${
+                        isNextGoal ? "origin-bottom scale-125" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center w-full space-y-1">
+                  <div className="font-semibold text-xs flex items-center justify-center">
+                    <span className="truncate max-w-full">{level.title}</span>
+                  </div>
+                  <div className="text-[10px] text-gray-600 flex items-center justify-center">
+                    <span className="whitespace-nowrap">ELO {level.elo}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="relative h-20 hidden xl:block">
+          <div className="relative w-full mt-6">
+            <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
+              {skillLevels.map((level, index) => {
+                const isReached = (currentElo || 0) >= level.elo;
+                return (
+                  <div
+                    key={`indicator-desktop-${level.id}`}
+                    className="flex items-center justify-center"
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-full border-4 ${
+                        isReached
+                          ? "bg-purple-600 border-blue-base"
+                          : "bg-gray-300"
+                      }`}
+                    ></div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              style={{
+                left: "calc(8.33% + 3.5px)",
+                width: "calc(83.33% - 7px)",
+              }}
+            >
+              <div
+                className="h-full bg-blue-base rounded-full"
+                style={{
+                  width: `${currentEloPercentage}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+
+          <div
+            className="absolute -translate-x-1/2 top-8"
+            style={{
+              left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+              bottom: 0,
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className={`${badgeClass} bg-green-500 text-white`}>
+              Your current ELO
+            </div>
+          </div>
+        </div>
+
+        <div className="relative h-20 xl:hidden">
+          <div className="relative w-full mt-6">
+            <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
+              {mobileLevels.map((level, index) => {
+                const isReached = (currentElo || 0) >= level.elo;
+                return (
+                  <div
+                    key={`indicator-mobile-${level.id}`}
+                    className="flex items-center justify-center"
+                  >
+                    <div
+                      className={`w-7 h-7 rounded-full border-4 ${
+                        isReached
+                          ? "bg-purple-600 border-blue-base"
+                          : "bg-gray-300"
+                      }`}
+                    ></div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              style={{
+                left: "calc(16.67% + 3.5px)",
+                width: "calc(66.67% - 7px)",
+              }}
+            >
+              <div
+                className="h-full bg-blue-base rounded-full"
+                style={{
+                  width: `${mobileEloPercentage}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+
+          <div
+            className="absolute -translate-x-1/2 top-8"
+            style={{
+              left: `${((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67}%`,
+              bottom: 0,
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className={`${badgeClass} bg-green-500 text-white`}>
+              Your current ELO
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SkillProgressTrack;

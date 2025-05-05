@@ -1,7 +1,5 @@
-import axios from "axios";
 import { Chess } from "chess.js";
 import { shuffle } from "./UtilFunctions";
-import { User } from "lucide-react";
 
 export interface Position {
   fen: string;
@@ -34,34 +32,98 @@ export const ChessService = {
     }
   },
 
-  async getUserGames(
+  pgnToFenList(pgn: string, includeStartPosition: boolean = true): string[] {
+    const chess = new Chess();
+
+    try {
+      chess.loadPgn(pgn);
+    } catch (error) {
+      console.error("Error loading PGN:", error);
+      return [];
+    }
+
+    const history = chess.history({ verbose: true });
+    const fenList: string[] = [];
+
+    chess.reset();
+
+    if (includeStartPosition) {
+      fenList.push(chess.fen());
+    }
+
+    for (const move of history) {
+      chess.move(move);
+      fenList.push(chess.fen());
+    }
+
+    return fenList;
+  },
+
+  async getUserGameFromPgn(
+    pgn: string,
     username: string,
-    year: number,
-    month: number
+    profileInfo?: {
+      userProfilePic?: string;
+      opponentProfilePic?: string;
+      opponentName?: string;
+      userCountry?: string;
+      opponentCountry?: string;
+    }
   ): Promise<Position[]> {
     try {
-      const formattedMonth = String(month).padStart(2, "0");
-      const cleanUsername = username.replace(/\s/g, "").toLowerCase();
+      const fenList = this.pgnToFenList(pgn, false);
 
-      const response = await axios.get(
-        `https://api.chess.com/pub/player/${cleanUsername}/games/${year}/${formattedMonth}`
+      const filteredFens = fenList.filter((_, index) => {
+        const moveNumber = index + 1;
+        return moveNumber > 10 && moveNumber < fenList.length - 5;
+      });
+
+      const shuffledFens = shuffle([...filteredFens]);
+      const selectedFens = shuffledFens.slice(
+        0,
+        Math.min(10, shuffledFens.length)
       );
 
-      console.log(response.data);
+      const chess = new Chess();
+      chess.loadPgn(pgn);
 
-      const positions = this.processGames(response.data.games.slice(0, 50));
+      let white = "Player";
+      let black = "Opponent";
+      let url = "#";
 
-      const validPositions = positions.filter((pos) =>
-        this.isValidFen(pos.fen)
-      );
-
-      if (validPositions.length === 0) {
-        throw new Error("No valid positions found in the fetched games");
+      try {
+        const headers = chess.header();
+        white = headers.White || username;
+        black = headers.Black || profileInfo?.opponentName || "Opponent";
+        url = headers.Site || "#";
+      } catch (e) {
+        console.error("Error extracting PGN headers:", e);
       }
 
-      return validPositions;
+      const whiteProfilePic =
+        username.toLowerCase() === white.toLowerCase()
+          ? profileInfo?.userProfilePic
+          : profileInfo?.opponentProfilePic;
+
+      const blackProfilePic =
+        username.toLowerCase() === black.toLowerCase()
+          ? profileInfo?.userProfilePic
+          : profileInfo?.opponentProfilePic;
+
+      const positions = selectedFens.map((fen) => ({
+        fen,
+        white,
+        black,
+        url,
+        whiteProfilePic:
+          whiteProfilePic || this.getProfilePicUrl({ username: white }),
+        blackProfilePic:
+          blackProfilePic || this.getProfilePicUrl({ username: black }),
+      }));
+
+      return positions;
     } catch (error) {
-      console.error("Error fetching chess.com games:", error);
+      console.error("Error processing PGN:", error);
       throw error;
     }
   },
@@ -111,7 +173,7 @@ export const ChessService = {
   },
 
   /**
-   * Get profile picture URL for a player, Still not working
+   * Get profile picture URL for a player
    */
   getProfilePicUrl(player: any): string {
     // Try to get profile picture URL
@@ -127,7 +189,6 @@ export const ChessService = {
 
   analyzePosition(fen: string): PositionAnalysis {
     try {
-      // First validate the FEN
       if (!this.isValidFen(fen)) {
         throw new Error(`Invalid FEN: ${fen}`);
       }
@@ -135,7 +196,6 @@ export const ChessService = {
       const chess = new Chess(fen);
       const turn = chess.turn();
 
-      // For more accurate analysis, we need to check both sides' moves
       let legal_white = 0;
       let legal_black = 0;
       let checks_white = 0;
@@ -143,7 +203,6 @@ export const ChessService = {
       let threat_white = 0;
       let threat_black = 0;
 
-      // Analyze current position
       const allMoves = chess.moves({ verbose: true });
 
       if (turn === "w") {
@@ -183,13 +242,8 @@ export const ChessService = {
     }
   },
 
-  /**
-   * Enhanced version of analyzePosition that checks moves for both sides
-   * This is a more comprehensive analysis that can be used for more detailed questions
-   */
   analyzePositionComprehensive(fen: string): PositionAnalysis {
     try {
-      // Validate FEN first
       if (!this.isValidFen(fen)) {
         throw new Error(`Invalid FEN: ${fen}`);
       }
@@ -197,7 +251,6 @@ export const ChessService = {
       const chess = new Chess(fen);
       const turn = chess.turn();
 
-      // Analysis logic for both white and black
       let legal_white = 0;
       let legal_black = 0;
       let checks_white = 0;
@@ -205,9 +258,7 @@ export const ChessService = {
       let threat_white = 0;
       let threat_black = 0;
 
-      // Analyze white moves
       try {
-        // If it's black's turn, we need to temporarily change it to white to analyze white's moves
         const whiteTurnFen = fen.replace(/ b /, " w ");
         const whiteChess = new Chess(whiteTurnFen);
         const whiteMoves = whiteChess.moves({ verbose: true });
@@ -221,12 +272,9 @@ export const ChessService = {
         ).length;
       } catch (e) {
         console.error("Error analyzing white moves:", e);
-        // Keep default values if analysis fails
       }
 
-      // Analyze black moves
       try {
-        // If it's white's turn, we need to temporarily change it to black to analyze black's moves
         const blackTurnFen = fen.replace(/ w /, " b ");
         const blackChess = new Chess(blackTurnFen);
         const blackMoves = blackChess.moves({ verbose: true });
@@ -240,7 +288,6 @@ export const ChessService = {
         ).length;
       } catch (e) {
         console.error("Error analyzing black moves:", e);
-        // Keep default values if analysis fails
       }
 
       return {
@@ -254,7 +301,6 @@ export const ChessService = {
       };
     } catch (error) {
       console.error("Error in analyzePositionComprehensive:", error);
-      // Return default values to prevent application crash
       return {
         turn: "w",
         legal_white: 0,

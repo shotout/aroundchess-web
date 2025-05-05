@@ -3,11 +3,7 @@ import Image from "next/image";
 import ReactCountryFlag from "react-country-flag";
 import { PlayerInfoProps } from "../../types/default-pgn";
 
-const PlayerInfo: React.FC<PlayerInfoProps> = ({
-  profilePic,
-  playerName,
-  countryCode,
-}) => {
+const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerName }) => {
   return (
     <div className="flex items-center space-x-3 p-2 border border-gray-200 rounded-lg">
       <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-blue-base">

@@ -1,4 +1,4 @@
-import { TabType, ViewState } from "../types/EndgameTrainingTypes";
+import { ViewState } from "../types/EndgameTrainingTypes";
 
 export const handleCategorySelect = (
   setViewState: (state: ViewState) => void,

@@ -131,6 +131,8 @@ const DefaultPGN: React.FC = () => {
                   getRandomQuestion={getDefaultRandomQuestion}
                   isChangingQuestion={isChangingQuestion}
                   isUserPGN={false}
+                  gameQuestionNumber={gameQuestionNumber}
+                  gameMaxQuestions={gameMaxQuestions}
                 />
               </div>
             </div>

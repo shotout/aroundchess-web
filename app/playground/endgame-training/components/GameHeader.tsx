@@ -23,28 +23,33 @@ export default function GameHeader({
   isCheckmateMode,
   goBackToSelection,
 }: GameHeaderProps) {
+  const fixedGradient = "linear-gradient(to right, #4776E6, #8E54E9)";
+
   return (
     <div
-      className="w-full flex relative overflow-hidden items-center h-[59px] justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
-     border border-[#C0CED4] p-4 rounded-md"
+      className="w-full flex relative overflow-hidden items-center h-14 justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
+     border border-[#C0CED4] p-2 rounded-md"
     >
       {isCheckmateMode ? (
         <>
-          <div className="absolute hidden xl:block left-[45%] -translate-x-1/2 top-0 pointer-events-none">
+          <div className="flex items-center w-14">
+            <button onClick={goBackToSelection}>
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
+
+          <div className="absolute xl:block left-[45%] -translate-x-1/2 top-0 pointer-events-none h-16 flex items-center justify-center">
             <Image
               src="/endgame-training/crown.png"
               alt="chess board"
               width={100}
-              height={100}
+              height={50}
+              style={{ maxHeight: "50px", width: "auto", objectFit: "contain" }}
             />
           </div>
-          <div className="flex items-center">
-            <button onClick={goBackToSelection} className="p-2">
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
-            </button>
-          </div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
-            <div className="text-xl flex justify-center items-center space-x-2">
+
+          <div className="absolute left-1/2 transform -translate-x-1/2 text-center h-16 flex items-center justify-center">
+            <div className="text-xl flex justify-center items-center h-10">
               {categoryData.name ? (
                 (() => {
                   const match = categoryData.name.match(/(.*\sin\s)(\d+)/i);
@@ -55,69 +60,90 @@ export default function GameHeader({
                         <div className="font-semibold text-base relative z-10">
                           {prefix}
                         </div>
-                        <div
-                          className={`text-[33px] xl:text-4xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}
-                        >
+                        <div className="text-3xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10">
                           {number}
                         </div>
                       </>
                     );
                   } else {
-                    return categoryData.name;
+                    return (
+                      <div className="h-10 flex items-center">
+                        {categoryData.name}
+                      </div>
+                    );
                   }
                 })()
               ) : (
-                <DotSpinner />
+                <div className="h-10 flex items-center justify-center">
+                  <DotSpinner />
+                </div>
               )}
             </div>
           </div>
-          <div></div>
+          <div className="w-14"></div>
         </>
       ) : (
         <>
-          <div className="flex items-center space-x-4">
-            <button onClick={goBackToSelection} className="p-2">
-              <ArrowLeft className="h-6 w-h-6 text-gray-600" />
-            </button>
-            <div className="flex items-center space-x-2">
-              <Image
-                src={`/endgame-training/${
-                  isCheckmateMode ? "check.png" : categoryData.icons
-                }`}
-                alt={`${categoryData.name} icon`}
-                width={isCheckmateMode ? 30 : 45}
-                height={45}
-              />
-              <span className="font-bold text-lg">
-                {categoryData.name || "Loading..."}
-              </span>
+          <div className="flex items-center">
+            <div className="flex gap-x-3">
+              <button onClick={goBackToSelection}>
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <div className="flex items-center gap-x-3">
+                <div className="h-10 w-10 flex items-center justify-center">
+                  <Image
+                    src={`/endgame-training/${
+                      isCheckmateMode ? "check.png" : categoryData.icons
+                    }`}
+                    alt={`${categoryData.name} icon`}
+                    width={40}
+                    height={40}
+                    style={{ objectFit: "contain", maxHeight: "40px" }}
+                  />
+                </div>
+                <span className="font-bold text-lg h-10 flex items-center">
+                  {categoryData.name || "Loading..."}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="absolute hidden xl:block left-1/2 -translate-x-1/2 top-0 pointer-events-none">
+          <div className="absolute xl:block left-1/2 -translate-x-1/2 top-0 pointer-events-none h-14 flex items-center justify-center z-0">
             <Image
               src="/endgame-training/board-stage.png"
               alt="chess board"
               width={250}
-              height={250}
+              height={50}
+              style={{
+                maxHeight: "50px",
+                width: "auto",
+                objectFit: "contain",
+                opacity: 0.5,
+              }}
             />
           </div>
 
-          <div className="absolute hidden xl:block  top-0 right-0 pointer-events-none">
+          <div className="absolute xl:block top-0 right-0 pointer-events-none h-16 flex items-center justify-center">
             <Image
               src="/endgame-training/sword-stage.png"
               alt="sword bg"
               width={100}
-              height={100}
+              height={50}
+              style={{ maxHeight: "50px", width: "auto", objectFit: "contain" }}
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-md flex justify-center">
+          <div className="flex items-center gap-x-3">
+            <div className="flex justify-center h-10">
               {pieceConfig && pieceConfig.pieces ? (
                 <div
-                  className="flex space-x-1 items-center overflow-hidden  rounded-md"
-                  style={{ maxHeight: "36px", maxWidth: "160px" }}
+                  className="flex items-center justify-center border border-[#E7F1F6] overflow-hidden rounded-md h-10 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
+                  style={{
+                    width: "200px",
+                    padding: "3px",
+                    position: "relative",
+                    zIndex: 10,
+                  }}
                 >
                   {pieceConfig.pieces.map(
                     (
@@ -142,13 +168,26 @@ export default function GameHeader({
                   )}
                 </div>
               ) : (
-                <DotSpinner />
+                <div className="h-10 flex items-center justify-center">
+                  <DotSpinner />
+                </div>
               )}
             </div>
 
             {isCheckmateMode ? null : (
-              <div className="mx-4 hidden xl:block">
-                {subcategoryName || <DotSpinner />}
+              <div
+                className="flex h-10 items-center justify-center"
+                style={{
+                  position: "relative",
+                  zIndex: 10,
+                  minWidth: "100px",
+                }}
+              >
+                {subcategoryName || (
+                  <div className="flex items-center justify-center">
+                    <DotSpinner />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -156,13 +195,13 @@ export default function GameHeader({
       )}
 
       {isCheckmateMode ? (
-        <div></div>
+        <div className="w-14"></div>
       ) : (
-        <div className="flex items-center space-x-4 xl:mr-32">
-          <div className="font-semibold text-xl relative z-10">Stage</div>
-          <div
-            className={`text-[33px] xl:text-[45px] font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10`}
-          >
+        <div className="flex items-center xl:mr-32 h-10 gap-x-3">
+          <div className="font-semibold text-xl relative z-10 h-10 flex items-center">
+            Stage
+          </div>
+          <div className="text-3xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10 h-10 flex items-center">
             {stageNum}
           </div>
         </div>

@@ -140,7 +140,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
 
         if (lessonStore && typeof lessonStore.set === "function") {
           lessonStore.set((state: any) => ({
@@ -192,7 +192,11 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   };
 
   if (isLoading || !lesson) {
-    return <DotSpinner />;
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <DotSpinner />
+      </div>
+    );
   }
 
   if (!lesson.title || typeof lesson.title !== "string") {

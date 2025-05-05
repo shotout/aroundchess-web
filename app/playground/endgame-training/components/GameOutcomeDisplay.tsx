@@ -188,7 +188,7 @@ export default function GameOutcomeDisplay({
   if (!outcomeState) return null;
 
   return (
-    <div className="flex relative flex-col">
+    <div className="flex relative flex-col overflow-hidden">
       <div
         className={`w-full rounded-lg p-4 relative overflow-hidden ${outcomeState.bgClass} border-2 ${outcomeState.borderClass}`}
       >

@@ -15,9 +15,14 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
   startGameAgain,
   getRandomQuestion,
   isChangingQuestion,
+  gameQuestionNumber,
+  gameMaxQuestions,
 }) => {
   const isCorrect =
     gameQuestion && gameSelectedAnswer === gameQuestion.correctAnswer;
+
+  // Check if current question is the last one
+  const isLastQuestion = gameQuestionNumber === gameMaxQuestions;
 
   return (
     <div className="mt-auto ">
@@ -35,9 +40,9 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
               <div
                 className={`relative ${
                   isCorrect
-                    ? "bg-gradient-to-r from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100%"
-                    : "bg-gradient-to-r from-[#C01B1B]/30 from-0% via-[#C01B1B] via-50% to-[#C01B1B]/30 to-100%"
-                } border rounded-lg p-4 pl-10 flex items-center gap-2`}
+                    ? "bg-gradient-to-r border-2 border-dashed border-[#1BC08C] from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100%"
+                    : "bg-gradient-to-r border-2 border-dashed border-[#C01B1B] from-[#C01B1B]/30 from-0% via-[#C01B1B] via-50% to-[#C01B1B]/30 to-100%"
+                } rounded-lg p-4 pl-10 flex items-center gap-2`}
               >
                 <Image
                   width={20}
@@ -79,7 +84,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                 className="w-full flex items-center justify-center bg-blue-base py-5 text-lg hover:bg-blue-base"
                 variant="default"
               >
-                Next Question
+                {isLastQuestion ? "Finish Quiz" : "Next Question"}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -92,14 +97,12 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
               animate="visible"
               exit="exit"
             >
-              <Button
+              <button
                 onClick={startGameAgain}
-                className="w-full flex items-center justify-center bg-blue-base py-5 text-lg"
-                variant="default"
+                className="w-full flex text-white items-center rounded-full justify-center bg-blue-base py-3 text-lg"
               >
-                New Puzzle
-                <RefreshCw className="h-5 w-5 ml-2" />
-              </Button>
+                New Quiz
+              </button>
             </motion.div>
           ) : (
             <motion.div

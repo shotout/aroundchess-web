@@ -4,12 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useAuth, UserButton, useUser } from "@clerk/nextjs";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import {
   DropdownMenu,
@@ -278,11 +277,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           width={1000}
                           height={1000}
                           alt={section.href}
-                          src={
-                            isActive
-                              ? section.iconActive
-                              : section.icon
-                          }
+                          src={isActive ? section.iconActive : section.icon}
                           className={cn(
                             "h-5 w-5 transition-colors",
                             isActive
@@ -316,8 +311,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           ? "text-[#221AE9]"
                           : section.disabled
                           ? "text-[#AAA4A4]"
-                          : 
-                          ""
+                          : ""
                       )}
                     >
                       <div className="mr-3">

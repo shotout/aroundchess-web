@@ -1,5 +1,11 @@
 import { Variants } from "framer-motion";
 
+export interface PlayerInfoProps {
+  profilePic: any;
+  playerName: string;
+  countryCode?: string;
+}
+
 export interface HighlightedSquare {
   background: string;
   border?: string;
@@ -65,6 +71,8 @@ export interface FeedbackPanelProps {
   isChangingQuestion?: boolean;
   routeToDefault?: () => void;
   isUserPGN?: boolean;
+  gameQuestionNumber: number;
+  gameMaxQuestions: number;
 }
 
 export interface LoadingStateProps {
