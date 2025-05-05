@@ -137,6 +137,7 @@ export const PremiumSubsContent: React.FC<{
         price: premium.price * 100,
         quantity: 1,
         description: premium.description,
+        type:"membership"
       }),
     });
 

@@ -229,7 +229,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
   const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
-    if (token.balance > 1) {
+    if (token.balance >= 1) {
       if (selectedGame) {
         console.log("Selected game:", selectedGame);
         setDataGamesImport(availableGames[0]?.data_games);

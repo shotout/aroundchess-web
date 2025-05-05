@@ -84,7 +84,6 @@ export const PricingOffer: React.FC = () => {
     setWidthC(width);
   };
   const handleGetPremium = () => {
-    
     setOpen(false);
     setOpenSuccessSubscription(true);
   };
@@ -103,6 +102,7 @@ export const PricingOffer: React.FC = () => {
         productName: tokenAmount + " tokens",
         price: price,
         quantity: tokenAmount,
+        type: "token",
       }),
     });
 

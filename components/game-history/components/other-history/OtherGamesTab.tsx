@@ -56,7 +56,7 @@ const OtherGamesTab: React.FC = () => {
   // Handle game analysis
   const handleAnalyzeClick = useCallback(
     async (game: Game) => {
-      if (token.balance > 1) {
+      if (token.balance >= 1) {
         try {
           setZustandIsLoading(true);
           setPgn(game.pgn);

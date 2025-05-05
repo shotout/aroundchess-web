@@ -12,7 +12,8 @@ export default function CheckoutButton() {
       body: JSON.stringify({
         productName: "Premium",
         price: 99,
-        quantity: 2,
+        quantity: 1,
+        type: "memvership",
       }),
     });
 
