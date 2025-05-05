@@ -1,6 +1,6 @@
-// store/index.ts
 import { create } from "zustand";
-import endpoints, { apiService } from "../api/endpoints";
+import  { apiService, endpoints } from "../api/endpoints";
+import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
 
 // Common interfaces
 export interface UserProfile {
@@ -101,8 +101,25 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      // Check if we have valid cached data
+      const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_TOPICS);
+      if (cachedData) {
+        const { userProfile, config, topics } = cachedData;
+        set({
+          userProfile,
+          config,
+          topics,
+          isLoading: false,
+        });
+        return;
+      }
+
+      // If no valid cache, fetch from API
       const response = await apiService.get(endpoints.trainingPlan.getTopics, sessionId);
       const { userProfile, config, topics } = response.data;
+
+      // Cache the response
+      CacheUtil.setItem(CACHE_KEYS.TRAINING_TOPICS, response.data);
 
       set({
         userProfile,
@@ -177,6 +194,9 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
         }
       );
 
+      // Clear all caches since creating a new plan affects everything
+      CacheUtil.clearAll();
+      
       set({ isCreating: false });
       return true;
     } catch (error) {
@@ -227,30 +247,72 @@ interface ScheduleState {
   schedule: TrainingSchedule | null;
   isLoading: boolean;
   error: string | null;
+  planExpired: boolean;
   fetchSchedule: (sessionId: string) => Promise<void>;
+  resetExpiredStatus: () => void;
 }
 
 export const useScheduleStore = create<ScheduleState>((set) => ({
   schedule: null,
   isLoading: false,
   error: null,
+  planExpired: false,
 
   fetchSchedule: async (sessionId: string) => {
     if (!sessionId) return;
 
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null, planExpired: false });
 
     try {
+      // Check if we have valid cached data
+      const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
+      if (cachedData) {
+        set({ schedule: cachedData, isLoading: false });
+        return;
+      }
+
+      // If no valid cache, fetch from API
       const response = await apiService.get(endpoints.trainingPlan.getTodaySchedule, sessionId);
+      
+      // Cache the response
+      CacheUtil.setItem(CACHE_KEYS.TRAINING_SCHEDULE, response.data);
+      
       set({ schedule: response.data, isLoading: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching training schedule:", error);
-      set({
-        error: error instanceof Error ? error.message : "Failed to fetch training schedule",
-        isLoading: false,
-      });
+      
+      // Check if this is an expired plan error
+      const errorMessage = error instanceof Error ? error.message : "";
+      const responseData = error?.response?.data;
+      
+      // Various ways the API might indicate an expired plan
+      const isExpiredPlanError = 
+        responseData?.message?.includes("expired") || 
+        errorMessage.includes("expired") ||
+        (responseData?.statusCode === 400 && 
+         responseData?.message?.includes("training plan"));
+      
+      if (isExpiredPlanError) {
+        // For expired plan errors, set planExpired flag but don't treat as a fatal error
+        set({
+          planExpired: true,
+          schedule: null,
+          isLoading: false,
+          error: responseData?.message || "Your training plan has expired. Please create a new one."
+        });
+      } else {
+        // For other errors, handle normally
+        set({
+          error: error instanceof Error ? error.message : "Failed to fetch training schedule",
+          isLoading: false
+        });
+      }
     }
   },
+  
+  resetExpiredStatus: () => {
+    set({ planExpired: false, error: null });
+  }
 }));
 
 // ========== PROGRESS STORE ==========
@@ -324,7 +386,11 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
   error: null,
   currentMonth: getCurrentMonth(),
   
-  setCurrentMonth: (month: string) => set({ currentMonth: month }),
+  setCurrentMonth: (month: string) => {
+    set({ currentMonth: month });
+    // Clear cache when changing month to ensure fresh data
+    CacheUtil.clearItem(CACHE_KEYS.PROGRESS_DATA);
+  },
   
   fetchProgressData: async (sessionId: string, month?: string) => {
     if (!sessionId) return;
@@ -334,10 +400,22 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      // Only use cache if requested month matches current month
+      const cachedData = CacheUtil.getItem(CACHE_KEYS.PROGRESS_DATA);
+      if (cachedData && !month) {
+        set({ progressData: cachedData, isLoading: false });
+        return;
+      }
+
       const response = await apiService.get(
         endpoints.trainingPlan.getProgress(selectedMonth), 
         sessionId
       );
+      
+      // Cache the response (only for current month)
+      if (!month) {
+        CacheUtil.setItem(CACHE_KEYS.PROGRESS_DATA, response.data);
+      }
       
       set({ progressData: response.data, isLoading: false });
     } catch (error) {
@@ -369,36 +447,36 @@ export const useUserStore = create<UserState>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const response = await apiService.get(endpoints.user.getProfile, sessionId);
-      set({ profile: response.data.data.userProfile, isLoading: false });
+      // Check if we have valid cached data
+      const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
+      if (cachedData) {
+        set({ profile: cachedData, isLoading: false });
+        return;
+      }
+
+      // Instead of using the user profile endpoint, use the training plan topics endpoint
+      const response = await apiService.get(endpoints.trainingPlan.getTopics, sessionId);
+      
+      // Extract user profile from the training plan topics response
+      if (response.data?.userProfile) {
+        // Cache the user profile
+        CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
+        
+        set({ 
+          profile: response.data.userProfile, 
+          isLoading: false 
+        });
+      } else {
+        throw new Error("User profile not found in the response");
+      }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      
-      // Fallback to training plan topics to get the user profile data
-      // This is because your current API structure includes profile in training topics
-      try {
-        const fallbackResponse = await apiService.get(
-          endpoints.trainingPlan.getTopics, 
-          sessionId
-        );
-        
-        if (fallbackResponse.data?.userProfile) {
-          set({ 
-            profile: fallbackResponse.data.userProfile, 
-            isLoading: false,
-            error: null
-          });
-        } else {
-          throw new Error("User profile not found");
-        }
-      } catch (fallbackError) {
-        set({
-          error: fallbackError instanceof Error 
-            ? fallbackError.message 
-            : "Failed to fetch user profile",
-          isLoading: false,
-        });
-      }
+      set({
+        error: error instanceof Error 
+          ? error.message 
+          : "Failed to fetch user profile",
+        isLoading: false,
+      });
     }
   },
 }));

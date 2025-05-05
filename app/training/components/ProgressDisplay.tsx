@@ -32,6 +32,7 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { useAuth } from "@clerk/nextjs";
 import { useProgressStore } from "../store";
 import Image from "next/image";
+import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
 
 const CustomTooltipContent = ({
   active,
@@ -101,9 +102,28 @@ const ProgressDisplay = () => {
     getDisplayMonthFromYearMonth(currentMonth)
   );
 
+  // Add local loading state to prevent unnecessary loading spinner
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   useEffect(() => {
     if (sessionId) {
-      fetchProgressData(sessionId, currentMonth);
+      // Check if data is already cached
+      const hasCachedData = CacheUtil.hasValidCache(CACHE_KEYS.PROGRESS_DATA);
+
+      // Only set loading state to true if no cached data
+      if (!hasCachedData) {
+        setIsInitialLoad(true);
+      } else {
+        setIsInitialLoad(false);
+      }
+
+      fetchProgressData(sessionId, currentMonth)
+        .then(() => {
+          setIsInitialLoad(false);
+        })
+        .catch(() => {
+          setIsInitialLoad(false);
+        });
     }
   }, [sessionId, currentMonth, fetchProgressData]);
 
@@ -111,8 +131,17 @@ const ProgressDisplay = () => {
     setDisplayMonth(month);
     const yearMonth = getCurrentYearMonth(month);
     setCurrentMonth(yearMonth);
+
+    setIsInitialLoad(true);
+
     if (sessionId) {
-      fetchProgressData(sessionId, yearMonth);
+      fetchProgressData(sessionId, yearMonth)
+        .then(() => {
+          setIsInitialLoad(false);
+        })
+        .catch(() => {
+          setIsInitialLoad(false);
+        });
     }
   };
 
@@ -189,7 +218,8 @@ const ProgressDisplay = () => {
       }))
     : [];
 
-  const isChartLoading = isLoading || !apiData;
+  // Only show loading spinner during initial load, not when data is cached
+  const isChartLoading = isInitialLoad || (isLoading && !apiData);
 
   return (
     <div className="space-y-4 p-4 xl:p-0">
@@ -247,173 +277,167 @@ const ProgressDisplay = () => {
       </Card>
 
       <div className="md:grid md:grid-cols-5 gap-6">
-        <div className="md:col-span-3 flex flex-col gap-6">
-          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold">Your Progress</h3>
-                  <p className="text-base">Your ELO Rating Progress</p>
-                </div>
-                <Select value={displayMonth} onValueChange={handleMonthChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map((month) => (
-                      <SelectItem key={month} value={month}>
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <div className="md:col-span-3 flex flex-col gap-6 border rounded-md p-4">
+          <div className="border-none rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold">Your Progress</h3>
+                <p className="text-base">Your ELO Rating Progress</p>
               </div>
-              {isChartLoading ? (
-                <div className="h-[400px] flex items-center justify-center">
-                  <DotSpinner />
-                </div>
-              ) : getFormattedRatingData().length === 0 ? (
-                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className=" mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-lg text-gray-600 font-medium">
-                    No data available
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full overflow-x-auto">
-                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
-                    <LineChart
-                      data={getFormattedRatingData()}
-                      margin={{ left: 0, right: 8 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#e0e0e0"
-                        vertical={true}
-                        horizontal={true}
-                      />
-                      <XAxis
-                        dataKey="week"
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        padding={{ left: 10, right: 10 }}
-                        tickMargin={5}
-                      />
-                      <YAxis
-                        domain={[0, 2400]}
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        width={40}
-                      />
-                      <RechartsTooltip
-                        content={
-                          <CustomTooltipContent active={false} payload={[]} />
-                        }
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="rating"
-                        stroke="#3b82f6"
-                        strokeWidth={2}
-                        dot={{
-                          stroke: "#3b82f6",
-                          strokeWidth: 2,
-                          fill: "#3b82f6",
-                          r: 5,
-                        }}
-                        activeDot={{ r: 7, fill: "#3b82f6" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <Select value={displayMonth} onValueChange={handleMonthChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((month) => (
+                    <SelectItem key={month} value={month}>
+                      {month}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {isChartLoading ? (
+              <div className="h-[400px] flex items-center justify-center">
+                <DotSpinner />
+              </div>
+            ) : getFormattedRatingData().length === 0 ? (
+              <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                <Image
+                  src="/training-plan/no-data.png"
+                  alt="No games found"
+                  className=" mb-2"
+                  width={96}
+                  height={96}
+                />
+                <p className="text-lg text-gray-600 font-medium">
+                  No data available
+                </p>
+              </div>
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <ResponsiveContainer width="100%" height={400} minWidth={300}>
+                  <LineChart
+                    data={getFormattedRatingData()}
+                    margin={{ left: 0, right: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e0e0e0"
+                      vertical={true}
+                      horizontal={true}
+                    />
+                    <XAxis
+                      dataKey="week"
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fill: "#000", fontSize: 12 }}
+                      padding={{ left: 10, right: 10 }}
+                      tickMargin={5}
+                    />
+                    <YAxis
+                      domain={[0, 2400]}
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fill: "#000", fontSize: 12 }}
+                      width={40}
+                    />
+                    <RechartsTooltip
+                      content={
+                        <CustomTooltipContent active={false} payload={[]} />
+                      }
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="rating"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      dot={{
+                        stroke: "#3b82f6",
+                        strokeWidth: 2,
+                        fill: "#3b82f6",
+                        r: 5,
+                      }}
+                      activeDot={{ r: 7, fill: "#3b82f6" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
 
-          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-1">
-                Last Week's Training Distribution
-              </h3>
-              <p className="text-base mb-4">
-                Minutes spent on different aspects
-              </p>
-              {isChartLoading ? (
-                <div className="h-[400px] flex items-center justify-center">
-                  <DotSpinner />
-                </div>
-              ) : trainingData.length === 0 ? (
-                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className=" mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-lg text-gray-600 font-medium">
-                    No data available
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full overflow-x-auto">
-                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
-                    <BarChart
-                      data={trainingData}
-                      barSize={60}
-                      margin={{ left: 0, right: 8 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#e0e0e0"
-                        horizontal={true}
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="category"
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        padding={{ left: 20, right: 20 }}
-                        tickMargin={5}
-                      />
-                      <YAxis
-                        domain={[0, 1400]}
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        width={40}
-                      />
-                      <RechartsTooltip />
-                      <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
-                        {trainingData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <div className="overflow-hidden">
+            <h3 className="text-xl font-bold mb-1">
+              Last Week's Training Distribution
+            </h3>
+            <p className="text-base mb-4">Minutes spent on different aspects</p>
+            {isChartLoading ? (
+              <div className="h-[400px] flex items-center justify-center">
+                <DotSpinner />
+              </div>
+            ) : trainingData.length === 0 ? (
+              <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                <Image
+                  src="/training-plan/no-data.png"
+                  alt="No games found"
+                  className=" mb-2"
+                  width={96}
+                  height={96}
+                />
+                <p className="text-lg text-gray-600 font-medium">
+                  No data available
+                </p>
+              </div>
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <ResponsiveContainer width="100%" height={400} minWidth={300}>
+                  <BarChart
+                    data={trainingData}
+                    barSize={60}
+                    margin={{ left: 0, right: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#e0e0e0"
+                      horizontal={true}
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="category"
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fill: "#000", fontSize: 12 }}
+                      padding={{ left: 20, right: 20 }}
+                      tickMargin={5}
+                    />
+                    <YAxis
+                      domain={[0, 1400]}
+                      axisLine={true}
+                      tickLine={true}
+                      tick={{ fill: "#000", fontSize: 12 }}
+                      width={40}
+                    />
+                    <RechartsTooltip />
+                    <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
+                      {trainingData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="md:col-span-2 flex flex-col gap-6 mt-6 md:mt-0">
-          <div className="p-4 rounded-lg shadow-md border border-gray-200">
+        <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
+          <div className="rounded-lg ">
             <h1 className="text-lg font-bold mb-2">
               Recent Games{" "}
               <span className="text-sm font-normal text-gray-500">
                 {formattedRecentGames.length > 0
                   ? `(Last ${formattedRecentGames.length} games)`
-                  : "--"}
+                  : ""}
               </span>
             </h1>
 
@@ -518,9 +542,14 @@ const ProgressDisplay = () => {
             )}
           </div>
 
-          <div className="p-4 rounded-lg shadow-md border border-gray-200">
-            <h1 className="text-lg font-bold mb-2">Performance Trends</h1>
-            <h1 className="text-sm mb-3">Monthly improvement</h1>
+          <div className="">
+            <div className="flex items-center gap-x-2 mb-2">
+              <h1 className="text-lg font-bold">Performance Trends</h1>
+              <h1 className="text-sm text-gray-500">
+                (Last 7 days improvement)
+              </h1>
+            </div>
+
             {isChartLoading ? (
               <div className="h-[200px] flex items-center justify-center">
                 <DotSpinner />
@@ -539,48 +568,45 @@ const ProgressDisplay = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 w-full">
+              <div className="grid grid-cols-2 gap-3  w-full">
                 {stats.map((stat, index) => (
                   <Card
                     key={index}
-                    className="p-6 rounded-xl border bg-white shadow-sm"
+                    className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
                   >
-                    <div className="flex flex-col">
-                      <div className="flex items-start">
-                        <div className="w-14 h-14 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
-                          {stat.icon === "trophy" && (
-                            <LucideTrophy
-                              className="h-8 w-8 text-green-500"
-                              // fill="#22c55e"
-                              strokeWidth={1.5}
-                            />
-                          )}
-                          {stat.icon === "target" && (
-                            <TargetIcon
-                              className="h-8 w-8 text-blue-base"
-                              strokeWidth={1.5}
-                            />
-                          )}
-                          {stat.icon === "alert-yellow" && (
-                            <TriangleAlertIcon
-                              className="h-8 w-8 text-[#FAC933]"
-                              strokeWidth={1.5}
-                            />
-                          )}
-                          {stat.icon === "alert-red" && (
-                            <TriangleAlertIcon
-                              className="h-8 w-8 text-[#FD0000]"
-                              strokeWidth={1.5}
-                            />
-                          )}
-                        </div>
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
+                        {stat.icon === "trophy" && (
+                          <LucideTrophy
+                            className="h-6 w-6 text-green-500"
+                            strokeWidth={1.5}
+                          />
+                        )}
+                        {stat.icon === "target" && (
+                          <TargetIcon
+                            className="h-6 w-6 text-blue-base"
+                            strokeWidth={1.5}
+                          />
+                        )}
+                        {stat.icon === "alert-yellow" && (
+                          <TriangleAlertIcon
+                            className="h-6 w-6 text-[#FAC933]"
+                            strokeWidth={1.5}
+                          />
+                        )}
+                        {stat.icon === "alert-red" && (
+                          <TriangleAlertIcon
+                            className="h-6 w-6 text-[#FD0000]"
+                            strokeWidth={1.5}
+                          />
+                        )}
+                      </div>
 
-                        <div className="flex-1 flex flex-col">
-                          <h3 className="font-medium text-gray-700 mb-2 text-lg">
-                            {stat.title}
-                          </h3>
-                          <h2 className="text-4xl font-bold">{stat.value}</h2>
-                        </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-700 text-sm">
+                          {stat.title}
+                        </h3>
+                        <h2 className="text-2xl font-bold">{stat.value}</h2>
                       </div>
                     </div>
                   </Card>

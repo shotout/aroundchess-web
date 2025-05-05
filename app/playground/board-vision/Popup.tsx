@@ -85,11 +85,22 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       if (response.status === 200 && response.data.data?.length > 0) {
         setUsernameStatus("found");
         setAvailableGames(response.data.data);
-        // Randomly select a game
-        const randomIndex = Math.floor(
-          Math.random() * response.data.data.length
+
+        // Safely handle the case where fewer games are returned than requested
+        const gamesReturned = response.data.data.length;
+        console.log(
+          `Requested ${gameCount} games, received ${gamesReturned} games`
         );
-        setSelectedGame(response.data.data[randomIndex].value);
+
+        // Randomly select a game from available games
+        const randomIndex = Math.floor(Math.random() * gamesReturned);
+        setSelectedGame(response.data.data[randomIndex]?.value);
+
+        // Add a fallback in case the selected game is undefined
+        if (!response.data.data[randomIndex]?.value && gamesReturned > 0) {
+          // If the random selection failed but we have games, use the first one
+          setSelectedGame(response.data.data[0].value);
+        }
       } else {
         setUsernameStatus("not-found");
         setAvailableGames([]);
@@ -198,15 +209,22 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="space-y-3">
-          {/* Two columns side by side layout */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* First column: Chess.com Username */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-700">♞</span>
-                <span>Chess.com Username</span>
-              </div>
+          {/* Updated layout - Labels in same line */}
+          <div className="flex justify-between space-x-4">
+            <div className="flex items-center space-x-2 w-1/2">
+              <span className="text-blue-700">♞</span>
+              <span>Chess.com Username</span>
+            </div>
+            <div className="w-1/2">
+              <p className="block text-base sm:text-sm text-black">
+                Ask Questions from my last...
+              </p>
+            </div>
+          </div>
 
+          {/* Updated layout - Input fields in same line and equal sizes */}
+          <div className="flex justify-between space-x-4">
+            <div className="w-1/2">
               <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <input
                   type="text"
@@ -236,17 +254,13 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Second column: Ask Questions from my last... */}
-            <div className="space-y-2">
-              <p className="block text-base sm:text-sm text-black">
-                Ask Questions from my last...
-              </p>
+            <div className="w-1/2">
               <Select
                 name="gameCount"
                 value={gameCount}
                 onValueChange={handleGameCountChange}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-[48px]">
                   <SelectValue placeholder="Select number of games" />
                 </SelectTrigger>
                 <SelectContent>
@@ -259,8 +273,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               </Select>
             </div>
           </div>
-
-          {/* Game selection has been removed as we now randomize games */}
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Button
