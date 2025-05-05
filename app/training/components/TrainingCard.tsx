@@ -5,9 +5,8 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
   onCreatePlan,
   hasPlan,
 }) => {
-  if (hasPlan) {
-    return null;
-  }
+  // Always show the training plan card if hasPlan is false (which includes the expired plan case)
+  // We removed the return null check that was previously here
 
   return (
     <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border lg:rounded-md overflow-hidden">
@@ -16,7 +15,7 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
         alt="Chess background"
         fill
         priority
-        className="object-cover  opacity-60"
+        className="object-cover opacity-60"
       />
 
       <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">

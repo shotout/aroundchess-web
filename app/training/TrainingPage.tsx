@@ -11,6 +11,7 @@ import { AlertTriangle } from "lucide-react";
 import { useTrainingPlanStore, useScheduleStore, useUserStore } from "./store";
 import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
+import CacheUtil from "./api/cacheUtils";
 
 const ChessProgressionUI: React.FC = () => {
   const { sessionId } = useAuth();
@@ -30,7 +31,9 @@ const ChessProgressionUI: React.FC = () => {
     schedule,
     isLoading: isScheduleLoading,
     error: scheduleError,
+    planExpired,
     fetchSchedule,
+    resetExpiredStatus,
   } = useScheduleStore();
 
   const {
@@ -74,9 +77,21 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [schedule]);
 
+  // Reset plan expired status when dialog is opened
+  useEffect(() => {
+    if (dialogOpen) {
+      resetExpiredStatus();
+    }
+  }, [dialogOpen, resetExpiredStatus]);
+
   const handlePlanCreated = () => {
     if (sessionId) {
       setIsCheckingPlan(true);
+      resetExpiredStatus(); // Reset expired status when a new plan is created
+
+      // Clear all cache when creating a new plan
+      CacheUtil.clearAll();
+
       fetchSchedule(sessionId)
         .then(() => {
           setHasPlan(true);
@@ -88,18 +103,23 @@ const ChessProgressionUI: React.FC = () => {
     }
   };
 
-  const hasError = profileError || topicsError || scheduleError;
+  // We now separate the different error types
+  const hasNonPlanError = profileError || topicsError;
+  const isPlanExpired =
+    planExpired || (scheduleError && scheduleError.includes("expired"));
   const isLoading = isProfileLoading || isCheckingPlan;
 
-  if (hasError) {
+  // Show create plan if no plan or plan is expired
+  const shouldShowCreatePlan = !hasPlan || isPlanExpired;
+
+  // If there's a critical error that would prevent the app from functioning
+  if (hasNonPlanError) {
     return (
       <div className="p-6">
         <Alert variant="destructive" className="mb-6">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {profileError || topicsError || scheduleError}
-          </AlertDescription>
+          <AlertDescription>{profileError || topicsError}</AlertDescription>
         </Alert>
         <Button
           onClick={() => window.location.reload()}
@@ -130,6 +150,16 @@ const ChessProgressionUI: React.FC = () => {
           avatar={userProfile?.avatar || storeUserProfile?.avatar || ""}
         />
 
+        {/* Plan Expired Error Alert - Always show this if the plan is expired */}
+        {isPlanExpired && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Your training plan has expired. Please create a new one.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {isLoading ? (
           <div className="flex items-center justify-center p-12 border border-gray-200 rounded-lg">
             <div className="flex flex-col items-center gap-4">
@@ -137,7 +167,12 @@ const ChessProgressionUI: React.FC = () => {
               <p className="text-gray-600">Checking your training plan...</p>
             </div>
           </div>
-        ) : hasPlan ? (
+        ) : shouldShowCreatePlan ? (
+          <TrainingPlanCard
+            onCreatePlan={() => setDialogOpen(true)}
+            hasPlan={false}
+          />
+        ) : (
           <>
             <div className="flex w-full justify-center lg:justify-between px-4 py-1 lg:p-0">
               <div className="p-2 flex-1 flex bg-[#F9FAFC] rounded-lg border h-auto items-center w-full lg:max-w-96">
@@ -175,11 +210,6 @@ const ChessProgressionUI: React.FC = () => {
               <ProgressDisplay />
             )}
           </>
-        ) : (
-          <TrainingPlanCard
-            onCreatePlan={() => setDialogOpen(true)}
-            hasPlan={hasPlan}
-          />
         )}
       </div>
 

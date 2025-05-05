@@ -38,7 +38,11 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     );
   }
 
-  if (error) {
+  // Check for error messages related to expired training plan
+  const isExpiredPlanError =
+    error && error.includes("training plan has expired");
+
+  if (error && !isExpiredPlanError) {
     return (
       <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
@@ -60,13 +64,15 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     );
   }
 
-  if (!schedule || !schedule.topics) {
+  if (isExpiredPlanError || !schedule || !schedule.topics) {
     return (
       <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <CardContent className="p-6 flex w-full flex-col gap-y-4">
           <Alert>
             <AlertDescription>
-              No training plan available. Try creating a new plan.
+              {isExpiredPlanError
+                ? "Your training plan has expired. Please create a new plan to continue your learning journey."
+                : "No training plan available. Try creating a new plan."}
             </AlertDescription>
           </Alert>
         </CardContent>

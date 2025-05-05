@@ -233,7 +233,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 className="flex flex-col items-center relative w-full space-y-2"
               >
                 {isNextGoal && (
-                  <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
                     <div
                       className={`${badgeClass} bg-amber-400 text-amber-950`}
                     >

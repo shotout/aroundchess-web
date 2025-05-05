@@ -137,12 +137,10 @@ export default function GameHeader({
             <div className="flex justify-center h-10">
               {pieceConfig && pieceConfig.pieces ? (
                 <div
-                  className="flex items-center justify-center overflow-hidden rounded-md h-10"
+                  className="flex items-center justify-center border border-[#E7F1F6] overflow-hidden rounded-md h-10 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
                   style={{
                     width: "200px",
-                    background: fixedGradient,
-                    padding: "8px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                    padding: "3px",
                     position: "relative",
                     zIndex: 10,
                   }}
