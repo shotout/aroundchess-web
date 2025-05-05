@@ -18,7 +18,6 @@ import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useApiClient } from "@/functions/api-client";
-import DotSpinner from "../game-history/Spinner";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -32,16 +31,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token, isMember } = useProfileStore();
 
-  // Check if desktop on initial load and when window resizes
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
     };
 
-    // Set initial state
     checkIfDesktop();
 
-    // Add event listener
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);

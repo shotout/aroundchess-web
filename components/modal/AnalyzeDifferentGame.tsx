@@ -1,8 +1,6 @@
 "use client";
 
-import { useLoadingAPI } from "@/app/store/loadingApi";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
 import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
 import {
   Dialog,
@@ -21,14 +19,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useStockfishAnalysis } from "@/utils/stockfish-utils";
-import { useAuth } from "@clerk/clerk-react";
 import axios from "axios";
 import { Check, Clipboard, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import { useAuth } from "@clerk/clerk-react";
+import { useProfileStore } from "@/app/store/profile";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -52,8 +52,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     setPgn,
     setIsLoading,
     setError,
-    isLoading,
-    dataAnalysis,
     setDataAnalysis,
     setDataGamesImport,
   } = usePgnStore();
@@ -100,7 +98,6 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const { sessionId } = useAuth();
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
@@ -120,13 +117,14 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
-    return () => clearTimeout(timer); // Cleanup
+    return () => clearTimeout(timer);
   }, [username]);
 
   useEffect(() => {
     if (openPopup != null && open != true) {
       setOpen(openPopup);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openPopup]);
 
   useEffect(() => {
@@ -134,6 +132,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       setUsernameStatus("loading");
       getByUsername();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery]);
 
   const getByUsername = async () => {
@@ -357,6 +356,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
+      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>
@@ -473,7 +473,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                       }}
                       key={index}
                       disabled={depth.mustMember && !isMember}
-                      className={`relative flex flex-col justify-around relative px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
+                      className={`relative flex flex-col justify-around px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
                         depth.mustMember && !isMember
                           ? `bg-[#C0CED4]`
                           : `bg-white`

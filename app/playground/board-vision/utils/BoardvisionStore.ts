@@ -7,6 +7,8 @@ import { defaultPositions } from './DefaultPositionData';
 import { HighlightedSquares, Position, GameQuestion, Arrow } from '../types/default-pgn';
 
 export type AppState = "welcome" | "default" | "player-game";
+const endpoint = process.env.BASE_URL;
+
 
 interface GameState {
   positions: Position[];
@@ -59,7 +61,7 @@ interface BoardVisionState {
   startDefaultGameAgain: () => void;
   
   // Actions - User Game
-  loadUserPositions: (username: string, year: number, month: number) => Promise<void>;
+  loadUserPositions: (pgn: string, username: string) => Promise<void>;
   handleUserGameSelectAnswer: (answer: number) => void;
   handleUserGameNextQuestion: () => void;
   getUserRandomQuestion: () => void;
@@ -321,56 +323,48 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
   },
   
   // Actions - User Game
-  loadUserPositions: async (username, year, month) => {
-    const state = get();
-    
-    // Don't reload if username and dates match and positions exist
-    if (state.username === username && 
-        state.currentYear === year && 
-        state.currentMonth === month && 
-        state.userGame.positions.length > 0) {
-      return;
-    }
-    
+  loadUserPositions: async (pgn, username) => {
     set({ isLoading: true, loadingError: null });
     
     try {
-      const positions = await ChessService.getUserGames(username, year, month);
+      // Convert PGN to positions
+      const positions = await ChessService.getUserGameFromPgn(pgn, username);
       
-      // Filter out invalid FEN positions
+      // Filter out invalid FEN positions (though they should all be valid from pgnToFenList)
       const validPositions = positions.filter(pos => isValidFEN(pos.fen));
       
-      // Only require 1 game now instead of 10
-      if (validPositions.length < 1) {
+      // We need at least one position to generate questions
+      if (validPositions.length === 0) {
         set({ 
           isLoading: false,
-          loadingError: `No valid games found for ${username} in ${month}/${year}. Please try another month or username.`
+          loadingError: `No valid positions found in the provided game. Please try another game.`
         });
         return;
       }
       
-      const shuffledPositions = shuffle(validPositions);
+      // Use random positions from the game (up to 10 max)
+      const limitedPositions = validPositions.length > get().gameMaxQuestions 
+        ? shuffle(validPositions).slice(0, get().gameMaxQuestions)
+        : validPositions;
       
       set({ 
         username,
-        currentYear: year,
-        currentMonth: month,
         userGame: {
           ...createInitialGameState(),
-          positions: shuffledPositions,
-          currentPosition: shuffledPositions[0],
+          positions: limitedPositions,
+          currentPosition: limitedPositions[0],
         },
         isLoading: false
       });
       
       // Generate first question
-      get().generateGameQuestion(shuffledPositions[0], true);
+      get().generateGameQuestion(limitedPositions[0], true);
       
     } catch (error) {
       console.error("Error loading user positions:", error);
       set({ 
         isLoading: false, 
-        loadingError: `Failed to load games for ${username}. Please check the username and try again.`
+        loadingError: `Failed to load the game. Please try again or select a different game.`
       });
     }
   },
