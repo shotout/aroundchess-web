@@ -10,6 +10,7 @@ import { ContactUs } from "../modal/ContactUs";
 import { PricingOffer } from "../modal/PricingOffer";
 import { SuccessSubscription } from "../modal/SuccessSubscription";
 import { StatusPurchaseTokens } from "../modal/StatusPurchaseTokens";
+import { ShareGame } from "../modal/ShareGame";
 
 export default function Navigation({
   children,
@@ -21,7 +22,7 @@ export default function Navigation({
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const { sessionId } = useAuth();
- 
+
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -72,6 +73,7 @@ export default function Navigation({
             <CancelSubscription />
             <StatusPurchaseTokens />
             <PricingOffer />
+            <ShareGame />
           </div>
 
           <div className="z-49 relative">

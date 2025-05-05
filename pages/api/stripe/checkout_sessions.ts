@@ -12,7 +12,7 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      const { productName, price, quantity, description } = JSON.parse(
+      const { productName, price, quantity, description, type } = JSON.parse(
         req.body
       );
       console.log("req.body", req.body);
@@ -32,6 +32,9 @@ export default async function handler(
             quantity,
           },
         ],
+        metadata: {
+          itemType: type,
+        },
         success_url: `${req.headers.origin}/profile?status="successSubscribe"`,
         cancel_url: `${req.headers.origin}/profile?status="cancelSubscribe"`,
       });
