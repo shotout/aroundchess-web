@@ -21,6 +21,7 @@ export default function Profile() {
     setOpen: setOpenPurchaseStatus,
     setQuantity,
     setStatus,
+    status
   } = useStatusPurchaseTokens();
   useEffect(() => {
     const status = searchParams?.get("status");
