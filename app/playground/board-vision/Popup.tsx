@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import axios from "axios";
+import { Chess } from "chess.js";
 
 const endpoint = process.env.BASE_URL;
 
@@ -46,9 +47,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   const [usernameInput, setUsernameInput] = useState(username);
   const [usernameStatus, setUsernameStatus] = useState("idle");
   const [availableGames, setAvailableGames] = useState<any[]>([]);
-  const [selectedGame, setSelectedGame] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState(usernameInput);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [gameCount, setGameCount] = useState("50");
@@ -84,33 +83,56 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
 
       if (response.status === 200 && response.data.data?.length > 0) {
         setUsernameStatus("found");
-        setAvailableGames(response.data.data);
+        const games = response.data.data;
+        setAvailableGames(games);
 
         // Safely handle the case where fewer games are returned than requested
-        const gamesReturned = response.data.data.length;
+        const gamesReturned = games.length;
         console.log(
           `Requested ${gameCount} games, received ${gamesReturned} games`
         );
 
-        // Randomly select a game from available games
-        const randomIndex = Math.floor(Math.random() * gamesReturned);
-        setSelectedGame(response.data.data[randomIndex]?.value);
+        // Get game details to analyze opponent distribution
+        const gameDetails = games.map((game: any) => {
+          try {
+            // Try to parse PGN to get opponent information
+            const chess = new Chess();
+            chess.loadPgn(game.value);
+            const headers = chess.header();
 
-        // Add a fallback in case the selected game is undefined
-        if (!response.data.data[randomIndex]?.value && gamesReturned > 0) {
-          // If the random selection failed but we have games, use the first one
-          setSelectedGame(response.data.data[0].value);
-        }
+            return {
+              value: game.value,
+              opponent:
+                headers.White?.toLowerCase() === debouncedQuery.toLowerCase()
+                  ? headers.Black
+                  : headers.White,
+            };
+          } catch (error) {
+            console.error("Error parsing PGN:", error);
+            return { value: game.value, opponent: "Unknown" };
+          }
+        });
+
+        // Count unique opponents
+        const uniqueOpponents = new Set(
+          gameDetails.map((g: any) => g.opponent)
+        );
+        console.log(
+          `Found ${uniqueOpponents.size} unique opponents in ${gamesReturned} games`
+        );
+
+        // Select all games to maximize variety
+        setSelectedGames(games.map((game: any) => game.value));
       } else {
         setUsernameStatus("not-found");
         setAvailableGames([]);
-        setSelectedGame(undefined);
+        setSelectedGames([]);
       }
     } catch (error) {
       console.error("Error fetching user games:", error);
       setUsernameStatus("not-found");
       setAvailableGames([]);
-      setSelectedGame(undefined);
+      setSelectedGames([]);
     }
   };
 
@@ -119,7 +141,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     if (e.target.value.trim() === "") {
       setUsernameStatus("idle");
       setAvailableGames([]);
-      setSelectedGame(undefined);
+      setSelectedGames([]);
     }
   };
 
@@ -142,13 +164,22 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     setUsername(usernameInput);
 
     try {
-      if (usernameStatus === "found" && selectedGame) {
-        router.push("/playground/board-vision/user");
-        onClose();
+      if (usernameStatus === "found" && selectedGames.length > 0) {
+        // First process all the PGNs and generate positions
+        try {
+          // Set loading state before processing
+          // We're already using isLoading from the store
 
-        loadUserPositions(selectedGame, usernameInput).catch((error) => {
+          // Pass multiple game PGNs to generate positions
+          await loadUserPositions(selectedGames, usernameInput);
+
+          // Only after successful loading, navigate to the user page and close popup
+          router.push("/playground/board-vision/user");
+          onClose();
+        } catch (error) {
           console.error("Error loading user positions:", error);
-        });
+          setShowErrorModal(true);
+        }
       } else if (usernameStatus === "found") {
         setShowErrorModal(true);
       } else {
@@ -289,13 +320,14 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               className="w-full py-2 rounded-full bg-blue-600 text-white"
               onClick={handleStartClick}
               disabled={
-                isLoading || (usernameStatus === "found" && !selectedGame)
+                isLoading ||
+                (usernameStatus === "found" && selectedGames.length === 0)
               }
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
+                  Processing Games...
                 </>
               ) : (
                 "Start"

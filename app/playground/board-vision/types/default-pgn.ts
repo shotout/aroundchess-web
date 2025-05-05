@@ -17,6 +17,7 @@ export interface HighlightedSquares {
 }
 
 export interface Position {
+  gameIndex: undefined;
   blackProfilePic?: any;
   whiteProfilePic?: any;
   fen: string;

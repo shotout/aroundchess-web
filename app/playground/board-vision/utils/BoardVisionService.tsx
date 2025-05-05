@@ -2,12 +2,14 @@ import { Chess } from "chess.js";
 import { shuffle } from "./UtilFunctions";
 
 export interface Position {
+  opponentName: string;
   fen: string;
   white: string;
   black: string;
   url: string;
   whiteProfilePic?: string;
   blackProfilePic?: string;
+  gameIndex?: number;
 }
 
 export interface PositionAnalysis {
@@ -62,6 +64,7 @@ export const ChessService = {
   async getUserGameFromPgn(
     pgn: string,
     username: string,
+    gameIndex: number = 0,
     profileInfo?: {
       userProfilePic?: string;
       opponentProfilePic?: string;
@@ -78,14 +81,20 @@ export const ChessService = {
         return moveNumber > 10 && moveNumber < fenList.length - 5;
       });
 
+      if (filteredFens.length === 0) {
+        return [];
+      }
+
+      const numberOfPositionsToUse = Math.min(3, filteredFens.length);
       const shuffledFens = shuffle([...filteredFens]);
-      const selectedFens = shuffledFens.slice(
-        0,
-        Math.min(10, shuffledFens.length)
-      );
+      const selectedFens = shuffledFens.slice(0, numberOfPositionsToUse);
 
       const chess = new Chess();
-      chess.loadPgn(pgn);
+      try {
+        chess.loadPgn(pgn);
+      } catch (error) {
+        console.error("Error loading PGN in headers extraction:", error);
+      }
 
       let white = "Player";
       let black = "Opponent";
@@ -111,10 +120,12 @@ export const ChessService = {
           : profileInfo?.opponentProfilePic;
 
       const positions = selectedFens.map((fen) => ({
+        opponentName: profileInfo?.opponentName || black,
         fen,
         white,
         black,
         url,
+        gameIndex,
         whiteProfilePic:
           whiteProfilePic || this.getProfilePicUrl({ username: white }),
         blackProfilePic:
@@ -126,6 +137,122 @@ export const ChessService = {
       console.error("Error processing PGN:", error);
       throw error;
     }
+  },
+
+  processMultipleGames(pgns: string[], username: string): Promise<Position[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const allPositions: Position[] = [];
+        const opponents = new Set<string>();
+
+        for (let i = 0; i < pgns.length; i++) {
+          try {
+            const chess = new Chess();
+            try {
+              chess.loadPgn(pgns[i]);
+            } catch (error) {
+              console.error("Error loading PGN:", error);
+              continue;
+            }
+
+            let opponent = "";
+            try {
+              const headers = chess.header();
+              if (
+                headers.White &&
+                headers.White.toLowerCase() === username.toLowerCase()
+              ) {
+                opponent = headers.Black || "Opponent";
+              } else {
+                opponent = headers.White || "Opponent";
+              }
+              opponents.add(opponent);
+            } catch (e) {
+              console.error("Error extracting PGN headers:", e);
+            }
+
+            const positions = await this.getUserGameFromPgn(
+              pgns[i],
+              username,
+              i
+            );
+            if (positions.length > 0) {
+              const positionsWithOpponent = positions.map((pos) => ({
+                ...pos,
+                opponentName: opponent,
+              }));
+              allPositions.push(...positionsWithOpponent);
+            }
+          } catch (error) {
+            console.error(`Error processing game ${i}:`, error);
+          }
+        }
+
+        console.log(
+          `Found ${opponents.size} unique opponents from ${pgns.length} games`
+        );
+
+        if (opponents.size >= 4 && allPositions.length >= 10) {
+          const positionsByOpponent: { [key: string]: Position[] } = {};
+
+          allPositions.forEach((pos) => {
+            const opp = pos.opponentName || "unknown";
+            if (!positionsByOpponent[opp]) {
+              positionsByOpponent[opp] = [];
+            }
+            positionsByOpponent[opp].push(pos);
+          });
+
+          let selectedPositions: Position[] = [];
+
+          const shuffledOpponents = shuffle(Array.from(opponents));
+
+          shuffledOpponents.forEach((opp) => {
+            if (positionsByOpponent[opp]) {
+              const oppPositions = shuffle(positionsByOpponent[opp]);
+
+              const positionsToTake = opponents.size <= 5 ? 2 : 1;
+              const taken = oppPositions.slice(0, positionsToTake);
+
+              selectedPositions.push(...taken);
+            }
+          });
+
+          if (selectedPositions.length < 10) {
+            const shuffledAllPositions = shuffle(allPositions);
+            let i = 0;
+            while (
+              selectedPositions.length < 10 &&
+              i < shuffledAllPositions.length
+            ) {
+              const isDuplicate = selectedPositions.some(
+                (p) => p.fen === shuffledAllPositions[i].fen
+              );
+
+              if (!isDuplicate) {
+                selectedPositions.push(shuffledAllPositions[i]);
+              }
+              i++;
+            }
+          }
+
+          // Take only up to 10 positions
+          selectedPositions = selectedPositions.slice(0, 10);
+
+          // Shuffle final selection for randomness in quiz order
+          resolve(shuffle(selectedPositions));
+        } else {
+          // Just use regular selection if we don't have enough variety
+          const shuffledPositions = shuffle(allPositions);
+          resolve(
+            shuffledPositions.slice(0, Math.min(10, shuffledPositions.length))
+          );
+        }
+      } catch (error) {
+        console.error("Error processing multiple games:", error);
+        reject(error);
+      }
+    });
   },
 
   processGames(games: any[]): Position[] {
@@ -155,6 +282,8 @@ export const ChessService = {
         const blackProfilePic = this.getProfilePicUrl(game.black);
 
         const position = {
+          opponentName:
+            game.black?.username || game.white?.username || "Opponent",
           fen,
           white: game.white.username,
           black: game.black.username,
@@ -172,17 +301,12 @@ export const ChessService = {
     return shuffle(positions);
   },
 
-  /**
-   * Get profile picture URL for a player
-   */
   getProfilePicUrl(player: any): string {
-    // Try to get profile picture URL
     if (player && player.uuid) {
       return `https://images.chesscomfiles.com/uploads/v1/user/${player.uuid}.png`;
     } else if (player && player.username) {
       return `https://images.chesscomfiles.com/uploads/v1/user/${player.username}.png`;
     } else {
-      // Default placeholder
       return "/board-vision/user.svg";
     }
   },
