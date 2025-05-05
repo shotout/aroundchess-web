@@ -1,13 +1,9 @@
-// Updated BoardVisionStore.ts
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
 import { ChessService } from './BoardVisionService';
 import { shuffle } from './UtilFunctions';
 import { defaultPositions } from './DefaultPositionData';
 import { HighlightedSquares, Position, GameQuestion, Arrow } from '../types/default-pgn';
-
-export type AppState = "welcome" | "default" | "player-game";
-const endpoint = process.env.BASE_URL;
 
 
 interface GameState {
@@ -24,54 +20,42 @@ interface GameState {
 }
 
 interface BoardVisionState {
-  // App state
-  appState: AppState;
   username: string;
   currentYear: number;
   currentMonth: number;
   gameMaxQuestions: number;
   
-  // Default game state
   defaultGame: GameState;
   
-  // User game state
   userGame: GameState;
   
-  // Display state
   showThreats: boolean;
   
-  // Loading state
   isLoading: boolean;
   isChangingQuestion: boolean;
   loadingError: string | null;
   
-  // Actions - Common
-  setAppState: (state: AppState) => void;
   setUsername: (name: string) => void;
   setCurrentMonth: (month: number) => void;
   setCurrentYear: (year: number) => void;
   toggleShowThreats: () => void;
   resetState: () => void;
   
-  // Actions - Default Game
   loadDefaultPositions: () => void;
   handleDefaultGameSelectAnswer: (answer: number) => void;
   handleDefaultGameNextQuestion: () => void;
   getDefaultRandomQuestion: () => void;
   startDefaultGameAgain: () => void;
   
-  // Actions - User Game
-  loadUserPositions: (pgn: string, username: string) => Promise<void>;
+  loadUserPositions: (pgns: string[], username: string) => Promise<void>;
   handleUserGameSelectAnswer: (answer: number) => void;
   handleUserGameNextQuestion: () => void;
   getUserRandomQuestion: () => void;
   startUserGameAgain: () => void;
   
-  // Shared Actions
   generateGameQuestion: (position: Position, forUserGame?: boolean) => void;
 }
 
-// Helper function to create initial game state
 const createInitialGameState = (): GameState => ({
   positions: [],
   currentPositionIndex: 0,
@@ -85,7 +69,6 @@ const createInitialGameState = (): GameState => ({
   arrows: [],
 });
 
-// Helper function to validate FEN strings
 const isValidFEN = (fen: string): boolean => {
   try {
     const chess = new Chess();
@@ -98,29 +81,21 @@ const isValidFEN = (fen: string): boolean => {
 };
 
 export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
-  // App state
-  appState: "welcome",
   username: "",
   currentYear: new Date().getFullYear(),
   currentMonth: new Date().getMonth() + 1,
   gameMaxQuestions: 10,
   
-  // Default game state
   defaultGame: createInitialGameState(),
   
-  // User game state
   userGame: createInitialGameState(),
   
-  // Display state
   showThreats: false,
   
-  // Loading state
   isLoading: false,
   isChangingQuestion: false,
   loadingError: null,
   
-  // Actions - Common
-  setAppState: (state) => set({ appState: state }),
   setUsername: (name) => set({ username: name }),
   setCurrentMonth: (month) => set({ currentMonth: month }),
   setCurrentYear: (year) => set({ currentYear: year }),
@@ -129,11 +104,9 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     set({ showThreats: !get().showThreats });
   },
   
-  // Actions - Default Game
   loadDefaultPositions: () => {
     const positions = defaultPositions();
     
-    // Filter out invalid FEN positions
     const validPositions = positions.filter(pos => isValidFEN(pos.fen));
     
     if (validPositions.length === 0) {
@@ -142,7 +115,10 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       return;
     }
     
-    const shuffledPositions = shuffle(validPositions);
+    const shuffledPositions = shuffle(validPositions).map((pos, idx) => ({
+      ...pos,
+      gameIndex: undefined,
+    }));
     
     set({
       defaultGame: {
@@ -152,7 +128,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       }
     });
     
-    // Generate first question
     get().generateGameQuestion(shuffledPositions[0], false);
   },
   
@@ -170,7 +145,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       showThreats: true
     });
     
-    // Visualize threats if current question type is about threats or checks
     if (defaultGame.currentPosition && defaultGame.gameQuestion) {
       try {
         const chess = new Chess(defaultGame.currentPosition.fen);
@@ -190,7 +164,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
             newArrows.push([move.from, move.to]);
           });
         } else if (defaultGame.gameQuestion.text.includes("check moves")) {
-          // Highlight check moves
           const checkMoves = allMoves.filter(move => move.san.includes('+'));
           checkMoves.forEach((move) => {
             newHighlightedSquares[move.to] = {
@@ -201,7 +174,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
             newArrows.push([move.from, move.to]);
           });
         } else if (defaultGame.gameQuestion.text.includes("capture moves")) {
-          // Highlight capture moves (threats)
           const captureMoves = allMoves.filter(move => move.flags.includes('c'));
           captureMoves.forEach((move) => {
             newHighlightedSquares[move.to] = {
@@ -222,7 +194,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         });
       } catch (error) {
         console.error("Error highlighting moves:", error);
-        // Don't update the highlighted squares or arrows if there's an error
       }
     }
   },
@@ -231,7 +202,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     const { defaultGame, gameMaxQuestions } = get();
     
     if (defaultGame.gameQuestionNumber >= gameMaxQuestions) {
-      // End of game
       set({
         defaultGame: {
           ...defaultGame,
@@ -239,7 +209,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         }
       });
     } else {
-      // Get next position
       const nextIndex = (defaultGame.currentPositionIndex + 1) % defaultGame.positions.length;
       const nextPosition = defaultGame.positions[nextIndex];
       
@@ -257,7 +226,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         showThreats: false
       });
       
-      // Generate new question for this position
       get().generateGameQuestion(nextPosition, false);
     }
   },
@@ -266,15 +234,11 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     const { defaultGame } = get();
     if (defaultGame.positions.length === 0) return;
     
-    // Set loading state
     set({ isChangingQuestion: true });
     
-    // Count each question change as a mistake
     const currentCorrects = defaultGame.gameCorrects;
     
-    // Simulate a slight delay to show loading state
     setTimeout(() => {
-      // Get a random position
       const randomIndex = Math.floor(Math.random() * defaultGame.positions.length);
       const randomPosition = defaultGame.positions[randomIndex];
       
@@ -294,7 +258,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         isChangingQuestion: false
       });
       
-      // Generate new question for this position
       get().generateGameQuestion(randomPosition, false);
     }, 500);
   },
@@ -318,53 +281,51 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       showThreats: false
     });
     
-    // Generate first question
     get().generateGameQuestion(defaultGame.positions[0], false);
   },
   
-  // Actions - User Game
-  loadUserPositions: async (pgn, username) => {
+  loadUserPositions: async (pgns, username) => {
     set({ isLoading: true, loadingError: null });
     
     try {
-      // Convert PGN to positions
-      const positions = await ChessService.getUserGameFromPgn(pgn, username);
+      const positions = await ChessService.processMultipleGames(pgns, username);
       
-      // Filter out invalid FEN positions (though they should all be valid from pgnToFenList)
-      const validPositions = positions.filter(pos => isValidFEN(pos.fen));
+      const opponentCount = new Map<string, number>();
+      positions.forEach(pos => {
+        const opponent = pos.opponentName || 'unknown';
+        opponentCount.set(opponent, (opponentCount.get(opponent) || 0) + 1);
+      });
       
-      // We need at least one position to generate questions
-      if (validPositions.length === 0) {
+      console.log('Opponent distribution in selected positions:');
+      opponentCount.forEach((count, opponent) => {
+        console.log(`${opponent}: ${count} positions`);
+      });
+      
+      if (positions.length === 0) {
         set({ 
           isLoading: false,
-          loadingError: `No valid positions found in the provided game. Please try another game.`
+          loadingError: `No valid positions found in the provided games. Please try other games.`
         });
         return;
       }
-      
-      // Use random positions from the game (up to 10 max)
-      const limitedPositions = validPositions.length > get().gameMaxQuestions 
-        ? shuffle(validPositions).slice(0, get().gameMaxQuestions)
-        : validPositions;
       
       set({ 
         username,
         userGame: {
           ...createInitialGameState(),
-          positions: limitedPositions,
-          currentPosition: limitedPositions[0],
+          positions: positions.map(({ gameIndex, ...rest }) => ({ ...rest, gameIndex: undefined })), 
+          currentPosition: { ...positions[0], gameIndex: undefined }, 
         },
         isLoading: false
       });
       
-      // Generate first question
-      get().generateGameQuestion(limitedPositions[0], true);
+      get().generateGameQuestion({ ...positions[0], gameIndex: undefined }, true);
       
     } catch (error) {
       console.error("Error loading user positions:", error);
       set({ 
         isLoading: false, 
-        loadingError: `Failed to load the game. Please try again or select a different game.`
+        loadingError: `Failed to load the games. Please try again or select different games.`
       });
     }
   },
@@ -383,7 +344,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       showThreats: true
     });
     
-    // Visualize threats if current question type is about threats or checks
     if (userGame.currentPosition && userGame.gameQuestion) {
       try {
         const chess = new Chess(userGame.currentPosition.fen);
@@ -392,18 +352,15 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         const newArrows: Arrow[] = [];
         
         if (userGame.gameQuestion.text.includes("legal moves")) {
-          // Highlight all legal moves
           allMoves.forEach((move) => {
             newHighlightedSquares[move.to] = {
               background: "none",
               borderRadius: "100px",
               border: "3px solid #1C16C2",
             };
-            // Optionally add arrows for all legal moves
             newArrows.push([move.from, move.to]);
           });
         } else if (userGame.gameQuestion.text.includes("check moves")) {
-          // Highlight check moves
           const checkMoves = allMoves.filter(move => move.san.includes('+'));
           checkMoves.forEach((move) => {
             newHighlightedSquares[move.to] = {
@@ -414,7 +371,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
             newArrows.push([move.from, move.to]);
           });
         } else if (userGame.gameQuestion.text.includes("capture moves")) {
-          // Highlight capture moves (threats)
           const captureMoves = allMoves.filter(move => move.flags.includes('c'));
           captureMoves.forEach((move) => {
             newHighlightedSquares[move.to] = {
@@ -435,7 +391,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         });
       } catch (error) {
         console.error("Error highlighting moves:", error);
-        // Don't update the highlighted squares or arrows if there's an error
       }
     }
   },
@@ -444,7 +399,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     const { userGame, gameMaxQuestions } = get();
     
     if (userGame.gameQuestionNumber >= gameMaxQuestions) {
-      // End of game
       set({
         userGame: {
           ...userGame,
@@ -452,7 +406,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         }
       });
     } else {
-      // Get next position
       const nextIndex = (userGame.currentPositionIndex + 1) % userGame.positions.length;
       const nextPosition = userGame.positions[nextIndex];
       
@@ -470,7 +423,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         showThreats: false
       });
       
-      // Generate new question for this position
       get().generateGameQuestion(nextPosition, true);
     }
   },
@@ -479,13 +431,11 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
     const { userGame } = get();
     if (userGame.positions.length === 0) return;
     
-    // Set loading state
     set({ isChangingQuestion: true });
     
     const currentCorrects = userGame.gameCorrects;
     
     setTimeout(() => {
-      // Get a random position
       const randomIndex = Math.floor(Math.random() * userGame.positions.length);
       const randomPosition = userGame.positions[randomIndex];
       
@@ -505,7 +455,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         isChangingQuestion: false
       });
       
-      // Generate new question for this position
       get().generateGameQuestion(randomPosition, true);
     }, 500);
   },
@@ -529,21 +478,17 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       showThreats: false
     });
     
-    // Generate first question
     get().generateGameQuestion(userGame.positions[0], true);
   },
   
-  // Generate question for either default or user game
   generateGameQuestion: (position, forUserGame = false) => {
     if (!position) return;
     
     try {
-      // Validate FEN before analyzing
       if (!isValidFEN(position.fen)) {
         throw new Error(`Invalid FEN: ${position.fen}`);
       }
       
-      // Analyze the position
       const analysis = ChessService.analyzePosition(position.fen);
       
       const questionTypes = [
@@ -555,15 +500,12 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         { id: "threat_black", text: "How many capture moves does Black have?" }
       ];
       
-      // Filter questions based on the current color to move
       const availableQuestions = questionTypes.filter(q => 
         q.id.includes(analysis.turn === 'w' ? "white" : "black")
       );
       
-      // Select a random question
       const questionType = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
       
-      // Get the correct answer based on the question type
       let correctAnswer = 0;
       switch (questionType.id) {
         case "legal_white": correctAnswer = analysis.legal_white; break;
@@ -574,7 +516,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         case "threat_black": correctAnswer = analysis.threat_black; break;
       }
       
-      // Generate random answers
       const answers = [correctAnswer];
       while (answers.length < 4) {
         const randomAnswer = Math.max(0, correctAnswer + Math.floor(Math.random() * 13) - 6);
@@ -583,14 +524,12 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
         }
       }
       
-      // Create the question
       const question: GameQuestion = {
         text: questionType.text,
         answers: shuffle(answers),
         correctAnswer
       };
       
-      // Update either default or user game state
       if (forUserGame) {
         set({
           userGame: {
@@ -637,7 +576,6 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
   
   resetState: () => {
     set({
-      appState: "welcome",
       username: "",
       defaultGame: createInitialGameState(),
       userGame: createInitialGameState(),
