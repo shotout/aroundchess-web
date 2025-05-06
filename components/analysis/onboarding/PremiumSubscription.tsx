@@ -7,23 +7,16 @@ import {
   Bot,
   Target,
   Zap,
-  Crown,
-  DollarSign,
-  Award,
   Users,
   Cat,
   Settings,
   X,
   CheckCircle,
 } from "lucide-react";
-import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { motion, fadeInUp } from "@/utils/motion";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import {
-  formatDate,
-  formatDateHistory,
-  formatTimePgn,
-} from "@/functions/format-date";
+import { formatDateHistory, formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
@@ -119,7 +112,8 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
-  const { allMembershipPackages, activeMembership, isMember } = useProfileStore();
+  const { allMembershipPackages, activeMembership, isMember } =
+    useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 

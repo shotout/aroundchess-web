@@ -3,7 +3,6 @@ import { AlertCircle } from "lucide-react";
 import { UserProfileCardProps } from "./types";
 import Image from "next/image";
 import { useUserStore } from "../store";
-import { useAuth } from "@clerk/nextjs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
@@ -13,7 +12,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   avatar,
   schedule,
 }) => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
+
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
 
   useEffect(() => {

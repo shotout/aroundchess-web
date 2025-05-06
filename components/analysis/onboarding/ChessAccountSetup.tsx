@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { toast } from "sonner";
 
@@ -18,7 +17,22 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
   debugMode = false,
 }) => {
-  const { sessionId, isLoaded: authIsLoaded, isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
+
   const { setUsername, username } = usePgnStore();
 
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -62,10 +76,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     }
 
     const fetchProfileData = async () => {
-      if (!authIsLoaded) {
-        return;
-      }
-
       if (!isSignedIn || !sessionId) {
         setCheckComplete(true);
         return;
@@ -101,7 +111,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     };
 
     fetchProfileData();
-  }, [authIsLoaded, isSignedIn, sessionId, setUsername, username, debugMode]);
+  }, [isSignedIn, sessionId, setUsername, username, debugMode]);
 
   return (
     <>

@@ -3,12 +3,8 @@
 import { motion } from "@/utils/motion";
 import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { Button } from "./ui/button";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useProfileStore } from "@/app/store/profile";
-import { useAuth } from "@clerk/nextjs";
 
 const analysisFeatures = [
   "Stockfish-powered move evaluation",
@@ -87,7 +83,21 @@ const analysis = [
 ];
 export function AnalysisSection() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const [current, setCurrent] = useState(0);
 
   const prevSlide = () => {
@@ -100,8 +110,8 @@ export function AnalysisSection() {
   const handleAnalysis = () => {
     if (isSignedIn) {
       router.push("/analysis");
-    }else{
-      router.push("/register")
+    } else {
+      router.push("/register");
     }
   };
   return (

@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
 
@@ -23,7 +22,7 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
 
   const { setUsername: setStoreUsername } = usePgnStore();
 

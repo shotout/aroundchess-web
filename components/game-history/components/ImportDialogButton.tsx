@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Upload, X, Trash } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
 import type { AxiosProgressEvent } from "axios";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -15,7 +14,8 @@ interface ImportDialogButtonProps {
 const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
+
   const { addImportedGame } = usePgnStore();
 
   // Dialog state

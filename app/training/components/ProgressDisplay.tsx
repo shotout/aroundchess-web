@@ -69,7 +69,7 @@ const MONTHS = [
 ];
 
 const ProgressDisplay = () => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const currentDate = new Date();
 
   const getCurrentYearMonth = (monthName: string) => {

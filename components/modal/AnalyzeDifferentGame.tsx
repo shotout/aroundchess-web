@@ -26,7 +26,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
-import { useAuth } from "@clerk/clerk-react";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 
@@ -98,7 +97,8 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
+
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
   interface GameOption {

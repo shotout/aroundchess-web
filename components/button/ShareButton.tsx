@@ -20,7 +20,21 @@ import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 const ShareButton = (props: any) => {
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
 
   const [open, setOpen] = useState(false);
   const { isLoading } = useApiClient();

@@ -15,7 +15,21 @@ import { Pagination } from "../pagination/pagination";
 import { useAuth } from "@clerk/nextjs";
 
 export default function Article() {
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const {
     categories,
     setCategories,

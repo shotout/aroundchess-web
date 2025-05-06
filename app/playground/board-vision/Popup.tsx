@@ -20,7 +20,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import axios from "axios";
 import { Chess } from "chess.js";
@@ -33,7 +32,7 @@ interface PopupProps {
 }
 
 const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const router = useRouter();
   const {
     username,

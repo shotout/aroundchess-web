@@ -40,7 +40,21 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const { signOut } = useClerk();
   const router = useRouter();
   const clearAll = usePgnStore((state) => state.clearAll);
-  const { isSignedIn } = useUser();
+  const [isSignedIn, setIsSignedIn] = React.useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  React.useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
 
   const { isMember, token } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();

@@ -174,7 +174,7 @@ const ChangePasswordPage: NextPage = () => {
           >
             <div className="flex items-center mb-4 sm:mb-6">
               <button
-                onClick={()=>router.back()}
+                onClick={() => router.back()}
                 className="text-black hover:text-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -451,7 +451,7 @@ const ChangePasswordPage: NextPage = () => {
               <div className="mt-4 p-3 bg-red-100/70 border border-red-200 rounded-md">
                 <p className="text-sm text-red-600 text-center">{error}</p>
               </div>
-            )} 
+            )}
           </div>
         </main>
         <SiteFooterNew />

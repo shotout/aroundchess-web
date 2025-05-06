@@ -35,10 +35,11 @@ const MyAccount = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleChangePassword = () => {
-    router.push("/change-password")
+    router.push("/change-password");
   };
   const handleSignOut = async () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
+    sessionStorage.clear();
     await signOut();
     router.push("/");
   };
@@ -97,7 +98,9 @@ const MyAccount = () => {
             type="text"
             placeholder="Type here..."
             className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border ${
-              form.defaultUsername.length > 0 ? `border-[#737c7f]` : `border-[#C0CED4]`
+              form.defaultUsername.length > 0
+                ? `border-[#737c7f]`
+                : `border-[#C0CED4]`
             } px-[16px] py-[12px]`}
             value={form.defaultUsername}
             onChange={handleOnChange}

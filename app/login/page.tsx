@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth, useSignIn } from "@clerk/nextjs";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
@@ -16,28 +15,38 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { signIn, isLoaded } = useSignIn();
-  const { sessionId } = useAuth();
+  const baseUrl = process.env.BASE_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (!isLoaded) return;
-
-      const result = await signIn.create({
-        identifier: email,
-        password,
+      const response = await fetch(`${baseUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-      if (result.status === "complete") {
+      const data = await response.json();
+
+      console.log("Login response:", data.data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      if (data.data.access_token) {
+        localStorage.setItem("token", data.data.access_token);
         toast.success("Logged in successfully!");
         window.location.href = "/analysis";
-        localStorage.setItem("token", sessionId + "");
       } else {
-        console.error("Sign in result:", result);
-        toast.error("Failed to sign in");
+        toast.error("No authentication token received");
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to login");
@@ -47,14 +56,19 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isLoaded) return;
     try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
+      const response = await fetch(`${baseUrl}/auth/google`, {
+        method: "GET",
+        credentials: "include",
       });
-      localStorage.setItem("token", sessionId + "");
+
+      const data = await response.json();
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Failed to initiate Google login");
+      }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Google");
@@ -62,14 +76,19 @@ export default function LoginPage() {
   };
 
   const handleFacebookSignIn = async () => {
-    if (!isLoaded) return;
     try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_facebook",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
+      const response = await fetch(`${baseUrl}/auth/facebook`, {
+        method: "GET",
+        credentials: "include",
       });
-      localStorage.setItem("token", sessionId + "");
+
+      const data = await response.json();
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Failed to initiate Facebook login");
+      }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Facebook");
@@ -77,14 +96,19 @@ export default function LoginPage() {
   };
 
   const handleAppleSignIn = async () => {
-    if (!isLoaded) return;
     try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_apple",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis", // Ensure redirect to game-history
+      const response = await fetch(`${baseUrl}/auth/apple`, {
+        method: "GET",
+        credentials: "include",
       });
-      localStorage.setItem("token", sessionId + "");
+
+      const data = await response.json();
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Failed to initiate Apple login");
+      }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign in with Apple");

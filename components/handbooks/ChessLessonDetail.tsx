@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const router = useRouter();
   const basePath = getLessonBasePath(lessonType);
   const tabOptions: any = getLessonTabOptions(lessonType);
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
 
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);

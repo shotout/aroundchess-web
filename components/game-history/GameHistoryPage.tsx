@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 import DotSpinner from "./Spinner";
@@ -12,17 +11,19 @@ import LoadingDot from "./components/LoadingDot";
 import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
 
 const GameHistoryPage: React.FC = () => {
-  const { isLoaded: authIsLoaded, isSignedIn } = useAuth();
   const { username } = usePgnStore();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isUsernameFetching, setIsUsernameFetching] = useState(false);
 
   useEffect(() => {
-    if (!authIsLoaded) {
-      return;
-    }
-
     if (!isSignedIn) {
       setIsLoading(false);
       return;
@@ -35,7 +36,7 @@ const GameHistoryPage: React.FC = () => {
       setIsLoading(false);
       setIsUsernameFetching(false);
     }, 500);
-  }, [authIsLoaded, isSignedIn]);
+  }, [isSignedIn]);
 
   if (isLoading) {
     return (

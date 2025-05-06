@@ -30,7 +30,21 @@ const improveData = [
 ];
 export function ImproveSection() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const [width, setWidth] = useState(0);
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {

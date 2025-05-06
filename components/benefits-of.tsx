@@ -6,6 +6,7 @@ import { CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 
 const benefits = [
   {
@@ -46,7 +47,21 @@ const benefits = [
 ];
 export function BenefitsOf() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const handleAnalyze = () => {
     if (isSignedIn) {
       router.push("/analysis");
@@ -113,9 +128,7 @@ export function BenefitsOf() {
           >
             Analyze your most recent Game now
           </Button>
-          <span
-            className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3"
-          >
+          <span className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3">
             No Sign-Up required
           </span>
         </div>

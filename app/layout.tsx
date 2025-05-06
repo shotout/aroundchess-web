@@ -24,7 +24,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <script src="/stockfish.js" defer></script>
       </head>
-      <body >
+      <body>
         <ClerkProvider>
           {children}
           {/* <Analytics /> */}

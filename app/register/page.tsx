@@ -1,15 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Apple, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useSignUp } from "@clerk/nextjs";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
+import { createClient } from "@supabase/supabase-js";
+import { signinWithGoogle } from "@/utils/supabase/actions";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -19,9 +19,15 @@ export default function RegisterPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const router = useRouter();
-  const { signUp, isLoaded } = useSignUp();
   const codeInputRef = useRef<HTMLInputElement>(null);
+  const baseUrl = process.env.BASE_URL;
+
+  // === Supabase Config ===
+  const SUPABASE_URL = "https://dzmkhfsfqdagfjdxifjq.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG1rdG9lbXhsYWl2a214ZWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1MTQzNzYsImV4cCI6MjA1MTA5MDM3Nn0.kK9yML54kEuKJpsme-B1huVklJUIoCC7P53hssEmsMU";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -34,14 +40,23 @@ export default function RegisterPage() {
     }
 
     try {
-      if (!isLoaded) return;
-
-      await signUp.create({
-        emailAddress: email,
-        password,
+      //  register
+      const response = await fetch(`${baseUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
 
       setEmailSent(true);
       toast.success("Verification code sent to your email!");
@@ -66,39 +81,30 @@ export default function RegisterPage() {
     setIsVerifying(true);
 
     try {
-      if (!isLoaded) return;
-
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
+      // Verify the OTP
+      const response = await fetch(`${baseUrl}/auth/verify-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          token: verificationCode,
+        }),
       });
 
-      if (completeSignUp.status !== "complete") {
-        toast.error(
-          `Verification failed with status: ${completeSignUp.status}`
-        );
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Verification failed");
       }
 
-      // // IMPORTANT: Store the session ID in Zustand store
-      // if (completeSignUp.createdSessionId) {
-      //   // Extract the token from the session
-      //   const sessionId = completeSignUp.createdSessionId;
-      //   console.log("Raw session ID captured:", sessionId);
-
-      //   // Save to zustand store
-      //   setSessionId(sessionId);
-      //   setIsAuthenticated(true);
-
-      //   console.log("Session ID saved to auth store:", sessionId);
-      // }
-
-      // // Set the user session active with Clerk
-      // await setActive({ session: completeSignUp.createdSessionId });
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       toast.success("Account verified successfully!");
 
-      // Redirect to dashboard after successful verification
-      // router.push("/analysis");
       window.location.href = "/analysis";
     } catch (error: unknown) {
       const errorMessage =
@@ -110,16 +116,29 @@ export default function RegisterPage() {
     }
   }
 
-  // Function to resend verification code
   async function resendVerificationCode() {
     try {
-      if (!isLoaded) return;
       setIsLoading(true);
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      // Resend the OTP
+      const response = await fetch(`${baseUrl}/auth/resend-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to resend code");
+      }
+
       toast.success("Verification code resent to your email!");
 
-      // Clear the input fields
       setVerificationCode("");
       if (codeInputRef.current) {
         codeInputRef.current.focus();
@@ -133,14 +152,32 @@ export default function RegisterPage() {
     }
   }
 
+  const handleSignInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+  };
+
   const handleGoogleSignUp = async () => {
-    if (!isLoaded) return;
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+      const response = await fetch(`${baseUrl}/auth/sso/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
       });
+
+      const data = await response.json();
+      console.log("Google SSO response:", data);
+
+      // if (data) {
+      //   window.location.href = "/sso-callback";
+      // } else {
+      //   toast.error("Failed to initiate Facebook signup");
+      // }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign up with Google");
@@ -148,13 +185,24 @@ export default function RegisterPage() {
   };
 
   const handleFacebookSignUp = async () => {
-    if (!isLoaded) return;
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: "oauth_facebook",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+      const response = await fetch(`${baseUrl}/auth/sso/facebook`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
       });
+
+      const data = await response.json();
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Failed to initiate Facebook signup");
+      }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign up with Facebook");
@@ -162,13 +210,28 @@ export default function RegisterPage() {
   };
 
   const handleAppleSignUp = async () => {
-    if (!isLoaded) return;
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: "oauth_apple",
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: "/analysis",
+      // For SSO, we need to generate a callback URL that your backend expects
+      const callbackUrl = `${window.location.origin}/sso-callback`;
+
+      const response = await fetch(`${baseUrl}/auth/sso/apple`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
+        credentials: "include",
       });
+
+      const data = await response.json();
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        toast.error("Failed to initiate Apple signup");
+      }
     } catch (error) {
       console.error("OAuth error:", error);
       toast.error("Failed to sign up with Apple");
@@ -197,7 +260,7 @@ export default function RegisterPage() {
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 
-        <SiteHeaderNew />
+        {/* <SiteHeaderNew /> */}
 
         {/* Main Content with fixed dimensions based on device */}
         <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
@@ -322,34 +385,38 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                  <button
-                    onClick={handleGoogleSignUp}
-                    className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
-                  >
-                    <div className="flex items-center justify-center gap-x-2">
-                      <svg className="h-5 w-5" viewBox="0 0 24 24">
-                        <path
-                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                          fill="#4285F4"
-                        />
-                        <path
-                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                          fill="#34A853"
-                        />
-                        <path
-                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                          fill="#FBBC05"
-                        />
-                        <path
-                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                          fill="#EA4335"
-                        />
-                      </svg>
-                      <span className="hidden sm:inline text-black font-medium">
-                        Google
-                      </span>
-                    </div>
-                  </button>
+                  <form>
+                    <button
+                      // onClick={handleGoogleSignUp}
+                      formAction={signinWithGoogle}
+                      className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                    >
+                      <div className="flex items-center justify-center gap-x-2">
+                        <svg className="h-5 w-5" viewBox="0 0 24 24">
+                          <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4"
+                          />
+                          <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853"
+                          />
+                          <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05"
+                          />
+                          <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335"
+                          />
+                        </svg>
+                        <span className="hidden sm:inline text-black font-medium">
+                          Google
+                        </span>
+                      </div>
+                    </button>
+                  </form>
+
                   <button
                     onClick={handleFacebookSignUp}
                     className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
@@ -535,7 +602,7 @@ export default function RegisterPage() {
             )}
           </div>
         </main>
-        <SiteFooterNew />
+        {/* <SiteFooterNew /> */}
       </div>
     </>
   );

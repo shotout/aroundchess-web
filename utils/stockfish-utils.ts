@@ -1,29 +1,19 @@
-// useStockfishAnalysis.tsx
-import { useState, useCallback, useEffect } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useState, useCallback} from "react";
 import { Chess } from "chess.js";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 
 export function useStockfishAnalysis() {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token")
   const {
-    analyzeComplete,
     setAnalyzeComplete,
     estimateMinute,
     estimateSecond,
-    setEstimateMinute,
-    setEstimateSecond,
   } = useLoadingAPI();
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
 
-  /**
-   * Extract a list of FEN positions from a PGN string
-   * @param pgn PGN string to convert
-   * @param includeStartPosition Whether to include the starting position (default: true)
-   * @returns Array of FEN position strings representing each move in the game
-   */
+
   const pgnToFenList = useCallback(
     (pgn: string, includeStartPosition: boolean = true): string[] => {
       const chess = new Chess();
