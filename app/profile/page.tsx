@@ -36,7 +36,8 @@ export default function Profile() {
       router.replace("/profile");
     } else if (status == "cancelSubscribe") {
       // http://localhost:3000/profile?status=cancelSubscribe
-      setOpenCancel(true);
+      setOpenPurchaseStatus(true);
+      setStatus("failed-membership")
       router.replace("/profile");
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
