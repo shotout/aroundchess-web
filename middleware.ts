@@ -11,6 +11,7 @@ const publicRoutes = [
   "/analysis",
   "/login",
   "/register",
+  "/forgot-password",
 ];
 // Combined middleware
 export default clerkMiddleware(async (auth, req) => {
