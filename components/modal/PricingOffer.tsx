@@ -119,21 +119,21 @@ export const PricingOffer: React.FC = () => {
     setStatus("waiting");
     setOpenStatusPurchase(true);
     setOpen(false);
-    postPurchaseToken(body)
-      .then((result) => {
-        console.log("postPurchaseToken", result);
-        setCallFetch(formatTimePgn());
-        setStatus("success");
-        setOpen(false);
-      })
-      .catch((error) => {
-        setStatus("failed");
-      })
-      .finally(() => {
-        // setTimeout(() => {
-        //   setOpenStatusPurchase(false);
-        // }, 5000);
-      });
+    // postPurchaseToken(body)
+    //   .then((result) => {
+    //     console.log("postPurchaseToken", result);
+    //     setCallFetch(formatTimePgn());
+    //     setStatus("success");
+    //     setOpen(false);
+    //   })
+    //   .catch((error) => {
+    //     setStatus("failed");
+    //   })
+    //   .finally(() => {
+    //     // setTimeout(() => {
+    //     //   setOpenStatusPurchase(false);
+    //     // }, 5000);
+    //   });
   };
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
