@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuth } from "@clerk/nextjs";
 
 import { toast } from "sonner";
 import {
@@ -169,7 +168,7 @@ export function usePerformanceData() {
     setPerformanceData,
   } = usePgnStore();
 
-  const { sessionId, isLoaded: authIsLoaded } = useAuth();
+  const sessionId = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -190,7 +189,7 @@ export function usePerformanceData() {
 
   const fetchPerformanceData = useCallback(async () => {
     if (!username || fetchRef.current) {
-      if (authIsLoaded && !username) {
+      if (!username) {
         setLoading(false);
       }
       return;
@@ -232,7 +231,6 @@ export function usePerformanceData() {
     }
   }, [
     username,
-    authIsLoaded,
     sessionId,
     setPerformanceData,
     isCacheValid,
@@ -246,10 +244,8 @@ export function usePerformanceData() {
   }, [fetchPerformanceData]);
 
   useEffect(() => {
-    if (authIsLoaded) {
-      fetchPerformanceData();
-    }
-  }, [authIsLoaded, fetchPerformanceData]);
+    fetchPerformanceData();
+  }, [fetchPerformanceData]);
 
   return {
     loading,

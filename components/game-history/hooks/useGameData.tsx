@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useAuth } from "@clerk/nextjs";
+// import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
 import { isCacheValid } from "../services/cache";
@@ -176,7 +176,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     resetFetchState,
   } = usePgnStore();
 
-  const { sessionId, isLoaded: authIsLoaded } = useAuth();
+  const sessionId = localStorage.getItem("token");
 
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -194,7 +194,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
   const fetchGames = useCallback(async () => {
     if (!username || fetchRef.current) {
-      if (authIsLoaded && !username) {
+      if (!username) {
         setIsLoading(false);
       }
       return;
@@ -236,15 +236,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         fetchRef.current = false;
       }, 3000);
     }
-  }, [
-    username,
-    sessionId,
-    type,
-    cacheIsValid,
-    cachedGames,
-    setGamesInStore,
-    authIsLoaded,
-  ]);
+  }, [username, sessionId, type, cacheIsValid, cachedGames, setGamesInStore]);
 
   useEffect(() => {
     fetchGames();

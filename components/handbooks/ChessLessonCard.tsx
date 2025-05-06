@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, BookOpen, Cat } from "lucide-react";
+import { AlertCircle, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { LessonType, getLessonBasePath } from "./ChessLessonTypes";

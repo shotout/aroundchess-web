@@ -20,8 +20,7 @@ export default function Navigation({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const { sessionId } = useAuth();
- 
+
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

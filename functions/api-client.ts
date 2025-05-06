@@ -1,7 +1,5 @@
-// apiClient.tsx
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 
@@ -16,7 +14,7 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const { setIsLoading, isLoading } = useLoadingAPI();
   const [error, setError] = useState<Error | null>(null);
 
@@ -77,6 +75,7 @@ export function useApiClient() {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sessionId]
   );
 

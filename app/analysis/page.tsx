@@ -6,16 +6,28 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { useAuth } from "@clerk/nextjs";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 
 const DEV_MODE = false;
 
-
 export default function AnalysisPage() {
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const {
     setHideDiv,
     hideDiv,

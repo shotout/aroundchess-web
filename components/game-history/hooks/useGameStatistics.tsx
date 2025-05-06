@@ -3,7 +3,6 @@ import { GameStatistics } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuth } from "@clerk/nextjs";
 
 interface UseGameStatisticsResult {
   statistics: GameStatistics;
@@ -33,7 +32,7 @@ const DEFAULT_STATISTICS: GameStatistics = {
 };
 
 export function useGameStatistics(): UseGameStatisticsResult {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const { username } = usePgnStore();
   const [statistics, setStatistics] =
     useState<GameStatistics>(DEFAULT_STATISTICS);

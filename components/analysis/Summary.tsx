@@ -24,7 +24,21 @@ const Summary: React.FC<SummaryProps> = (props) => {
     capturedBlack,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
 
   const {
     whiteSide,
@@ -88,7 +102,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
               />
             </div>
           ) : (
-              <FamousGameCard />
+            <FamousGameCard />
           )}
 
           <div className="flex flex-row items-center justify-start py-2">

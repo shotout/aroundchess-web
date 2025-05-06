@@ -11,7 +11,6 @@ import DialogUserInfo from "./DialogUserInfo";
 import DialogLevelProgress from "./DialogLevelProgress";
 import TopicSelectionSection from "./TopicSelectionSection";
 import Image from "next/image";
-import { useAuth } from "@clerk/nextjs";
 import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTrainingPlanStore } from "../store";
@@ -68,7 +67,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   userProfile,
   onPlanCreated,
 }) => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const {
     userProfile: storeUserProfile,
     config,

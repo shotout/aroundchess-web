@@ -1,11 +1,23 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { BarChart2, DollarSign, Dumbbell, Gamepad2, GraduationCap, Home, Info, LayoutDashboard, Mail, Menu, Zap } from 'lucide-react'
-import Link from "next/link"
-import * as React from "react"
+import { motion } from "framer-motion";
+import {
+  BarChart2,
+  DollarSign,
+  Dumbbell,
+  Gamepad2,
+  GraduationCap,
+  Home,
+  Info,
+  LayoutDashboard,
+  Mail,
+  Menu,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,67 +25,200 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { UserButton, useUser } from "@clerk/nextjs"
+} from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 const navItems = {
   main: [
     { title: "Home", href: "/", icon: Home },
     { title: "About", href: "/about", icon: Info },
-    { title: "Learn", href: "/learn", icon: GraduationCap, items: [
-      { title: "Chess Fundamentals", href: "/learn/chess-fundamentals", description: "Master the basic principles and rules of chess" },
-      { title: "Opening Principles", href: "/learn/opening-principles", description: "Study and understand key opening strategies" },
-      { title: "Middle Game Strategies", href: "/learn/middle-game-stragegies", description: "Develop your tactical and positional play" },
-      { title: "Endgame Basics", href: "/learn/endgame-basics", description: "Learn essential endgame techniques" },
-      { title: "Chess Tactics", href: "/learn/chess-tactics", description: "Improve your tactical vision and calculation" },
-      { title: "Positional Play", href: "/learn/positional-play", description: "Understand strategic concepts and planning" },
-      { title: "Famous Games", href: "/learn/famous-games", description: "Study classic games from chess masters" },
-      { title: "Chess History", href: "/learn/history", description: "Explore the rich history of chess" },
-    ]},
-    { title: "Practice", href: "/practice", icon: Dumbbell, items: [
-      { title: "Training Hub", href: "/practice/hub", description: "Your personalized training dashboard" },
-      { title: "Tactics Arena", href: "/practice/tactics", description: "Solve tactical puzzles and challenges" },
-      { title: "Opening Laboratory", href: "/practice/openings", description: "Build and test your opening repertoire" },
-      { title: "Endgame Academy", href: "/practice/endgame", description: "Master essential endgame positions" },
-      { title: "Play vs AI", href: "/practice/ai", description: "Challenge our advanced chess engine" },
-      { title: "Advanced Training", href: "/practice/advanced", description: "Complex exercises for experienced players" },
-      { title: "Training Settings", href: "/practice/settings", description: "Customize your training experience" },
-      { title: "Training Progress", href: "/practice/progress", description: "Track your improvement over time" },
-      { title: "Import Game", href: "/practice/import", description: "Analyze your own chess games" },
-    ]},
-    { title: "Analysis", href: "/analysis", icon: BarChart2, items: [
-      { title: "My Statistics", href: "/analysis/stats", description: "View detailed performance metrics" },
-      { title: "My Game History", href: "/analysis/history", description: "Browse and analyze your past games" },
-      { title: "My Reports", href: "/analysis/reports", description: "Get insights into your playing style" },
-      { title: "My Goals", href: "/analysis/goals", description: "Set and track your chess objectives" },
-      { title: "My Progress", href: "/analysis/progress", description: "Monitor your rating and improvements" },
-      { title: "My Training", href: "/analysis/training", description: "Review your training activities" },
-      { title: "Daily Plan", href: "/analysis/daily", description: "Your personalized daily training" },
-      { title: "Weekly Plan", href: "/analysis/weekly", description: "Weekly training schedule and goals" },
-    ]},
+    {
+      title: "Learn",
+      href: "/learn",
+      icon: GraduationCap,
+      items: [
+        {
+          title: "Chess Fundamentals",
+          href: "/learn/chess-fundamentals",
+          description: "Master the basic principles and rules of chess",
+        },
+        {
+          title: "Opening Principles",
+          href: "/learn/opening-principles",
+          description: "Study and understand key opening strategies",
+        },
+        {
+          title: "Middle Game Strategies",
+          href: "/learn/middle-game-stragegies",
+          description: "Develop your tactical and positional play",
+        },
+        {
+          title: "Endgame Basics",
+          href: "/learn/endgame-basics",
+          description: "Learn essential endgame techniques",
+        },
+        {
+          title: "Chess Tactics",
+          href: "/learn/chess-tactics",
+          description: "Improve your tactical vision and calculation",
+        },
+        {
+          title: "Positional Play",
+          href: "/learn/positional-play",
+          description: "Understand strategic concepts and planning",
+        },
+        {
+          title: "Famous Games",
+          href: "/learn/famous-games",
+          description: "Study classic games from chess masters",
+        },
+        {
+          title: "Chess History",
+          href: "/learn/history",
+          description: "Explore the rich history of chess",
+        },
+      ],
+    },
+    {
+      title: "Practice",
+      href: "/practice",
+      icon: Dumbbell,
+      items: [
+        {
+          title: "Training Hub",
+          href: "/practice/hub",
+          description: "Your personalized training dashboard",
+        },
+        {
+          title: "Tactics Arena",
+          href: "/practice/tactics",
+          description: "Solve tactical puzzles and challenges",
+        },
+        {
+          title: "Opening Laboratory",
+          href: "/practice/openings",
+          description: "Build and test your opening repertoire",
+        },
+        {
+          title: "Endgame Academy",
+          href: "/practice/endgame",
+          description: "Master essential endgame positions",
+        },
+        {
+          title: "Play vs AI",
+          href: "/practice/ai",
+          description: "Challenge our advanced chess engine",
+        },
+        {
+          title: "Advanced Training",
+          href: "/practice/advanced",
+          description: "Complex exercises for experienced players",
+        },
+        {
+          title: "Training Settings",
+          href: "/practice/settings",
+          description: "Customize your training experience",
+        },
+        {
+          title: "Training Progress",
+          href: "/practice/progress",
+          description: "Track your improvement over time",
+        },
+        {
+          title: "Import Game",
+          href: "/practice/import",
+          description: "Analyze your own chess games",
+        },
+      ],
+    },
+    {
+      title: "Analysis",
+      href: "/analysis",
+      icon: BarChart2,
+      items: [
+        {
+          title: "My Statistics",
+          href: "/analysis/stats",
+          description: "View detailed performance metrics",
+        },
+        {
+          title: "My Game History",
+          href: "/analysis/history",
+          description: "Browse and analyze your past games",
+        },
+        {
+          title: "My Reports",
+          href: "/analysis/reports",
+          description: "Get insights into your playing style",
+        },
+        {
+          title: "My Goals",
+          href: "/analysis/goals",
+          description: "Set and track your chess objectives",
+        },
+        {
+          title: "My Progress",
+          href: "/analysis/progress",
+          description: "Monitor your rating and improvements",
+        },
+        {
+          title: "My Training",
+          href: "/analysis/training",
+          description: "Review your training activities",
+        },
+        {
+          title: "Daily Plan",
+          href: "/analysis/daily",
+          description: "Your personalized daily training",
+        },
+        {
+          title: "Weekly Plan",
+          href: "/analysis/weekly",
+          description: "Weekly training schedule and goals",
+        },
+      ],
+    },
     { title: "Playground", href: "/playground", icon: Gamepad2 },
     { title: "Pricing", href: "/pricing", icon: DollarSign },
     { title: "Contact", href: "/contact", icon: Mail },
   ],
-}
+};
 
 interface SiteHeaderProps {
-  children?: React.ReactNode
-  onSidebarOpen?: () => void
+  children?: React.ReactNode;
+  onSidebarOpen?: () => void;
 }
 
 export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
-  const [isScrolled, setIsScrolled] = React.useState(false)
-  const {isSignedIn} = useUser()
+  const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isSignedIn, setIsSignedIn] = React.useState(false);
+  const sessionId = localStorage.getItem("token");
 
   React.useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
+  React.useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <motion.header
@@ -96,15 +241,16 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
             </Button> */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-9 w-9 p-0 xl:hidden"
-                >
+                <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="pr-0" aria-describedby="mobile-nav-description">
+              <SheetContent
+                side="left"
+                className="pr-0"
+                aria-describedby="mobile-nav-description"
+              >
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div id="mobile-nav-description" className="sr-only">
                   Mobile navigation menu for AroundChess
@@ -114,7 +260,9 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
             </Sheet>
             <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6" />
-              <span className="hidden font-bold sm:inline-block">aroundchess</span>
+              <span className="hidden font-bold sm:inline-block">
+                aroundchess
+              </span>
             </Link>
           </div>
 
@@ -133,8 +281,8 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                 <NavigationMenuItem>
                   <Link href="/about" legacyBehavior passHref>
                     <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
-                    <Info className="mr-2 h-4 w-4" />
-                    About
+                      <Info className="mr-2 h-4 w-4" />
+                      About
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -146,15 +294,17 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {navItems.main.find(item => item.title === "Learn")?.items?.map((item) => (
-                        <ListItem
-                          key={item.href}
-                          title={item.title}
-                          href={item.href}
-                        >
-                          {item.description}
-                        </ListItem>
-                      ))}
+                      {navItems.main
+                        .find((item) => item.title === "Learn")
+                        ?.items?.map((item) => (
+                          <ListItem
+                            key={item.href}
+                            title={item.title}
+                            href={item.href}
+                          >
+                            {item.description}
+                          </ListItem>
+                        ))}
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -166,15 +316,17 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {navItems.main.find(item => item.title === "Practice")?.items?.map((item) => (
-                        <ListItem
-                          key={item.href}
-                          title={item.title}
-                          href={item.href}
-                        >
-                          {item.description}
-                        </ListItem>
-                      ))}
+                      {navItems.main
+                        .find((item) => item.title === "Practice")
+                        ?.items?.map((item) => (
+                          <ListItem
+                            key={item.href}
+                            title={item.title}
+                            href={item.href}
+                          >
+                            {item.description}
+                          </ListItem>
+                        ))}
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -186,15 +338,17 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {navItems.main.find(item => item.title === "Analysis")?.items?.map((item) => (
-                        <ListItem
-                          key={item.href}
-                          title={item.title}
-                          href={item.href}
-                        >
-                          {item.description}
-                        </ListItem>
-                      ))}
+                      {navItems.main
+                        .find((item) => item.title === "Analysis")
+                        ?.items?.map((item) => (
+                          <ListItem
+                            key={item.href}
+                            title={item.title}
+                            href={item.href}
+                          >
+                            {item.description}
+                          </ListItem>
+                        ))}
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -230,26 +384,29 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
           </div>
 
           <div className="flex items-center gap-2">
-
-            
-
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-2">
-                <Button variant="ghost" size="sm" asChild className="text-xs px-2 py-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="text-xs px-2 py-1"
+                >
                   <Link href="/login">Sign In</Link>
-              </Button>
-              <Button size="sm" asChild className="text-xs px-2 py-1">
-                <Link href="/register">Try Now</Link>
-              </Button>
-            </div>
-              ) : (<UserButton showName={true} />)
-            }
+                </Button>
+                <Button size="sm" asChild className="text-xs px-2 py-1">
+                  <Link href="/register">Try Now</Link>
+                </Button>
+              </div>
+            ) : (
+              <UserButton showName={true} />
+            )}
           </div>
         </div>
       </div>
       {children}
     </motion.header>
-  )
+  );
 }
 
 const ListItem = React.forwardRef<
@@ -275,9 +432,9 @@ const ListItem = React.forwardRef<
         </Link>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = "ListItem"
+  );
+});
+ListItem.displayName = "ListItem";
 
 function MobileNav() {
   return (
@@ -336,16 +493,16 @@ function MobileNav() {
         <Link href="/login" className="block w-full text-center py-3 text-lg">
           Sign In
         </Link>
-        <Link 
-          href="/register" 
+        <Link
+          href="/register"
           className="block w-full text-center py-3 text-lg bg-primary text-white rounded-lg hover:bg-primary/90"
         >
           Try Now
         </Link>
       </div>
     </div>
-  )
+  );
 }
 function cn(...classes: (string | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
+  return classes.filter(Boolean).join(" ");
 }

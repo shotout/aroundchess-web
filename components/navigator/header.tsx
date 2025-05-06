@@ -12,9 +12,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useClerk, UserButton, useUser } from "@clerk/nextjs";
-import { usePgnStore } from "@/app/store/zustandStore";
-import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { motion, fadeInUp } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useApiClient } from "@/functions/api-client";
@@ -26,10 +24,17 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
-  const { isSignedIn } = useUser();
   const { isLoading } = useApiClient();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token, isMember } = useProfileStore();
+
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -114,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
-      {isMember != null && isSignedIn!=null&& (
+      {isMember != null && isSignedIn != null && (
         <div className="flex items-center space-x-4">
           {/* Auth buttons - visible on desktop only (xl+) */}
 
@@ -271,22 +276,3 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 };
 
 export default Header;
-
-function LogoutButton() {
-  const { signOut } = useClerk();
-  const clearAll = usePgnStore((state) => state.clearAll);
-
-  const handleLogout = async () => {
-    // Clear Zustand store first
-    clearAll();
-
-    // Then sign out with Clerk
-    localStorage.removeItem("token");
-    await signOut();
-
-    // Optional: redirect to login page or home page
-    // window.location.href = '/';
-  };
-
-  return <button onClick={handleLogout}>Logout</button>;
-}

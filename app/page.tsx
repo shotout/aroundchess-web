@@ -15,12 +15,11 @@ import { useEffect, useState } from "react";
 import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
-import { useAuth } from "@clerk/nextjs";
 
 export default function Home() {
-  const { isLoading, dataAnalysis, setDataAnalysis } = usePgnStore();
+  const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const { setUsername } = usePgnStore();
   const {
     getTokenBalance,

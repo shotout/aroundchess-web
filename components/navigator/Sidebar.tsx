@@ -159,7 +159,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const router = useRouter();
 
   const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
+
   const isMobile = !!onClose; // If onClose is provided, we're on mobile
   useEffect(() => {}, []);
   const handleToProfile = () => {

@@ -127,7 +127,7 @@ export function useAnalyticsData() {
     setAnalyticsData,
   } = usePgnStore();
 
-  const { sessionId, isLoaded: authIsLoaded } = useAuth();
+  const sessionId = localStorage.getItem("token");
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -166,7 +166,7 @@ export function useAnalyticsData() {
   // Fetch analytics data
   const fetchData = useCallback(async () => {
     if (!username || fetchRef.current) {
-      if (authIsLoaded && !username) {
+      if (!username) {
         setLoading(false);
       }
       return;
@@ -219,7 +219,6 @@ export function useAnalyticsData() {
     }
   }, [
     username,
-    authIsLoaded,
     sessionId,
     isCacheValid,
     cachedAnalytics,
@@ -229,10 +228,9 @@ export function useAnalyticsData() {
 
   // Fetch data on mount
   useEffect(() => {
-    if (authIsLoaded) {
-      fetchData();
-    }
-  }, [authIsLoaded, fetchData]);
+    if (!sessionId) return;
+    fetchData();
+  }, [fetchData, sessionId]);
 
   // Handle force refresh
   const handleForceRefresh = useCallback(() => {

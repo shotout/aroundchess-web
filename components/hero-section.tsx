@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import axios from "axios";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
 import { FamousGameButton } from "./famous-game-button";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
@@ -19,7 +18,21 @@ export function HeroSection() {
   const router = useRouter();
   const { proceedAnalysis } = useStockfishAnalysis();
 
-  const { isSignedIn } = useAuth();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const sessionId = localStorage.getItem("token");
+
+  useEffect(() => {
+    const checkSession = () => {
+      const sessionId = localStorage.getItem("token");
+      if (sessionId) {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const [username, setUsername] = useState<string>("");
   const [width, setWidth] = useState(0);
   const {
@@ -33,7 +46,7 @@ export function HeroSection() {
     setDataAnalysis,
     setDataGames,
     dataGames,
-  } = usePgnStore(); 
+  } = usePgnStore();
 
   const fetchPgn = async () => {
     let arr = null;
@@ -79,7 +92,7 @@ export function HeroSection() {
 
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    setDataAnalysis(null); 
+    setDataAnalysis(null);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

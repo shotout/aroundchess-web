@@ -1,11 +1,7 @@
-// utils/authUtils.ts
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
-import { useAuth, useUser } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 export type AuthState = {
   isAuthenticated: boolean;
@@ -20,7 +16,14 @@ export type User = {
 };
 
 export const useProfileFetch = () => {
-  const { sessionId, isSignedIn } = useAuth();
+  const sessionId = localStorage.getItem("token");
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
+
   const [callFetch, setCallFetch] = useState<string>("");
   const { setUsername } = usePgnStore();
   const {

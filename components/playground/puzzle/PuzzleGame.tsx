@@ -30,14 +30,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BoardOrientation,
   PromotionPieceOption,
@@ -102,7 +95,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const refBoard = useRef<HTMLDivElement | null>(null);
   const { isLoading } = useApiClient();
   const { user } = useUser();
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const { hideDiv, username } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
@@ -111,7 +104,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [boardSize, setBoardSize] = useState<number>(700);
   const [heightScreen, setHeightScreen] = useState<number>(0);
   const [widthScreen, setWidthScreen] = useState<number>(0);
-  const [heightBoard, setHeightBoard] = useState<number | undefined>(0)
+  const [heightBoard, setHeightBoard] = useState<number | undefined>(0);
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveTo, setMoveTo] = useState<Square | null>(null);
@@ -556,7 +549,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [mounted, hideDiv, is3DMode]);
 
   const handleResize = () => {
-    setHeightBoard(refBoard.current?.clientHeight)
+    setHeightBoard(refBoard.current?.clientHeight);
     setHeightScreen(window?.innerHeight);
     setWidthScreen(window?.innerWidth);
     const width = window.innerWidth;

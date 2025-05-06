@@ -3,7 +3,6 @@ import TrainingPlanCard from "./components/TrainingCard";
 import UserProfileCard from "./components/UserProfileCard";
 import TrainingPlanDisplay from "./components/TrainingDisplay";
 import ProgressDisplay from "./components/ProgressDisplay";
-import { useAuth } from "@clerk/nextjs";
 import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
@@ -14,7 +13,7 @@ import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
 
 const ChessProgressionUI: React.FC = () => {
-  const { sessionId } = useAuth();
+  const sessionId = localStorage.getItem("token");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasPlan, setHasPlan] = useState(false);
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);
