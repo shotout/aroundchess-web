@@ -30,14 +30,14 @@ export default function Profile() {
     const amount = searchParams?.get("amount");
     if (status == "successSubscribe") {
       // http://localhost:3000/profile?status=successSubscribe
-      setCallFetch(formatTimePgn());
+      // setCallFetch(formatTimePgn());
       setOpenSuccess(true);
     } else if (status == "cancelSubscribe") {
       // http://localhost:3000/profile?status=cancelSubscribe
       setOpenCancel(true);
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
-      setCallFetch(formatTimePgn());
+      // setCallFetch(formatTimePgn());
       setOpenPurchaseStatus(true);
       setQuantity(amount);
       setStatus("success");
