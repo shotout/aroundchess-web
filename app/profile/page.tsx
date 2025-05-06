@@ -11,29 +11,33 @@ import { useSuccessSubscription } from "../store/successSubscription";
 import { useCancelSubscription } from "../store/cancelSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import { Suspense } from "react";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 export default function Profile() {
   const searchParams = useSearchParams();
-
+  const { setCallFetch } = useProfileFetch();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const {
     setOpen: setOpenPurchaseStatus,
     setQuantity,
     setStatus,
-    status
+    status,
   } = useStatusPurchaseTokens();
   useEffect(() => {
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
     if (status == "successSubscribe") {
       // http://localhost:3000/profile?status=successSubscribe
+      setCallFetch(formatTimePgn());
       setOpenSuccess(true);
     } else if (status == "cancelSubscribe") {
       // http://localhost:3000/profile?status=cancelSubscribe
       setOpenCancel(true);
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
+      setCallFetch(formatTimePgn());
       setOpenPurchaseStatus(true);
       setQuantity(amount);
       setStatus("success");

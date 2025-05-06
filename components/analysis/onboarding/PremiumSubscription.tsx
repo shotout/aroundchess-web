@@ -145,15 +145,15 @@ export const PremiumSubsContent: React.FC<{
     const data = await res.json();
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
-    let body = {
-      membershipType: "YEARLY",
-      paymentMethodId: "test",
-      useSpecialOffer: false,
-    };
-    postPurchaseMembership(body).then((result) => {
-      console.log("postPurchaseMembership", result);
-      setCallFetch(formatTimePgn());
-    });
+    // let body = {
+    //   membershipType: "YEARLY",
+    //   paymentMethodId: "test",
+    //   useSpecialOffer: false,
+    // };
+    // postPurchaseMembership(body).then((result) => {
+    //   console.log("postPurchaseMembership", result);
+    //   setCallFetch(formatTimePgn());
+    // });
   };
   return (
     <div className="mb-4">
