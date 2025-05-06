@@ -11,6 +11,7 @@ import { PricingOffer } from "../modal/PricingOffer";
 import { SuccessSubscription } from "../modal/SuccessSubscription";
 import { StatusPurchaseTokens } from "../modal/StatusPurchaseTokens";
 import { ShareGame } from "../modal/ShareGame";
+import { SuccessSent } from "../modal/SuccessSent";
 
 export default function Navigation({
   children,
@@ -74,6 +75,7 @@ export default function Navigation({
             <StatusPurchaseTokens />
             <PricingOffer />
             <ShareGame />
+            <SuccessSent />
           </div>
 
           <div className="z-49 relative">
