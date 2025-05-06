@@ -28,7 +28,9 @@ export function StatusPurchaseTokens() {
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
       setContent(`Your Purchase for Premium Package was failed!`);
-      setDescription("Your payment failed, retry payment or try to change the payment method.");
+      setDescription(
+        "Your payment failed, retry payment or try to change the payment method."
+      );
     } else {
       handleWaiting();
       setDescription("");
@@ -70,7 +72,19 @@ export function StatusPurchaseTokens() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[90%] lg:p-[32px] ${status.includes("failed")?`bg-white`:`bg-[#E3F3FF] `} border border-[#C0CED4] max-h-[90%] overflow-y-hidden`}>
+      <DialogContent
+        className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[90%] lg:p-[32px] bg-white border border-[#C0CED4] max-h-[90%] overflow-y-hidden`}
+      >
+        {!status.includes("failed") && (
+          <Image
+            alt="bg-modal"
+            src={"/images/background-modal.png"}
+            width={1000}
+            height={1000}
+            className="w-full h-full object-cover absolute inset-0 -z-20"
+          />
+        )}
+
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image
@@ -102,16 +116,17 @@ export function StatusPurchaseTokens() {
               </span>
             </button>
           )}
-          {status == "failed" ||status == "failed-membership" && (
-            <button
-              onClick={handleFailed}
-              className="w-[320px] btn-primary rounded-full h-[44px] "
-            >
-              <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
-                Retry Payment
-              </span>
-            </button>
-          )}
+          {status == "failed" ||
+            (status == "failed-membership" && (
+              <button
+                onClick={handleFailed}
+                className="w-[320px] btn-primary rounded-full h-[44px] "
+              >
+                <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+                  Retry Payment
+                </span>
+              </button>
+            ))}
           {status != "waiting" && (
             <button
               onClick={handleBack}

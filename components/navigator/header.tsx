@@ -114,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
-      {isMember != null && isSignedIn!=null&& (
+      {isMember != null && isSignedIn != null && (
         <div className="flex items-center space-x-4">
           {/* Auth buttons - visible on desktop only (xl+) */}
 
@@ -171,11 +171,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                       height={1000}
                       className="w-[42px] h-[44px] object-contain m-4 mr-0"
                     />
-                    <span className="block font-medium text-[14px] z-10 text-black">
-                      {"You are on "}
-                      <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-                        {"Premium package!"}
-                      </span>
+                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                      {"Premium package active!"}
                     </span>
                     <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                       <Image
@@ -235,11 +232,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                       height={1000}
                       className="w-[42px] h-[44px] object-contain m-4 mr-0"
                     />
-                    <span className="block font-medium text-[14px] z-10 text-black">
-                      {"You are on "}
-                      <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-                        {"Premium package!"}
-                      </span>
+                     <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                      {"Premium package active!"}
                     </span>
                     <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                       <Image

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface SuccessSubscriptionState {
+interface SuccessSentState {
   open: boolean;
   setOpen: (open: any) => void;
 }
 
-export const useSuccessSubscription = create<SuccessSubscriptionState>(
+export const useSuccessSent = create<SuccessSentState>(
   (set) => ({
     open: false,
     setOpen: (open) => set({ open }),

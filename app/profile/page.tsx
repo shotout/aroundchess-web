@@ -13,6 +13,7 @@ import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import { Suspense } from "react";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { useSuccessSent } from "../store/successSent";
 
 export default function Profile() {
   const searchParams = useSearchParams();
@@ -29,6 +30,7 @@ export default function Profile() {
   useEffect(() => {
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
+    console.log("INI", status)
     if (status == "successSubscribe") {
       // http://localhost:3000/profile?status=successSubscribe
       // setCallFetch(formatTimePgn());
