@@ -5,7 +5,7 @@ import MyAccount from "@/components/profile/MyAccount";
 import MyRemainingAnalysisTokens from "@/components/profile/MyRemainingAnalysisTokens";
 import MyRemainingPuzzle from "@/components/profile/MyRemainingPuzzle";
 import MySubscription from "@/components/profile/MySubscription";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useCancelSubscription } from "../store/cancelSubscription";
@@ -16,6 +16,7 @@ import { formatTimePgn } from "@/functions/format-date";
 
 export default function Profile() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { setCallFetch } = useProfileFetch();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const { setOpen: setOpenCancel } = useCancelSubscription();
@@ -32,20 +33,24 @@ export default function Profile() {
       // http://localhost:3000/profile?status=successSubscribe
       // setCallFetch(formatTimePgn());
       setOpenSuccess(true);
+      router.replace("/profile");
     } else if (status == "cancelSubscribe") {
       // http://localhost:3000/profile?status=cancelSubscribe
       setOpenCancel(true);
+      router.replace("/profile");
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
       // setCallFetch(formatTimePgn());
       setOpenPurchaseStatus(true);
       setQuantity(amount);
       setStatus("success");
+      router.replace("/profile");
     } else if (status == "cancelToken") {
       // http://localhost:3000/profile?status=cancelToken&amount=20
       setOpenPurchaseStatus(true);
       setQuantity(amount);
       setStatus("failed");
+      router.replace("/profile");
     }
   }, [status]);
   return (
