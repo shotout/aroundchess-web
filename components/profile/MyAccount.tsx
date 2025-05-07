@@ -40,18 +40,23 @@ const MyAccount = () => {
     router.push("/change-password");
   };
   const handleSignOut = async () => {
-    logOut({ sessionId }).then(() => {
-      localStorage.removeItem("token");
-      document.cookie = `token=; path=/`;
-    });
-    const { error } = await supabase.auth.signOut();
+    try {
+      logOut({ sessionId }).then(() => {
+        localStorage.removeItem("token");
+        document.cookie = `token=; path=/`;
+      });
+      const { error } = await supabase.auth.signOut();
 
-    if (error) {
-      console.error("Error logging out:", error.message);
-      throw error;
+      if (error) {
+        console.error("Error logging out:", error.message);
+        throw error;
+      }
+
+      // Redirect to login page or home page
+      window.location.href = "/login"; // Or use Next.js router
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
-
-    router.push("/");
   };
   return (
     <div className={`flex flex-col gap-4`}>
