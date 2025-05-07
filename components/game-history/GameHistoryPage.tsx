@@ -10,13 +10,15 @@ import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
 import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const GameHistoryPage: React.FC = () => {
   const { username } = usePgnStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
+    console.log("sessionId game history", sessionId);
     if (!sessionId) return;
     setIsSignedIn(true);
   }, [sessionId]);

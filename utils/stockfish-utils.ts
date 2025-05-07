@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 export function useStockfishAnalysis() {
   const { setAnalyzeComplete, estimateMinute, estimateSecond } =
@@ -9,7 +10,8 @@ export function useStockfishAnalysis() {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
-  const [sessionId, setToken] = useLocalStorage("token", "");
+    const { sessionId } = useProfileStore();
+  
 
   const pgnToFenList = useCallback(
     (pgn: string, includeStartPosition: boolean = true): string[] => {

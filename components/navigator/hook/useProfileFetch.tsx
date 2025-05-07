@@ -17,14 +17,13 @@ export type User = {
 };
 
 export const useProfileFetch = () => {
-  const [token, setToken] = useLocalStorage<string>("token", "");
-
+  const { sessionId } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
+    if (!sessionId) return;
     setIsSignedIn(true);
-  }, [token]);
+  }, [sessionId]);
 
   const [callFetch, setCallFetch] = useState<string>("");
   const { setUsername } = usePgnStore();
@@ -37,6 +36,7 @@ export const useProfileFetch = () => {
     getTokenPackage,
   } = useApiClient();
   const {
+    setToken,
     setTokenPackage,
     setActiveMembership,
     setAllMembershipPackages,
@@ -45,7 +45,7 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (token != null) {
+    if (sessionId != null) {
       getProfile({}).then((response) => {
         let data = response.data;
         console.log("getProfile", data);
@@ -79,6 +79,6 @@ export const useProfileFetch = () => {
         console.log("log puzzle", logs);
       });
     }
-  }, [token, callFetch]);
+  }, [sessionId, callFetch]);
   return { callFetch, setCallFetch };
 };
