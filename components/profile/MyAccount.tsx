@@ -15,7 +15,7 @@ const MyAccount = () => {
   const { user } = useAuth();
   const { getProfile, logOut } = useApiClient();
   const { open, setOpen } = usechangePassword();
-  const { profile, setProfile } = useProfileStore();
+  const { profile, setProfile,clearAll } = useProfileStore();
   const router = useRouter();
   const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const { username, setUsername } = usePgnStore();
@@ -41,6 +41,7 @@ const MyAccount = () => {
   };
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {
+      clearAll()
       localStorage.removeItem("token");
       document.cookie = `token=; path=/`;
       router.push("/login");

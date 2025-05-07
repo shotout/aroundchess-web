@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/sheet";
 import { UserButton, useUser } from "@clerk/nextjs";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const navItems = {
   main: [
@@ -199,7 +200,7 @@ interface SiteHeaderProps {
 export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   React.useEffect(() => {
     const checkSession = () => {

@@ -12,9 +12,10 @@ import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "../store/profile";
 
 const ChessProgressionUI: React.FC = () => {
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+  const { sessionId } = useProfileStore(); 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasPlan, setHasPlan] = useState(false);
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);

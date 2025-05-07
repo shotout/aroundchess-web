@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { FamousGameButton } from "./famous-game-button";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
@@ -20,7 +21,7 @@ export function HeroSection() {
   const { proceedAnalysis } = useStockfishAnalysis();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {

@@ -7,13 +7,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
   avatar,
   schedule,
 }) => {
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
 

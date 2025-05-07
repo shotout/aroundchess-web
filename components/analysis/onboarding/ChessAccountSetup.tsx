@@ -8,6 +8,7 @@ import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnec
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { gameHistoryApi } from "@/components/game-history/services/api";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -19,7 +20,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   debugMode = false,
 }) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {

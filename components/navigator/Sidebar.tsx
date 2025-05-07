@@ -162,7 +162,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     if (!sessionId) return;

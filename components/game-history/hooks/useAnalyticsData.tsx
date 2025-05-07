@@ -11,6 +11,7 @@ import {
 } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 // Constants
 export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
@@ -128,7 +129,7 @@ export function useAnalyticsData() {
     setAnalyticsData,
   } = usePgnStore();
 
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);

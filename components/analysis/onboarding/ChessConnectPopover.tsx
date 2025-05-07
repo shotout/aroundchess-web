@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 export interface ChessConnectDialogProps {
   open: boolean;
@@ -23,7 +24,7 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   const { setUsername: setStoreUsername } = usePgnStore();
 

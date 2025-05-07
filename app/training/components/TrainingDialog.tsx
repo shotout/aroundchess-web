@@ -15,6 +15,7 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTrainingPlanStore } from "../store";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 interface ChessTrainingPlanDialogProps {
   open: boolean;
@@ -68,7 +69,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   userProfile,
   onPlanCreated,
 }) => {
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
   const {
     userProfile: storeUserProfile,
     config,
