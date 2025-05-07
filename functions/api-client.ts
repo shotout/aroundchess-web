@@ -28,7 +28,7 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (token!='' || token!=null) {
+        if (token != "" && token != null) {
           setIsLoading(true);
           setError(null);
           let url = path;
