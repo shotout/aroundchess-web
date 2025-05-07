@@ -1,4 +1,3 @@
- 
 import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = [
@@ -18,10 +17,12 @@ export async function middleware(req: NextRequest) {
   // Handle Stockfish files
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
+  console.log("token", token);
   //if already login
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
-    token != ''
+    token != undefined &&
+    token != ""
   ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
@@ -47,7 +48,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const isPublicRoute = publicRoutes.some((route) => pathname == route);
-  if (isPublicRoute || token != '') {
+  if (isPublicRoute || (token != undefined && token != "")) {
     return NextResponse.next();
   }
 

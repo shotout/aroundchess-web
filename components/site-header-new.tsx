@@ -189,7 +189,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-5">
                 <Link href="/login">
-                  <button onClick={handleLogout} className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Sign-In
                   </button>
                 </Link>
