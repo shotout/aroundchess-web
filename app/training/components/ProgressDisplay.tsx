@@ -34,6 +34,7 @@ import { useProgressStore } from "../store";
 import Image from "next/image";
 import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const CustomTooltipContent = ({
   active,
@@ -70,7 +71,7 @@ const MONTHS = [
 ];
 
 const ProgressDisplay = () => {
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
   const currentDate = new Date();
 
   const getCurrentYearMonth = (monthName: string) => {

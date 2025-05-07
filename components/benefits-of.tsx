@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const benefits = [
   {
@@ -49,7 +50,7 @@ const benefits = [
 export function BenefitsOf() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {

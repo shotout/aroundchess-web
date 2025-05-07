@@ -56,7 +56,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     checkSession();
   }, [sessionId, isSignedIn]);
 
-  const { isMember, token } = useProfileStore();
+  const { isMember, token, clearAll: clearProfile } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   React.useEffect(() => {
@@ -72,22 +72,23 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const handleLogout = async () => {
     // Clear Zustand store first
     clearAll();
+    clearProfile();
     localStorage.removeItem("token");
     handleSignOut();
   };
   const handleSignOut = async () => {
-      logOut({ sessionId }).then(() => {
-        localStorage.removeItem("token");
-        document.cookie = `token=; path=/`;
-        router.push("/login");
-      });
-      const { error } = await supabase.auth.signOut();
-  
-      if (error) {
-        console.error("Error logging out:", error.message);
-        throw error;
-      }
-    };
+    logOut({ sessionId }).then(() => {
+      localStorage.removeItem("token");
+      document.cookie = `token=; path=/`;
+      router.push("/login");
+    });
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Error logging out:", error.message);
+      throw error;
+    }
+  };
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
     setTabType(type);

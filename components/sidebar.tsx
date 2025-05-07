@@ -154,7 +154,7 @@ const sidebarLinks = [
 export function Sidebar({ open, setOpen }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { profile } = useProfileStore();
+  const { profile , clearAll} = useProfileStore();
   const { logOut } = useApiClient();
   const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const currentPage =
@@ -168,6 +168,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {
+      clearAll();
       localStorage.removeItem("token");
       document.cookie = `token=; path=/`;
       router.push("/login");

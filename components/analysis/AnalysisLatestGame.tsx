@@ -17,10 +17,11 @@ import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const AnalysisLatestGame: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {

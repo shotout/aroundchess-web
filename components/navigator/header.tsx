@@ -30,12 +30,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const { token: tokenBalance, isMember } = useProfileStore();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [token, setToken] = useLocalStorage<string>("token", "");
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
-    if (!token) return;
+    if (!sessionId) return;
     setIsSignedIn(true);
-  }, [token]);
+  }, [sessionId]);
 
   useEffect(() => {
     const checkIfDesktop = () => {

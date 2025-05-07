@@ -19,6 +19,7 @@ interface ProfileState {
 
   isMember: any;
   setIsMember: (isMember: any) => void;
+  clearAll: () => void;
 }
 
 export const useProfileStore = create<ProfileState>()(
@@ -41,7 +42,19 @@ export const useProfileStore = create<ProfileState>()(
       setPuzzleLog: (puzzleLog) => set({ puzzleLog }),
       isMember: null,
       setIsMember: (isMember) => set({ isMember }),
+      clearAll: () =>
+        set({
+          profile: {},
+          tokenPackage: {},
+          token: {},
+          sessionId: "",
+          activeMembership: {},
+          allMembershipPackages: {},
+          puzzleLog: {},
+          isMember: null,
+        }),
     }),
+
     {
       name: "Profile-storage", // unique name for the storage
       storage: createJSONStorage(() => localStorage), // use localStorage by default

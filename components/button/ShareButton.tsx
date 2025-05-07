@@ -19,10 +19,11 @@ import DotSpinner from "../game-history/Spinner";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 const ShareButton = (props: any) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {

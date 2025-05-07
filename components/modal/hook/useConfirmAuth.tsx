@@ -1,5 +1,6 @@
 // utils/authUtils.ts
 import { useConfirmLogin } from "@/app/store/confirmLogin";
+import { useProfileStore } from "@/app/store/profile";
 import { useAuth } from "@/context/AuthContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useRouter } from "next/router";
@@ -18,7 +19,7 @@ export type User = {
 
 export const useConfirmAuth = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
+   const { sessionId } = useProfileStore();
 
   useEffect(() => {
     if (!sessionId) return;
