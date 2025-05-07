@@ -438,10 +438,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
             )} */}
             <div className="flex-1 text-left">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-                {profile?.name}
+                {profile?.name.substring(0,16)}
               </p>
               <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
-                {profile?.email}
+                {profile?.email.substring(0,16)}
               </p>
             </div>
           </motion.button>
