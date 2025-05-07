@@ -15,11 +15,13 @@ import { useEffect, useState } from "react";
 import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
-  const sessionId = localStorage.getItem("token");
+  const [token, setTokenId] = useLocalStorage<string>("token", "");
+
   const { setUsername } = usePgnStore();
   const {
     getTokenBalance,
@@ -29,7 +31,7 @@ export default function Home() {
     getPuzzle,
   } = useApiClient();
   const {
-    token,
+    token: tokenBalance,
     setToken,
     setActiveMembership,
     setAllMembershipPackages,
@@ -38,8 +40,8 @@ export default function Home() {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (sessionId) {
-      localStorage.setItem("token", sessionId);
+    if (token) {
+      localStorage.setItem("token", token);
       getProfile({}).then((response) => {
         let data = response.data;
         console.log("getProfile", data);
@@ -68,7 +70,7 @@ export default function Home() {
         console.log("log puzzle", logs);
       });
     }
-  }, [sessionId]);
+  }, [token]);
   useEffect(() => {
     setLoading(false);
   }, []);

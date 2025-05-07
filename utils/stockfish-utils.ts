@@ -1,18 +1,15 @@
-import { useState, useCallback} from "react";
+import { useState, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export function useStockfishAnalysis() {
-  const sessionId = localStorage.getItem("token")
-  const {
-    setAnalyzeComplete,
-    estimateMinute,
-    estimateSecond,
-  } = useLoadingAPI();
+  const { setAnalyzeComplete, estimateMinute, estimateSecond } =
+    useLoadingAPI();
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
-
+  const [sessionId, setToken] = useLocalStorage("token", "");
 
   const pgnToFenList = useCallback(
     (pgn: string, includeStartPosition: boolean = true): string[] => {

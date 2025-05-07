@@ -6,6 +6,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { gameHistoryApi, refetchGameData } from "../services/api";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface ImportDialogButtonProps {
   onSuccess?: () => void;
@@ -14,7 +15,7 @@ interface ImportDialogButtonProps {
 const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const { addImportedGame } = usePgnStore();
 

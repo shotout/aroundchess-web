@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const analysisFeatures = [
   "Stockfish-powered move evaluation",
@@ -84,12 +85,11 @@ const analysis = [
 export function AnalysisSection() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

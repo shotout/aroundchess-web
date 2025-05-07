@@ -47,7 +47,6 @@ export function ContactUs() {
   };
   useEffect(() => {
     setWidthC(window?.innerWidth);
-
     setOpen(open);
   }, [open]);
 

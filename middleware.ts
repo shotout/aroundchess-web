@@ -1,5 +1,5 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+ 
+import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = [
   "/",
@@ -14,14 +14,14 @@ const publicRoutes = [
   "/forgot-password",
 ];
 // Combined middleware
-export default clerkMiddleware(async (auth, req) => {
+export async function middleware(req: NextRequest) {
   // Handle Stockfish files
   const { pathname } = req.nextUrl;
-  const { sessionId } = await auth();
+  const token = req.cookies.get("token")?.value;
   //if already login
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
-    sessionId != null
+    token != ''
   ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
@@ -47,12 +47,12 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   const isPublicRoute = publicRoutes.some((route) => pathname == route);
-  if (isPublicRoute || sessionId != null) {
+  if (isPublicRoute || token != '') {
     return NextResponse.next();
   }
 
   return NextResponse.redirect(new URL("/login", req.url));
-});
+}
 
 export const config = {
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],

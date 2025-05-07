@@ -7,6 +7,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export interface ChessConnectDialogProps {
   open: boolean;
@@ -22,7 +23,7 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const { setUsername: setStoreUsername } = usePgnStore();
 

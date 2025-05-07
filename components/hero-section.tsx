@@ -11,6 +11,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { FamousGameButton } from "./famous-game-button";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
+import useLocalStorage from "@/hooks/useLocalStorage";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
@@ -19,12 +20,11 @@ export function HeroSection() {
   const { proceedAnalysis } = useStockfishAnalysis();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

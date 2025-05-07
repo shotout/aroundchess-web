@@ -3,6 +3,7 @@ import { GameStatistics } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface UseGameStatisticsResult {
   statistics: GameStatistics;
@@ -32,7 +33,7 @@ const DEFAULT_STATISTICS: GameStatistics = {
 };
 
 export function useGameStatistics(): UseGameStatisticsResult {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
   const { username } = usePgnStore();
   const [statistics, setStatistics] =
     useState<GameStatistics>(DEFAULT_STATISTICS);

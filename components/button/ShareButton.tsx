@@ -18,15 +18,15 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const ShareButton = (props: any) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

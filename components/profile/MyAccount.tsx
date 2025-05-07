@@ -2,23 +2,25 @@ import { Lock, LogOut, Mail } from "lucide-react";
 import Image from "next/image";
 import { FC, useState, useEffect } from "react";
 import { Input } from "../ui/input";
-import { useClerk, useUser } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const MyAccount = () => {
-  const { user } = useUser();
-  const { getProfile } = useApiClient();
+  const { user } = useAuth();
+  const { getProfile, logOut } = useApiClient();
   const { open, setOpen } = usechangePassword();
   const { profile, setProfile } = useProfileStore();
-  const { signOut } = useClerk();
   const router = useRouter();
+  const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const { username, setUsername } = usePgnStore();
   const [form, setForm] = useState<any>({
-    email: user?.primaryEmailAddress?.emailAddress ?? "",
+    email: profile.email ?? "",
     defaultUsername: username,
     password: "",
   });
@@ -38,9 +40,17 @@ const MyAccount = () => {
     router.push("/change-password");
   };
   const handleSignOut = async () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    await signOut();
+    logOut({ sessionId }).then(() => {
+      localStorage.removeItem("token");
+      document.cookie = `token=; path=/`;
+    });
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Error logging out:", error.message);
+      throw error;
+    }
+
     router.push("/");
   };
   return (

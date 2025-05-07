@@ -10,6 +10,7 @@ import {
   ResultDistributionItem,
 } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Constants
 export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
@@ -127,7 +128,7 @@ export function useAnalyticsData() {
     setAnalyticsData,
   } = usePgnStore();
 
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);

@@ -15,6 +15,7 @@ import {
 } from "./ChessLessonHooks";
 import { ChessLesson, ChessLessonState, LessonType } from "./ChessLessonTypes";
 import { getFenFromMoves, getSlugFromId } from "./ChessLessonUtils";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface ChessLessonPageProps<T extends ChessLesson> {
   lessonType: LessonType;
@@ -32,7 +33,7 @@ function ChessLessonPage<T extends ChessLesson>({
   title,
   description,
 }: ChessLessonPageProps<T>) {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const {
     filteredLessons,

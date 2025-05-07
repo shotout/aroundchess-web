@@ -4,6 +4,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { AuthProvider, useAuth } from "../context/AuthContext";
+import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,11 +27,13 @@ export default function RootLayout({
         <script src="/stockfish.js" defer></script>
       </head>
       <body>
-        <ClerkProvider>
+      <React.StrictMode>
+        <AuthProvider>
           {children}
           {/* <Analytics /> */}
           <Toaster />
-        </ClerkProvider>
+        </AuthProvider>
+        </React.StrictMode>
       </body>
     </html>
   );

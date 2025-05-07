@@ -71,7 +71,7 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
               stroke="#999"
               vertical={true}
             />
-            <XAxis dataKey="month" axisLine={true} tickLine={true} />
+            <XAxis dataKey="minute" axisLine={true} tickLine={true} />
             <YAxis
               domain={[1000, 2000]}
               ticks={[1000, 1200, 1400, 1600, 1800, 2000]}

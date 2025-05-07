@@ -14,7 +14,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import {
   BarChart2,
   DollarSign,
@@ -30,6 +29,9 @@ import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { useApiClient } from "@/functions/api-client";
 interface SiteHeaderProps {
   children?: React.ReactNode;
   onSidebarOpen?: () => void;
@@ -37,16 +39,14 @@ interface SiteHeaderProps {
 
 export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { signOut } = useClerk();
   const router = useRouter();
   const clearAll = usePgnStore((state) => state.clearAll);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
-  const sessionId = localStorage.getItem("token");
-
+  const [sessionId, setToken] = useLocalStorage<string>("token", "");
+  const { logOut } = useApiClient();
   React.useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -73,11 +73,26 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     // Clear Zustand store first
     clearAll();
     localStorage.removeItem("token");
-    // Then sign out with Clerk
-    await signOut();
+    handleSignOut();
+  };
+  const handleSignOut = async () => {
+    try {
+      logOut({ sessionId }).then(() => {
+        localStorage.removeItem("token");
+        document.cookie = `token=; path=/`;
+      });
+      const { error } = await supabase.auth.signOut();
 
-    // Optional: redirect to login page or home page
-    // window.location.href = '/';
+      if (error) {
+        console.error("Error logging out:", error.message);
+        throw error;
+      }
+
+      // Redirect to login page or home page
+      window.location.href = "/login"; // Or use Next.js router
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
@@ -179,9 +194,11 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
           <div className="hidden xl:flex items-center gap-2">
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-5">
-                <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  <Link href="/login">Sign-In</Link>
-                </button>
+                <Link href="/login">
+                  <button onClick={handleLogout} className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Sign-In
+                  </button>
+                </Link>
                 <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
                   Try Now
                 </button>
@@ -350,9 +367,11 @@ function MobileNav(props: mobileProps) {
       <div className="flex flex-1 gap-2 mt-8">
         {!props.isSignedIn ? (
           <div className="hidden sm:flex items-center gap-5">
-            <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              <Link href="/login">Sign-In</Link>
-            </button>
+            <Link href="/login">
+              <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Sign-In
+              </button>
+            </Link>
             <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
               Try Now
             </button>

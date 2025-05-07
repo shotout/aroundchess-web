@@ -16,7 +16,6 @@ import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
-import { useUser } from "@clerk/nextjs";
 import { Chess, Square } from "chess.js";
 import { ArrowLeft, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
@@ -36,6 +35,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useShareGame } from "@/app/store/shareGame";
+import { useAuth } from "@/context/AuthContext";
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -65,7 +65,7 @@ export default function PlayingPage() {
     username,
     setDataGamesImport,
   } = usePgnStore();
-  const { user } = useUser();
+  const { user } = useAuth();
   const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { open, setOpen: setOpenGameStatus } = useGameEndStatus();

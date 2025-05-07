@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import { Chess } from "chess.js";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const endpoint = process.env.BASE_URL;
 
@@ -32,7 +33,8 @@ interface PopupProps {
 }
 
 const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
-  const sessionId = localStorage.getItem("token");
+    const [token, setToken] = useLocalStorage<string>("token", "");
+  
   const router = useRouter();
   const {
     username,
@@ -66,7 +68,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       fetchUserGames();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, sessionId, gameCount]);
+  }, [debouncedQuery, token, gameCount]);
 
   const fetchUserGames = async () => {
     try {
@@ -76,7 +78,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          authorization: `Bearer ${sessionId}`,
+          authorization: `Bearer ${token}`,
         },
       });
 

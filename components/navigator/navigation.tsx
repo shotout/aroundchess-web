@@ -12,6 +12,7 @@ import { SuccessSubscription } from "../modal/SuccessSubscription";
 import { StatusPurchaseTokens } from "../modal/StatusPurchaseTokens";
 import { ShareGame } from "../modal/ShareGame";
 import { SuccessSent } from "../modal/SuccessSent";
+import { useRouter } from "next/router";
 
 export default function Navigation({
   children,
@@ -22,11 +23,6 @@ export default function Navigation({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-<<<<<<< HEAD
-=======
-  const { sessionId } = useAuth();
->>>>>>> main
-
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

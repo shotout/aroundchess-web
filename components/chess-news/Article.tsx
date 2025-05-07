@@ -13,15 +13,15 @@ import NoData from "../NoData/NoData";
 import { usePagination } from "../pagination/hook/usePagination";
 import { Pagination } from "../pagination/pagination";
 import { useAuth } from "@clerk/nextjs";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function Article() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

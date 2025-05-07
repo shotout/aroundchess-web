@@ -5,6 +5,7 @@ import { gameHistoryApi } from "../services/api";
 import { isCacheValid } from "../services/cache";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
@@ -176,7 +177,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     resetFetchState,
   } = usePgnStore();
 
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);

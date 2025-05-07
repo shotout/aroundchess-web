@@ -16,6 +16,7 @@ import { motion, fadeInUp } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useApiClient } from "@/functions/api-client";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -26,15 +27,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const [isDesktop, setIsDesktop] = useState(false);
   const { isLoading } = useApiClient();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
-  const { token, isMember } = useProfileStore();
+  const { token: tokenBalance, isMember } = useProfileStore();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [token, setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!token) return;
     setIsSignedIn(true);
-  }, [sessionId]);
+  }, [token]);
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -119,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
-      {isMember != null && isSignedIn != null && (
+      {isMember != null ||isSignedIn != null && (
         <div className="flex items-center space-x-4">
           {/* Auth buttons - visible on desktop only (xl+) */}
 
@@ -138,10 +139,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 Remaining Tokens:{" "}
                 <span
                   className={`font-bold ${
-                    token.balance == 0 ? `text-[#FD0000]` : `text-[#221AE9]`
+                    tokenBalance.balance == 0
+                      ? `text-[#FD0000]`
+                      : `text-[#221AE9]`
                   }`}
                 >
-                  {token.balance}
+                  {tokenBalance.balance}
                 </span>
               </span>
               {/* {isLoading && <DotSpinner />} */}
@@ -203,10 +206,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 </span>
                 <span
                   className={`font-bold ${
-                    token.balance == 0 ? `text-[#FD0000]` : `text-[#221AE9]`
+                    tokenBalance.balance == 0
+                      ? `text-[#FD0000]`
+                      : `text-[#221AE9]`
                   }`}
                 >
-                  {token.balance}
+                  {tokenBalance.balance}
                 </span>
               </div>
               {!isMember && (
@@ -237,7 +242,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                       height={1000}
                       className="w-[42px] h-[44px] object-contain m-4 mr-0"
                     />
-                     <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
                       {"Premium package active!"}
                     </span>
                     <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">

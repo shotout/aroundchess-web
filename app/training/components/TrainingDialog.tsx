@@ -14,6 +14,7 @@ import Image from "next/image";
 import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTrainingPlanStore } from "../store";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface ChessTrainingPlanDialogProps {
   open: boolean;
@@ -67,7 +68,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   userProfile,
   onPlanCreated,
 }) => {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
   const {
     userProfile: storeUserProfile,
     config,
@@ -225,7 +226,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   };
 
   const handleCreatePlan = async () => {
-    if (sessionId) {
+    if (sessionId != "") {
       const success = await createTrainingPlan(sessionId);
 
       if (success) {

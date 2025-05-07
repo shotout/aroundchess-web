@@ -11,6 +11,7 @@ import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { CardPlayer } from "@/components/player/CardPlayer";
 import { useAuth } from "@clerk/nextjs";
 import { FamousGameCard } from "@/components/famous-game-button";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface SummaryProps {
   next: () => void;
@@ -25,12 +26,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
+  const [token, setToken] = useLocalStorage<string>("token", "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +44,9 @@ export default function LoginPage() {
       }
 
       if (data.data.access_token) {
-        localStorage.setItem("token", data.data.access_token);
+        document.cookie = `token=${data.data.access_token}; path=/`;
+
+        setToken(data.data.access_token);
         toast.success("Logged in successfully!");
         window.location.href = "/analysis";
       } else {

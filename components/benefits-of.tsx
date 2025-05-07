@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const benefits = [
   {
@@ -48,12 +49,11 @@ const benefits = [
 export function BenefitsOf() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

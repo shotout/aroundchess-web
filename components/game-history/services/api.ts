@@ -72,7 +72,7 @@ export const apiRequest = async <T>(
     };
 
     // Add auth header if sessionId is provided
-    if (sessionId) {
+    if (sessionId != "") {
       config.headers = {
         Authorization: `Bearer ${sessionId}`,
         Accept: 'application/json'
@@ -90,7 +90,7 @@ export const apiRequest = async <T>(
     });
 
     const response = await apiClient(config);
-    console.log("API response status:", response.status);
+    console.log("API response status:", response);
     
     // Check for success field in response
     if (response.data && typeof response.data.success === 'boolean' && !response.data.success) {

@@ -25,6 +25,7 @@ import LessonInfoSection from "./components/LessonInfoSection";
 import LessonTabs from "./components/LessonTabs";
 import PracticeSection from "./components/PracticeSection";
 import RelatedLessons from "./components/RelatedLesson";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface ChessLessonDetailProps<T extends ChessLesson> {
   params: { slug: string };
@@ -51,7 +52,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const router = useRouter();
   const basePath = getLessonBasePath(lessonType);
   const tabOptions: any = getLessonTabOptions(lessonType);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);

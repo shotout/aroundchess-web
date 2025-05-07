@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -97,7 +98,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
@@ -499,7 +500,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
                           alt={"premium-info"}
                           width={1000}
                           height={1000}
-                          className="w-[72px] h-[23px] object-cover absolute left-2"
+                          className="w-[72px] h-[23px] object-cover absolute left-2 top-2"
                           priority
                         />
                       )}

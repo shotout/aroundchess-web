@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-import { useAuth, UserButton, useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 
 import {
@@ -19,6 +18,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useProfileStore } from "@/app/store/profile";
 import { fadeInUp } from "@/utils/motion";
+import { useAuth } from "@/context/AuthContext";
+import InitialAvatar from "../avatar/InitialAvatar";
+import useLocalStorage from "@/hooks/useLocalStorage";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -154,13 +156,13 @@ const sidebarLinks: SidebarLink[] = [
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useUser();
-  const { isMember, token } = useProfileStore();
+  const { user } = useAuth();
+  const { isMember, token, profile } = useProfileStore();
   const router = useRouter();
 
   const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     if (!sessionId) return;
@@ -411,7 +413,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           })}
         </nav>
       </ScrollArea>
-      {user && (
+      {sessionId && (
         <motion.div
           className="mt-auto border-t border-gray-200 p-4"
           initial={{ opacity: 0, y: 20 }}
@@ -424,21 +426,22 @@ export default function Sidebar({ onClose }: SidebarProps) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {user?.imageUrl && (
+            <InitialAvatar name={profile?.name} size="sm" />
+            {/* {user?.imageUrl && (
               <Image
                 src={user.imageUrl}
-                alt={user?.fullName || "User"}
+                alt={profile?.name || "User"}
                 width={40}
                 height={40}
                 className="rounded-full"
               />
-            )}
+            )} */}
             <div className="flex-1 text-left">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-                {user?.fullName}
+                {profile?.name}
               </p>
               <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
-                {user?.primaryEmailAddress?.emailAddress}
+                {profile?.email}
               </p>
             </div>
           </motion.button>

@@ -33,6 +33,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useProgressStore } from "../store";
 import Image from "next/image";
 import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const CustomTooltipContent = ({
   active,
@@ -69,7 +70,7 @@ const MONTHS = [
 ];
 
 const ProgressDisplay = () => {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
   const currentDate = new Date();
 
   const getCurrentYearMonth = (monthName: string) => {
@@ -106,7 +107,7 @@ const ProgressDisplay = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
-    if (sessionId) {
+    if (sessionId != "") {
       // Check if data is already cached
       const hasCachedData = CacheUtil.hasValidCache(CACHE_KEYS.PROGRESS_DATA);
 
@@ -134,7 +135,7 @@ const ProgressDisplay = () => {
 
     setIsInitialLoad(true);
 
-    if (sessionId) {
+    if (sessionId != "") {
       fetchProgressData(sessionId, yearMonth)
         .then(() => {
           setIsInitialLoad(false);
