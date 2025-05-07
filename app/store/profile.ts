@@ -4,6 +4,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 interface ProfileState {
   profile: any;
   setProfile: (profile: any) => void;
+  sessionId: any;
+  setSessionId: (sessionId: any) => void;
   token: any;
   setToken: (token: any) => void;
   tokenPackage: any;
@@ -28,6 +30,8 @@ export const useProfileStore = create<ProfileState>()(
       setTokenPackage: (tokenPackage) => set({ tokenPackage }),
       token: {},
       setToken: (token) => set({ token }),
+      sessionId: "",
+      setSessionId: (sessionId) => set({ sessionId }),
       activeMembership: {},
       setActiveMembership: (activeMembership) => set({ activeMembership }),
       allMembershipPackages: {},
@@ -39,11 +43,12 @@ export const useProfileStore = create<ProfileState>()(
       setIsMember: (isMember) => set({ isMember }),
     }),
     {
-      name: "AI-storage", // unique name for the storage
+      name: "Profile-storage", // unique name for the storage
       storage: createJSONStorage(() => localStorage), // use localStorage by default
       partialize: (state) => ({
         profile: state.profile,
         token: state.token,
+        sessionId: state.sessionId,
         activeMembership: state.activeMembership,
         allMembershipPackages: state.allMembershipPackages,
         puzzleLog: state.puzzleLog,

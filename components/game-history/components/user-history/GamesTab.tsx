@@ -26,7 +26,7 @@ const GamesTab: React.FC = () => {
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token } = useProfileStore();
+  const { isMember, token,sessionId } = useProfileStore();
   // Fetch games data
   const {
     games,

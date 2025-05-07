@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -15,8 +16,8 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
-  const [token, setToken] = useLocalStorage<string>("token", "");
   const { setIsLoading, isLoading } = useLoadingAPI();
+  const { sessionId } = useProfileStore();
   const [error, setError] = useState<Error | null>(null);
 
   const apiRequest = useCallback(
@@ -28,7 +29,7 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (token != "" && token != null) {
+        if (sessionId != "" && sessionId != null) {
           setIsLoading(true);
           setError(null);
           let url = path;
@@ -40,14 +41,14 @@ export function useApiClient() {
 
           console.log("url", url);
           console.log("method", method);
-          console.log("token", token);
+          console.log("token", sessionId);
           console.log("body", body);
 
           const response = await fetch(url, {
             method,
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${sessionId}`,
               ...headers,
             },
             body: method !== "GET" ? JSON.stringify(body) : undefined,
@@ -79,7 +80,7 @@ export function useApiClient() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [token]
+    [sessionId]
   );
 
   const getHistoryGames = useCallback(() => {

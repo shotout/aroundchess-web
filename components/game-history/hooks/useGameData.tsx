@@ -6,6 +6,7 @@ import { isCacheValid } from "../services/cache";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useProfileStore } from "@/app/store/profile";
 
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
@@ -176,9 +177,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setOtherGamesData,
     resetFetchState,
   } = usePgnStore();
-
-  const [sessionId , setToken] = useLocalStorage<string>("token", "");
-
+  const { sessionId } = useProfileStore();
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

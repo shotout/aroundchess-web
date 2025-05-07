@@ -31,6 +31,7 @@ export default function Home() {
     getPuzzle,
   } = useApiClient();
   const {
+    sessionId,
     token: tokenBalance,
     setToken,
     setActiveMembership,
@@ -40,7 +41,7 @@ export default function Home() {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (token) {
+    if (sessionId && sessionId !='') {
       localStorage.setItem("token", token);
       getProfile({}).then((response) => {
         let data = response.data;
