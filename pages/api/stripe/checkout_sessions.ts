@@ -11,9 +11,26 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
-      const { productName, price, quantity, description, type , idUser} = JSON.parse(
-        req.body
-      );
+      const {
+        productName,
+        price,
+        quantity,
+        description,
+        type,
+        idUser,
+        membershipId,
+      } = JSON.parse(req.body);
+      let isMembership = productName.includes("Premium");
+      let metadataToken = {
+        itemType: type,
+        userId: idUser,
+        quantity,
+      };
+      let metadataMember = {
+        itemType: type,
+        userId: idUser,
+        membershipId,
+      };
       let statusurlSuccess =
         type == "membership"
           ? "status=successSubscribe"
@@ -40,11 +57,7 @@ export default async function handler(
             quantity,
           },
         ],
-        metadata: {
-          itemType: type,
-          userId:idUser,
-          quantity
-        },
+        metadata: isMembership ? metadataMember : metadataToken,
         success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
         cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,
       });
