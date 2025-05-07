@@ -138,10 +138,11 @@ const MyAccount = () => {
             name="password"
             type="password"
             placeholder="Type here..."
-            className={`w-full shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
+            className={`w-full text-xl shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
               form.password.length > 0 ? `border-[#737c7f]` : `border-[#C0CED4]`
             } px-[16px] py-[12px]`}
-            value={form.password}
+            value={"form.password"}
+            
             onChange={handleOnChange}
           />
           <button
