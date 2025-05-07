@@ -41,7 +41,7 @@ export const PricingOffer: React.FC = () => {
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
   const { callFetch, setCallFetch } = useProfileFetch();
-  const { tokenPackage } = useProfileStore();
+  const { tokenPackage, profile } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const {
@@ -84,7 +84,6 @@ export const PricingOffer: React.FC = () => {
     setWidthC(width);
   };
   const handleGetPremium = () => {
-    
     setOpen(false);
     setOpenSuccessSubscription(true);
   };
@@ -103,6 +102,8 @@ export const PricingOffer: React.FC = () => {
         productName: tokenAmount + " tokens",
         price: price,
         quantity: tokenAmount,
+        type: "token",
+        idUser: profile.id,
       }),
     });
 
@@ -118,21 +119,21 @@ export const PricingOffer: React.FC = () => {
     setStatus("waiting");
     setOpenStatusPurchase(true);
     setOpen(false);
-    postPurchaseToken(body)
-      .then((result) => {
-        console.log("postPurchaseToken", result);
-        setCallFetch(formatTimePgn());
-        setStatus("success");
-        setOpen(false);
-      })
-      .catch((error) => {
-        setStatus("failed");
-      })
-      .finally(() => {
-        // setTimeout(() => {
-        //   setOpenStatusPurchase(false);
-        // }, 5000);
-      });
+    // postPurchaseToken(body)
+    //   .then((result) => {
+    //     console.log("postPurchaseToken", result);
+    //     setCallFetch(formatTimePgn());
+    //     setStatus("success");
+    //     setOpen(false);
+    //   })
+    //   .catch((error) => {
+    //     setStatus("failed");
+    //   })
+    //   .finally(() => {
+    //     // setTimeout(() => {
+    //     //   setOpenStatusPurchase(false);
+    //     // }, 5000);
+    //   });
   };
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
@@ -158,7 +159,7 @@ export const PricingOffer: React.FC = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 bg-black/50" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl">
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl ">
           <Image
             src={`/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
@@ -225,197 +226,199 @@ export const PricingOffer: React.FC = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="tokens">
-              <div className="gap-[16px] flex flex-col">
-                <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
-                  Purchase Tokens to unlock more Analyses right now!
-                </span>
-                <div className="flex items-center justify-center gap-2 ">
-                  <CheckCircle
-                    className="w-[16px] h-[16px] xl:w-[24px] xl:h-[24px]"
-                    color="#221AE9"
-                  />
-                  <span className="text-[12px] xl:text-[18px] font-normal">
-                    Spend 1 Analysis Token for each Analysis
+            <div className="w-full h-[76%] my-2 overflow-y-auto overflow-hidden">
+              <TabsContent value="tokens">
+                <div className="gap-[16px] flex flex-col">
+                  <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
+                    Purchase Tokens to unlock more Analyses right now!
                   </span>
-                </div>
+                  <div className="flex items-center justify-center gap-2 ">
+                    <CheckCircle
+                      className="w-[16px] h-[16px] xl:w-[24px] xl:h-[24px]"
+                      color="#221AE9"
+                    />
+                    <span className="text-[12px] xl:text-[18px] font-normal">
+                      Spend 1 Analysis Token for each Analysis
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
-                  {tokenOptions.map((option, index) => (
-                    <div
-                      key={index}
-                      className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
-                        selectedToken === index
-                          ? "border-4 border-[#221AE9]"
-                          : " "
-                      }`}
-                      onClick={() => setSelectedToken(index)}
-                    >
-                      {selectedToken != index && (
-                        <div
-                          className={`h-[96%] w-[99%] mx-[8px] fixed absolute rounded-[10px] inset-0`}
-                          style={{
-                            boxShadow:
-                              "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
-                          }}
-                        />
-                      )}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
+                    {tokenOptions.map((option, index) => (
+                      <div
+                        key={index}
+                        className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                          selectedToken === index
+                            ? "border-4 border-[#221AE9]"
+                            : " "
+                        }`}
+                        onClick={() => setSelectedToken(index)}
+                      >
+                        {selectedToken != index && (
+                          <div
+                            className={`h-[96%] w-[99%] mx-[8px] fixed absolute rounded-[10px] inset-0`}
+                            style={{
+                              boxShadow:
+                                "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
+                            }}
+                          />
+                        )}
 
-                      <Image
-                        src={`/images/pricing/${
-                          widthC <= 1024
-                            ? option.amount + `-token-mobile`
-                            : option.amount + `-token`
-                        }.png`}
-                        alt="icon"
-                        width={1000}
-                        height={1000}
-                        priority
-                        className="w-full h-full fixed absolute inset-0 object-cover rounded-[14px] -z-10 "
-                        style={
-                          selectedToken != index
-                            ? {
-                                backgroundImage: `
+                        <Image
+                          src={`/images/pricing/${
+                            widthC <= 1024
+                              ? option.amount + `-token-mobile`
+                              : option.amount + `-token`
+                          }.png`}
+                          alt="icon"
+                          width={1000}
+                          height={1000}
+                          priority
+                          className="w-full h-full fixed absolute inset-0 object-cover rounded-[14px] -z-10 "
+                          style={
+                            selectedToken != index
+                              ? {
+                                  backgroundImage: `
                             linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
                             linear-gradient(230deg, #FFFFFF, #9FDEFE)
                           `,
-                                backgroundClip: "padding-box, border-box",
-                                backgroundOrigin: "padding-box, border-box",
-                                borderLeft: "8px solid transparent",
-                                borderBottom: "8px solid transparent",
-                                borderTop: "2px solid transparent",
-                                borderRight: "2px solid transparent",
-                              }
-                            : {
-                                background: `
+                                  backgroundClip: "padding-box, border-box",
+                                  backgroundOrigin: "padding-box, border-box",
+                                  borderLeft: "8px solid transparent",
+                                  borderBottom: "8px solid transparent",
+                                  borderTop: "2px solid transparent",
+                                  borderRight: "2px solid transparent",
+                                }
+                              : {
+                                  background: `
                             radial-gradient(circle at center, #ABE3FF 10%,#ABE3FF 57%,#ABE3FF 100%) 
                           `,
-                              }
-                        }
-                      />
+                                }
+                          }
+                        />
+                        <div className="absolute top-3 right-3 z-2">
+                          <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
+                            {selectedToken === index && (
+                              <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col justify-center items-center text-center mt-2 z-10 gap-1 ">
+                          <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
+                            {option.amount === 1
+                              ? "1 Token"
+                              : `${option.amount} Tokens`}
+                          </span>
+                          <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
+                            ${option.price.toFixed(2)}
+                          </span>
+                          {option.amount != 1 && (
+                            <span className="font-normal text-[14px] text-[#221AE9]">
+                              ${option.pricePerToken.toFixed(2)}/Token
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Custom Amount Input */}
+                    <div
+                      className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                        selectedToken === 5 ? "border-4 border-[#221AE9]" : " "
+                      }`}
+                      style={
+                        selectedToken != 5
+                          ? {
+                              backgroundImage: `
+                            linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
+                            linear-gradient(230deg, #FFFFFF, #9FDEFE)
+                          `,
+                              backgroundClip: "padding-box, border-box",
+                              backgroundOrigin: "padding-box, border-box",
+                              borderLeft: "8px solid transparent",
+                              borderBottom: "8px solid transparent",
+                              borderTop: "2px solid transparent",
+                              borderRight: "2px solid transparent",
+                            }
+                          : {
+                              background: `
+                            linear-gradient(to bottom, #ABE3FF 0%,#C8F1FF 20%,#C8F1FF 57%,#ABE3FF 100%) 
+                          `,
+                            }
+                      }
+                      onClick={() => setSelectedToken(5)}
+                    >
                       <div className="absolute top-3 right-3 z-2">
                         <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
-                          {selectedToken === index && (
+                          {selectedToken === 5 && (
                             <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
                           )}
                         </div>
                       </div>
 
-                      <div className="flex flex-col justify-center items-center text-center mt-2 z-10 gap-1 ">
-                        <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
-                          {option.amount === 1
-                            ? "1 Token"
-                            : `${option.amount} Tokens`}
-                        </span>
-                        <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
-                          ${option.price.toFixed(2)}
-                        </span>
-                        {option.amount != 1 && (
-                          <span className="font-normal text-[14px] text-[#221AE9]">
-                            ${option.pricePerToken.toFixed(2)}/Token
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Custom Amount Input */}
-                  <div
-                    className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
-                      selectedToken === 5 ? "border-4 border-[#221AE9]" : " "
-                    }`}
-                    style={
-                      selectedToken != 5
-                        ? {
-                            backgroundImage: `
-                            linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
-                            linear-gradient(230deg, #FFFFFF, #9FDEFE)
-                          `,
-                            backgroundClip: "padding-box, border-box",
-                            backgroundOrigin: "padding-box, border-box",
-                            borderLeft: "8px solid transparent",
-                            borderBottom: "8px solid transparent",
-                            borderTop: "2px solid transparent",
-                            borderRight: "2px solid transparent",
-                          }
-                        : {
-                            background: `
-                            linear-gradient(to bottom, #ABE3FF 0%,#C8F1FF 20%,#C8F1FF 57%,#ABE3FF 100%) 
-                          `,
-                          }
-                    }
-                    onClick={() => setSelectedToken(5)}
-                  >
-                    <div className="absolute top-3 right-3 z-2">
-                      <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
-                        {selectedToken === 5 && (
-                          <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="text-center gap-1">
-                      <div className="font-normal text-[12px] xl:text-[14px]">
-                        Enter Amount
-                      </div>
-                      <div
-                        onClick={() => {
-                          setSelectedToken(5);
-                          setCustomAmount("1");
-                        }}
-                        className="flex items-center justify-center gap-2"
-                      >
-                        <input
-                          type="number"
-                          max={100}
-                          className="font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
-                          value={customAmount}
-                          onChange={handleOnChange}
-                          onClick={(e) => {
+                      <div className="text-center gap-1">
+                        <div className="font-normal text-[12px] xl:text-[14px]">
+                          Enter Amount
+                        </div>
+                        <div
+                          onClick={() => {
                             setSelectedToken(5);
-                            e.stopPropagation();
+                            setCustomAmount("1");
                           }}
-                        />
-                        <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
-                          Token
-                        </span>
-                      </div>
-                      <div className="font-medium text-[20px] xl:text-[24px]">
-                        ${totalPrice}.00
-                      </div>
-                      <div className="text-[14px] font-normal text-[#221AE9]">
-                        ${pricePerToken}/Token
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <input
+                            type="number"
+                            max={100}
+                            className="font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                            value={customAmount}
+                            onChange={handleOnChange}
+                            onClick={(e) => {
+                              setSelectedToken(5);
+                              e.stopPropagation();
+                            }}
+                          />
+                          <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
+                            Token
+                          </span>
+                        </div>
+                        <div className="font-medium text-[20px] xl:text-[24px]">
+                          ${totalPrice}.00
+                        </div>
+                        <div className="text-[14px] font-normal text-[#221AE9]">
+                          ${pricePerToken}/Token
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <div className="flex items-center justify-center">
+                    {isLoading ? (
+                      <DotSpinner />
+                    ) : (
+                      <button
+                        disabled={
+                          isLoading ||
+                          (customAmount == "0" && selectedToken == null)
+                        }
+                        onClick={handlePurchaseToken}
+                        className={`${
+                          isLoading ||
+                          (customAmount == "0" && selectedToken == null)
+                            ? `bg-[#C0CED4]`
+                            : `btn-primary`
+                        } w-full xl:w-1/2 h-[48px] rounded-full`}
+                      >
+                        Purchase Now
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-center">
-                  {isLoading ? (
-                    <DotSpinner />
-                  ) : (
-                    <button
-                      disabled={
-                        isLoading ||
-                        (customAmount == "0" && selectedToken == null)
-                      }
-                      onClick={handlePurchaseToken}
-                      className={`${
-                        isLoading ||
-                        (customAmount == "0" && selectedToken == null)
-                          ? `bg-[#C0CED4]`
-                          : `btn-primary`
-                      } w-full xl:w-1/2 h-[48px] rounded-full`}
-                    >
-                      Purchase Now
-                    </button>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="subscription" className="py-6">
-              <PremiumSubsContent onGetPremium={handleGetPremium} />
-            </TabsContent>
+              <TabsContent value="subscription" className="py-6">
+                <PremiumSubsContent onGetPremium={handleGetPremium} />
+              </TabsContent>
+            </div>
           </Tabs>
         </DialogContent>
       </DialogPortal>

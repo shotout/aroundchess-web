@@ -35,6 +35,7 @@ import { WhitePlayer } from "./WhitePlayer";
 import { useProfileStore } from "@/app/store/profile";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import { useShareGame } from "@/app/store/shareGame";
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -50,7 +51,7 @@ type MoveClassification =
 export default function PlayingPage() {
   const router = useRouter();
 
-  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
+  const { setFen, setPGN , setOpen} = useShareGame();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { isMember } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
@@ -612,9 +613,10 @@ export default function PlayingPage() {
   const handleShare = async () => {
     try {
       const currentPgn = game.pgn();
-
-      await navigator.clipboard.writeText(JSON.stringify(currentPgn));
-      toast("Current PGN copied to clipboard!");
+      const currentFen = game.fen();
+      setFen(currentFen);
+      setPGN(currentPgn);
+      setOpen(true)
     } catch (err) {
       console.error("Failed to copy:", err);
     }

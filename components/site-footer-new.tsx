@@ -15,7 +15,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
   const handleContactUs = () => {
     setOpen(true);
   };
-  
+
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
@@ -40,11 +40,11 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             />
             <div className="flex flex-col gap-4">
               <span className="font-semibold text-[9px] sm:text-[16px] lg:text-[23px]">
-                We work hard to improve the platform every day
+                We work hard to improve AroundChess every day.
               </span>
               <span className="font-normal text-[5.3px] sm:text-[10px] lg:text-[14px]">
-                You have feedback, comments or even found a bug? Send us a
-                message or contact us on Discord.
+                If you have feedback, comments or might even have found a bug,
+                send us a message or contact us on Discord.
               </span>
               <div className="flex flex-row items-center justify-center gap-4">
                 <button className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2">
