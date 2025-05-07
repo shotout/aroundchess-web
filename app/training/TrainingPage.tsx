@@ -11,9 +11,10 @@ import { useTrainingPlanStore, useScheduleStore, useUserStore } from "./store";
 import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const ChessProgressionUI: React.FC = () => {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasPlan, setHasPlan] = useState(false);
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);
@@ -43,14 +44,14 @@ const ChessProgressionUI: React.FC = () => {
   } = useUserStore();
 
   useEffect(() => {
-    if (sessionId) {
+    if (sessionId != "") {
       fetchUserProfile(sessionId);
       fetchTopics(sessionId);
     }
   }, [sessionId, fetchUserProfile, fetchTopics]);
 
   useEffect(() => {
-    if (sessionId) {
+    if (sessionId != "") {
       setIsCheckingPlan(true);
       fetchSchedule(sessionId)
         .then(() => {
@@ -84,7 +85,7 @@ const ChessProgressionUI: React.FC = () => {
   }, [dialogOpen, resetExpiredStatus]);
 
   const handlePlanCreated = () => {
-    if (sessionId) {
+    if (sessionId != "") {
       setIsCheckingPlan(true);
       resetExpiredStatus(); // Reset expired status when a new plan is created
 

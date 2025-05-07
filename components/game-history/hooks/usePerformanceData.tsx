@@ -8,6 +8,7 @@ import {
   RadarDataItem,
 } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const CACHE_EXPIRATION = 5 * 60 * 1000;
 
@@ -168,7 +169,7 @@ export function usePerformanceData() {
     setPerformanceData,
   } = usePgnStore();
 
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

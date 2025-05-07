@@ -12,7 +12,6 @@ import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { changeNamePiece } from "@/functions/change-name-piece";
-import { useAuth, useUser } from "@clerk/nextjs";
 import { Chess, Piece, PieceSymbol, Square } from "chess.js";
 import {
   ArrowLeft,
@@ -48,6 +47,9 @@ import {
 import { clearSelection } from "@/app/utils/gameUtils";
 import { getMaterialDifferences } from "@/app/utils/calculateMaterialDifference";
 import ReactCountryFlag from "react-country-flag";
+import { useAuth } from "@/context/AuthContext";
+import { useProfileStore } from "@/app/store/profile";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -94,8 +96,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const chessGame = useMemo(() => new Chess(), []);
   const refBoard = useRef<HTMLDivElement | null>(null);
   const { isLoading } = useApiClient();
-  const { user } = useUser();
-  const sessionId = localStorage.getItem("token");
+  const { user } = useAuth();
+  const { profile } = useProfileStore();
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
   const { hideDiv, username } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
@@ -620,7 +623,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border ${"border-[#DEDEDE]"} p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          {user && (
+          {/* {user && (
             <Image
               src={user?.imageUrl}
               alt="icon"
@@ -628,10 +631,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               height={1000}
               className="w-[48px] h-[48px] rounded-full object-contain"
             />
-          )}
+          )} */}
 
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
-            {user?.fullName}
+            {profile?.name}
           </span>
           {/* {user?.flag && (
             <ReactCountryFlag
@@ -987,7 +990,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       ? "(Bot)"
                       : username
                       ? username
-                      : user?.fullName}
+                      : profile?.name}
                   </span>
                 </th>
                 <th className="gap-2 p-2 w-[45%] border font-normal text-xs border border-[#BDD0F9]">
@@ -997,7 +1000,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       ? "(Bot)"
                       : username
                       ? username
-                      : user?.fullName}
+                      : profile?.name}
                   </span>
                 </th>
               </tr>

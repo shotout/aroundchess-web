@@ -16,15 +16,15 @@ import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const AnalysisLatestGame: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+      if (sessionId != "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);

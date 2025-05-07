@@ -42,7 +42,8 @@ export default async function handler(
         ],
         metadata: {
           itemType: type,
-          userId:idUser
+          userId:idUser,
+          quantity
         },
         success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
         cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,

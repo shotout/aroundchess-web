@@ -1,3 +1,5 @@
+import { useProfileStore } from "@/app/store/profile";
+import InitialAvatar from "@/components/avatar/InitialAvatar";
 import Image from "next/image";
 interface WhitePlayerProps {
   winnerColor: string;
@@ -23,6 +25,8 @@ export const WhitePlayer = ({
   let isWin = winnerColor == "white";
   let isDraw = statusGame == "Draw";
   let isLoss = loserColor == "white";
+  const { profile } = useProfileStore();
+
   return (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
@@ -36,13 +40,17 @@ export const WhitePlayer = ({
       } p-2 gap-2 mb-2`}
     >
       <div className="flex flex-row items-center gap-2">
-        <Image
-          src={myColor == "white" ? user?.imageUrl : AIChoosed.opponent.img}
-          alt="icon"
-          width={1000}
-          height={1000}
-          className="w-[48px] h-[48px] rounded-full object-contain"
-        />
+        {myColor == "white" ? (
+          <InitialAvatar name={profile?.name} size="sm" />
+        ) : (
+          <Image
+            src={AIChoosed.opponent.img}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[48px] h-[48px] rounded-full object-contain"
+          />
+        )}
 
         <span
           className={`text-[17.23px] font-medium ${

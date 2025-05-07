@@ -2,6 +2,7 @@ import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 export type AuthState = {
   isAuthenticated: boolean;
@@ -16,13 +17,14 @@ export type User = {
 };
 
 export const useProfileFetch = () => {
-  const sessionId = localStorage.getItem("token");
+  const [token, setToken] = useLocalStorage<string>("token", "");
+
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!token) return;
     setIsSignedIn(true);
-  }, [sessionId]);
+  }, [token]);
 
   const [callFetch, setCallFetch] = useState<string>("");
   const { setUsername } = usePgnStore();
@@ -35,8 +37,6 @@ export const useProfileFetch = () => {
     getTokenPackage,
   } = useApiClient();
   const {
-    token,
-    setToken,
     setTokenPackage,
     setActiveMembership,
     setAllMembershipPackages,
@@ -45,8 +45,7 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (sessionId != null && isSignedIn) {
-      localStorage.setItem("token", sessionId);
+    if (token != null) {
       getProfile({}).then((response) => {
         let data = response.data;
         console.log("getProfile", data);
@@ -80,6 +79,6 @@ export const useProfileFetch = () => {
         console.log("log puzzle", logs);
       });
     }
-  }, [sessionId, callFetch]);
+  }, [token, callFetch]);
   return { callFetch, setCallFetch };
 };

@@ -10,6 +10,7 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { createClient } from "@supabase/supabase-js";
 import { signinWithGoogle } from "@/utils/supabase/actions";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -21,6 +22,7 @@ export default function RegisterPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
+  const [token, setToken] = useLocalStorage<string>("token", "");
 
   // === Supabase Config ===
   const SUPABASE_URL = "https://dzmkhfsfqdagfjdxifjq.supabase.co";
@@ -100,7 +102,9 @@ export default function RegisterPage() {
       }
 
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        setToken(data.token);
+        document.cookie = `token=${data.token}; path=/`;
+
       }
 
       toast.success("Account verified successfully!");

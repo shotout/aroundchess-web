@@ -1,7 +1,8 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -14,7 +15,7 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
-  const sessionId = localStorage.getItem("token");
+  const [token, setToken] = useLocalStorage<string>("token", "");
   const { setIsLoading, isLoading } = useLoadingAPI();
   const [error, setError] = useState<Error | null>(null);
 
@@ -25,48 +26,50 @@ export function useApiClient() {
       body,
       params,
       headers = {},
-    }: RequestOptions): Promise<T> => {
+    }: RequestOptions): Promise<T | null> => {
       try {
-        setIsLoading(true);
-        setError(null);
-        let url = path;
-        const token = localStorage.getItem("token");
+        if (token!='' || token!=null) {
+          setIsLoading(true);
+          setError(null);
+          let url = path;
 
-        if (params && Object.keys(params).length > 0) {
-          const query = new URLSearchParams(params as any).toString();
-          url += `?${query}`;
-        }
-
-        console.log("url", url);
-        console.log("method", method);
-        console.log("localStorage.getItem token", token);
-        console.log("token", sessionId);
-        console.log("body", body);
-
-        const response = await fetch(url, {
-          method,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            ...headers,
-          },
-          body: method !== "GET" ? JSON.stringify(body) : undefined,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.log("errorData",errorData, response)
-          if (errorData.statusCode != 401) {
-            toast.error(errorData.message || "API request failed");
+          if (params && Object.keys(params).length > 0) {
+            const query = new URLSearchParams(params as any).toString();
+            url += `?${query}`;
           }
-          throw new Error(errorData.message || "API request failed");
-        }
 
-        const responseData = await response.json();
-        if (method == "POST") {
-          toast.success(responseData.message || "Request successful");
+          console.log("url", url);
+          console.log("method", method);
+          console.log("token", token);
+          console.log("body", body);
+
+          const response = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              ...headers,
+            },
+            body: method !== "GET" ? JSON.stringify(body) : undefined,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.log("errorData", errorData, response);
+            if (errorData.statusCode != 401) {
+              toast.error(errorData.message || "API request failed");
+            }
+            throw new Error(errorData.message || "API request failed");
+          }
+
+          const responseData = await response.json();
+          if (method == "POST") {
+            toast.success(responseData.message || "Request successful");
+          }
+          return responseData;
+        } else {
+          return null as T | null;
         }
-        return responseData;
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
@@ -76,7 +79,7 @@ export function useApiClient() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sessionId]
+    [token]
   );
 
   const getHistoryGames = useCallback(() => {
@@ -554,6 +557,16 @@ export function useApiClient() {
     [apiRequest]
   );
 
+  const logOut = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/auth/logout`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -606,5 +619,6 @@ export function useApiClient() {
     getMostRead,
     toggleSaveNews,
     getFAQ,
+    logOut,
   };
 }

@@ -6,18 +6,19 @@ import { useUserStore } from "../store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
   avatar,
   schedule,
 }) => {
-  const sessionId = localStorage.getItem("token");
+  const [sessionId , setToken] = useLocalStorage<string>("token", "");
 
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
 
   useEffect(() => {
-    if (sessionId) {
+    if (sessionId != "") {
       fetchUserProfile(sessionId);
     }
   }, [sessionId, fetchUserProfile]);

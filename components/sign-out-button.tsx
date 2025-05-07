@@ -1,19 +1,30 @@
-'use client'
+"use client";
 
-import { useClerk } from "@clerk/nextjs"
-import { Button } from "./ui/button"
-import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 export function SignOutButton() {
-  const { signOut } = useClerk()
-  const router = useRouter()
+  const router = useRouter();
+  const handleSignOut = async () => {
+    try {
+      document.cookie = `token=; path=/`;
+      const { error } = await supabase.auth.signOut();
 
+      if (error) {
+        console.error("Error logging out:", error.message);
+        throw error;
+      }
+
+      // Redirect to login page or home page
+      window.location.href = "/login"; // Or use Next.js router
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
   return (
-    <Button
-      variant="ghost"
-      onClick={() => signOut(() => router.push('/'))}
-    >
+    <Button variant="ghost" onClick={() => handleSignOut()}>
       Sign Out
     </Button>
-  )
-} 
+  );
+}

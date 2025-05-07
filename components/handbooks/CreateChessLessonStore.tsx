@@ -103,7 +103,7 @@ export function createChessLessonStore<T extends ChessLesson>({
             const initialUrl = `${apiBaseUrl}/${apiEndpoint}?page=1&limit=250&category=${lessonType}`;
 
             const headers: HeadersInit = {};
-            if (sessionId) {
+            if (sessionId != "") {
               headers["Authorization"] = `Bearer ${sessionId}`;
             }
 
@@ -175,7 +175,7 @@ export function createChessLessonStore<T extends ChessLesson>({
               total: allData.length,
             };
 
-            if (sessionId) {
+            if (sessionId != "") {
               const readStatusPromises = allData.map((lesson) =>
                 get().checkReadStatus(lesson.id, sessionId)
               );
@@ -249,7 +249,7 @@ export function createChessLessonStore<T extends ChessLesson>({
             const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
 
             const headers: HeadersInit = {};
-            if (sessionId) {
+            if (sessionId != "") {
               headers["Authorization"] = `Bearer ${sessionId}`;
             }
 

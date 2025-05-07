@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function SSOCallbackPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function SSOCallbackPage() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState("");
   const baseUrl = process.env.BASE_URL;
+  const [token, setToken] = useLocalStorage<string>("token", "");
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -39,7 +41,9 @@ export default function SSOCallbackPage() {
         }
 
         if (data.token) {
-          localStorage.setItem("token", data.token);
+          setToken(data.token);
+          document.cookie = `token=${data.token}; path=/`;
+
           toast.success("Successfully authenticated");
 
           window.location.href = "/analysis";

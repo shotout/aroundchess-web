@@ -9,17 +9,19 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const DEV_MODE = false;
 
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const sessionId = localStorage.getItem("token");
+  const [token, setToken] = useLocalStorage<string>("token", "");
+
 
   useEffect(() => {
     const checkSession = () => {
-      const sessionId = localStorage.getItem("token");
-      if (sessionId) {
+       
+      if (token) {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -27,7 +29,7 @@ export default function AnalysisPage() {
     };
 
     checkSession();
-  }, [sessionId, isSignedIn]);
+  }, [token, isSignedIn]);
   const {
     setHideDiv,
     hideDiv,
