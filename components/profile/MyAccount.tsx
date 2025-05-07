@@ -40,22 +40,16 @@ const MyAccount = () => {
     router.push("/change-password");
   };
   const handleSignOut = async () => {
-    try {
-      logOut({ sessionId }).then(() => {
-        localStorage.removeItem("token");
-        document.cookie = `token=; path=/`;
-      });
-      const { error } = await supabase.auth.signOut();
+    logOut({ sessionId }).then(() => {
+      localStorage.removeItem("token");
+      document.cookie = `token=; path=/`;
+      router.push("/login");
+    });
+    const { error } = await supabase.auth.signOut();
 
-      if (error) {
-        console.error("Error logging out:", error.message);
-        throw error;
-      }
-
-      // Redirect to login page or home page
-      window.location.href = "/login"; // Or use Next.js router
-    } catch (error) {
-      console.error("Logout failed:", error);
+    if (error) {
+      console.error("Error logging out:", error.message);
+      throw error;
     }
   };
   return (

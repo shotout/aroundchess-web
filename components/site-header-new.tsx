@@ -76,24 +76,18 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     handleSignOut();
   };
   const handleSignOut = async () => {
-    try {
       logOut({ sessionId }).then(() => {
         localStorage.removeItem("token");
         document.cookie = `token=; path=/`;
+        router.push("/login");
       });
       const { error } = await supabase.auth.signOut();
-
+  
       if (error) {
         console.error("Error logging out:", error.message);
         throw error;
       }
-
-      // Redirect to login page or home page
-      window.location.href = "/login"; // Or use Next.js router
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+    };
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
     setTabType(type);
