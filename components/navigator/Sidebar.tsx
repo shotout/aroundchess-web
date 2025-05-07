@@ -222,7 +222,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
           >
             <div
-              className={`flex xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+              className={`flex xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
             >
               <Image
                 src={`/icons/onboarding-popup.png`}
@@ -231,11 +231,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 height={1000}
                 className="w-[42px] h-[44px] object-contain m-4 mr-0"
               />
-              <span className="block font-medium text-[14px] z-10 text-black">
-                {"You are on "}
-                <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-                  {"Premium package!"}
-                </span>
+              <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                {"Premium package active!"}
               </span>
               <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                 <Image
