@@ -17,7 +17,6 @@ export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [token, setToken] = useLocalStorage<string>("token", "");
 
-
   useEffect(() => {
     const checkSession = () => {
        
