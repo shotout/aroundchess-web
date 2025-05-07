@@ -37,8 +37,8 @@ export interface PremiumSubscriptionProps {
   onGetPremium: () => void;
 }
 
-interface FeatureIconProps {
-  icon: ReactElement;
+interface FeatureImageProps {
+  imageUrl: string;
   label: string;
 }
 
@@ -119,7 +119,8 @@ export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
   const { setOpen } = useCancelSubscription();
-  const { allMembershipPackages, activeMembership, isMember, profile } = useProfileStore();
+  const { allMembershipPackages, activeMembership, isMember, profile } =
+    useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { postPurchaseMembership, isLoading } = useApiClient();
 
@@ -137,7 +138,7 @@ export const PremiumSubsContent: React.FC<{
         price: premium.price * 100,
         quantity: 1,
         description: premium.description,
-        type:"membership",
+        type: "membership",
         idUser: profile.id,
       }),
     });
@@ -166,12 +167,30 @@ export const PremiumSubsContent: React.FC<{
 
       <div className="flex justify-center mb-6">
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full xl:w-[70%] 2xl:w-[70%]">
-          <FeatureIcon icon={<Cat />} label="Analyze Games" />
-          <FeatureIcon icon={<Book />} label="Handbook: Chess Theory" />
-          <FeatureIcon icon={<Bot />} label="Playground: Play VS AI" />
-          <FeatureIcon icon={<Settings />} label="Playground: Chess Puzzles" />
-          <FeatureIcon icon={<Target />} label="Playground: Board Vision" />
-          <FeatureIcon icon={<Zap />} label="Playground: Endgame Training" />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-analyze-icon-active.png"}
+            label="Analyze Games"
+          />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-theory-icon-active.png"}
+            label="Handbook: Chess Theory"
+          />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-play-vs-ai-icon-active.png"}
+            label="Playground: Play VS AI"
+          />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-puzzle-icon-active.png"}
+            label="Playground: Chess Puzzles"
+          />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-board-vision-icon-active.png"}
+            label="Playground: Board Vision"
+          />
+          <FeatureImage
+            imageUrl={"/icons/sidebar-endgame-training-icon-active.png"}
+            label="Playground: Endgame Training"
+          />
         </div>
       </div>
 
@@ -262,13 +281,25 @@ export const PremiumSubsContent: React.FC<{
           </p>
 
           <div className="space-y-3 flex-grow">
-            <BenefitItem text="1,000 Analyses per year" light />
-            <BenefitItem text="Full Access to the Feedback Log" light />
+            <BenefitItem
+              text="1,000 Analyses per year (meaning 0.10 Cent per Analysis)"
+              light
+            />
+            <BenefitItem
+              text="Choose between Basic, Standard and Deep Analysis"
+              light
+            />
+            <BenefitItem
+              text="Full Access to the Feedback Log and Game History"
+              light
+            />
             <BenefitItem text="Unlimited Puzzles" light />
             <BenefitItem text="Play vs. AI" light />
             <BenefitItem text="Board Vision Training" light />
+            <BenefitItem text="Endgame Training" light />
             <BenefitItem text="Chess Handbook" light />
             <BenefitItem text="Early Feature Update" light />
+            <BenefitItem text="Discord VIP Access" light />
           </div>
           {isLoading && <DotSpinner />}
           {!isMember && !isLoading && (
@@ -334,7 +365,7 @@ export const PremiumSubsContent: React.FC<{
     </div>
   );
 };
-const FeatureIcon: React.FC<FeatureIconProps> = ({ icon, label }) => {
+const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
   const hasColon = label.includes(":");
 
   const [firstPart, secondPart] = hasColon
@@ -342,12 +373,16 @@ const FeatureIcon: React.FC<FeatureIconProps> = ({ icon, label }) => {
     : [label, null];
 
   return (
-    <div className="bg-blue-base/10 border border-blue-base p-3 rounded-lg flex flex-col items-center h-24">
-      <div className="text-blue-base mt-2 mb-auto">
-        {React.cloneElement(icon, { className: "w-6 h-6" })}
-      </div>
-      <div className="text-center h-10 flex flex-col justify-end">
-        <p className="text-[11px] font-medium text-gray-900">
+    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[110px] h-[110px]">
+      <Image
+        alt="-"
+        src={imageUrl}
+        width={1000}
+        height={1000}
+        className="w-[34px] h-[32px]"
+      />
+      <div className="text-center flex flex-col justify-end">
+        <p className="text-[11px] font-normal text-gray-900">
           {firstPart}
           {hasColon ? ":" : ""}
         </p>
