@@ -215,7 +215,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
           >
             <div
-              className={`flex xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+              className={`flex xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
             >
               <Image
                 src={`/icons/onboarding-popup.png`}

@@ -224,7 +224,7 @@ export function ContactUs() {
               />
 
               {fileName ? (
-                <div className="lg:h-[48px] flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
+                <div className="lg:h-[48px] cursor-pointer flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
                   <Upload className="h-16 w-16 mx-auto text-blue-600" />
                   <p className="text-gray-800 font-medium mb-1">{fileName}</p>
                   <p className="text-gray-500 text-sm">
@@ -232,7 +232,7 @@ export function ContactUs() {
                   </p>
                 </div>
               ) : (
-                <div className="lg:h-[48px] flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
+                <div className="lg:h-[48px] cursor-pointer flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
                   <Upload className="h-[20px] w-[20px] text-[#221AE9]" />
                   <span
                     className="font-medium text-[16px] text-[#221AE9]"

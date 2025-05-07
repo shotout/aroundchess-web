@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                   className={`hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
                 >
                   <div
-                    className={`flex min-w-[240px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                    className={`flex min-w-[240px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
                   >
                     <Image
                       src={`/icons/onboarding-popup.png`}
@@ -223,7 +223,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                   className={`hidden sm:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
                 >
                   <div
-                    className={`flex min-w-[280px] xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                    className={`flex min-w-[280px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
                   >
                     <Image
                       src={`/icons/onboarding-popup.png`}
