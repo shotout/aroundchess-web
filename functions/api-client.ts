@@ -568,6 +568,16 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const contactUs = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/contact-us`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -621,5 +631,6 @@ export function useApiClient() {
     toggleSaveNews,
     getFAQ,
     logOut,
+    contactUs,
   };
 }

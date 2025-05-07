@@ -24,11 +24,13 @@ import { subjectForm } from "@/app/store/constants";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
 import { useSuccessSent } from "@/app/store/successSent";
+import { useApiClient } from "@/functions/api-client";
 
 export function ContactUs() {
   const router = useRouter();
+  const { contactUs } = useApiClient();
   const { open, setOpen } = useContactUs();
-  const {setOpen:setOpenSent} =useSuccessSent()
+  const { setOpen: setOpenSent } = useSuccessSent();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
@@ -36,10 +38,11 @@ export function ContactUs() {
 
   const [widthC, setWidthC] = useState<number>(0);
   const [form, setForm] = useState<any>({
-    fullName: "",
+    name: "",
     email: "",
-    topic: "",
+    topics: "",
     message: "",
+    file: "",
   });
   const handleOnChange = (e: any) => {
     console.log("handleOnChange", e);
@@ -52,24 +55,13 @@ export function ContactUs() {
 
   const handleSendMessage = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    const { current } = form;
-    emailjs
-      .sendForm("service_kj7oisp", "template_zc6g14o", current, {
-        publicKey: "jTUGjAIqTwezcSh2k",
-      })
-      .then(
-        () => {
-          toast.success("Form send successfully!");
-          form.current?.reset();
-          setOpenSent(true)
-          // window.location.reload();
-          console.log("SUCCESS!");
-        },
-        (error) => {
-          toast.error(error.text);
-          console.log("FAILED...", error.text);
-        }
-      );
+
+    console.log("current", form);
+    contactUs(form).then(() => {
+      console.log("success send contact us");
+      setOpen(false)
+      setOpenSent(true);
+    });
   };
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -84,7 +76,11 @@ export function ContactUs() {
 
   const handleFile = (file: { name: string; size: number }) => {
     // Check file type (simple check for correct extension)
-    if (!file.name.toLowerCase().endsWith(".png")||!file.name.toLowerCase().endsWith(".jpg")||!file.name.toLowerCase().endsWith(".pdf")) {
+    if (
+      !file.name.toLowerCase().endsWith(".png") &&
+      !file.name.toLowerCase().endsWith(".jpg") &&
+      !file.name.toLowerCase().endsWith(".pdf")
+    ) {
       alert("Please upload a correct file.");
       return;
     }
@@ -134,15 +130,13 @@ export function ContactUs() {
               </label>
               <Input
                 id="full-name"
-                name="fullName"
+                name="name"
                 type="text"
                 placeholder="Enter Your Name"
                 className={`w-full align-top text-left font-normal text-[14px] shadow-sm min-h-[44px] bg-[#FAFDFF] rounded-[8px] border ${
-                  form.fullName.length > 0
-                    ? `border-[#2E3133]`
-                    : `border-[#C0CED4]`
+                  form.name.length > 0 ? `border-[#2E3133]` : `border-[#C0CED4]`
                 } px-[16px] py-[12px]`}
-                value={form.fullName}
+                value={form.name}
                 onChange={handleOnChange}
               />
             </div>
@@ -168,18 +162,22 @@ export function ContactUs() {
           </div>
 
           <div className="space-y-2 w-full">
-            <label htmlFor="topic" className="text-[14px] font-medium">
+            <label htmlFor="topics" className="text-[14px] font-medium">
               Topic
             </label>
-            <Select name="subject" value={form.topic}>
+            <Select
+              name="subject"
+              value={form.topics}
+              onValueChange={(e) => setForm({ ...form, topics: e })}
+            >
               <SelectTrigger
                 className={`w-full align-top text-left font-normal text-[14px] shadow-sm min-h-[44px] bg-[#FAFDFF] rounded-[8px] border ${
-                  form.topic.length > 0
+                  form.topics.length > 0
                     ? `border-[#2E3133]`
                     : `border-[#C0CED4]`
                 } px-[16px] py-[12px]`}
               >
-                <SelectValue placeholder="Select topic" />
+                <SelectValue placeholder="Select topics" />
               </SelectTrigger>
               <SelectContent className="border border-[#C0CED4]">
                 {subjectForm.map((item, index) => {
@@ -224,8 +222,8 @@ export function ContactUs() {
 
               {fileName ? (
                 <div className="lg:h-[48px] cursor-pointer flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
-                  <Upload className="h-16 w-16 mx-auto text-blue-600" />
-                  <p className="text-gray-800 font-medium mb-1">{fileName}</p>
+                  <Upload className="h-[20px] w-[20px] text-[#221AE9]" />
+                  <p className="text-gray-800 font-medium">{fileName}</p>
                   <p className="text-gray-500 text-sm">
                     {(fileSize / 1024).toFixed(1)} KB
                   </p>
