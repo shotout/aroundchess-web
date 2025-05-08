@@ -25,12 +25,11 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
-import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { motion } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApiClient } from "@/functions/api-client";
 interface SiteHeaderProps {
   children?: React.ReactNode;
@@ -42,7 +41,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const router = useRouter();
   const clearAll = usePgnStore((state) => state.clearAll);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
-  const [sessionId, setToken] = useLocalStorage<string>("token", "");
+  const { sessionId } = useProfileStore();
   const { logOut } = useApiClient();
   React.useEffect(() => {
     const checkSession = () => {

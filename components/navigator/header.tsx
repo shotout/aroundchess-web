@@ -16,7 +16,6 @@ import { motion, fadeInUp } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useApiClient } from "@/functions/api-client";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -25,7 +24,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
-  const { isLoading } = useApiClient();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember } = useProfileStore();
 
@@ -120,156 +118,157 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
-      {isMember != null ||isSignedIn != null && (
-        <div className="flex items-center space-x-4">
-          {/* Auth buttons - visible on desktop only (xl+) */}
+      {isMember != null ||
+        (isSignedIn != null && (
+          <div className="flex items-center space-x-4">
+            {/* Auth buttons - visible on desktop only (xl+) */}
 
-          {!isSignedIn ? (
-            <div className="hidden sm:flex items-center gap-5">
-              <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                <Link href="/login">Sign-In</Link>
-              </button>
-              <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-                Try Now
-              </button>
-            </div>
-          ) : (
-            <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
-              <span className="hidden xl:block lg:text-[16px] w-full text-[#221AE9] font-medium">
-                Remaining Tokens:{" "}
-                <span
-                  className={`font-bold ${
-                    tokenBalance.balance == 0
-                      ? `text-[#FD0000]`
-                      : `text-[#221AE9]`
-                  }`}
-                >
-                  {tokenBalance.balance}
-                </span>
-              </span>
-              {/* {isLoading && <DotSpinner />} */}
-              {!isMember && (
-                <div className="w-full flex flex-row gap-[8px] ">
-                  <button
-                    onClick={() => handleOpenOffer("tokens")}
-                    className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Buy Tokens
-                  </button>
-                  <button
-                    onClick={() => handleOpenOffer("subscription")}
-                    className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
-                  >
-                    Go Unlimited
-                  </button>
-                </div>
-              )}
-              {isMember && (
-                <motion.div
-                  variants={fadeInUp}
-                  className={`hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
-                >
-                  <div
-                    className={`flex min-w-[240px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
-                  >
-                    <Image
-                      src={`/icons/onboarding-popup.png`}
-                      alt="icon"
-                      width={1000}
-                      height={1000}
-                      className="w-[42px] h-[44px] object-contain m-4 mr-0"
-                    />
-                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-                      {"Premium package active!"}
-                    </span>
-                    <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
-                      <Image
-                        src={`/icons/sparks-member.png`}
-                        alt="icon"
-                        width={1000}
-                        height={1000}
-                        className="w-[56px] h-[56px] object-cover"
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {/* Tablet view - Analytics button next to hamburger */}
-          {!isDesktop && (
-            <div className="flex items-center space-x-3 w-full">
-              <div className="hidden sm:flex flex-row w-full ">
-                <span className="lg:text-[16px] text-[#221AE9] font-medium">
-                  Tokens:&nbsp;
-                </span>
-                <span
-                  className={`font-bold ${
-                    tokenBalance.balance == 0
-                      ? `text-[#FD0000]`
-                      : `text-[#221AE9]`
-                  }`}
-                >
-                  {tokenBalance.balance}
-                </span>
+            {!isSignedIn ? (
+              <div className="hidden sm:flex items-center gap-5">
+                <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <Link href="/login">Sign-In</Link>
+                </button>
+                <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                  Try Now
+                </button>
               </div>
-              {!isMember && (
-                <Button
-                  color="primary"
-                  variant="outlineprimary"
-                  className=" rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-                >
-                  <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-                  <span className="font-normal text-[14px] lg:text-[18px]">
-                    Analytics
-                  </span>
-                </Button>
-              )}
-              {/* Analytics button - visible on tablet */}
-              {isMember && (
-                <motion.div
-                  variants={fadeInUp}
-                  className={`hidden sm:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
-                >
-                  <div
-                    className={`flex min-w-[280px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+            ) : (
+              <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
+                <span className="hidden xl:block lg:text-[16px] w-full text-[#221AE9] font-medium">
+                  Remaining Tokens:{" "}
+                  <span
+                    className={`font-bold ${
+                      tokenBalance.balance == 0
+                        ? `text-[#FD0000]`
+                        : `text-[#221AE9]`
+                    }`}
                   >
-                    <Image
-                      src={`/icons/onboarding-popup.png`}
-                      alt="icon"
-                      width={1000}
-                      height={1000}
-                      className="w-[42px] h-[44px] object-contain m-4 mr-0"
-                    />
-                    <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-                      {"Premium package active!"}
-                    </span>
-                    <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                    {tokenBalance.balance}
+                  </span>
+                </span>
+                {/* {isLoading && <DotSpinner />} */}
+                {!isMember && (
+                  <div className="w-full flex flex-row gap-[8px] ">
+                    <button
+                      onClick={() => handleOpenOffer("tokens")}
+                      className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Buy Tokens
+                    </button>
+                    <button
+                      onClick={() => handleOpenOffer("subscription")}
+                      className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      Go Unlimited
+                    </button>
+                  </div>
+                )}
+                {isMember && (
+                  <motion.div
+                    variants={fadeInUp}
+                    className={`hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                  >
+                    <div
+                      className={`flex min-w-[240px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                    >
                       <Image
-                        src={`/icons/sparks-member.png`}
+                        src={`/icons/onboarding-popup.png`}
                         alt="icon"
                         width={1000}
                         height={1000}
-                        className="w-[56px] h-[56px] object-cover"
+                        className="w-[42px] h-[44px] object-contain m-4 mr-0"
                       />
+                      <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                        {"Premium package active!"}
+                      </span>
+                      <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                        <Image
+                          src={`/icons/sparks-member.png`}
+                          alt="icon"
+                          width={1000}
+                          height={1000}
+                          className="w-[56px] h-[56px] object-cover"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-              {/* Hamburger menu */}
-              <button
-                type="button"
-                className="text-gray-700 hover:text-blue-600 focus:outline-none"
-                onClick={onSidebarToggle}
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+                  </motion.div>
+                )}
+              </div>
+            )}
+
+            {/* Tablet view - Analytics button next to hamburger */}
+            {!isDesktop && (
+              <div className="flex items-center space-x-3 w-full">
+                <div className="hidden sm:flex flex-row w-full ">
+                  <span className="lg:text-[16px] text-[#221AE9] font-medium">
+                    Tokens:&nbsp;
+                  </span>
+                  <span
+                    className={`font-bold ${
+                      tokenBalance.balance == 0
+                        ? `text-[#FD0000]`
+                        : `text-[#221AE9]`
+                    }`}
+                  >
+                    {tokenBalance.balance}
+                  </span>
+                </div>
+                {!isMember && (
+                  <Button
+                    color="primary"
+                    variant="outlineprimary"
+                    className=" rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+                  >
+                    <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+                    <span className="font-normal text-[14px] lg:text-[18px]">
+                      Analytics
+                    </span>
+                  </Button>
+                )}
+                {/* Analytics button - visible on tablet */}
+                {isMember && (
+                  <motion.div
+                    variants={fadeInUp}
+                    className={`hidden sm:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                  >
+                    <div
+                      className={`flex min-w-[280px] xl:min-w-[250px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
+                    >
+                      <Image
+                        src={`/icons/onboarding-popup.png`}
+                        alt="icon"
+                        width={1000}
+                        height={1000}
+                        className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                      />
+                      <span className="font-semibold text-[14px] z-10 text-[#17119B]">
+                        {"Premium package active!"}
+                      </span>
+                      <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                        <Image
+                          src={`/icons/sparks-member.png`}
+                          alt="icon"
+                          width={1000}
+                          height={1000}
+                          className="w-[56px] h-[56px] object-cover"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                {/* Hamburger menu */}
+                <button
+                  type="button"
+                  className="text-gray-700 hover:text-blue-600 focus:outline-none"
+                  onClick={onSidebarToggle}
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
     </header>
   );
 };
