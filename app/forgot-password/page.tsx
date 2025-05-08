@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useAuth, useSignIn } from "@clerk/nextjs";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -11,12 +10,13 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { toast } from "sonner";
 
-// Define CSS variables for background image positioning
 const backgroundStyles = {
   "--bg-position-x": "center",
   "--bg-position-y": "top",
   "--bg-size": "cover",
 } as React.CSSProperties;
+
+const BASE_URL = process.env.BASE_URL;
 
 const ForgotPasswordPage: NextPage = () => {
   const [email, setEmail] = useState("");
@@ -31,42 +31,37 @@ const ForgotPasswordPage: NextPage = () => {
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { isLoaded, signIn } = useSignIn();
 
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push("/");
-    }
-  }, [isLoaded, isSignedIn, router]);
-
-  if (!isLoaded) {
-    return null;
-  }
-
-  // Start password reset process and send email with code
   async function startPasswordReset(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      await signIn?.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
+      const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send reset email");
+      }
 
       setEmailSent(true);
       toast.success("Reset code sent to your email!");
 
-      // Focus the verification code input when it appears
       setTimeout(() => {
         if (codeInputRef.current) {
           codeInputRef.current.focus();
         }
       }, 100);
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to send reset email");
+      setError(err.message || "Failed to send reset email");
       toast.error("Failed to send reset email");
     } finally {
       setIsLoading(false);
@@ -94,42 +89,57 @@ const ForgotPasswordPage: NextPage = () => {
     }
 
     try {
-      const result = await signIn?.attemptFirstFactor({
-        strategy: "reset_password_email_code",
-        code: verificationCode,
-        password: newPassword,
+      const response = await fetch(`${BASE_URL}/reset-password/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          code: verificationCode,
+          newPassword,
+        }),
       });
 
-      if (result?.status === "complete") {
-        toast.success("Password reset successfully!");
-        setResetComplete(true);
+      const data = await response.json();
 
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
-      } else {
-        setError("Failed to reset password. Please try again.");
-        toast.error("Failed to reset password");
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to reset password");
       }
+
+      toast.success("Password reset successfully!");
+      setResetComplete(true);
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to reset password");
+      setError(err.message || "Failed to reset password");
       toast.error("Failed to reset password");
     } finally {
       setIsVerifying(false);
     }
   }
 
-  // Function to resend verification code
   async function resendVerificationCode() {
     setIsLoading(true);
     setError("");
 
     try {
-      await signIn?.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
+      const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to resend code");
+      }
 
       toast.success("Reset code resent to your email!");
 
@@ -139,7 +149,7 @@ const ForgotPasswordPage: NextPage = () => {
         codeInputRef.current.focus();
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to resend code");
+      setError(err.message || "Failed to resend code");
       toast.error("Failed to resend code");
     } finally {
       setIsLoading(false);
@@ -462,20 +472,6 @@ const ForgotPasswordPage: NextPage = () => {
                 <p className="text-sm text-red-600 text-center">{error}</p>
               </div>
             )}
-
-            {/* {!resetComplete && (
-              <div className="text-center mt-6 border bg-white/40 py-2 px-4 border-white/40 rounded-md">
-                <p className="text-black/90 font-medium">
-                  Remember your password?{" "}
-                  <Link
-                    href="/login"
-                    className="text-blue-base font-medium transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                </p>
-              </div>
-            )} */}
           </div>
         </main>
         <SiteFooterNew />

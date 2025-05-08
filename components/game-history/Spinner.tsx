@@ -39,8 +39,8 @@ const DotSpinner: React.FC<{ size?: number }> = ({ size = 12 }) => {
             <div
               className="rounded-full bg-blue-base shadow-lg opacity-50 origin-center"
               style={{
-                width:size/2.3,
-                height:size/2.3,
+                width: size / 2.3,
+                height: size / 2.3,
                 animation: `pulse 0.999s ease-in-out infinite`,
                 animationDelay: `${-0.875 * index * 0.9}s`,
                 boxShadow: "0 0 20px rgba(18, 31, 53, 0.3)",
