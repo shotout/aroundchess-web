@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -89,14 +89,12 @@ const ForgotPasswordPage: NextPage = () => {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/reset-password/verify`, {
+      const response = await fetch(`${BASE_URL}/auth/update-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          code: verificationCode,
           newPassword,
         }),
       });
@@ -110,7 +108,6 @@ const ForgotPasswordPage: NextPage = () => {
       toast.success("Password reset successfully!");
       setResetComplete(true);
 
-      // Redirect to login after 2 seconds
       setTimeout(() => {
         router.push("/login");
       }, 2000);
@@ -159,7 +156,6 @@ const ForgotPasswordPage: NextPage = () => {
   return (
     <>
       <div className="min-h-screen flex flex-col relative">
-        {/* Background with adjustable positioning */}
         <div className="absolute inset-0 -z-10" style={backgroundStyles}>
           <Image
             src="/images/auth-background.png"
@@ -174,13 +170,11 @@ const ForgotPasswordPage: NextPage = () => {
             }}
             alt="Authentication background"
           />
-          {/* Optional overlay for improved text clarity */}
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 
         <SiteHeaderNew />
 
-        {/* Main Content with fixed dimensions based on device */}
         <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
           <div
             className={`
