@@ -16,11 +16,44 @@ import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setTokenId] = useLocalStorage<string>("token", "");
+
+  const { setSessionId } = useProfileStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          handleSSOSuccess(accessToken);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSSOSuccess = (accessToken: string) => {
+    try {
+      document.cookie = `token=${accessToken}; path=/`;
+
+      setSessionId(accessToken);
+
+      toast.success("Logged in successfully with Google!");
+
+      router.push("/analysis");
+    } catch (error) {
+      toast.error("Failed to process Google login");
+    }
+  };
 
   const { setUsername } = usePgnStore();
   const {

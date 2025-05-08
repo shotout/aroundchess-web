@@ -196,7 +196,6 @@ export default function PlayingPage() {
     setOptionSquares(newSquares);
     return true;
   };
-
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
