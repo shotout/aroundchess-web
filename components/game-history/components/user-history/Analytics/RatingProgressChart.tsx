@@ -20,7 +20,6 @@ interface CustomTooltipProps {
   label?: string;
 }
 
-// Custom tooltip component for the line chart
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -46,7 +45,7 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
   handleForceRefresh,
 }) => {
   return (
-    <div className="md:p-4 rounded-lg md:shadow-sm">
+    <div className="md:p-4 rounded-lg ">
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-base font-bold">Rating Progress</h1>
         {!isCacheValid && (

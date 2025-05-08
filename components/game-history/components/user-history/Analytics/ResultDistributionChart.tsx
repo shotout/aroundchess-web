@@ -10,7 +10,7 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
   distributionData,
 }) => {
   return (
-    <div className="md:p-4 rounded-lg md:shadow-sm">
+    <div className="md:p-4 rounded-lg ">
       <h1 className="text-base font-medium mb-2">Result Distribution</h1>
       <div className="flex items-center justify-center h-64">
         <div className="w-48 h-48">

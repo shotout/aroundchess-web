@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-// import { useAuth } from "@clerk/nextjs";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
 import { isCacheValid } from "../services/cache";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
@@ -23,7 +21,7 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
     opening: item.opening_name || "Unknown Opening",
     source: item.source,
     color: item.color,
-    playerColor: item.color, // Added to ensure consistency
+    playerColor: item.color,
     gameFormat: item.game_format,
     pgn: item.pgn,
     resultColor: item.result_color || getResultColor(item.result),
@@ -134,8 +132,35 @@ export const getResultData = (
 };
 
 export const getEloChangeData = (
-  change: string | undefined | null
+  change: string | number | undefined | null,
+  currentRating: number,
+  previousRating: number | null
 ): { value: number; text: string; className: string } => {
+  // Handle numeric input directly
+  if (typeof change === "number") {
+    const value = change;
+
+    if (previousRating !== null) {
+      if (currentRating > previousRating) {
+        return { value, text: `+${value}`, className: "text-green-500" };
+      } else if (currentRating < previousRating) {
+        return {
+          value,
+          text: `-${Math.abs(value)}`,
+          className: "text-red-500",
+        };
+      }
+    }
+
+    if (value > 0) {
+      return { value, text: `+${value}`, className: "text-green-500" };
+    } else if (value < 0) {
+      return { value, text: `${value}`, className: "text-red-500" };
+    }
+    return { value, text: "0", className: "text-gray-500" };
+  }
+
+  // Handle string input (old format)
   if (!change || typeof change !== "string") {
     return { value: 0, text: "0", className: "text-gray-500" };
   }
@@ -143,13 +168,21 @@ export const getEloChangeData = (
   const match = change.match(/\(([+-]\d+) ELO Rating\)/);
   const value = match ? parseInt(match[1]) : 0;
 
+  if (previousRating !== null) {
+    if (currentRating > previousRating) {
+      return { value, text: `+${value}`, className: "text-green-500" };
+    } else if (currentRating < previousRating) {
+      return { value, text: `-${Math.abs(value)}`, className: "text-red-500" };
+    }
+  }
+
   if (value > 0) {
     return { value, text: `+${value}`, className: "text-green-500" };
   } else if (value < 0) {
     return { value, text: `${value}`, className: "text-red-500" };
-  } else {
-    return { value, text: "0", className: "text-gray-500" };
   }
+
+  return { value, text: "0", className: "text-gray-500" };
 };
 
 export const countActiveFilters = (

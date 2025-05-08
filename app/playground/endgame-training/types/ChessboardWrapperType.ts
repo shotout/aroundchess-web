@@ -27,4 +27,5 @@ export interface ChessboardWrapperProps {
   bestMove?: string | null;
   showHint?: boolean;
   is3DMode: boolean;
+  handleShare: () => void;
 }

@@ -144,7 +144,22 @@ const GamesList: React.FC<GamesListProps> = ({
                 </div>
                 <div className="col-span-1 px-4 py-3 flex items-center">
                   {(() => {
-                    const eloData = getEloChangeData(game.eloChange);
+                    const currentRating =
+                      typeof game.rating === "string"
+                        ? parseInt(game.rating)
+                        : game.rating;
+                    const previousRating: any =
+                      index > 0
+                        ? typeof currentGames[index - 1].rating === "string"
+                          ? parseInt(currentGames[index - 1].rating)
+                          : currentGames[index - 1].rating
+                        : null;
+
+                    const eloData = getEloChangeData(
+                      game.eloChange,
+                      currentRating,
+                      previousRating
+                    );
                     return (
                       <span className={eloData.className}>{eloData.text}</span>
                     );

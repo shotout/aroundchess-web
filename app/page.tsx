@@ -41,7 +41,7 @@ export default function Home() {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (sessionId && sessionId !='') {
+    if (sessionId && sessionId != "") {
       localStorage.setItem("token", token);
       getProfile({}).then((response) => {
         let data = response.data;
