@@ -9,6 +9,7 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { useProfileStore } from "../store/profile";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const baseUrl = process.env.BASE_URL;
   const { setSessionId } = useProfileStore();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -38,13 +40,15 @@ export default function LoginPage() {
       setSessionId(accessToken);
 
       toast.success("Logged in successfully with Google!");
-      window.location.href = "/analysis";
+
+      router.push("/analysis");
     } catch (error) {
+      console.error("SSO login error:", error);
       toast.error("Failed to process Google login");
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -71,12 +75,16 @@ export default function LoginPage() {
         setSessionId(data.data.access_token);
 
         toast.success("Logged in successfully!");
-        window.location.href = "/analysis";
+        router.push("/analysis");
       } else {
         toast.error("No authentication token received");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to login");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Failed to login");
+      } else {
+        toast.error("Failed to login");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -123,10 +131,10 @@ export default function LoginPage() {
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Google signup");
+        toast.error("Failed to initiate Facebook signup");
       }
     } catch (error) {
-      toast.error("Failed to sign up with Google");
+      toast.error("Failed to sign up with Facebook");
     }
   };
 
@@ -147,10 +155,10 @@ export default function LoginPage() {
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Google signup");
+        toast.error("Failed to initiate Apple signup");
       }
     } catch (error) {
-      toast.error("Failed to sign up with Google");
+      toast.error("Failed to sign up with Apple");
     }
   };
 
@@ -342,7 +350,7 @@ export default function LoginPage() {
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
-                      <path d="M14.94 5.19A4.38 4.38 0 0 0 16 2a4.44 4.44 0 0 0-3 1.52 4.17 4.17 0 0 0-1 3.09 3.69 3.69 0 0 0 2.94-1.42zm2.52 7.44a4.51 4.51 0 0 1 2.16-3.81 4.66 4.66 0 0 0-3.66-2c-1.56-.16-3 .91-3.83.91s-2-.89-3.3-.87a4.92 4.92 0 0 0-4.14 2.53C2.93 12.45 4.24 17 6 19.47c.8 1.21 1.8 2.58 3.12 2.53s1.75-.82 3.28-.82 2 .82 3.3.79 2.22-1.23 3.06-2.45a11 11 0 0 0 1.38-2.85 4.41 4.41 0 0 1-2.68-4.04z" />
+                      <path d="M14.94 5.19A4.38 4.38 0 0 0 16 2a4.44 4.44 0 0 0-3 1.52 4.17 4.17 0 0 0-1 3.09a3.69 3.69 0 0 0 2.94-1.42zm2.52 7.44a4.51 4.51 0 0 1 2.16-3.81a4.66 4.66 0 0 0-3.66-2c-1.56-.16-3 .91-3.83.91s-2-.89-3.3-.87a4.92 4.92 0 0 0-4.14 2.53C2.93 12.45 4.24 17 6 19.47c.8 1.21 1.8 2.58 3.12 2.53s1.75-.82 3.28-.82s2 .82 3.3.79s2.22-1.23 3.06-2.45a11 11 0 0 0 1.38-2.85a4.41 4.41 0 0 1-2.68-4.04z" />
                     </svg>
                     <span className="hidden sm:inline text-black font-medium">
                       Apple
