@@ -1,14 +1,11 @@
 import React, { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuth } from "@clerk/nextjs";
 
-import { Button } from "@/components/ui/button";
 import { useGames } from "../../hooks/useGameData";
 import { useFilters } from "../../hooks/useFilters";
 import { usePagination } from "../../hooks/usePagination";
 import { Game } from "../../types/GameHistoryTypes";
-import { gameHistoryApi } from "../../services/api";
 import { toast } from "sonner";
 import Filters from "../Filters";
 import GamesList from "../GameList";
@@ -26,8 +23,7 @@ const GamesTab: React.FC = () => {
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token,sessionId } = useProfileStore();
-  // Fetch games data
+  const { isMember, token, sessionId } = useProfileStore();
   const {
     games,
     isLoading,

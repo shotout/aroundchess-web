@@ -9,7 +9,7 @@ const OpeningStatistics: React.FC<OpeningStatisticsProps> = ({
   openingData,
 }) => {
   return (
-    <div className="md:p-4 rounded-lg md:shadow-sm">
+    <div className="md:p-4 rounded-lg ">
       <h1 className="text-base font-medium mb-3">Opening Statistics</h1>
       <div className="space-y-3">
         {openingData.length > 0 ? (

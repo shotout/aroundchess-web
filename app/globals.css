@@ -217,9 +217,9 @@ p{
   position: relative;
 }
 
-.btn-primary:hover {
+/* .btn-primary:hover {
   transform: translateY(-1px);
-}
+} */
 
 .btn-primary:focus {
   outline: none;
@@ -229,9 +229,9 @@ p{
               0 0 0 3px rgba(34, 26, 233, 0.3);
 }
 
-.btn-primary:active {
+/* .btn-primary:active {
   transform: translateY(1px);
-}
+} */
 
 /* Updated btn-secondary class */
 .btn-secondary {
