@@ -1,23 +1,17 @@
 import { Lock, LogOut, Mail } from "lucide-react";
 import Image from "next/image";
-import { FC, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
-import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const MyAccount = () => {
-  const { user } = useAuth();
   const { getProfile, logOut } = useApiClient();
-  const { open, setOpen } = usechangePassword();
-  const { profile, setProfile, clearAll } = useProfileStore();
+  const { profile, setProfile, clearAll, sessionId } = useProfileStore();
   const router = useRouter();
-  const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const { username, setUsername } = usePgnStore();
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
@@ -30,10 +24,10 @@ const MyAccount = () => {
       defaultUsername: username,
       password: "",
     });
-  }, [profile]);
+  }, [profile, username]);
   useEffect(() => {
     getProfile({}).then((response) => {
-      let data = response.data;
+      const data = response.data;
       console.log("getProfile", data);
       setProfile(data);
       setUsername(data.username);
@@ -44,7 +38,8 @@ const MyAccount = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleChangePassword = () => {
-    router.push("/change-password");
+    // router.push("/change-password");
+    console.log("Password change requested");
   };
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {
@@ -142,7 +137,6 @@ const MyAccount = () => {
               form.password.length > 0 ? `border-[#737c7f]` : `border-[#C0CED4]`
             } px-[16px] py-[12px]`}
             value={"form.password"}
-            
             onChange={handleOnChange}
           />
           <button

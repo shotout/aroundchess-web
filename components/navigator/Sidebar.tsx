@@ -8,19 +8,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { motion } from "framer-motion";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useProfileStore } from "@/app/store/profile";
 import { fadeInUp } from "@/utils/motion";
-import { useAuth } from "@/context/AuthContext";
 import InitialAvatar from "../avatar/InitialAvatar";
-import useLocalStorage from "@/hooks/useLocalStorage";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -156,20 +146,18 @@ const sidebarLinks: SidebarLink[] = [
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
   const { isMember, token, profile } = useProfileStore();
   const router = useRouter();
 
-  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     if (!sessionId) return;
     setIsSignedIn(true);
   }, [sessionId]);
 
-  const isMobile = !!onClose; // If onClose is provided, we're on mobile
   useEffect(() => {}, []);
   const handleToProfile = () => {
     router.push("/profile");
@@ -187,16 +175,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
             height={1000}
           />
         </Link>
-
-        {/* Close button - only on mobile */}
-        {/* {isMobile && onClose && (
-          <button
-            className="text-gray-500 hover:text-gray-700"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )} */}
       </div>
       <div className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b">
         <div className="flex flex-row items-center justify-center gap-2">
@@ -270,7 +248,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           ? () => setOpenConfirmLogin(true)
                           : () => null
                       }
-                      // style={{ width: widthContainer - 50 }}
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
@@ -353,19 +330,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 : () => null
                             }
                             href={
-                              child.href == "/training-plan" ||
-                              (!isSignedIn && !section.permission)
+                              !isSignedIn && !section.permission
                                 ? ""
                                 : child.href
                             }
-                            // style={{ width: widthContainer - 50 }}
                             className={cn(
                               "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
                                 ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
                                 : child.disabled
-                                ? "text-[#AAA4A4]"
-                                : child.href == "/training-plan"
                                 ? "text-[#AAA4A4]"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
                             )}
@@ -382,8 +355,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                   "mr-3 h-5 w-5",
                                   isChildActive
                                     ? "text-[#221AE9]"
-                                    : child.href == "/training-plan"
-                                    ? "text-[#AAA4A4]"
                                     : "text-gray-400 group-hover:text-[#221AE9]"
                                 )}
                               />
@@ -438,10 +409,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
             )} */}
             <div className="flex-1 text-left">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-                {profile?.name.substring(0,16)}
+                {profile?.name}
               </p>
               <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
-                {profile?.email.substring(0,16)}
+                {profile?.email}
               </p>
             </div>
           </motion.button>
@@ -450,3 +421,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
     </div>
   );
 }
+
+// className={cn(
+//   "mr-3 h-5 w-5",
+//   isChildActive
+//     ? "text-[#221AE9]"
+//     : child.href == "/training-plan"
+//     ? "text-[#AAA4A4]"
+//     : "text-gray-400 group-hover:text-[#221AE9]"
+// )}

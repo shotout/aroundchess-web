@@ -1,24 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
+import { Mail, Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "../store/profile";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
   const baseUrl = process.env.BASE_URL;
-  const { sessionId, setSessionId } = useProfileStore();
+  const { setSessionId } = useProfileStore();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          handleSSOSuccess(accessToken);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSSOSuccess = (accessToken: string) => {
+    try {
+      document.cookie = `token=${accessToken}; path=/`;
+
+      setSessionId(accessToken);
+
+      toast.success("Logged in successfully with Google!");
+      window.location.href = "/analysis";
+    } catch (error) {
+      toast.error("Failed to process Google login");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -37,8 +62,6 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      console.log("Login response:", data.data);
-
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
@@ -46,7 +69,7 @@ export default function LoginPage() {
       if (data.data.access_token) {
         document.cookie = `token=${data.data.access_token}; path=/`;
         setSessionId(data.data.access_token);
-         
+
         toast.success("Logged in successfully!");
         window.location.href = "/analysis";
       } else {
@@ -59,63 +82,75 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogle = async () => {
     try {
-      const response = await fetch(`${baseUrl}/auth/google`, {
-        method: "GET",
-        credentials: "include",
+      const response = await fetch(`${baseUrl}/auth/sso/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
       });
 
       const data = await response.json();
 
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
+      if (data.data.url) {
+        window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Google login");
+        toast.error("Failed to initiate Google signup");
       }
     } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Google");
+      toast.error("Failed to sign up with Google");
     }
   };
 
-  const handleFacebookSignIn = async () => {
+  const handleFacebook = async () => {
     try {
-      const response = await fetch(`${baseUrl}/auth/facebook`, {
-        method: "GET",
-        credentials: "include",
+      const response = await fetch(`${baseUrl}/auth/sso/facebook`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
       });
 
       const data = await response.json();
 
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
+      if (data.data.url) {
+        window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Facebook login");
+        toast.error("Failed to initiate Google signup");
       }
     } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Facebook");
+      toast.error("Failed to sign up with Google");
     }
   };
 
-  const handleAppleSignIn = async () => {
+  const handleApple = async () => {
     try {
-      const response = await fetch(`${baseUrl}/auth/apple`, {
-        method: "GET",
-        credentials: "include",
+      const response = await fetch(`${baseUrl}/auth/sso/apple`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
       });
 
       const data = await response.json();
 
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
+      if (data.data.url) {
+        window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Apple login");
+        toast.error("Failed to initiate Google signup");
       }
     } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Apple");
+      toast.error("Failed to sign up with Google");
     }
   };
 
@@ -138,13 +173,11 @@ export default function LoginPage() {
             }}
             alt="Authentication background"
           />
-          {/* Optional overlay for improved text clarity */}
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 
         <SiteHeaderNew />
 
-        {/* Main Content with fixed dimensions based on device */}
         <main
           style={{ height: `calc(100vh - ${headerHeight}px)` }}
           className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8"
@@ -250,7 +283,8 @@ export default function LoginPage() {
 
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
-                  onClick={handleGoogleSignIn}
+                  onClick={handleGoogle}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
@@ -278,7 +312,8 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={handleFacebookSignIn}
+                  onClick={handleFacebook}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
@@ -296,11 +331,19 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={handleAppleSignIn}
+                  onClick={handleApple}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
-                    <Apple className="h-5 w-5 text-black" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M14.94 5.19A4.38 4.38 0 0 0 16 2a4.44 4.44 0 0 0-3 1.52 4.17 4.17 0 0 0-1 3.09 3.69 3.69 0 0 0 2.94-1.42zm2.52 7.44a4.51 4.51 0 0 1 2.16-3.81 4.66 4.66 0 0 0-3.66-2c-1.56-.16-3 .91-3.83.91s-2-.89-3.3-.87a4.92 4.92 0 0 0-4.14 2.53C2.93 12.45 4.24 17 6 19.47c.8 1.21 1.8 2.58 3.12 2.53s1.75-.82 3.28-.82 2 .82 3.3.79 2.22-1.23 3.06-2.45a11 11 0 0 0 1.38-2.85 4.41 4.41 0 0 1-2.68-4.04z" />
+                    </svg>
                     <span className="hidden sm:inline text-black font-medium">
                       Apple
                     </span>

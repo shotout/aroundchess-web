@@ -12,13 +12,9 @@ const publicRoutes = [
   "/register",
   "/forgot-password",
 ];
-// Combined middleware
 export async function middleware(req: NextRequest) {
-  // Handle Stockfish files
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
-  console.log("token", token);
-  //if already login
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
     token != undefined &&

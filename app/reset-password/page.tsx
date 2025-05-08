@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -15,46 +14,13 @@ export default function ResetPassword() {
   const [isResetting, setIsResetting] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
 
-  const { signIn, setActive } = useSignIn();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get the code from the URL when component mounts
   const code = searchParams?.get("code");
 
-  async function handlePasswordReset(e: React.FormEvent) {
-    e.preventDefault();
-    setIsResetting(true);
+  async function handlePasswordReset(e: React.FormEvent) {}
 
-    try {
-      if (!code) {
-        throw new Error("No reset code found");
-      }
-
-      const result = await signIn?.attemptFirstFactor({
-        strategy: "reset_password_email_code",
-        code,
-        password,
-      });
-
-      if (result?.status === "complete" && setActive) {
-        await setActive({ session: result.createdSessionId });
-        // Show success message before redirecting
-        setResetComplete(true);
-        // Redirect after a short delay
-        setTimeout(() => {
-          router.push("/");
-        }, 3000);
-      }
-    } catch (err: any) {
-      console.error("Error resetting password:", err);
-      setError(err.errors?.[0]?.longMessage || "Failed to reset password");
-    } finally {
-      setIsResetting(false);
-    }
-  }
-
-  // If no code is present in URL, redirect to reset password page
   useEffect(() => {
     if (!code) {
       router.push("/forgot-password");
