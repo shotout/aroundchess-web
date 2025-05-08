@@ -27,6 +27,7 @@ import { getSyzygyMove } from "@/lib/stockfish/syzygy-positions";
 import Image from "next/image";
 import ChessboardWrapper from "../ChessboardWrapper";
 import { SettingBoard } from "@/components/modal/SettingBoard";
+import { useShareGame } from "@/app/store/shareGame";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -89,6 +90,19 @@ export default function StageDetailView({
   const [bestMove, setBestMove] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
+  const { setFen, setPGN, setOpen } = useShareGame();
+
+  const handleShare = async () => {
+    try {
+      const currentPgn = game.pgn();
+      const currentFen = game.fen();
+      setFen(currentFen);
+      setPGN(currentPgn);
+      setOpen(true);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
 
   const {
     data: endgameData,
@@ -588,6 +602,7 @@ export default function StageDetailView({
                     bestMove={bestMove}
                     is3DMode={is3DMode}
                     showHint={showHint}
+                    handleShare={handleShare}
                   />
                 </div>
               </div>
@@ -668,6 +683,7 @@ export default function StageDetailView({
                 isCheckmateMode={isCheckmateMode}
                 playerColor={playerColor}
                 isAutoSolution={isAutoSolution}
+                handleShare={handleShare}
               />
             </div>
           </div>

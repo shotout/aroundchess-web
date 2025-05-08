@@ -15,6 +15,7 @@ interface GameControlsProps {
   isCheckmateMode: boolean;
   playerColor: "w" | "b";
   isAutoSolution: boolean;
+  handleShare?: () => void;
 }
 
 export default function GameControls({
@@ -27,6 +28,7 @@ export default function GameControls({
   isCheckmateMode,
   playerColor,
   isAutoSolution,
+  handleShare,
 }: GameControlsProps) {
   const colorName = playerColor === "w" ? "White" : "Black";
   const isGameOver = gameStatus === "solved";
@@ -120,18 +122,18 @@ export default function GameControls({
       {isGameOver ? (
         <div className="grid grid-cols-3 gap-2 2xl:gap-4 rounded-lg p-2 sm:p-3 w-full">
           <button
-            onClick={handleDownload}
+            onClick={handleShare}
             className="flex gap-x-1 xl:gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200"
           >
             <Image
-              src={"/endgame-training/download.png"}
+              src={"/endgame-training/share.png"}
               alt="download icon"
               width={16}
               height={16}
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
 
-            <h1 className="text-xs lg:text-sm text-nowrap">Download PGN</h1>
+            <h1 className="text-xs lg:text-sm text-nowrap">Share PGN/FEN</h1>
           </button>
           <button
             onClick={resetPosition}

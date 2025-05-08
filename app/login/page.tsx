@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, ArrowLeft } from "lucide-react";
@@ -9,11 +9,6 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { useProfileStore } from "../store/profile";
-import {
-  signinWithGoogle,
-  signInWithFacebook,
-  signInWithApple,
-} from "@/utils/supabase/actions"; // Import the functions
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +16,33 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const baseUrl = process.env.BASE_URL;
   const { setSessionId } = useProfileStore();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          handleSSOSuccess(accessToken);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSSOSuccess = (accessToken: string) => {
+    try {
+      document.cookie = `token=${accessToken}; path=/`;
+
+      setSessionId(accessToken);
+
+      toast.success("Logged in successfully with Google!");
+      window.location.href = "/analysis";
+    } catch (error) {
+      toast.error("Failed to process Google login");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,41 +82,75 @@ export default function LoginPage() {
     }
   };
 
-  const handleSSO = async (provider: string) => {
+  const handleGoogle = async () => {
     try {
-      setIsLoading(true);
-      console.log(`Initiating ${provider} SSO login...`);
+      const response = await fetch(`${baseUrl}/auth/sso/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
+      });
 
-      let result: { url?: string; error?: string } | undefined;
-      if (provider === "google") {
-        result = await signinWithGoogle();
-      } else if (provider === "facebook") {
-        result = await signInWithFacebook();
-      } else if (provider === "apple") {
-        result = await signInWithApple();
-      }
+      const data = await response.json();
 
-      if (result?.url) {
-        console.log(`Redirecting to: ${result.url}`);
-        window.location.href = result.url;
-        return;
-      }
-
-      if (result?.error) {
-        console.error(`SSO error with ${provider}:`, result.error);
-        toast.error(`Failed to sign in with ${provider}: ${result.error}`);
+      if (data.data.url) {
+        window.location.href = data.data.url;
       } else {
-        console.error(
-          "SSO function returned without a valid URL or error",
-          result
-        );
-        toast.error(`Failed to get redirect URL for ${provider} login`);
+        toast.error("Failed to initiate Google signup");
       }
-    } catch (error: any) {
-      console.error(`SSO error with ${provider}:`, error);
-      toast.error(`Failed to sign in with ${provider}: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      toast.error("Failed to sign up with Google");
+    }
+  };
+
+  const handleFacebook = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/auth/sso/facebook`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.data.url) {
+        window.location.href = data.data.url;
+      } else {
+        toast.error("Failed to initiate Google signup");
+      }
+    } catch (error) {
+      toast.error("Failed to sign up with Google");
+    }
+  };
+
+  const handleApple = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/auth/sso/apple`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          platform: "web",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.data.url) {
+        window.location.href = data.data.url;
+      } else {
+        toast.error("Failed to initiate Google signup");
+      }
+    } catch (error) {
+      toast.error("Failed to sign up with Google");
     }
   };
 
@@ -227,7 +283,7 @@ export default function LoginPage() {
 
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
-                  onClick={() => handleSSO("google")}
+                  onClick={handleGoogle}
                   disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
@@ -256,7 +312,7 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={() => handleSSO("facebook")}
+                  onClick={handleFacebook}
                   disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
@@ -275,7 +331,7 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={() => handleSSO("apple")}
+                  onClick={handleApple}
                   disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
