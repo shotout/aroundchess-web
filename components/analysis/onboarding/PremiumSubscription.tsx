@@ -127,12 +127,13 @@ export const PremiumSubsContent: React.FC<{
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
       body: JSON.stringify({
-        productName: "Premium Package (Yearly)",
+        productName: premium.name,
         price: premium.price * 100,
         quantity: 1,
         description: premium.description,
         type: "membership",
         idUser: profile.id,
+        membershipId:premium.id
       }),
     });
 
