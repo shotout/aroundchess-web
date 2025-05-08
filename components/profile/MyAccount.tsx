@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
@@ -32,7 +31,8 @@ const MyAccount = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleChangePassword = () => {
-    router.push("/change-password");
+    // router.push("/change-password");
+    console.log("Password change requested");
   };
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {

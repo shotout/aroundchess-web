@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
-import { signinWithGoogle } from "@/utils/supabase/actions";
 import { useProfileStore } from "../store/profile";
+import { SiteHeaderNew } from "@/components/site-header-new";
+import { SiteFooterNew } from "@/components/site-footer-new";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,6 @@ export default function RegisterPage() {
     }
 
     try {
-      //  register
       const response = await fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: {
@@ -267,7 +267,7 @@ export default function RegisterPage() {
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 
-        {/* <SiteHeaderNew /> */}
+        <SiteHeaderNew />
 
         {/* Main Content with fixed dimensions based on device */}
         <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
@@ -394,8 +394,8 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <form>
                     <button
-                      // onClick={handleGoogleSignUp}
-                      formAction={signinWithGoogle}
+                      onClick={handleGoogleSignUp}
+                      // formAction={signinWithGoogle}
                       className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                     >
                       <div className="flex items-center justify-center gap-x-2">
@@ -609,7 +609,7 @@ export default function RegisterPage() {
             )}
           </div>
         </main>
-        {/* <SiteFooterNew /> */}
+        <SiteFooterNew />
       </div>
     </>
   );
