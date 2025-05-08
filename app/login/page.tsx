@@ -43,7 +43,6 @@ export default function LoginPage() {
 
       router.push("/analysis");
     } catch (error) {
-      console.error("SSO login error:", error);
       toast.error("Failed to process Google login");
     }
   };
