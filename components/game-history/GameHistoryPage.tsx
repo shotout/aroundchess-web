@@ -9,7 +9,6 @@ import StatisticsSection from "./components/StatisticsSection";
 import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
 import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const GameHistoryPage: React.FC = () => {
@@ -34,7 +33,6 @@ const GameHistoryPage: React.FC = () => {
 
     setIsUsernameFetching(true);
 
-    // Just wait for ChessAccountSetup to finish its work
     setTimeout(() => {
       setIsLoading(false);
       setIsUsernameFetching(false);

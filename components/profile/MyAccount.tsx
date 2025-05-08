@@ -1,23 +1,18 @@
 import { Lock, LogOut, Mail } from "lucide-react";
 import Image from "next/image";
-import { FC, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usechangePassword } from "@/app/store/changePassword";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
-import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const MyAccount = () => {
-  const { user } = useAuth();
   const { getProfile, logOut } = useApiClient();
-  const { open, setOpen } = usechangePassword();
-  const { profile, setProfile,clearAll } = useProfileStore();
+  const { profile, setProfile, clearAll, sessionId } = useProfileStore();
   const router = useRouter();
-  const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const { username, setUsername } = usePgnStore();
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
@@ -41,7 +36,7 @@ const MyAccount = () => {
   };
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {
-      clearAll()
+      clearAll();
       localStorage.removeItem("token");
       document.cookie = `token=; path=/`;
       router.push("/login");

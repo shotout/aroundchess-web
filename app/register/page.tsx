@@ -6,11 +6,8 @@ import { Mail, Lock, Apple, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { SiteHeaderNew } from "@/components/site-header-new";
-import { SiteFooterNew } from "@/components/site-footer-new";
 import { createClient } from "@supabase/supabase-js";
 import { signinWithGoogle } from "@/utils/supabase/actions";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "../store/profile";
 
 export default function RegisterPage() {
@@ -23,14 +20,12 @@ export default function RegisterPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
-  const { sessionId } = useProfileStore();
   const { setSessionId } = useProfileStore();
-  // === Supabase Config ===
-  const SUPABASE_URL = "https://dzmkhfsfqdagfjdxifjq.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG1rdG9lbXhsYWl2a214ZWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1MTQzNzYsImV4cCI6MjA1MTA5MDM3Nn0.kK9yML54kEuKJpsme-B1huVklJUIoCC7P53hssEmsMU";
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const supabase = createClient(SUPABASE_URL || "", SUPABASE_ANON_KEY || "");
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -84,7 +79,6 @@ export default function RegisterPage() {
     setIsVerifying(true);
 
     try {
-      // Verify the OTP
       const response = await fetch(`${baseUrl}/auth/verify-otp`, {
         method: "POST",
         headers: {
@@ -102,15 +96,23 @@ export default function RegisterPage() {
         throw new Error(data.message || "Verification failed");
       }
 
-      if (data.token) {
+      if (data.data && data.data.access_token) {
+        setSessionId(data.data.access_token);
+
+        document.cookie = `token=${data.data.access_token}; path=/`;
+
+        toast.success("Account verified and logged in successfully!");
+
+        window.location.href = "/analysis";
+      } else if (data.token) {
         setSessionId(data.token);
-
         document.cookie = `token=${data.token}; path=/`;
+
+        toast.success("Account verified and logged in successfully!");
+        window.location.href = "/analysis";
+      } else {
+        toast.error("No authentication token received");
       }
-
-      toast.success("Account verified successfully!");
-
-      window.location.href = "/analysis";
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Verification failed";

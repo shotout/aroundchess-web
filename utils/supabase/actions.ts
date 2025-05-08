@@ -3,22 +3,25 @@
 import { createClientForServer } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
-const signInWith = (provider : any) => async () => {
+const signInWith = (provider: string) => async () => {
   const supabase = await createClientForServer()
-
-  const auth_callback_url = "/sso-callback"
+  
+  // Use absolute URL for redirect
+  const origin = 'http://localhost:3000'
+  const auth_callback_url = `${origin}/sso-callback`
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
+    provider: provider as any,
     options: {
       redirectTo: auth_callback_url,
     },
   })
 
-  console.log("hasil dari sso",data)
+  console.log("SSO authentication result:", data)
 
   if (error) {
-    console.log(error)
+    console.error("SSO authentication error:", error)
+    throw new Error(error.message)
   }
 
   if (data.url) {
@@ -28,13 +31,12 @@ const signInWith = (provider : any) => async () => {
   }
 }
 
-const signinWithGoogle = signInWith('google')
-const signInWithFacebook = signInWith('facebook')
-const signInWithGithub = signInWith('apple')
+export const signinWithGoogle = signInWith('google')
+export const signInWithFacebook = signInWith('facebook')
+export const signInWithApple = signInWith('apple')
 
-const signOut = async () => {
+export const signOut = async () => {
   const supabase = await createClientForServer()
   await supabase.auth.signOut()
+  redirect('/')
 }
-
-export { signinWithGoogle, signOut }

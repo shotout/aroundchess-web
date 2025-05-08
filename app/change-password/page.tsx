@@ -1,9 +1,7 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useAuth, useSignIn } from "@clerk/nextjs";
+import React, { useState, useRef } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
 import { SiteFooterNew } from "@/components/site-footer-new";
@@ -11,7 +9,6 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { toast } from "sonner";
 
-// Define CSS variables for background image positioning
 const backgroundStyles = {
   "--bg-position-x": "center",
   "--bg-position-y": "top",
@@ -31,110 +28,6 @@ const ChangePasswordPage: NextPage = () => {
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { isLoaded, signIn } = useSignIn();
-
-  // Start password reset process and send email with code
-  async function startPasswordReset(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      await signIn?.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
-      });
-
-      setEmailSent(true);
-      toast.success("Reset code sent to your email!");
-
-      // Focus the verification code input when it appears
-      setTimeout(() => {
-        if (codeInputRef.current) {
-          codeInputRef.current.focus();
-        }
-      }, 100);
-    } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to send reset email");
-      toast.error("Failed to send reset email");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Reset password with the verification code
-  async function resetPassword(e: React.FormEvent) {
-    e.preventDefault();
-    setIsVerifying(true);
-    setError("");
-
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      toast.error("Passwords do not match");
-      setIsVerifying(false);
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
-      toast.error("Password must be at least 8 characters long");
-      setIsVerifying(false);
-      return;
-    }
-
-    try {
-      const result = await signIn?.attemptFirstFactor({
-        strategy: "reset_password_email_code",
-        code: verificationCode,
-        password: newPassword,
-      });
-
-      if (result?.status === "complete") {
-        toast.success("Password reset successfully!");
-        setResetComplete(true);
-
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
-      } else {
-        setError("Failed to reset password. Please try again.");
-        toast.error("Failed to reset password");
-      }
-    } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to reset password");
-      toast.error("Failed to reset password");
-    } finally {
-      setIsVerifying(false);
-    }
-  }
-
-  // Function to resend verification code
-  async function resendVerificationCode() {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      await signIn?.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
-      });
-
-      toast.success("Reset code resent to your email!");
-
-      // Clear the input fields
-      setVerificationCode("");
-      if (codeInputRef.current) {
-        codeInputRef.current.focus();
-      }
-    } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Failed to resend code");
-      toast.error("Failed to resend code");
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <>
@@ -211,7 +104,7 @@ const ChangePasswordPage: NextPage = () => {
             {!emailSent && !resetComplete ? (
               <div className="flex-1">
                 <form
-                  onSubmit={startPasswordReset}
+                  // onSubmit={startPasswordReset}
                   className="space-y-4 sm:space-y-5"
                 >
                   <div className="space-y-3 sm:space-y-4">
@@ -265,7 +158,10 @@ const ChangePasswordPage: NextPage = () => {
                   </div>
                 </div>
 
-                <form onSubmit={resetPassword} className="space-y-6">
+                <form
+                  // onSubmit={resetPassword}
+                  className="space-y-6"
+                >
                   <div>
                     <div className="mb-4">
                       <p className="text-black/80 mb-2">
@@ -418,7 +314,7 @@ const ChangePasswordPage: NextPage = () => {
 
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <button
-                    onClick={resendVerificationCode}
+                    // onClick={resendVerificationCode}
                     className="h-12 bg-white/40 hover:bg-white/60 text-blue-600 font-medium rounded-md transition-colors"
                     disabled={isLoading}
                   >

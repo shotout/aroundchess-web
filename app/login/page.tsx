@@ -1,24 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock, Apple, ArrowLeft } from "lucide-react";
+import { Mail, Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "../store/profile";
+import {
+  signInWithApple,
+  signInWithFacebook,
+  signinWithGoogle,
+} from "@/utils/supabase/actions";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
   const baseUrl = process.env.BASE_URL;
-  const { sessionId, setSessionId } = useProfileStore();
+  const { setSessionId } = useProfileStore();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -37,8 +40,6 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      console.log("Login response:", data.data);
-
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
@@ -46,7 +47,7 @@ export default function LoginPage() {
       if (data.data.access_token) {
         document.cookie = `token=${data.data.access_token}; path=/`;
         setSessionId(data.data.access_token);
-         
+
         toast.success("Logged in successfully!");
         window.location.href = "/analysis";
       } else {
@@ -59,63 +60,19 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleSSO = async (provider: string) => {
     try {
-      const response = await fetch(`${baseUrl}/auth/google`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        toast.error("Failed to initiate Google login");
+      setIsLoading(true);
+      if (provider === "google") {
+        await signinWithGoogle();
+      } else if (provider === "facebook") {
+        await signInWithFacebook();
+      } else if (provider === "apple") {
+        await signInWithApple();
       }
-    } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Google");
-    }
-  };
-
-  const handleFacebookSignIn = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/auth/facebook`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        toast.error("Failed to initiate Facebook login");
-      }
-    } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Facebook");
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/auth/apple`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else {
-        toast.error("Failed to initiate Apple login");
-      }
-    } catch (error) {
-      console.error("OAuth error:", error);
-      toast.error("Failed to sign in with Apple");
+    } catch (error: any) {
+      toast.error(`Failed to sign in with ${provider}: ${error.message}`);
+      setIsLoading(false);
     }
   };
 
@@ -250,7 +207,8 @@ export default function LoginPage() {
 
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
-                  onClick={handleGoogleSignIn}
+                  onClick={() => handleSSO("google")}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
@@ -278,7 +236,8 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={handleFacebookSignIn}
+                  onClick={() => handleSSO("facebook")}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
@@ -296,11 +255,19 @@ export default function LoginPage() {
                   </div>
                 </button>
                 <button
-                  onClick={handleAppleSignIn}
+                  onClick={() => handleSSO("apple")}
+                  disabled={isLoading}
                   className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-x-2">
-                    <Apple className="h-5 w-5 text-black" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M14.94 5.19A4.38 4.38 0 0 0 16 2a4.44 4.44 0 0 0-3 1.52 4.17 4.17 0 0 0-1 3.09 3.69 3.69 0 0 0 2.94-1.42zm2.52 7.44a4.51 4.51 0 0 1 2.16-3.81 4.66 4.66 0 0 0-3.66-2c-1.56-.16-3 .91-3.83.91s-2-.89-3.3-.87a4.92 4.92 0 0 0-4.14 2.53C2.93 12.45 4.24 17 6 19.47c.8 1.21 1.8 2.58 3.12 2.53s1.75-.82 3.28-.82 2 .82 3.3.79 2.22-1.23 3.06-2.45a11 11 0 0 0 1.38-2.85 4.41 4.41 0 0 1-2.68-4.04z" />
+                    </svg>
                     <span className="hidden sm:inline text-black font-medium">
                       Apple
                     </span>
