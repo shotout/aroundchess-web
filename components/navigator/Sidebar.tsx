@@ -330,19 +330,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                 : () => null
                             }
                             href={
-                              child.href == "/training-plan" ||
-                              (!isSignedIn && !section.permission)
+                              !isSignedIn && !section.permission
                                 ? ""
                                 : child.href
                             }
-                            // style={{ width: widthContainer - 50 }}
                             className={cn(
                               "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                               isChildActive
                                 ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
                                 : child.disabled
-                                ? "text-[#AAA4A4]"
-                                : child.href == "/training-plan"
                                 ? "text-[#AAA4A4]"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
                             )}
@@ -359,8 +355,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
                                   "mr-3 h-5 w-5",
                                   isChildActive
                                     ? "text-[#221AE9]"
-                                    : child.href == "/training-plan"
-                                    ? "text-[#AAA4A4]"
                                     : "text-gray-400 group-hover:text-[#221AE9]"
                                 )}
                               />
@@ -427,3 +421,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
     </div>
   );
 }
+
+// className={cn(
+//   "mr-3 h-5 w-5",
+//   isChildActive
+//     ? "text-[#221AE9]"
+//     : child.href == "/training-plan"
+//     ? "text-[#AAA4A4]"
+//     : "text-gray-400 group-hover:text-[#221AE9]"
+// )}
