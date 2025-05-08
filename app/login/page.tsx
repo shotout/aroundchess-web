@@ -10,10 +10,10 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { useProfileStore } from "../store/profile";
 import {
-  signInWithApple,
-  signInWithFacebook,
   signinWithGoogle,
-} from "@/utils/supabase/actions";
+  signInWithFacebook,
+  signInWithApple,
+} from "@/utils/supabase/actions"; // Import the functions
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -63,15 +63,37 @@ export default function LoginPage() {
   const handleSSO = async (provider: string) => {
     try {
       setIsLoading(true);
+      console.log(`Initiating ${provider} SSO login...`);
+
+      let result: { url?: string; error?: string } | undefined;
       if (provider === "google") {
-        await signinWithGoogle();
+        result = await signinWithGoogle();
       } else if (provider === "facebook") {
-        await signInWithFacebook();
+        result = await signInWithFacebook();
       } else if (provider === "apple") {
-        await signInWithApple();
+        result = await signInWithApple();
+      }
+
+      if (result?.url) {
+        console.log(`Redirecting to: ${result.url}`);
+        window.location.href = result.url;
+        return;
+      }
+
+      if (result?.error) {
+        console.error(`SSO error with ${provider}:`, result.error);
+        toast.error(`Failed to sign in with ${provider}: ${result.error}`);
+      } else {
+        console.error(
+          "SSO function returned without a valid URL or error",
+          result
+        );
+        toast.error(`Failed to get redirect URL for ${provider} login`);
       }
     } catch (error: any) {
+      console.error(`SSO error with ${provider}:`, error);
       toast.error(`Failed to sign in with ${provider}: ${error.message}`);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -95,13 +117,11 @@ export default function LoginPage() {
             }}
             alt="Authentication background"
           />
-          {/* Optional overlay for improved text clarity */}
           <div className="absolute inset-0 bg-black/5"></div>
         </div>
 
         <SiteHeaderNew />
 
-        {/* Main Content with fixed dimensions based on device */}
         <main
           style={{ height: `calc(100vh - ${headerHeight}px)` }}
           className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8"
