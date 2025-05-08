@@ -2,27 +2,37 @@
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
-import ThreeDChessboard from "@/components/chessboard/3d/ThreeDChessboard";
-import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import { SettingBoard } from "@/components/modal/SettingBoard";
-import Navigation from "@/components/navigator/navigation";
-import GameCard from "@/components/playground/play-vs-ai/GameCard";
-import { Engine } from "@/components/playground/src/lib/stockfish";
-import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
+import { fadeInUp, motion } from "@/utils/motion";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { getMaterialDifferences } from "@/app/utils/calculateMaterialDifference";
+import { clearSelection } from "@/app/utils/gameUtils";
+import {
+  getHintHighlightStyle,
+  getInvalidMoveHighlightStyle,
+  getLastMoveHighlightStyle,
+  getMoveHighlightStyle,
+} from "@/app/utils/highlightStyles2D";
+import {
+  getHintHighlightStyle3D,
+  getInvalidMoveHighlightStyle3D,
+  getLastMoveHighlightStyle3D,
+  getMoveHighlightStyle3D,
+} from "@/app/utils/highlightStyles3D";
+import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
+import { useAuth } from "@/context/AuthContext";
+import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Piece, PieceSymbol, Square } from "chess.js";
 import {
   ArrowLeft,
   ArrowRight,
-  BarChart2,
   ChevronLeft,
   ChevronRight,
-  HistoryIcon,
   Info,
   MoveRightIcon,
-  Plus,
   RefreshCcw,
   RotateCcw,
   RotateCw,
@@ -34,22 +44,8 @@ import {
   BoardOrientation,
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
-import { useApiClient } from "@/functions/api-client";
-import DotSpinner from "@/components/game-history/Spinner";
-import { usePgnStore } from "@/app/store/zustandStore";
-import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
-import {
-  getMoveHighlightStyle,
-  getLastMoveHighlightStyle,
-  getHintHighlightStyle,
-  getInvalidMoveHighlightStyle,
-} from "@/app/utils/highlightStyles";
-import { clearSelection } from "@/app/utils/gameUtils";
-import { getMaterialDifferences } from "@/app/utils/calculateMaterialDifference";
-import ReactCountryFlag from "react-country-flag";
-import { useAuth } from "@/context/AuthContext";
-import { useProfileStore } from "@/app/store/profile";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import { playIncorrectMoveSound, playMoveSound } from "../src/utils/playSound";
+import { playSound } from "@/utils/play-audio";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -98,7 +94,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const { isLoading } = useApiClient();
   const { user } = useAuth();
   const { profile } = useProfileStore();
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
   const { hideDiv, username } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
@@ -196,7 +192,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               square,
               isCapture,
               boardOrientation,
-              "#25CEDA"
+              "#1C16C2"
             )
           )
         : [],
@@ -234,6 +230,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const isMoveLegal = legalMoves.some((m) => m.to === toSquare);
 
       if (!isMoveLegal) {
+        playIncorrectMoveSound();
         // console.error(`Illegal move from ${fromSquare} to ${toSquare}`)
         return false; // No invalid highlighting for illegal moves
       }
@@ -253,6 +250,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       fillMovement(move);
       console.log("move fillMovement", move);
       if (move) {
+        playSound(game,move)
         const currentFen = game.fen();
         setPosition(currentFen);
         setFenHistory((prevHistory) => [...prevHistory, currentFen]);
@@ -604,7 +602,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
         </button>
-        <SettingBoard />
+        {/* <SettingBoard />
         <button onClick={handleThreeD}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
@@ -613,7 +611,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -828,7 +826,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <ThreeDBoard
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={orientation}
+                  orientation={boardOrientation}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -862,6 +860,53 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   }}
                 />
               )}
+                {lastMove && isAtCurrentMove && (
+                  <>
+                    <div
+                      style={getLastMoveHighlightStyle3D(
+                        lastMove.from,
+                        boardOrientation === "white" ? "white" : "black",
+                        "#B9CA4390"
+                      )}
+                    />
+                    <div
+                      style={getLastMoveHighlightStyle3D(
+                        lastMove.to,
+                        boardOrientation === "white" ? "white" : "black",
+                        "#F5F68290"
+                      )}
+                    />
+                  </>
+                )}
+
+                {hint && isAtCurrentMove && !isComputerTurn && (
+                  <div
+                    style={getHintHighlightStyle3D(
+                      hint,
+                      boardOrientation === "white" ? "white" : "black",
+                      "#221AE950"
+                    )}
+                  />
+                )}
+                {isAtCurrentMove &&
+                  selectedSquare &&
+                  highlightStyles.map((style, index) => (
+                    <div
+                      key={`${possibleMoves[index].square}-${index}`}
+                      style={style}
+                    />
+                  ))}
+                {invalidMoveSquares.map((square) => (
+                  <div
+                    key={square}
+                    style={getInvalidMoveHighlightStyle3D(
+                      square,
+                      boardOrientation
+                    )}
+                  >
+                    ❌
+                  </div>
+                ))}
             </motion.div>
             <motion.div
               initial={{ rotateX: 180 }}
@@ -885,33 +930,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {!is3DMode && (
                 <TwoDChessboard
-                  onPieceDrop={handlePieceDrop}
-                  position={position}
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  onSquareClick={
-                    !isComputerTurn && gameEnded
-                      ? undefined
-                      : handleSquareClickCallback
-                  }
                   arePiecesDraggable={false}
-                  // arePiecesDraggable={!isComputerTurn && !gameEnded}
-                  onPieceClick={
-                    !isComputerTurn && gameEnded
-                      ? undefined
-                      : (piece: string, sourceSquare: string) =>
-                          handlePieceClick(
-                            { type: piece as PieceSymbol, color: "w" }, // Adjust the piece type
-                            sourceSquare as Square
-                          )
-                  }
+                  orientation={boardOrientation}
+                  boardWidth={boardSize}
+                  position={position}
+                  onSquareClick={handleSquareClickCallback}
                   onSquareRightClick={handleSquareRightClick}
-                  customSquareStyles={{
-                    ...customSquareStyles,
-                  }}
-                  arePremovesAllowed={true}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={false}
                   onPromotionPieceSelect={function (
                     piece?: PromotionPieceOption,
                     promoteFromSquare?: Square,
@@ -919,8 +943,59 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   ): boolean {
                     throw new Error("Function not implemented.");
                   }}
+                  customSquareStyles={{
+                    ...customSquareStyles,
+                  }}
+                  areArrowsAllowed={true}
+                  promotionToSquare={moveTo}
+                  showPromotionDialog={false}
                 />
               )}
+
+              {lastMove && isAtCurrentMove && (
+                <>
+                  <div
+                    style={getLastMoveHighlightStyle(
+                      lastMove.from,
+                      boardOrientation === "white" ? "white" : "black",
+                      "#B9CA4390"
+                    )}
+                  />
+                  <div
+                    style={getLastMoveHighlightStyle(
+                      lastMove.to,
+                      boardOrientation === "white" ? "white" : "black",
+                      "#F5F68290"
+                    )}
+                  />
+                </>
+              )}
+
+              {hint && isAtCurrentMove && !isComputerTurn && (
+                <div
+                  style={getHintHighlightStyle(
+                    hint,
+                    boardOrientation === "white" ? "white" : "black",
+                    "#221AE950"
+                  )}
+                />
+              )}
+              {isAtCurrentMove &&
+                selectedSquare &&
+                highlightStyles.map((style, index) => (
+                  <div
+                    key={`${possibleMoves[index].square}-${index}`}
+                    style={style}
+                  />
+                ))}
+              {invalidMoveSquares.map((square) => (
+                <div
+                  key={square}
+                  style={getInvalidMoveHighlightStyle(square, boardOrientation)}
+                >
+                  ❌
+                </div>
+              ))}
             </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">

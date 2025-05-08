@@ -15,7 +15,6 @@ export function SuccessSent() {
 
   const handleBack = () => {
     setOpen(false);
-    router.back()
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

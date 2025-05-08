@@ -120,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
-      {isMember != null ||isSignedIn != null && (
+      {(isMember != null || isSignedIn != null) && (
         <div className="flex items-center space-x-4">
           {/* Auth buttons - visible on desktop only (xl+) */}
 

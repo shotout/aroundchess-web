@@ -45,13 +45,13 @@ export class Engine {
     ];
 
     commands.forEach((cmd) => {
-      console.log("Sending command:", cmd);
+      //console.log("Sending command:", cmd);
       this.worker?.postMessage(cmd);
     });
   }
 
   private handleMessage(data: string) {
-    // console.log('Engine received:', data);
+    // //console.log('Engine received:', data);
 
     // Handle initialization messages
     if (data === "readyok") {
@@ -60,7 +60,7 @@ export class Engine {
     }
 
     if (!this.messageCallback) return;
-    // console.log("handleMessage",data)
+    // //console.log("handleMessage",data)
     // Parse info messages for moves
     if (data.startsWith("info")) {
       // Look for score and pv
@@ -70,7 +70,7 @@ export class Engine {
 
       if (pvMatch) {
         const move = pvMatch[1];
-        console.log("Found move, depth move:", depthMatch, move);
+        //console.log("Found move, depth move:", depthMatch, move);
         this.messageCallback({
           pv: move,
           depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
@@ -86,7 +86,7 @@ export class Engine {
       if (parts.length >= 2) {
         const move = parts[1];
         if (move && move !== "(none)" && move.length >= 4) {
-          console.log("Best move found:", move);
+          //console.log("Best move found:", move);
           this.messageCallback({
             pv: move,
             bestMove: move,
@@ -108,7 +108,7 @@ export class Engine {
     ];
 
     commands.forEach((cmd) => {
-      console.log("Setting skill level:", cmd);
+      //console.log("Setting skill level:", cmd);
       this.worker?.postMessage(cmd);
     });
   }
@@ -120,7 +120,7 @@ export class Engine {
     this.stop();
 
     // Set position and start analysis
-    // console.log('Evaluating position:', fen);
+    // //console.log('Evaluating position:', fen);
     this.worker.postMessage("position fen " + fen);
     this.worker.postMessage(`go depth ${stockfishLevel}`);
     this.worker.postMessage("go movetime 2000"); // Just use movetime for faster response
@@ -132,7 +132,7 @@ export class Engine {
 
   stop() {
     if (!this.worker) return;
-    console.log("Stopping engine");
+    //console.log("Stopping engine");
     this.worker.postMessage("stop");
   }
 
@@ -150,7 +150,7 @@ let stockfishService: Engine | null = null;
 
 export const getStockfishService = () => {
   if (!stockfishService) {
-    console.log("Creating new StockfishService instance"); // Debug log
+    //console.log("Creating new StockfishService instance"); // Debug log
     stockfishService = new Engine();
   }
   return stockfishService;

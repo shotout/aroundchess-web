@@ -128,6 +128,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             height: squareWidth * 0.85,
             position: "relative",
             pointerEvents: "none",
+            zIndex: 100,
           }}
         >
           <img
@@ -138,6 +139,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
               position: "absolute",
               bottom: `${0 * squareWidth}px`,
               objectFit: "contain",
+              zIndex: 100,
             }}
           />
         </div>

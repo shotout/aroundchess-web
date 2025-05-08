@@ -55,11 +55,15 @@ export function ContactUs() {
 
   const handleSendMessage = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    let body = form;
+    const formData = new FormData();
+
+    body.file = formData.append("file", file);
 
     console.log("current", form);
-    contactUs(form).then(() => {
+    contactUs(body).then(() => {
       console.log("success send contact us");
-      setOpen(false)
+      setOpen(false);
       setOpenSent(true);
     });
   };

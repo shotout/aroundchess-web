@@ -7,11 +7,15 @@ import { Engine } from "@/components/playground/src/lib/stockfish";
 import { motion } from "@/utils/motion";
 
 import { useGameEndStatus } from "@/app/store/gameEndStatus";
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
+import { useShareGame } from "@/app/store/shareGame";
 import { usePgnStore } from "@/app/store/zustandStore";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import DotSpinner from "@/components/game-history/Spinner";
 import { GameEndStatus } from "@/components/modal/GameEndStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/context/AuthContext";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
@@ -31,11 +35,7 @@ import { CommentarGame } from "./CommentaryGame";
 import { CommentaryMove } from "./CommentaryMove";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
-import { useProfileStore } from "@/app/store/profile";
-import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useLoadingAPI } from "@/app/store/loadingApi";
-import { useShareGame } from "@/app/store/shareGame";
-import { useAuth } from "@/context/AuthContext";
+import { playSound } from "@/utils/play-audio";
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -51,7 +51,7 @@ type MoveClassification =
 export default function PlayingPage() {
   const router = useRouter();
 
-  const { setFen, setPGN , setOpen} = useShareGame();
+  const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { isMember } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
@@ -135,7 +135,7 @@ export default function PlayingPage() {
     try {
       setIsLoading(true);
       setDataAnalysis(arr);
-      console.log("body analysis", JSON.stringify(game.pgn()), username);
+      //console.log("body analysis", JSON.stringify(game.pgn()), username);
       setPgn(game.pgn());
       const responseAnalysis = await proceedAnalysis(
         game.pgn(),
@@ -146,9 +146,9 @@ export default function PlayingPage() {
       setDataAnalysis(responseAnalysis.data);
       arr = responseAnalysis.data;
 
-      console.log("responseAnalysis:", responseAnalysis);
+      //console.log("responseAnalysis:", responseAnalysis);
     } catch (err) {
-      console.log("error", err);
+      //console.log("error", err);
       toast.error(err + "");
       setIsLoading(false);
 
@@ -196,6 +196,7 @@ export default function PlayingPage() {
     setOptionSquares(newSquares);
     return true;
   };
+
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
@@ -253,6 +254,8 @@ export default function PlayingPage() {
         to: square,
         promotion: "q",
       });
+      console.log("move.san",move)
+      playSound(game, move);
       // if invalid, setMoveFrom and getMoveOptions
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
@@ -293,7 +296,7 @@ export default function PlayingPage() {
   const getClassificationMove = () => {
     engine.evaluatePosition(game.fen(), 10);
     engine.onMessage((msg) => {
-      console.log("onSquareClick", msg);
+      //console.log("onSquareClick", msg);
       let { bestMove, depth, positionEvaluation, pv } = msg;
       if (depth == 10) {
         let moveUserClassification = classifyMove(
@@ -302,7 +305,7 @@ export default function PlayingPage() {
           pv
         );
         setMoveClassification(moveUserClassification);
-        console.log("moveUserClassification", depth, moveUserClassification);
+        //console.log("moveUserClassification", depth, moveUserClassification);
       }
     });
   };
@@ -314,20 +317,17 @@ export default function PlayingPage() {
     // if no piece passed then user has cancelled dialog, don't make move and reset
     setBestline("");
     setHintClicked(false);
-    console.log(
-      "onPromotionPieceSelect",
-      piece,
-      promoteFromSquare,
-      promoteToSquare
-    );
 
     if (piece) {
-      game.move({
+      let move = game.move({
         from: promoteFromSquare || moveFrom,
         to: promoteToSquare || moveTo!,
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
+
       setGamePosition(game.fen());
+      playSound(game, move);
+
       setTimeout(() => {
         findEnemyMove();
       }, 1000);
@@ -367,18 +367,20 @@ export default function PlayingPage() {
 
   const findEnemyMove = () => {
     let isYourTurn = myColor == "white" ? "w" : "b";
-    // console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
+    // //console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove, depth, pv }) => {
-      console.log("message:", depth, bestMove, pv);
+      //console.log("message:", depth, bestMove, pv);
       if (depth == stockfishLevel && pv) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
-        game.move({
+
+        let move = game.move({
           from: pv.substring(0, 2),
           to: pv.substring(2, 4),
           promotion: pv.substring(4, 5),
         });
+        playSound(game, move);
         setPreviousSquare(pv.substring(0, 2) as Square);
         setCurrentSquare(pv.substring(2, 4) as Square);
 
@@ -406,7 +408,7 @@ export default function PlayingPage() {
           );
         possibleMate && setPossibleMate(possibleMate);
         if (game.turn() == isYourTurn) {
-          console.log("handle hint", bestMove);
+          //console.log("handle hint", bestMove);
           !bestMove && setHintClicked(false);
           !bestMove && setBestline(null);
           bestMove && setBestline(bestMove);
@@ -442,7 +444,7 @@ export default function PlayingPage() {
       san: string;
     }[] = [];
     game.history({ verbose: true }).forEach((move) => {
-      console.log(move);
+      //console.log(move);
       if (move.color == "w") {
         capturedPiecesWhite.push({
           captured: changeNameFull(move.captured ?? null),
@@ -467,8 +469,8 @@ export default function PlayingPage() {
         });
       }
     });
-    console.log("capturedPiecesWhite", capturedPiecesWhite);
-    console.log("capturedPiecesBlack", capturedPiecesBlack);
+    //console.log("capturedPiecesWhite", capturedPiecesWhite);
+    //console.log("capturedPiecesBlack", capturedPiecesBlack);
     setCapturedBlack(capturedPiecesBlack);
     setCapturedWhite(capturedPiecesWhite);
   };
@@ -503,7 +505,7 @@ export default function PlayingPage() {
   };
   useEffect(() => {
     getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
-      console.log("res getVSAILogs", res);
+      //console.log("res getVSAILogs", res);
       setPastGames(res.data);
     });
   }, []);
@@ -538,7 +540,7 @@ export default function PlayingPage() {
   useEffect(() => {
     setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
-    console.log("AIChoosed.color", AIChoosed.color);
+    //console.log("AIChoosed.color", AIChoosed.color);
     setHeaderGameStart();
     if (AIChoosed.color == "black") {
       setTimeout(() => {
@@ -583,7 +585,7 @@ export default function PlayingPage() {
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
-    console.log("Resizing board...", isPortrait, window.innerWidth);
+    //console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
@@ -591,13 +593,13 @@ export default function PlayingPage() {
       // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+      //console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
       // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
       // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
+      //console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
 
@@ -616,7 +618,7 @@ export default function PlayingPage() {
       const currentFen = game.fen();
       setFen(currentFen);
       setPGN(currentPgn);
-      setOpen(true)
+      setOpen(true);
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -668,7 +670,7 @@ export default function PlayingPage() {
     let isUserWin = myColor === winnerColor;
     setWinnerColor(winnerColor);
     setLoserColor(losserColor);
-    console.log(`The ${winnerColor} player wins!`);
+    //console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
     if (isMember) {
@@ -704,7 +706,7 @@ export default function PlayingPage() {
   const checkStatusGame = () => {
     let isUserWin = false;
     let isDraw = false;
-    console.log("game.isGameOver()", game.isGameOver(), formatTimePgn());
+    //console.log("game.isGameOver()", game.isGameOver(), formatTimePgn());
     if (game.isGameOver()) {
       setHeaderGameFinish();
       // Determine the winner based on the player who was in checkmate
@@ -714,10 +716,10 @@ export default function PlayingPage() {
       isUserWin = myColor === winnerColor;
       setWinnerColor(winnerColor);
       setLoserColor(losserColor);
-      console.log(`The ${winnerColor} player wins!`);
+      //console.log(`The ${winnerColor} player wins!`);
 
       if (game.isCheckmate()) {
-        console.log("Game Over! Checkmate!");
+        //console.log("Game Over! Checkmate!");
 
         let gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
         let commentar =
@@ -729,7 +731,7 @@ export default function PlayingPage() {
         }, 1000);
       } else {
         isDraw = true;
-        console.log("Game Over! Stalemate or Draw.");
+        //console.log("Game Over! Stalemate or Draw.");
         setStatusGame("Draw");
         setTimeout(() => {
           setOpenGameStatus(true);
@@ -738,7 +740,7 @@ export default function PlayingPage() {
     }
   };
   useEffect(() => {
-    console.log("statusGame useEffect", statusGame);
+    //console.log("statusGame useEffect", statusGame);
     if (statusGame == "Win" || statusGame == "Loss" || statusGame == "Draw") {
       handleSaveLog();
     }
