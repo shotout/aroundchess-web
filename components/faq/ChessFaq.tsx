@@ -17,7 +17,11 @@ interface Category {
 }
 
 const tabs = [
-  { id: "General", label: "General Questions", img: "/images/faq/question-mark.png" },
+  {
+    id: "General",
+    label: "General Questions",
+    img: "/images/faq/question-mark.png",
+  },
   { id: "Analysis", label: "Analysis", img: "/images/faq/analysis-mark.png" },
   {
     id: "Theory",
@@ -154,7 +158,11 @@ export default function ChessFAQ() {
             className="relative flex flex flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
-              src={tabs[index].img}
+              src={
+                tab.label.includes("General")
+                  ? "/images/faq/question-mark.png"
+                  : "/images/faq/analysis-mark.png"
+              }
               alt="background"
               width={1000}
               height={1000}
