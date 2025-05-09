@@ -18,6 +18,7 @@ import { useApiClient } from "@/functions/api-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
@@ -43,7 +44,7 @@ export default function Home() {
 
   const handleSSOSuccess = (accessToken: string) => {
     try {
-      document.cookie = `token=${accessToken}; path=/`;
+      setPersistedCookie("token", accessToken, 365);
 
       setSessionId(accessToken);
 

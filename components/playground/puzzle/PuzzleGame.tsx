@@ -637,12 +637,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
             {profile?.name!=""?profile?.name:username}
           </span>
-          {profile?.flag && (
+          {profile?.country && (
             <ReactCountryFlag
-              countryCode={profile?.flag}
+              countryCode={profile?.country.substr(-2)}
               svg
               className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-              title={profile?.flag}
+              title={profile?.country.substr(-2)}
             />
           )}
         </div>

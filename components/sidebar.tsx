@@ -51,6 +51,7 @@ import InitialAvatar from "./avatar/InitialAvatar";
 import { useApiClient } from "@/functions/api-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 interface SidebarProps {
   open: boolean;
@@ -172,7 +173,8 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
     logOut({ sessionId }).then(() => {
       clearAll();
       localStorage.removeItem("token");
-      document.cookie = `token=; path=/`;
+      setPersistedCookie("token", "", 365);
+
       router.push("/login");
     });
     const { error } = await supabase.auth.signOut();

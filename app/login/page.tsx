@@ -10,6 +10,7 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { useProfileStore } from "../store/profile";
 import { useRouter } from "next/navigation";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +21,9 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (sessionId != "" || sessionId != null) {
-      document.cookie = `token=${sessionId}; path=/`;
+    console.log("sessionId", sessionId);
+    if (sessionId != null && sessionId.length > 0) {
+      setPersistedCookie("token", sessionId, 365);
     }
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
@@ -34,12 +36,11 @@ export default function LoginPage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sessionId]);
 
   const handleSSOSuccess = (accessToken: string) => {
     try {
-      document.cookie = `token=${accessToken}; path=/`;
-
+      setPersistedCookie("token", accessToken, 365);
       setSessionId(accessToken);
 
       toast.success("Logged in successfully with Google!");
@@ -73,7 +74,7 @@ export default function LoginPage() {
       }
 
       if (data.data.access_token) {
-        document.cookie = `token=${data.data.access_token}; path=/`;
+        setPersistedCookie("token", data.data.access_token, 365);
         setSessionId(data.data.access_token);
 
         toast.success("Logged in successfully!");

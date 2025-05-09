@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { supabase } from "@/lib/supabase";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 const MyAccount = () => {
   const { getProfile, logOut } = useApiClient();
@@ -45,7 +46,8 @@ const MyAccount = () => {
     logOut({ sessionId }).then(() => {
       clearAll();
       localStorage.removeItem("token");
-      document.cookie = `token=; path=/`;
+      setPersistedCookie("token", "", 365);
+
       router.push("/login");
     });
     const { error } = await supabase.auth.signOut();

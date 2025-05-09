@@ -31,6 +31,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useApiClient } from "@/functions/api-client";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 interface SiteHeaderProps {
   children?: React.ReactNode;
   onSidebarOpen?: () => void;
@@ -46,7 +47,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
   React.useEffect(() => {
     const checkSession = () => {
-      if (sessionId != "" && sessionId != null) {
+      if (sessionId != null && sessionId.length > 0) {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -79,7 +80,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const handleSignOut = async () => {
     logOut({ sessionId }).then(() => {
       localStorage.removeItem("token");
-      document.cookie = `token=; path=/`;
+      setPersistedCookie("token", "", 365);
+
       router.push("/login");
     });
     const { error } = await supabase.auth.signOut();

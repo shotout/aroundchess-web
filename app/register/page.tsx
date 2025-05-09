@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useProfileStore } from "../store/profile";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export default function RegisterPage() {
 
   const handleSSOSuccess = (accessToken: string) => {
     try {
-      document.cookie = `token=${accessToken}; path=/`;
+      setPersistedCookie("token", accessToken, 365);
 
       setSessionId(accessToken);
 
@@ -119,14 +120,14 @@ export default function RegisterPage() {
       if (data.data && data.data.access_token) {
         setSessionId(data.data.access_token);
 
-        document.cookie = `token=${data.data.access_token}; path=/`;
+        setPersistedCookie("token", data.data.access_token, 365);
 
         toast.success("Account verified and logged in successfully!");
 
         window.location.href = "/analysis";
       } else if (data.token) {
         setSessionId(data.token);
-        document.cookie = `token=${data.token}; path=/`;
+        setPersistedCookie("token", data.token, 365);
 
         toast.success("Account verified and logged in successfully!");
         window.location.href = "/analysis";

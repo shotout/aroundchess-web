@@ -3,12 +3,14 @@
 import { supabase } from "@/lib/supabase";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 export function SignOutButton() {
   const router = useRouter();
   const handleSignOut = async () => {
     try {
-      document.cookie = `token=; path=/`;
+      setPersistedCookie("token", "", 365);
+
       const { error } = await supabase.auth.signOut();
 
       if (error) {
