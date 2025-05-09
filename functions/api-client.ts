@@ -29,7 +29,8 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (sessionId != "" && sessionId != null) {
+        console.log("sessionId api client", sessionId)
+        if (sessionId != ""|| sessionId != null) {
           setIsLoading(true);
           setError(null);
           let url = path;

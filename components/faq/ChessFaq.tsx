@@ -17,7 +17,7 @@ interface Category {
 }
 
 const tabs = [
-  { id: "General", label: "General", img: "/images/faq/question-mark.png" },
+  { id: "General", label: "General Questions", img: "/images/faq/question-mark.png" },
   { id: "Analysis", label: "Analysis", img: "/images/faq/analysis-mark.png" },
   {
     id: "Theory",
@@ -67,11 +67,11 @@ export default function ChessFAQ() {
   const fetchFAQ = () => {
     getFAQ({})
       .then((response) => {
+        console.log("getFAQ", response);
         setData(response.data);
         setFilteredData(response.data);
         setQuestion(response.data[0].questions);
         setActiveTab(response.data[0].label);
-        console.log("getFAQ", response.data);
       })
       .finally(() => {});
   };
@@ -151,19 +151,19 @@ export default function ChessFAQ() {
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-            className="relative flex flex flex-row items-center justify-end bg-[#FFF] sm:min-w-[140px] lg:min-w-[200px] xl:min-w-[240px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            className="relative flex flex flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
               src={tabs[index].img}
               alt="background"
               width={1000}
               height={1000}
-              className="sm:w-2/3 lg:w-1/2 h-full absolute left- inset-0 object-cover z-0"
+              className="sm:w-2/3 lg:w-[116px] h-full absolute left- inset-0 object-cover z-0"
             />
             <button
-              className={`z-10 flex flex-col items-start justify-center bg-[#ffffff80] max-w-[160px] p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-end ${
+              className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-center ${
                 activeTab === tab.label
-                  ? "text-[#221AE9] border border-[#221AE9]"
+                  ? "text-[#221AE9] border border-[#221AE9] font-bold"
                   : "border border-gray-300 rounded-md"
               }`}
               onClick={() => {
@@ -171,7 +171,7 @@ export default function ChessFAQ() {
                 setActiveTab(tab.label);
               }}
             >
-              <span className="sm:text-[12px] lg:text-[20px] font-medium text-start">
+              <span className="sm:text-[12px] lg:text-[20px] font-medium text-center">
                 {tab.label}
               </span>
             </button>
@@ -209,8 +209,8 @@ export default function ChessFAQ() {
 
       {/* Accordion FAQ items */}
       <div className="space-y-3 mx-4 mb-[32px]">
-        {question &&
-          question.length &&
+        {question != null &&
+          question.length > 0 &&
           question.map((faq: any, index: number) => (
             <div key={index} className="bg-white rounded-md shadow">
               <button
@@ -230,16 +230,16 @@ export default function ChessFAQ() {
               {openQuestion === index && (
                 <div className="px-[20px] py-[5px] md:py-[10px] border-t bg-[#F2FBFE]">
                   {Array.isArray(faq.answer) && faq.answer.length > 0 ? (
-                    <ul className="list-disc pl-6 space-y-1">
+                    <div className="lspace-y-1">
                       {faq.answer.map((line: any, i: number) => (
-                        <li
+                        <span
                           key={i}
                           className="font-normal text-[12px] md:text-[14px] text-[#585858]"
                         >
                           {line}
-                        </li>
+                        </span>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
                     <span className="font-normal text-[12px] md:text-[14px] text-[#585858]">
                       {faq.answer}
