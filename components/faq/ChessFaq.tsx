@@ -80,7 +80,7 @@ export default function ChessFAQ() {
     setOpenQuestion(openQuestion === index ? null : index);
   };
   useEffect(() => {
-    if (data.length>0) {
+    if (data.length > 0) {
       if (query.length >= 3) {
         const timer = setTimeout(() => {
           setSearchLoading(true);
@@ -203,7 +203,7 @@ export default function ChessFAQ() {
       </div>
 
       {/* Category Title */}
-      <h2 className="text-[16px] md:text-[24px] font-medium mx-4">
+      <h2 className="text-[16px] md:text-[24px] text-center font-bold mx-4 mt-8">
         {activeTab}
       </h2>
 
@@ -217,7 +217,7 @@ export default function ChessFAQ() {
                 onClick={() => toggleQuestion(index)}
                 className="w-full px-[20px] py-2 text-left flex justify-between items-center"
               >
-                <span className="font-bold text-[12px] md:text-[18px]">
+                <span className="font-semibold text-[12px] md:text-[16px]">
                   {faq.question}
                 </span>
                 {openQuestion === index ? (
@@ -228,17 +228,23 @@ export default function ChessFAQ() {
               </button>
 
               {openQuestion === index && (
-                <div className="px-[20px] py-[5px] md:py-[10px] border-t">
-                  <ul className="list-disc pl-6 space-y-1">
-                    {faq.answer.map((line: any, i: number) => (
-                      <li
-                        key={i}
-                        className="font-normal text-[12px] md:text-[18px]"
-                      >
-                        {line}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="px-[20px] py-[5px] md:py-[10px] border-t bg-[#F2FBFE]">
+                  {Array.isArray(faq.answer) && faq.answer.length > 0 ? (
+                    <ul className="list-disc pl-6 space-y-1">
+                      {faq.answer.map((line: any, i: number) => (
+                        <li
+                          key={i}
+                          className="font-normal text-[12px] md:text-[14px] text-[#585858]"
+                        >
+                          {line}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="font-normal text-[12px] md:text-[14px] text-[#585858]">
+                      {faq.answer}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

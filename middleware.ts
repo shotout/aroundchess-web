@@ -15,6 +15,7 @@ const publicRoutes = [
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
+  console.log("token", token)
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
     token != undefined &&
@@ -47,7 +48,6 @@ export async function middleware(req: NextRequest) {
   if (isPublicRoute || (token != undefined && token != "")) {
     return NextResponse.next();
   }
-
   return NextResponse.redirect(new URL("/login", req.url));
 }
 
