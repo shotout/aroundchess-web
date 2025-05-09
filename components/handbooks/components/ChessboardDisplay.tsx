@@ -1,4 +1,4 @@
-import { Chessboard } from "react-chessboard";
+import Simple2DChess from "./Simple2DChess";
 
 interface ChessboardDisplayProps {
   slug: string;
@@ -12,15 +12,11 @@ const ChessboardDisplay: React.FC<ChessboardDisplayProps> = ({
   return (
     <div className="rounded-lg p-2">
       <div className="w-full max-w-md mx-auto">
-        <Chessboard
+        <Simple2DChess
           id={`board-${slug}`}
+          keys={`board-${slug}`}
           position={fenPosition}
-          customDarkSquareStyle={{
-            backgroundColor: "#9E7555",
-          }}
-          customLightSquareStyle={{
-            backgroundColor: "#F0DFC7",
-          }}
+          arePiecesDraggable={true}
         />
       </div>
     </div>

@@ -25,7 +25,6 @@ import LessonInfoSection from "./components/LessonInfoSection";
 import LessonTabs from "./components/LessonTabs";
 import PracticeSection from "./components/PracticeSection";
 import RelatedLessons from "./components/RelatedLesson";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 interface ChessLessonDetailProps<T extends ChessLesson> {
@@ -53,11 +52,14 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const router = useRouter();
   const basePath = getLessonBasePath(lessonType);
   const tabOptions: any = getLessonTabOptions(lessonType);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
+
+  const sections = ["Online Materials", "Video Explanations", "Puzzles"];
+  const [sectionName, setSectionName] = useState<string>(sections[0]);
 
   const {
     allLessons,
@@ -255,7 +257,42 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                 basePath={basePath}
               />
 
-              <PracticeSection resources={lesson.resources} />
+              <div className="overflow-hidden flex flex-col gap-6">
+                <div className="p-2 flex bg-[#F9FAFC] rounded-lg border h-auto items-center">
+                  {sections.map((tab) => (
+                    <button
+                      key={tab}
+                      className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
+                        sectionName === tab
+                          ? "bg-white shadow-md text-black font-bold"
+                          : "text-gray-600 font-normal hover:bg-gray-100"
+                      }`}
+                      onClick={() => setSectionName(tab)}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {sectionName === "Online Materials" && (
+                <PracticeSection
+                  resources={lesson.resources}
+                  title={"Practice your Learnings to finish this Lesson"}
+                />
+              )}
+              {sectionName === "Video Explanations" && (
+                <PracticeSection
+                  resources={(lesson as any).video ?? []}
+                  title={"Watch Videos to get a deeper understanding"}
+                />
+              )}
+              {sectionName === "Puzzles" && (
+                <PracticeSection
+                  resources={(lesson as any).puzzle ?? []}
+                  title={"Practice your Learnings with Puzzles"}
+                />
+              )}
 
               <div className="flex flex-col gap-4">
                 <Button
