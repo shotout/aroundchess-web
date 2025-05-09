@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
- 
+
 export const analyzeMove = (game: Chess, move: any) => {
   if (!move) return null;
 
@@ -7,8 +7,9 @@ export const analyzeMove = (game: Chess, move: any) => {
   const castling =
     move.piece === "k" &&
     Math.abs(move.from.charCodeAt(0) - move.to.charCodeAt(0)) === 2;
-
+  const pieceMove = move.piece === "p";
   const result = {
+    pieceMove,
     captured: move.captured || undefined,
     promotion: move.promotion || undefined,
     check: game.isCheck(),

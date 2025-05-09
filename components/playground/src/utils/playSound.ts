@@ -1,8 +1,11 @@
-export const playMoveSound = () => {
+export const playPieceMoveSound = () => {
   const audio = new Audio("/audio/piece-move.mp3");
   audio.play().catch((err) => console.error("Failed to play sound:", err));
 };
-
+export const playMoveSound = () => {
+  const audio = new Audio("/audio/move.mp3");
+  audio.play().catch((err) => console.error("Failed to play sound:", err));
+};
 export const playCaptureSound = () => {
   const audio = new Audio("/audio/capture.mp3");
   audio.play().catch((err) => console.error("Failed to play sound:", err));

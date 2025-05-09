@@ -1,22 +1,27 @@
 import {
-    playCaptureSound,
-    playCastlingSound,
-    playCheckmateSound,
-    playCheckSound,
-    playMoveSound,
-    playPromoteSound
+  playCaptureSound,
+  playCastlingSound,
+  playCheckmateSound,
+  playCheckSound,
+  playMoveSound,
+  playPieceMoveSound,
+  playPromoteSound,
 } from "@/components/playground/src/utils/playSound";
 import { Chess } from "chess.js";
 import { analyzeMove } from "./chess-conditions";
 
 export const playSound = (chess: Chess, move: any) => {
   const analysis = analyzeMove(chess, move);
-  
+
   if (analysis?.captured) {
     playCaptureSound();
     console.log("Captured!");
   } else {
-    playMoveSound();
+    if (analysis?.pieceMove) {
+      playPieceMoveSound();
+    } else {
+      playMoveSound();
+    }
   }
 
   if (analysis?.castling) {
