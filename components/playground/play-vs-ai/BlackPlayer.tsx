@@ -1,4 +1,5 @@
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import Image from "next/image";
 
@@ -24,6 +25,7 @@ export const BlackPlayer = ({
   PieceChoosed,
 }: BlackPlayerProps) => {
   const { profile } = useProfileStore();
+  const { username } = usePgnStore();
   let isWin = winnerColor == "black";
   let isDraw = statusGame == "Draw";
   let isLoss = loserColor == "black";
@@ -41,7 +43,10 @@ export const BlackPlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor != "white" ? (
-          <InitialAvatar name={profile?.name} size="sm" />
+          <InitialAvatar
+            name={profile?.name != "" ? profile?.name : username}
+            size="sm"
+          />
         ) : (
           <Image
             src={AIChoosed.opponent.img}

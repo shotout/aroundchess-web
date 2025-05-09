@@ -1,4 +1,5 @@
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import Image from "next/image";
 interface WhitePlayerProps {
@@ -26,7 +27,7 @@ export const WhitePlayer = ({
   let isDraw = statusGame == "Draw";
   let isLoss = loserColor == "white";
   const { profile } = useProfileStore();
-
+  const {username} = usePgnStore()
   return (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
@@ -41,7 +42,7 @@ export const WhitePlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor == "white" ? (
-          <InitialAvatar name={profile?.name} size="sm" />
+          <InitialAvatar name={profile?.name!=""?profile?.name:username} size="sm" />
         ) : (
           <Image
             src={AIChoosed.opponent.img}

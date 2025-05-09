@@ -46,6 +46,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import { playIncorrectMoveSound, playMoveSound } from "../src/utils/playSound";
 import { playSound } from "@/utils/play-audio";
+import InitialAvatar from "@/components/avatar/InitialAvatar";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -250,7 +251,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       fillMovement(move);
       console.log("move fillMovement", move);
       if (move) {
-        playSound(game,move)
+        playSound(game, move);
         const currentFen = game.fen();
         setPosition(currentFen);
         setFenHistory((prevHistory) => [...prevHistory, currentFen]);
@@ -621,6 +622,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border ${"border-[#DEDEDE]"} p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
+          <InitialAvatar name={profile?.name!=""?profile?.name:username} size="sm" />
           {/* {user && (
             <Image
               src={user?.imageUrl}
@@ -632,7 +634,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           )} */}
 
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
-            {profile?.name}
+            {profile?.name!=""?profile?.name:username}
           </span>
           {/* {user?.flag && (
             <ReactCountryFlag
@@ -860,53 +862,53 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   }}
                 />
               )}
-                {lastMove && isAtCurrentMove && (
-                  <>
-                    <div
-                      style={getLastMoveHighlightStyle3D(
-                        lastMove.from,
-                        boardOrientation === "white" ? "white" : "black",
-                        "#B9CA4390"
-                      )}
-                    />
-                    <div
-                      style={getLastMoveHighlightStyle3D(
-                        lastMove.to,
-                        boardOrientation === "white" ? "white" : "black",
-                        "#F5F68290"
-                      )}
-                    />
-                  </>
-                )}
-
-                {hint && isAtCurrentMove && !isComputerTurn && (
+              {lastMove && isAtCurrentMove && (
+                <>
                   <div
-                    style={getHintHighlightStyle3D(
-                      hint,
+                    style={getLastMoveHighlightStyle3D(
+                      lastMove.from,
                       boardOrientation === "white" ? "white" : "black",
-                      "#221AE950"
+                      "#B9CA4390"
                     )}
                   />
-                )}
-                {isAtCurrentMove &&
-                  selectedSquare &&
-                  highlightStyles.map((style, index) => (
-                    <div
-                      key={`${possibleMoves[index].square}-${index}`}
-                      style={style}
-                    />
-                  ))}
-                {invalidMoveSquares.map((square) => (
                   <div
-                    key={square}
-                    style={getInvalidMoveHighlightStyle3D(
-                      square,
-                      boardOrientation
+                    style={getLastMoveHighlightStyle3D(
+                      lastMove.to,
+                      boardOrientation === "white" ? "white" : "black",
+                      "#F5F68290"
                     )}
-                  >
-                    ❌
-                  </div>
+                  />
+                </>
+              )}
+
+              {hint && isAtCurrentMove && !isComputerTurn && (
+                <div
+                  style={getHintHighlightStyle3D(
+                    hint,
+                    boardOrientation === "white" ? "white" : "black",
+                    "#221AE950"
+                  )}
+                />
+              )}
+              {isAtCurrentMove &&
+                selectedSquare &&
+                highlightStyles.map((style, index) => (
+                  <div
+                    key={`${possibleMoves[index].square}-${index}`}
+                    style={style}
+                  />
                 ))}
+              {invalidMoveSquares.map((square) => (
+                <div
+                  key={square}
+                  style={getInvalidMoveHighlightStyle3D(
+                    square,
+                    boardOrientation
+                  )}
+                >
+                  ❌
+                </div>
+              ))}
             </motion.div>
             <motion.div
               initial={{ rotateX: 180 }}

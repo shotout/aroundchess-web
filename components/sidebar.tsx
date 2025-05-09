@@ -50,6 +50,7 @@ import { supabase } from "@/lib/supabase";
 import InitialAvatar from "./avatar/InitialAvatar";
 import { useApiClient } from "@/functions/api-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface SidebarProps {
   open: boolean;
@@ -154,7 +155,8 @@ const sidebarLinks = [
 export function Sidebar({ open, setOpen }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { profile , clearAll} = useProfileStore();
+  const { username } = usePgnStore();
+  const { profile, clearAll } = useProfileStore();
   const { logOut } = useApiClient();
   const [sessionId, setToken] = useLocalStorage<string>("token", "");
   const currentPage =
@@ -319,7 +321,10 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <InitialAvatar name={profile?.name} size="sm" />
+                  <InitialAvatar
+                    name={profile?.name != "" ? profile?.name : username}
+                    size="sm"
+                  />
                   {/* {user?.imageUrl && (
                   <Image
                     src={user.imageUrl}
@@ -330,7 +335,9 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                   />
                 )} */}
                   <div className="flex-1 text-left">
-                    <p className="font-medium">{profile?.name}</p>
+                    <p className="font-medium">
+                      {profile?.name != "" ? profile?.name : username}
+                    </p>
                     <p className="text-xs text-gray-500">{profile?.email}</p>
                   </div>
                 </motion.button>

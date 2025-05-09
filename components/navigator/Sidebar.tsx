@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useProfileStore } from "@/app/store/profile";
 import { fadeInUp } from "@/utils/motion";
 import InitialAvatar from "../avatar/InitialAvatar";
+import { usePgnStore } from "@/app/store/zustandStore";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -148,7 +149,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { isMember, token, profile } = useProfileStore();
   const router = useRouter();
-
+  const { username } = usePgnStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
@@ -397,7 +398,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <InitialAvatar name={profile?.name} size="sm" />
+            <InitialAvatar
+              name={profile?.name != "" ? profile?.name : username}
+              size="sm"
+            />
             {/* {user?.imageUrl && (
               <Image
                 src={user.imageUrl}
@@ -409,7 +413,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             )} */}
             <div className="flex-1 text-left">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-                {profile?.name}
+                {profile?.name!=""?profile?.name:username}
               </p>
               <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
                 {profile?.email}
