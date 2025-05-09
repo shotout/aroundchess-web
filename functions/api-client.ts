@@ -56,7 +56,7 @@ export function useApiClient() {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.log("errorData", errorData, response);
+            console.log("errorData",url, errorData, response);
             if (errorData.statusCode != 401 && errorData.statusCode != 404) {
               toast.error(errorData.message || "API request failed");
             }

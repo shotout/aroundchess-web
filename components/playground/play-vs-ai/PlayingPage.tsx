@@ -370,9 +370,10 @@ export default function PlayingPage() {
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
     engine.onMessage(({ bestMove, depth, pv }) => {
-      //console.log("message:", depth, bestMove, pv);
+      console.log("message:", depth, bestMove, pv);
       if (depth == stockfishLevel && pv) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
+        console.log("choosed:", depth, bestMove, pv);
 
         let move = game.move({
           from: pv.substring(0, 2),
