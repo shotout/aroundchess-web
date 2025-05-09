@@ -127,7 +127,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [whiteMaterialDifference, setWhiteMaterialDifference] = useState(0);
   const [blackMaterialDifference, setBlackMaterialDifference] = useState(0);
   const [invalidMoveSquares, setInvalidMoveSquares] = useState<string[]>([]);
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [orientation, setOrientation] = useState<BoardOrientation>(boardOrientation);
 
   const prevFenHistory = useRef<string[]>([]);
 
@@ -595,7 +595,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         style={{ width: boardSize }}
         className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
       >
-        <button onClick={handleSwitch}>
+        {/* <button onClick={handleSwitch}>
           <Image
             src={"/images/play-vs-ai/switch.png"}
             alt="icon"
@@ -603,9 +603,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             height={1000}
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
-        </button>
-        {/* <SettingBoard />
-        <button onClick={handleThreeD}>
+        </button> */}
+        <SettingBoard enable3D={true}/>
+        {/* <button onClick={handleThreeD}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -829,7 +829,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <ThreeDBoard
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={boardOrientation}
+                  orientation={orientation}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -934,7 +934,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               {!is3DMode && (
                 <TwoDChessboard
                   arePiecesDraggable={false}
-                  orientation={boardOrientation}
+                  orientation={orientation}
                   boardWidth={boardSize}
                   position={position}
                   onSquareClick={handleSquareClickCallback}

@@ -16,8 +16,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export function SettingBoard() {
+interface SettingBoardProps {
+  enable3D?: boolean;
+}
 
+export function SettingBoard({ enable3D = false }: SettingBoardProps) {
   const router = useRouter();
   const boardsTwoD = [
     {
@@ -242,7 +245,7 @@ export function SettingBoard() {
             <div className="w-full shadow-lg flex flex-row items-center justify-center gap-2 bg-[#F9FAFC] border border-[#F4F4F4] rounded-[12px] p-[8px]">
               <Edit className="text-[#221AE9]" size={16} />
               <span className="text-[#221AE9] font-bold text-[14px]">
-                Theme 
+                Theme
               </span>
             </div>
           </div>
@@ -265,7 +268,7 @@ export function SettingBoard() {
                 </TabsTrigger>
                 <TabsTrigger
                   onClick={() => handleSelectTab("3d")}
-                  // disabled={true}
+                  disabled={enable3D}
                   value="3d"
                   style={{
                     background: tabSelected == "3d" ? "#D7E3FB" : "#fff",

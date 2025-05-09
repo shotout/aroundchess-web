@@ -124,8 +124,8 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * 0.8,
-            height: squareWidth * 0.85,
+            width: PieceChoosed == "wood" ? squareWidth * 0.8 : squareWidth,
+            height: PieceChoosed == "wood" ? squareWidth * 0.85 : squareWidth,
             position: "relative",
             pointerEvents: "none",
             zIndex: 100,
@@ -137,7 +137,10 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0 * squareWidth}px`,
+              bottom:
+                PieceChoosed == "wood"
+                  ? `${-0.1 * squareWidth}px`
+                  : PieceChoosed == "glass" ? `${0.1 * squareWidth}px`:`${0 * squareWidth}px`,
               objectFit: "contain",
               zIndex: 100,
             }}
