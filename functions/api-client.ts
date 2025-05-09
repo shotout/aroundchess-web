@@ -29,8 +29,7 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        console.log("sessionId api client", sessionId)
-        if (sessionId != ""|| sessionId != null) {
+        if (sessionId != "" || sessionId != null) {
           setIsLoading(true);
           setError(null);
           let url = path;
@@ -58,7 +57,7 @@ export function useApiClient() {
           if (!response.ok) {
             const errorData = await response.json();
             console.log("errorData", errorData, response);
-            if (errorData.statusCode != 401) {
+            if (errorData.statusCode != 401 && errorData.statusCode != 404) {
               toast.error(errorData.message || "API request failed");
             }
             throw new Error(errorData.message || "API request failed");
