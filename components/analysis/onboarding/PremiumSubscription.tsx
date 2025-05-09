@@ -2,7 +2,6 @@
 
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useApiClient } from "@/functions/api-client";
@@ -12,6 +11,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { CheckCircle, Users, X } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import PriceDiscount from "./PriceDiscount";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -260,6 +260,13 @@ export const PremiumSubsContent: React.FC<{
               <div className="text-2xl font-semibold">
                 $99.99 <span className="text-sm font-normal">/year</span>
               </div>
+
+              {/* <div className="flex flex-row items-center gap-2">
+                <PriceDiscount price={99.99} />
+                <div className="text-2xl font-semibold">
+                  $79.99 <span className="text-sm font-normal">/year</span>
+                </div>
+              </div> */}
             </div>
           </div>
           <p className="text-sm mb-4">

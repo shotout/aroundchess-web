@@ -16,10 +16,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const baseUrl = process.env.BASE_URL;
-  const { setSessionId } = useProfileStore();
+  const { sessionId, setSessionId } = useProfileStore();
   const router = useRouter();
 
   useEffect(() => {
+    if (sessionId != "" || sessionId != null) {
+      document.cookie = `token=${sessionId}; path=/`;
+    }
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
       if (hash) {
