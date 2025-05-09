@@ -1,29 +1,26 @@
-// PricingOffer.tsx
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
+import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
+import { useSuccessSubscription } from "@/app/store/successSubscription";
+import { useApiClient } from "@/functions/api-client";
+import { CheckCircle } from "lucide-react";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { CheckCircle, X } from "lucide-react";
+import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
+import DotSpinner from "../game-history/Spinner";
+import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { usePricingOffer } from "@/app/store/pricingOffer";
-import Image from "next/image";
-import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
-import { useSuccessSubscription } from "@/app/store/successSubscription";
-import { useApiClient } from "@/functions/api-client";
-import DotSpinner from "../game-history/Spinner";
-import { useProfileFetch } from "../navigator/hook/useProfileFetch";
-import { formatDate, formatTimePgn } from "@/functions/format-date";
-import { useProfileStore } from "@/app/store/profile";
-import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
 
 import { loadStripe } from "@stripe/stripe-js";
+import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 interface TokenOption {
@@ -175,11 +172,13 @@ export const PricingOffer: React.FC = () => {
               Become a Chess Master
             </DialogTitle>
             <DialogDescription className="font-normal text-[14px] lg:text-[20px] text-[#2e2e2e]">
-              Go Premium for Unlimited Access or buy Analysis Tokens for access
-              to more Analyses
+              <span className="text-[#221AE9]">
+                Go Premium for Unlimited Access{" "}
+              </span>
+              or buy Analysis Tokens for access to more Analyses
             </DialogDescription>
           </div>
-
+          {/* {activeTab == "tokens" && <CountdownTimerToken />} */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
               <TabsTrigger
@@ -225,7 +224,6 @@ export const PricingOffer: React.FC = () => {
                 </div>
               </TabsTrigger>
             </TabsList>
-
             <TabsContent value="tokens">
               <div className="gap-[16px] flex flex-col">
                 <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
@@ -414,9 +412,11 @@ export const PricingOffer: React.FC = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="subscription" className="-pt-[10px]">
+            <div className="w-full h-[42%] md:h-[68%] xl:h-[72%] overflow-y-auto">
+              <TabsContent value="subscription" className="-pt-[10px]">
                 <PremiumSubsContent onGetPremium={handleGetPremium} />
-            </TabsContent>
+              </TabsContent>
+            </div>
           </Tabs>
         </DialogContent>
       </DialogPortal>

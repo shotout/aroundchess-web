@@ -1,26 +1,17 @@
 "use client";
 
-import React, { ReactElement, useEffect, useState } from "react";
-import Image from "next/image";
-import {
-  Book,
-  Bot,
-  Target,
-  Zap,
-  Users,
-  Cat,
-  Settings,
-  X,
-  CheckCircle,
-} from "lucide-react";
-import { motion, fadeInUp } from "@/utils/motion";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import { formatDateHistory, formatTimePgn } from "@/functions/format-date";
-import { useApiClient } from "@/functions/api-client";
+import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { useApiClient } from "@/functions/api-client";
+import { formatDateHistory } from "@/functions/format-date";
+import { fadeInUp, motion } from "@/utils/motion";
 import { loadStripe } from "@stripe/stripe-js";
+import { CheckCircle, Users, X } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -133,7 +124,7 @@ export const PremiumSubsContent: React.FC<{
         description: premium.description,
         type: "membership",
         idUser: profile.id,
-        membershipId:premium.id
+        membershipId: premium.id,
       }),
     });
 
@@ -250,7 +241,9 @@ export const PremiumSubsContent: React.FC<{
               For frequent Chess Players
             </div>
           </div>
-
+          {/* <div className="flex justify-center items-center my-[12px]">
+            <CountdownTimerDiscount />
+          </div> */}
           <div className="flex items-center gap-4 mb-4 pt-2">
             <div className="p-2 rounded-full">
               <Image
@@ -269,7 +262,6 @@ export const PremiumSubsContent: React.FC<{
               </div>
             </div>
           </div>
-
           <p className="text-sm mb-4">
             Our Unlimited Package for frequent Chess Players!
           </p>
@@ -367,7 +359,7 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
     : [label, null];
 
   return (
-    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[110px] h-[110px]">
+    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[100px] h-[100px]">
       <Image
         alt="-"
         src={imageUrl}

@@ -10,8 +10,7 @@ export function useStockfishAnalysis() {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
-    const { sessionId } = useProfileStore();
-  
+  const { sessionId } = useProfileStore();
 
   const pgnToFenList = useCallback(
     (pgn: string, includeStartPosition: boolean = true): string[] => {

@@ -47,6 +47,7 @@ import {
 import { playIncorrectMoveSound, playMoveSound } from "../src/utils/playSound";
 import { playSound } from "@/utils/play-audio";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
+import ReactCountryFlag from "react-country-flag";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -636,14 +637,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
             {profile?.name!=""?profile?.name:username}
           </span>
-          {/* {user?.flag && (
+          {profile?.flag && (
             <ReactCountryFlag
-              countryCode={user?.flag}
+              countryCode={profile?.flag}
               svg
               className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-              title={user?.flag}
+              title={profile?.flag}
             />
-          )} */}
+          )}
         </div>
       </div>
     );
