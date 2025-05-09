@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { BookOpen, Cat } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ChessLesson, LessonType } from "../ChessLessonTypes";
 import Simple2DChess from "./Simple2DChess";

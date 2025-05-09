@@ -43,6 +43,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isSignedIn, setIsSignedIn] = React.useState(false);
   const { sessionId } = useProfileStore();
   const { logOut } = useApiClient();
+
   React.useEffect(() => {
     const checkSession = () => {
       if (sessionId != "" && sessionId != null) {
