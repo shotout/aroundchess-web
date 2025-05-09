@@ -380,19 +380,25 @@ useEffect(() => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#27C2A3]";
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
+      case "Excellent":
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Great":
-        return "border border-[#749BBF] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472] bg-white";
+      case "Good":
+        return "border border-[#749BBF] text-[#134472] bg-white";
       case "Best":
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#80B64D] text-[#80B64D] bg-white";
       case "Miss":
-        return "border border-[#FF7769] text-[#FF7769]";
+        return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
-        return "border border-[#FA402D] text-[#FA402D]";
+        return "border border-[#FA402D] text-[#FA402D] bg-white ";
       case "Mistake":
-        return "border border-[#FFA459] text-[#FFA459]";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
+      case "Inaccuracy":
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       default:
-        return "border border-[#FFA459] text-[#B08503]";
+        return "";
     }
   };
   const getScoreClass = (type: string) => {

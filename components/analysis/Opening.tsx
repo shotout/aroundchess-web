@@ -13,16 +13,23 @@ interface OpeningProps {
   prev: () => void;
 }
 const Opening: React.FC<OpeningProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis,capturedWhite,capturedBlack } = usePgnStore(); // Get PGN from the Zustand store
+  const {
+    pgn: storePgn,
+    dataAnalysis,
+    capturedWhite,
+    capturedBlack,
+  } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
-    const blackCountry =blackSide?.profileInfo?.chessAccountInfo?.country?
-    blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2):"XX";
+  const blackCountry = blackSide?.profileInfo?.chessAccountInfo?.country
+    ? blackSide?.profileInfo?.chessAccountInfo?.country?.substr(-2)
+    : "XX";
 
-  const whiteCountry =whiteSide?.profileInfo?.chessAccountInfo?.country?
-    whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2):"XX";
+  const whiteCountry = whiteSide?.profileInfo?.chessAccountInfo?.country
+    ? whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+    : "XX";
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
   const { whiteOpening, blackOpening } = dataAnalysis?.opening ?? {};
   const [opening, setOpening] = React.useState<any>([
@@ -46,19 +53,25 @@ const Opening: React.FC<OpeningProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#27C2A3]";
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
+      case "Excellent":
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Great":
-        return "border border-[#749BBF] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472] bg-white";
+      case "Good":
+        return "border border-[#749BBF] text-[#134472] bg-white";
       case "Best":
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#80B64D] text-[#80B64D] bg-white";
       case "Miss":
-        return "border border-[#FF7769] text-[#FF7769]";
+        return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
-        return "border border-[#FA402D] text-[#FA402D]";
+        return "border border-[#FA402D] text-[#FA402D] bg-white ";
       case "Mistake":
-        return "border border-[#FFA459] text-[#FFA459]";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
+      case "Inaccuracy":
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       default:
-        return "border border-[#80B64D] text-[#FFA459]";
+        return "";
     }
   };
   const handleOnClickMovement = (move: any) => {
@@ -77,20 +90,20 @@ const Opening: React.FC<OpeningProps> = (props) => {
         </span>
         <div className="hidden sm:flex flex-row items-center justify-between gap-4 sm:gap-6">
           <CardPlayer
-                        isWin={whiteWin}
-                        profilePhoto={whiteSide?.profileInfo.photo}
-                        username={whiteSide?.profileInfo.username}
-                        country={whiteCountry}
-                        capturedPieces={capturedWhite}
-                      />
-          
-                      <CardPlayer
-                        isWin={blackWin}
-                        profilePhoto={blackSide?.profileInfo.photo}
-                        username={blackSide?.profileInfo.username}
-                        country={blackCountry}
-                        capturedPieces={capturedBlack}
-                      />
+            isWin={whiteWin}
+            profilePhoto={whiteSide?.profileInfo.photo}
+            username={whiteSide?.profileInfo.username}
+            country={whiteCountry}
+            capturedPieces={capturedWhite}
+          />
+
+          <CardPlayer
+            isWin={blackWin}
+            profilePhoto={blackSide?.profileInfo.photo}
+            username={blackSide?.profileInfo.username}
+            country={blackCountry}
+            capturedPieces={capturedBlack}
+          />
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>

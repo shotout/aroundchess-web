@@ -66,19 +66,25 @@ const EndGame: React.FC<EndgameProps> = (props) => {
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
-        return "border border-[#27C2A3] text-[#27C2A3]";
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
+      case "Excellent":
+        return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Great":
-        return "border border-[#749BBF] text-[#134472]";
+        return "border border-[#749BBF] text-[#134472] bg-white";
+      case "Good":
+        return "border border-[#749BBF] text-[#134472] bg-white";
       case "Best":
-        return "border border-[#80B64D] text-[#80B64D]";
+        return "border border-[#80B64D] text-[#80B64D] bg-white";
       case "Miss":
-        return "border border-[#FF7769] text-[#FF7769]";
+        return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
-        return "border border-[#FA402D] text-[#FA402D]";
+        return "border border-[#FA402D] text-[#FA402D] bg-white ";
       case "Mistake":
-        return "border border-[#FFA459] text-[#FFA459]";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
+      case "Inaccuracy":
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       default:
-        return "border border-[#80B64D] text-[#FFA459]";
+        return "";
     }
   };
   const getScoreClass = (type: string) => {
@@ -137,9 +143,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               )}
             </div>
           </div>
-          {bestMoves&&bestMoves.length == 0 && (
-            <NoData/>
-          )}
+          {bestMoves && bestMoves.length == 0 && <NoData />}
           {openBestMoves &&
             bestMoves.map((item: any, index: number) => {
               return (
@@ -148,26 +152,26 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
                         <span
-                                                  onClick={() => handleOnClickMovement(item)}
-                                                  className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
-                                                >
-                                                  Move {item?.moveNumber}:{" "}
-                                                  {capturedWhite
-                                                    .filter((wp) => wp.san == item?.move)
-                                                    .map((item, index) => {
-                                                      return (
-                                                        <Image
-                                                          key={index}
-                                                          src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                                          alt="icon"
-                                                          width={1000}
-                                                          height={1000}
-                                                          className="w-[12px] h-[12px] object-contain inline-block"
-                                                        />
-                                                      );
-                                                    })}
-                                                  <span className="font-bold">{item?.move}</span>
-                                                </span>
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                        >
+                          Move {item?.moveNumber}:{" "}
+                          {capturedWhite
+                            .filter((wp) => wp.san == item?.move)
+                            .map((item, index) => {
+                              return (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[12px] h-[12px] object-contain inline-block"
+                                />
+                              );
+                            })}
+                          <span className="font-bold">{item?.move}</span>
+                        </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md  text-center font-normal ${getScoreClass(
                             item.classification
@@ -225,9 +229,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               )}
             </div>
           </div>
-          {badMoves&&badMoves.length == 0 && (
-            <NoData/>
-          )}
+          {badMoves && badMoves.length == 0 && <NoData />}
           {openBadMove &&
             badMoves.map((item: any, index: number) => {
               return (
@@ -235,27 +237,27 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div className="border border-input rounded-md p-4">
                     <div className="flex flex-row justify-between gap-2 mb-4">
                       <div className="flex flex-row gap-2">
-                       <span
-                                                 onClick={() => handleOnClickMovement(item)}
-                                                 className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
-                                               >
-                                                 Move {item?.moveNumber}:{" "}
-                                                 {capturedWhite
-                                                   .filter((wp) => wp.san == item?.move)
-                                                   .map((item, index) => {
-                                                     return (
-                                                       <Image
-                                                         key={index}
-                                                         src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                                         alt="icon"
-                                                         width={1000}
-                                                         height={1000}
-                                                         className="w-[12px] h-[12px] object-contain inline-block"
-                                                       />
-                                                     );
-                                                   })}
-                                                 <span className="font-bold">{item?.move}</span>
-                                               </span>
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                        >
+                          Move {item?.moveNumber}:{" "}
+                          {capturedWhite
+                            .filter((wp) => wp.san == item?.move)
+                            .map((item, index) => {
+                              return (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[12px] h-[12px] object-contain inline-block"
+                                />
+                              );
+                            })}
+                          <span className="font-bold">{item?.move}</span>
+                        </span>
                         <span
                           className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification

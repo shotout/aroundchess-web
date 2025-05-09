@@ -60,13 +60,13 @@ export default function MovementTable() {
       case "Miss":
         return "border border-[#FF7769] text-[#FF7769] bg-white";
       case "Blunder":
-        return "border border-[#FFA459] text-[#B08503] bg-white";
+        return "border border-[#FA402D] text-[#FA402D] bg-white ";
       case "Mistake":
-        return "border border-[#FFA459] text-[#B08503] bg-white";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       case "Inaccuracy":
-        return "border border-[#FFA459] text-[#B08503] bg-white";
+        return "border border-[#FFA459] text-[#FFA459] bg-white";
       default:
-        return "border border-[#FFA459] text-[#B08503] bg-[white]";
+        return "";
     }
   };
   const getScoreClass = (type: string) => {
@@ -99,8 +99,13 @@ export default function MovementTable() {
     console.log(move);
     setChessMove(move);
   };
-  useEffect(() => {},[])
-  if (isLoading|| dataMovement == null || blackPlayer==null ||whitePlayer == null) {
+  useEffect(() => {}, []);
+  if (
+    isLoading ||
+    dataMovement == null ||
+    blackPlayer == null ||
+    whitePlayer == null
+  ) {
     return null;
   }
   return (
