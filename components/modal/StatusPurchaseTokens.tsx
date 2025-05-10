@@ -73,18 +73,15 @@ export function StatusPurchaseTokens() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[90%] lg:p-[32px] bg-white border border-[#C0CED4] max-h-[90%] overflow-y-hidden`}
+        style={{
+          backgroundImage: `url(/images/background-modal.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          maxHeight: "95vh",
+          width: "100%",
+        }}
+        className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[95%] lg:p-[32px] bg-white border border-[#C0CED4] max-h-[95%] overflow-y-hidden`}
       >
-        {!status.includes("failed") && (
-          <Image
-            alt="bg-modal"
-            src={"/images/background-modal.png"}
-            width={1000}
-            height={1000}
-            className="w-full h-full object-cover absolute inset-0 -z-20"
-          />
-        )}
-
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image

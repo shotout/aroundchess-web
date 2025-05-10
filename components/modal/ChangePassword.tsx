@@ -50,7 +50,7 @@ export function ChangePassword() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-[16px] max-w-sm sm:max-w-[640px] bg-white max-h-[90%]">
+      <DialogContent className="rounded-[16px] max-w-sm sm:max-w-[640px] bg-white max-h-[95%]">
         <DialogHeader className="flex flex-col justify-center items-center z-20">
           <DialogTitle>
             <span className="font-medium text-[18px]">Change Password</span>

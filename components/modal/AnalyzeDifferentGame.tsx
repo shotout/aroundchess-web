@@ -357,7 +357,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
           Analyze a different game
         </button>
       </DialogTrigger>
-      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[90%]"> */}
+      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle>Analyze your games</DialogTitle>

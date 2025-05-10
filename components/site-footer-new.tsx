@@ -22,7 +22,6 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       <CookieConsent />
       <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
-        {sessionId != "" && (
           <div className="relative hidden sm:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
             <Image
               src="/images/footer/background.png"
@@ -76,7 +75,6 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </div>
             </div>
           </div>
-        )}
 
         <div className="grid gap-9 lg:grid-cols-2 sm:mb-8">
           <div>
@@ -100,7 +98,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/learning"
+                    href="/opening-theory"
                     className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
                   >
                     Learning

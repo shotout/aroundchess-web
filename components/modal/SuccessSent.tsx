@@ -18,14 +18,16 @@ export function SuccessSent() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[90%] lg:p-[32px] bg-[#E3F3FF] border border-[#C0CED4] max-h-[90%] overflow-y-hidden">
-        <Image
-          alt="bg-model"
-          src={"/images/background-modal.png"}
-          width={1000}
-          height={1000}
-          className="w-full h-full object-cover absolute inset-0 -z-20"
-        />
+      <DialogContent
+        style={{
+          backgroundImage: `url(/images/background-modal.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          maxHeight: "95vh",
+          width: "100%",
+        }}
+        className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-[#E3F3FF] border border-[#C0CED4] max-h-[95%] overflow-y-hidden"
+      >
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image

@@ -28,15 +28,16 @@ export function ShareGame() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[90%] lg:p-[32px] bg-white max-h-[90%] overflow-y-hidden">
-        <Image
-          src={`/images/play-vs-ai/background-share.png`}
-          alt="bg"
-          width={1000}
-          height={1000}
-          className="w-full h-full fixed absolute inset-0 rounded-[12px] object-cover z-0"
-          priority
-        />
+      <DialogContent
+        style={{
+          backgroundImage: `url(/images/play-vs-ai/background-share.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          maxHeight: "95vh",
+          width: "100%",
+        }}
+        className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden"
+      >
         <DialogHeader className="flex items-center z-20">
           <span className="text-center font-medium text-[18px] w-2/3">
             Share this Game

@@ -25,7 +25,7 @@ export function CancelSubscription() {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[90%] lg:p-[32px] bg-white max-h-[90%] overflow-y-hidden">
+      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden">
         <DialogHeader className="flex items-center">
           <span className="text-center font-medium text-[18px] w-2/3">
             Are you sure you want to cancel your AroundChess Subscription

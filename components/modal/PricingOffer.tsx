@@ -46,7 +46,7 @@ export const PricingOffer: React.FC = () => {
     activeMembership?.lastAnalysisDate != null
       ? new Date(activeMembership?.lastAnalysisDate).getTime() +
         3 * 24 * 60 * 60 * 1000
-      : Date.now() + 24 * 60 * 60 * 1000 ;
+      : Date.now() + 24 * 60 * 60 * 1000;
   const deadlineDiscount =
     new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
   const isPassToken = deadlineToken - Date.now();
@@ -165,18 +165,18 @@ export const PricingOffer: React.FC = () => {
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 bg-black/50" />
         <DialogContent
-          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl`}
-        >
-          <Image
-            src={`/images/pricing/${
+          style={{
+            backgroundImage: `url(/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
-            }.png`}
-            alt="Logo"
-            width={1000}
-            height={1000}
-            className="w-full h-full fixed rounded-[12px] object-cover -z-10"
-            priority
-          />
+            }.png)`,
+            
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "100vh",
+            width: "100%",
+          }}
+          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto`}
+        > 
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
               Become a Chess Master
@@ -193,17 +193,16 @@ export const PricingOffer: React.FC = () => {
           )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div
-              className={`${
-                activeTab == "tokens"
-                  ? isPassToken > 0
-                    ? `h-[82%] sm:h-[100%] lg:h-[98%] xl:h-[90%] overflow-y-auto`
-                    : ``
-                  : isPassDiscount > 0
-                  ? `h-[36%] sm:h-[62%] lg:h-[58%] xl:h-[77%] overflow-y-auto`
-                  : `h-[48%] sm:h-[75%] lg:h-[71%] xl:h-[90%] overflow-y-auto`
-              } }`}
+            // className={`${
+            //   activeTab == "tokens"
+            //     ? isPassToken > 0
+            //       ? `h-[82%] sm:h-[100%] lg:h-[98%] xl:h-[90%] overflow-y-auto`
+            //       : ``
+            //     : isPassDiscount > 0
+            //     ? `h-[36%] sm:h-[62%] lg:h-[58%] xl:h-[77%] overflow-y-auto`
+            //     : `h-[48%] sm:h-[75%] lg:h-[71%] xl:h-[90%] overflow-y-auto`
+            // } }`}
             >
-              
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"

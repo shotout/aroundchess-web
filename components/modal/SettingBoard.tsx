@@ -231,7 +231,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
           />
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl overflow-y-auto max-h-[90%]">
+      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2 flex flex-col items-center justify-center">
           <DialogTitle className="font-semibold text-[24px]">
             Game Settings
