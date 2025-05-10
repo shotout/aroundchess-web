@@ -62,7 +62,7 @@ export default async function handler(
         cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,
       });
 
-      res.status(200).json({ id: session.id });
+      res.status(200).json({ id: session.id, url: session.url });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

@@ -129,6 +129,9 @@ export const PremiumSubsContent: React.FC<{
     });
 
     const data = await res.json();
+    // if (data.url) {
+    //   window.open(data.url, "_blank"); // Opens in a new tab
+    // }
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
     // let body = {

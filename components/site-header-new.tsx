@@ -78,12 +78,15 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     handleSignOut();
   };
   const handleSignOut = async () => {
-    logOut({ sessionId }).then(() => {
-      localStorage.removeItem("token");
-      setPersistedCookie("token", "", 365);
+    logOut({ sessionId })
+      .then(() => {})
+      .finally(() => {
+        clearAll();
+        localStorage.removeItem("token");
+        setPersistedCookie("token", "", 365);
 
-      router.push("/login");
-    });
+        router.push("/login");
+      });
     const { error } = await supabase.auth.signOut();
 
     if (error) {

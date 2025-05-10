@@ -92,19 +92,31 @@ export const PricingOffer: React.FC = () => {
     let price =
       selectedToken != null && selectedToken != 5
         ? tokenOptions[selectedToken].pricePerToken * 100
-        : parseFloat(totalPrice) * 10;
+        : parseFloat(pricePerToken) * 100;
+    console.log("totalPrice", parseFloat(totalPrice));
+    console.log("body", selectedToken, {
+      productName: tokenAmount + " tokens",
+      price: price,
+      quantity: parseInt(tokenAmount.toString()),
+      type: "token",
+      idUser: profile.id,
+    });
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
       body: JSON.stringify({
         productName: tokenAmount + " tokens",
         price: price,
-        quantity: tokenAmount,
+        quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
       }),
     });
 
     const data = await res.json();
+
+    // if (data.url) {
+    //   window.open(data.url, "_blank"); // Opens in a new tab
+    // }
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
     // send to backend
@@ -135,7 +147,8 @@ export const PricingOffer: React.FC = () => {
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
 
-    let conditionedValue = value > 100 ? 100 : isNaN(value) ? 0 : value;
+    let conditionedValue =
+      value > 100 ? 100 : isNaN(value) ? 0 : value < 0 ? 0 : value;
     setCustomAmount(conditionedValue.toString());
     if (conditionedValue > 0) {
       let dataPrice = tokenPackage.find(
@@ -180,7 +193,11 @@ export const PricingOffer: React.FC = () => {
               or buy Analysis Tokens for access to more Analyses
             </DialogDescription>
           </div>
-          <div className={`max-h-[90%] ${activeTab=="tokens"?``:`overflow-y-auto`}`}>
+          <div
+            className={`max-h-[90%] ${
+              activeTab == "tokens" ? `` : `overflow-y-auto`
+            }`}
+          >
             {/* {activeTab == "tokens" && <CountdownTimerToken />} */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">

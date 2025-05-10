@@ -170,13 +170,15 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
     }, null) || sidebarLinks[0].children[0];
 
   const handleSignOut = async () => {
-    logOut({ sessionId }).then(() => {
-      clearAll();
-      localStorage.removeItem("token");
-      setPersistedCookie("token", "", 365);
+    logOut({ sessionId })
+      .then(() => {})
+      .finally(() => {
+        clearAll();
+        localStorage.removeItem("token");
+        setPersistedCookie("token", "", 365);
 
-      router.push("/login");
-    });
+        router.push("/login");
+      });
     const { error } = await supabase.auth.signOut();
 
     if (error) {

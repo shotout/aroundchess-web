@@ -15,13 +15,13 @@ const publicRoutes = [
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
-  console.log("token", token)
+  console.log("token", token);
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
     token != undefined &&
     token != ""
   ) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/analysis", req.url));
   }
   //old file hide
   if (
@@ -35,7 +35,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/pricing") ||
     pathname.startsWith("/puzzle")
   ) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/analysis", req.url));
   }
   if (
     req.url.includes("/stockfish.js") ||
