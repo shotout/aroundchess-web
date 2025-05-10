@@ -199,9 +199,11 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                     Sign-In
                   </button>
                 </Link>
-                <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-                  Try Now
-                </button>
+                <Link href="/register">
+                  <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                    Try Now
+                  </button>
+                </Link>
               </div>
             ) : (
               <div className="hidden lg:flex flex-row w-full items-center gap-[16px]">
@@ -372,9 +374,11 @@ function MobileNav(props: mobileProps) {
                 Sign-In
               </button>
             </Link>
-            <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-              Try Now
-            </button>
+            <Link href="/register">
+              <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                Try Now
+              </button>
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col xl:flex-row w-full items-center justify-center gap-[16px]">

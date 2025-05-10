@@ -126,12 +126,16 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
           {!isSignedIn ? (
             <div className="hidden sm:flex items-center gap-5">
-              <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                <Link href="/login">Sign-In</Link>
-              </button>
-              <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-                Try Now
-              </button>
+              <Link href="/login">
+                <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  Sign-In
+                </button>
+              </Link>
+              <Link href="/register">
+                <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                  Try Now
+                </button>
+              </Link>
             </div>
           ) : (
             <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
