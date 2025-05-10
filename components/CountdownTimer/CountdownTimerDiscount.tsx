@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-
+import { useProfileStore } from "@/app/store/profile";
 
 const getTimeRemaining = (endTime: number) => {
   const total = endTime - Date.now();
@@ -15,7 +15,7 @@ const getTimeRemaining = (endTime: number) => {
 
 const DigitFlip = ({ value }: { value: number }) => {
   return (
-    <div className="relative w-[40px] h-[36px] md:w-[80px] md:h-[72px] xl:w-[41px] xl:h-[32px] h-20 rounded-[4px] shadow-lg bg-black overflow-hidden">
+    <div className="relative w-[40px] h-[36px] md:w-[32px] md:h-[22px] xl:w-[42px] xl:h-[32px] rounded-[4px] shadow-lg bg-black overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={value}
@@ -32,7 +32,7 @@ const DigitFlip = ({ value }: { value: number }) => {
             height={1000}
             className="w-full h-full absolute object-cover -z-0"
           />
-          <span className="md:text-[50px] xl:text-[26px] text-white font-semibold z-10">
+          <span className="md:text-[20px] xl:text-[26px] text-white font-semibold z-10">
             {value.toString().padStart(2, "0")}
           </span>
         </motion.div>
@@ -51,13 +51,14 @@ const TimeBox = ({ label, value }: { label: string; value: number }) => (
 );
 
 export default function CountdownTimerDiscount() {
+  const { profile } = useProfileStore();
   const [nextDiscountTime, setNextDiscountTime] = useState<number>(() => {
     const saved = localStorage.getItem("nextDiscountTime");
-    const now = Date.now();
-    if (saved && parseInt(saved, 10) > now) {
+    const deadline = new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
+    if (saved && parseInt(saved, 10) > deadline) {
       return parseInt(saved, 10);
     } else {
-      const next = now;
+      const next = deadline;
       localStorage.setItem("nextDiscountTime", next.toString());
       return next;
     }
@@ -68,6 +69,7 @@ export default function CountdownTimerDiscount() {
   useEffect(() => {
     const interval = setInterval(() => {
       const remaining = getTimeRemaining(nextDiscountTime);
+      // console.log("remaining", remaining);
       if (remaining.total <= 0) {
         const newTime = Date.now();
         localStorage.setItem("nextDiscountTime", newTime.toString());
@@ -82,11 +84,11 @@ export default function CountdownTimerDiscount() {
   }, [nextDiscountTime]);
 
   return (
-    <div className="relative flex flex-col w-[466px] h-[126px] items-center space-y-3 bg-gradient-to-r from-[#66FEB7] via-[#00FE87] to-[#66FEB7] border-2 border-[#e6f7f3] border-dashed rounded-[8px] p-[8px]">
-      <p className="text-[12px] md:text-[14px] font-medium text-center text-black block">
+    <div className="relative flex flex-col sm:w-[466px] sm:h-[126px] items-center space-y-3 bg-gradient-to-r from-[#66FEB7] via-[#00FE87] to-[#66FEB7] border-2 border-[#e6f7f3] border-dashed rounded-[8px] p-[8px]">
+      <p className="text-[14px] sm:text-[12px] lg:text-[14px] font-medium text-center text-black block">
         Get <span className="text-[#221AE9] font-bold">20% Discount </span>now
         on our 12 Months Premium Subscription.
-        <span className="text-[12px] md:text-[14px] font-medium text-center text-black block">
+        <span className="text-[10px] sm:text-[12px] lg:text-[14px] font-medium text-center text-black block">
           Offer expires in...
         </span>
       </p>
@@ -95,7 +97,7 @@ export default function CountdownTimerDiscount() {
         src={"/images/pricing/sparks.png"}
         width={1000}
         height={1000}
-        className="w-[80px] h-[54px] absolute object-cover -z-0 left-16 bottom-3"
+        className="w-[80px] h-[54px] absolute object-cover -z-0 left-0 xl:left-16 bottom-3"
       />
       <div className="flex space-x-1">
         <TimeBox label="Hours" value={timeLeft.hours} />

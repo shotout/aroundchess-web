@@ -38,9 +38,19 @@ export const PricingOffer: React.FC = () => {
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
   const { callFetch, setCallFetch } = useProfileFetch();
-  const { tokenPackage, profile } = useProfileStore();
+  const { tokenPackage, profile, isMember, token, activeMembership } =
+    useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
+  const deadlineToken =
+    activeMembership?.lastAnalysisDate != null
+      ? new Date(activeMembership?.lastAnalysisDate).getTime() +
+        3 * 24 * 60 * 60 * 1000
+      : Date.now() + 24 * 60 * 60 * 1000 ;
+  const deadlineDiscount =
+    new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
+  const isPassToken = deadlineToken - Date.now();
+  const isPassDiscount = deadlineDiscount - Date.now();
   const {
     setOpen: setOpenStatusPurchase,
     status,
@@ -128,21 +138,6 @@ export const PricingOffer: React.FC = () => {
     setStatus("waiting");
     setOpenStatusPurchase(true);
     setOpen(false);
-    // postPurchaseToken(body)
-    //   .then((result) => {
-    //     console.log("postPurchaseToken", result);
-    //     setCallFetch(formatTimePgn());
-    //     setStatus("success");
-    //     setOpen(false);
-    //   })
-    //   .catch((error) => {
-    //     setStatus("failed");
-    //   })
-    //   .finally(() => {
-    //     // setTimeout(() => {
-    //     //   setOpenStatusPurchase(false);
-    //     // }, 5000);
-    //   });
   };
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
@@ -193,13 +188,22 @@ export const PricingOffer: React.FC = () => {
               or buy Analysis Tokens for access to more Analyses
             </DialogDescription>
           </div>
-          <div
-            className={`max-h-[90%] ${
-              activeTab == "tokens" ? `` : `overflow-y-auto`
-            }`}
-          >
-            {/* {activeTab == "tokens" && <CountdownTimerToken />} */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+          {activeTab == "tokens" && !isMember && token.balance == 0 && (
+            <CountdownTimerToken />
+          )}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div
+              className={`${
+                activeTab == "tokens"
+                  ? isPassToken > 0
+                    ? `h-[82%] sm:h-[100%] lg:h-[98%] xl:h-[90%] overflow-y-auto`
+                    : ``
+                  : isPassDiscount > 0
+                  ? `h-[36%] sm:h-[62%] lg:h-[58%] xl:h-[77%] overflow-y-auto`
+                  : `h-[48%] sm:h-[75%] lg:h-[71%] xl:h-[90%] overflow-y-auto`
+              } }`}
+            >
+              
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
@@ -263,7 +267,7 @@ export const PricingOffer: React.FC = () => {
                     {tokenOptions.map((option, index) => (
                       <div
                         key={index}
-                        className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                        className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
                           selectedToken === index
                             ? "border-4 border-[#221AE9]"
                             : " "
@@ -340,7 +344,7 @@ export const PricingOffer: React.FC = () => {
 
                     {/* Custom Amount Input */}
                     <div
-                      className={`w-[159px] sm:w-[197px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                      className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
                         selectedToken === 5 ? "border-4 border-[#221AE9]" : " "
                       }`}
                       style={
@@ -435,8 +439,8 @@ export const PricingOffer: React.FC = () => {
               <TabsContent value="subscription" className="-pt-[10px]">
                 <PremiumSubsContent onGetPremium={handleGetPremium} />
               </TabsContent>
-            </Tabs>
-          </div>
+            </div>
+          </Tabs>
         </DialogContent>
       </DialogPortal>
     </Dialog>

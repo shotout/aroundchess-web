@@ -12,6 +12,7 @@ import { CheckCircle, Users, X } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
+import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -110,7 +111,8 @@ export const PremiumSubsContent: React.FC<{
 
   let free = allMembershipPackages[0];
   let premium = allMembershipPackages[1];
-
+  const deadline = new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
+  const isPass = deadline - Date.now();
   const handleCancelSubscription = () => {
     setOpen(true);
   };
@@ -119,7 +121,7 @@ export const PremiumSubsContent: React.FC<{
       method: "POST",
       body: JSON.stringify({
         productName: premium.name,
-        price: premium.price * 100,
+        price: isPass > 0 ? 7999 : premium.price * 100,
         quantity: 1,
         description: premium.description,
         type: "membership",
@@ -134,15 +136,6 @@ export const PremiumSubsContent: React.FC<{
     // }
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
-    // let body = {
-    //   membershipType: "YEARLY",
-    //   paymentMethodId: "test",
-    //   useSpecialOffer: false,
-    // };
-    // postPurchaseMembership(body).then((result) => {
-    //   console.log("postPurchaseMembership", result);
-    //   setCallFetch(formatTimePgn());
-    // });
   };
   return (
     <div className="mb-4">
@@ -244,9 +237,12 @@ export const PremiumSubsContent: React.FC<{
               For frequent Chess Players
             </div>
           </div>
-          {/* <div className="flex justify-center items-center my-[12px]">
-            <CountdownTimerDiscount />
-          </div> */}
+          {isPass > 0 && (
+            <div className="flex justify-center items-center my-[12px]">
+              <CountdownTimerDiscount />
+            </div>
+          )}
+
           <div className="flex items-center gap-4 mb-4 pt-2">
             <div className="p-2 rounded-full">
               <Image
@@ -260,16 +256,18 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              <div className="text-2xl font-semibold">
-                $99.99 <span className="text-sm font-normal">/year</span>
-              </div>
-
-              {/* <div className="flex flex-row items-center gap-2">
-                <PriceDiscount price={99.99} />
+              {isPass < 0 ? (
                 <div className="text-2xl font-semibold">
-                  $79.99 <span className="text-sm font-normal">/year</span>
+                  $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
-              </div> */}
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <PriceDiscount price={99.99} />
+                  <div className="text-2xl font-semibold">
+                    $79.99 <span className="text-sm font-normal">/year</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <p className="text-sm mb-4">
@@ -369,7 +367,7 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
     : [label, null];
 
   return (
-    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[100px] h-[100px]">
+    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[90px] h-[90px] xl:w-[100px] xl:h-[100px]">
       <Image
         alt="-"
         src={imageUrl}

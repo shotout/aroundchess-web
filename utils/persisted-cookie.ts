@@ -6,5 +6,5 @@ export function setPersistedCookie(
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() + daysToExpire);
 
-  document.cookie = `${name}=${value}; path=/; expires=${expirationDate.toUTCString()}; secure; samesite=strict`;
+  document.cookie = `${name}=${value}; path=/; expires=${expirationDate.toUTCString()};`;
 }

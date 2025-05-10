@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useProfileStore } from "@/app/store/profile";
 
 const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
 
@@ -46,18 +47,25 @@ const DigitFlip = ({ value }: { value: number }) => {
 const TimeBox = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-col items-center space-y-1">
     <DigitFlip value={value} />
-    <span className="text-[10px] md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">{label}</span>
+    <span className="text-[10px] md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">
+      {label}
+    </span>
   </div>
 );
 
 export default function CountdownTimerToken() {
+  const { activeMembership } = useProfileStore();
   const [nextTokenTime, setNextTokenTime] = useState<number>(() => {
     const saved = localStorage.getItem("nextTokenTime");
-    const now = Date.now();
-    if (saved && parseInt(saved, 10) > now) {
+    const deadline =
+      activeMembership?.lastAnalysisDate != null
+        ? new Date(activeMembership?.lastAnalysisDate).getTime() +
+          3 * 24 * 60 * 60 * 1000
+        : Date.now();
+    if (saved && parseInt(saved, 10) > deadline) {
       return parseInt(saved, 10);
     } else {
-      const next = now + THREE_DAYS;
+      const next = deadline + THREE_DAYS;
       localStorage.setItem("nextTokenTime", next.toString());
       return next;
     }

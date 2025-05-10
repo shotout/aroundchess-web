@@ -12,6 +12,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { fadeInUp } from "@/utils/motion";
 import InitialAvatar from "../avatar/InitialAvatar";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 interface SidebarProps {
   onClose?: () => void;
 }
@@ -153,6 +154,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
+  const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   useEffect(() => {
     if (!sessionId) return;
@@ -162,6 +164,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
   useEffect(() => {}, []);
   const handleToProfile = () => {
     router.push("/profile");
+  };
+
+  const handleOpenOffer = (type: string) => {
+    setOpenSubscribe(true);
+    setTabType(type);
   };
   return (
     <div className="flex h-full flex-col z-100">
@@ -177,7 +184,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           />
         </Link>
       </div>
-      <div className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b">
+      <div className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b gap-2">
         <div className="flex flex-row items-center justify-center gap-2">
           <Image
             src={`/images/pricing/token-icon.png`}
@@ -197,6 +204,22 @@ export default function Sidebar({ onClose }: SidebarProps) {
             </span>
           </span>
         </div>
+        {!isMember && (
+          <div className="w-full flex flex-col items-center gap-[8px] ">
+            <button
+              onClick={() => handleOpenOffer("tokens")}
+              className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Buy Tokens
+            </button>
+            <button
+              onClick={() => handleOpenOffer("subscription")}
+              className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Go Unlimited
+            </button>
+          </div>
+        )}
         {isMember && (
           <motion.div
             variants={fadeInUp}
@@ -413,7 +436,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             )} */}
             <div className="flex-1 text-left">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
-                {profile?.name!=""?profile?.name:username}
+                {profile?.name != "" ? profile?.name : username}
               </p>
               <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
                 {profile?.email}
