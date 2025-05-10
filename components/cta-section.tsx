@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export function CTASection() {
+  const [email, setEmail] = useState("");
   return (
     <section className="py-4 px-8 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
       <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
@@ -19,12 +21,14 @@ export function CTASection() {
         >
           <div className="px-4 py-8 md:px-8 lg:px-12 md:py-4 lg:py-8 lg:px-16 relative z-10">
             <div className="mx-auto max-w-2xl text-center mb-4 sm:mb-8">
-              <Button
-                variant="outline"
-                className="text-white self-center text-sm sm:text-lg font-light px-4"
-              >
-                Sign Up
-              </Button>
+              <Link href={"/register"}>
+                <Button
+                  variant="outline"
+                  className="text-white self-center text-sm sm:text-lg font-light px-4"
+                >
+                  Sign Up
+                </Button>
+              </Link>
             </div>
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-xl font-normal tracking-tight text-white md:text-md lg:text-4xl">
@@ -41,6 +45,8 @@ export function CTASection() {
                       <p className="text-white text-left mb-2">Email</p>
                       <Input
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
                         className="bg-[#FFFFFF25] border-gray-700 text-white placeholder:text-gray-400"
                       />
@@ -51,15 +57,18 @@ export function CTASection() {
                       variant="secondary"
                       className="bg-[#E6F7FE] whitespace-nowrap sm:mt-8"
                     >
-                      <Link href="/pricing#top" className="text-[#0B094E]">
-                        Start Free Trial
+                      <Link
+                        href={`/register?email=${email}`}
+                        className="text-[#0B094E]"
+                      >
+                        Start Free
                         <ArrowRight color="#0B094E" className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
-                    </div>
-                  <p className="text-xs sm:text-sm text-gray-400">
+                  </div>
+                  {/* <p className="text-xs sm:text-sm text-gray-400">
                     No credit card required. 7-day free trial.
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </div>

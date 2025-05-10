@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = [
   "/",
+  "/chessboard",
   "/about",
   "/contact-us",
   "/chess-news",
@@ -26,8 +27,7 @@ export async function middleware(req: NextRequest) {
   //old file hide
   if (
     pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/analyzer") ||
-    pathname.startsWith("/chessboard") ||
+    pathname.startsWith("/analyzer") || 
     pathname.startsWith("/chessdotcom") ||
     pathname.startsWith("/playground/computer") ||
     pathname.startsWith("/playground/online-multiplayer") ||

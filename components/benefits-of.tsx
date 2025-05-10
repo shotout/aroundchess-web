@@ -64,11 +64,7 @@ export function BenefitsOf() {
     checkSession();
   }, [sessionId, isSignedIn]);
   const handleAnalyze = () => {
-    if (isSignedIn) {
-      router.push("/analysis");
-    } else {
-      router.push("/register");
-    }
+    router.push("/analysis");
   };
   return (
     <section className="py-2 sm:py-2 lg:py-2 xl:py-4 bg-white">
@@ -125,13 +121,13 @@ export function BenefitsOf() {
         <div className="flex flex-col items-center justify-center pt-6">
           <Button
             onClick={handleAnalyze}
-            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-md"
+            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-md mb-3"
           >
             Analyze your most recent Game now
           </Button>
-          <span className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3">
+          {/* <span className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3">
             No Sign-Up required
-          </span>
+          </span> */}
         </div>
       </div>
     </section>

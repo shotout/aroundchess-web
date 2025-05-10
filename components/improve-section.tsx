@@ -55,11 +55,7 @@ export function ImproveSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const handleAnalyze = () => {
-    if (isSignedIn) {
-      router.push("/analysis");
-    } else {
-      router.push("/register");
-    }
+    router.push("/analysis");
   };
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">
@@ -148,13 +144,13 @@ export function ImproveSection() {
                 <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6">
                   <Button
                     onClick={handleAnalyze}
-                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-normal text-xs sm:text-md bg-white text-primary"
+                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-normal text-xs sm:text-md bg-white text-primary mb-3"
                   >
                     Analyze your most recent Game now
                   </Button>
-                  <span className="w-fill px-16 font-normal text-xs sm:text-md text-white my-3">
+                  {/* <span className="w-fill px-16 font-normal text-xs sm:text-md text-white my-3">
                     No Sign-Up required
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>

@@ -3,9 +3,11 @@
 import { motion } from "@/utils/motion";
 import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useProfileStore } from "@/app/store/profile";
+import { useRouter } from "next/router";
 
 const analysisFeatures = [
   "Stockfish-powered move evaluation",
@@ -58,14 +60,37 @@ const analysis = [
   },
 ];
 export function AnalysisSection() {
+  const router = useRouter();
+
   const [current, setCurrent] = useState(0);
 
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { sessionId } = useProfileStore();
+
+  useEffect(() => {
+    const checkSession = () => {
+      if (sessionId != "") {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
   const prevSlide = () => {
     setCurrent((prev) => (prev === 0 ? analysis.length - 1 : prev - 1));
   };
 
   const nextSlide = () => {
     setCurrent((prev) => (prev === analysis.length - 1 ? 0 : prev + 1));
+  };
+  const handleAnalyze = () => {
+    if (isSignedIn) {
+      router.push("/analysis");
+    } else {
+      router.push("/register");
+    }
   };
   return (
     <section className="py-2 sm:py-4 bg-white flex items-center justify-center">
@@ -83,7 +108,7 @@ export function AnalysisSection() {
                 <span className="block text-md sm:text-md lg:text-lg font-semibold text-black text-center sm:text-left">
                   Analysis Overview -{" "}
                   <span className="block lg:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
-                     How does AI-powered AroundChess Game Analysis work?
+                    How does AI-powered AroundChess Game Analysis work?
                   </span>
                 </span>
               </div>
@@ -113,163 +138,165 @@ export function AnalysisSection() {
                       {analysis[current].description}
                     </span>
                     <div className="flex flex-col md:flex-row lg:flex-col md:gap-2">
-                    <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#221AE9] text-sm sm:text-md font-bold">
-                        Idea
-                      </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
-                        White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
-                          &nbsp;
-                          <Image
-                            src="/icons/dot-icon.png"
-                            alt="dot"
-                            width={900}
-                            height={900}
-                            className="w-2 h-2"
-                          />
-                          &nbsp;21.&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                           &nbsp;xd5&nbsp;
-                        </div>
-                      </span>
+                      <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
+                        <span className="text-[#221AE9] text-sm sm:text-md font-bold">
+                          Idea
+                        </span>
+                        <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                          White want the knights:{" "}
+                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                            &nbsp;
+                            <Image
+                              src="/icons/dot-icon.png"
+                              alt="dot"
+                              width={900}
+                              height={900}
+                              className="w-2 h-2"
+                            />
+                            &nbsp;21.&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                          </div>
+                        </span>
 
-                      <span className="block text-[11px] sm:text-md lg:text-lg">
-                        with a decisive advantage to White.
-                      </span>
+                        <span className="block text-[11px] sm:text-md lg:text-lg">
+                          with a decisive advantage to White.
+                        </span>
+                      </div>
+
+                      <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
+                        <span className="text-[#FA402D] text-sm sm:text-md font-bold">
+                          Problem
+                        </span>
+                        <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                          White want the knights:{" "}
+                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                            &nbsp;
+                            <Image
+                              src="/icons/dot-icon.png"
+                              alt="dot"
+                              width={900}
+                              height={900}
+                              className="w-2 h-2"
+                            />
+                            &nbsp;21.&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                          </div>
+                        </span>
+
+                        <span className="block text-[11px] sm:text-md lg:text-lg">
+                          with a decisive advantage to White.
+                        </span>
+                      </div>
+
+                      <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
+                        <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
+                          Solution
+                        </span>
+                        <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                          White want the knights:{" "}
+                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                            &nbsp;
+                            <Image
+                              src="/icons/dot-icon.png"
+                              alt="dot"
+                              width={900}
+                              height={900}
+                              className="w-2 h-2"
+                            />
+                            &nbsp;21.&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                            <Image
+                              src="/icons/Knight-icon.png"
+                              alt="knight"
+                              width={900}
+                              height={900}
+                              className="w-[14px] h-[14px]"
+                            />
+                            &nbsp;xd5&nbsp;
+                          </div>
+                        </span>
+
+                        <span className="block text-[11px] sm:text-md lg:text-lg">
+                          with a decisive advantage to White.
+                        </span>
+                      </div>
                     </div>
-
-                    <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#FA402D] text-sm sm:text-md font-bold">
-                        Problem
-                      </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
-                        White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
-                          &nbsp;
-                          <Image
-                            src="/icons/dot-icon.png"
-                            alt="dot"
-                            width={900}
-                            height={900}
-                            className="w-2 h-2"
-                          />
-                          &nbsp;21.&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                           &nbsp;xd5&nbsp;
-                        </div>
-                      </span>
-
-                      <span className="block text-[11px] sm:text-md lg:text-lg">
-                        with a decisive advantage to White.
-                      </span>
-                    </div>
-
-                    <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
-                      <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
-                        Solution
-                      </span>
-                      <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
-                        White want the knights:{" "}
-                        <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
-                          &nbsp;
-                          <Image
-                            src="/icons/dot-icon.png"
-                            alt="dot"
-                            width={900}
-                            height={900}
-                            className="w-2 h-2"
-                          />
-                          &nbsp;21.&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                          &nbsp;xd5&nbsp;
-                          <Image
-                            src="/icons/Knight-icon.png"
-                            alt="knight"
-                            width={900}
-                            height={900}
-                            className="w-[14px] h-[14px]"
-                          />
-                           &nbsp;xd5&nbsp;
-                        </div>
-                      </span>
-
-                      <span className="block text-[11px] sm:text-md lg:text-lg">
-                        with a decisive advantage to White.
-                      </span>
-                    </div>
-                  </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center pt-6 md:pt-2 lg:pt-6">
-                  <Button 
-                  className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md">
+                  <Button
+                    onClick={handleAnalyze}
+                    className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md mb-3"
+                  >
                     Analyze your most recent Game now
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="link"
                     className="w-fill text-black px-7 sm:px-16 font-normal text-sm sm:text-md"
                   >
                     No Sign-Up required
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">

@@ -128,7 +128,7 @@ export default function Home() {
           <ImproveSection />
           <BenefitsOf />
           <BasedOnAI />
-          <CTASection />
+          {!(sessionId && sessionId != "") && <CTASection />}
           <SiteFooterNew />
         </>
       )}

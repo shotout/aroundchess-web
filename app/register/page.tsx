@@ -10,9 +10,13 @@ import { useProfileStore } from "../store/profile";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const emailParam = searchParams?.get("email");
+
+  const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [emailSent, setEmailSent] = useState(false);
@@ -24,6 +28,8 @@ export default function RegisterPage() {
   const { setSessionId } = useProfileStore();
 
   useEffect(() => {
+    console.log("emailParam",emailParam)
+    setEmail(emailParam);
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
       if (hash) {
@@ -324,7 +330,7 @@ export default function RegisterPage() {
                       <div className="relative">
                         <Input
                           id="email"
-                          value={email}
+                          value={email ?? ""}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter your Email Address"
                           type="email"

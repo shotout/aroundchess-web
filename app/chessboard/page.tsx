@@ -6,6 +6,21 @@ import { useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
 
 import { CSSProperties } from "react";
+import ChessWithArrows from "./ChessWithArrows";
+
+const customArrows: any[] = [
+  { start: "f1", end: "d3", color: "blue" },
+  { start: "d3", end: "e8", color: "blue" },
+  { start: "c4", end: "a6", color: "green" },
+  { start: "a7", end: "a6", color: "red" },
+  { start: "b7", end: "b6", color: "red" },
+];
+
+const customSquareStyles = {
+  e3: { backgroundColor: "rgba(255, 255, 0, 0.5)" },
+  d6: { backgroundColor: "rgba(255, 255, 0, 0.5)" },
+  e8: { backgroundColor: "rgba(255, 255, 0, 0.5)" },
+};
 
 const boardWrapper: CSSProperties = {
   display: "flex",
@@ -197,6 +212,7 @@ export default function ChessBoard() {
       {/* </div> */}
       <div style={{ maxWidth: boardSize + 40 }}>
         <Chessboard
+          customArrows={customArrows}
           boardWidth={boardSize}
           id="Styled3DBoard"
           position={gamePosition}
@@ -242,6 +258,7 @@ export default function ChessBoard() {
           onMouseOverSquare={(sq) => setActiveSquare(sq)}
           onMouseOutSquare={(sq) => setActiveSquare("")}
         />
+          <ChessWithArrows />
       </div>
       <div className="mt-12">
         <button
