@@ -81,6 +81,7 @@ const GamesTab: React.FC = () => {
         setTabType("tokens");
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [router, setPgn, setDataAnalysis, setZustandIsLoading, username]
   );
 

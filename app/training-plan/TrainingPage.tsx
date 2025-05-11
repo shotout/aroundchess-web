@@ -4,18 +4,17 @@ import UserProfileCard from "./components/UserProfileCard";
 import TrainingPlanDisplay from "./components/TrainingDisplay";
 import ProgressDisplay from "./components/ProgressDisplay";
 import DotSpinner from "@/components/game-history/Spinner";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
 import { useTrainingPlanStore, useScheduleStore, useUserStore } from "./store";
 import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "../store/profile";
 
 const ChessProgressionUI: React.FC = () => {
-  const { sessionId } = useProfileStore(); 
+  const { sessionId } = useProfileStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasPlan, setHasPlan] = useState(false);
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);
@@ -78,7 +77,6 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [schedule]);
 
-  // Reset plan expired status when dialog is opened
   useEffect(() => {
     if (dialogOpen) {
       resetExpiredStatus();
@@ -90,7 +88,6 @@ const ChessProgressionUI: React.FC = () => {
       setIsCheckingPlan(true);
       resetExpiredStatus(); // Reset expired status when a new plan is created
 
-      // Clear all cache when creating a new plan
       CacheUtil.clearAll();
 
       fetchSchedule(sessionId)
@@ -104,33 +101,11 @@ const ChessProgressionUI: React.FC = () => {
     }
   };
 
-  // We now separate the different error types
-  const hasNonPlanError = profileError || topicsError;
   const isPlanExpired =
     planExpired || (scheduleError && scheduleError.includes("expired"));
   const isLoading = isProfileLoading || isCheckingPlan;
 
-  // Show create plan if no plan or plan is expired
   const shouldShowCreatePlan = !hasPlan || isPlanExpired;
-
-  // If there's a critical error that would prevent the app from functioning
-  if (hasNonPlanError) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive" className="mb-6">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{profileError || topicsError}</AlertDescription>
-        </Alert>
-        <Button
-          onClick={() => window.location.reload()}
-          className="btn-primary"
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col xl:gap-6 lg:gap-4 lg:p-4 xl:p-8">
