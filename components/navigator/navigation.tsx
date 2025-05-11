@@ -2,17 +2,7 @@
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { CancelSubscription } from "../modal/CancelSubscription";
-import { ConfirmLogin } from "../modal/ConfirmLogin";
-import { ContactUs } from "../modal/ContactUs";
-import { PricingOffer } from "../modal/PricingOffer";
-import { SuccessSubscription } from "../modal/SuccessSubscription";
-import { StatusPurchaseTokens } from "../modal/StatusPurchaseTokens";
-import { ShareGame } from "../modal/ShareGame";
-import { SuccessSent } from "../modal/SuccessSent";
-import { useRouter } from "next/router";
 
 export default function Navigation({
   children,
@@ -67,14 +57,6 @@ export default function Navigation({
           <div className="relative">
             {/* <div className="relative z-10 lg:min-h-[calc(100vh-97px)]"> */}
             {children}
-            <ConfirmLogin />
-            <ContactUs />
-            <SuccessSubscription />
-            <CancelSubscription />
-            <StatusPurchaseTokens />
-            <PricingOffer />
-            <ShareGame />
-            <SuccessSent />
           </div>
 
           <div className="z-49 relative">

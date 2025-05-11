@@ -21,6 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
+import { useRouter } from "next/navigation";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 interface TokenOption {
@@ -30,6 +32,9 @@ interface TokenOption {
 }
 
 export const PricingOffer: React.FC = () => {
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
+
+  const router = useRouter();
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("0");
   const [pricePerToken, setPricePerToken] = useState<string>("0.99");
@@ -57,6 +62,7 @@ export const PricingOffer: React.FC = () => {
     setStatus,
     setQuantity,
   } = useStatusPurchaseTokens();
+  const { sessionId } = useProfileStore();
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
 
@@ -91,53 +97,61 @@ export const PricingOffer: React.FC = () => {
     setWidthC(width);
   };
   const handleGetPremium = () => {
-    setOpen(false);
-    setOpenSuccessSubscription(true);
+    if (sessionId.length == 0) {
+      setOpenConfirmLogin(true);
+    } else {
+      setOpen(false);
+      setOpenSuccessSubscription(true);
+    }
   };
   const handlePurchaseToken = async () => {
-    let tokenAmount =
-      selectedToken != null && selectedToken != 5
-        ? tokenOptions[selectedToken].amount
-        : customAmount;
-    let price =
-      selectedToken != null && selectedToken != 5
-        ? tokenOptions[selectedToken].pricePerToken * 100
-        : parseFloat(pricePerToken) * 100;
-    console.log("totalPrice", parseFloat(totalPrice));
-    console.log("body", selectedToken, {
-      productName: tokenAmount + " tokens",
-      price: price,
-      quantity: parseInt(tokenAmount.toString()),
-      type: "token",
-      idUser: profile.id,
-    });
-    const res = await fetch("/api/stripe/checkout_sessions", {
-      method: "POST",
-      body: JSON.stringify({
+    if (sessionId.length == 0) {
+      setOpenConfirmLogin(true);
+    } else {
+      let tokenAmount =
+        selectedToken != null && selectedToken != 5
+          ? tokenOptions[selectedToken].amount
+          : customAmount;
+      let price =
+        selectedToken != null && selectedToken != 5
+          ? tokenOptions[selectedToken].pricePerToken * 100
+          : parseFloat(pricePerToken) * 100;
+      console.log("totalPrice", parseFloat(totalPrice));
+      console.log("body", selectedToken, {
         productName: tokenAmount + " tokens",
         price: price,
         quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
-      }),
-    });
+      });
+      const res = await fetch("/api/stripe/checkout_sessions", {
+        method: "POST",
+        body: JSON.stringify({
+          productName: tokenAmount + " tokens",
+          price: price,
+          quantity: parseInt(tokenAmount.toString()),
+          type: "token",
+          idUser: profile.id,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    // if (data.url) {
-    //   window.open(data.url, "_blank"); // Opens in a new tab
-    // }
-    const stripe = await stripePromise;
-    await stripe?.redirectToCheckout({ sessionId: data.id });
-    // send to backend
-    let body = {
-      quantity: parseInt(tokenAmount.toString()),
-      paymentMethodId: "stripe",
-    };
-    setQuantity(body.quantity);
-    setStatus("waiting");
-    setOpenStatusPurchase(true);
-    setOpen(false);
+      // if (data.url) {
+      //   window.open(data.url, "_blank"); // Opens in a new tab
+      // }
+      const stripe = await stripePromise;
+      await stripe?.redirectToCheckout({ sessionId: data.id });
+      // send to backend
+      let body = {
+        quantity: parseInt(tokenAmount.toString()),
+        paymentMethodId: "stripe",
+      };
+      setQuantity(body.quantity);
+      setStatus("waiting");
+      setOpenStatusPurchase(true);
+      setOpen(false);
+    }
   };
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
@@ -163,20 +177,20 @@ export const PricingOffer: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/50" />
+        {/* <DialogOverlay className="fixed inset-0 bg-black/50" /> */}
         <DialogContent
           style={{
             backgroundImage: `url(/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
             }.png)`,
-            
+
             backgroundSize: "cover",
             backgroundPosition: "center",
             height: "100vh",
             width: "100%",
           }}
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto`}
-        > 
+        >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
               Become a Chess Master
@@ -428,7 +442,7 @@ export const PricingOffer: React.FC = () => {
                             : `btn-primary`
                         } w-full xl:w-1/2 h-[48px] rounded-full`}
                       >
-                        Purchase Now
+                        {isLoading ? <DotSpinner size={5} /> : "Purchase Now"}
                       </button>
                     )}
                   </div>

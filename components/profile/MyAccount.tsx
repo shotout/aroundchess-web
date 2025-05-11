@@ -8,9 +8,10 @@ import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import DotSpinner from "../game-history/Spinner";
 
 const MyAccount = () => {
-  const { getProfile, logOut } = useApiClient();
+  const { getProfile, logOut, isLoading } = useApiClient();
   const { profile, setProfile, clearAll, sessionId } = useProfileStore();
   const router = useRouter();
   const { username, setUsername } = usePgnStore();
@@ -43,7 +44,8 @@ const MyAccount = () => {
     console.log("Password change requested");
   };
   const handleSignOut = async () => {
-    logOut({ sessionId })   .then(() => {})
+    logOut({ sessionId })
+      .then(() => {})
       .finally(() => {
         clearAll();
         localStorage.removeItem("token");
@@ -63,11 +65,12 @@ const MyAccount = () => {
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
         <span className="text-[18px] font-semibold">My Account</span>
         <button
+          disabled={isLoading}
           onClick={handleSignOut}
           className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
         >
           <LogOut size={18} />
-          <span>Sign-out</span>
+          {isLoading ? <DotSpinner size={5} /> : <span>Sign-out</span>}
         </button>
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2">

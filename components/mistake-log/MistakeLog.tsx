@@ -226,18 +226,20 @@ const MistakeLog = () => {
           </div>
           <div className="flex items-center space-x-1 lg:space-x-2 ml-1 shrink-0">
             <button
+              disabled={isLoading}
               onClick={handleApplyFilters}
               className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
             >
               <Filter className="h-[20px] w-[20px]" />
-              Apply Filters
+              {isLoading ? <DotSpinner size={5} /> : "Apply Filters"}
             </button>
             <button
+              disabled={isLoading}
               onClick={handleClearFilters}
               className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
             >
               <Filter className="h-4 w-4" />
-              Clear Filters
+              {isLoading ? <DotSpinner size={5} /> : "Clear Filters"}
             </button>
           </div>
         </div>
@@ -304,18 +306,20 @@ const MistakeLog = () => {
             </div>
             <div className="flex items-center justify-end space-x-1 lg:space-x-2 ml-1 shrink-0 mt-2">
               <button
+                disabled={isLoading}
                 onClick={handleApplyFilters}
                 className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
               >
                 <Filter className="h-[20px] w-[20px]" />
-                Apply Filters
+                {isLoading ? <DotSpinner size={5} /> : "Apply Filters"}
               </button>
               <button
+                disabled={isLoading}
                 onClick={handleClearFilters}
                 className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
               >
                 <Filter className="h-[20px] w-[20px]" />
-                Clear Filters
+                {isLoading ? <DotSpinner size={5} /> : "Clear Filters"}
               </button>
             </div>
           </div>

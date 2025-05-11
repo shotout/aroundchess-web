@@ -26,10 +26,11 @@ import { toast } from "sonner";
 import { useSuccessSent } from "@/app/store/successSent";
 import { useApiClient } from "@/functions/api-client";
 import { ScrollArea } from "../ui/scroll-area";
+import DotSpinner from "../game-history/Spinner";
 
 export function ContactUs() {
   const router = useRouter();
-  const { contactUs } = useApiClient();
+  const { contactUs, isLoading } = useApiClient();
   const { open, setOpen } = useContactUs();
   const { setOpen: setOpenSent } = useSuccessSent();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -259,17 +260,24 @@ export function ContactUs() {
               </div>
             </div>
             <button
+              disabled={isLoading}
               onClick={handleSendMessage}
               className="btn-primary rounded-full min-h-[48px] sm:min-w-[333px] flex flex-row items-center justify-center gap-2"
             >
-              <Send
-                className="w-[18px] h-[13.65px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
-                color={"#fff"}
-                fill="#fff"
-              />
-              <span className="text-[12px] sm:text-[11px] lg:text-[16px]">
-                Send us a message
-              </span>
+              {isLoading ? (
+                <DotSpinner size={5} />
+              ) : (
+                <>
+                  <Send
+                    className="w-[18px] h-[13.65px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
+                    color={"#fff"}
+                    fill="#fff"
+                  />
+                  <span className="text-[12px] sm:text-[11px] lg:text-[16px]">
+                    Send us a message
+                  </span>
+                </>
+              )}
             </button>
           </div>
         </ScrollArea>
