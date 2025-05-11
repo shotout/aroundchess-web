@@ -20,7 +20,6 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     const checkSession = () => {
-       
       if (sessionId) {
         setIsSignedIn(true);
       } else {
@@ -78,13 +77,19 @@ export default function AnalysisPage() {
     console.log("dataAnalysis", dataAnalysis);
     console.log("pgn.length", pgn);
     console.log("isSignedIn", isSignedIn);
-    if (isSignedIn != undefined) {
-      if (dataAnalysis == null || !isSignedIn) {
-        fetchPgnFamousGame();
-      }
-      if (isSignedIn) {
-        fetchMistakePrevious();
-      }
+    if (!isSignedIn && !isLoading) return;
+
+    if (isSignedIn) {
+      fetchMistakePrevious();
+    }
+
+    if (pgn.length === 0) {
+      console.log("No PGN data found, loading famous game as fallback");
+      setIsLoading(true);
+      fetchPgnFamousGame();
+    } else {
+      console.log("Using existing PGN data from store");
+      setIsLoading(false);
     }
   }, [isSignedIn]);
 
