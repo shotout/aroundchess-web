@@ -6,6 +6,7 @@ import Link from "next/link";
 import { LessonType, getLessonBasePath } from "./ChessLessonTypes";
 import Image from "next/image";
 import Simple2DChess from "./components/Simple2DChess";
+import DotSpinner from "../game-history/Spinner";
 
 interface ChessLessonCardProps {
   lesson: {
@@ -21,7 +22,42 @@ interface ChessLessonCardProps {
   fetchDetails?: (id: string) => Promise<any | null>;
 }
 
-// Use React.memo with a custom comparison function to prevent unnecessary re-renders
+const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
+  if (readStatus === undefined) {
+    return (
+      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-gray-200 p-3 rounded-full flex items-center justify-center">
+        <DotSpinner />
+      </div>
+    );
+  }
+
+  // If not read
+  if (!readStatus) {
+    return (
+      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
+        <Image
+          src={"/handbooks/not-finished.png"}
+          alt="finish lesson icon"
+          fill
+          className="p-1"
+        />
+      </div>
+    );
+  }
+
+  // If read
+  return (
+    <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
+      <Image
+        src={"/handbooks/finished.png"}
+        alt="finish lesson icon"
+        fill
+        className="p-1"
+      />
+    </div>
+  );
+};
+
 const ChessLessonCard = React.memo<ChessLessonCardProps>(
   ({ lesson, slug, lessonType, getFenFromMoves }) => {
     const basePath = getLessonBasePath(lessonType);
@@ -54,25 +90,8 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                   />
                 </div>
               </div>
-              {!lesson.readStatus ? (
-                <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
-                  <Image
-                    src={"/handbooks/not-finished.png"}
-                    alt="finish lesson icon"
-                    fill
-                    className="p-1"
-                  />
-                </div>
-              ) : (
-                <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
-                  <Image
-                    src={"/handbooks/finished.png"}
-                    alt="finish lesson icon"
-                    fill
-                    className="p-1"
-                  />
-                </div>
-              )}
+
+              <ReadStatusIndicator readStatus={lesson.readStatus} />
             </div>
 
             <div className="xl:px-4 flex flex-col gap-y-4 xl:gap-y-2 h-auto mx-1 lg:mx-2">
