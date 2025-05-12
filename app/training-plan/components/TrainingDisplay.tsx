@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import { TrainingSchedule } from "../store";
 import { AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
@@ -22,7 +23,10 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   error,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  const router = useRouter();
+  const handleStartPuzzle = () => {
+    router.push("/playground/puzzle");
+  };
   if (isLoading) {
     return (
       <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -191,7 +195,10 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
             </div>
 
             <div className="flex justify-center">
-              <Button className="btn-primary rounded-full py-2 px-6 w-full">
+              <Button
+                onClick={handleStartPuzzle}
+                className="btn-primary rounded-full py-2 px-6 w-full"
+              >
                 Start Puzzles
               </Button>
             </div>

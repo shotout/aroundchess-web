@@ -14,11 +14,24 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import Link from "next/link";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
+import { TabsTrigger } from "../ui/tabs";
 interface emptyLogProps {
   title?: string;
   content?: string;
+  noButton?: boolean;
+  onClickSeePrevious?: () => void;
 }
-const EmptyLog: React.FC<emptyLogProps> = ({ title, content }) => {
+const EmptyLog: React.FC<emptyLogProps> = ({
+  title,
+  content,
+  noButton,
+  onClickSeePrevious,
+}) => {
+  const router = useRouter();
+  const handleAnalyze = () => {
+    router.push("/analysis");
+  };
   return (
     <div className="flex flex-col w-[95%] justify-center gap-[24px] bg-white rounded-[16px] items-center p-2">
       <Image
@@ -39,12 +52,20 @@ const EmptyLog: React.FC<emptyLogProps> = ({ title, content }) => {
         </span>
       </div>
 
-      <button className="w-full rounded-full btn-primary font-medium text-[16px] h-[44px]">
+      <button
+        onClick={handleAnalyze}
+        className="w-full rounded-full btn-primary font-medium text-[16px] h-[44px]"
+      >
         Analyze Games
       </button>
-      <button className="w-full rounded-full btn-secondary font-medium text-[16px] h-[44px]">
-        See Previous Analyses
-      </button>
+      {!noButton && (
+        <button
+          onClick={onClickSeePrevious}
+          className="w-full rounded-full btn-secondary font-medium text-[16px] h-[44px]"
+        >
+          See Previous Analyses
+        </button>
+      )}
     </div>
   );
 };

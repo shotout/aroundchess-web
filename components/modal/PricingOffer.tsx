@@ -42,6 +42,7 @@ export const PricingOffer: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tokens");
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
+  const [loading, setLoading] = useState<boolean>(false);
   const { callFetch, setCallFetch } = useProfileFetch();
   const { tokenPackage, profile, isMember, token, activeMembership } =
     useProfileStore();
@@ -108,6 +109,7 @@ export const PricingOffer: React.FC = () => {
     if (sessionId.length == 0) {
       setOpenConfirmLogin(true);
     } else {
+      setLoading(true);
       let tokenAmount =
         selectedToken != null && selectedToken != 5
           ? tokenOptions[selectedToken].amount
@@ -119,7 +121,7 @@ export const PricingOffer: React.FC = () => {
       console.log("totalPrice", parseFloat(totalPrice));
       console.log("body", selectedToken, {
         productName: tokenAmount + " tokens",
-        price: price,
+        price: parseFloat(price.toFixed(2)),
         quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
@@ -128,7 +130,7 @@ export const PricingOffer: React.FC = () => {
         method: "POST",
         body: JSON.stringify({
           productName: tokenAmount + " tokens",
-          price: price,
+          price: parseFloat(price.toFixed(2)),
           quantity: parseInt(tokenAmount.toString()),
           type: "token",
           idUser: profile.id,
@@ -143,11 +145,8 @@ export const PricingOffer: React.FC = () => {
       const stripe = await stripePromise;
       await stripe?.redirectToCheckout({ sessionId: data.id });
       // send to backend
-      let body = {
-        quantity: parseInt(tokenAmount.toString()),
-        paymentMethodId: "stripe",
-      };
-      setQuantity(body.quantity);
+      setLoading(false);
+      setQuantity(parseInt(tokenAmount.toString()));
       setStatus("waiting");
       setOpenStatusPurchase(true);
       setOpen(false);
@@ -417,7 +416,7 @@ export const PricingOffer: React.FC = () => {
                           </span>
                         </div>
                         <div className="font-medium text-[20px] xl:text-[24px]">
-                          ${totalPrice}.00
+                          ${totalPrice}
                         </div>
                         <div className="text-[14px] font-normal text-[#221AE9]">
                           ${pricePerToken}/Token
@@ -426,12 +425,13 @@ export const PricingOffer: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center justify-center">
-                    {isLoading ? (
+                    {isLoading || loading ? (
                       <DotSpinner />
                     ) : (
                       <button
                         disabled={
                           isLoading ||
+                          loading ||
                           (customAmount == "0" && selectedToken == null)
                         }
                         onClick={handlePurchaseToken}
@@ -442,7 +442,7 @@ export const PricingOffer: React.FC = () => {
                             : `btn-primary`
                         } w-full xl:w-1/2 h-[48px] rounded-full`}
                       >
-                        {isLoading ? <DotSpinner size={5} /> : "Purchase Now"}
+                        Purchase Now
                       </button>
                     )}
                   </div>

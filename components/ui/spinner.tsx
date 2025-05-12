@@ -29,6 +29,8 @@ export default function LoadingSpinner() {
     let interval: string | number | NodeJS.Timeout | undefined;
     if (dataAnalysis != null) {
       setProgress(100);
+      setEstimateMinute(0);
+      setEstimateSecond(0);
       setTimeLeft(0);
     }
     if (isLoading && progress < 100 && timeLeft != 0 && dataAnalysis == null) {

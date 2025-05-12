@@ -232,7 +232,6 @@ export default function PlayingPage() {
       // valid move
       setMoveTo(square);
       setCurrentSquare(square);
-      getClassificationMove();
 
       // if promotion move
       if (
@@ -262,6 +261,8 @@ export default function PlayingPage() {
         return;
       }
       setGamePosition(game.fen());
+      getClassificationMove();
+
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
       setTimeout(() => {
         findEnemyMove();

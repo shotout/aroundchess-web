@@ -14,7 +14,6 @@ import { useProfileStore } from "../store/profile";
 
 const DEV_MODE = false;
 
-
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
@@ -78,13 +77,16 @@ export default function AnalysisPage() {
     console.log("dataAnalysis", dataAnalysis);
     console.log("pgn.length", pgn);
     console.log("isSignedIn", isSignedIn);
-    if (!isSignedIn && !isLoading) return;
 
     if (isSignedIn) {
       fetchMistakePrevious();
     }
 
-    if (pgn.length === 0 || dataAnalysis==null) {
+    if (
+      (!isSignedIn && !isLoading) ||
+      pgn.length == 0 ||
+      dataAnalysis == null
+    ) {
       console.log("No PGN data found, loading famous game as fallback");
       fetchPgnFamousGame();
     } else {

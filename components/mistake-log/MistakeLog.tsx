@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChessContent from "./ChessContent";
 import SavedMistakes from "./SavedMistakes";
 import PreviousAnalysis from "./PreviousAnalysis";
@@ -29,6 +29,7 @@ const history = [
 ];
 
 const MistakeLog = () => {
+  const refTab = useRef();
   const { PieceChoosed } = useChessBoardThemeStore();
   const {
     getMistakeSaved,
@@ -158,6 +159,15 @@ const MistakeLog = () => {
     setActiveFiltersCount(0);
     setFiltersApplied(false);
     fetchMistakePreviousDetail(mistakePreviousDetail.id, true);
+  };
+  const handleGoPrevious = () => {
+    setSelectedTab("previous");
+    setChessMove({});
+    setPgn(mistakePreviousDetail.pgn);
+    setPlayerInfo(mistakePreviousDetail.playerInfo);
+    setTitleGame(mistakePreviousDetail.title);
+    setMovementDetails(mistakePreviousDetail.movementDetail);
+    setPreviousAnalysesDetail(mistakePreviousDetail);
   };
   const renderFilters = () => {
     return (
@@ -339,7 +349,7 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="saved" className="w-full p-0 xl:p-[8px] ">
+      <Tabs defaultValue="saved" className="w-full p-0 xl:p-[8px] " value={tabSelected} onValueChange={setSelectedTab}>
         <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
             onClick={() => {
@@ -367,15 +377,7 @@ const MistakeLog = () => {
             </span>
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => {
-              setSelectedTab("previous");
-              setChessMove({});
-              setPgn(mistakePreviousDetail.pgn);
-              setPlayerInfo(mistakePreviousDetail.playerInfo);
-              setTitleGame(mistakePreviousDetail.title);
-              setMovementDetails(mistakePreviousDetail.movementDetail);
-              setPreviousAnalysesDetail(mistakePreviousDetail); // Set the first saved mistake as the default detail
-            }}
+            onClick={handleGoPrevious}
             value="previous"
             className={`${
               tabSelected != "saved"
@@ -406,7 +408,10 @@ const MistakeLog = () => {
                   <ChessContent />
                 </div>
                 <div className="xl:w-3/4">
-                  <SavedMistakes reFetch={loadData} />
+                  <SavedMistakes
+                    reFetch={loadData}
+                    onClickSeePrevious={handleGoPrevious}
+                  />
                 </div>
               </div>
             </>

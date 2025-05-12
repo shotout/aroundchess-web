@@ -47,7 +47,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
   React.useEffect(() => {
     const checkSession = () => {
-      if (sessionId != null && sessionId.length > 0) {
+      console.log("sessionId.length", sessionId.length);
+      if (sessionId.length > 0) {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -345,39 +346,41 @@ function MobileNav(props: mobileProps) {
         <BarChart2 className="mr-2 h-4 w-4" />
         Analyze Now
       </div>
-      <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6">
+      <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6 bg-white ">
         <Link href="/about-us" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <Info className="mr-2 h-4 w-4" />
             About
           </div>
         </Link>
         <Link href="/faq" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <HelpCircle className="mr-2 h-4 w-4" />
             FAQ
           </div>
         </Link>
         <Link href="/pricing" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <DollarSign className="mr-2 h-4 w-4" />
             Pricing
           </div>
         </Link>
       </div>
 
-      <div className="flex flex-1 gap-2 mt-8">
-        {!props.isSignedIn ? (
-          <div className="hidden sm:flex items-center gap-5">
-            <Link href="/login">
-              <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                Sign-In
-              </button>
+      <div className="flex flex-1 gap-2 mt-8 w-full">
+        {props.isSignedIn == false ? (
+          <div className="flex flex-col w-full items-center gap-5">
+            <Link
+              href="/login"
+              className="flex items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Sign-In
             </Link>
-            <Link href="/register">
-              <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-                Try Now
-              </button>
+            <Link
+              href="/register"
+              className="flex items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Try Now
             </Link>
           </div>
         ) : (

@@ -294,18 +294,24 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     return <DotSpinner />;
   } else if (!PreviousAnalysis) {
     return (
-      <EmptyLog title="You have not yet Analyses" content="Analyze Game now" />
+      <EmptyLog
+        title="You have not yet Analyses"
+        content="Analyze Game now"
+        noButton={true}
+      />
     );
   }
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
-      {PreviousAnalysis?.criticalMistakes.length == 0 &&
+      {PreviousAnalysis?.criticalMistakes &&
+        PreviousAnalysis?.criticalMistakes.length == 0 &&
         PreviousAnalysis?.badMoves.length == 0 &&
         PreviousAnalysis?.threats.length == 0 &&
         PreviousAnalysis?.weaknessIdentification.length == 0 && (
           <EmptyLog
             title="You have not yet Analyses"
             content="Analyze Game now"
+            noButton={true}
           />
         )}
 

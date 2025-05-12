@@ -294,7 +294,7 @@ const PgnPlayer: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3.25 : 480;
+    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3.25 : 400;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
     console.log("Resizing board...", isPortrait, window.innerWidth);
 
@@ -302,8 +302,8 @@ const PgnPlayer: React.FC = () => {
       // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
       // Use 85% of available width for mobile, 90% for tablets
-      const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      const sizeFactor = width <= 430 ? 0.8 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor));
       console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
       // In landscape, use height as the primary constraint
