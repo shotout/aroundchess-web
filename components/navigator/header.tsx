@@ -213,20 +213,23 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           {/* Tablet view - Analytics button next to hamburger */}
           {!isDesktop && (
             <div className="flex items-center space-x-3 w-full">
-              <div className="hidden sm:flex flex-row w-full ">
-                <span className="lg:text-[16px] text-[#221AE9] font-medium">
-                  Tokens:&nbsp;
-                </span>
-                <span
-                  className={`font-bold ${
-                    tokenBalance.balance == 0
-                      ? `text-[#FD0000]`
-                      : `text-[#221AE9]`
-                  }`}
-                >
-                  {tokenBalance.balance}
-                </span>
-              </div>
+              {isSignedIn && (
+                <div className="hidden sm:flex flex-row w-full ">
+                  <span className="lg:text-[16px] text-[#221AE9] font-medium">
+                    Tokens:&nbsp;
+                  </span>
+                  <span
+                    className={`font-bold ${
+                      tokenBalance.balance == 0
+                        ? `text-[#FD0000]`
+                        : `text-[#221AE9]`
+                    }`}
+                  >
+                    {tokenBalance.balance}
+                  </span>
+                </div>
+              )}
+
               {!isMember && (
                 <Button
                   color="primary"
