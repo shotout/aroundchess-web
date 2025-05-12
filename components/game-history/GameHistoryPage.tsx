@@ -55,7 +55,7 @@ const GameHistoryPage: React.FC = () => {
         <div className="">
           <div className="flex justify-between items-center mb-4">
             <div className="flex flex-row items-end gap-2">
-              <h1 className="text-base lg:text-[32px] font-bold">
+              <h1 className="text-sm lg:text-[32px] font-bold">
                 My Game History
               </h1>
               <div className="flex justify-center items-end h-full">

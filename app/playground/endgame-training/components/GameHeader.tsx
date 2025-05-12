@@ -56,14 +56,14 @@ export default function GameHeader({
                   if (match) {
                     const [_, prefix, number] = match;
                     return (
-                      <>
+                      <div className="flex items-center gap-x-2">
                         <div className="font-semibold text-base relative z-10">
                           {prefix}
                         </div>
                         <div className="text-3xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10">
                           {number}
                         </div>
-                      </>
+                      </div>
                     );
                   } else {
                     return (
@@ -137,9 +137,8 @@ export default function GameHeader({
             <div className="flex justify-center h-10">
               {pieceConfig && pieceConfig.pieces ? (
                 <div
-                  className="flex items-center justify-center border border-[#E7F1F6] overflow-hidden rounded-md h-10 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
+                  className="flex w-[100px] xl:w-[200px] items-center justify-center border border-[#E7F1F6] overflow-hidden rounded-md h-10 bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
                   style={{
-                    width: "200px",
                     padding: "3px",
                     position: "relative",
                     zIndex: 10,
@@ -176,7 +175,7 @@ export default function GameHeader({
 
             {isCheckmateMode ? null : (
               <div
-                className="flex h-10 items-center justify-center"
+                className="xl:flex h-10 items-center justify-center hidden"
                 style={{
                   position: "relative",
                   zIndex: 10,

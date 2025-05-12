@@ -52,8 +52,8 @@ export default function EndgameTrainingView({
   return (
     <>
       <div className="xl:border rounded-md flex flex-col space-y-4">
-        <div className="border rounded-md border-primary-gray shadow-md xl:shadow-none xl:border-none">
-          <div className="flex items-center space-x-4 xl:border-b p-2 xl:p-4 bg-primary-white xl:bg-gradient-to-b from-[#FFFFFF] to-[#F3F8FB]">
+        <div className="border rounded-md border-primary-gray xl:border-none">
+          <div className="flex items-center space-x-1 xl:border-b p-2 xl:p-4 xl:bg-gradient-to-b from-[#FFFFFF] to-[#F3F8FB]">
             <button onClick={onBackClick}>
               <ChevronLeft className="h-10 w-10 text-gray-600" />
             </button>

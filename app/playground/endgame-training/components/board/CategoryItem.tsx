@@ -14,7 +14,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   const slug = category.name.toLowerCase().replace(/\s+/g, "-");
 
   return (
-    <div className="rounded-md overflow-hidden p-4 xl:p-5 border border-gray-200 bg-[#F9FAFC] flex max-w-[424px] shadow-sm hover:bg-blue-base/10 transition-all md:max-h-[226px] md:h-52">
+    <div className="rounded-md overflow-hidden p-4 xl:p-5 border border-gray-200 bg-[#F9FAFC] flex max-w-[424px] hover:bg-blue-base/10 transition-all md:max-h-[226px] md:h-52">
       <div className="w-full xl:border xl:p-5 rounded-md xl:bg-white flex flex-col md:flex-row md:gap-x-5">
         <div className="w-full md:w-1/3 flex items-center xl:bg-white rounded-md xl:justify-center mb-4 md:mb-0">
           <Image

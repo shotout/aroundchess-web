@@ -86,7 +86,7 @@ const ChessProgressionUI: React.FC = () => {
   const handlePlanCreated = () => {
     if (sessionId != "") {
       setIsCheckingPlan(true);
-      resetExpiredStatus(); // Reset expired status when a new plan is created
+      resetExpiredStatus();
 
       CacheUtil.clearAll();
 
@@ -126,7 +126,6 @@ const ChessProgressionUI: React.FC = () => {
           avatar={userProfile?.avatar || storeUserProfile?.avatar || ""}
         />
 
-        {/* Plan Expired Error Alert - Always show this if the plan is expired */}
         {isPlanExpired && (
           <Alert variant="destructive" className="mb-4">
             <AlertTriangle className="h-4 w-4" />

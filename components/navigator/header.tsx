@@ -15,8 +15,7 @@ import { usePathname } from "next/navigation";
 import { motion, fadeInUp } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
-import { useApiClient } from "@/functions/api-client";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import { useUserStore } from "@/app/training-plan/store";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -25,12 +24,12 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
   const [isDesktop, setIsDesktop] = useState(false);
-  const { isLoading } = useApiClient();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember } = useProfileStore();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
+  const { profile } = useUserStore();
 
   useEffect(() => {
     if (!sessionId) return;
@@ -52,19 +51,19 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     setTabType(type);
   };
   return (
-    <header className="fixed xl:sticky top-0 z-100 flex w-full items-center justify-between bg-white px-6 border-b h-[72px]  lg:h-[97px]">
+    <header className="fixed xl:sticky top-0 z-100 flex w-full items-center justify-between bg-white px-3 lg:px-6 border-b h-[72px] lg:h-[97px]">
       {/* Left section - Logo and navigation (on desktop only) */}
       <div className="flex items-center h-[70px] lg:h-[100px]">
         {/* Logo/Title - Always visible */}
-        <div className="mr-6 xl:hidden">
-          <Link href="/" className="flex items-center gap-3">
+        <div className="xl:hidden">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/icons/logo.png"
               alt="logo"
-              className="w-36 h-12"
+              // className="w-28 h-28 object-contain"
               quality={100}
-              width={1000}
-              height={1000}
+              width={90}
+              height={90}
             />
           </Link>
         </div>
@@ -118,6 +117,16 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
         </div>
       </div>
+
+      {/* Mobile-only "hello" h1 when on training-plan page */}
+      {pathname === "/training-plan" && !isDesktop && (
+        <div className="flex justify-center items-center flex-col">
+          <h1 className="xl:hidden text-base font-bold">My Training Plan</h1>
+          <p className="xl:hidden text-xs text-gray-500">
+            ({profile?.username || "User"})
+          </p>
+        </div>
+      )}
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       {(isMember != null || isSignedIn != null) && (

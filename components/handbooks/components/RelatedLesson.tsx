@@ -95,14 +95,17 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         )}
                       </div>
 
-                      <div className="p-4 xl:py-4 flex flex-col flex-grow space-y-3 xl:space-y-2">
-                        <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
-                          {topic.difficulty}
-                        </span>
-                        <h3 className="font-medium text-gray-900 text-xs h-auto line-clamp-2">
-                          {topic.title}
-                        </h3>
-                        <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer mt-auto btn-primary">
+                      <div className="p-4 xl:py-4 flex flex-col justify-between h-40">
+                        <div>
+                          <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
+                            {topic.difficulty}
+                          </span>
+                          <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
+                            {topic.title}
+                          </h3>
+                        </div>
+
+                        <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer btn-primary mb-1">
                           <BookOpen className="h-4 w-4" />
                           <span className="text-xs md:text-sm">
                             Start Learning

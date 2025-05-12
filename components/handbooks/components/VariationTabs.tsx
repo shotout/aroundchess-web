@@ -38,13 +38,13 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                 className="border rounded-lg shadow-sm overflow-hidden p-4 flex flex-col h-full"
               >
                 <div className="flex flex-col space-y-3">
-                  <h3 className="text-xs md:text-base font-bold">
+                  {/* <h3 className="text-xs md:text-base font-bold">
                     {variation?.name || `Variation ${index + 1}`}:
-                  </h3>
+                  </h3> */}
 
-                  <p className="text-xs text-gray-600">
+                  {/* <p className="text-xs text-gray-600">
                     {variation?.description || "No description available"}
-                  </p>
+                  </p> */}
 
                   {variation?.keyIdeas &&
                   Array.isArray(variation.keyIdeas) &&

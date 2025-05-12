@@ -11,7 +11,7 @@ export default function Page() {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full mt-16">
+          <div className="w-full xl:mt-16">
             <ChessLessonPage
               lessonType="middlegame"
               lessonStore={middlegameStore()}
