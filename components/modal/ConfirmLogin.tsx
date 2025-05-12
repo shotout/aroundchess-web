@@ -23,9 +23,11 @@ export function ConfirmLogin() {
   }, [open]);
 
   const handleRegister = () => {
+    setOpen(false);
     router.push("/register");
   };
   const handleLogin = () => {
+    setOpen(false);
     router.push("/login");
   };
   return (

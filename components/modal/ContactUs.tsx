@@ -61,12 +61,19 @@ export function ContactUs() {
     const formData = new FormData();
 
     body.file = formData.append("file", file);
-
+    
     console.log("current", form);
     contactUs(body).then(() => {
       console.log("success send contact us");
       setOpen(false);
       setOpenSent(true);
+      setForm({
+        name: "",
+        email: "",
+        topics: "",
+        message: "",
+        file: "",
+      });
     });
   };
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -6,6 +6,7 @@ const publicRoutes = [
   "/about",
   "/contact-us",
   "/chess-news",
+  "/chess-news/[slug]",
   "/api/webhook",
   "/api/webhooks/clerk",
   "/analysis",

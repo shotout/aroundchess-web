@@ -83,9 +83,8 @@ export default function AnalysisPage() {
       fetchMistakePrevious();
     }
 
-    if (pgn.length === 0) {
+    if (pgn.length === 0 || dataAnalysis==null) {
       console.log("No PGN data found, loading famous game as fallback");
-      setIsLoading(true);
       fetchPgnFamousGame();
     } else {
       console.log("Using existing PGN data from store");

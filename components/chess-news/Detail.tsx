@@ -9,11 +9,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
-import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 
-export default function Detail() {
-  const { isSignedIn } = useAuth();
+export default function Detail() { 
 
   const {
     isLoading,
