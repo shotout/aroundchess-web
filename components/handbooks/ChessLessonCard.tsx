@@ -15,6 +15,7 @@ interface ChessLessonCardProps {
     difficulty: string;
     moves: string | null;
     readStatus?: boolean;
+    eloRange?: string[] | null;
   };
   slug: string;
   lessonType: LessonType;
@@ -25,7 +26,7 @@ interface ChessLessonCardProps {
 const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
   if (readStatus === undefined) {
     return (
-      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-gray-200 p-3 rounded-full flex items-center justify-center">
+      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-gray-200 md:p-3 rounded-full flex items-center justify-center">
         <DotSpinner />
       </div>
     );
@@ -94,33 +95,46 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               <ReadStatusIndicator readStatus={lesson.readStatus} />
             </div>
 
-            <div className="xl:px-4 flex flex-col gap-y-4 xl:gap-y-2 h-auto mx-1 lg:mx-2">
-              <div className="flex flex-col lg:hidden gap-y-2">
+            <div className="xl:px-4 flex flex-col mx-1 lg:mx-2 pt-3 h-36">
+              {/* Mobile layout */}
+              <div className="flex flex-col lg:hidden">
                 <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
                   {lesson.difficulty}
                 </h1>
-                <h3 className="font-medium text-gray-900 text-xs line-clamp-2">
+                <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
                   {lesson.title}
                 </h3>
               </div>
 
-              <div className="hidden lg:flex justify-between items-center">
-                <div className="flex items-center flex-1">
-                  <div className="font-medium text-gray-900 text-xs flex gap-x-2 px-2 py-1 items-center line-clamp-2 border border-blue-base">
-                    <AlertCircle className="text-blue-base w-4 h-4" />
-                    <h1>ELO Rating :</h1>
-                    <h1 className="text-blue-base"> 0 - 800 </h1>
+              {/* Desktop layout */}
+              <div className="hidden lg:block">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center flex-1">
+                    <div className="font-medium text-gray-900 text-xs flex gap-x-2 px-2 py-1 items-center line-clamp-2 border border-blue-base">
+                      <AlertCircle className="text-blue-base w-4 h-4" />
+                      <h1>ELO Rating :</h1>
+                      <h1 className="text-blue-base">
+                        {lesson.eloRange
+                          ? Array.isArray(lesson.eloRange) &&
+                            lesson.eloRange.length > 0
+                            ? lesson.eloRange.join(", ")
+                            : String(lesson.eloRange)
+                          : "-"}
+                      </h1>
+                    </div>
                   </div>
+                  <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
+                    {lesson.difficulty}
+                  </h1>
                 </div>
-                <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
-                  {lesson.difficulty}
+                <h1 className="font-semibold h-10 line-clamp-2 mt-2">
+                  {lesson.title}
                 </h1>
               </div>
-              <h1 className="font-semibold hidden lg:block">{lesson.title}</h1>
 
-              <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer mt-auto btn-primary">
+              <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer btn-primary mt-auto mb-1">
                 <BookOpen className="h-4 w-4" />
-                <span className="text-xs md:text-sm">Start Learning</span>
+                <span className="text-[10px] md:text-sm">Start Learning</span>
               </div>
             </div>
           </Card>

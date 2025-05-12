@@ -576,9 +576,9 @@ export default function StageDetailView({
                 />
               </button>
             </div>
-            <div className="xl:border border-gray-200 p-4 rounded-md flex flex-col">
+            <div className="xl:border border-gray-200 p-0 mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
-                <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
+                <div className="aspect-square bg-white flex items-center justify-center w-full  xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
                   <ChessboardWrapper
                     game={game}
                     position={position}

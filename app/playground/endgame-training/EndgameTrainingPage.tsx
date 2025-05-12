@@ -13,7 +13,6 @@ import ErrorDisplay from "./components/ErrorDisplay";
 import {
   handleCategorySelect,
   handlePositionSelect,
-  handleCheckmateSelect,
   handleCheckmatePositionSelect,
   handleBackToCategories,
   handleBackToSubcategories,
@@ -166,7 +165,7 @@ export default function EndgameTrainingPage() {
   };
 
   return (
-    <main className="w-full h-full p-6 flex flex-col space-y-4">
+    <main className="w-full h-full p-3 xl:p-6 flex flex-col space-y-4">
       {!hydrated ? (
         <div className="w-full h-full flex justify-center items-center">
           <DotSpinner />

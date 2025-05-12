@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
   AnalyticsData,
@@ -10,23 +9,33 @@ import {
   ResultDistributionItem,
 } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 // Constants
 export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
-export const MONTHS: string[] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+export const MONTHS: string[] = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 export const RESULT_COLORS = {
   WIN: "#00B427",
   DRAW: "#fbbf24",
   LOSS: "#FD0000",
 };
 
-// Process API data into component-friendly format
 export const processApiData = (
   apiData: AnalyticsData
 ): ProcessedAnalyticsData => {
-  // Process rating progress data
   const processedRatingData = apiData.ratingProgress
     .slice(0, MONTHS.length)
     .map((rating, index) => ({
@@ -34,21 +43,20 @@ export const processApiData = (
       rating: rating,
     }));
 
-  // Process result distribution data
   const resultData = [
     {
       name: "Win",
-      value: apiData.resultDistribution.win || 70,
+      value: apiData.resultDistribution.win || 0,
       color: RESULT_COLORS.WIN,
     },
     {
       name: "Draw",
-      value: apiData.resultDistribution.draw || 25,
+      value: apiData.resultDistribution.draw || 0,
       color: RESULT_COLORS.DRAW,
     },
     {
       name: "Loss",
-      value: apiData.resultDistribution.lose || 5,
+      value: apiData.resultDistribution.lose || 0,
       color: RESULT_COLORS.LOSS,
     },
   ];
@@ -76,11 +84,18 @@ export const processApiData = (
   };
 
   // Process key statistics
-  const stats = {
+  interface KeyStatistics {
+    totalGames: number;
+    averageRating: number;
+    winRate: any;
+    longestStreak: any;
+  }
+
+  const stats: KeyStatistics = {
     totalGames: apiData.keyStatistics.totalGames,
-    winRate: 65, // Example default value
     averageRating: apiData.keyStatistics.averageRating,
-    longestStreak: 8, // Example default value
+    winRate: "hardcode",
+    longestStreak: "hardcode",
   };
 
   // Process achievements
@@ -97,7 +112,6 @@ export const processApiData = (
   };
 };
 
-// Get achievement details for display
 export const getAchievementDetails = (achievement: string) => {
   if (achievement.includes("Classical Win")) {
     return {
@@ -120,7 +134,6 @@ export const getAchievementDetails = (achievement: string) => {
   }
 };
 
-// Custom hook for analytics data
 export function useAnalyticsData() {
   const {
     username,
@@ -129,7 +142,7 @@ export function useAnalyticsData() {
     setAnalyticsData,
   } = usePgnStore();
 
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -143,7 +156,6 @@ export function useAnalyticsData() {
 
   const fetchRef = useRef(false);
 
-  // Check if cache is valid
   const isCacheValid = useMemo(() => {
     if (!analyticsLastFetched || !cachedAnalytics) return false;
 
@@ -154,7 +166,6 @@ export function useAnalyticsData() {
     );
   }, [analyticsLastFetched, cachedAnalytics]);
 
-  // Initialize state with processed data
   const updateStateWithProcessedData = useCallback(
     (data: ProcessedAnalyticsData) => {
       setRatingData(data.ratingData);
@@ -165,7 +176,6 @@ export function useAnalyticsData() {
     []
   );
 
-  // Fetch analytics data
   const fetchData = useCallback(async () => {
     if (!username || fetchRef.current) {
       if (!username) {
@@ -174,7 +184,6 @@ export function useAnalyticsData() {
       return;
     }
 
-    // If cache is valid, use cached data
     if (isCacheValid && cachedAnalytics) {
       try {
         const processed = processApiData(cachedAnalytics);
@@ -191,7 +200,6 @@ export function useAnalyticsData() {
       return;
     }
 
-    // Otherwise fetch fresh data
     fetchRef.current = true;
     setLoading(true);
     setError(null);
@@ -228,13 +236,11 @@ export function useAnalyticsData() {
     updateStateWithProcessedData,
   ]);
 
-  // Fetch data on mount
   useEffect(() => {
     if (!sessionId) return;
     fetchData();
   }, [fetchData, sessionId]);
 
-  // Handle force refresh
   const handleForceRefresh = useCallback(() => {
     fetchRef.current = false;
     toast.info("Refreshing analytics data...");
@@ -253,7 +259,6 @@ export function useAnalyticsData() {
   };
 }
 
-// Workaround for the useRef error
 function useRef<T>(initialValue: T): { current: T } {
   const [ref] = useState<{ current: T }>({ current: initialValue });
   return ref;

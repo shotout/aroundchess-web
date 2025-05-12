@@ -29,23 +29,10 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   height = 30,
   vsWidth = 50,
   vsHeight = 50,
-  alignBottom = true,
 }) => {
-  const vsTransform =
-    vsHeight < 30
-      ? `translateY(-${Math.max(2, vsHeight * 0.15)}px)`
-      : "translateY(-15px)";
-
   if (type === "vs") {
     return (
-      <div
-        className="inline-block px-2"
-        style={{
-          verticalAlign: "bottom",
-          transform: alignBottom ? vsTransform : "none",
-          margin: "0 4px",
-        }}
-      >
+      <div className="inline-block">
         <Image
           src="/endgame-training/duel.png"
           alt="vs"
@@ -65,15 +52,17 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   if (count > 1) {
     return (
       <div
-        className="flex space-x-2"
+        className="flex space-x-0" // Changed from space-x-1 to space-x-0
         style={{
           display: "inline-flex",
           alignItems: "flex-end",
-          margin: "0 4px",
+          margin: "0 2px", // Reduced margin from 4px to 2px
         }}
       >
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="inline-block px-1">
+          <div key={index} className="inline-block px-0.5">
+            {" "}
+            {/* Changed from px-1 to px-0.5 */}
             <Image
               src={imagePath}
               alt={`${type} chess piece`}
@@ -88,7 +77,9 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   }
 
   return (
-    <div className="inline-block px-1">
+    <div className="inline-block px-0.5">
+      {" "}
+      {/* Changed from px-1 to px-0.5 */}
       <Image
         src={imagePath}
         alt={`${type} chess piece`}
@@ -201,10 +192,9 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
 
     if (vsIndex >= 0) {
       const leftPieces = parsedPieces.slice(0, vsIndex);
-      const rightPieces = parsedPieces.slice(vsIndex + 1);
+      // We'll ignore rightPieces except for the king
 
       const leftWithoutKing = leftPieces.filter((p) => p.type !== "king");
-      const rightWithoutKing = rightPieces.filter((p) => p.type !== "king");
 
       for (const piece of leftWithoutKing) {
         finalPieces.push({
@@ -222,19 +212,12 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
 
       finalPieces.push({ type: "vs", color: "text-blue-500" });
 
+      // Only add the black king, ignore other black pieces
       finalPieces.push({
         type: "king",
         color: "text-indigo-700",
         count: 1,
       });
-
-      for (const piece of rightWithoutKing) {
-        finalPieces.push({
-          type: piece.type,
-          color: "text-indigo-700",
-          count: piece.count,
-        });
-      }
     } else {
       const nonKingPieces = parsedPieces.filter((p) => p.type !== "king");
 
@@ -277,9 +260,29 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
       ],
     },
     "Two Rooks and King": {
-      text: "Two Rooks, King VS King",
+      text: "Rook, Rook, King VS King",
       pieces: [
         { type: "rook", color: "text-blue-500", count: 2 },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Queen and Pawn vs King": {
+      text: "Queen, Pawn, King VS King",
+      pieces: [
+        { type: "queen", color: "text-blue-500" },
+        { type: "pawn", color: "text-blue-500" },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Bishop and Knight vs King": {
+      text: "Bishop, Knight, King VS King",
+      pieces: [
+        { type: "bishop", color: "text-blue-500" },
+        { type: "knight", color: "text-blue-500" },
         { type: "king", color: "text-blue-500" },
         { type: "vs", color: "text-blue-500" },
         { type: "king", color: "text-indigo-700" },

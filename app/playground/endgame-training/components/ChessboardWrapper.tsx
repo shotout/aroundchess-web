@@ -370,7 +370,7 @@ export default function ChessboardWrapper({
         )}
       </motion.div>
 
-      <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
+      <div className="lg:flex hidden flex-row flex-wrap items-center justify-center gap-2 mb-2">
         <div className="flex flex-row items-center justify-center gap-1">
           <div className="w-[14px] h-[14px] bg-[#F5F682]" />
           <span className="h-[14px] font-normal text-[11px]">Current Move</span>

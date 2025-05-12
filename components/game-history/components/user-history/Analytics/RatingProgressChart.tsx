@@ -25,7 +25,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
     const data = payload[0].payload;
     return (
       <div className="bg-white p-2 border rounded-md shadow-md">
-        <p className="font-semibold">Date: {data.month} 2024</p>
+        <p className="font-semibold">Date: {data.month}</p>
         <p>Rating: {data.rating}</p>
       </div>
     );
@@ -44,6 +44,8 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
   isCacheValid,
   handleForceRefresh,
 }) => {
+  const allRatings = ratingData.map((item) => item.rating);
+
   return (
     <div className="md:p-4 rounded-lg ">
       <div className="flex justify-between items-center mb-2">
@@ -62,7 +64,7 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={ratingData}
+            data={allRatings}
             margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
           >
             <CartesianGrid
@@ -70,7 +72,7 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
               stroke="#999"
               vertical={true}
             />
-            <XAxis dataKey="minute" axisLine={true} tickLine={true} />
+            <XAxis dataKey="month" axisLine={true} tickLine={true} />
             <YAxis
               domain={[1000, 2000]}
               ticks={[1000, 1200, 1400, 1600, 1800, 2000]}

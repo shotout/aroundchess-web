@@ -15,7 +15,6 @@ import {
 } from "./ChessLessonHooks";
 import { ChessLesson, ChessLessonState, LessonType } from "./ChessLessonTypes";
 import { getFenFromMoves, getSlugFromId } from "./ChessLessonUtils";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 interface ChessLessonPageProps<T extends ChessLesson> {
@@ -34,7 +33,7 @@ function ChessLessonPage<T extends ChessLesson>({
   title,
   description,
 }: ChessLessonPageProps<T>) {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const {
     filteredLessons,
@@ -73,10 +72,8 @@ function ChessLessonPage<T extends ChessLesson>({
     filteredLessons
   );
 
-  // Simplified fetch with authentication - no longer need separate fetchLessonDetailsWithAuth
   const fetchWithAuth = async () => {
     try {
-      // This single call will handle authentication properly
       await fetchAllLessons(sessionId || undefined);
     } catch (error) {
       console.error(`Error fetching ${lessonType}:`, error);
@@ -113,7 +110,7 @@ function ChessLessonPage<T extends ChessLesson>({
 
     return (
       <>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
           <AnimatePresence>
             {paginatedLessons.map((lesson) => {
               const slug = getSlugFromId(lesson.id, lessonType);
@@ -142,7 +139,7 @@ function ChessLessonPage<T extends ChessLesson>({
   };
 
   return (
-    <main className="w-full p-6 xl:-mt-16">
+    <main className="w-full p-3 lg:p-6 xl:-mt-16">
       <div className="mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{title}</h1>

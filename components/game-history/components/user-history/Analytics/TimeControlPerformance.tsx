@@ -8,10 +8,6 @@ interface TimeControlPerformanceProps {
 const TimeControlPerformance: React.FC<TimeControlPerformanceProps> = ({
   performanceData,
 }) => {
-  const maxGames = Math.max(
-    ...(performanceData.map((item) => item.games) || [500])
-  );
-
   return (
     <div className="md:p-4 rounded-lg">
       <h1 className="text-base font-medium mb-3">Time Control Performance</h1>
@@ -31,8 +27,8 @@ const TimeControlPerformance: React.FC<TimeControlPerformanceProps> = ({
               <div className="relative h-2 w-full">
                 <div className="absolute h-2 w-full bg-gray-200 rounded-full"></div>
                 <div
-                  className="absolute h-2 bg-blue-500 rounded-full"
-                  style={{ width: `${(item.games / maxGames) * 100}%` }}
+                  className="absolute h-2 bg-blue-base rounded-full"
+                  style={{ width: `${item.winRate}%` }}
                 ></div>
               </div>
 

@@ -18,7 +18,6 @@ interface GameControlsProps {
 }
 
 export default function GameControls({
-  game,
   gameStatus,
   handleHint,
   handleShowSolution,
@@ -37,7 +36,7 @@ export default function GameControls({
       {!isGameOver && (
         <div
           className={`grid ${
-            isCheckmateMode ? "grid-cols-2" : "grid-cols-2  "
+            isCheckmateMode ? "grid-cols-1" : "grid-cols-2  "
           } gap-4 p-4 border-b border-t border-gray-200 w-full`}
         >
           <button
@@ -88,7 +87,7 @@ export default function GameControls({
             className="w-4 h-4 sm:w-5 sm:h-5"
           />
 
-          <h1 className="text-xs lg:text-sm text-nowrap">Share PGN/FEN</h1>
+          <h1 className="text-[10px] sm:text-sm text-nowrap">Share PGN/FEN</h1>
         </button>
         <button
           onClick={resetPosition}
@@ -101,13 +100,13 @@ export default function GameControls({
             height={16}
             className="w-4 h-4 sm:w-5 sm:h-5"
           />
-          <span className="text-xs sm:text-sm">Restart</span>
+          <span className="text-[10px] sm:text-sm">Restart</span>
         </button>
         <button
           onClick={navigateNext}
           className="flex gap-x-1 sm:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
         >
-          <span className="text-xs sm:text-sm">Next Stage</span>
+          <span className="text-[10px] sm:text-sm">Next Stage</span>
           <Image
             src={"/endgame-training/Union.png"}
             alt="arrow right icon"

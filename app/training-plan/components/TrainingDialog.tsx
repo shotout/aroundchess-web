@@ -69,7 +69,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   userProfile,
   onPlanCreated,
 }) => {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
   const {
     userProfile: storeUserProfile,
     config,
@@ -290,7 +290,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] lg:max-w-6xl rounded-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="max-w-[95vw] lg:max-w-6xl rounded-md max-h-[95vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader className="flex flex-row items-center justify-between">
           <div></div>
           <DialogTitle className="flex items-center gap-2 text-xl">
@@ -313,16 +313,16 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="p-6 flex items-center justify-center">
+          <div className="p-4 flex items-center justify-center">
             <DotSpinner />
           </div>
         ) : (
-          <div className="lg:p-6">
+          <div className="p-0 lg:p-6">
             <h2 className="text-lg font-semibold mb-4">
               Rise to the next Level
             </h2>
 
-            <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-4 mb-6">
+            <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-2 lg:p-4 mb-6">
               <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full">
                 <div className="w-full lg:w-2/5">
                   <DialogUserInfo

@@ -14,12 +14,10 @@ const Analytics: React.FC = () => {
   const { loading, error, data, isCacheValid, handleForceRefresh } =
     useAnalyticsData();
 
-  // Loading state
   if (loading) {
     return <DotSpinner />;
   }
 
-  // Error state
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
@@ -34,7 +32,6 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // No username state
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -48,14 +45,12 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Performance Insights section to reuse
   const performanceInsightsSection = (
     <PerformanceInsightsSection insights={data.performanceInsights} />
   );
 
   return (
     <div className="grid md:grid-cols-2 gap-6 bg-transparent">
-      {/* Left Column Group - with border */}
       <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           <RatingProgressChart
@@ -69,15 +64,12 @@ const Analytics: React.FC = () => {
             <OpeningStatistics openingData={data.openingData} />
           </div>
 
-          {/* Show Performance Insights at the bottom left on desktop (lg and above) */}
           <div className="lg:block md:hidden">{performanceInsightsSection}</div>
         </div>
       </div>
 
-      {/* Right Column Group - with border */}
       <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
-          {/* Show Performance Insights at the top right on tablet (md) */}
           <div className="hidden md:block lg:hidden">
             {performanceInsightsSection}
           </div>

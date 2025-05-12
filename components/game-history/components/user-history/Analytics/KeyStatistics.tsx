@@ -30,7 +30,7 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
               <h2 className="text-base font-semibold">
                 {stats.totalGames.toLocaleString()}
               </h2>
-              <p className="text-[10px] text-green-500">+45 this month</p>
+              {/* <p className="text-[10px] text-green-500">+45 this month</p> */}
             </div>
           </div>
         </Card>
@@ -44,7 +44,7 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
             <div className="flex flex-col">
               <p className="text-xs text-gray-500">Win Rate</p>
               <h2 className="text-base font-semibold">{stats.winRate}%</h2>
-              <p className="text-[10px] text-green-500">+5%</p>
+              {/* <p className="text-[10px] text-green-500">+5%</p> */}
             </div>
           </div>
         </Card>
@@ -58,7 +58,7 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
             <div className="flex flex-col">
               <p className="text-xs text-gray-500">Average Rating</p>
               <h2 className="text-base font-semibold">{stats.averageRating}</h2>
-              <p className="text-[10px] text-green-500">+25 point this month</p>
+              {/* <p className="text-[10px] text-green-500">+25 point this month</p> */}
             </div>
           </div>
         </Card>
@@ -74,7 +74,7 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
               <h2 className="text-base font-semibold">
                 {stats.longestStreak} wins
               </h2>
-              <p className="text-[10px] text-purple-300">Current streak</p>
+              {/* <p className="text-[10px] text-purple-300">Current streak</p> */}
             </div>
           </div>
         </Card>

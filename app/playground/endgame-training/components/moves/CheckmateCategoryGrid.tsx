@@ -11,7 +11,7 @@ export const CheckmateCategoryGrid: React.FC<CheckmateCategoryGridProps> = ({
   onCategorySelect,
 }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-5 w-full">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 xl:gap-5 w-full">
       {data?.map((positions, index) => (
         <CheckmateCategoryItem
           key={`checkmate-category-${index}`}

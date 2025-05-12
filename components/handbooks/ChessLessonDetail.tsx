@@ -57,6 +57,8 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
+  const [isCheckingReadStatus, setIsCheckingReadStatus] =
+    useState<boolean>(false);
 
   const sections = ["Online Materials", "Video Explanations", "Puzzles"];
   const [sectionName, setSectionName] = useState<string>(sections[0]);
@@ -74,34 +76,29 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
   const lessonId: string = getIdFromSlug(params.slug, lessonType);
   const lesson: T | undefined = lessonDetails[lessonId];
-  const relatedLessons: T[] = allLessons
-    .filter((l: T) => l.id !== lessonId)
-    .slice(0, 3);
 
-  const isBookRead: boolean = readStatusMap ? readStatusMap[lessonId] : false;
+  // Load related lessons only if we have allLessons available
+  const relatedLessons: T[] =
+    allLessons.length > 0
+      ? allLessons.filter((l: T) => l.id !== lessonId).slice(0, 3)
+      : [];
 
+  // Check if lesson is already marked as read from cached data
   useEffect(() => {
-    if (isBookRead) {
+    if (readStatusMap && readStatusMap[lessonId]) {
       setLessonFinished(true);
     }
-  }, [isBookRead]);
+  }, [readStatusMap, lessonId]);
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
-        if (!initialized) {
-          await fetchAllLessons(sessionId || undefined);
-        }
-
         if (!lesson) {
           await fetchLessonDetails(lessonId, sessionId || undefined);
         }
 
-        if (checkReadStatus && sessionId) {
-          const isRead = await checkReadStatus(lessonId, sessionId);
-          if (isRead) {
-            setLessonFinished(true);
-          }
+        if (!initialized) {
+          fetchAllLessons(sessionId || undefined);
         }
       } catch (error) {
         console.error("Error loading lesson details:", error);
@@ -109,8 +106,36 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     };
 
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lessonId, initialized, sessionId]);
+  }, [
+    lessonId,
+    lesson,
+    initialized,
+    sessionId,
+    fetchLessonDetails,
+    fetchAllLessons,
+  ]);
+
+  useEffect(() => {
+    const checkReadStatusAsync = async () => {
+      if (!lesson || !checkReadStatus || !sessionId || isCheckingReadStatus) {
+        return;
+      }
+
+      setIsCheckingReadStatus(true);
+      try {
+        const isRead = await checkReadStatus(lessonId, sessionId);
+        if (isRead) {
+          setLessonFinished(true);
+        }
+      } catch (error) {
+        console.error("Error checking read status:", error);
+      } finally {
+        setIsCheckingReadStatus(false);
+      }
+    };
+
+    checkReadStatusAsync();
+  }, [checkReadStatus, lesson, lessonId, sessionId, isCheckingReadStatus]);
 
   const handleLessonNavigation = (slug: string): void => {
     const navigateToLesson = (): void => {
@@ -157,11 +182,9 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         return true;
       } else {
         const errorData = await response.json();
-        console.error("Failed to mark lesson as read:", errorData);
         return false;
       }
     } catch (error) {
-      console.error("Error marking lesson as read:", error);
       return false;
     }
   };
@@ -185,7 +208,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
           }
         }
       } catch (error) {
-        console.error("Error finishing lesson:", error);
       } finally {
         setIsMarkingAsRead(false);
       }
@@ -194,7 +216,8 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     }
   };
 
-  if (isLoading || !lesson) {
+  // Show a loading spinner only when we have no lesson data yet
+  if (isLoading && !lesson) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
         <DotSpinner />
@@ -202,13 +225,25 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     );
   }
 
-  if (!lesson.title || typeof lesson.title !== "string") {
+  // If we have a lesson but it's malformed, show an error
+  if (lesson && (!lesson.title || typeof lesson.title !== "string")) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <h2 className="text-xl font-bold mb-4">Error: Invalid lesson data</h2>
         <Button onClick={() => router.push(basePath)}>
           Back to {lessonType.charAt(0).toUpperCase() + lessonType.slice(1)}
         </Button>
+      </div>
+    );
+  }
+
+  if (!lesson) {
+    return (
+      <div className="flex flex-col">
+        <div className="px-4 md:px-6 py-16">
+          <h1 className="text-2xl font-bold mb-4">Loading lesson...</h1>
+          <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse"></div>
+        </div>
       </div>
     );
   }
@@ -262,7 +297,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                   {sections.map((tab) => (
                     <button
                       key={tab}
-                      className={`flex-1 p-[10px] font-medium text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] text-xs lg:text-base font-medium text-center rounded-lg transition-all ${
                         sectionName === tab
                           ? "bg-white shadow-md text-black font-bold"
                           : "text-gray-600 font-normal hover:bg-gray-100"
@@ -312,13 +347,32 @@ export default function ChessLessonDetail<T extends ChessLesson>({
               </div>
             </div>
 
-            <RelatedLessons
-              relatedLessons={relatedLessons}
-              lessonType={lessonType}
-              handleLessonNavigation={handleLessonNavigation}
-              getFenFromMoves={getFenFromMoves}
-              getSlugFromId={getSlugFromId}
-            />
+            {/* Show related lessons if available, otherwise show a loading placeholder */}
+            {relatedLessons.length > 0 ? (
+              <RelatedLessons
+                relatedLessons={relatedLessons}
+                lessonType={lessonType}
+                handleLessonNavigation={handleLessonNavigation}
+                getFenFromMoves={getFenFromMoves}
+                getSlugFromId={getSlugFromId}
+              />
+            ) : (
+              <div className="hidden xl:block xl:col-span-3 2xl:col-span-3">
+                <div className="border rounded-md p-4 h-full">
+                  <h2 className="text-lg font-semibold mb-4">
+                    Related Lessons
+                  </h2>
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="h-24 bg-gray-100 rounded-md animate-pulse"
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

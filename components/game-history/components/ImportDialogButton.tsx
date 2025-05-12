@@ -16,7 +16,7 @@ interface ImportDialogButtonProps {
 const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const { addImportedGame } = usePgnStore();
 
@@ -327,7 +327,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       {/* Import Button */}
       <button
         type="button"
-        className="flex justify-center items-center lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
+        className="flex justify-center items-center lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[130px] md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
         onClick={() => setOpenDialog(true)}
       >
         <Upload className="h-[20px]" />

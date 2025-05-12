@@ -6,7 +6,6 @@ import { useUserStore } from "../store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
@@ -14,7 +13,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   avatar,
   schedule,
 }) => {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
 
@@ -70,9 +69,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     <div className="xl:border xl:border-blue-base lg:rounded-md bg-blue-base/5 shadow-sm">
       <div className="p-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
-          <div className="bg-white items-center py-3 gap-x-3 px-4 rounded-full justify-center flex">
+          <div className="bg-white items-center p-1 lg:p-2 gap-x-3 lg:gap-x-2  rounded-full justify-center flex">
             {avatarUrl && (
-              <div className="w-6 h-6 overflow-hidden rounded-full">
+              <div className="w-10 h-10 overflow-hidden rounded-full">
                 <Image
                   src={avatarUrl}
                   width={24}
