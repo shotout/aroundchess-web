@@ -69,8 +69,15 @@ const MyAccount = () => {
           onClick={handleSignOut}
           className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
         >
-          <LogOut size={18} />
-          {isLoading ? <DotSpinner size={5} /> : <span>Sign-out</span>}
+          {isLoading ? (
+            <DotSpinner size={5} />
+          ) : (
+            <>
+              {" "}
+              <LogOut size={18} />
+              <span>Sign-out</span>
+            </>
+          )}
         </button>
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
