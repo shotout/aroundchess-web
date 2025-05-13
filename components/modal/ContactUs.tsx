@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogDescription } from "@radix-ui/react-dialog";
@@ -61,7 +62,7 @@ export function ContactUs() {
     const formData = new FormData();
 
     body.file = formData.append("file", file);
-    
+
     console.log("current", form);
     contactUs(body).then(() => {
       console.log("success send contact us");
@@ -110,6 +111,8 @@ export function ContactUs() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {/* <DialogOverlay className="fixed inset-0 bg-black/50" /> */}
+
       <DialogContent
         style={{
           backgroundImage: `url(/images/contact-us/${

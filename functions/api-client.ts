@@ -475,6 +475,16 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const postCancelMembership = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/membership/cancel`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   const getNewsCategories = useCallback(
     (params: any) => {
       return apiRequest({
@@ -622,6 +632,7 @@ export function useApiClient() {
     postPurchaseToken,
     getCheckAnalysisAccess,
     getProfile,
+    postCancelMembership,
     getNewsCategories,
     getNews,
     getNewsById,

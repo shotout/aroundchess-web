@@ -1,9 +1,10 @@
 "use client";
 
-import { useCancelSubscription } from "@/app/store/cancelSubscription";
+import { useContactUs } from "@/app/store/contactUs";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
+import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 import DotSpinner from "@/components/game-history/Spinner";
-import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useApiClient } from "@/functions/api-client";
 import { formatDateHistory } from "@/functions/format-date";
 import { fadeInUp, motion } from "@/utils/motion";
@@ -12,9 +13,7 @@ import { CheckCircle, Users, X } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
-import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
-import Link from "next/link";
-import { useContactUs } from "@/app/store/contactUs";
+import { useCancelSubscription } from "@/app/store/cancelSubscription";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -105,19 +104,24 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
-  const { setOpen } = useCancelSubscription();
   const { allMembershipPackages, activeMembership, isMember, profile } =
     useProfileStore();
-  const { setCallFetch } = useProfileFetch();
+  const { setOpen: setOpenPricing } = usePricingOffer();
   const { postPurchaseMembership, isLoading } = useApiClient();
-
+  const { setOpen: setOpenCancel } = useCancelSubscription();
+  const { setOpen } = useContactUs();
+  const handleOpenContactUs = () => {
+    setOpenPricing(false);
+    setOpen(true);
+  };
+  const handleCancelSubscription = () => {
+    setOpenCancel(true);
+  };
   let free = allMembershipPackages[0];
   let premium = allMembershipPackages[1];
   const deadline = new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
-  const handleCancelSubscription = () => {
-    setOpen(true);
-  };
+
   const handleGetPremium = async () => {
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
@@ -340,11 +344,11 @@ export const PremiumSubsContent: React.FC<{
                   </div>
                 </div>
               </motion.div>
-              {/* <button className="mt-4" onClick={handleCancelSubscription}>
+              <button className="mt-4" onClick={handleCancelSubscription}>
                 <span className="font-medium text-[16px] text-white">
                   Cancel Subscription
                 </span>
-              </button> */}
+              </button>
             </>
           )}
         </div>
@@ -354,8 +358,9 @@ export const PremiumSubsContent: React.FC<{
         <p className="text-gray-700">
           Are you interested in getting an AroundChess Subscription for your
           Chess Club?{" "}
-          <button
-            onClick={() => setOpenContact(true)}
+          <a
+            href="#"
+            onClick={handleOpenContactUs}
             className="text-blue-base hover:underline font-medium"
           >
             Click here{" "}
