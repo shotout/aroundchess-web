@@ -29,8 +29,7 @@ const history = [
 ];
 
 const MistakeLog = () => {
-  const refTab = useRef();
-  const { PieceChoosed } = useChessBoardThemeStore();
+  const [loading, setLoading] = useState<boolean>(false);
   const {
     getMistakeSaved,
     getMistakePrevious,
@@ -74,7 +73,7 @@ const MistakeLog = () => {
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const loadData = () => {
-    fetchMistakePrevious();
+    setLoading(true);
     fetchMistakeSaved();
   };
   useEffect(() => {
@@ -91,6 +90,7 @@ const MistakeLog = () => {
         setSelectedHistory(prevData.data[0].id);
         fetchMistakePreviousDetail(prevData.data[0].id, false);
       }
+      setLoading(false);
     } catch (error) {
       console.error("Failed to fetch mistake previous:", error);
     }
@@ -120,6 +120,7 @@ const MistakeLog = () => {
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
       setPreviousAnalysesDetail(savedData.data[0]);
+      fetchMistakePrevious();
     } catch (error) {
       console.error("Failed to fetch mistake saved:", error);
     }
@@ -172,7 +173,7 @@ const MistakeLog = () => {
   const renderFilters = () => {
     return (
       <>
-        <div className="flex flex-row w-full max-w-sm md:max-w-full overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
+        <div className="flex flex-row w-full xl:w-[calc(100vw-340px)] overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
@@ -349,7 +350,12 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="saved" className="w-full p-0 xl:p-[8px] " value={tabSelected} onValueChange={setSelectedTab}>
+      <Tabs
+        defaultValue="saved"
+        className="w-full p-0 xl:p-[8px] "
+        value={tabSelected}
+        onValueChange={setSelectedTab}
+      >
         <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
             onClick={() => {
@@ -396,7 +402,7 @@ const MistakeLog = () => {
         </TabsList>
 
         <TabsContent value="saved" className="gap-2">
-          {isLoading ? (
+          {loading ? (
             <DotSpinner />
           ) : (
             <>
@@ -419,7 +425,7 @@ const MistakeLog = () => {
         </TabsContent>
 
         <TabsContent value="previous">
-          {isLoading ? (
+          {loading ? (
             <DotSpinner />
           ) : (
             <>
