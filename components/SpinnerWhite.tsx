@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 
-const WhiteSpinner: React.FC<{ size?: number }> = ({ size = 12 }) => {
+const WhiteSpinner = ({ size }: { size: number }) => {
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -24,7 +24,7 @@ const WhiteSpinner: React.FC<{ size?: number }> = ({ size = 12 }) => {
   }, []);
 
   return (
-    <div className="w-full flex justify-center items-center">
+    <div className="w-5 h-5 flex justify-center items-center">
       <div
         className={`relative flex items-center justify-center h-${size} w-${size}`}
       >

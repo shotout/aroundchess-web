@@ -425,20 +425,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
               name={profile?.name != "" ? profile?.name : username}
               size="sm"
             />
-            {/* {user?.imageUrl && (
-              <Image
-                src={user.imageUrl}
-                alt={profile?.name || "User"}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            )} */}
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left overflow-hidden">
               <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
                 {profile?.name != "" ? profile?.name : username}
               </p>
-              <p className="font-normal text-[#364152] text-[14px] line-clamp-1">
+              <p className="font-normal text-[#364152] text-[14px] truncate">
                 {profile?.email}
               </p>
             </div>

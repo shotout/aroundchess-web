@@ -377,7 +377,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr] gap-2">
               {transformCategoryInfo().map((category) => (
                 <div
                   key={category.id}
@@ -399,7 +399,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                 </div>
               ))}
             </div>
-
             <div className="mt-6 flex justify-center">
               <button
                 className="btn-primary rounded-full px-8 py-2 h-12 w-full sm:w-96 text-lg flex justify-center items-center"
@@ -407,7 +406,11 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                 disabled={isLoading || isCreatingPlan}
               >
                 <div className="min-h-6 min-w-52 flex justify-center items-center">
-                  {isCreatingPlan ? <WhiteSpinner /> : "Create Training Plan"}
+                  {isCreatingPlan ? (
+                    <WhiteSpinner size={10} />
+                  ) : (
+                    "Create Training Plan"
+                  )}
                 </div>
               </button>
             </div>

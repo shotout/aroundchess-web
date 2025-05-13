@@ -364,7 +364,7 @@ export const PremiumSubsContent: React.FC<{
             className="text-blue-base hover:underline font-medium"
           >
             Click here{" "}
-          </button>
+          </a>
           to contact us now for an individual offer.
         </p>
       </div>
