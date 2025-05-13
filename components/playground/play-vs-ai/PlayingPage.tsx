@@ -90,7 +90,6 @@ export default function PlayingPage() {
   const [heightScreen, setHeightScreen] = useState<number>(0);
   const [heightBoard, setHeightBoard] = useState<number | undefined>(0);
   const [gamePosition, setGamePosition] = useState(game.fen());
-  const [stockfishLevel, setStockfishLevel] = useState<number>(2);
   const [bestLine, setBestline] = useState<string | null>("");
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
   const [moveClassification, setMoveClassification] = useState<string>("");
@@ -349,42 +348,28 @@ export default function PlayingPage() {
     let isYourTurn = myColor == "white" ? "w" : "b";
     // //console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
-    engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove, depth, pv, positionEvaluation }) => {
-      console.log(
-        "message:",
-        depth,
-        stockfishLevel,
-        bestMove,
-        pv,
-        positionEvaluation
-      );
-      if (depth == stockfishLevel && pv) {
-        // In latest chess.js versions you can just write ```game.move(bestMove)```
-        console.log("choosed:", depth, bestMove, pv);
+    engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
+      console.log("response getStockfishMove", pv);
 
-        let move = game.move({
-          from: pv.substring(0, 2),
-          to: pv.substring(2, 4),
-          promotion: pv.substring(4, 5),
-        });
-        setMoveData(move);
+      let move = game.move({
+        from: pv.substring(0, 2),
+        to: pv.substring(2, 4),
+        promotion: pv.substring(4, 5),
+      });
+      setMoveData(move);
 
-        playSound(game, move);
-        setBeforeFen(game.fen());
+      playSound(game, move);
+      setBeforeFen(game.fen());
 
-        setPreviousSquare(pv.substring(0, 2) as Square);
-        setCurrentSquare(pv.substring(2, 4) as Square);
+      setPreviousSquare(pv.substring(0, 2) as Square);
+      setCurrentSquare(pv.substring(2, 4) as Square);
 
-        setMoveClassification("");
-        setBestline("");
-        setHintClicked(false);
-        setGamePosition(game.fen());
-        setCurrentTurn((turnColor) =>
-          turnColor != "White" ? "White" : "Black"
-        );
-      }
-    });
+      setMoveClassification("");
+      setBestline("");
+      setHintClicked(false);
+      setGamePosition(game.fen());
+      setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+    }); 
   };
   const handleHint = () => {
     let depthHint = depth;
@@ -530,7 +515,6 @@ export default function PlayingPage() {
     game.header("EndTime", time);
   };
   useEffect(() => {
-    setStockfishLevel(getStockfishDepth(AIChoosed.opponent.elo));
     setMyColor(AIChoosed.color);
     //console.log("AIChoosed.color", AIChoosed.color);
     setHeaderGameStart();
@@ -544,23 +528,7 @@ export default function PlayingPage() {
     setHeightBoard(refBoard.current?.clientHeight);
   }, []);
 
-  const getStockfishDepth = (elo: number) => {
-    if (elo < 250) return 1;
-    if (elo < 500) return 2;
-    if (elo < 800) return 4;
-    if (elo < 1000) return 6;
-    if (elo < 1200) return 8;
-    if (elo < 1400) return 10;
-    if (elo < 1600) return 12;
-    if (elo < 1800) return 14;
-    if (elo < 2000) return 16;
-    if (elo < 2200) return 18;
-    if (elo < 2400) return 20;
-    if (elo < 2600) return 22;
-    if (elo < 2800) return 24;
-    return 26; // 2800+ players (Super GM strength)
-  };
-
+   
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 

@@ -100,91 +100,52 @@ export class Engine {
     }
   }
 
-  setSkillLevel(skillLevel: number) {
-    if (!this.worker) return;
+  async getStockfishMove(fen: string, playerElo: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const stockfish = new Worker("/stockfish/stockfish-nnue-16-single.js"); // or stockfish.wasm if using WebAssembly
 
-    // Set UCI_LimitStrength and UCI_Elo for accurate ELO-based play
-    const commands = [
-      `setoption name UCI_LimitStrength value true`,
-      `setoption name UCI_Elo value ${skillLevel}`,
-      "isready",
-    ];
+      const skillLevel = this.eloToSkillLevel(playerElo);
+      console.log("skillLevel", skillLevel);
+      stockfish.postMessage("uci");
+      stockfish.postMessage("setoption name Skill Level value " + skillLevel);
+      stockfish.postMessage("ucinewgame");
+      stockfish.postMessage("position fen " + fen);
+      const depth = this.eloToDepth(playerElo);
+      console.log("depth", depth);
+      stockfish.postMessage(`go depth ${depth}`);
 
-    commands.forEach((cmd) => {
-      //console.log("Setting skill level:", cmd);
-      this.worker?.postMessage(cmd);
-    });
-  }
-  async evaluateFen(fen: string, stockfishLevel: number): Promise<number> {
-    return new Promise((resolve) => {
-      this.worker!.onmessage = (e) => {
-        if (typeof e.data === "string" && e.data.includes("info depth")) {
-          const match = e.data.match(/score (cp|mate) (-?\d+)/);
-          if (match) {
-            const scoreType = match[1];
-            const value = parseInt(match[2]);
-            resolve(
-              scoreType === "cp"
-                ? value
-                : value > 0
-                ? 10000 - value
-                : -10000 - value
-            ); // Normalize mate scores
-          }
-        }
-      };
-      if (!this.worker) return;
-
-      // Stop any ongoing analysis
-      this.stop();
-      this.worker!.postMessage(`go depth ${stockfishLevel}`);
-      this.worker!.postMessage("ucinewgame");
-      this.worker!.postMessage("isready");
-      this.worker!.postMessage(`position fen ${fen}`);
-      this.worker!.postMessage("go movetime 2000"); // Just use movetime for faster response
-    });
-  }
-  async evaluateWithMultipv(
-    fen: string,
-    multiPv: number = 3,
-    depth: number = 15
-  ): Promise<{ move: string; score: number }[]> {
-    return new Promise((resolve) => {
-      const evaluations: { move: string; score: number }[] = [];
-
-      this.worker!.onmessage = (e) => {
-        if (typeof e.data !== "string") return;
-
-        if (e.data.includes("info depth") && e.data.includes(" pv ")) {
-          const match = e.data.match(
-            /multipv (\d+).*?score (cp|mate) (-?\d+).*? pv ([a-h1-8 ]+)/
-          );
-          if (match) {
-            const multipvIndex = parseInt(match[1], 10);
-            const type = match[2];
-            const rawScore = parseInt(match[3], 10);
-            const move = match[4].split(" ")[0];
-            const uciMove = match[2].split(" ")[0];
-            const score =
-              type === "cp"
-                ? rawScore
-                : rawScore > 0
-                ? 10000 - rawScore
-                : -10000 - rawScore;
-            evaluations[multipvIndex - 1] = { move, score };
-          }
-        }
-
-        if (e.data.includes("bestmove")) {
-          resolve(evaluations);
+      stockfish.onmessage = function (e) {
+        const line = typeof e === "object" ? e.data : e;
+        if (line.startsWith("bestmove")) {
+          const move = line.split(" ")[1];
+          stockfish.terminate();
+          resolve(move);
         }
       };
 
-      this.worker!.postMessage("ucinewgame");
-      this.worker!.postMessage(`setoption name MultiPV value ${multiPv}`);
-      this.worker!.postMessage(`position fen ${fen}`);
-      this.worker!.postMessage(`go depth ${depth}`);
+      stockfish.onerror = (err) => {
+        stockfish.terminate();
+        reject(err);
+      };
     });
+  }
+  eloToDepth(elo: number): number {
+    const minDepth = 1;
+    const maxDepth = 26;
+    const minElo = 250;
+    const maxElo = 2800;
+    const clampedElo = Math.min(Math.max(elo, minElo), maxElo);
+    return Math.round(
+      ((clampedElo - minElo) / (maxElo - minElo)) * (maxDepth - minDepth) +
+        minDepth
+    );
+  }
+
+  eloToSkillLevel(elo: number): number {
+    const minElo = 250;
+    const maxElo = 2800;
+    const clampedElo = Math.min(Math.max(elo, minElo), maxElo);
+    return Math.round(((clampedElo - minElo) / (maxElo - minElo)) * 20);
   }
 
   evaluatePosition(fen: string, stockfishLevel: number) {
