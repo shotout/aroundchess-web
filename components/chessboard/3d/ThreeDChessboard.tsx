@@ -34,7 +34,7 @@ interface ThreeDBoardProps {
     promoteToSquare?: Square
   ) => boolean;
   onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
-  promotionToSquare?: Square | null;
+  promotionToSquare?: string | null | undefined;
   showPromotionDialog?: boolean;
   customSquareStyles?: Record<string, React.CSSProperties>;
   customArrows?: any;
@@ -298,7 +298,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customArrows={customArrows}
                 areArrowsAllowed={areArrowsAllowed}
                 customSquareStyles={customSquareStyles}
-                promotionToSquare={promotionToSquare}
+                promotionToSquare={promotionToSquare as Square | null | undefined}
                 showPromotionDialog={showPromotionDialog}
                 animationDuration={100}
               />

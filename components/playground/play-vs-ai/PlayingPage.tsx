@@ -36,6 +36,7 @@ import { CommentaryMove } from "./CommentaryMove";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
 import { playSound } from "@/utils/play-audio";
+import { classifyMove } from "../src/lib/classifyMove";
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -55,6 +56,8 @@ export default function PlayingPage() {
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { isMember } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
+  const [beforeFen, setBeforeFen] = useState<string>("");
+  const [afterFen, setAfterFen] = useState<string>("");
   const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
   const {
     setIsLoading,
@@ -81,6 +84,7 @@ export default function PlayingPage() {
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
   const engine = useMemo(() => new Engine(), []);
+  const engine2 = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [pastGames, setPastGames] = useState<any[]>([]);
   const [heightScreen, setHeightScreen] = useState<number>(0);
@@ -100,6 +104,7 @@ export default function PlayingPage() {
   const [capturedBlack, setCapturedBlack] = useState<any[]>([]);
   const [moveFrom, setMoveFrom] = useState<string>("");
   const [moveTo, setMoveTo] = useState<Square | null>(null);
+  const [moveData, setMoveData] = useState<any>();
   const [showPromotionDialog, setShowPromotionDialog] = useState(false);
   const [rightClickedSquares, setRightClickedSquares] = useState<
     Record<string, CSSProperties>
@@ -232,7 +237,6 @@ export default function PlayingPage() {
       // valid move
       setMoveTo(square);
       setCurrentSquare(square);
-
       // if promotion move
       if (
         (foundMove.color === "w" &&
@@ -252,63 +256,40 @@ export default function PlayingPage() {
         to: square,
         promotion: "q",
       });
-      console.log("move.san",move)
+      setMoveData(move);
+
+      console.log("move.san", move);
       playSound(game, move);
+      getClassificationMove(move);
       // if invalid, setMoveFrom and getMoveOptions
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
         if (hasMoveOptions) setMoveFrom(square);
         return;
       }
-      getClassificationMove();
 
       setGamePosition(game.fen());
+      setAfterFen(game.fen());
 
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
-      setTimeout(() => {
-        findEnemyMove();
-      }, 2500);
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
       return;
     }
   };
-  const classifyMove = (
-    evaluation: string | undefined,
-    bestMove: string,
-    actualMove: string | undefined
-  ): MoveClassification => {
-    let evaluationValue = parseInt(evaluation ?? "0");
-    // Compare actual move to best move
-    if (actualMove === bestMove) {
-      return "best-move";
-    }
-
-    // For simplicity, we're using centipawn thresholds to classify moves
-    if (evaluationValue >= 100) return "brilliant-move";
-    if (evaluationValue >= 50) return "excellent-move";
-    if (evaluationValue >= 10) return "good-move";
-    if (evaluationValue >= -10) return "neutral-move";
-    if (evaluationValue >= -50) return "inaccuracy-move";
-    if (evaluationValue >= -150) return "mistake-move";
-    return "blunder-move";
+  const handleClassify = async (move: any) => {
+    const result = await classifyMove(beforeFen, game.fen(), move.to);
+    console.log(`Move classification: ${result}`);
+    return result;
   };
-  const getClassificationMove = () => {
-    engine.evaluatePosition(game.fen(), 10);
-    engine.onMessage((msg) => {
-      console.log("getClassificationMove", msg);
-      let { bestMove, depth, positionEvaluation, pv } = msg;
-      if (depth == 10) {
-        let moveUserClassification = classifyMove(
-          positionEvaluation,
-          bestMove,
-          pv
-        );
-        setMoveClassification(moveUserClassification);
-        //console.log("moveUserClassification", depth, moveUserClassification);
-      }
-    });
+  const getClassificationMove = async (move: any) => {
+    let moveUserClassification = await handleClassify(move);
+    setMoveClassification(moveUserClassification);
+    console.log("moveUserClassification", moveUserClassification);
+    setTimeout(() => {
+      findEnemyMove();
+    }, 2500);
   };
   const onPromotionPieceSelect = (
     piece?: string,
@@ -318,6 +299,7 @@ export default function PlayingPage() {
     // if no piece passed then user has cancelled dialog, don't make move and reset
     setBestline("");
     setHintClicked(false);
+    setBeforeFen(game.fen());
 
     if (piece) {
       let move = game.move({
@@ -325,13 +307,10 @@ export default function PlayingPage() {
         to: promoteToSquare || moveTo!,
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
+      setMoveData(move);
 
       setGamePosition(game.fen());
       playSound(game, move);
-
-      setTimeout(() => {
-        findEnemyMove();
-      }, 2500);
     }
     setMoveFrom("");
     setMoveTo(null);
@@ -371,8 +350,15 @@ export default function PlayingPage() {
     // //console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove, depth, pv,positionEvaluation }) => {
-      console.log("message:", depth, bestMove, pv,positionEvaluation);
+    engine.onMessage(({ bestMove, depth, pv, positionEvaluation }) => {
+      console.log(
+        "message:",
+        depth,
+        stockfishLevel,
+        bestMove,
+        pv,
+        positionEvaluation
+      );
       if (depth == stockfishLevel && pv) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
         console.log("choosed:", depth, bestMove, pv);
@@ -382,7 +368,11 @@ export default function PlayingPage() {
           to: pv.substring(2, 4),
           promotion: pv.substring(4, 5),
         });
+        setMoveData(move);
+
         playSound(game, move);
+        setBeforeFen(game.fen());
+
         setPreviousSquare(pv.substring(0, 2) as Square);
         setCurrentSquare(pv.substring(2, 4) as Square);
 
@@ -544,6 +534,7 @@ export default function PlayingPage() {
     setMyColor(AIChoosed.color);
     //console.log("AIChoosed.color", AIChoosed.color);
     setHeaderGameStart();
+    setBeforeFen(game.fen());
     if (AIChoosed.color == "black") {
       setTimeout(() => {
         findEnemyMove();

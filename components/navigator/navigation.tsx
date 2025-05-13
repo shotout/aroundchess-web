@@ -1,4 +1,5 @@
 "use client";
+import CookieConsent from "@/app/cookies-consent/cookies-consent-message";
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";

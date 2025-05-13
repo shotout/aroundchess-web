@@ -68,13 +68,16 @@ export class Engine {
       const pvMatch = data.match(/pv ([a-h][1-8][a-h][1-8])/);
       const depthMatch = data.match(/depth (\d+)/);
 
-      if (pvMatch) {
+      if (pvMatch && scoreMatch) {
         const move = pvMatch[1];
+        const scoreType = scoreMatch[1];
+        const value = parseInt(scoreMatch[2]);
+        scoreType === "cp" ? value : value > 0 ? 10000 - value : -10000 - value;
         //console.log("Found move, depth move:", depthMatch, move);
         this.messageCallback({
           pv: move,
           depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
-          positionEvaluation: scoreMatch ? scoreMatch[1] : "0",
+          positionEvaluation: scoreType,
           bestMove: undefined,
         });
       }
@@ -110,6 +113,77 @@ export class Engine {
     commands.forEach((cmd) => {
       //console.log("Setting skill level:", cmd);
       this.worker?.postMessage(cmd);
+    });
+  }
+  async evaluateFen(fen: string, stockfishLevel: number): Promise<number> {
+    return new Promise((resolve) => {
+      this.worker!.onmessage = (e) => {
+        if (typeof e.data === "string" && e.data.includes("info depth")) {
+          const match = e.data.match(/score (cp|mate) (-?\d+)/);
+          if (match) {
+            const scoreType = match[1];
+            const value = parseInt(match[2]);
+            resolve(
+              scoreType === "cp"
+                ? value
+                : value > 0
+                ? 10000 - value
+                : -10000 - value
+            ); // Normalize mate scores
+          }
+        }
+      };
+      if (!this.worker) return;
+
+      // Stop any ongoing analysis
+      this.stop();
+      this.worker!.postMessage(`go depth ${stockfishLevel}`);
+      this.worker!.postMessage("ucinewgame");
+      this.worker!.postMessage("isready");
+      this.worker!.postMessage(`position fen ${fen}`);
+      this.worker!.postMessage("go movetime 2000"); // Just use movetime for faster response
+    });
+  }
+  async evaluateWithMultipv(
+    fen: string,
+    multiPv: number = 3,
+    depth: number = 15
+  ): Promise<{ move: string; score: number }[]> {
+    return new Promise((resolve) => {
+      const evaluations: { move: string; score: number }[] = [];
+
+      this.worker!.onmessage = (e) => {
+        if (typeof e.data !== "string") return;
+
+        if (e.data.includes("info depth") && e.data.includes(" pv ")) {
+          const match = e.data.match(
+            /multipv (\d+).*?score (cp|mate) (-?\d+).*? pv ([a-h1-8 ]+)/
+          );
+          if (match) {
+            const multipvIndex = parseInt(match[1], 10);
+            const type = match[2];
+            const rawScore = parseInt(match[3], 10);
+            const move = match[4].split(" ")[0];
+            const uciMove = match[2].split(" ")[0];
+            const score =
+              type === "cp"
+                ? rawScore
+                : rawScore > 0
+                ? 10000 - rawScore
+                : -10000 - rawScore;
+            evaluations[multipvIndex - 1] = { move, score };
+          }
+        }
+
+        if (e.data.includes("bestmove")) {
+          resolve(evaluations);
+        }
+      };
+
+      this.worker!.postMessage("ucinewgame");
+      this.worker!.postMessage(`setoption name MultiPV value ${multiPv}`);
+      this.worker!.postMessage(`position fen ${fen}`);
+      this.worker!.postMessage(`go depth ${depth}`);
     });
   }
 

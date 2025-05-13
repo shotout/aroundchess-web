@@ -30,7 +30,7 @@ interface TwoDChessboardProps {
     promoteToSquare?: Square
   ) => boolean;
   onPieceClick?: ((piece: string, sourceSquare: string) => any) | undefined;
-  promotionToSquare?: Square | null;
+  promotionToSquare?: Square | null | string;
   showPromotionDialog?: boolean;
   customSquareStyles?: Record<string, React.CSSProperties>;
   customArrows?: any;
@@ -221,7 +221,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
               customArrows={customArrows}
               areArrowsAllowed={areArrowsAllowed}
               customSquareStyles={customSquareStyles}
-              promotionToSquare={promotionToSquare}
+              promotionToSquare={promotionToSquare as Square | null | undefined}
               showPromotionDialog={showPromotionDialog}
               animationDuration={200}
             />

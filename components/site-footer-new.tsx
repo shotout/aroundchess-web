@@ -31,15 +31,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       {/* modal */}
-      <CookieConsent />
-      <ConfirmLogin />
-      <ContactUs />
-      <SuccessSubscription />
-      <CancelSubscription />
-      <StatusPurchaseTokens />
-      <PricingOffer />
-      <ShareGame />
-      <SuccessSent />
+     
       <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
         <div className="relative hidden sm:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
           <Image
@@ -252,6 +244,15 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
         </div>
       </div>
+       <CookieConsent />
+      <ConfirmLogin />
+      <ContactUs />
+      <SuccessSubscription />
+      <CancelSubscription />
+      <StatusPurchaseTokens />
+      <PricingOffer />
+      <ShareGame />
+      <SuccessSent />
     </footer>
   );
 }
