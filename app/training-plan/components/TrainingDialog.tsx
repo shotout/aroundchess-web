@@ -14,8 +14,8 @@ import Image from "next/image";
 import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTrainingPlanStore } from "../store";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import WhiteSpinner from "@/components/SpinnerWhite";
 
 interface ChessTrainingPlanDialogProps {
   open: boolean;
@@ -87,6 +87,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   } = useTrainingPlanStore();
 
   const [activeCategory, setActiveCategory] = useState("opening");
+  const [isCreatingPlan, setIsCreatingPlan] = useState(false);
   const categories = ["opening", "middlegame", "endgame"];
 
   const selectedTopics = [
@@ -228,11 +229,16 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   const handleCreatePlan = async () => {
     if (sessionId != "") {
-      const success = await createTrainingPlan(sessionId);
+      setIsCreatingPlan(true);
+      try {
+        const success = await createTrainingPlan(sessionId);
 
-      if (success) {
-        onOpenChange(false);
-        onPlanCreated();
+        if (success) {
+          onOpenChange(false);
+          onPlanCreated();
+        }
+      } finally {
+        setIsCreatingPlan(false);
       }
     }
   };
@@ -330,6 +336,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                     keyInfo={keyInfo}
                   />
                 </div>
+
                 <div className="w-full lg:w-3/5">
                   <DialogLevelProgress
                     currentElo={
@@ -394,13 +401,15 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             </div>
 
             <div className="mt-6 flex justify-center">
-              <Button
-                className="btn-primary rounded-full px-8 py-2 h-auto w-full sm:w-96 text-lg"
+              <button
+                className="btn-primary rounded-full px-8 py-2 h-12 w-full sm:w-96 text-lg flex justify-center items-center"
                 onClick={handleCreatePlan}
-                disabled={isLoading}
+                disabled={isLoading || isCreatingPlan}
               >
-                Create Training Plan
-              </Button>
+                <div className="min-h-6 min-w-52 flex justify-center items-center">
+                  {isCreatingPlan ? <WhiteSpinner /> : "Create Training Plan"}
+                </div>
+              </button>
             </div>
           </div>
         )}

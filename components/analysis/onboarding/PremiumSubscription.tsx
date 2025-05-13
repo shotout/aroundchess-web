@@ -13,6 +13,8 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
 import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
+import Link from "next/link";
+import { useContactUs } from "@/app/store/contactUs";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -137,6 +139,8 @@ export const PremiumSubsContent: React.FC<{
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };
+  const { setOpen: setOpenContact } = useContactUs();
+
   return (
     <div className="mb-4">
       <p className="text-sm text-black mb-2 text-center">
@@ -350,9 +354,12 @@ export const PremiumSubsContent: React.FC<{
         <p className="text-gray-700">
           Are you interested in getting an AroundChess Subscription for your
           Chess Club?{" "}
-          <a href="#" className="text-blue-base hover:underline font-medium">
+          <button
+            onClick={() => setOpenContact(true)}
+            className="text-blue-base hover:underline font-medium"
+          >
             Click here{" "}
-          </a>
+          </button>
           to contact us now for an individual offer.
         </p>
       </div>
