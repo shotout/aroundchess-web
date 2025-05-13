@@ -28,6 +28,7 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
   onRefresh,
 }) => {
   const [barSize, setBarSize] = useState(20);
+  console.log("barData", barData);
 
   // Adjust bar size based on screen width
   useEffect(() => {

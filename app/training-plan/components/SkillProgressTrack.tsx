@@ -235,18 +235,18 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 {isNextGoal && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
                     <div
-                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                      className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
                     >
                       Your Next Goal
                     </div>
-                    <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                    <div className="w-4 h-4 bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                   </div>
                 )}
 
                 <div className="h-8 flex items-center justify-center">
                   {isCompleted && !isNextGoal && (
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
+                    <div className="w-6 h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46]  rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white font-light" />
                     </div>
                   )}
                 </div>

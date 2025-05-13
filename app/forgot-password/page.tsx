@@ -89,13 +89,15 @@ const ForgotPasswordPage: NextPage = () => {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/auth/update-password`, {
+      const response = await fetch(`${BASE_URL}/auth/set-new-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          newPassword,
+          email: email,
+          token: verificationCode,
+          password: newPassword,
         }),
       });
 

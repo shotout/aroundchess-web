@@ -34,8 +34,8 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
           <h1 className="text-sm font-semibold">Time Management</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
-              <h1 className="text-lg font-bold truncate">
-                {insights.timeManagement}%
+              <h1 className="text-lg font-bold">
+                {insights.timeManagement.toFixed(1)}%
               </h1>
             </div>
           </div>

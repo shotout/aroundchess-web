@@ -7,6 +7,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
 import { useProfileStore } from "@/app/store/profile";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
@@ -86,14 +91,40 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               • ELO {combinedProfile.currentElo}
             </div>
           </div>
-          <button>
-            <AlertCircle className="text-blue-base" />
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button aria-label="Show info">
+                <AlertCircle className="text-blue-base" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-full  max-w-md p-6 bg-blue-base/5 border border-blue-base rounded-xl shadow-md"
+              side="top"
+              align="end"
+              alignOffset={100}
+              sideOffset={-30}
+            >
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-blue-base/5 flex items-center justify-center">
+                    <AlertCircle className="text-blue-base w-5 h-5" />
+                  </div>
+                </div>
+                <p className="text-blue-base font-medium text-xs">
+                  Improvement is non-linear - each bracket represents increasing
+                  complexity and the need for refined techniques. Consistency,
+                  regular self-review, and adaptation of training (including
+                  coaching and tournament experience) become more critical as
+                  you advance.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
-        <div className="mt-8">
+        <button className="mt-8">
           <SkillProgressTrack currentElo={combinedProfile.currentElo || 0} />
-        </div>
+        </button>
 
         <div className="bg-gradient-to-r from-[#D7EBFF] to-[#FFFFFF00] rounded-lg p-4 border border-[#3871EC33]/30 md:flex">
           <div className="flex-1">

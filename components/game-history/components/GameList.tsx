@@ -36,7 +36,6 @@ const GamesList: React.FC<GamesListProps> = ({
   paginationProps,
   recentlyImportedIds = [],
 }) => {
-  // Check if a game is newly imported
   const isNewlyImported = (gameId: string | number) => {
     return recentlyImportedIds.includes(gameId);
   };

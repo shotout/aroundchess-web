@@ -206,11 +206,11 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                 {isNextGoal && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <div
-                      className={`${badgeClass} bg-amber-400 text-amber-950`}
+                      className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-amber-950`}
                     >
                       Your Next Goal
                     </div>
-                    <div className="w-4 h-4 bg-amber-400 -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                    <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                   </div>
                 )}
 
@@ -311,8 +311,10 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
               bottom: 0,
             }}
           >
-            <div className="w-4 h-4 bg-green-500 -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
-            <div className={`${badgeClass} bg-green-500 text-white`}>
+            <div className="w-4 h-4 bg-[#26E279] -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+            <div
+              className={`${badgeClass} bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46]  text-white`}
+            >
               Your current ELO
             </div>
           </div>
