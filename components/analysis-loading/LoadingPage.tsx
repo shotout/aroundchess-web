@@ -78,6 +78,7 @@ const LoadingPage: React.FC = (props) => {
       return false;
     }
     let headers = tempGame.getHeaders();
+    console.log("headers pgn", headers);
     setHeaderPGN(headers);
     let dataGames = {
       white: {
@@ -96,7 +97,7 @@ const LoadingPage: React.FC = (props) => {
 
   useEffect(() => {
     if (dataAnalysis != null) {
-      setCountDownAfter(`${`00`}:${`00`}`);
+      // setCountDownAfter(`${`00`}:${`00`}`);
       setEstimateMinute(0);
       setEstimateSecond(0);
     }
@@ -124,29 +125,40 @@ const LoadingPage: React.FC = (props) => {
       () => console.log("Countdown complete!")
     );
     console.log("analyzeComplete", analyzeComplete);
+    if (dataAnalysis != null) {
+      countdownBefore.stop();
+      countdownAfter.stop();
+    }
     if (analyzeComplete) {
       countdownBefore.stop();
-      if (estimateMinute >= 30) {
-        setEstimateMinute(4);
-        setEstimateSecond(10);
-        countdownAfter.setTime(6, 30);
-        countdownAfter.start();
-      } else if (estimateMinute >= 20) {
-        setEstimateMinute(3);
-        setEstimateSecond(10);
-        countdownAfter.setTime(5, 30);
-        countdownAfter.start();
-      } else if (estimateMinute >= 10) {
-        setEstimateMinute(3);
-        setEstimateSecond(10);
-        countdownAfter.setTime(4, 30);
-        countdownAfter.start();
-      } else if (estimateMinute >= 5) {
-        setEstimateMinute(2);
-        setEstimateSecond(10);
-        countdownAfter.setTime(3, 30);
-        countdownAfter.start();
-      }
+
+      let estimateM = Math.round(estimateMinute / 2);
+      let estimateS = Math.round(estimateSecond / 2);
+      setEstimateMinute(estimateM);
+      setEstimateSecond(estimateS);
+      countdownAfter.setTime(estimateM, estimateS);
+      countdownAfter.start();
+      // if (estimateMinute >= 30) {
+      //   setEstimateMinute(4);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(6, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 20) {
+      //   setEstimateMinute(3);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(5, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 10) {
+      //   setEstimateMinute(3);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(4, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 5) {
+      //   setEstimateMinute(2);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(3, 30);
+      //   countdownAfter.start();
+      // }
     } else {
       console.log("estimateMinute", estimateMinute, estimateSecond);
       if (!analyzeComplete) {
@@ -204,21 +216,25 @@ const LoadingPage: React.FC = (props) => {
                 }`}
               >
                 {" "}
+                {whiteCountry != "XX" && (
+                  <ReactCountryFlag
+                    countryCode={whiteCountry}
+                    svg
+                    className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
+                    title={whiteCountry}
+                  />
+                )}{" "}
+                vs {dataGame?.black?.username}{" "}
+              </span>{" "}
+              (Black){" "}
+              {blackCountry != "XX" && (
                 <ReactCountryFlag
                   countryCode={blackCountry}
                   svg
                   className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
                   title={blackCountry}
-                />{" "}
-                vs {dataGame?.black?.username}{" "}
-              </span>{" "}
-              (Black){" "}
-              <ReactCountryFlag
-                countryCode={whiteCountry}
-                svg
-                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px] shadow-md"
-                title={whiteCountry}
-              />
+                />
+              )}
             </span>
           </div>
         )}

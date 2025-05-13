@@ -1,27 +1,32 @@
 "use client";
 
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useProfileFetch } from "../navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 export function CancelSubscription() {
   const router = useRouter();
+  const { postCancelMembership } = useApiClient();
+  const { setCallFetch } = useProfileFetch();
   const { open, setOpen } = useCancelSubscription();
   useEffect(() => {
     setOpen(open);
   }, [open]);
 
   const handleCancel = () => {
-    setOpen(false)
+    postCancelMembership({}).then(() => {
+      setCallFetch(formatTimePgn());
+      setOpen(false);
+      window.location.reload()
+    });
   };
   const handleKeep = () => {
-    setOpen(false)
+    setOpen(false);
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -260,8 +260,9 @@ export default function PlayingPage() {
         if (hasMoveOptions) setMoveFrom(square);
         return;
       }
-      setGamePosition(game.fen());
       getClassificationMove();
+
+      setGamePosition(game.fen());
 
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
       setTimeout(() => {
@@ -296,7 +297,7 @@ export default function PlayingPage() {
   const getClassificationMove = () => {
     engine.evaluatePosition(game.fen(), 10);
     engine.onMessage((msg) => {
-      //console.log("onSquareClick", msg);
+      console.log("getClassificationMove", msg);
       let { bestMove, depth, positionEvaluation, pv } = msg;
       if (depth == 10) {
         let moveUserClassification = classifyMove(
@@ -330,7 +331,7 @@ export default function PlayingPage() {
 
       setTimeout(() => {
         findEnemyMove();
-      }, 1000);
+      }, 2500);
     }
     setMoveFrom("");
     setMoveTo(null);
@@ -370,8 +371,8 @@ export default function PlayingPage() {
     // //console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
     if (game.turn() == isYourTurn) return false;
     engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove, depth, pv }) => {
-      console.log("message:", depth, bestMove, pv);
+    engine.onMessage(({ bestMove, depth, pv,positionEvaluation }) => {
+      console.log("message:", depth, bestMove, pv,positionEvaluation);
       if (depth == stockfishLevel && pv) {
         // In latest chess.js versions you can just write ```game.move(bestMove)```
         console.log("choosed:", depth, bestMove, pv);

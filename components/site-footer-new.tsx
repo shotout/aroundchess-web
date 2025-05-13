@@ -125,7 +125,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/practice"
+                    href="/playground/play-vs-ai"
                     className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
                   >
                     Practice
@@ -141,7 +141,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/playground/play-vs-ai"
+                    href="/playground/puzzle"
                     className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
                   >
                     Playground
