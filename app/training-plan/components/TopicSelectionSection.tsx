@@ -27,7 +27,7 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
       <p className="text-sm mb-3">{description}</p>
 
       {subcategories.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2">
           {subcategories.map((subcategory) => (
             <div key={subcategory.id} className="mb-3 w-full">
               <h4 className="font-medium mb-2">{subcategory.title}</h4>

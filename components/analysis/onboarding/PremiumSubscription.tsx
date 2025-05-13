@@ -143,6 +143,8 @@ export const PremiumSubsContent: React.FC<{
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };
+  const { setOpen: setOpenContact } = useContactUs();
+
   return (
     <div className="mb-4">
       <p className="text-sm text-black mb-2 text-center">

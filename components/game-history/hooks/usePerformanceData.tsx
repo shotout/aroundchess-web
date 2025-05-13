@@ -8,7 +8,6 @@ import {
   RadarDataItem,
 } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const CACHE_EXPIRATION = 5 * 60 * 1000;
@@ -18,125 +17,95 @@ export const processPerformanceData = (
 ): PerformanceData | null => {
   if (!apiData) return null;
 
-  const accuracy = apiData.performanceInsights?.accuracy || 0;
-  const blunderRate = parseFloat(apiData.blunderRate) || 0;
-  const timeManagement = apiData.timeManagement?.efficiency || 0;
-  const averageRating = apiData.keyStatistics?.averageRating || 0;
+  // Process bar data using the new performanceByGamePhase structure
+  const barData: BarDataItem[] = [
+    {
+      name: "Opening",
+      performance: apiData.performanceByGamePhase?.opening || 0,
+      average: 75,
+    },
+    {
+      name: "Middlegame",
+      performance: apiData.performanceByGamePhase?.middlegame || 0,
+      average: 75,
+    },
+    {
+      name: "Endgame",
+      performance: apiData.performanceByGamePhase?.endgame || 0,
+      average: 75,
+    },
+    {
+      name: "Tactics",
+      performance: apiData.performanceByGamePhase?.tactics || 0,
+      average: 75,
+    },
+    {
+      name: "Strategy",
+      performance: apiData.performanceByGamePhase?.strategy || 0,
+      average: 75,
+    },
+  ];
 
-  const normalizedRating = Math.min(100, averageRating / 20 + 50);
-  const middlegameScore = Math.max(50, 100 - blunderRate * 5);
-
-  const openingStats = apiData.openingStatistics || [];
-  const openingWinRates = openingStats.map(
-    (opening: { winRate: any }) => opening.winRate
-  );
-  const averageOpeningWinRate =
-    openingWinRates.length > 0
-      ? openingWinRates.reduce((sum: any, rate: any) => sum + rate, 0) /
-        openingWinRates.length
-      : 75;
-
-  const calculationScore = 100 - blunderRate * 4;
-  const positionalScore = normalizedRating;
-  const tacticalScore = accuracy;
-  const endgameScore = Math.max(50, accuracy - 15);
-  const timeManagementScore = timeManagement;
-  const openingKnowledgeScore = Math.min(100, averageOpeningWinRate + 10);
-
+  // Process radar data using the new skillAnalysis structure
   const radarData: RadarDataItem[] = [
     {
       subject: "Calculation",
-      A: Math.round(calculationScore),
+      A: apiData.skillAnalysis?.calculation || 0,
       fullMark: 100,
     },
-    { subject: "Positional", A: Math.round(positionalScore), fullMark: 100 },
-    { subject: "Tactical", A: Math.round(tacticalScore), fullMark: 100 },
-    { subject: "Endgame", A: Math.round(endgameScore), fullMark: 100 },
+    {
+      subject: "Positional",
+      A: apiData.skillAnalysis?.positional || 0,
+      fullMark: 100,
+    },
+    {
+      subject: "Tactical",
+      A: apiData.skillAnalysis?.tactical || 0,
+      fullMark: 100,
+    },
+    {
+      subject: "Endgame",
+      A: apiData.skillAnalysis?.endgame || 0,
+      fullMark: 100,
+    },
     {
       subject: "Time Management",
-      A: Math.round(timeManagementScore),
+      A: apiData.skillAnalysis?.timeManagement || 0,
       fullMark: 100,
     },
     {
       subject: "Opening Knowledge",
-      A: Math.round(openingKnowledgeScore),
+      A: apiData.skillAnalysis?.openingKnowledge || 0,
       fullMark: 100,
     },
   ];
 
-  const sortedSkills = [...radarData].sort((a, b) => b.A - a.A);
-  const topStrengths = sortedSkills.slice(0, 3);
-  const bottomWeaknesses = [...sortedSkills].reverse().slice(0, 3);
+  // Process strengths data using the new strengthsAndWeaknesses.strengths structure
+  const strengthsData =
+    apiData.strengthsAndWeaknesses?.strengths.map((item: any) => ({
+      name: item.name,
+      value: item.score,
+      iconType: getSkillIconType(item.name),
+    })) || [];
 
-  const strengthsData = topStrengths.map((item) => ({
-    name: item.subject,
-    value: item.A,
-    iconType: getSkillIconType(item.subject),
-  }));
+  // Process weaknesses data using the new strengthsAndWeaknesses.areasForImprovement structure
+  const weaknessesData =
+    apiData.strengthsAndWeaknesses?.areasForImprovement.map((item: any) => ({
+      name: item.name,
+      value: item.score,
+    })) || [];
 
-  const weaknessesData = bottomWeaknesses.map((item) => ({
-    name: item.subject,
-    value: item.A,
-  }));
-
-  const recommendationMap = {
-    Endgame: "Practice endgame positions with rook and pawn",
-    Positional: "Study positional pawn sacrifices",
-    "Time Management": "Practice playing with incremental time controls",
-    Calculation: "Work on calculation exercises and visualization",
-    Tactical: "Solve tactical puzzles daily",
-    "Opening Knowledge": "Study main lines of your opening repertoire",
-  };
-
-  type RecommendationKey = keyof typeof recommendationMap;
-
-  const defaultGoals = [
+  // Get short-term goals directly from the new improvementRecommendations structure
+  const shortTermGoals = apiData.improvementRecommendations?.shortTermGoals || [
     "Work on defensive techniques",
     "Analyze your losses for patterns",
     "Practice endgames against an engine",
   ];
 
-  let shortTermGoals: string[] = bottomWeaknesses
-    .map((w) => recommendationMap[w.subject as RecommendationKey])
-    .filter(Boolean) as string[];
-
-  for (let i = 0; shortTermGoals.length < 3 && i < defaultGoals.length; i++) {
-    if (!shortTermGoals.includes(defaultGoals[i])) {
-      shortTermGoals.push(defaultGoals[i]);
-    }
-  }
-
-  shortTermGoals = shortTermGoals.slice(0, 3);
-
-  const totalWeaknessScore = bottomWeaknesses.reduce(
-    (sum, item) => sum + (100 - item.A),
-    0
-  );
-
-  const trainingFocus = bottomWeaknesses.map((item) => {
-    const percentage = Math.round(((100 - item.A) / totalWeaknessScore) * 100);
-    return `${item.subject} training (${percentage}%)`;
-  });
-
-  const barData: BarDataItem[] = [
-    {
-      name: "Opening",
-      performance: Math.round(averageOpeningWinRate),
-      average: 75,
-    },
-    {
-      name: "Middlegame",
-      performance: Math.round(middlegameScore),
-      average: 75,
-    },
-    { name: "Endgame", performance: Math.round(accuracy - 5), average: 75 },
-    { name: "Tactics", performance: Math.round(accuracy), average: 75 },
-    {
-      name: "Strategy",
-      performance: Math.round(normalizedRating),
-      average: 75,
-    },
-  ];
+  // Process training focus from the new improvementRecommendations.trainingFocus structure
+  const trainingFocus = Object.entries(
+    apiData.improvementRecommendations?.trainingFocus || {}
+  ).map(([key, value]) => `${formatTrainingKey(key)} (${value}%)`);
 
   return {
     barData,
@@ -148,17 +117,23 @@ export const processPerformanceData = (
   };
 };
 
+// Helper function to format training keys from camelCase to readable text
+const formatTrainingKey = (key: string): string => {
+  // Convert camelCase to space-separated words and capitalize first letter
+  const formatted = key.replace(/([A-Z])/g, " $1").trim();
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+};
+
 const getSkillIconType = (skillName: string): string => {
-  switch (skillName) {
-    case "Tactical":
-    case "Calculation":
-      return "Calculation";
-    case "Opening Knowledge":
-      return "Opening Knowledge";
-    case "Time Management":
-      return "Time Management";
-    default:
-      return "Other";
+  // Map skill names to icon types
+  if (skillName.includes("Calculation") || skillName.includes("Tactical")) {
+    return "Calculation";
+  } else if (skillName.includes("Opening")) {
+    return "Opening Knowledge";
+  } else if (skillName.includes("Time")) {
+    return "Time Management";
+  } else {
+    return "Other";
   }
 };
 
@@ -170,7 +145,7 @@ export function usePerformanceData() {
     setPerformanceData,
   } = usePgnStore();
 
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

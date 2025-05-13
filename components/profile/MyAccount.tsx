@@ -9,17 +9,20 @@ import { useProfileStore } from "@/app/store/profile";
 import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "../game-history/Spinner";
+import ChangePasswordDialog from "./ChangePasswordDialog";
 
 const MyAccount = () => {
   const { getProfile, logOut, isLoading } = useApiClient();
   const { profile, setProfile, clearAll, sessionId } = useProfileStore();
   const router = useRouter();
   const { username, setUsername } = usePgnStore();
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
     defaultUsername: username,
     password: "",
   });
+
   useEffect(() => {
     setForm({
       email: profile.email ?? "",
@@ -27,6 +30,7 @@ const MyAccount = () => {
       password: "",
     });
   }, [profile, username]);
+
   useEffect(() => {
     getProfile({}).then((response) => {
       const data = response.data;
@@ -35,14 +39,16 @@ const MyAccount = () => {
       setUsername(data.username);
     });
   }, []);
+
   const handleOnChange = (e: any) => {
     console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleChangePassword = () => {
-    // router.push("/change-password");
-    console.log("Password change requested");
+    setIsPasswordDialogOpen(true);
   };
+
   const handleSignOut = async () => {
     logOut({ sessionId })
       .then(() => {})
@@ -60,6 +66,7 @@ const MyAccount = () => {
       throw error;
     }
   };
+
   return (
     <div className={`flex flex-col gap-4`}>
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
@@ -149,7 +156,7 @@ const MyAccount = () => {
             className={`w-full text-xl shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
               form.password.length > 0 ? `border-[#737c7f]` : `border-[#C0CED4]`
             } px-[16px] py-[12px]`}
-            value={"form.password"}
+            value={"••••••••"}
             onChange={handleOnChange}
           />
           <button
@@ -163,6 +170,12 @@ const MyAccount = () => {
         </div>
         <div className="space-y-2 w-full"></div>
       </div>
+
+      {/* Password Change Dialog */}
+      <ChangePasswordDialog
+        isOpen={isPasswordDialogOpen}
+        onClose={() => setIsPasswordDialogOpen(false)}
+      />
     </div>
   );
 };
