@@ -127,7 +127,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [whiteMaterialDifference, setWhiteMaterialDifference] = useState(0);
   const [blackMaterialDifference, setBlackMaterialDifference] = useState(0);
   const [invalidMoveSquares, setInvalidMoveSquares] = useState<string[]>([]);
-  const [orientation, setOrientation] = useState<BoardOrientation>(boardOrientation);
+  const [orientation, setOrientation] =
+    useState<BoardOrientation>(boardOrientation);
 
   const prevFenHistory = useRef<string[]>([]);
 
@@ -595,7 +596,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         style={{ width: boardSize }}
         className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
       >
-        {/* <button onClick={handleSwitch}>
+        <button onClick={handleSwitch}>
           <Image
             src={"/images/play-vs-ai/switch.png"}
             alt="icon"
@@ -603,9 +604,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             height={1000}
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
-        </button> */}
-        <SettingBoard enable3D={true}/>
-        {/* <button onClick={handleThreeD}>
+        </button>
+        {/* <SettingBoard enable3D={true} />
+        <button onClick={handleThreeD}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -623,7 +624,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border ${"border-[#DEDEDE]"} p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          <InitialAvatar name={profile?.name!=""?profile?.name:username} size="sm" />
+          <InitialAvatar
+            name={profile?.name != "" ? profile?.name : username}
+            size="sm"
+          />
           {/* {user && (
             <Image
               src={user?.imageUrl}
@@ -635,7 +639,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           )} */}
 
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
-            {profile?.name!=""?profile?.name:username}
+            {profile?.name != "" ? profile?.name : username}
           </span>
           {profile?.country && (
             <ReactCountryFlag
@@ -649,6 +653,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </div>
     );
   };
+  const handleOnGetHint = () => {
+    if (is3DMode) {
+      setIs3DMode(false);
+
+      onGetHint();
+
+      // setTimeout(() => {
+      //   setIs3DMode(true);
+      // }, 2500);
+    } else {
+      onGetHint();
+    }
+  };
   const renderButtonPuzzleGame = () => {
     return (
       <motion.div
@@ -656,7 +673,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
       >
         <button
-          onClick={onGetHint}
+          onClick={handleOnGetHint}
           className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${
             hint
               ? `border-[#221AE9] bg-[#221AE908] text-[#221AE9]`
