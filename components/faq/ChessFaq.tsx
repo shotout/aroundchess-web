@@ -242,9 +242,11 @@ export default function ChessFAQ() {
                       {faq.answer.map((line: any, i: number) => (
                         <span
                           key={i}
+                          dangerouslySetInnerHTML={{
+                            __html: line.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"),
+                          }}
                           className="font-normal text-[12px] md:text-[14px] text-[#585858]"
                         >
-                          {line}
                         </span>
                       ))}
                     </div>

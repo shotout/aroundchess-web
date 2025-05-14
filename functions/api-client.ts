@@ -30,7 +30,6 @@ export function useApiClient() {
         clearAll();
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 0);
-
       });
     const { error } = await supabase.auth.signOut();
 
@@ -48,7 +47,7 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (sessionId.length>0) {
+        if (sessionId.length > 0) {
           setIsLoading(true);
           setError(null);
           let url = path;
@@ -64,13 +63,14 @@ export function useApiClient() {
           console.log("body", body);
 
           const response = await fetch(url, {
-            method,
-            headers: {
-              "Content-Type": "application/json",
+            method,            headers: {
+              "Accept": "*/*",
               Authorization: `Bearer ${sessionId}`,
               ...headers,
+              // Don't set Content-Type for FormData, let the browser set it with the boundary
+              ...(!body || !(body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
             },
-            body: method !== "GET" ? JSON.stringify(body) : undefined,
+            body: method !== "GET" ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
           });
 
           if (!response.ok) {
@@ -80,8 +80,7 @@ export function useApiClient() {
               toast.error(errorData.message || "API request failed");
             }
             if (errorData.statusCode == 401) {
-              toast.error("401");
-              handleSignOut()
+              handleSignOut();
             }
             throw new Error(errorData.message || "API request failed");
           }
@@ -600,13 +599,13 @@ export function useApiClient() {
       });
     },
     [apiRequest]
-  );
+  );  
   const contactUs = useCallback(
-    (body: any) => {
+    (formData: FormData) => {
       return apiRequest({
         method: "POST",
         path: `${process.env.BASE_URL}/contact-us`,
-        body,
+        body: formData
       });
     },
     [apiRequest]

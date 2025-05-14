@@ -54,20 +54,28 @@ export function ContactUs() {
   useEffect(() => {
     setWidthC(window?.innerWidth);
     setOpen(open);
-  }, [open]);
-
-  const handleSendMessage = (e: { preventDefault: () => void }) => {
+  }, [open]);  const handleSendMessage = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    let body = form;
     const formData = new FormData();
 
-    body.file = formData.append("file", file);
+    // Append all form fields to FormData
+    formData.append("name", form.name);
+    formData.append("email", form.email);
+    formData.append("topics", form.topics);
+    formData.append("message", form.message);
+    
+    // Append the file if it exists
+    if (file && file[0]) {
+      formData.append("file", file[0]);
+    }    console.log("formData contact us", Array.from(formData.entries()));
 
-    console.log("current", form);
-    contactUs(body).then(() => {
+    contactUs(formData).then(() => {
       console.log("success send contact us");
       setOpen(false);
       setOpenSent(true);
+      setFile(null);
+      setFileName("");
+      setFileSize(0);
       setForm({
         name: "",
         email: "",
@@ -80,15 +88,19 @@ export function ContactUs() {
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const fileTarget = e.target.files;
       console.log("file:", file);
 
       if (!file) return;
 
-      handleFile(e.target.files[0]);
+      handleFile(file, fileTarget);
     }
   };
 
-  const handleFile = (file: { name: string; size: number }) => {
+  const handleFile = (
+    file: { name: string; size: number },
+    fileTarget: any
+  ) => {
     // Check file type (simple check for correct extension)
     if (
       !file.name.toLowerCase().endsWith(".png") &&
@@ -104,7 +116,7 @@ export function ContactUs() {
       alert("File size exceeds 5MB limit.");
       return;
     }
-    setFile(file);
+    setFile(fileTarget);
     setFileName(file.name);
     setFileSize(file.size);
   };
