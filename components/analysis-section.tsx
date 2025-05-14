@@ -215,7 +215,7 @@ export function AnalysisSection() {
                 <button
                   disabled={current == 0}
                   onClick={prevSlide}
-                  className="p-2 text-primary transition"
+                  className="p-2 text-[#221AE9] transition"
                 >
                   <ChevronLeft
                     size={28}
@@ -231,7 +231,7 @@ export function AnalysisSection() {
                       className={`${
                         current === index ? "w-5" : "w-3"
                       } h-3 rounded-full transition ${
-                        current === index ? "bg-primary" : "bg-gray-300"
+                        current === index ? "bg-[#221AE9]" : "bg-gray-300"
                       }`}
                     />
                   ))}
@@ -240,7 +240,7 @@ export function AnalysisSection() {
                 <button
                   disabled={current == analysis.length}
                   onClick={nextSlide}
-                  className="p-2 text-primary transition"
+                  className="p-2 text-[221AE9] transition"
                 >
                   <ChevronRight
                     size={28}
