@@ -82,6 +82,7 @@ export function useApiClient() {
               toast.error(errorData.message || "API request failed");
             }
             if (errorData.statusCode == 401) {
+              handleSignOut()
             }
             throw new Error(errorData.message || "API request failed");
           }
