@@ -19,7 +19,6 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
-  const router = useRouter();
   const { setIsLoading, isLoading } = useLoadingAPI();
   const { sessionId } = useProfileStore();
   const [error, setError] = useState<Error | null>(null);
@@ -31,8 +30,7 @@ export function useApiClient() {
         clearAll();
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 0);
-
-        router.push("/login");
+        
       });
     const { error } = await supabase.auth.signOut();
 
