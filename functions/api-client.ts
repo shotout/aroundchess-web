@@ -30,7 +30,7 @@ export function useApiClient() {
         clearAll();
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 0);
-        
+
       });
     const { error } = await supabase.auth.signOut();
 
@@ -48,7 +48,7 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (sessionId != "" || sessionId != null) {
+        if (sessionId.length>0) {
           setIsLoading(true);
           setError(null);
           let url = path;
@@ -80,6 +80,7 @@ export function useApiClient() {
               toast.error(errorData.message || "API request failed");
             }
             if (errorData.statusCode == 401) {
+              toast.error("401");
               handleSignOut()
             }
             throw new Error(errorData.message || "API request failed");

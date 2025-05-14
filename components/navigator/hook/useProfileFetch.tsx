@@ -47,31 +47,41 @@ export const useProfileFetch = () => {
   useEffect(() => {
     if (sessionId != null) {
       getProfile({}).then((response) => {
-        let data = response.data;
-        console.log("getProfile", data);
-        setProfile(data);
-        setUsername(data.username);
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getProfile", data);
+          setProfile(data);
+          setUsername(data.username);
+        }
       });
       getTokenBalance({}).then((response) => {
-        let data = response.data;
-        console.log("getTokenBalance", data);
-        setToken(data);
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getTokenBalance", data);
+          setToken(data);
+        }
       });
       getTokenPackage({}).then((response) => {
-        let data = response.data;
-        console.log("getTokenPackage", data);
-        setTokenPackage(data);
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getTokenPackage", data);
+          setTokenPackage(data);
+        }
       });
       getActiveMembership({}).then((response) => {
-        let data = response.data;
-        console.log("getActiveMembership", data);
-        setIsMember(data.membershipPackage.type != "FREE");
-        setActiveMembership(data);
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getActiveMembership", data);
+          setIsMember(data.membershipPackage.type != "FREE");
+          setActiveMembership(data);
+        }
       });
       getAllMembershipPackage({}).then((response) => {
-        let data = response.data;
-        console.log("getAllMembershipPackage", data);
-        setAllMembershipPackages(data);
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getAllMembershipPackage", data);
+          setAllMembershipPackages(data);
+        }
       });
       getPuzzle().then((res) => {
         let logs = res.data;
