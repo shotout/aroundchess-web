@@ -156,7 +156,7 @@ export function AnalysisSection() {
                     <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-xs sm:text-md lg:text-[18px] font-normal text-[#585858] lg:text-left leading-[1.2]">
+                    <span className="block mt-1 text-xs sm:text-md lg:text-[18px] font-normal text-[#364152] lg:text-left leading-[1.2]">
                       {analysis[current].description}
                     </span>
                     <div className="flex flex-col md:flex-row xl:flex-col md:gap-2">
@@ -171,7 +171,7 @@ export function AnalysisSection() {
                               "<b>$1</b>"
                             ),
                           }}
-                          className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-black lg:text-left"
+                          className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left"
                         ></span>
                       </div>
 
@@ -179,7 +179,7 @@ export function AnalysisSection() {
                         <span className="text-[#FA402D] text-sm sm:text-md font-bold">
                           Problem
                         </span>
-                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-black lg:text-left">
+                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left">
                           {analysis[current].problem}
                         </span>
                       </div>
@@ -188,7 +188,7 @@ export function AnalysisSection() {
                         <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
                           Solution
                         </span>
-                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-black lg:text-left">
+                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left">
                           {analysis[current].solution}
                         </span>
                       </div>
