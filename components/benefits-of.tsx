@@ -77,10 +77,10 @@ export function BenefitsOf() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading text-xl sm:text-2xl lg:text-2xl font-semibold mb-1 sm:mb-2 text-black text-center lg:text-left">
+            <h2 className="font-heading text-xl sm:text-2xl lg:text-[24px] font-semibold mb-1 sm:mb-2 text-black text-center lg:text-left">
               Benefits of AroundChess
             </h2>
-            <p className="text-sm sm:text-lg text-gray-600 mb-4 sm:mb-8 text-center lg:text-left">
+            <p className="text-sm font-normal sm:text-[18px] text-[#585858] mb-4 sm:mb-8 text-center lg:text-left">
               What benefits you will get from our advance AI?
             </p>
           </motion.div>
@@ -107,10 +107,10 @@ export function BenefitsOf() {
                     alt=""
                     priority
                   />
-                  <span className="text-black text-sm md:text-md md:text-center lg:text-xl font-semibold">
+                  <span className="text-black text-sm md:text-md text-center sm:text-left lg:text-[20px] font-medium">
                     {item.title}
                   </span>
-                  <span className="text-[#585858] text-xs md:mt-1 lg:mt-2 md:text-sm lg:text-lg font-light">
+                  <span className="text-[#364152] text-xs md:mt-1 lg:mt-2 md:text-sm lg:text-[18px] font-normal">
                     {item.description}
                   </span>
                 </div>
@@ -121,13 +121,13 @@ export function BenefitsOf() {
         <div className="flex flex-col items-center justify-center pt-6">
           <Button
             onClick={handleAnalyze}
-            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-md mb-3"
+            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-[20px] xl:min-w-[467px] mb-3"
           >
             Analyze your most recent Game now
           </Button>
-          {/* <span className="w-fill px-16 font-normal text-black text-sm sm:text-md my-3">
+          <span className="w-fill px-16 font-normal text-[#364152] text-sm sm:text-[14px] my-3">
             No Sign-Up required
-          </span> */}
+          </span>
         </div>
       </div>
     </section>

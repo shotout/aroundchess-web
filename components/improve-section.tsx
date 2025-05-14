@@ -13,19 +13,19 @@ import { useProfileStore } from "@/app/store/profile";
 const improveData = [
   {
     label:
-      "AroundChess examines your weaknesses by analyzing your past Chess.com Games.",
+      "AroundChess <b>examines your weaknesses</b> by analyzing your past Chess.com Games.",
     image: "/images/homepage/flow-1-icon.png",
     number: "1",
   },
   {
     label:
-      "Our AI-powered Engine creates a Custom Training Plan for you to overcome those weaknesses and to improve your Strategy.",
+      "Our AI-powered Engine creates a <b>Custom Training Plan</b> for you to overcome those weaknesses and to improve your Strategy.",
     image: "/images/homepage/flow-2-icon.png",
     number: "2",
   },
   {
     label:
-      "Improve your Chess Game and receive constant details on your progress.",
+      "<b>Improve your Chess Game</b> and receive constant details on your progress.",
     image: "/images/homepage/flow-3-icon.png",
     number: "3",
   },
@@ -33,7 +33,7 @@ const improveData = [
 export function ImproveSection() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -71,10 +71,10 @@ export function ImproveSection() {
             <div className="flex flex-col bg-[#221AE9] rounded-lg">
               <div className="flex flex-row">
                 <div className="flex flex-col w-4/6 sm:w-4/6 lg:w-2/6 bg-[#110D75] rounded-tl-lg px-2 sm:px-8 sm:pr-16 py-8">
-                  <h2 className="font-heading text-md sm:text-xl lg:text-3xl font-bold mb-1 sm:mb-2 text-white">
+                  <h2 className="font-bol text-md sm:text-xl lg:text-[32px] font-bold mb-1 sm:mb-2 text-white">
                     Improve your Chess Skills with AroundChess
                   </h2>
-                  <p className="text-white text-xs sm:text-lg text-gray-600">
+                  <p className="text-white font-normal text-xs sm:text-[18px] text-white">
                     Discover how our custom Training Plans can help you to
                     improve your Chess Strategy.
                   </p>
@@ -88,7 +88,7 @@ export function ImproveSection() {
                   alt="improve-hero-banner"
                   width={900}
                   height={900}
-                  className="w-2/6 object-cover md:w-2/6 sm:w-2/6 lg:w-4/6 sm:object-cover h-auto rounded-tr-lg"
+                  className="w-2/6 object-cover md:w-2/6 sm:w-2/6 lg:w-4/6 sm:object-cover h-auto xl:h-[204px] rounded-tr-lg"
                   priority
                 />
               </div>
@@ -113,12 +113,18 @@ export function ImproveSection() {
                           />
                         </div>
                         <div className="flex flex-col sm:flex-row justify-center mt-2 sm:mt-8">
-                          <span className="text-[#ffffff70] sm:text-[#ffffff20] font-semibold text-3xl sm:text-[80px]">
+                          <span className="text-[#ffffff70] sm:text-[#ffffff20] font-normal text-3xl sm:text-[80px]">
                             {item.number}
                           </span>
-                          <span className="text-[#ffffff] font-normal text-[10px] sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 px-4 md:-ml-6 lg:ml-0">
-                            {item.label}
-                          </span>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: item.label.replace(
+                                /\*\*(.*?)\*\*/g,
+                                "<b>$1</b>"
+                              ),
+                            }}
+                            className="text-[#ffffff] font-normal text-[10px] sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 px-4 md:-ml-6 lg:ml-0"
+                          ></span>
                         </div>
                       </div>
                     );
@@ -141,16 +147,16 @@ export function ImproveSection() {
                   />
                 </div>
 
-                <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6">
+                <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6 mt-12 xl:mt-0">
                   <Button
                     onClick={handleAnalyze}
-                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-normal text-xs sm:text-md bg-white text-primary mb-3"
+                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-medium text-xs sm:text-[16px] text-[#221AE9] mb-3"
                   >
                     Analyze your most recent Game now
                   </Button>
-                  {/* <span className="w-fill px-16 font-normal text-xs sm:text-md text-white my-3">
+                  <span className="w-fill px-16 font-normal text-xs sm:text-[14px] text-white my-3">
                     No Sign-Up required
-                  </span> */}
+                  </span>
                 </div>
               </div>
             </div>

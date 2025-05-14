@@ -126,15 +126,15 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem className="hidden sm:flex ">
                   <Link href="/analysis" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-xs px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
-                      <Button color="primary" variant="outlineprimary">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-[8px] px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
+                      <Button color="primary" variant="outlineprimary" className="bg-[#221AE910] rounded-[8px]">
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analyze Now
                       </Button>
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                <div className="hidden xl:flex border border-input rounded-md py-0.5 px-1">
+                <div className="hidden xl:flex border border-input rounded-[8px] py-0.5 px-1">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                     <NavigationMenuItem>
                       <Link href="/about-us" legacyBehavior passHref>
@@ -342,7 +342,7 @@ function MobileNav(props: mobileProps) {
           />
         </Link>
       </div>
-      <div className="border border-primary rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
+      <div className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
         <BarChart2 className="mr-2 h-4 w-4" />
         Analyze Now
       </div>
@@ -372,13 +372,13 @@ function MobileNav(props: mobileProps) {
           <div className="flex flex-col w-full items-center gap-5">
             <Link
               href="/login"
-              className="flex items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Sign-In
             </Link>
             <Link
               href="/register"
-              className="flex items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
             >
               Try Now
             </Link>

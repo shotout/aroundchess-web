@@ -23,13 +23,13 @@ export function BasedOnAI() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-3xl transform -rotate-3"></div>
+            <div className="absolute inset-0 rounded-3xl transform -rotate-3"></div>
             <Image
               src="/images/homepage/image-banner.png"
               alt="Person using AroundChess mobile app to analyze a chess game while enjoying coffee"
               width={600}
               height={600}
-              className="w-full max-h-[420px] relative z-10 rounded-3xl shadow-2xl"
+              className="w-full max-h-[420px] relative z-10 rounded-3xl shadow-2xl object-contain"
             />
           </motion.div>
           <motion.div
@@ -39,14 +39,14 @@ export function BasedOnAI() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading max-w-max border border-primary rounded-sm p-2 text-xs md:text-xs lg:text-lg font-normal mb-4 sm:mb-2 lg:mb-6 text-gradient text-center md:text-left">
+            <h2 className="max-w-max border border-[#221AE9] rounded-[16px] px-[12px] py-[8px] text-xs md:text-[20px] font-normal mb-4 sm:mb-2 lg:mb-[32px] text-[#221AE9] text-center md:text-left">
               Powerful Analysis - based on AI, fine-tuned by Humans
             </h2>
 
-            <h2 className="font-heading text-xl sm:text-[19px] lg:text-3xl font-bold mb-1 sm:mb-2 lg:mb-6 text-black text-center md:text-left">
+            <h2 className="font-heading text-xl sm:text-[19px] lg:text-[40px] font-semibold mb-1 sm:mb-2 lg:mb-6 text-black text-center md:text-left">
               Powerful Analysis at Your Fingertips
             </h2>
-            <p className="text-base md:text-md lg:text-lg  text-gray-600 mb-6 md:mb-4 lg:mb-8 text-center md:text-left">
+            <p className="text-base md:text-md lg:text-[20px] font-normal text-[#2e2e2e] mb-6 md:mb-4 lg:mb-8 text-center md:text-left">
               Our advanced chess engine provides deep insights into every move.
               Improve your game with real-time feedback and personalized
               recommendations.
@@ -62,7 +62,7 @@ export function BasedOnAI() {
                   viewport={{ once: true }}
                 >
                   <CheckCircle color="#221AE9" className="mr-2 h-5 w-5 sm:h-6 sm:w-6 text-green-500 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">{feature}</span>
+                  <span className="text-sm sm:text-[18px] font-normal text-[#2e2e2e]">{feature}</span>
                 </motion.li>
               ))}
             </ul>

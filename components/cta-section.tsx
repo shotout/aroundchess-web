@@ -24,24 +24,24 @@ export function CTASection() {
               <Link href={"/register"}>
                 <Button
                   variant="outline"
-                  className="text-white self-center text-sm sm:text-lg font-light px-4"
+                  className="text-[#E6F7FE] self-center text-sm sm:text-[20px] font-normal px-4 rounded-[16px] border border-[#E6F7FE]"
                 >
                   Sign Up
                 </Button>
               </Link>
             </div>
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-xl font-normal tracking-tight text-white md:text-md lg:text-4xl">
+              <h2 className="text-xl font-semibold tracking-tight text-[#E6F7FE] md:text-md lg:text-[40px]">
                 Ready to Boost Your Chess Skills?
               </h2>
-              <p className="mx-auto mt-2 sm:mt-3 max-w-xl md:max-w-3xl text-xs md:text-xs leading-2 text-gray-300">
+              <p className="mx-auto mt-2 sm:mt-8 leading-[1.5] max-w-xl md:max-w-3xl text-xs md:text-[20px] leading-2 text-[#C0CED4]">
                 Join thousands of players improving their game with our
                 AI-powered chess analysis and personalized training.
               </p>
               <div className="mt-2 sm:mt-6">
                 <div className="flex flex-col w-3/3 mx-2 md:mx-1 lg:mx-12 justify-end gap-4">
                   <div className="flex w-full flex-col sm:flex-row gap-4">
-                    <div className="w-full sm:w-2/3">
+                    {/* <div className="w-full sm:w-2/3">
                       <p className="text-white text-left mb-2">Email</p>
                       <Input
                         type="email"
@@ -50,19 +50,19 @@ export function CTASection() {
                         placeholder="Enter your email"
                         className="bg-[#FFFFFF25] border-gray-700 text-white placeholder:text-gray-400"
                       />
-                    </div>
+                    </div> */}
                     <Button
                       asChild
                       size="lg"
                       variant="secondary"
-                      className="bg-[#E6F7FE] whitespace-nowrap sm:mt-8"
+                      className="w-full rounded-full whitespace-nowrap sm:mt-8 border border-[#C6EEFE] bg-[#e6f7fe] text-[#221AE9]"
                     >
                       <Link
-                        href={`/register?email=${email}`}
-                        className="text-[#0B094E]"
+                        href={`/register`}
+                        className="text-[#221AE9]"
                       >
-                        Start Free
-                        <ArrowRight color="#0B094E" className="ml-2 h-4 w-4" />
+                        Try Now
+                        <ArrowRight color="#221AE9" className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </div>

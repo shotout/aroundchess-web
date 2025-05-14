@@ -20,7 +20,7 @@ const analysis = [
     title: "GAME ASSESMENT",
     description:
       "Before you deep-dive into detailed metrics, AroundChess offers an overview on Accuracy, Move Classifications, Critical Mistakes and much more in our initial AI-based Game Assessment. ",
-    idea: ` Create a "Strategic Feedback Chessboard" that visually maps game assessments (e.g. move accuracy, tactical mistakes) directly onto the board using colour-coded overlays for post-game analysis.`,
+    idea: `<span>Create a <b style="color:#221AE9">"Strategic Feedback Chessboard"</b> that visually maps game assessments (e.g. move accuracy, tactical mistakes) directly onto the board using colour-coded overlays for post-game analysis.</span>`,
     problem:
       "Players often struggle to identify recurring mistakes or understand strategic weaknesses after a game ends, as traditional boards offer no way to review and annotate historical moves or evaluate decision patterns.",
     solution:
@@ -32,7 +32,7 @@ const analysis = [
     description:
       "Get insights into your Game’s most Critical Threats and find out how to avoid them in the next Game. ",
 
-    idea: "Identify and display Critical Threats in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.",
+    idea: `<span>Identify and display <b style="color:#221AE9">Critical Threats</b> in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.</span>`,
     problem:
       "Players often miss crucial threats to their pieces or king position during the game, leading to unexpected losses and missed opportunities.",
     solution:
@@ -43,7 +43,7 @@ const analysis = [
     title: "MOVE QUALITY",
     description:
       "Discover an in-depth analysis of each of your and your Opponent’s moves and find suggestions for improvements. ",
-    idea: "Provide a comprehensive Move Quality Analysis that evaluates your moves to identify strengths and weaknesses, offering insights into the effectiveness of strategies employed during the game.",
+    idea: `<span>Provide a comprehensive <b style="color:#221AE9">Move Quality Analysis</b> that evaluates your moves to identify strengths and weaknesses, offering insights into the effectiveness of strategies employed during the game.</span>`,
     problem:
       "Players may struggle to assess the quality of their moves and those of their opponents, leading to repeated mistakes and missed opportunities for improvement.",
     solution:
@@ -65,7 +65,7 @@ const analysis = [
     title: "ENDGAME",
     description:
       "Check how you played the final phase of the game - did you convert your advantage or miss key moves? Learn how to finish games with confidence and improve your endgame skills. ",
-    idea: "Assess how effectively you navigated the endgame, focusing on whether you capitalized on advantages and executed critical moves to secure victory.",
+    idea: `<span>Assess how effectively you navigated the <b style="color:#221AE9">endgame</b>, focusing on whether you capitalized on advantages and executed critical moves to secure victory.</span>`,
     problem:
       "Players often struggle to convert advantages in the endgame or miss key moves, leading to lost opportunities when the game reaches its final stages.",
     solution:
@@ -76,7 +76,7 @@ const analysis = [
     title: "IMPROVEMENT & TRAINING",
     description:
       "Find out if you have improved any of your past Strategy Flaws and discover your custom Training Plan based on your most recent Games. ",
-    idea: "Enhance your chess skills by understanding your areas for improvement and receiving a tailored training plan that builds on your recent games.",
+    idea: `<span>Enhance your chess skills by understanding your <b style="color:#221AE9">areas for improvement</b> and receiving a tailored training plan that builds on your recent games.</span>`,
     problem:
       "Review past gameplay to identify recurring strategy flaws and track your progress over time, helping you recognize growth areas.",
     solution:
@@ -86,7 +86,7 @@ const analysis = [
 export function AnalysisSection() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -137,7 +137,7 @@ export function AnalysisSection() {
               </div>
               <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
                 <div className="flex flex-col xl:flex-row w-full ">
-                  <div className="flex items-center justify-center border border-input sm:border-none lg:w-1/2 max-w-3xl overflow-hidden rounded-lg bg-white">
+                  <div className="flex items-center justify-center border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-lg bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE]">
                       <AnimatePresence>
                         <motion.img
@@ -152,7 +152,7 @@ export function AnalysisSection() {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <div className="px-1 lg:px-4 w-full lg:w-1/2 md:mt-2">
+                  <div className="px-1 lg:px-4 w-full xl:w-1/2 md:mt-2">
                     <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
@@ -164,9 +164,15 @@ export function AnalysisSection() {
                         <span className="text-[#221AE9] text-sm sm:text-md font-bold">
                           Idea
                         </span>
-                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-black lg:text-left">
-                          {analysis[current].idea}
-                        </span>
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: analysis[current].idea.replace(
+                              /\*\*(.*?)\*\*/g,
+                              "<b>$1</b>"
+                            ),
+                          }}
+                          className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-black lg:text-left"
+                        ></span>
                       </div>
 
                       <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
