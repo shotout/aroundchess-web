@@ -9,6 +9,12 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useEndgametraining } from "../../store/EndgameTrainingStore";
 import { useCheckmateTraining } from "../../store/CheckmateStore";
 import { useEndgameNavigation } from "../../store/NavigationStore";
@@ -624,9 +630,18 @@ export default function StageDetailView({
                         ? "White to Checkmate"
                         : "Black to Checkmate"}
                     </h1>
-                  </div>
+                  </div>{" "}
                   <div className="bg-white text-xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
-                    {position}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="truncate">{position}</div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[500px] break-all">
+                          <p className="text-xs">{position}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>

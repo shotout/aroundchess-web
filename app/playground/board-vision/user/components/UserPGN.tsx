@@ -181,8 +181,8 @@ const UserPGN: React.FC = () => {
                 isChangingQuestion={isChangingQuestion}
                 routeToDefault={routeToDefault}
                 isUserPGN={true}
-                gameQuestionNumber={0}
-                gameMaxQuestions={0}
+                gameQuestionNumber={gameQuestionNumber}
+                gameMaxQuestions={gameMaxQuestions}
               />
             </div>
           </motion.div>

@@ -77,13 +77,11 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const lessonId: string = getIdFromSlug(params.slug, lessonType);
   const lesson: T | undefined = lessonDetails[lessonId];
 
-  // Load related lessons only if we have allLessons available
   const relatedLessons: T[] =
     allLessons.length > 0
       ? allLessons.filter((l: T) => l.id !== lessonId).slice(0, 3)
       : [];
 
-  // Check if lesson is already marked as read from cached data
   useEffect(() => {
     if (readStatusMap && readStatusMap[lessonId]) {
       setLessonFinished(true);
@@ -100,9 +98,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         if (!initialized) {
           fetchAllLessons(sessionId || undefined);
         }
-      } catch (error) {
-        console.error("Error loading lesson details:", error);
-      }
+      } catch (error) {}
     };
 
     loadData();
@@ -128,7 +124,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
           setLessonFinished(true);
         }
       } catch (error) {
-        console.error("Error checking read status:", error);
       } finally {
         setIsCheckingReadStatus(false);
       }
@@ -216,7 +211,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     }
   };
 
-  // Show a loading spinner only when we have no lesson data yet
   if (isLoading && !lesson) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
@@ -225,7 +219,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     );
   }
 
-  // If we have a lesson but it's malformed, show an error
   if (lesson && (!lesson.title || typeof lesson.title !== "string")) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -239,11 +232,8 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
   if (!lesson) {
     return (
-      <div className="flex flex-col">
-        <div className="px-4 md:px-6 py-16">
-          <h1 className="text-2xl font-bold mb-4">Loading lesson...</h1>
-          <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse"></div>
-        </div>
+      <div className="w-full h-screen flex justify-center items-center">
+        <DotSpinner />
       </div>
     );
   }
@@ -347,7 +337,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
               </div>
             </div>
 
-            {/* Show related lessons if available, otherwise show a loading placeholder */}
             {relatedLessons.length > 0 ? (
               <RelatedLessons
                 relatedLessons={relatedLessons}

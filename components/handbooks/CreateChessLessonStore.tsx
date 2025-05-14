@@ -7,6 +7,9 @@ import {
   LessonType,
   Pagination,
 } from "./ChessLessonTypes";
+import { useProfileStore } from "@/app/store/profile";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { toast } from "sonner";
 
 interface CreateStoreOptions {
   storeName: string;
@@ -24,6 +27,17 @@ interface ExtendedChessLessonState<T extends ChessLesson>
   fetchReadStatuses: (sessionId?: string) => Promise<void>;
   set: any;
 }
+
+const handleSessionExpiration = () => {
+  const { clearAll } = useProfileStore.getState();
+  clearAll();
+
+  localStorage.removeItem("token");
+  setPersistedCookie("token", "", 0);
+
+  toast.error("Your session has expired. Please log in again.");
+  window.location.href = "/login";
+};
 
 export function createChessLessonStore<T extends ChessLesson>({
   storeName,
@@ -112,6 +126,11 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             const initialResponse = await fetch(initialUrl, { headers });
 
+            if (initialResponse.status === 401) {
+              handleSessionExpiration();
+              return;
+            }
+
             if (!initialResponse.ok) {
               throw new Error(`API Error: ${initialResponse.status}`);
             }
@@ -133,12 +152,10 @@ export function createChessLessonStore<T extends ChessLesson>({
               );
               const batchSize = 3; // Batch size of 3 as requested
 
-              // Process pages in sequential batches of 3
               for (let i = 0; i < remainingPages.length; i += batchSize) {
                 const currentBatch = remainingPages.slice(i, i + batchSize);
 
                 try {
-                  // Process all pages in current batch concurrently
                   const batchPromises = currentBatch.map(async (page) => {
                     const url = `${apiBaseUrl}/${apiEndpoint}?page=${page}&limit=250&category=${lessonType}`;
                     const response = await fetch(url, { headers });
@@ -153,31 +170,18 @@ export function createChessLessonStore<T extends ChessLesson>({
                     return data.data;
                   });
 
-                  // Wait for the current batch to complete before moving to next batch
                   const batchResults = await Promise.all(batchPromises);
 
-                  // Add the batch results to allData
                   for (const pageData of batchResults) {
                     allData = [...allData, ...pageData];
                   }
 
                   // Update progress indicator
-                  const progress = Math.min(
-                    100,
-                    Math.round(((i + batchSize) / remainingPages.length) * 100)
-                  );
-                  console.log(
-                    `Loading progress: ${progress}% (${i + batchSize}/${
-                      remainingPages.length
-                    } pages)`
-                  );
-                } catch (batchError) {
-                  console.error(
-                    `Error fetching batch starting at page ${i + 2}:`,
-                    batchError
-                  );
-                  // Continue with the next batch even if this one failed
-                }
+                  // const progress = Math.min(
+                  //   100,
+                  //   Math.round(((i + batchSize) / remainingPages.length) * 100)
+                  // );
+                } catch (batchError) {}
               }
 
               set({ isLoadingMore: false });
@@ -201,8 +205,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               total: allData.length,
             };
 
-            // Initialize all lessons with readStatus as undefined
-            // This will allow us to show a loading state for the read status
             const lessonsWithoutReadStatus = allData.map((lesson) => ({
               ...lesson,
               readStatus: undefined,
@@ -216,12 +218,14 @@ export function createChessLessonStore<T extends ChessLesson>({
               initialized: true,
             });
 
-            // After setting initial data, fetch read statuses separately
             if (sessionId != "") {
               get().fetchReadStatuses(sessionId);
             }
           } catch (error) {
-            console.error(`Error fetching all ${lessonType}s:`, error);
+            if (error instanceof Error && error.message.includes("401")) {
+              handleSessionExpiration();
+              return;
+            }
             set({
               error:
                 error instanceof Error
@@ -241,7 +245,6 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             const { allLessons } = get();
 
-            // Process read status checks in batches of 5
             const batchSize = 5;
             const readStatusMap: Record<string, boolean> = {};
 
@@ -257,7 +260,6 @@ export function createChessLessonStore<T extends ChessLesson>({
                 readStatusMap[lesson.id] = batchResults[index] || false;
               });
 
-              // Update read status in batches to show progress
               set((state) => ({
                 allLessons: state.allLessons.map((lesson) =>
                   readStatusMap[lesson.id] !== undefined
@@ -278,7 +280,6 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             set({ isCheckingReadStatus: false });
           } catch (error) {
-            console.error(`Error fetching read statuses:`, error);
             set({ isCheckingReadStatus: false });
           }
         },
@@ -323,6 +324,11 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             const response = await fetch(apiUrl, { headers });
 
+            if (response.status === 401) {
+              handleSessionExpiration();
+              return null;
+            }
+
             if (!response.ok) {
               throw new Error(`API Error: ${response.status}`);
             }
@@ -333,7 +339,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               throw new Error("Invalid response structure from API");
             }
 
-            // Check read status separately to avoid delay
             const lessonData = {
               ...responseData.data,
               readStatus: undefined,
@@ -347,7 +352,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               isLoadingDetails: { ...state.isLoadingDetails, [id]: false },
             }));
 
-            // After setting the initial data, check read status
             if (sessionId != "") {
               const isRead = await get().checkReadStatus(id, sessionId);
 
@@ -364,10 +368,10 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             return lessonData;
           } catch (error) {
-            console.error(
-              `Error fetching ${lessonType} details for ${id}:`,
-              error
-            );
+            if (error instanceof Error && error.message.includes("401")) {
+              handleSessionExpiration();
+              return null;
+            }
             set((state) => ({
               error:
                 error instanceof Error
@@ -416,14 +420,9 @@ export function createChessLessonStore<T extends ChessLesson>({
 
               return !!data.isRead;
             } else {
-              console.log(
-                "Book read status check failed:",
-                await response.json()
-              );
               return false;
             }
           } catch (error) {
-            console.error("Error checking read status:", error);
             return false;
           }
         },
@@ -452,7 +451,6 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             if (response.ok) {
               const data = await response.json();
-              console.log("Mark as read response:", data);
 
               set((state) => ({
                 readStatusMap: {
@@ -485,7 +483,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               return true;
             } else {
               const errorData = await response.json();
-              console.error("Failed to mark lesson as read:", errorData);
 
               set((state) => ({
                 readStatusMap: {
@@ -518,8 +515,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               return true;
             }
           } catch (error) {
-            console.error("Error marking lesson as read:", error);
-
             set((state) => ({
               readStatusMap: {
                 ...state.readStatusMap,

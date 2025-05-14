@@ -3,6 +3,12 @@ import { Card } from "@/components/ui/card";
 import { AlertCircle, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { LessonType, getLessonBasePath } from "./ChessLessonTypes";
 import Image from "next/image";
 import Simple2DChess from "./components/Simple2DChess";
@@ -109,18 +115,35 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               {/* Desktop layout */}
               <div className="hidden lg:block">
                 <div className="flex justify-between items-center">
+                  {" "}
                   <div className="flex items-center flex-1">
-                    <div className="font-medium text-gray-900 text-xs flex gap-x-2 px-2 py-1 items-center line-clamp-2 border border-blue-base">
-                      <AlertCircle className="text-blue-base w-4 h-4" />
-                      <h1>ELO Rating :</h1>
-                      <h1 className="text-blue-base">
-                        {lesson.eloRange
-                          ? Array.isArray(lesson.eloRange) &&
-                            lesson.eloRange.length > 0
-                            ? lesson.eloRange.join(", ")
-                            : String(lesson.eloRange)
-                          : "-"}
-                      </h1>
+                    <div className="font-medium text-gray-900 text-xs flex gap-x-1 px-2 py-1 items-center line-clamp-1 border border-blue-base max-w-[200px] overflow-hidden">
+                      <AlertCircle className="text-blue-base w-4 h-4 flex-shrink-0" />
+                      <h1 className="flex-shrink-0">ELO Rating:</h1>{" "}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <h1 className="text-blue-base truncate">
+                              {lesson.eloRange
+                                ? Array.isArray(lesson.eloRange) &&
+                                  lesson.eloRange.length > 0
+                                  ? lesson.eloRange.join(", ")
+                                  : String(lesson.eloRange)
+                                : "-"}
+                            </h1>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">
+                              {lesson.eloRange
+                                ? Array.isArray(lesson.eloRange) &&
+                                  lesson.eloRange.length > 0
+                                  ? lesson.eloRange.join(", ")
+                                  : String(lesson.eloRange)
+                                : "-"}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                   <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">

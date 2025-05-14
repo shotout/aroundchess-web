@@ -49,12 +49,9 @@ const GamesList: React.FC<GamesListProps> = ({
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
         <AlertCircle className="h-5 w-5 mr-2" />
         <span>{error.message}</span>
-        <Button
-          onClick={handleRetryFetch}
-          className="ml-4 bg-red-600 hover:bg-red-700 text-white"
-        >
-          Retry
-        </Button>
+        <a href={"/login"} className="ml-4 bg-red-600  text-white">
+          Login Again
+        </a>
       </div>
     );
   }
@@ -208,7 +205,6 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       </div>
 
-      {/* Pagination Controls */}
       {currentGames.length > 0 && <PaginationControls {...paginationProps} />}
     </>
   );

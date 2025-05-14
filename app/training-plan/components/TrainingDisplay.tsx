@@ -8,19 +8,21 @@ import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import { TrainingSchedule } from "../store";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
   isLoading?: boolean;
   error?: string | null;
+  setDialogOpen?: any;
 }
 
 const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   schedule,
   isLoading,
   error,
+  setDialogOpen,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -42,7 +44,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     );
   }
 
-  // Check for error messages related to expired training plan
   const isExpiredPlanError =
     error && error.includes("training plan has expired");
 
@@ -113,7 +114,12 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   return (
     <div className="xl:border xl:border-gray-200 p-4 rounded-lg shadow-sm overflow-hidden">
       <div className="flex w-full flex-col gap-y-4">
-        <h1 className="font-bold text-lg">Your Training Plan</h1>
+        <div className="flex justify-between">
+          <h1 className="font-bold text-lg">Your Training Plan</h1>
+          <button onClick={() => setDialogOpen(true)}>
+            <Settings className="w-5 h-5 lg:hidden text-black" />
+          </button>
+        </div>
 
         <div className="overflow-hidden">
           <motion.div
@@ -172,17 +178,20 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
 
         {showTactics && (
           <div className="mb-6 border border-gray-200 rounded-lg p-4">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+              <div className="flex items-center gap-2 mb-2 sm:mb-0">
                 <Image
                   src={"/training-plan/tt.png"}
-                  alt=""
+                  alt="Tactical Training"
                   width={50}
                   height={50}
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px]"
                 />
-                <h3 className="text-lg font-semibold">Tactical Training</h3>
+                <h3 className="text-base sm:text-lg font-semibold">
+                  Tactical Training
+                </h3>
               </div>
-              <div className="text-black text-sm font-medium">
+              <div className="text-black text-xs sm:text-sm font-medium">
                 Estimated total duration per day:{" "}
                 <span className="text-blue-800 font-bold">
                   {tacticsDuration}
@@ -190,14 +199,14 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               </div>
             </div>
 
-            <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-3 rounded-lg mb-4 text-gray-800">
+            <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-2 sm:p-3 rounded-lg mb-4 text-gray-800 text-sm sm:text-base">
               For today's practice, <strong>solve 10 Puzzles</strong>.
             </div>
 
             <div className="flex justify-center">
               <Button
                 onClick={handleStartPuzzle}
-                className="btn-primary rounded-full py-2 px-6 w-full"
+                className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full text-sm sm:text-base"
               >
                 Start Puzzles
               </Button>
