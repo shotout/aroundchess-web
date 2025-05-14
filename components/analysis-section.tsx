@@ -19,7 +19,7 @@ const analysis = [
     image: "/images/homepage/assesment.png",
     title: "GAME ASSESMENT",
     description:
-      "Before you deep-dive into detailed metrics, AroundChess offers an overview on Accuracy, Move Classifications, Critical Mistakes and much more in our initial AI-based Game Assessment. ",
+      "Before you deep-dive into detailed metrics, AroundChess offers an <b>overview on Accuracy, Move Classifications, Critical Mistakes and much more</b> in our initial <b>AI-based Game Assessment</b>. ",
     idea: `<span>Create a <b style="color:#221AE9">"Strategic Feedback Chessboard"</b> that visually maps game assessments (e.g. move accuracy, tactical mistakes) directly onto the board using colour-coded overlays for post-game analysis.</span>`,
     problem:
       "Players often struggle to identify recurring mistakes or understand strategic weaknesses after a game ends, as traditional boards offer no way to review and annotate historical moves or evaluate decision patterns.",
@@ -30,7 +30,7 @@ const analysis = [
     image: "/images/homepage/threats.png",
     title: "THREATS",
     description:
-      "Get insights into your Game’s most Critical Threats and find out how to avoid them in the next Game. ",
+      "Get insights into your Game’s <b>most Critical Threats</b> and find out how to avoid them in the next Game. ",
 
     idea: `<span>Identify and display <b style="color:#221AE9">Critical Threats</b> in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.</span>`,
     problem:
@@ -42,7 +42,7 @@ const analysis = [
     image: "/images/homepage/threats.png",
     title: "MOVE QUALITY",
     description:
-      "Discover an in-depth analysis of each of your and your Opponent’s moves and find suggestions for improvements. ",
+      "Discover an in-depth <b>analysis of each of your and your Opponent’s moves</b> and find suggestions for improvements. ",
     idea: `<span>Provide a comprehensive <b style="color:#221AE9">Move Quality Analysis</b> that evaluates your moves to identify strengths and weaknesses, offering insights into the effectiveness of strategies employed during the game.</span>`,
     problem:
       "Players may struggle to assess the quality of their moves and those of their opponents, leading to repeated mistakes and missed opportunities for improvement.",
@@ -156,9 +156,15 @@ export function AnalysisSection() {
                     <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-xs sm:text-md lg:text-[18px] font-normal text-[#364152] lg:text-left leading-[1.2]">
-                      {analysis[current].description}
-                    </span>
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: analysis[current].description.replace(
+                          /\*\*(.*?)\*\*/g,
+                          "<b>$1</b>"
+                        ),
+                      }}
+                      className="block mt-1 text-xs sm:text-md lg:text-[18px] font-normal text-[#364152] lg:text-left leading-[1.2]"
+                    ></span>
                     <div className="flex flex-col md:flex-row xl:flex-col md:gap-2">
                       <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
                         <span className="text-[#221AE9] text-sm sm:text-md font-bold">
