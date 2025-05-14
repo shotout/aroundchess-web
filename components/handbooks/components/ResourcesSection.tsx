@@ -1,5 +1,5 @@
 import React from "react";
-import { ExternalLink, Play } from "lucide-react";
+import { Play } from "lucide-react";
 
 interface Resource {
   id: number;
@@ -39,13 +39,15 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
         {resources.map((resource) => (
           <div
             key={resource.id}
-            className="border rounded-lg  p-4 flex flex-col h-40 bg-white"
+            className="border rounded-lg p-4 flex flex-col h-[200px] bg-white"
           >
             <h4 className="font-medium text-sm">{title}</h4>
             {resource.description && (
-              <p className="text-xs text-gray-600 mt-2 line-clamp-3">
-                {resource.description}
-              </p>
+              <div className="overflow-y-auto flex-grow mt-2 pr-2">
+                <p className="text-xs text-gray-600 whitespace-pre-line">
+                  {resource.description}
+                </p>
+              </div>
             )}
             <div className="flex justify-center items-center w-full mt-auto pt-4 gap-2">
               {resource.videoUrl && (
@@ -68,8 +70,7 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
                 className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
               >
                 <h1 className="text-center text-md font-semibold flex items-center justify-center">
-                  Visit {getPlatformName(resource.platform)}
-                  <ExternalLink className="ml-2 h-4 w-4" />
+                  Visit {getPlatformName(resource.url)}
                 </h1>
               </a>
             </div>
@@ -80,15 +81,21 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
   );
 };
 
-const getPlatformName = (platform: string): string => {
-  const platformMap: Record<string, string> = {
-    chess_com: "Chess.com",
-    lichess_org: "Lichess.org",
-    chessable: "Chessable",
-    youtube: "YouTube",
-  };
+const getPlatformName = (url: string): string => {
+  if (url.includes("chess.com")) return "Chess.com";
+  if (url.includes("lichess.org")) return "Lichess";
+  if (url.includes("youtube.com") || url.includes("youtu.be")) return "YouTube";
+  if (url.includes("chessable.com")) return "Chessable";
 
-  return platformMap[platform] || platform;
+  try {
+    const domain = new URL(url).hostname.replace("www.", "");
+    return (
+      domain.split(".")[0].charAt(0).toUpperCase() +
+      domain.split(".")[0].slice(1)
+    );
+  } catch {
+    return "Resource";
+  }
 };
 
 export default ResourceSection;

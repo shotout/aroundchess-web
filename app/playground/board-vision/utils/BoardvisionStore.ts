@@ -394,11 +394,10 @@ export const useBoardVisionStore = create<BoardVisionState>((set, get) => ({
       }
     }
   },
-  
-  handleUserGameNextQuestion: () => {
+    handleUserGameNextQuestion: () => {
     const { userGame, gameMaxQuestions } = get();
     
-    if (userGame.gameQuestionNumber >= gameMaxQuestions) {
+    if (userGame.gameQuestionNumber > gameMaxQuestions) {
       set({
         userGame: {
           ...userGame,

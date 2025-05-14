@@ -23,8 +23,6 @@ export default function GameHeader({
   isCheckmateMode,
   goBackToSelection,
 }: GameHeaderProps) {
-  const fixedGradient = "linear-gradient(to right, #4776E6, #8E54E9)";
-
   return (
     <div
       className="w-full flex relative overflow-hidden items-center h-14 justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10
@@ -89,7 +87,7 @@ export default function GameHeader({
               <button onClick={goBackToSelection}>
                 <ArrowLeft className="h-6 w-6 text-gray-600" />
               </button>
-              <div className="flex items-center gap-x-3">
+              <div className="flex items-center gap-x-1 lg:gap-x-3">
                 <div className="h-10 w-10 flex items-center justify-center">
                   <Image
                     src={`/endgame-training/${
@@ -101,14 +99,14 @@ export default function GameHeader({
                     style={{ objectFit: "contain", maxHeight: "40px" }}
                   />
                 </div>
-                <span className="font-bold text-lg h-10 flex items-center">
+                <span className="font-bold text-xs text-nowrap lg:text-lg h-10 flex items-center">
                   {categoryData.name || "Loading..."}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="absolute xl:block left-1/2 -translate-x-1/2 top-0 pointer-events-none h-14 flex items-center justify-center z-0">
+          <div className="absolute xl:block left-1/2 -translate-x-1/2 -top-2 lg:top-0 pointer-events-none h-14 flex items-center justify-center z-0">
             <Image
               src="/endgame-training/board-stage.png"
               alt="chess board"
@@ -123,7 +121,7 @@ export default function GameHeader({
             />
           </div>
 
-          <div className="absolute xl:block top-0 right-0 pointer-events-none h-16 flex items-center justify-center">
+          <div className="absolute xl:block -top-2 lg:top-0 right-0 pointer-events-none h-16 flex items-center justify-center">
             <Image
               src="/endgame-training/sword-stage.png"
               alt="sword bg"
@@ -200,7 +198,7 @@ export default function GameHeader({
           <div className="font-semibold text-xl relative z-10 h-10 flex items-center">
             Stage
           </div>
-          <div className="text-3xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] inline-block text-transparent bg-clip-text relative z-10 h-10 flex items-center">
+          <div className="text-3xl font-bold bg-gradient-to-b from-[#017BFF] via-[#5DDEFF] to-[#5DDEFF] text-transparent bg-clip-text relative z-10 h-10 flex items-center">
             {stageNum}
           </div>
         </div>

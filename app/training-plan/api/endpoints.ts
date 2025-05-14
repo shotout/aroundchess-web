@@ -24,7 +24,6 @@ export const apiService = {
       });
       return response.data;
     } catch (error: any) {
-      console.error(`Error fetching from ${url}:`, error);
       
       // Clear related cache on error
       if (url.includes('topics')) {

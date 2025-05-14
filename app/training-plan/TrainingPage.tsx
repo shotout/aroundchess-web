@@ -177,6 +177,7 @@ const ChessProgressionUI: React.FC = () => {
 
             {activeState === "My Training Plan" ? (
               <TrainingPlanDisplay
+                setDialogOpen={setDialogOpen}
                 schedule={schedule}
                 isLoading={isScheduleLoading}
                 error={scheduleError}

@@ -56,8 +56,8 @@ export const useProfileStore = create<ProfileState>()(
     }),
 
     {
-      name: "Profile-storage", // unique name for the storage
-      storage: createJSONStorage(() => localStorage), // use localStorage by default
+      name: "Profile-storage", 
+      storage: createJSONStorage(() => localStorage), 
       partialize: (state) => ({
         profile: state.profile,
         token: state.token,

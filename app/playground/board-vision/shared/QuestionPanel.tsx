@@ -27,16 +27,17 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
       <div className="w-full">
         <div className="flex items-center justify-between border-b pb-4 p-6">
           <div className="flex items-center">
+            {" "}
             <Image
               src={"/board-vision/board-vision.png"}
               alt="board vision"
               width={40}
               height={40}
-              className="mr-2"
+              className="w-7 h-7 xl:w-10 xl:h-10 mr-2"
             />
-            <span className="font-bold text-xl">Board Vision</span>
+            <span className="font-bold text-base xl:text-xl">Board Vision</span>
           </div>
-          <div className="text-blue-base">
+          <div className="text-blue-base text-sm xl:text-base">
             {`Question ${gameQuestionNumber} of ${gameMaxQuestions}`}
           </div>
         </div>
@@ -49,8 +50,9 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
               <Card className="mb-6 shadow-sm">
                 <CardContent className="p-0">
                   <div className="rounded-md overflow-hidden">
-                    <div className="p-5 bg-gradient-to-b from-[#25CEDA] to-[#146E74]">
-                      <p className="text-white text-center font-medium text-lg">
+                    {" "}
+                    <div className="p-3 xl:p-5 bg-gradient-to-b from-[#25CEDA] to-[#146E74]">
+                      <p className="text-white text-center font-medium text-base xl:text-lg">
                         {gameQuestion.text}
                       </p>
                     </div>
@@ -58,7 +60,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 xl:gap-3">
                 {gameQuestion.answers &&
                   gameQuestion.answers.map((answer, i) => {
                     const isSelected = gameSelectedAnswer === answer;
@@ -74,7 +76,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
                     return (
                       <motion.div
                         key={i}
-                        className={`border rounded-md p-3 flex items-center justify-between cursor-pointer shadow-sm ${
+                        className={`border rounded-md p-2 xl:p-3 flex items-center justify-between cursor-pointer shadow-sm ${
                           isSelected
                             ? isIncorrect
                               ? "bg-[#FD0000] text-primary-white" // Wrong answer styling
@@ -95,7 +97,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
                           transition: { delay: 0.1 * i, duration: 0.3 },
                         }}
                       >
-                        <span className="text-lg">{answer}</span>
+                        <span className="text-base xl:text-lg">{answer}</span>
                         <div
                           className={`h-5 w-5 rounded-full bg-white flex items-center justify-center ${
                             !isSelected && !shouldHighlightCorrect

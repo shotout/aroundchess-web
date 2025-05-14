@@ -22,6 +22,7 @@ import {
 import {
   Clock,
   LucideTrophy,
+  Star,
   Target,
   TargetIcon,
   TriangleAlert,
@@ -29,11 +30,9 @@ import {
   Trophy,
 } from "lucide-react";
 import DotSpinner from "@/components/game-history/Spinner";
-import { useAuth } from "@clerk/nextjs";
 import { useProgressStore } from "../store";
 import Image from "next/image";
 import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const CustomTooltipContent = ({
@@ -71,7 +70,7 @@ const MONTHS = [
 ];
 
 const ProgressDisplay = () => {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
   const currentDate = new Date();
 
   const getCurrentYearMonth = (monthName: string) => {
@@ -104,15 +103,12 @@ const ProgressDisplay = () => {
     getDisplayMonthFromYearMonth(currentMonth)
   );
 
-  // Add local loading state to prevent unnecessary loading spinner
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     if (sessionId != "") {
-      // Check if data is already cached
       const hasCachedData = CacheUtil.hasValidCache(CACHE_KEYS.PROGRESS_DATA);
 
-      // Only set loading state to true if no cached data
       if (!hasCachedData) {
         setIsInitialLoad(true);
       } else {
@@ -177,21 +173,27 @@ const ProgressDisplay = () => {
         {
           title: "Games Won",
           value: apiData.performanceTrends.gamesWon.count?.toString() || "0",
+          change: apiData.performanceTrends.gamesWon.change,
           icon: "trophy",
         },
         {
           title: "ELO Rating",
           value: apiData.performanceTrends.eloRating.rating?.toString() || "0",
+          change: apiData.performanceTrends.eloRating.change,
+
           icon: "target",
         },
         {
           title: "Mistakes",
           value: apiData.performanceTrends.mistakes.count?.toString() || "0",
+          change: apiData.performanceTrends.mistakes.change,
+
           icon: "alert-yellow",
         },
         {
           title: "Blunders",
           value: apiData.performanceTrends.blunders.count?.toString() || "0",
+          change: apiData.performanceTrends.blunders.change,
           icon: "alert-red",
         },
       ]
@@ -220,7 +222,6 @@ const ProgressDisplay = () => {
       }))
     : [];
 
-  // Only show loading spinner during initial load, not when data is cached
   const isChartLoading = isInitialLoad || (isLoading && !apiData);
 
   return (
@@ -230,33 +231,45 @@ const ProgressDisplay = () => {
           <h2 className="text-2xl font-bold">Overall Improvement</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-6 relative overflow-hidden">
+            <div className="bg-gradient-to-r from-[#CF9DFF]  to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-3 lg:p-6 relative overflow-hidden">
               <h1 className="text-lg font-medium">my current level</h1>
               {isChartLoading ? (
                 <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-4 w-full flex items-center justify-center">
                   <DotSpinner />
                 </div>
               ) : (
-                <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
-                  <h1 className="text-xl font-semibold">
-                    {apiData?.currentLevel?.level}
-                  </h1>
-                  <div className="flex items-center gap-x-2">
-                    <h1 className="text-4xl font-bold">
-                      {apiData?.currentLevel?.rating?.toLocaleString()}
+                <>
+                  <div className="bg-white/20  border-r-2 border-l-2 rounded-md p-2">
+                    <h1 className="text-base lg:text-xl font-semibold">
+                      {apiData?.currentLevel?.level}
                     </h1>
-                    <h1 className="text-base">
-                      elo rating<span className="ml-2">⭐</span>
-                    </h1>
+                    <div className="flex items-center gap-x-2">
+                      <h1 className="text-xl lg:text-4xl font-bold">
+                        {apiData?.currentLevel?.rating?.toLocaleString()}
+                      </h1>
+                      <div className="flex items-center gap-x-2">
+                        <h1 className="text-sm lg:text-base">elo rating</h1>
+                        <Star className="w-4 h-4 text-white" fill="#ffffff" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <Image
+                    alt=""
+                    className="absolute top-2 right-2 w-[200px] md:top-0 md:right-0 md:w-[300px]"
+                    width={300}
+                    height={300}
+                    src="/my-game-history/rook-a.png"
+                  />
+                </>
               )}
             </div>
 
-            <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-2 justify-center flex-col rounded-lg p-6 max-h-[150px] text-black relative overflow-hidden">
-              <div className="flex items-center gap-x-2">
+            <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-1 lg:gap-y-2 justify-center flex-col rounded-lg p-3 lg:p-6 max-h-[150px] text-black relative overflow-hidden">
+              <div className="flex items-center gap-x-1 lg:gap-x-2">
                 <TargetIcon className="w-5 h-5 text-[#FAC933]" />
-                <h1 className="text-lg font-medium text-black">Accuracy</h1>
+                <h1 className=" text-sm lg:text-lg font-medium text-black">
+                  Accuracy
+                </h1>
               </div>
 
               {isChartLoading ? (
@@ -265,12 +278,19 @@ const ProgressDisplay = () => {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-4xl font-bold text-[#FAC933]">
+                  <h1 className="text-xl lg:text-4xl font-bold text-[#FAC933]">
                     {apiData?.accuracy?.percentage}%
                   </h1>
-                  <div className="text-base font-medium">
+                  <div className="text-sm lg:text-base font-medium">
                     +{apiData?.accuracy?.improvement}% improvement
                   </div>
+                  <Image
+                    alt=""
+                    className="absolute top-2 right-0 w-[150px] md:top-0  md:w-[300px]"
+                    width={300}
+                    height={300}
+                    src="/my-game-history/knight-a.png"
+                  />
                 </>
               )}
             </div>
@@ -462,34 +482,32 @@ const ProgressDisplay = () => {
               </div>
             ) : (
               <>
-                <div className="rounded-sm border overflow-x-auto">
-                  <table className="w-full border-collapse">
+                <div className="rounded-sm border overflow-x-auto md:overflow-visible">
+                  <table className="w-full border-collapse text-[12px]">
                     <thead>
-                      <tr className="bg-blue-50 text-sm font-medium">
-                        <th className="p-2 text-left">Date</th>
-                        <th className="p-2 text-left">Opponent</th>
-                        <th className="p-2 text-left">Result</th>
-                        <th className="p-2 text-left">Opening</th>
-                        <th className="p-2 text-left">Analysis</th>
+                      <tr className="bg-blue-50 font-medium">
+                        <th className="p-1 text-left">Date</th>
+                        <th className="p-1 text-left">Opponent</th>
+                        <th className="p-1 text-left">Result</th>
+                        <th className="p-1 text-left">Opening</th>
+                        <th className="p-1 text-left">Analysis</th>
                       </tr>
                     </thead>
                     <tbody>
                       {formattedRecentGames.map((game, index) => (
                         <tr key={index} className="border-b border-gray-100">
-                          <td className="p-2 text-sm text-nowrap">
-                            {game.date}
-                          </td>
-                          <td className="p-2">
-                            <div className="text-sm font-medium">
+                          <td className="p-1 whitespace-nowrap">{game.date}</td>
+                          <td className="p-1">
+                            <div className="font-medium text-[12px] truncate max-w-[8rem]">
                               {game.opponent}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-gray-500 text-[10px] -ml-1">
                               Rating: {game.rating}
                             </div>
                           </td>
-                          <td className="p-2">
+                          <td className="p-1">
                             <span
-                              className={`text-sm font-medium ${
+                              className={`font-medium ${
                                 game.result === "WIN"
                                   ? "text-green-500"
                                   : game.result === "LOSS"
@@ -500,24 +518,20 @@ const ProgressDisplay = () => {
                               {game.result}
                             </span>
                           </td>
-                          <td className="p-2 text-sm">{game.opening}</td>
-                          <td className="p-2">
-                            <div className="flex flex-col space-y-2 text-sm">
-                              <div className="flex items-center">
-                                <Target className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1" />
-                                <span className="text-sm">
-                                  {game.accuracy}%
-                                </span>
+                          <td className="p-1">{game.opening}</td>
+                          <td className="p-1">
+                            <div className="flex flex-col space-y-1">
+                              <div className="flex items-center text-[11px]">
+                                <Target className="w-4 h-4 text-blue-base mr-1" />
+                                {game.accuracy}%
                               </div>
-                              <div className="flex items-center">
-                                <TriangleAlert className="w-4 h-4 rounded-full text-yellow-500 flex items-center justify-center mr-1" />
-                                <span className="text-sm">
-                                  {game.brilliant}
-                                </span>
+                              <div className="flex items-center text-[11px]">
+                                <TriangleAlert className="w-4 h-4 text-yellow-500 mr-1" />
+                                {game.brilliant}
                               </div>
-                              <div className="flex items-center">
-                                <Clock className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1" />
-                                <span className="text-sm">{game.mistakes}</span>
+                              <div className="flex items-center text-[11px]">
+                                <Clock className="w-4 h-4 text-blue-base mr-1" />
+                                {game.mistakes}
                               </div>
                             </div>
                           </td>
@@ -527,16 +541,27 @@ const ProgressDisplay = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between mt-3 gap-x-1 text-sm">
+                <div className="flex items-center justify-between mt-3 gap-x-2 text-sm text-nowrap text-[11px] sm:text-sm">
                   <div className="flex items-center">
-                    <Trophy className="w-4 h-4 text-green-500 rounded-sm mr-1" />
-                    <span>Win Rate: {apiData?.winRate || 0}%</span>
+                    <Trophy className="w-4 h-4 text-[#00B427] rounded-sm mr-1" />
+                    <h1 className="mr-1 text-xs lg:text-base">Win Rate:</h1>
+                    <span className="text-[#00B427] font-bold">
+                      {apiData?.winRate || 0}%
+                    </span>
                   </div>
+
                   <div className="flex items-center">
-                    <Target className="w-4 h-4 rounded-full text-blue-500 flex items-center justify-center mr-1" />
-                    <span>Avg Accuracy: {apiData?.avgAccuracy || 0}%</span>
+                    <Target
+                      fill="#F1F5F9"
+                      className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1"
+                    />
+                    <h1 className="mr-1 text-xs lg:text-base">Avg Accuracy:</h1>
+                    <span className="text-blue-base font-bold">
+                      {apiData?.avgAccuracy || 0}%
+                    </span>
                   </div>
-                  <div>
+
+                  <div className="w-0 h-0 overflow-hidden sm:w-auto sm:h-auto sm:invisible">
                     <span>Total Games: {formattedRecentGames.length}</span>
                   </div>
                 </div>
@@ -545,7 +570,7 @@ const ProgressDisplay = () => {
           </div>
 
           <div className="">
-            <div className="flex items-center gap-x-2 mb-2">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-x-2 mb-2">
               <h1 className="text-lg font-bold">Performance Trends</h1>
               <h1 className="text-sm text-gray-500">
                 (Last 7 days improvement)
@@ -571,48 +596,58 @@ const ProgressDisplay = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3  w-full">
-                {stats.map((stat, index) => (
-                  <Card
-                    key={index}
-                    className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
-                        {stat.icon === "trophy" && (
-                          <LucideTrophy
-                            className="h-6 w-6 text-green-500"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                        {stat.icon === "target" && (
-                          <TargetIcon
-                            className="h-6 w-6 text-blue-base"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                        {stat.icon === "alert-yellow" && (
-                          <TriangleAlertIcon
-                            className="h-6 w-6 text-[#FAC933]"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                        {stat.icon === "alert-red" && (
-                          <TriangleAlertIcon
-                            className="h-6 w-6 text-[#FD0000]"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                      </div>
+                {stats.map((stat, index) => {
+                  const { color, value } = getChangeColorAndPrefix(
+                    stat.change,
+                    stat.title
+                  );
 
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-700 text-sm">
-                          {stat.title}
-                        </h3>
-                        <h2 className="text-2xl font-bold">{stat.value}</h2>
+                  return (
+                    <Card
+                      key={index}
+                      className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
+                    >
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
+                          {stat.icon === "trophy" && (
+                            <LucideTrophy
+                              className="h-6 w-6 text-green-500"
+                              strokeWidth={1.5}
+                            />
+                          )}
+                          {stat.icon === "target" && (
+                            <TargetIcon
+                              className="h-6 w-6 text-blue-base"
+                              strokeWidth={1.5}
+                            />
+                          )}
+                          {stat.icon === "alert-yellow" && (
+                            <TriangleAlertIcon
+                              className="h-6 w-6 text-[#FAC933]"
+                              strokeWidth={1.5}
+                            />
+                          )}
+                          {stat.icon === "alert-red" && (
+                            <TriangleAlertIcon
+                              className="h-6 w-6 text-[#FD0000]"
+                              strokeWidth={1.5}
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-700 text-sm">
+                            {stat.title}
+                          </h3>
+                          <h2 className="text-2xl font-bold">{stat.value}</h2>
+                          <div className={`text-sm font-bold ${color}`}>
+                            {value}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -632,3 +667,22 @@ const ProgressDisplay = () => {
 };
 
 export default ProgressDisplay;
+
+const getChangeColorAndPrefix = (change: number, title: string) => {
+  const isNegative = change < 0;
+
+  if (title === "Games Won")
+    return { color: "text-green-600", value: `${change.toString() + "%"}` };
+
+  if (isNegative) {
+    if (title === "Mistakes")
+      return { color: "text-yellow-500", value: `${change.toString() + "%"}` };
+    if (title === "Blunders")
+      return { color: "text-red-500", value: `${change.toString() + "%"}` };
+  }
+
+  return {
+    color: "text-green-600",
+    value: `${change >= 0 ? "+" : ""}${change}`,
+  };
+};

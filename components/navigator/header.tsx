@@ -70,53 +70,53 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </div>
 
         {/* Navigation tabs - visible on desktop only (xl+) */}
-          <div className="hidden xl:flex xl:items-center space-x-2">
-            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
-              <Link href={"/analysis"}>
-                <Button
-                  color="primary"
-                  variant="outlineprimary"
-                  className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-                >
-                  <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-                  <span className="font-normal text-[18px]">Analytics</span>
-                </Button>
-              </Link>
-            </div>
-            {/* Grouped navigation tabs */}
-            <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
-              <Link href={"/about-us"}>
-                <button
-                  className={`flex items-center text-[18px] font-medium ${
-                    pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
-                  } hover:bg-gray-50`}
-                >
-                  <InfoIcon
-                    className="h-[20px] w-[20px] mr-2"
-                    color={pathname == "/about-us" ? "#221AE9" : "black"}
-                  />
-                  About
-                </button>
-              </Link>
-              <Link href="/faq" legacyBehavior passHref>
-                <button
-                  className={`flex items-center text-[18px] font-medium ${
-                    pathname == "/faq" ? "text-[#221AE9]" : "text-black"
-                  } hover:bg-gray-50`}
-                >
-                  <HelpCircle className="h-[20px] w-[20px] mr-2" />
-                  FAQ
-                </button>
-              </Link>
-              <button
-                onClick={() => handleOpenOffer("subscription")}
-                className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50"
+        <div className="hidden xl:flex xl:items-center space-x-2">
+          <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+            <Link href={"/analysis"}>
+              <Button
+                color="primary"
+                variant="outlineprimary"
+                className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
               >
-                <DollarSign className="h-[20px] w-[20px] mr-2" />
-                Pricing
-              </button>
-            </div>
+                <BarChart2 className="mr-2 h-[20px] w-[20px]" />
+                <span className="font-normal text-[18px]">Analytics</span>
+              </Button>
+            </Link>
           </div>
+          {/* Grouped navigation tabs */}
+          <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
+            <Link href={"/about-us"}>
+              <button
+                className={`flex items-center text-[18px] font-medium ${
+                  pathname == "/about-us" ? "text-[#221AE9]" : "text-black"
+                } hover:bg-gray-50`}
+              >
+                <InfoIcon
+                  className="h-[20px] w-[20px] mr-2"
+                  color={pathname == "/about-us" ? "#221AE9" : "black"}
+                />
+                About
+              </button>
+            </Link>
+            <Link href="/faq" legacyBehavior passHref>
+              <button
+                className={`flex items-center text-[18px] font-medium ${
+                  pathname == "/faq" ? "text-[#221AE9]" : "text-black"
+                } hover:bg-gray-50`}
+              >
+                <HelpCircle className="h-[20px] w-[20px] mr-2" />
+                FAQ
+              </button>
+            </Link>
+            <button
+              onClick={() => handleOpenOffer("subscription")}
+              className="flex items-center text-[18px] font-medium text-black hover:bg-gray-50"
+            >
+              <DollarSign className="h-[20px] w-[20px] mr-2" />
+              Pricing
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Mobile-only "hello" h1 when on training-plan page */}

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { UserProfileCardProps } from "./types";
 import Image from "next/image";
@@ -19,6 +19,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   schedule,
 }) => {
   const { sessionId } = useProfileStore();
+  const [isMobile, setIsMobile] = useState(false);
 
   const { profile, isLoading, error, fetchUserProfile } = useUserStore();
 
@@ -27,6 +28,17 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       fetchUserProfile(sessionId);
     }
   }, [sessionId, fetchUserProfile]);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
 
   const combinedProfile = useMemo(() => {
     if (profile) {
@@ -50,7 +62,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   if (error) {
     return (
-      <div className="xl:border xl:border-blue-base lg:rounded-md bg-blue-base/5 shadow-sm p-4">
+      <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF]shadow-sm p-4">
         <Alert variant="destructive">
           <AlertDescription>
             Error loading user profile: {error}
@@ -62,7 +74,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   if (isLoading) {
     return (
-      <div className="xl:border xl:border-blue-base lg:rounded-md bg-blue-base/5 shadow-sm p-8">
+      <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF] shadow-sm p-8">
         <div className="flex justify-center items-center">
           <DotSpinner />
         </div>
@@ -71,7 +83,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   }
 
   return (
-    <div className="xl:border xl:border-blue-base lg:rounded-md bg-blue-base/5 shadow-sm">
+    <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF] shadow-sm">
       <div className="p-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
           <div className="bg-white items-center p-1 lg:p-2 gap-x-3 lg:gap-x-2  rounded-full justify-center flex">
@@ -98,15 +110,15 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               </button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-full  max-w-md p-6 bg-blue-base/5 border border-blue-base rounded-xl shadow-md"
-              side="top"
-              align="end"
-              alignOffset={100}
-              sideOffset={-30}
+              className="w-full max-w-xs lg:max-w-md p-6 bg-blue-base/5 bg-opacity-80 backdrop-blur-xl border border-blue-base shadow-md"
+              side={isMobile ? "left" : "top"}
+              align={isMobile ? "start" : "end"}
+              alignOffset={isMobile ? 0 : 40}
+              sideOffset={isMobile ? 5 : -110}
             >
               <div className="flex gap-3">
                 <div className="flex-shrink-0 flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-blue-base/5 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
                     <AlertCircle className="text-blue-base w-5 h-5" />
                   </div>
                 </div>

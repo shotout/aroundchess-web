@@ -21,24 +21,24 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
   const isCorrect =
     gameQuestion && gameSelectedAnswer === gameQuestion.correctAnswer;
 
-  // Check if current question is the last one
   const isLastQuestion = gameQuestionNumber === gameMaxQuestions;
 
   return (
-    <div className="mt-auto ">
+    <div className="mt-auto">
       <div className="relative w-full">
         <AnimatePresence mode="wait">
           {gameShowFeedback && !isGameEnd ? (
             <motion.div
-              className="space-y-4 p-6 border-t rounded-2xl"
+              className="space-y-4 p-3 lg:p-6 border-t rounded-2xl"
               key="feedback"
               variants={feedbackVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
+              {" "}
               <div
-                className={`relative ${
+                className={`relative min-h-[60px] overflow-hidden ${
                   isCorrect
                     ? "bg-gradient-to-r border-2 border-dashed border-[#1BC08C] from-[#1BC08C]/30 from-0% via-[#1BC08C] via-50% to-[#1BC08C]/30 to-100%"
                     : "bg-gradient-to-r border-2 border-dashed border-[#C01B1B] from-[#C01B1B]/30 from-0% via-[#C01B1B] via-50% to-[#C01B1B]/30 to-100%"
@@ -66,7 +66,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                     height={200}
                     alt="sparks"
                     src={"/handbooks/sparks.png"}
-                    className="absolute top-0 right-12"
+                    className="absolute top-0 -right-12 w-[200px] lg:right-[10%] lg:top-0  "
                   />
                 ) : (
                   <Image
@@ -74,11 +74,10 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                     height={200}
                     alt="sparks"
                     src={"/board-vision/wrong.png"}
-                    className="absolute top-0 right-12"
+                    className="absolute top-0 -right-10 w-[200px] lg:right-[10%] lg:top-0  "
                   />
                 )}
               </div>
-
               <Button
                 onClick={handleGameNextQuestion}
                 className="w-full flex items-center justify-center bg-blue-base py-5 text-lg hover:bg-blue-base"

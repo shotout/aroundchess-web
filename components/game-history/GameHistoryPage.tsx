@@ -17,7 +17,6 @@ const GameHistoryPage: React.FC = () => {
   const { sessionId } = useProfileStore();
 
   useEffect(() => {
-    console.log("sessionId game history", sessionId);
     if (!sessionId) return;
     setIsSignedIn(true);
   }, [sessionId]);

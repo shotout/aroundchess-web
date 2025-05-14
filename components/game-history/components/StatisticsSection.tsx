@@ -12,7 +12,6 @@ interface StatisticsSectionProps {
 const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
   const { statistics, isLoading } = useGameStatistics();
 
-  // Function to format numbers with commas
   const formatNumber = (num: any) => {
     if (num === undefined || num === null) return "0";
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -164,6 +163,20 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
               {statistics?.totalGames?.monthlyChange || 0} this month
             </span>
           </div>
+          <Image
+            width={200}
+            height={200}
+            alt=""
+            src={"/my-game-history/tg-a.png"}
+            className="top-0 left-0 absolute text-black"
+          />
+          <Image
+            width={20}
+            height={20}
+            alt=""
+            src={"/my-game-history/tg-r.png"}
+            className="top-10 left-[80px] absolute"
+          />
         </Card>
       </div>
     </div>

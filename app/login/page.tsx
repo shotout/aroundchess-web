@@ -22,7 +22,6 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("sessionId", sessionId);
     if (sessionId != null && sessionId.length > 0) {
       setPersistedCookie("token", sessionId, 365);
     }
