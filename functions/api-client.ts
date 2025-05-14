@@ -4,6 +4,9 @@ import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabase";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -16,10 +19,28 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
+  const router = useRouter();
   const { setIsLoading, isLoading } = useLoadingAPI();
   const { sessionId } = useProfileStore();
   const [error, setError] = useState<Error | null>(null);
+  const { clearAll } = useProfileStore();
+  const handleSignOut = async () => {
+    logOut({ sessionId })
+      .then(() => {})
+      .finally(() => {
+        clearAll();
+        localStorage.removeItem("token");
+        setPersistedCookie("token", "", 0);
 
+        router.push("/login");
+      });
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Error logging out:", error.message);
+      throw error;
+    }
+  };
   const apiRequest = useCallback(
     async <T = any>({
       method,
@@ -56,9 +77,11 @@ export function useApiClient() {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.log("errorData",url, errorData, response);
+            console.log("errorData", url, errorData, response);
             if (errorData.statusCode != 401 && errorData.statusCode != 404) {
               toast.error(errorData.message || "API request failed");
+            }
+            if (errorData.statusCode == 401) {
             }
             throw new Error(errorData.message || "API request failed");
           }
