@@ -154,7 +154,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-32 lg:pt-0 w-full">
+    <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-8 lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
         <motion.div
           className="flex flex-col sm:flex-row items-center"

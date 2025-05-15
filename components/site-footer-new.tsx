@@ -110,7 +110,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/opening-theory"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Learning
                   </Link>
@@ -118,7 +118,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/playground/play-vs-ai"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Practice
                   </Link>
@@ -126,7 +126,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/analysis"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Game Analysis
                   </Link>
@@ -134,7 +134,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/playground/puzzle"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Playground
                   </Link>
@@ -149,7 +149,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/about-us"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     About
                   </Link>
@@ -157,7 +157,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <button
                     onClick={() => setOpenPricing(true)}
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Pricing
                   </button>
@@ -165,7 +165,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <button
                     onClick={() => setOpen(true)}
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Contact
                   </button>
@@ -178,7 +178,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/privacy-policy"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Privacy Policy
                   </Link>
@@ -186,7 +186,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <li>
                   <Link
                     href="/terms-of-service"
-                    className="hover:text-gray-900 dark:hover:text-white text-[#364152]"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Terms of Service
                   </Link>

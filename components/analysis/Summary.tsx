@@ -13,6 +13,7 @@ import { useAuth } from "@clerk/nextjs";
 import { FamousGameCard } from "@/components/famous-game-button";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 
 interface SummaryProps {
   next: () => void;
@@ -27,7 +28,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
+  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
   useEffect(() => {
     const checkSession = () => {
@@ -552,7 +554,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
       </div>
 
       <button
-        onClick={props.next}
+        onClick={isSignedIn ? props.next : () => setOpenConfirmLogin(true)}
         className="btn-primary flex w-full justify-center items-center h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
       >
         <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">

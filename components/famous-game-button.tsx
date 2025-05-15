@@ -53,7 +53,7 @@ export const FamousGameButton = () => {
     }
   };
   return (
-    <div className="max-w-[668px] mt-2 lg:mt-20 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-[20px] sm:p-[32px] flex flex-col gap-2 sm:justify-center lg:justify-start">
+    <div className="max-w-[668px] mt-2 lg:mt-2 bg-white z-100 sm:mx-7 sm:mt-1 sm:bg-white sm:bg-clip-padding sm:backdrop-filter sm:backdrop-blur-sm sm:bg-opacity-75 border border-[#DEDEDE] rounded-md p-[20px] sm:p-[32px] flex flex-col gap-2 sm:justify-center lg:justify-start">
       <p className="w-full block text-[#040404] text-start font-medium text-[26px] sm:text-[28px] ">
         Discover our Advanced Chess Analysis
       </p>
