@@ -5,7 +5,7 @@ import { useSuccessSubscription } from "@/app/store/successSubscription";
 import { useApiClient } from "@/functions/api-client";
 import { CheckCircle } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
 import DotSpinner from "../game-history/Spinner";
 import { useProfileFetch } from "../navigator/hook/useProfileFetch";
@@ -35,8 +35,14 @@ export const PricingOffer: React.FC = () => {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
   const router = useRouter();
+  const arrNumber = [12, 78, 50, 99, 15];
+
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("0");
+  const [index, setIndex] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+
   const [pricePerToken, setPricePerToken] = useState<string>("0.99");
   const [totalPrice, setTotalPrice] = useState<string>("0.99");
   const [activeTab, setActiveTab] = useState("tokens");
@@ -152,13 +158,55 @@ export const PricingOffer: React.FC = () => {
       setOpen(false);
     }
   };
+  const startInterval = (): void => {
+    if (
+      sessionId.length > 0 &&
+      tokenPackage.length > 0 &&
+      intervalRef.current == null
+    ) {
+      intervalRef.current = setInterval(() => {
+        setIndex((prevIndex) => {
+          const nextIndex = (prevIndex + 1) % arrNumber.length;
+          return nextIndex;
+        });
+      }, 1000);
+    }
+    setIsRunning(true);
+    // Cleanup function is not needed here, so just return void
+  };
+  const handleStop = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setIsRunning(false);
+    }
+  };
+  // Store index in a ref so setInterval always gets the latest value
+  const indexRef = useRef(index);
+  useEffect(() => {
+    indexRef.current = index;
+    setCustomAmount(arrNumber[index] + "");
+    handleOnChangePrice(arrNumber[index]);
+    if (tokenPackage.length > 0) {
+      startInterval();
+    }
+  }, [tokenPackage, index]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
   const handleOnChange = (e: any) => {
     let value = parseInt(e.target.value);
-
+    handleOnChangePrice(value);
+  };
+  const handleOnChangePrice = (value: number) => {
     let conditionedValue =
       value > 100 ? 100 : isNaN(value) ? 0 : value < 0 ? 0 : value;
     setCustomAmount(conditionedValue.toString());
-    if (conditionedValue > 0) {
+    if (conditionedValue > 0 && tokenPackage.length > 0) {
       let dataPrice = tokenPackage.find(
         (price: any) => price.quantity == conditionedValue
       );
@@ -173,6 +221,7 @@ export const PricingOffer: React.FC = () => {
       setTotalPrice("0.00");
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
@@ -284,7 +333,14 @@ export const PricingOffer: React.FC = () => {
                             ? "border-4 border-[#221AE9]"
                             : " "
                         }`}
-                        onClick={() => setSelectedToken(index)}
+                        onClick={
+                          isRunning
+                            ? () => null
+                            : () => {
+                                startInterval();
+                                setSelectedToken(index);
+                              }
+                        }
                       >
                         {selectedToken != index && (
                           <div
@@ -394,16 +450,25 @@ export const PricingOffer: React.FC = () => {
                           Enter Amount
                         </div>
                         <div
-                          onClick={() => {
-                            setSelectedToken(5);
-                            setCustomAmount("1");
-                          }}
+                          onClick={
+                            !isRunning
+                              ? () => null
+                              : () => {
+                                  setSelectedToken(5);
+                                  handleStop();
+                                  // setCustomAmount("1");
+                                }
+                          }
                           className="flex items-center justify-center gap-2"
                         >
                           <input
                             type="number"
                             max={100}
-                            className="font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                            className={`font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none ${
+                              selectedToken == 5
+                                ? `text-black`
+                                : `text-[#ABABAB]`
+                            }`}
                             value={customAmount}
                             onChange={handleOnChange}
                             onClick={(e) => {

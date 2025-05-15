@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useProfileStore } from "@/app/store/profile";
 
 export function CTASection() {
-  const [email, setEmail] = useState("");
+  const { sessionId } = useProfileStore();
   return (
     <section className="py-4 px-8 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
       <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
@@ -58,10 +59,10 @@ export function CTASection() {
                       className="w-full rounded-full whitespace-nowrap sm:mt-8 border border-[#C6EEFE] bg-[#e6f7fe] text-[#221AE9]"
                     >
                       <Link
-                        href={`/register`}
+                        href={sessionId.length > 0 ? `/analysis` : `/register`}
                         className="text-[#221AE9]"
                       >
-                        Try Now
+                        Join now for free
                         <ArrowRight color="#221AE9" className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
