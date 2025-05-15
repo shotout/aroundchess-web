@@ -202,7 +202,7 @@ export function HeroSection() {
           alt="herobanner"
           width={1000}
           height={1000}
-          className="w-[100%] h-[620px] lg:h-auto object-cover z-2 relative overflow-hidden"
+          className="w-[100%] h-[80vh] sm:h-[90vh] md:h-[80vh] lg:h-auto object-cover z-2 relative overflow-hidden"
           priority
         />
       </div>
