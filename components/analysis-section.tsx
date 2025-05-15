@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import Image from "next/image";
+import DotSpinner from "./game-history/Spinner";
 
 const analysisFeatures = [
   "Stockfish-powered move evaluation",
@@ -87,6 +89,7 @@ export function AnalysisSection() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const checkSession = () => {
@@ -140,15 +143,22 @@ export function AnalysisSection() {
                   <div className="flex items-center justify-center border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] ">
                       <AnimatePresence>
-                        <motion.img
+                        <motion.div
                           key={current}
-                          src={analysis[current].image}
-                          alt={analysis[current].title}
-                          className="w-full object-contain"
                           initial={{ opacity: 0, x: 50 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.5 }}
-                        />
+                        >
+                          <Image
+                            src={analysis[current].image}
+                            alt={analysis[current].title}
+                            width={1000}
+                            height={1000}
+                            className="w-full object-contain"
+                            onLoadingComplete={() => setLoaded(true)}
+                          />
+                          {!loaded && <DotSpinner size={20} />}
+                        </motion.div>
                       </AnimatePresence>
                     </div>
                   </div>
