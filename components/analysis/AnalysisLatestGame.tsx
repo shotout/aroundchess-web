@@ -1,23 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Summary from "./Summary";
-import MovementDetails from "./MovementDetails";
-import Threats from "./Threats";
-import Opening from "./Opening";
-import MiddleGame from "./MiddleGame";
-import EndGame from "./EndGame";
-import { SiteFooterNew } from "@/components/site-footer-new";
-import Improvement from "./Improvement";
-import Training from "./Training";
-import { usePgnStore } from "../../app/store/zustandStore";
-import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
-import { useChessMoveStore } from "../../app/store/chessMoveStore";
-import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import React, { useEffect, useState } from "react";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
+import { usePgnStore } from "../../app/store/zustandStore";
+import EndGame from "./EndGame";
+import Improvement from "./Improvement";
+import MiddleGame from "./MiddleGame";
+import MovementDetails from "./MovementDetails";
+import Opening from "./Opening";
+import Summary from "./Summary";
+import Threats from "./Threats";
+import Training from "./Training";
 
 const AnalysisLatestGame: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);

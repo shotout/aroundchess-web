@@ -58,8 +58,8 @@ export function useApiClient() {
           }
 
           console.log("url", url);
-          console.log("method", method);
-          console.log("token", sessionId);
+          // console.log("method", method);
+          // console.log("token", sessionId);
           console.log("body", body);
 
           const response = await fetch(url, {

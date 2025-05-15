@@ -463,7 +463,14 @@ const Summary: React.FC<SummaryProps> = (props) => {
                 bestMoves.middleGame &&
                 bestMoves.middleGame.map((middle: any, i: number) => {
                   return (
-                    <div className="border border-input rounded-md p-4" key={i}>
+                    <div
+                      className={`border ${
+                        chessMove.move == middle.move
+                          ? `border-[#221AE9]`
+                          : `border-input`
+                      } rounded-md p-4`}
+                      key={i}
+                    >
                       <div className="flex flex-row justify-between gap-2 mb-2">
                         <span
                           onClick={() => handleOnClickMovement(middle)}
@@ -518,7 +525,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
             criticalMistakes.map((item: any, index: number) => {
               return (
                 <div className="flex flex-col gap-2 mt-2" key={index}>
-                  <div className="border border-input rounded-md p-4">
+                  <div
+                    className={`border ${
+                      chessMove.move == item.move
+                        ? `border-[#221AE9]`
+                        : `border-input`
+                    } rounded-md p-4`}
+                  >
                     <div className="flex flex-row justify-between gap-2 mb-2">
                       <span
                         onClick={() => handleOnClickMovement(item)}
@@ -550,11 +563,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       <button
         onClick={isSignedIn ? props.next : () => setOpenConfirmLogin(true)}
-        className="btn-primary flex w-full justify-center items-center h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+        className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
       >
-        <div className="flex flex-row justify-center items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-          Movement Details
-          <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
+        <div className="flex flex-row items-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Movement Details
+          <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
         </div>
       </button>
     </>

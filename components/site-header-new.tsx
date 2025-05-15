@@ -108,7 +108,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     >
       <div className="container px-4 md:px-6 lg:px-12 py-[16px] mx-auto w-full">
         <div className="flex items-center justify-between">
-          <div className="flex md:w-full lg:w-auto items-center gap-2">
+          <div className="flex md:w-full lg:w-1/5 items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/icons/logo.png"
@@ -121,13 +121,17 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
             </Link>
           </div>
 
-          <div className="items-center gap-6">
+          <div className="flex justify-center items-center gap-6 lg:w-3/5">
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem className="hidden sm:flex ">
                   <Link href="/analysis" legacyBehavior passHref>
                     <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-[8px] px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
-                      <Button color="primary" variant="outlineprimary" className="bg-[#221AE910] rounded-[8px]">
+                      <Button
+                        color="primary"
+                        variant="outlineprimary"
+                        className="bg-[#221AE910] rounded-[8px]"
+                      >
                         <BarChart2 className="mr-2 h-4 w-4" />
                         Analyze Now
                       </Button>
@@ -192,7 +196,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               />
             </SheetContent>
           </Sheet>
-          <div className="hidden xl:flex items-center gap-2">
+          <div className="hidden xl:flex items-center gap-2 lg:w-1/5">
             {!isSignedIn ? (
               <div className="hidden sm:flex items-center gap-5">
                 <Link href="/login">
@@ -210,13 +214,13 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               <div className="hidden lg:flex flex-row w-full items-center gap-[16px]">
                 <button
                   onClick={handleDashboard}
-                  className="btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[16px] font-medium"
+                  className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[12px] xl:text-[12px] font-medium"
                 >
                   My Dashboard
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[16px] font-medium text-white"
+                  className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[12px] font-medium text-white"
                 >
                   Logout
                 </button>

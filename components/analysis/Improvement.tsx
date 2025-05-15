@@ -102,27 +102,27 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         </div> */}
       </div>
 
-      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+      {/* <div className="flex flex-row mt-2 mb-2"> */}
         <button
           onClick={props.prev}
-          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+          className="btn-secondary flex justify-center justify-self-center w-full h-[48px] mt-2 whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-lg ">
-            <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
-            Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <div className="flex flex-row items-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+            <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
+            Back: Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
         <div className="w-8" />
-        <button
+        {/* <button
           onClick={props.next}
-          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
+         className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-lg ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Training
+          <div className="flex flex-row items-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Training
             <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
-        </button>
-      </div>
+        </button> */}
+      {/* </div> */}
     </>
   );
 };

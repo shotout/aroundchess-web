@@ -116,11 +116,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(criticalMistakes.opening.length == 0 &&
+          {criticalMistakes.opening.length == 0 &&
             criticalMistakes.middleGame.length == 0 &&
-            criticalMistakes.endGame.length == 0) && (
-            <NoData>Critical Mistakes Empty</NoData>
-          )}
+            criticalMistakes.endGame.length == 0 && (
+              <NoData>Critical Mistakes Empty</NoData>
+            )}
           {openCriticalMistakes &&
             criticalMistakes &&
             criticalMistakes.opening.length > 0 &&
@@ -128,7 +128,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                  className={`flex flex-col gap-2 mt-2 border ${
+                    chessMove.move == item.move
+                      ? `border-[#221AE9]`
+                      : `border-input`
+                  } rounded-md p-4`}
                 >
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
@@ -199,7 +203,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                  className={`flex flex-col gap-2 mt-2 border ${
+                    chessMove.move == item.move
+                      ? `border-[#221AE9]`
+                      : `border-input`
+                  } rounded-md p-4`}
                 >
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
@@ -270,7 +278,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                  className={`flex flex-col gap-2 mt-2 border ${
+                    chessMove.move == item.move
+                      ? `border-[#221AE9]`
+                      : `border-input`
+                  } rounded-md p-4`}
                 >
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
@@ -358,11 +370,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {(weaknessIdentification.opening.length == 0 &&
+          {weaknessIdentification.opening.length == 0 &&
             weaknessIdentification.middleGame.length == 0 &&
-            weaknessIdentification.endGame.length == 0) && (
-            <NoData>Weakness Identification Empty</NoData>
-          )}
+            weaknessIdentification.endGame.length == 0 && (
+              <NoData>Weakness Identification Empty</NoData>
+            )}
           {openWeakness &&
             weaknessIdentification &&
             weaknessIdentification.opening.length > 0 &&
@@ -370,7 +382,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                  className={`flex flex-col gap-2 mt-2 border ${
+                    chessMove.move == item.move
+                      ? `border-[#221AE9]`
+                      : `border-input`
+                  } rounded-md p-4`}
                 >
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">
@@ -443,7 +459,11 @@ const Training: React.FC<TrainingProps> = (props) => {
                 return (
                   <div
                     key={index}
-                    className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                    className={`flex flex-col gap-2 mt-2 border ${
+                      chessMove.move == item.move
+                        ? `border-[#221AE9]`
+                        : `border-input`
+                    } rounded-md p-4`}
                   >
                     <div className="p-1">
                       <div className="flex flex-row justify-between gap-2 mb-4">
@@ -516,7 +536,11 @@ const Training: React.FC<TrainingProps> = (props) => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col gap-2 mt-2 border border-input rounded-md p-4"
+                  className={`flex flex-col gap-2 mt-2 border ${
+                    chessMove.move == item.move
+                      ? `border-[#221AE9]`
+                      : `border-input`
+                  } rounded-md p-4`}
                 >
                   <div className="p-1">
                     <div className="flex flex-row justify-between gap-2 mb-4">

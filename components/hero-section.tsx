@@ -13,16 +13,23 @@ import { FamousGameButton } from "./famous-game-button";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 const AnalysisUrl = process.env.BASE_URL! + "/analyze";
 const AnalyticsUrl = process.env.BASE_URL! + "/chessdotcom/games";
 
 export function HeroSection() {
   const router = useRouter();
-  const { proceedAnalysis } = useStockfishAnalysis();
+  const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
-
+  const { sessionId } = useProfileStore();
+  const {
+    analyzeComplete,
+    estimateMinute,
+    estimateSecond,
+    setEstimateMinute,
+    setEstimateSecond,
+  } = useLoadingAPI();
   useEffect(() => {
     const checkSession = () => {
       if (sessionId != "") {
@@ -56,24 +63,35 @@ export function HeroSection() {
       const config = {
         headers: {},
       };
+      setEstimateMinute(0);
+      setEstimateSecond(0);
       const url = AnalyticsUrl + "/" + username;
       console.log(username, url, isLoading);
       const response = await axios.get(url, config);
-      console.log("response", response);
-      setPgn(response.data[0].data_games?.pgn);
-      setDataGames(response.data[0].data_games);
+      console.log("response analyze homepage", response);
+      if (response.data[0] != null) {
+        setPgn(response.data[0].data_games?.pgn);
+        setDataGames(response.data[0].data_games);
+        let pgn = pgnToFenList(response.data[0].data_games?.pgn);
+        let basic = 6;
+        let basicResult = pgn && pgn?.length * basic;
+        let basicFormat = getTime(basicResult);
+        setEstimateMinute(basicFormat.minute);
+        setEstimateSecond(basicFormat.second);
+        // V2 Flow
+        const responseAnalysis = await proceedAnalysis(
+          response.data[0].data_games?.pgn,
+          username,
+          10,
+          60000
+        );
 
-      // V2 Flow
-      const responseAnalysis = await proceedAnalysis(
-        response.data[0].data_games?.pgn,
-        username,
-        10,
-        60000
-      );
-
-      setDataAnalysis(responseAnalysis.data);
-      arr = responseAnalysis.data;
-      setError(null);
+        setDataAnalysis(responseAnalysis.data);
+        arr = responseAnalysis.data;
+        setError(null);
+      }else{
+        toast.error("Username not exist in database")
+      }
       // router.push("/analysis");
     } catch (err) {
       console.log("error", err);
@@ -90,7 +108,13 @@ export function HeroSection() {
       }
     }
   };
-
+  const getTime = (seconds: number): any => {
+    let s = Math.round(seconds / 5) * 5;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(s % 60);
+    let time = { minute: minutes, second: remainingSeconds };
+    return time;
+  };
   const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
     setDataAnalysis(null);
