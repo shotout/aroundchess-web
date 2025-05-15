@@ -1,19 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronDown, ChevronUp, Watch } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../../app/store/zustandStore";
-import ReactCountryFlag from "react-country-flag";
-import { useChessMoveStore } from "../../app/store/chessMoveStore";
-import { CardPlayer } from "@/components/player/CardPlayer";
-import { useAuth } from "@clerk/nextjs";
-import { FamousGameCard } from "@/components/famous-game-button";
-import useLocalStorage from "@/hooks/useLocalStorage";
-import { useProfileStore } from "@/app/store/profile";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
+import { useProfileStore } from "@/app/store/profile";
+import { FamousGameCard } from "@/components/famous-game-button";
+import { CardPlayer } from "@/components/player/CardPlayer";
+import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { usePgnStore } from "../../app/store/zustandStore";
 
 interface SummaryProps {
   next: () => void;
