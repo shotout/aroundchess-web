@@ -140,7 +140,7 @@ const SavedMistakes: React.FC<savedProps> = ({
                 <div
                   className={`border ${
                     selectedMistakes.id == item.mistakeLog?.id
-                      ? `border-[#221AE9] border-2`
+                      ? `border-[#221AE9] border-2 bg-[#221AE910]`
                       : `border-input`
                   } rounded-md p-2 lg:p-4`}
                 >

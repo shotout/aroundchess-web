@@ -117,7 +117,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div
                     className={`border ${
                       chessMove.move == item.move
-                        ? `border-[#221AE9]`
+                        ? `border-[#221AE9] bg-[#221AE910]`
                         : `border-input`
                     } rounded-md p-4`}
                   >
@@ -209,7 +209,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                   <div
                     className={`border ${
                       chessMove.move == item.move
-                        ? `border-[#221AE9]`
+                        ? `border-[#221AE9] bg-[#221AE910]`
                         : `border-input`
                     } rounded-md p-4`}
                   >

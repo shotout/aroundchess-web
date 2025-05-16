@@ -187,7 +187,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                 <div
                   className={`border ${
                     selectedMistakes.id == item?.id
-                      ? `border-[#221AE9] border-1`
+                      ? `border-[#221AE9] border-2 bg-[#221AE910]`
                       : `border-[#DEDEDE]`
                   } rounded-[8px] p-[8px] lg:p-[12px]`}
                 >
