@@ -242,7 +242,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
+              <div
+                className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
+                  chessMove.move == move.move && `bg-[#81CFF3] `
+                }`}
+              >
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -338,7 +342,12 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                   {move.classification}
                 </span>
               </div>
-              <div className="grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF3] ">
+              <div
+                className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
+                  chessMove.move == movementDetails.black[index]?.move &&
+                  `bg-[#81CFF3] `
+                }`}
+              >
                 <Popover>
                   <PopoverContent
                     className="lg:hidden w-auto p-0"
@@ -454,7 +463,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         >
           <div className="flex flex-row items-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
-           Back: Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Back: Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
         <div className="w-8" />
