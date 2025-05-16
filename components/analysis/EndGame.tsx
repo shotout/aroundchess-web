@@ -151,7 +151,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div
                     className={`border ${
                       chessMove.move == item.move
-                        ? `border-[#221AE9] bg-[#221AE910]`
+                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
                         : `border-input`
                     } rounded-md p-4`}
                   >
@@ -243,7 +243,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                   <div
                     className={`border ${
                       chessMove.move == item.move
-                        ? `border-[#221AE9] bg-[#221AE910]`
+                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
                         : `border-input`
                     } rounded-md p-4`}
                   >

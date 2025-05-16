@@ -466,7 +466,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     <div
                       className={`border ${
                         chessMove.move == middle.move
-                          ? `border-[#221AE9] bg-[#221AE910]`
+                          ? `border-2 border-[#221AE9] bg-[#221AE910]`
                           : `border-input`
                       } rounded-md p-4`}
                       key={i}
@@ -528,7 +528,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                   <div
                     className={`border ${
                       chessMove.move == item.move
-                        ? `border-[#221AE9] bg-[#221AE910]`
+                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
                         : `border-input`
                     } rounded-md p-4`}
                   >
