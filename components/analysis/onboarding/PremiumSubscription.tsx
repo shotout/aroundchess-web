@@ -133,6 +133,7 @@ export const PremiumSubsContent: React.FC<{
         type: "membership",
         idUser: profile.id,
         membershipId: premium.id,
+        stripeProductId: premium.stripeProductId,
       }),
     });
 
@@ -245,7 +246,7 @@ export const PremiumSubsContent: React.FC<{
               For frequent Chess Players
             </div>
           </div>
-          {isPass > 0 && (
+          {!isMember && isPass > 0 && (
             <div className="flex justify-center items-center my-[12px]">
               <CountdownTimerDiscount />
             </div>
@@ -264,7 +265,7 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {isPass < 0 ? (
+              {isMember || isPass < 0 ? (
                 <div className="text-2xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
