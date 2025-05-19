@@ -14,6 +14,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -104,8 +105,14 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
-  const { allMembershipPackages, activeMembership, isMember, profile } =
-    useProfileStore();
+  const {
+    allMembershipPackages,
+    activeMembership,
+    isMember,
+    profile,
+    sessionId,
+  } = useProfileStore();
+  const { setOpen: setOpenLogin } = useConfirmLogin();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const { postPurchaseMembership, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
@@ -123,6 +130,7 @@ export const PremiumSubsContent: React.FC<{
   const isPass = deadline - Date.now();
 
   const handleGetPremium = async () => {
+    if (sessionId.length == 0) setOpenLogin(true);
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
       body: JSON.stringify({
@@ -265,7 +273,7 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {isMember || isPass < 0 ? (
+              {isMember && isPass < 0 ? (
                 <div className="text-2xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>

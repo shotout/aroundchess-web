@@ -70,17 +70,18 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     setBoardChoosed,
     PieceChoosed,
     setPieceChoosed,
+    trigger,
   } = useChessBoardThemeStore();
   // Board boardWidth configuration
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    // setLoading(true);
-    // setTimeout(() => {
-    //   setLoading(false);
-    // }, 500);
-  }, [PieceChoosed]);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [trigger]);
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -298,7 +299,9 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customArrows={customArrows}
                 areArrowsAllowed={areArrowsAllowed}
                 customSquareStyles={customSquareStyles}
-                promotionToSquare={promotionToSquare as Square | null | undefined}
+                promotionToSquare={
+                  promotionToSquare as Square | null | undefined
+                }
                 showPromotionDialog={showPromotionDialog}
                 animationDuration={100}
               />

@@ -122,11 +122,6 @@ const AnalysisResult: React.FC = () => {
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
   useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
-    setIs3DMode(is3D);
-  }, [StyleChoosed]);
-
-  useEffect(() => {
     if (storePgn) {
       setPgn(storePgn);
       setIsLoading(true);
@@ -257,6 +252,9 @@ const AnalysisResult: React.FC = () => {
   const toggleBoardMode = () => {
     console.log("is3DMode", is3DMode);
     setIs3DMode((prev) => !prev);
+    let style = !is3DMode ? "3d" : "2d";
+    console.log(is3DMode, style)
+    setStyleChoosed(style);
   };
 
   const startAutoPlay = () => {
@@ -389,7 +387,7 @@ const AnalysisResult: React.FC = () => {
 
   const getBadgeClass = (type: string) => {
     switch (type) {
-     case "Brilliant":
+      case "Brilliant":
         return "border border-[#27C2A3] text-[#27C2A3] bg-white";
       case "Excellent":
         return "border border-[#27C2A3] text-[#27C2A3] bg-white";

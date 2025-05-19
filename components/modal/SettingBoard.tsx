@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatTimePgn } from "@/functions/format-date";
 import { Edit } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -112,12 +113,14 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
     setBoardChoosed,
     PieceChoosed,
     setPieceChoosed,
+    setTrigger,
   } = useChessBoardThemeStore();
   const [open, setOpen] = useState<boolean>(false);
-  const [tabSelected, setTabSelected] = useState<string>("2d");
+  const [tabSelected, setTabSelected] = useState<string>(StyleChoosed);
   const [boardSelected, setBoardSelected] = useState<string>(BoardChoosed);
   const [pieceSelected, setPieceSelected] = useState<string>(PieceChoosed);
   useEffect(() => {
+    setTabSelected(StyleChoosed)
     setPieceSelected(PieceChoosed);
     setBoardSelected(BoardChoosed);
   }, [PieceChoosed, BoardChoosed]);
@@ -221,7 +224,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button>
+        <button onClick={() => setTrigger(formatTimePgn())}>
           <Image
             src={"/images/play-vs-ai/setting.png"}
             alt="icon"
@@ -250,16 +253,21 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
             </div>
           </div>
           <div className="w-full p-[8px] bg-[#F9FAFC] border border-[#f4f4f4] rounded-[12px]">
-            <Tabs defaultValue="auto" className="w-full">
+            <Tabs
+              defaultValue="auto"
+              className="w-full"
+              value={StyleChoosed}
+              onValueChange={setStyleChoosed}
+            >
               <TabsList className="grid w-full grid-cols-2 p-1 gap-4 text-black">
                 <TabsTrigger
-                  onClick={() => handleSelectTab("2d")}
+                  onClick={() => setStyleChoosed("2d")}
                   value="2d"
                   style={{
-                    background: tabSelected == "2d" ? "#D7E3FB" : "#fff",
+                    background: StyleChoosed == "2d" ? "#D7E3FB" : "#fff",
                   }}
                   className={`rounded-[8px] border h-[32px] ${
-                    tabSelected == "2d"
+                    StyleChoosed == "2d"
                       ? `bg-[#D7E3FB] border-[#221AE9]`
                       : `border-[#D8DCE0]`
                   }`}
@@ -267,14 +275,14 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
                   <span className={`font-medium text-[18px]`}>2D Style</span>
                 </TabsTrigger>
                 <TabsTrigger
-                  onClick={() => handleSelectTab("3d")}
+                  onClick={() => setStyleChoosed("3d")}
                   disabled={enable3D}
                   value="3d"
                   style={{
-                    background: tabSelected == "3d" ? "#D7E3FB" : "#fff",
+                    background: StyleChoosed == "3d" ? "#D7E3FB" : "#fff",
                   }}
                   className={`rounded-[8px] border h-[32px] ${
-                    tabSelected == "3d"
+                    StyleChoosed == "3d"
                       ? `bg-[#D7E3FB] border-[#221AE9]`
                       : `border-[#D8DCE0]`
                   }`}

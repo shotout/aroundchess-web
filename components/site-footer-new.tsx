@@ -27,11 +27,15 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
   const handleContactUs = () => {
     setOpen(true);
   };
-
+  const handleDiscord = () => {
+    const discordUrl = `https://discordapp.com/`;
+    // const discordUrl = `https://discordapp.com/channels/SERVERID/CHANNELID`;
+    window.open(discordUrl, "_blank", "width=600,height=400");
+  };
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       {/* modal */}
-     
+
       <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
         <div className="relative hidden sm:flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[205px] w-full rounded-[16px] mb-[64px] ">
           <Image
@@ -60,7 +64,10 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 send us a message or contact us on Discord.
               </span>
               <div className="flex flex-row items-center justify-center gap-4">
-                <button className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2">
+                <button
+                  onClick={handleDiscord}
+                  className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2"
+                >
                   <FaDiscord
                     className="w-[10px] h-[7.5px] sm:w-[18px] sm:h-[13.65px] lg:w-[26px] lg:h-[20px]"
                     color={"#000"}
@@ -244,7 +251,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
         </div>
       </div>
-       <CookieConsent />
+      <CookieConsent />
       <ConfirmLogin />
       <ContactUs />
       <SuccessSubscription />

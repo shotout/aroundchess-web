@@ -48,8 +48,14 @@ export const PricingOffer: React.FC = () => {
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
   const [loading, setLoading] = useState<boolean>(false);
-  const { tokenPackage, profile, isMember, token, activeMembership } =
-    useProfileStore();
+  const {
+    tokenPackage,
+    profile,
+    isMember,
+    token,
+    activeMembership,
+    setTokenPackage,
+  } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
   const deadlineToken =
@@ -78,8 +84,16 @@ export const PricingOffer: React.FC = () => {
     { amount: 25, price: 16.25, pricePerToken: 0.65 },
     { amount: 50, price: 30.0, pricePerToken: 0.6 },
   ];
+  const fetchTokenPackageLocal = async () => {
+    const resTokenPackage = await fetch("/local-data/token-package.json");
+    const response = await resTokenPackage.json();
+    console.log("resTokenPackage", response);
+
+    setTokenPackage(response);
+  };
   useEffect(() => {
     setWidthC(window?.innerWidth);
+    fetchTokenPackageLocal();
 
     setOpen(open);
   }, [open]);
@@ -163,7 +177,7 @@ export const PricingOffer: React.FC = () => {
       intervalRef.current == null
     ) {
       intervalRef.current = setInterval(() => {
-        console.log(index)
+        console.log(index);
         setIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % arrNumber.length;
           return nextIndex;
@@ -186,12 +200,11 @@ export const PricingOffer: React.FC = () => {
     indexRef.current = index;
     setCustomAmount(arrNumber[index] + "");
     handleOnChangePrice(arrNumber[index]);
-    console.log(tokenPackage)
     if (tokenPackage.length > 0) {
       startInterval();
     }
   }, [tokenPackage, index]);
-
+  
   // Cleanup on unmount
   useEffect(() => {
     return () => {

@@ -1,7 +1,10 @@
+import { formatTimePgn } from "@/functions/format-date";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface ChessBoardThemeState {
+  trigger: any;
+  setTrigger: (trigger: any) => void;
   StyleChoosed: string;
   setStyleChoosed: (StyleChoosed: string) => void;
   BoardChoosed: string;
@@ -13,6 +16,8 @@ interface ChessBoardThemeState {
 export const useChessBoardThemeStore = create<ChessBoardThemeState>()(
   persist(
     (set) => ({
+      trigger: formatTimePgn(),
+      setTrigger: (trigger) => set({ trigger }),
       StyleChoosed: "2d",
       setStyleChoosed: (StyleChoosed) => set({ StyleChoosed }),
       BoardChoosed: "wood",

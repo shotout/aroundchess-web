@@ -74,7 +74,8 @@ export default function PlayingPage() {
   const { open, setOpen: setOpenGameStatus } = useGameEndStatus();
   const refBoard = useRef<HTMLDivElement | null>(null);
 
-  const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
+  const { PieceChoosed, StyleChoosed, setStyleChoosed } =
+    useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
@@ -369,7 +370,7 @@ export default function PlayingPage() {
       setHintClicked(false);
       setGamePosition(game.fen());
       setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
-    }); 
+    });
   };
   const handleHint = () => {
     let depthHint = depth;
@@ -528,7 +529,6 @@ export default function PlayingPage() {
     setHeightBoard(refBoard.current?.clientHeight);
   }, []);
 
-   
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -617,6 +617,8 @@ export default function PlayingPage() {
   };
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
+    let style = !is3DMode ? "3d" : "2d";
+    setStyleChoosed(style);
   };
   const handleResign = () => {
     setStatusGame("Loss");

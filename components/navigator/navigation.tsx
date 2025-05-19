@@ -4,6 +4,7 @@ import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
+import { useProfileFetch } from "./hook/useProfileFetch";
 
 export default function Navigation({
   children,
@@ -14,6 +15,8 @@ export default function Navigation({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const { setCallFetch } = useProfileFetch();
+
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);

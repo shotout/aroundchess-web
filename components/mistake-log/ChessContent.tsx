@@ -114,7 +114,7 @@ const ChessContent: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-useEffect(() => {
+  useEffect(() => {
     let is3D = StyleChoosed == "3d" ? true : false;
     setIs3DMode(is3D);
   }, [StyleChoosed]);
@@ -248,6 +248,8 @@ useEffect(() => {
   };
   const toggleBoardMode = () => {
     setIs3DMode((prev) => !prev);
+    let style = !is3DMode ? "3d" : "2d";
+    setStyleChoosed(style);
   };
 
   const startAutoPlay = () => {

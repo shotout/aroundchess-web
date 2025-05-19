@@ -99,7 +99,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const { sessionId } = useProfileStore();
   const { hideDiv, username } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { PieceChoosed, StyleChoosed } = useChessBoardThemeStore();
+  const { PieceChoosed, StyleChoosed, setStyleChoosed } =
+    useChessBoardThemeStore();
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
@@ -589,6 +590,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   };
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
+    let style = !is3DMode ? "3d" : "2d";
+    setStyleChoosed(style);
   };
   const buttonBoard = () => {
     return (
