@@ -204,7 +204,7 @@ export function StartPlayVSAI() {
             ))}
           </div>
 
-          <div className="flex items-center justify-center max-h-[423px] overflow-y-scroll grid grid-cols-3 sm:grid-cols-6 gap-2 my-4 border border-input shadow-md rounded-sm p-4">
+          <div className="flex items-center justify-center grid grid-cols-3 sm:grid-cols-6 gap-2 my-4 border border-input shadow-md rounded-sm p-4">
             {opponents.map((opponent) => {
               let ELO =
                 opponent.elo +
@@ -215,10 +215,10 @@ export function StartPlayVSAI() {
                   onClick={() => {
                     setSelectedOpponent(opponent.id);
                   }}
-                  className={`flex flex-col items-center max-w-[82px] p-1 rounded-sm gap-1 ${
+                  className={`flex flex-col items-center max-w-[82px] p-1 rounded-sm gap-1 border ${
                     selectedOpponent === opponent.id
-                      ? "border border-[#221AE9] text-[#221AE9] font-bold"
-                      : ""
+                      ? "border-[#221AE9] text-[#221AE9] font-bold"
+                      : "border-[transparent]"
                   }`}
                 >
                   <Image

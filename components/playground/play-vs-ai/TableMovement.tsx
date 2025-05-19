@@ -14,8 +14,8 @@ export const TableMovement = ({
   PieceChoosed,
 }: TableMovementProps) => {
   return (
-    <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] border-collapse border-[#BDD0F9]">
-      <thead>
+    <table className="w-full table-auto border-separate border-spacing-0 rounded-tl-[8px] border-collapse border-[#BDD0F9]">
+      <thead className="rounded-tl-[8px]">
         <tr className="bg-[#D7E3FB] ">
           <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
             #

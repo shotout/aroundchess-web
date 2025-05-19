@@ -527,7 +527,7 @@ export default function PlayingPage() {
     }
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
-  }, []);
+  }, [isLoading]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -1001,21 +1001,13 @@ export default function PlayingPage() {
 
         <TabsContent value="current" className="gap-2">
           <div
-            className="flex flex-col items-center justify-center rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
-            style={{ maxHeight: heightBoard }}
+            className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
+            style={{ height: heightBoard }}
           >
-            <span className="font-semibold text-[16px] my-2 xl:my-4">
-              Movement Details
-            </span>
-            <div
-              style={{
-                height:
-                  statusGame == "Ongoing"
-                    ? (heightBoard ?? 0) * 0.65
-                    : (heightBoard ?? 0) * 0.45,
-              }}
-              className="px-4 w-full overflow-y-auto "
-            >
+            <div className="flex flex-col px-4 w-full overflow-y-auto ">
+              <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
+                Movement Details
+              </span>
               <TableMovement
                 myColor={myColor}
                 capturedWhite={capturedWhite}
@@ -1023,28 +1015,30 @@ export default function PlayingPage() {
                 PieceChoosed={PieceChoosed}
               />
             </div>
-            {statusGame != "Ongoing" && (
-              <CommentarGame statusGame={statusGame} />
-            )}
-            {statusGame == "Ongoing" ? (
-              <ButtonPlaying
-                handleHint={handleHint}
-                handleNewGame={handleNewGame}
-                handleResign={handleResign}
-                myColor={myColor}
-                currentTurn={currentTurn}
-                bestLine={bestLine}
-                hintClicked={hintClicked}
-              />
-            ) : (
-              <ButtonFinish
-                handleAnalyzeGame={handleAnalyzeGame}
-                handleNewGame={handleNewGame}
-                handleRematch={handleRematch}
-                handleShare={handleShare}
-                handleDownload={handleDownload}
-              />
-            )}
+            <div className="flex flex-col items-center w-full gap-2">
+              {statusGame != "Ongoing" && (
+                <CommentarGame statusGame={statusGame} />
+              )}
+              {statusGame == "Ongoing" ? (
+                <ButtonPlaying
+                  handleHint={handleHint}
+                  handleNewGame={handleNewGame}
+                  handleResign={handleResign}
+                  myColor={myColor}
+                  currentTurn={currentTurn}
+                  bestLine={bestLine}
+                  hintClicked={hintClicked}
+                />
+              ) : (
+                <ButtonFinish
+                  handleAnalyzeGame={handleAnalyzeGame}
+                  handleNewGame={handleNewGame}
+                  handleRematch={handleRematch}
+                  handleShare={handleShare}
+                  handleDownload={handleDownload}
+                />
+              )}
+            </div>
           </div>
         </TabsContent>
 
