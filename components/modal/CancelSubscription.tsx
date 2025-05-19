@@ -21,20 +21,11 @@ export function CancelSubscription() {
   }, [open]);
 
   const handleCancel = async () => {
-    const res = await fetch("/api/stripe/cancel_subscription", {
-      method: "POST",
-      body: JSON.stringify({
-        subscriptionId: activeMembership.stripeSubscriptionId,
-      }),
-    });
-
-    const data = await res.json();
-    console.log("handleCancel data", data);
-    const stripe = await stripePromise;
-    await stripe?.redirectToCheckout({ sessionId: data.id });
     postCancelMembership({}).then(() => {
       setOpen(false);
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     });
   };
   const handleKeep = () => {

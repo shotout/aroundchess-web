@@ -273,7 +273,7 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {isMember && isPass < 0 ? (
+              {isMember || isPass < 0 ? (
                 <div className="text-2xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
@@ -338,9 +338,13 @@ export const PremiumSubsContent: React.FC<{
                     className="w-[42px] h-[44px] object-contain m-4 mr-0"
                   />
                   <span className="font-medium text-[11px] xl:text-[14px] z-10 text-black">
-                    {"You are on this Package. The Subscription automatically renews on " +
-                      formatDateHistory(activeMembership.endDate) +
-                      "."}
+                    {`You are on this Package. ${
+                      activeMembership.autoRenew
+                        ? ` The Subscription automatically renews on ` +
+                          formatDateHistory(activeMembership.endDate) +
+                          "."
+                        : ``
+                    }`}
                   </span>
                   <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
                     <Image
@@ -353,11 +357,13 @@ export const PremiumSubsContent: React.FC<{
                   </div>
                 </div>
               </motion.div>
-              <button className="mt-4" onClick={handleCancelSubscription}>
-                <span className="font-medium text-[16px] text-white">
-                  Cancel Subscription
-                </span>
-              </button>
+              {activeMembership.autoRenew && activeMembership.autoRenew && (
+                <button className="mt-4" onClick={handleCancelSubscription}>
+                  <span className="font-medium text-[16px] text-white">
+                    Cancel Subscription
+                  </span>
+                </button>
+              )}
             </>
           )}
         </div>
