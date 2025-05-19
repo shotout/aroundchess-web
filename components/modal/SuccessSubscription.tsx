@@ -14,7 +14,8 @@ export function SuccessSubscription() {
   }, [open]);
 
   const handleBack = () => {
-    router.replace("/");
+    setOpen(false);
+    router.replace("/profile");
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

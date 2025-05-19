@@ -61,7 +61,8 @@ export function StatusPurchaseTokens() {
   }, [open]);
 
   const handleBack = () => {
-    router.replace("/");
+    setOpen(false);
+    router.replace("/profile");
   };
   const handleAnalyze = () => {
     router.replace("/analysis");
