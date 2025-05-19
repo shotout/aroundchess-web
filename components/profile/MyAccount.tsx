@@ -37,7 +37,7 @@ const MyAccount = () => {
   };
 
   const handleChangePassword = () => {
-    setIsPasswordDialogOpen(true);
+    router.push("/forgot-password");
   };
 
   const handleSignOut = async () => {

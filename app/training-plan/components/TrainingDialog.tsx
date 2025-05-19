@@ -366,11 +366,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                       }`}
                       onClick={() => setActiveCategory(category)}
                     >
-                      {category === "opening"
-                        ? "Opening"
-                        : category === "middlegame"
-                        ? "Middlegame"
-                        : "Endgame"}
+                      <h1>
+                        {category === "opening"
+                          ? "Opening"
+                          : category === "middlegame"
+                          ? "Middlegame"
+                          : "Endgame"}
+                      </h1>
                     </button>
                   ))}
                 </div>

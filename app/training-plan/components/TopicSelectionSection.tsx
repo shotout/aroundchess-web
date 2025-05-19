@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import IndividualTrainingTopic from "./IndividualTrainingTopic";
 import { TopicSelectionSectionProps } from "./types";
 import Image from "next/image";
+import OpeningTooltip from "./OpeningTooltip";
 
 const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
   categoryId,
@@ -16,12 +17,34 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
   const getTopicsBySubcategory = (subcategoryId: string) => {
     return topics.filter((topic) => topic.category === subcategoryId);
   };
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
 
   return (
     <div className="border border-gray-200 rounded-lg p-4">
       <div className="flex items-center gap-2 mb-3">
         <Image src={icon} width={35} height={35} alt="" />
         <h3 className="font-semibold">{title}</h3>
+        <OpeningTooltip
+          categoryId={categoryId}
+          content={"hello"}
+          className={
+            isMobile
+              ? `absolute w-[300px] top-0 left-10 z-50 `
+              : `absolute w-[450px] xl:w-[500px] z-50 left-8 top-2 xl:left-7 xl:-top-20`
+          }
+          tooltipClassName="text-[11px] md:text-xs rounded-b-md rounded-tl-md md:rounded-t-md md:rounded-br-md md:rounded-bl-none p-4 lg:p-6"
+        />
       </div>
 
       <p className="text-sm mb-3">{description}</p>

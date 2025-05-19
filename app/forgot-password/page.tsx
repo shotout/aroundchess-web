@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useProfileStore } from "@/app/store/profile";
 
 const backgroundStyles = {
   "--bg-position-x": "center",
@@ -19,18 +20,29 @@ const backgroundStyles = {
 const BASE_URL = process.env.BASE_URL;
 
 const ForgotPasswordPage: NextPage = () => {
+  const { profile } = useProfileStore();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [tokenVerified, setTokenVerified] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetComplete, setResetComplete] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+
+  const isLoggedIn = profile && profile.email;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setEmail(profile.email);
+    }
+  }, [profile, isLoggedIn]);
 
   async function startPasswordReset(e: React.FormEvent) {
     e.preventDefault();
@@ -68,23 +80,60 @@ const ForgotPasswordPage: NextPage = () => {
     }
   }
 
-  // Reset password with the verification code
-  async function resetPassword(e: React.FormEvent) {
+  // Verify the token first
+  async function verifyToken(e: React.FormEvent) {
     e.preventDefault();
     setIsVerifying(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/auth/verify-token-reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            token: verificationCode,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid verification code");
+      }
+
+      setTokenVerified(true);
+      toast.success("Verification code confirmed!");
+    } catch (err: any) {
+      setError(err.message || "Invalid verification code");
+      toast.error("Invalid verification code");
+    } finally {
+      setIsVerifying(false);
+    }
+  }
+
+  // Reset password with the verified token
+  async function resetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setIsResettingPassword(true);
     setError("");
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
       toast.error("Passwords do not match");
-      setIsVerifying(false);
+      setIsResettingPassword(false);
       return;
     }
 
     if (newPassword.length < 8) {
       setError("Password must be at least 8 characters long");
       toast.error("Password must be at least 8 characters long");
-      setIsVerifying(false);
+      setIsResettingPassword(false);
       return;
     }
 
@@ -117,7 +166,7 @@ const ForgotPasswordPage: NextPage = () => {
       setError(err.message || "Failed to reset password");
       toast.error("Failed to reset password");
     } finally {
-      setIsVerifying(false);
+      setIsResettingPassword(false);
     }
   }
 
@@ -142,8 +191,9 @@ const ForgotPasswordPage: NextPage = () => {
 
       toast.success("Reset code resent to your email!");
 
-      // Clear the input fields
+      // Clear the input fields and reset verification state
       setVerificationCode("");
+      setTokenVerified(false);
       if (codeInputRef.current) {
         codeInputRef.current.focus();
       }
@@ -153,6 +203,15 @@ const ForgotPasswordPage: NextPage = () => {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function changeEmail() {
+    setEmailSent(false);
+    setTokenVerified(false);
+    setVerificationCode("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setError("");
   }
 
   return (
@@ -188,32 +247,42 @@ const ForgotPasswordPage: NextPage = () => {
               flex flex-col
             `}
           >
-            <div className="flex items-center mb-4 sm:mb-6">
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
               <Link
                 href="/login"
                 className="text-black hover:text-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Link>
-            </div>
-
-            <div className="text-center mb-5 sm:mb-6">
-              <h1 className="text-2xl sm:text-3xl font-medium text-black">
+              <h1 className="text-2xl sm:text-3xl font-medium text-black flex-1 text-center">
                 {resetComplete
                   ? "Password Reset Complete"
                   : !emailSent
                   ? "Forgot your Password?"
+                  : !tokenVerified
+                  ? "Verify Your Code"
                   : "Reset Your Password"}
               </h1>
+              <div className="w-5"></div>
+            </div>
+
+            <div className="text-center mb-5 sm:mb-6">
               {!emailSent && !resetComplete && (
                 <p className="text-black/80 mt-1">
-                  Enter your email to receive a password reset code
+                  {isLoggedIn
+                    ? "Enter your verification code to reset your password"
+                    : "Enter your email to receive a password reset code"}
                 </p>
               )}
-              {emailSent && !resetComplete && (
+              {emailSent && !tokenVerified && !resetComplete && (
                 <p className="text-black/80 mt-1 font-medium">
                   We've sent a verification code to{" "}
                   <span className="text-blue-base">{email}</span>
+                </p>
+              )}
+              {tokenVerified && !resetComplete && (
+                <p className="text-black/80 mt-1">
+                  Code verified! Now set your new password.
                 </p>
               )}
               {resetComplete && (
@@ -224,6 +293,7 @@ const ForgotPasswordPage: NextPage = () => {
               )}
             </div>
 
+            {/* Step 1: Email Input */}
             {!emailSent && !resetComplete ? (
               <div className="flex-1">
                 <form
@@ -246,8 +316,13 @@ const ForgotPasswordPage: NextPage = () => {
                           autoCapitalize="none"
                           autoComplete="email"
                           autoCorrect="off"
+                          disabled={isLoggedIn}
                           required
-                          className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
+                          className={`w-full shadow-sm min-h-[44px] border ${
+                            isLoggedIn
+                              ? "bg-[#C0CED4] border-[#737c7f]"
+                              : "bg-light-10 border-gray-300"
+                          } rounded-md h-12 text-black placeholder:text-gray-300`}
                         />
                       </div>
                     </div>
@@ -262,7 +337,8 @@ const ForgotPasswordPage: NextPage = () => {
                   </button>
                 </form>
               </div>
-            ) : emailSent && !resetComplete ? (
+            ) : /* Step 2: Token Verification */
+            emailSent && !tokenVerified && !resetComplete ? (
               <div className="text-center flex-1 flex flex-col">
                 <div className="mb-6">
                   <div className="flex justify-center my-4 sm:my-6">
@@ -281,7 +357,7 @@ const ForgotPasswordPage: NextPage = () => {
                   </div>
                 </div>
 
-                <form onSubmit={resetPassword} className="space-y-6">
+                <form onSubmit={verifyToken} className="space-y-6">
                   <div>
                     <div className="mb-4">
                       <p className="text-black/80 mb-2">
@@ -363,69 +439,17 @@ const ForgotPasswordPage: NextPage = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4">
-                      <div>
-                        <div className="flex items-center mb-2">
-                          <Lock className="h-5 w-5 text-black mr-2" />
-                          <span className="text-black font-medium">
-                            New Password
-                          </span>
-                        </div>
-                        <div className="relative">
-                          <Input
-                            id="newPassword"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Enter your new password"
-                            type="password"
-                            autoCapitalize="none"
-                            autoComplete="new-password"
-                            autoCorrect="off"
-                            required
-                            className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center mb-2">
-                          <Lock className="h-5 w-5 text-black mr-2" />
-                          <span className="text-black font-medium">
-                            Confirm Password
-                          </span>
-                        </div>
-                        <div className="relative">
-                          <Input
-                            id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm your new password"
-                            type="password"
-                            autoCapitalize="none"
-                            autoComplete="new-password"
-                            autoCorrect="off"
-                            required
-                            className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
                     <button
                       type="submit"
-                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full flex items-center justify-center gap-2 transition-colors mt-6"
-                      disabled={
-                        isVerifying ||
-                        verificationCode.length !== 6 ||
-                        !newPassword ||
-                        !confirmPassword
-                      }
+                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full flex items-center justify-center gap-2 transition-colors"
+                      disabled={isVerifying || verificationCode.length !== 6}
                     >
                       {isVerifying ? (
-                        "Processing..."
+                        "Verifying..."
                       ) : (
                         <>
                           <CheckCircle className="h-5 w-5" />
-                          Reset Password
+                          Verify Code
                         </>
                       )}
                     </button>
@@ -442,14 +466,93 @@ const ForgotPasswordPage: NextPage = () => {
                   </button>
 
                   <button
-                    onClick={() => setEmailSent(false)}
+                    onClick={changeEmail}
                     className="h-12 bg-white/40 hover:bg-white/60 text-black font-medium rounded-md transition-colors"
                   >
                     Change email
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : /* Step 3: Password Reset */
+            tokenVerified && !resetComplete ? (
+              <div className="text-center flex-1 flex flex-col">
+                <form onSubmit={resetPassword} className="space-y-6">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <Lock className="h-5 w-5 text-black mr-2" />
+                        <span className="text-black font-medium">
+                          New Password
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter your new password"
+                          type="password"
+                          autoCapitalize="none"
+                          autoComplete="new-password"
+                          autoCorrect="off"
+                          required
+                          className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <Lock className="h-5 w-5 text-black mr-2" />
+                        <span className="text-black font-medium">
+                          Confirm Password
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm your new password"
+                          type="password"
+                          autoCapitalize="none"
+                          autoComplete="new-password"
+                          autoCorrect="off"
+                          required
+                          className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full flex items-center justify-center gap-2 transition-colors"
+                    disabled={
+                      isResettingPassword || !newPassword || !confirmPassword
+                    }
+                  >
+                    {isResettingPassword ? (
+                      "Resetting Password..."
+                    ) : (
+                      <>
+                        <CheckCircle className="h-5 w-5" />
+                        Reset Password
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="mt-6">
+                  <button
+                    onClick={() => setTokenVerified(false)}
+                    className="h-12 bg-white/40 hover:bg-white/60 text-black font-medium rounded-md transition-colors w-full"
+                  >
+                    Back to verification
+                  </button>
+                </div>
+              </div>
+            ) : /* Step 4: Success */
+            resetComplete ? (
               <div className="text-center flex-1 flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mb-6">
                   <CheckCircle className="w-full h-full text-green-500" />
@@ -461,7 +564,7 @@ const ForgotPasswordPage: NextPage = () => {
                   You will be redirected to the login page momentarily...
                 </p>
               </div>
-            )}
+            ) : null}
 
             {error && (
               <div className="mt-4 p-3 bg-red-100/70 border border-red-200 rounded-md">
