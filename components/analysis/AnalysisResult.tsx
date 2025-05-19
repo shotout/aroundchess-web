@@ -256,6 +256,10 @@ const AnalysisResult: React.FC = () => {
     console.log(is3DMode, style)
     setStyleChoosed(style);
   };
+ useEffect(() => {
+    let is3D = StyleChoosed == "3d" ? true : false;
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
 
   const startAutoPlay = () => {
     if (currentMoveIndex >= parsedMoves.length) {
