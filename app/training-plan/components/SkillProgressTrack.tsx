@@ -1,42 +1,69 @@
 import React from "react";
 import Image from "next/image";
-import { Check } from "lucide-react";
+import { AlertCircle, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SkillProgressTrackProps {
   currentElo: number;
   skillLevels?: any[];
 }
 
+const LEVEL_SCALE_FACTORS = {
+  novice: 1.0,
+  beginner: 1.1,
+  intermediate: 1.2,
+  expert: 1.3,
+  master: 1.5,
+  grandmaster: 1.8,
+};
+
 const DEFAULT_SKILL_LEVELS = [
   {
     id: "novice",
     title: "Novice",
     elo: 0,
+    description:
+      "Improve fundamentals and reduce blunders. Build basic tactical awareness.",
   },
   {
     id: "beginner",
     title: "Beginner",
     elo: 800,
+    description:
+      "Build consistency and expand basic knowledge. Begin refining tactical patterns.",
   },
   {
     id: "intermediate",
     title: "Intermediate",
     elo: 1200,
+    description:
+      "Enhance tactical sharpness and strategic depth. Transition smoothly from opening to middlegame.",
   },
   {
     id: "expert",
     title: "Expert",
     elo: 1600,
+    description:
+      "Develop advanced strategies and reduce recurring errors. Integrate deeper analytical work.",
   },
   {
     id: "master",
     title: "Master",
     elo: 2000,
+    description:
+      "Refine performance with advanced theory and detailed analysis. Fine-tune both strategic and tactical decisions.",
   },
   {
     id: "grandmaster",
     title: "Grand Master",
+    description:
+      "Elite fine-tuning and continuous innovation.Focus on micro-improvements and personalized analysis.",
     elo: 2400,
   },
 ];
@@ -195,7 +222,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const currentEloPercentage = calculateEloPercentage(true);
   const mobileEloPercentage = calculateEloPercentage(false);
   const nextGoalIndex = getNextGoalLevelIndex();
-  const currentLevelIndex = getCurrentLevelIndex();
+  // const currentLevelIndex = getCurrentLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
   const badgeClass =
@@ -213,241 +240,297 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
   return (
     <div className="relative">
-      <div className="w-full space-y-6">
-        <div className="hidden xl:grid grid-cols-6 gap-2">
-          {skillLevels.map((level, index) => {
-            const isReached = (currentElo || 0) >= level.elo;
-            const isNextGoal = index === nextGoalIndex;
-            const imagePath = getImagePath(level.id, isReached, isNextGoal);
-            const isCompleted = isReached;
+      <TooltipProvider delayDuration={300} skipDelayDuration={100}>
+        <div className="w-full space-y-6">
+          <div className="hidden xl:grid grid-cols-6 gap-2">
+            {skillLevels.map((level, index) => {
+              const isReached = (currentElo || 0) >= level.elo;
+              const isNextGoal = index === nextGoalIndex;
+              const imagePath = getImagePath(level.id, isReached, isNextGoal);
+              const isCompleted = isReached;
 
-            const regularWidth = 40;
-            const regularHeight = 56;
+              const baseWidth = 40;
+              const baseHeight = 56;
+              const scaleFactor =
+                LEVEL_SCALE_FACTORS[
+                  level.id as keyof typeof LEVEL_SCALE_FACTORS
+                ] || 1;
 
-            const nextGoalWidth = regularWidth * 1.3;
-            const nextGoalHeight = regularHeight * 1.3;
+              const regularWidth = baseWidth * scaleFactor;
+              const regularHeight = baseHeight * scaleFactor;
 
-            return (
-              <div
-                key={level.id}
-                className="flex flex-col items-center relative w-full space-y-2"
-              >
-                {isNextGoal && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                    <div
-                      className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
-                    >
-                      Your Next Goal
-                    </div>
-                    <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                  </div>
-                )}
+              const nextGoalBonusScale = 1.0;
+              const nextGoalWidth = regularWidth * nextGoalBonusScale;
+              const nextGoalHeight = regularHeight * nextGoalBonusScale;
 
-                <div className="h-8 flex items-center justify-center">
-                  {isCompleted && !isNextGoal && (
-                    <div className="w-6 h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46]  rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white font-light" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative flex h-20 w-16 justify-center">
-                  <div className="absolute bottom-0 flex justify-center">
-                    <Image
-                      src={imagePath}
-                      alt={level.title}
-                      width={isNextGoal ? nextGoalWidth : regularWidth}
-                      height={isNextGoal ? nextGoalHeight : regularHeight}
-                      className={`object-contain ${
-                        isNextGoal ? "origin-bottom scale-150" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                <div className="text-center w-full space-y-1">
-                  <div className="font-semibold text-sm flex items-center justify-center">
-                    <span className="truncate max-w-full">{level.title}</span>
-                  </div>
-                  <div className="text-xs text-gray-600 flex items-center justify-center">
-                    <span className="whitespace-nowrap">ELO {level.elo}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="grid xl:hidden grid-cols-3 gap-2">
-          {mobileLevels.map((level, mobileIndex) => {
-            const isReached = (currentElo || 0) >= level.elo;
-            const isNextGoal =
-              level.elo > (currentElo || 0) && mobileIndex === 1;
-            const imagePath = getImagePath(level.id, isReached, isNextGoal);
-            const isCompleted = isReached;
-
-            const mobileWidth = 36;
-            const mobileHeight = 50;
-
-            return (
-              <div
-                key={`mobile-${level.id}`}
-                className="flex flex-col items-center relative w-full space-y-2"
-              >
-                {isNextGoal && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-                    <div
-                      className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
-                    >
-                      Your Next Goal
-                    </div>
-                    <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                  </div>
-                )}
-
-                <div className="h-8 flex items-center justify-center">
-                  {isCompleted && !isNextGoal && (
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
+              return (
+                <div
+                  key={level.id}
+                  className="flex flex-col items-center relative w-full space-y-2"
+                >
+                  {isNextGoal && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <div
+                        className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
+                      >
+                        Your Next Goal
+                      </div>
+                      <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                     </div>
                   )}
-                </div>
 
-                <div className="relative flex h-16 w-12 justify-center">
-                  <div className="absolute bottom-0 flex justify-center">
-                    <Image
-                      src={imagePath}
-                      alt={level.title}
-                      width={mobileWidth}
-                      height={mobileHeight}
-                      className={`object-contain ${
-                        isNextGoal ? "origin-bottom scale-125" : ""
-                      }`}
-                    />
+                  <div className="h-8 flex items-center justify-center">
+                    {isCompleted && !isNextGoal && (
+                      <div className="w-6 h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46] rounded-full flex items-center justify-center">
+                        <Check className="h-4 w-4 text-white font-light" />
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="text-center w-full space-y-1">
-                  <div className="font-semibold text-xs flex items-center justify-center">
-                    <span className="truncate max-w-full">{level.title}</span>
+                  <div className="relative h-[88px] flex justify-center items-end">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        {/* This wrapper div helps normalize the alignment */}
+                        <div className="inline-flex items-end h-full">
+                          <div className="relative w-fit h-fit flex items-end">
+                            <Image
+                              src={imagePath}
+                              alt={level.title}
+                              width={isNextGoal ? nextGoalWidth : regularWidth}
+                              height={
+                                isNextGoal ? nextGoalHeight : regularHeight
+                              }
+                              className="object-contain align-bottom"
+                            />
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+
+                      <TooltipContent
+                        side="right"
+                        align="start"
+                        sideOffset={20}
+                        alignOffset={10}
+                        className={`bg-blue-base/5 w-[200px] backdrop-blur-3xl border border-blue-base shadow-lg rounded-none rounded-t-md ${
+                          level.id === "grandmaster"
+                            ? "rounded-bl-md rounded-br-none"
+                            : "rounded-br-md"
+                        }`}
+                      >
+                        <div className="flex items-center gap-x-2 p-1">
+                          <AlertCircle className="text-blue-base w-10 h-10" />
+                          <div className="text-xs">
+                            <h1>{level.description}</h1>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
-                  <div className="text-[10px] text-gray-600 flex items-center justify-center">
-                    <span className="whitespace-nowrap">ELO {level.elo}</span>
+
+                  <div className="text-center w-full space-y-1">
+                    <div className="font-semibold text-sm flex items-center justify-center">
+                      <span className="truncate max-w-full">{level.title}</span>
+                    </div>
+                    <div className="text-xs text-gray-600 flex items-center justify-center">
+                      <span className="whitespace-nowrap">ELO {level.elo}</span>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+
+          <div className="grid xl:hidden grid-cols-3 gap-2">
+            {mobileLevels.map((level, mobileIndex) => {
+              const isReached = (currentElo || 0) >= level.elo;
+              const isNextGoal =
+                level.elo > (currentElo || 0) && mobileIndex === 1;
+              const imagePath = getImagePath(level.id, isReached, isNextGoal);
+              const isCompleted = isReached;
+
+              const mobileWidth = 36;
+              const mobileHeight = 50;
+
+              return (
+                <div
+                  key={`mobile-${level.id}`}
+                  className="flex flex-col items-center relative w-full space-y-2"
+                >
+                  {isNextGoal && (
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                      <div
+                        className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
+                      >
+                        Your Next Goal
+                      </div>
+                      <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                    </div>
+                  )}
+
+                  <div className="h-8 flex items-center justify-center">
+                    {isCompleted && !isNextGoal && (
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative flex h-16 w-12 justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="absolute bottom-0 flex justify-center">
+                          <Image
+                            src={imagePath}
+                            alt={level.title}
+                            width={mobileWidth}
+                            height={mobileHeight}
+                            className={`object-contain`}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        align="start"
+                        sideOffset={20}
+                        alignOffset={100}
+                        className="bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg rounded-md"
+                      >
+                        <div className="flex flex-col gap-y-1 p-2">
+                          <h3 className="font-semibold text-sm">
+                            {level.title}awdaw;ldjhn alwif dhb
+                          </h3>
+                          <p className="text-xs text-gray-600">
+                            ELO Requirement: {level.elo}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  <div className="text-center w-full space-y-1">
+                    <div className="font-semibold text-xs flex items-center justify-center">
+                      <span className="truncate max-w-full">{level.title}</span>
+                    </div>
+                    <div className="text-[10px] text-gray-600 flex items-center justify-center">
+                      <span className="whitespace-nowrap">ELO {level.elo}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="relative h-20 hidden xl:block">
+            <div className="relative w-full mt-6">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
+                {skillLevels.map((level, index) => {
+                  const isReached = (currentElo || 0) >= level.elo;
+                  return (
+                    <div
+                      key={`indicator-desktop-${level.id}`}
+                      className="flex items-center justify-center"
+                    >
+                      <div
+                        className={`w-7 h-7 rounded-full border-4 ${
+                          isReached
+                            ? "bg-purple-600 border-blue-base"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
 
-        <div className="relative h-20 hidden xl:block">
-          <div className="relative w-full mt-6">
-            <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
-              {skillLevels.map((level, index) => {
-                const isReached = (currentElo || 0) >= level.elo;
-                return (
-                  <div
-                    key={`indicator-desktop-${level.id}`}
-                    className="flex items-center justify-center"
-                  >
-                    <div
-                      className={`w-7 h-7 rounded-full border-4 ${
-                        isReached
-                          ? "bg-purple-600 border-blue-base"
-                          : "bg-gray-300"
-                      }`}
-                    ></div>
-                  </div>
-                );
-              })}
+              <div
+                className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+                style={{
+                  left: "calc(8.33% + 3.5px)",
+                  width: "calc(83.33% - 7px)",
+                }}
+              >
+                <div
+                  className="h-full bg-blue-base rounded-full"
+                  style={{
+                    width: `${currentEloPercentage}%`,
+                  }}
+                ></div>
+              </div>
             </div>
 
             <div
-              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              className="absolute -translate-x-1/2 top-8"
               style={{
-                left: "calc(8.33% + 3.5px)",
-                width: "calc(83.33% - 7px)",
+                left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+                bottom: 0,
               }}
             >
+              <div className="w-4 h-4 -z-[1]  bg-[#26E279]  rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
               <div
-                className="h-full bg-blue-base rounded-full"
-                style={{
-                  width: `${currentEloPercentage}%`,
-                }}
-              ></div>
+                className={`${badgeClass}  bg-gradient-to-b from-[#26E279] to-[#029A46]  text-white`}
+              >
+                Your current ELO
+              </div>
             </div>
           </div>
 
-          <div
-            className="absolute -translate-x-1/2 top-8"
-            style={{
-              left: `${currentEloPercentage * 0.8333 + 8.33}%`,
-              bottom: 0,
-            }}
-          >
-            <div className="w-4 h-4 -z-[1]  bg-[#26E279]  rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
-            <div
-              className={`${badgeClass}  bg-gradient-to-b from-[#26E279] to-[#029A46]  text-white`}
-            >
-              Your current ELO
-            </div>
-          </div>
-        </div>
-
-        <div className="relative h-20 xl:hidden">
-          <div className="relative w-full mt-6">
-            <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
-              {mobileLevels.map((level, index) => {
-                const isReached = (currentElo || 0) >= level.elo;
-                return (
-                  <div
-                    key={`indicator-mobile-${level.id}`}
-                    className="flex items-center justify-center"
-                  >
+          <div className="relative h-20 xl:hidden">
+            <div className="relative w-full mt-6">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
+                {mobileLevels.map((level, index) => {
+                  const isReached = (currentElo || 0) >= level.elo;
+                  return (
                     <div
-                      className={`w-7 h-7 rounded-full border-4 ${
-                        isReached
-                          ? "bg-purple-600 border-blue-base"
-                          : "bg-gray-300"
-                      }`}
-                    ></div>
-                  </div>
-                );
-              })}
+                      key={`indicator-mobile-${level.id}`}
+                      className="flex items-center justify-center"
+                    >
+                      <div
+                        className={`w-7 h-7 rounded-full border-4 ${
+                          isReached
+                            ? "bg-purple-600 border-blue-base"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div
+                className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+                style={{
+                  left: "calc(16.67% + 3.5px)",
+                  width: "calc(66.67% - 7px)",
+                }}
+              >
+                <div
+                  className="h-full bg-blue-base rounded-full"
+                  style={{
+                    width: `${mobileEloPercentage}%`,
+                  }}
+                ></div>
+              </div>
             </div>
 
             <div
-              className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
+              className="absolute -translate-x-1/2 top-8"
               style={{
-                left: "calc(16.67% + 3.5px)",
-                width: "calc(66.67% - 7px)",
+                left: `${
+                  ((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67
+                }%`,
+                bottom: 0,
               }}
             >
+              <div className="w-4 h-4 bg-[#26E279] -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
               <div
-                className="h-full bg-blue-base rounded-full"
-                style={{
-                  width: `${mobileEloPercentage}%`,
-                }}
-              ></div>
-            </div>
-          </div>
-
-          <div
-            className="absolute -translate-x-1/2 top-8"
-            style={{
-              left: `${((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67}%`,
-              bottom: 0,
-            }}
-          >
-            <div className="w-4 h-4 bg-[#26E279] -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
-            <div
-              className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
-            >
-              Your current ELO
+                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
+              >
+                Your current ELO
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </TooltipProvider>
     </div>
   );
 };
