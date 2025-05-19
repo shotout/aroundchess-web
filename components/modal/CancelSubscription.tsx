@@ -1,29 +1,42 @@
 "use client";
 
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
+import { useProfileStore } from "@/app/store/profile";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useProfileFetch } from "../navigator/hook/useProfileFetch";
-import { formatTimePgn } from "@/functions/format-date";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export function CancelSubscription() {
   const router = useRouter();
-  const { postCancelMembership } = useApiClient();
-  const { setCallFetch } = useProfileFetch();
+  const { activeMembership } = useProfileStore();
   const { open, setOpen } = useCancelSubscription();
+
   useEffect(() => {
     setOpen(open);
   }, [open]);
 
-  const handleCancel = () => {
-    postCancelMembership({}).then(() => {
-      setCallFetch(formatTimePgn());
-      setOpen(false);
-      window.location.reload()
+  const handleCancel = async () => {
+    const res = await fetch("/api/stripe/cancel_subscription", {
+      method: "POST",
+      body: JSON.stringify({
+        subscriptionId: activeMembership.stripeSubscriptionId,
+      }),
     });
+
+    const data = await res.json();
+    console.log("handleCancel data", data);
+    setOpen(false)
+    // const stripe = await stripePromise;
+    // await stripe?.redirectToCheckout({ sessionId: data.id });
+    // postCancelMembership({}).then(() => {
+    //   setCallFetch(formatTimePgn());
+    //   setOpen(false);
+    //   window.location.reload()
+    // });
   };
   const handleKeep = () => {
     setOpen(false);

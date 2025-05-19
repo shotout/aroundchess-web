@@ -23,7 +23,7 @@ export default async function handler(
         membershipId,
         stripeProductId
       } = JSON.parse(req.body);
-      let isMembership = productName.includes("Premium");
+      let isMembership = stripeProductId!=null
 
       let metadataToken = {
         itemType: type,
