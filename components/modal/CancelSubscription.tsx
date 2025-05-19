@@ -30,6 +30,7 @@ export function CancelSubscription() {
     const data = await res.json();
     console.log("handleCancel data", data);
     setOpen(false)
+    window.location.reload()
     // const stripe = await stripePromise;
     // await stripe?.redirectToCheckout({ sessionId: data.id });
     // postCancelMembership({}).then(() => {
