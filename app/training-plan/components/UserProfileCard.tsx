@@ -7,11 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
 import { useProfileStore } from "@/app/store/profile";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import CustomInfoTooltip from "./CustomTooltip";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
@@ -60,6 +56,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   const avatarUrl = profile?.avatar || avatar;
 
+  const tooltipContent =
+    "Improvement is non-linear - each bracket represents increasing complexity and the need for refined techniques. Consistency, regular self-review, and adaptation of training (including coaching and tournament experience) become more critical as you advance.";
+
   if (error) {
     return (
       <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF]shadow-sm p-4">
@@ -103,35 +102,16 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               • ELO {combinedProfile.currentElo}
             </div>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button aria-label="Show info">
-                <AlertCircle className="text-blue-base" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-full max-w-xs lg:max-w-md p-6 bg-blue-base/5 bg-opacity-80 backdrop-blur-xl border border-blue-base shadow-md"
-              side={isMobile ? "left" : "top"}
-              align={isMobile ? "start" : "end"}
-              alignOffset={isMobile ? 0 : 40}
-              sideOffset={isMobile ? 5 : -110}
-            >
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 flex items-center">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                    <AlertCircle className="text-blue-base w-5 h-5" />
-                  </div>
-                </div>
-                <p className="text-blue-base font-medium text-xs">
-                  Improvement is non-linear - each bracket represents increasing
-                  complexity and the need for refined techniques. Consistency,
-                  regular self-review, and adaptation of training (including
-                  coaching and tournament experience) become more critical as
-                  you advance.
-                </p>
-              </div>
-            </PopoverContent>
-          </Popover>
+
+          <CustomInfoTooltip
+            content={tooltipContent}
+            className={
+              isMobile
+                ? `absolute w-[300px] top-0 right-10 z-50 `
+                : `absolute w-[450px] xl:w-[500px] z-50 right-8 top-2 xl:right-7 xl:-top-24`
+            }
+            tooltipClassName="text-[11px] md:text-xs rounded-b-md rounded-tl-md md:rounded-t-md md:rounded-bl-md md:rounded-br-none p-4 lg:p-6"
+          />
         </div>
 
         <button className="mt-8">
