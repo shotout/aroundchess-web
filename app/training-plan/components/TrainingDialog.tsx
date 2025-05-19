@@ -379,7 +379,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr] gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr] gap-2">
               {transformCategoryInfo().map((category) => (
                 <div
                   key={category.id}

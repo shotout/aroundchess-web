@@ -66,6 +66,8 @@ const CustomInfoTooltip: React.FC<CustomInfoTooltipProps> = ({
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
+        onPointerEnter={() => setIsOpen(true)}
+        onPointerLeave={() => setIsOpen(false)}
         className={`focus:outline-none`}
         aria-label="Show info"
         type="button"
