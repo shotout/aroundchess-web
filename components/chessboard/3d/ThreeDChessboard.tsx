@@ -76,12 +76,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, [trigger]);
+  
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -206,7 +201,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
       );
     });
     return pieceComponents;
-  }, []);
+  }, [PieceChoosed]);
   // Frame dimensions
   let paddingTop = 48;
   if (loading) return <DotSpinner />;

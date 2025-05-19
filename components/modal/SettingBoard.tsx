@@ -120,7 +120,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
   const [boardSelected, setBoardSelected] = useState<string>(BoardChoosed);
   const [pieceSelected, setPieceSelected] = useState<string>(PieceChoosed);
   useEffect(() => {
-    setTabSelected(StyleChoosed)
+    setTabSelected(StyleChoosed);
     setPieceSelected(PieceChoosed);
     setBoardSelected(BoardChoosed);
   }, [PieceChoosed, BoardChoosed]);
@@ -132,6 +132,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
     setBoardChoosed(boardSelected);
     setPieceChoosed(pieceSelected);
     setOpen(false);
+    setTrigger(formatTimePgn())
   };
 
   const content = (boards: any, pieces: any, style: string) => {
@@ -224,7 +225,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button onClick={() => setTrigger(formatTimePgn())}>
+        <button>
           <Image
             src={"/images/play-vs-ai/setting.png"}
             alt="icon"
