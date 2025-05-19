@@ -17,7 +17,7 @@ export type User = {
 };
 
 export const useProfileFetch = () => {
-  const { sessionId } = useProfileStore();
+  const { sessionId, alreadyFetch, setAlreadyFetch } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,9 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    if (sessionId != null) {
+    if (sessionId.length > 0 && alreadyFetch == false) {
+      console.log("sessionId, callFetch", sessionId, callFetch);
+      setAlreadyFetch(true);
       getProfile({}).then((response) => {
         if (response.data != null) {
           let data = response.data;

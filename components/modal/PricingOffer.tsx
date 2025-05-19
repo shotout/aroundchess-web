@@ -8,7 +8,6 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { PremiumSubsContent } from "../analysis/onboarding/PremiumSubscription";
 import DotSpinner from "../game-history/Spinner";
-import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import {
   Dialog,
   DialogContent,
@@ -49,7 +48,6 @@ export const PricingOffer: React.FC = () => {
   const { open, setOpen, tabType } = usePricingOffer();
   const { postPurchaseToken, isLoading } = useApiClient();
   const [loading, setLoading] = useState<boolean>(false);
-  const { callFetch, setCallFetch } = useProfileFetch();
   const { tokenPackage, profile, isMember, token, activeMembership } =
     useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
@@ -333,14 +331,10 @@ export const PricingOffer: React.FC = () => {
                             ? "border-4 border-[#221AE9]"
                             : " "
                         }`}
-                        onClick={
-                          isRunning
-                            ? () => null
-                            : () => {
-                                startInterval();
-                                setSelectedToken(index);
-                              }
-                        }
+                        onClick={() => {
+                          startInterval();
+                          setSelectedToken(index);
+                        }}
                       >
                         {selectedToken != index && (
                           <div

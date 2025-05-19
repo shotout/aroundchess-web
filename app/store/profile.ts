@@ -16,7 +16,8 @@ interface ProfileState {
   setAllMembershipPackages: (allMembershipPackages: any) => void;
   puzzleLog: any;
   setPuzzleLog: (puzzleLog: any) => void;
-
+  alreadyFetch: boolean;
+  setAlreadyFetch: (alreadyFetch: any) => void;
   isMember: any;
   setIsMember: (isMember: any) => void;
   clearAll: () => void;
@@ -31,6 +32,8 @@ export const useProfileStore = create<ProfileState>()(
       setTokenPackage: (tokenPackage) => set({ tokenPackage }),
       token: {},
       setToken: (token) => set({ token }),
+      alreadyFetch: false,
+      setAlreadyFetch: (alreadyFetch) => set({ alreadyFetch }),
       sessionId: "",
       setSessionId: (sessionId) => set({ sessionId }),
       activeMembership: {},
@@ -56,8 +59,8 @@ export const useProfileStore = create<ProfileState>()(
     }),
 
     {
-      name: "Profile-storage", 
-      storage: createJSONStorage(() => localStorage), 
+      name: "Profile-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         profile: state.profile,
         token: state.token,
