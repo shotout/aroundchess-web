@@ -23,6 +23,7 @@ import { setPersistedCookie } from "@/utils/persisted-cookie";
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
+  const [token, setTokenId] = useLocalStorage<string>("token", "");
 
   const { setSessionId } = useProfileStore();
   const router = useRouter();
@@ -55,6 +56,28 @@ export default function Home() {
     }
   };
 
+  const { getActiveMembership, getTokenPackage } = useApiClient();
+  const { sessionId, setActiveMembership, setIsMember, setTokenPackage } =
+    useProfileStore();
+  useEffect(() => {
+    if (sessionId && sessionId != "") {
+      localStorage.setItem("token", token);
+
+      getTokenPackage({}).then((response) => {
+        if (response.data != null) {
+          let data = response.data;
+          console.log("getTokenPackage", data);
+          setTokenPackage(data);
+        }
+      });
+      getActiveMembership({}).then((response) => {
+        let data = response.data;
+        console.log("getActiveMembership", data);
+        setIsMember(data.status == "ACTIVE");
+        setActiveMembership(data);
+      });
+    }
+  }, [token]);
   useEffect(() => {
     setLoading(false);
   }, []);

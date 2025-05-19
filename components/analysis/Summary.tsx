@@ -563,9 +563,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       <button
         onClick={isSignedIn ? props.next : () => setOpenConfirmLogin(true)}
-        className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+        className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
       >
-        <div className="flex flex-row items-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+        <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
           &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Movement Details
           <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
         </div>

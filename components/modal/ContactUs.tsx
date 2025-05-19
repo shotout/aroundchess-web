@@ -54,7 +54,8 @@ export function ContactUs() {
   useEffect(() => {
     setWidthC(window?.innerWidth);
     setOpen(open);
-  }, [open]);  const handleSendMessage = (e: { preventDefault: () => void }) => {
+  }, [open]);
+  const handleSendMessage = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const formData = new FormData();
 
@@ -63,11 +64,12 @@ export function ContactUs() {
     formData.append("email", form.email);
     formData.append("topics", form.topics);
     formData.append("message", form.message);
-    
+
     // Append the file if it exists
     if (file && file[0]) {
       formData.append("file", file[0]);
-    }    console.log("formData contact us", Array.from(formData.entries()));
+    }
+    console.log("formData contact us", Array.from(formData.entries()));
 
     contactUs(formData).then(() => {
       console.log("success send contact us");
@@ -253,7 +255,10 @@ export function ContactUs() {
                 />
 
                 {fileName ? (
-                  <div className="lg:h-[48px] cursor-pointer flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md">
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer lg:h-[48px] cursor-pointer flex flex-row items-center justify-center bg-white rounded-full border border-[#C0CED4] gap-2 shadow-md"
+                  >
                     <Upload className="h-[20px] w-[20px] text-[#221AE9]" />
                     <p className="text-gray-800 font-medium">{fileName}</p>
                     <p className="text-gray-500 text-sm">
@@ -282,9 +287,25 @@ export function ContactUs() {
               </div>
             </div>
             <button
-              disabled={isLoading}
+              disabled={
+                isLoading ||
+                (form.name.length == 0 &&
+                  form.email.length == 0 &&
+                  form.topics.length == 0 &&
+                  form.message.length == 0 &&
+                  form.file.length == 0)
+              }
               onClick={handleSendMessage}
-              className="btn-primary rounded-full min-h-[48px] sm:min-w-[333px] flex flex-row items-center justify-center gap-2"
+              className={`${
+                isLoading ||
+                (form.name.length == 0 &&
+                  form.email.length == 0 &&
+                  form.topics.length == 0 &&
+                  form.message.length == 0 &&
+                  form.file.length == 0)
+                  ? `opacity-70`
+                  : ``
+              } btn-primary rounded-full min-h-[48px] sm:min-w-[333px] flex flex-row items-center justify-center gap-2`}
             >
               {isLoading ? (
                 <DotSpinner size={5} />

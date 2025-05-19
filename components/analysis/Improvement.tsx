@@ -105,9 +105,9 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
       {/* <div className="flex flex-row mt-2 mb-2"> */}
         <button
           onClick={props.prev}
-          className="btn-secondary flex justify-center justify-self-center w-full h-[48px] mt-2 whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+          className="btn-secondary flex items-center justify-center justify-self-center w-full h-[48px] mt-2 whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>

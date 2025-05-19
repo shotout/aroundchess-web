@@ -163,6 +163,7 @@ export const PricingOffer: React.FC = () => {
       intervalRef.current == null
     ) {
       intervalRef.current = setInterval(() => {
+        console.log(index)
         setIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % arrNumber.length;
           return nextIndex;
@@ -185,6 +186,7 @@ export const PricingOffer: React.FC = () => {
     indexRef.current = index;
     setCustomAmount(arrNumber[index] + "");
     handleOnChangePrice(arrNumber[index]);
+    console.log(tokenPackage)
     if (tokenPackage.length > 0) {
       startInterval();
     }

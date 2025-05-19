@@ -42,6 +42,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const router = useRouter();
   const clearAll = usePgnStore((state) => state.clearAll);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
+  const { setOpen: setOpenPricing } = usePricingOffer();
   const { sessionId } = useProfileStore();
   const { logOut } = useApiClient();
 
@@ -158,12 +159,15 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                       </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                      <Link href="/pricing" legacyBehavior passHref>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => setOpenPricing(true)}
+                      >
                         <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
                           <DollarSign className="mr-2 h-4 w-4" />
                           Pricing
                         </NavigationMenuLink>
-                      </Link>
+                      </div>
                     </NavigationMenuItem>
                   </NavigationMenuList>
                 </div>

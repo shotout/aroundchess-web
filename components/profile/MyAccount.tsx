@@ -30,16 +30,7 @@ const MyAccount = () => {
       password: "",
     });
   }, [profile, username]);
-
-  useEffect(() => {
-    getProfile({}).then((response) => {
-      const data = response.data;
-      console.log("getProfile", data);
-      setProfile(data);
-      setUsername(data.username);
-    });
-  }, []);
-
+ 
   const handleOnChange = (e: any) => {
     console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });

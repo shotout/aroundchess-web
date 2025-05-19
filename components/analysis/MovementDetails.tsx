@@ -459,9 +459,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
       <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
         <button
           onClick={props.prev}
-          className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+          className="btn-secondary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -469,9 +469,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         <div className="w-8" />
         <button
           onClick={props.next}
-          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+          className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Threats
             <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
