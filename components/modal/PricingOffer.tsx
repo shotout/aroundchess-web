@@ -168,7 +168,7 @@ export const PricingOffer: React.FC = () => {
       setStatus("waiting");
       setOpenStatusPurchase(true);
       setOpen(false);
-      handleStop()
+      handleStop();
     }
   };
   const startInterval = (): void => {
@@ -479,6 +479,7 @@ export const PricingOffer: React.FC = () => {
                             onClick={(e) => {
                               setSelectedToken(5);
                               e.stopPropagation();
+                              handleStop();
                             }}
                           />
                           <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
