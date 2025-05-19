@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useApiClient } from "@/functions/api-client";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -14,7 +15,7 @@ export function CancelSubscription() {
   const router = useRouter();
   const { activeMembership } = useProfileStore();
   const { open, setOpen } = useCancelSubscription();
-
+  const { postCancelMembership } = useApiClient();
   useEffect(() => {
     setOpen(open);
   }, [open]);
@@ -29,15 +30,12 @@ export function CancelSubscription() {
 
     const data = await res.json();
     console.log("handleCancel data", data);
-    setOpen(false)
-    window.location.reload()
-    // const stripe = await stripePromise;
-    // await stripe?.redirectToCheckout({ sessionId: data.id });
-    // postCancelMembership({}).then(() => {
-    //   setCallFetch(formatTimePgn());
-    //   setOpen(false);
-    //   window.location.reload()
-    // });
+    const stripe = await stripePromise;
+    await stripe?.redirectToCheckout({ sessionId: data.id });
+    postCancelMembership({}).then(() => {
+      setOpen(false);
+      window.location.reload();
+    });
   };
   const handleKeep = () => {
     setOpen(false);
