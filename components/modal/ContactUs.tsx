@@ -1,19 +1,22 @@
 "use client";
 
+import { subjectForm } from "@/app/store/constants";
 import { useContactUs } from "@/app/store/contactUs";
+import { useSuccessSent } from "@/app/store/successSent";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useApiClient } from "@/functions/api-client";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { Mail, Send, Upload, UploadCloud } from "lucide-react";
-import Image from "next/image";
+import { Mail, Send, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import DotSpinner from "../game-history/Spinner";
 import { Input } from "../ui/input";
+import { ScrollArea } from "../ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -21,13 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { subjectForm } from "@/app/store/constants";
-import emailjs from "@emailjs/browser";
-import { toast } from "sonner";
-import { useSuccessSent } from "@/app/store/successSent";
-import { useApiClient } from "@/functions/api-client";
-import { ScrollArea } from "../ui/scroll-area";
-import DotSpinner from "../game-history/Spinner";
+import { FileUploadCard } from "./upload-card/fileUpload";
 
 export function ContactUs() {
   const router = useRouter();
@@ -284,6 +281,9 @@ export function ContactUs() {
                     Max Size: 20MB
                   </span>
                 </div>
+
+                {/* render per file waiting upload */}
+                {/* <FileUploadCard /> */}
               </div>
             </div>
             <button
@@ -317,7 +317,7 @@ export function ContactUs() {
                     fill="#fff"
                   />
                   <span className="text-[12px] sm:text-[11px] lg:text-[16px]">
-                    Send us a message
+                    Send message
                   </span>
                 </>
               )}
