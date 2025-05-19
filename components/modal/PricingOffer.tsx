@@ -87,7 +87,6 @@ export const PricingOffer: React.FC = () => {
   const fetchTokenPackageLocal = async () => {
     const resTokenPackage = await fetch("/local-data/token-package.json");
     const response = await resTokenPackage.json();
-    console.log("resTokenPackage", response);
 
     setTokenPackage(response);
   };
@@ -119,6 +118,7 @@ export const PricingOffer: React.FC = () => {
     if (sessionId.length == 0) {
       setOpenConfirmLogin(true);
     } else {
+      handleStop();
       setOpen(false);
       setOpenSuccessSubscription(true);
     }
@@ -168,16 +168,12 @@ export const PricingOffer: React.FC = () => {
       setStatus("waiting");
       setOpenStatusPurchase(true);
       setOpen(false);
+      handleStop()
     }
   };
   const startInterval = (): void => {
-    if (
-      sessionId.length > 0 &&
-      tokenPackage.length > 0 &&
-      intervalRef.current == null
-    ) {
+    if (tokenPackage.length > 0 && intervalRef.current == null) {
       intervalRef.current = setInterval(() => {
-        console.log(index);
         setIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % arrNumber.length;
           return nextIndex;
@@ -204,7 +200,7 @@ export const PricingOffer: React.FC = () => {
       startInterval();
     }
   }, [tokenPackage, index]);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
