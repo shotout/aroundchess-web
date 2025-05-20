@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { FileUploadCard } from "./upload-card/fileUpload";
+import formatFileSize from "@/functions/format-file-size";
 
 export function ContactUs() {
   const router = useRouter();
@@ -32,6 +33,8 @@ export function ContactUs() {
   const { open, setOpen } = useContactUs();
   const { setOpen: setOpenSent } = useSuccessSent();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [totalSize, setTotalSize] = useState(0);
+  const [errorSize, setErrorSize] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
   const [files, setFiles] = useState<any[]>([]);
@@ -91,46 +94,30 @@ export function ContactUs() {
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("e.target.files", e.target.files);
     const allFile = e.target.files ? Array.from(e.target.files) : [];
-    console.log("allFile", allFile);
-    setFiles(allFile);
-    // if (e.target.files && e.target.files[0]) {
-    //   const file = e.target.files[0];
-    //   const fileTarget = e.target.files;
-    //   console.log("file:", file);
-
-    //   if (!file) return;
-
-    //   handleFile(file, fileTarget);
-    // }
+    let combine = files.concat(allFile);
+    console.log("allFile", combine);
+    setFiles(combine);
+    handleMaxSize(combine);
   };
 
-  const handleFile = (
-    file: { name: string; size: number },
-    fileTarget: any
-  ) => {
-    // Check file type (simple check for correct extension)
-    if (
-      !file.name.toLowerCase().endsWith(".png") &&
-      !file.name.toLowerCase().endsWith(".jpg") &&
-      !file.name.toLowerCase().endsWith(".pdf")
-    ) {
-      alert("Please upload a correct file.");
-      return;
+  const handleMaxSize = (files: any) => {
+    let total = 0;
+    files.map((file: any) => {
+      total += file.size;
+    });
+    setTotalSize(total);
+    console.log("totalSize", totalSize, formatFileSize(totalSize, "B"));
+    if (total >= 20971520.01) {
+      setErrorSize(true);
+    } else {
+      setErrorSize(false);
     }
-
-    // Check file size (20MB = 20 * 1024 * 1024 bytes)
-    if (file.size > 20 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit.");
-      return;
-    }
-    setFile(fileTarget);
-    setFileName(file.name);
-    setFileSize(file.size);
   };
   const handleDelete = (param: any) => {
     console.log("param", param);
     let filesDeleted = files.filter((item) => item.name !== param.name);
     setFiles(filesDeleted);
+    handleMaxSize(filesDeleted);
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -291,7 +278,8 @@ export function ContactUs() {
                     Supported Format: PNG, JPG, PDF
                   </span>
                   <span className="font-normal text-[16px] text-[#585858]">
-                    Max Size: 20MB
+                    Max Size: {formatFileSize(totalSize, "B")}/
+                    {formatFileSize(20971520.01, "B")}
                   </span>
                 </div>
 
@@ -313,6 +301,7 @@ export function ContactUs() {
             </div>
             <button
               disabled={
+                errorSize ||
                 isLoading ||
                 (form.name.length == 0 &&
                   form.email.length == 0 &&
@@ -322,6 +311,7 @@ export function ContactUs() {
               }
               onClick={handleSendMessage}
               className={`${
+                errorSize ||
                 isLoading ||
                 (form.name.length == 0 &&
                   form.email.length == 0 &&
@@ -347,6 +337,12 @@ export function ContactUs() {
                 </>
               )}
             </button>
+            {errorSize && (
+              <span className="text-[14px] text-[#FD0000] font-normal text-center">
+                Upload Failed: The total file size exceeds the 20MB limit.
+                Please remove some files or upload smaller ones.
+              </span>
+            )}
           </div>
         </ScrollArea>
       </DialogContent>
