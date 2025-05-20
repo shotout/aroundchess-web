@@ -6,7 +6,6 @@ import {
   BoardOrientation,
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
-import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
 interface Simple2DChessProps {
   position?: string;
@@ -60,24 +59,41 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
   id,
   keys,
 }) => {
-  const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
   const [boardSize, setBoardSize] = useState<number | undefined>(700);
-  const [mounted, _] = useState<boolean>(true);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => {
+      if (!ref.current) return;
+
+      const containerWidth = ref.current.clientWidth;
+      if (containerWidth && containerWidth > 0) {
+        setBoardSize(containerWidth);
+      }
+    };
 
     handleResize();
 
-    window?.addEventListener("resize", handleResize);
-    return () => window?.removeEventListener("resize", handleResize);
-  }, [mounted]);
+    const debouncedResize = debounce(handleResize, 100);
+    window.addEventListener("resize", debouncedResize);
 
-  const handleResize = () => {
-    const boxW = ref.current?.clientWidth;
-    setBoardSize(boxW);
-  };
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+      debouncedResize.cancel();
+    };
+  }, []);
+
+  function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+    let timeoutId: NodeJS.Timeout;
+    const debounced = (...args: Parameters<T>) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), delay);
+    };
+    debounced.cancel = () => clearTimeout(timeoutId);
+    return debounced;
+  }
 
   const twoDPieces = useMemo(() => {
     const pieces = [
@@ -105,8 +121,8 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
       }) => JSX.Element;
     } = {};
 
-    pieces.forEach(({ piece, pieceHeight }, index) => {
-      pieceComponents[piece] = ({ squareWidth, square }) => (
+    pieces.forEach(({ piece }, index) => {
+      pieceComponents[piece] = ({ squareWidth }) => (
         <div
           key={index}
           style={{

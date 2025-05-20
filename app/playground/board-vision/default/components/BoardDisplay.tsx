@@ -1,10 +1,11 @@
 import React from "react";
-import { Chessboard } from "react-chessboard";
 import { BoardDisplayProps } from "../../types/default-pgn";
 import { motion } from "framer-motion";
 import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import { Square } from "chess.js";
+import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
-// Update the interface to include className
 interface ExtendedBoardDisplayProps extends BoardDisplayProps {
   className?: string;
 }
@@ -77,19 +78,3 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
 };
 
 export default BoardDisplay;
-
-{
-  /* <Chessboard
-              id="board-vision-board"
-              position={currentPosition.fen}
-              areArrowsAllowed={true}
-              customSquareStyles={highlightedSquares}
-              arePiecesDraggable={false}
-              customArrowColor="rgba(34, 26, 233, 0.8)"
-              customArrows={
-                gameQuestion && gameQuestion.text.includes("legal moves")
-                  ? []
-                  : arrows
-              }
-            /> */
-}
