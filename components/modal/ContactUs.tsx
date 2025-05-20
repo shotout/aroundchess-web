@@ -129,6 +129,8 @@ export function ContactUs() {
   };
   const handleDelete = (param: any) => {
     console.log("param", param);
+    let filesDeleted = files.filter((item) => item.name !== param.name);
+    setFiles(filesDeleted);
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
