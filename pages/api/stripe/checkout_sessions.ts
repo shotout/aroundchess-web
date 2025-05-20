@@ -21,7 +21,8 @@ export default async function handler(
         type,
         idUser,
         membershipId,
-        stripeProductId
+        stripeProductId,
+        couponId
       } = JSON.parse(req.body);
       let isMembership = stripeProductId!=null
 
@@ -60,7 +61,7 @@ export default async function handler(
               quantity: 1,
             },
           ],
-          discounts: [{ coupon: SPECIAL_OFFER_COUPON_ID }], // Selalu gunakan diskon
+          discounts: [{ coupon: couponId }], // Selalu gunakan diskon
           subscription_data: {
             metadata: {
               userId: idUser,
