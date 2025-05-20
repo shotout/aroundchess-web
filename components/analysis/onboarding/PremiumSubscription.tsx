@@ -141,7 +141,7 @@ export const PremiumSubsContent: React.FC<{
         type: "membership",
         idUser: profile.id,
         membershipId: premium.id,
-        couponId: premium.discount,
+        couponId: profile.discount,
         stripeProductId: premium.stripeProductId,
       }),
     });

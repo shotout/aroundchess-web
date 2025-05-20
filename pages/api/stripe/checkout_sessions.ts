@@ -5,8 +5,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-03-31.basil",
 });
  
-const SPECIAL_OFFER_COUPON_ID = "ru2iS7A4";
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
