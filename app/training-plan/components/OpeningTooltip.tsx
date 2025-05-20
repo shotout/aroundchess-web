@@ -8,24 +8,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface OpeningTooltipProps {
-  content: string;
+  content?: string;
   className?: string;
   tooltipClassName?: string;
   categoryId?: string;
+  openingNames?: string[] | string; // Can be array or single string
 }
 
 const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
-  content,
+  content = "",
   className = "",
   tooltipClassName = "",
   categoryId,
+  openingNames, // Can be array or single string
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const { openingPlayed } = usePgnStore();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -60,6 +65,47 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, isMobile]);
+
+  // Function to get relevant openings with their play counts
+  const getRelevantOpenings = () => {
+    if (!openingPlayed) {
+      return [];
+    }
+
+    // Convert openingNames to array if it's a string
+    const namesArray = Array.isArray(openingNames)
+      ? openingNames
+      : openingNames
+      ? [openingNames]
+      : [];
+
+    if (namesArray.length === 0) {
+      // If no specific openings provided, show all openings
+      return openingPlayed
+        .map((opening) => ({
+          name: opening.opening_name,
+          playCount: opening.total_game,
+        }))
+        .filter((opening) => opening.playCount > 0)
+        .sort((a, b) => b.playCount - a.playCount);
+    }
+
+    // Filter by provided opening names
+    return namesArray
+      .map((openingName) => {
+        const matchingOpening = openingPlayed.find(
+          (opening) => opening.opening_name === openingName
+        );
+        return {
+          name: openingName,
+          playCount: matchingOpening ? matchingOpening.total_game : 0,
+        };
+      })
+      .filter((opening) => opening.playCount > 0) // Only show openings that have been played
+      .sort((a, b) => b.playCount - a.playCount); // Sort by play count (highest first)
+  };
+
+  const relevantOpenings = getRelevantOpenings();
 
   const tooltipVariants = {
     hidden: {
@@ -111,7 +157,25 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
           <AlertCircle className="text-blue-base w-5 h-5" />
         </div>
       </div>
-      <p className="text-black font-medium">{content}</p>
+      <div className="flex flex-col gap-2">
+        {content && <p className="text-black font-medium">{content}</p>}
+        {relevantOpenings.length > 0 ? (
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-gray-800">
+              Openings you've played:
+            </p>
+            {relevantOpenings.map((opening, index) => (
+              <p key={index} className="text-sm text-gray-700">
+                {opening.name} = {opening.playCount} times played
+              </p>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">
+            No openings have been played yet.
+          </p>
+        )}
+      </div>
     </div>
   );
 

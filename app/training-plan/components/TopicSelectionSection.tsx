@@ -37,7 +37,9 @@ const TopicSelectionSection: React.FC<TopicSelectionSectionProps> = ({
         <h3 className="font-semibold">{title}</h3>
         <OpeningTooltip
           categoryId={categoryId}
-          content={"hello"}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          openingNames={topics.title}
           className={
             isMobile
               ? `absolute w-[300px] top-0 left-10 z-50 `

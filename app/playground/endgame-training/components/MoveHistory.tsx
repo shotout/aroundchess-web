@@ -9,30 +9,30 @@ interface MoveHistoryProps {
 
 export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
   const getPieceType = (move: any) => {
-    if (!move || !move.san) return "p";
+    if (!move || !move.san) return "P";
 
     const san = move.san;
 
-    if (san.startsWith("O-O")) return "k";
+    if (san.startsWith("O-O")) return "K";
 
     const firstChar = san.charAt(0);
 
     if (firstChar === firstChar.toUpperCase() && firstChar.match(/[KQRBN]/)) {
       switch (firstChar) {
         case "K":
-          return "k"; // King
+          return "K"; // King
         case "Q":
-          return "q"; // Queen
+          return "Q"; // Queen
         case "R":
-          return "r"; // Rook
+          return "R"; // Rook
         case "B":
-          return "b"; // Bishop
+          return "B"; // Bishop
         case "N":
-          return "n"; // Knight
+          return "N"; // Knight
       }
     }
 
-    return "p";
+    return "P";
   };
 
   return (

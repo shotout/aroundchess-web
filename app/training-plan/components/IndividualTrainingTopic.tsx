@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   topic,
@@ -21,6 +22,20 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   const bgColor = isSelected ? "bg-blue-base/5" : "bg-white";
   const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
+
+  const { openingPlayed } = usePgnStore();
+
+  const getOpeningPlayCount = () => {
+    if (!isOpeningTopic || !openingPlayed) return 0;
+
+    const matchingOpening = openingPlayed.find(
+      (opening) => opening.opening_name === topic.title
+    );
+
+    return matchingOpening ? matchingOpening.total_game : 0;
+  };
+
+  const playCount = getOpeningPlayCount();
 
   const getBackgroundImage = () => {
     if (isOpeningTopic) {
@@ -137,11 +152,13 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
             className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
           >
             <AlertCircle className="text-blue-base w-5 h-5" />
-            <div className="flex  flex-col  gap-y-2">
+            <div className="flex flex-col gap-y-2">
               <h3 className="font-semibold text-sm">
                 You've played this topic
               </h3>
-              <p className="text-xs text-gray-600">N Times</p>
+              <p className="text-xs text-gray-600">
+                {playCount > 0 ? `${playCount} Times` : "Not played yet"}
+              </p>
             </div>
           </TooltipContent>
         )}

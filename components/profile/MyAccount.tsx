@@ -13,9 +13,14 @@ import ChangePasswordDialog from "./ChangePasswordDialog";
 
 const MyAccount = () => {
   const { getProfile, logOut, isLoading } = useApiClient();
-  const { profile, setProfile, clearAll, sessionId } = useProfileStore();
+  const {
+    profile,
+    setProfile,
+    clearAll: clearProfile,
+    sessionId,
+  } = useProfileStore();
   const router = useRouter();
-  const { username, setUsername } = usePgnStore();
+  const { username, setUsername, clearAll } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
@@ -30,7 +35,7 @@ const MyAccount = () => {
       password: "",
     });
   }, [profile, username]);
- 
+
   const handleOnChange = (e: any) => {
     console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,6 +45,12 @@ const MyAccount = () => {
     router.push("/forgot-password");
   };
 
+  const handleLogout = async () => {
+    clearAll();
+    clearProfile();
+    localStorage.removeItem("token");
+    handleSignOut();
+  };
   const handleSignOut = async () => {
     logOut({ sessionId })
       .then(() => {})
@@ -64,7 +75,7 @@ const MyAccount = () => {
         <span className="text-[18px] font-semibold">My Account</span>
         <button
           disabled={isLoading}
-          onClick={handleSignOut}
+          onClick={handleLogout}
           className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
         >
           {isLoading ? (

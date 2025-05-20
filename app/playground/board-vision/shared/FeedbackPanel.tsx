@@ -55,7 +55,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                   }
                   className="h-5 w-5 text-green-500"
                 />
-                <h1 className="text-black font-medium">
+                <h1 className="text-white font-medium">
                   {isCorrect ? "Correct!" : "Incorrect!"} The answer is{" "}
                   {gameQuestion?.correctAnswer}.
                 </h1>

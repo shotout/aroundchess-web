@@ -259,30 +259,25 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               const regularWidth = baseWidth * scaleFactor;
               const regularHeight = baseHeight * scaleFactor;
 
-              const nextGoalBonusScale = 1.0;
-              const nextGoalWidth = regularWidth * nextGoalBonusScale;
-              const nextGoalHeight = regularHeight * nextGoalBonusScale;
-
               return (
                 <div
                   key={level.id}
                   className="flex flex-col items-center relative w-full space-y-2"
                 >
-                  {isNextGoal && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <div
-                        className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
-                      >
-                        Your Next Goal
-                      </div>
-                      <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                    </div>
-                  )}
-
                   <div className="h-8 flex items-center justify-center">
                     {isCompleted && !isNextGoal && (
                       <div className="w-6 h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46] rounded-full flex items-center justify-center">
                         <Check className="h-4 w-4 text-white font-light" />
+                      </div>
+                    )}
+                    {isNextGoal && (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div
+                          className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
+                        >
+                          Your Next Goal
+                        </div>
+                        <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                       </div>
                     )}
                   </div>
@@ -290,16 +285,13 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   <div className="relative h-[88px] flex justify-center items-end">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        {/* This wrapper div helps normalize the alignment */}
                         <div className="inline-flex items-end h-full">
                           <div className="relative w-fit h-fit flex items-end">
                             <Image
                               src={imagePath}
                               alt={level.title}
-                              width={isNextGoal ? nextGoalWidth : regularWidth}
-                              height={
-                                isNextGoal ? nextGoalHeight : regularHeight
-                              }
+                              width={regularWidth}
+                              height={regularHeight}
                               className="object-contain align-bottom"
                             />
                           </div>
@@ -311,15 +303,15 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                         align="start"
                         sideOffset={20}
                         alignOffset={10}
-                        className={`bg-blue-base/5 w-[200px] backdrop-blur-3xl border border-blue-base shadow-lg rounded-none rounded-t-md ${
+                        className={`bg-blue-base/5 w-[350px] backdrop-blur-3xl border border-blue-base shadow-lg rounded-none rounded-t-md ${
                           level.id === "grandmaster"
                             ? "rounded-bl-md rounded-br-none"
                             : "rounded-br-md"
                         }`}
                       >
                         <div className="flex items-center gap-x-2 p-1">
-                          <AlertCircle className="text-blue-base w-10 h-10" />
-                          <div className="text-xs">
+                          <AlertCircle className="text-blue-base w-5 h-5" />
+                          <div className="text-xs text-justify">
                             <h1>{level.description}</h1>
                           </div>
                         </div>

@@ -9,7 +9,6 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "../store/profile";
 
 const DEV_MODE = false;
@@ -39,8 +38,13 @@ export default function AnalysisPage() {
     setPgn,
     dataAnalysis,
     setDataAnalysis,
+    setOpeningPlayed,
   } = usePgnStore();
-  const { getMistakePrevious, isLoading: fetchLoading } = useApiClient();
+  const {
+    getMistakePrevious,
+    GameHistoryOpenings,
+    isLoading: fetchLoading,
+  } = useApiClient();
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
@@ -62,6 +66,15 @@ export default function AnalysisPage() {
     }
   };
 
+  const fetchGamheHistoryOpenings = async () => {
+    try {
+      const data = await GameHistoryOpenings();
+      setOpeningPlayed(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const openModalAnalyze = (data: any) => {
     console.log("openModalAnalyze", data);
     if (data.length == 0) {
@@ -80,6 +93,7 @@ export default function AnalysisPage() {
 
     if (isSignedIn) {
       fetchMistakePrevious();
+      fetchGamheHistoryOpenings();
     }
 
     if (

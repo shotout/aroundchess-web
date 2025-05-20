@@ -60,6 +60,10 @@ interface PgnState {
   // Track newly imported games
   importedGames: Game[];
 
+  // openings played
+  openingPlayed: any[]
+  setOpeningPlayed: (openingPlayed: any[]) => void;
+
   setPgn: (pgn: string) => void;
   setUsernameAnalysis: (usernameAnalysis: string) => void;
   setUsername: (username: string) => void;
@@ -138,6 +142,8 @@ export const usePgnStore = create<PgnState>()(
       
       // Initialize imported games array
       importedGames: [],
+      openingPlayed: [],
+      setOpeningPlayed: (openingPlayed: any) => set({openingPlayed}),
 
       setPgn: (pgn: string) => set({ pgn }),
 
@@ -262,6 +268,7 @@ export const usePgnStore = create<PgnState>()(
           hideDiv: false,
           otherGamesData: [],
           otherGamesLastFetched: null,
+          openingPlayed:[],
         importedGames: []
         }),
       
@@ -301,6 +308,7 @@ export const usePgnStore = create<PgnState>()(
         username: state.username,
         usernameAnalysis:state.usernameAnalysis,
         pgn: state.pgn,
+        openingPlayed: state.openingPlayed,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
         analyticsData: state.analyticsData,

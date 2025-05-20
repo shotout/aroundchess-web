@@ -13,6 +13,8 @@ interface LearningObjective {
 }
 
 interface Prerequisite {
+  id: number;
+  handbookId: string;
   prerequisite: string;
 }
 
@@ -87,23 +89,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <h3 className="font-semibold mb-2">Prerequisites:</h3>
           <div className="flex flex-wrap gap-2">
             {prerequisites.length > 0 ? (
-              prerequisites.map((prereq: Prerequisite) => (
-                <span
-                  key={prereq.prerequisite}
-                  className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
-                  onClick={() =>
-                    router.push(`${basePath}/${prereq.prerequisite}`)
-                  }
-                >
-                  {prereq.prerequisite
-                    .split("-")
-                    .map(
-                      (word: string) =>
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                    )
-                    .join(" ")}
-                </span>
-              ))
+              prerequisites.map((prereq: Prerequisite) => {
+                return (
+                  <span
+                    key={prereq.prerequisite}
+                    className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
+                  >
+                    {prereq.prerequisite
+                      .split("-")
+                      .map(
+                        (word: string) =>
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </span>
+                );
+              })
             ) : (
               <div className="text-blue-base border px-1 border-blue-base">
                 No prerequisites

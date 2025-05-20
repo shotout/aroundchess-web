@@ -11,11 +11,13 @@ export interface UserProfile {
 
 export interface TrainingTopic {
   id: string;
-  title: string;
+  title?: string;
   level?: string;
   difficulty?: string;
   category?: string;
   forColor?: string;
+
+
 }
 
 export interface WeekDay {

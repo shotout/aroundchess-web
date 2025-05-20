@@ -73,7 +73,6 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
     router.push("/profile");
   };
   const handleLogout = async () => {
-    // Clear Zustand store first
     clearAll();
     clearProfile();
     localStorage.removeItem("token");

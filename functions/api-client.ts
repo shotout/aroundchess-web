@@ -1,11 +1,9 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback} from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
-import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -610,6 +608,14 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const GameHistoryOpenings = useCallback(() => {
+      return apiRequest ({
+        method: "GET",
+        path: `${process.env.BASE_URL}/games/my-game-history-opening`,
+      })
+    },
+    [apiRequest]
+  )
   return {
     isLoading,
     error,
@@ -665,5 +671,6 @@ export function useApiClient() {
     getFAQ,
     logOut,
     contactUs,
+    GameHistoryOpenings
   };
 }

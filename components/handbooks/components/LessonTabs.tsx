@@ -25,7 +25,6 @@ const LessonTabs: React.FC<LessonTabsProps> = ({
   router,
   basePath,
 }) => {
-  // Check if the variations property exists on the lesson
   const hasVariations =
     "variations" in lesson && Array.isArray(lesson.variations);
 
