@@ -34,7 +34,8 @@ export function ContactUs() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
-  const [file, setFile] = useState<any>(null);
+  const [files, setFiles] = useState<any[]>([]);
+  const [file, setFile] = useState<any[]>([]);
 
   const [widthC, setWidthC] = useState<number>(0);
   const [form, setForm] = useState<any>({
@@ -62,9 +63,12 @@ export function ContactUs() {
     formData.append("topics", form.topics);
     formData.append("message", form.message);
 
-    // Append the file if it exists
-    if (file && file[0]) {
-      formData.append("file", file[0]);
+    // Append the files if they exist
+    if (files && files.length > 0) {
+      files.forEach((f: File) => {
+        console.log("file foreach", f);
+        formData.append("files", f);
+      });
     }
     console.log("formData contact us", Array.from(formData.entries()));
 
@@ -72,7 +76,7 @@ export function ContactUs() {
       console.log("success send contact us");
       setOpen(false);
       setOpenSent(true);
-      setFile(null);
+      setFiles([]);
       setFileName("");
       setFileSize(0);
       setForm({
@@ -85,15 +89,19 @@ export function ContactUs() {
     });
   };
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const fileTarget = e.target.files;
-      console.log("file:", file);
+    console.log("e.target.files", e.target.files);
+    const allFile = e.target.files ? Array.from(e.target.files) : [];
+    console.log("allFile", allFile);
+    setFiles(allFile);
+    // if (e.target.files && e.target.files[0]) {
+    //   const file = e.target.files[0];
+    //   const fileTarget = e.target.files;
+    //   console.log("file:", file);
 
-      if (!file) return;
+    //   if (!file) return;
 
-      handleFile(file, fileTarget);
-    }
+    //   handleFile(file, fileTarget);
+    // }
   };
 
   const handleFile = (
@@ -119,7 +127,9 @@ export function ContactUs() {
     setFileName(file.name);
     setFileSize(file.size);
   };
-
+  const handleDelete = (param: any) => {
+    console.log("param", param);
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {/* <DialogOverlay className="fixed inset-0 bg-black/50" /> */}
@@ -246,6 +256,7 @@ export function ContactUs() {
                 <input
                   ref={fileInputRef}
                   type="file"
+                  multiple={true}
                   className="hidden"
                   accept=".jpg, .png, .pdf"
                   onChange={handleFileInput}
@@ -283,7 +294,19 @@ export function ContactUs() {
                 </div>
 
                 {/* render per file waiting upload */}
-                {/* <FileUploadCard /> */}
+                <div className="flex flex-col overflow-y-auto max-h-[30vh] gap-2 px-2">
+                  {files &&
+                    files.length > 0 &&
+                    files.map((item: any, index: number) => {
+                      return (
+                        <FileUploadCard
+                          handleDeleteFile={(param: any) => handleDelete(param)}
+                          item={item}
+                          key={index}
+                        />
+                      );
+                    })}
+                </div>
               </div>
             </div>
             <button
@@ -305,7 +328,7 @@ export function ContactUs() {
                   form.file.length == 0)
                   ? `opacity-70`
                   : ``
-              } btn-primary rounded-full min-h-[48px] sm:min-w-[333px] flex flex-row items-center justify-center gap-2`}
+              } absolute bottom-0 btn-primary rounded-full min-h-[48px] sm:min-w-[333px] flex flex-row items-center justify-center gap-2`}
             >
               {isLoading ? (
                 <DotSpinner size={5} />
