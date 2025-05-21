@@ -255,7 +255,7 @@ export const PremiumSubsContent: React.FC<{
               For frequent Chess Players
             </div>
           </div>
-          {!isMember && isPass > 0 && (
+          {!isMember && profile.discount && isPass > 0 && (
             <div className="flex justify-center items-center my-[12px]">
               <CountdownTimerDiscount />
             </div>
@@ -274,7 +274,7 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {isMember || isPass < 0 ? (
+              {profile.discount == null && (isMember || isPass < 0) ? (
                 <div className="text-2xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>

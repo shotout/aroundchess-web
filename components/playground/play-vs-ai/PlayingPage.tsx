@@ -121,6 +121,7 @@ export default function PlayingPage() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
+  let isYourTurn = myColor == "white" ? "w" : "b";
 
   const fetchPgnLocal = async () => {
     let headers = game.getHeaders();
@@ -814,7 +815,9 @@ export default function PlayingPage() {
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
-                  onSquareClick={onSquareClick}
+                  onSquareClick={
+                    game.turn() == isYourTurn ? onSquareClick : () => null
+                  }
                   onSquareRightClick={onSquareRightClick}
                   onPromotionPieceSelect={onPromotionPieceSelect}
                   customSquareStyles={{
@@ -866,7 +869,9 @@ export default function PlayingPage() {
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
-                  onSquareClick={onSquareClick}
+                  onSquareClick={
+                    game.turn() == isYourTurn ? onSquareClick : () => null
+                  }
                   onSquareRightClick={onSquareRightClick}
                   onPromotionPieceSelect={onPromotionPieceSelect}
                   customSquareStyles={{
