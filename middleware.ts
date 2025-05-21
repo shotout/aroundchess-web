@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = [
   "/",
+  "/faq",
   "/chessboard",
   "/about-us",
   "/privacy-policy",
