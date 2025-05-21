@@ -461,7 +461,7 @@ export const PricingOffer: React.FC = () => {
                               : () => {
                                   setSelectedToken(5);
                                   handleStop();
-                                  // setCustomAmount("1");
+                                  setCustomAmount("0");
                                 }
                           }
                           className="flex items-center justify-center gap-2"
@@ -480,6 +480,7 @@ export const PricingOffer: React.FC = () => {
                               setSelectedToken(5);
                               e.stopPropagation();
                               handleStop();
+                              setCustomAmount("0");
                             }}
                           />
                           <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
