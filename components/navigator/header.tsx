@@ -275,14 +275,16 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 </motion.div>
               )}
               {/* Hamburger menu */}
-              <button
-                type="button"
-                className="text-gray-700 hover:text-blue-600 focus:outline-none"
-                onClick={onSidebarToggle}
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
+              {sessionId.length > 0 && (
+                <button
+                  type="button"
+                  className="text-gray-700 hover:text-blue-600 focus:outline-none"
+                  onClick={onSidebarToggle}
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              )}
             </div>
           )}
         </div>

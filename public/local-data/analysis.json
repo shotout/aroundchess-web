@@ -25,7 +25,7 @@
     "summary": {
         "whiteSide": {
             "profileInfo": {
-                "photo": "https://www.chess.com/bundles/web/images/user-image.007dad08.svg",
+                "photo": "/images/homepage/vladislav-photo.png",
                 "username": "Kovalev, Vladislav",
                 "gameRating": 2555,
                 "chessAccountInfo": {}
@@ -47,7 +47,7 @@
         },
         "blackSide": {
             "profileInfo": {
-                "photo": "https://www.chess.com/bundles/web/images/user-image.007dad08.svg",
+                "photo": "/images/homepage/magnus-photo.png",
                 "username": "Carlsen, Magnus",
                 "gameRating": 2852,
                 "chessAccountInfo": {}

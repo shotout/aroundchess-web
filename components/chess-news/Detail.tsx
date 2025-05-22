@@ -65,7 +65,7 @@ export default function Detail() {
     });
   };
   const toggleSave = (id: number) => {
-    toggleSaveNews({ articleId: params?.id }).then((response) => {
+    toggleSaveNews({ articleId: detailNews?.id }).then((response) => {
       console.log(response.data);
       setSaved((prev: any[]) => ({ ...prev, [id]: !prev[id] }));
       fetchDetailNews();

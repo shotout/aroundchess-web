@@ -5,6 +5,7 @@ import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
 import { useProfileFetch } from "./hook/useProfileFetch";
+import { useProfileStore } from "@/app/store/profile";
 
 export default function Navigation({
   children,
@@ -13,6 +14,7 @@ export default function Navigation({
   children: React.ReactNode;
   isDialogOpen?: boolean;
 }) {
+  const { sessionId } = useProfileStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const { setCallFetch } = useProfileFetch();
@@ -34,7 +36,7 @@ export default function Navigation({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
-      {isDesktop && (
+      {isDesktop && sessionId.length > 0 && (
         <div className="fixed top-0 left-0 h-full w-64 border-r border-gray-200 bg-white z-30">
           <Sidebar />
         </div>
@@ -69,7 +71,7 @@ export default function Navigation({
         </main>
       </div>
 
-      {!isDesktop && isSidebarOpen && (
+      {!isDesktop && isSidebarOpen && sessionId.length > 0 && (
         <>
           <div
             className="fixed inset-0 bg-black/50 z-10"

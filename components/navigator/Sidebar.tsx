@@ -46,13 +46,13 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-dashboard-icon.png",
     iconActive: "/icons/sidebar-dashboard-icon-active.png",
     children: [
-      {
-        name: "Analyze Game",
-        href: "/analysis",
-        icon: "/icons/sidebar-analyze-icon.png",
-        iconActive: "/icons/sidebar-analyze-icon-active.png",
-        permission: true,
-      },
+      // {
+      //   name: "Analyze Game",
+      //   href: "/analysis",
+      //   icon: "/icons/sidebar-analyze-icon.png",
+      //   iconActive: "/icons/sidebar-analyze-icon-active.png",
+      //   permission: true,
+      // },
       {
         name: "My Game History",
         href: "/my-game-history",
@@ -129,21 +129,21 @@ const sidebarLinks: SidebarLink[] = [
       },
     ],
   },
-  {
-    name: "Tournaments : (Coming Soon)",
-    icon: "/icons/sidebar-tournaments-icon.png",
-    iconActive: "/icons/sidebar-tournaments-icon-active.png",
-    disabled: true,
-    children: [
-      {
-        name: "My Teams (Coming Soon)",
-        href: "#",
-        icon: "/icons/sidebar-teams-icon.png",
-        iconActive: "/icons/sidebar-teams-icon-active.png",
-        disabled: true,
-      },
-    ],
-  },
+  // {
+  //   name: "Tournaments : (Coming Soon)",
+  //   icon: "/icons/sidebar-tournaments-icon.png",
+  //   iconActive: "/icons/sidebar-tournaments-icon-active.png",
+  //   disabled: true,
+  //   children: [
+  //     {
+  //       name: "My Teams (Coming Soon)",
+  //       href: "#",
+  //       icon: "/icons/sidebar-teams-icon.png",
+  //       iconActive: "/icons/sidebar-teams-icon-active.png",
+  //       disabled: true,
+  //     },
+  //   ],
+  // },
 ];
 
 export default function Sidebar({ onClose }: SidebarProps) {

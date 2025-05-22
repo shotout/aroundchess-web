@@ -315,13 +315,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     Opening:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
-                    <Image
-                      alt=""
-                      src={`/icons/${whiteSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
-                      width={1000}
-                      height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                    />
+                    {whiteSide?.analysis?.opening && (
+                      <Image
+                        alt=""
+                        src={`/icons/${whiteSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
+                        width={1000}
+                        height={1000}
+                        className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                      />
+                    )}
                     <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.opening}
                     </span>
@@ -332,13 +334,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     Middlegame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
-                    <Image
-                      alt=""
-                      src={`/icons/${whiteSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
-                      width={1000}
-                      height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                    />
+                    {whiteSide?.analysis?.middleGame && (
+                      <Image
+                        alt=""
+                        src={`/icons/${whiteSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
+                        width={1000}
+                        height={1000}
+                        className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                      />
+                    )}
                     <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.middleGame}
                     </span>
@@ -349,13 +353,16 @@ const Summary: React.FC<SummaryProps> = (props) => {
                     Endgame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
-                    <Image
-                      alt=""
-                      src={`/icons/${whiteSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
-                      width={1000}
-                      height={1000}
-                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                    />
+                    {whiteSide?.analysis?.endGame && (
+                      <Image
+                        alt=""
+                        src={`/icons/${whiteSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
+                        width={1000}
+                        height={1000}
+                        className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                      />
+                    )}
+
                     <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                       {whiteSide?.analysis?.endGame}
                     </span>
@@ -367,13 +374,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <div className={`w-full pl-2 flex flex-col items-start gap-2`}>
               <div className="flex flex-row items-center justify-around gap-2">
                 <div className="flex max-w-[44px] flex-col items-center w-16">
-                  <Image
-                    alt=""
-                    src={`/icons/${blackSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
-                    width={1000}
-                    height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                  />
+                  {blackSide?.analysis?.opening && (
+                    <Image
+                      alt=""
+                      src={`/icons/${blackSide?.analysis?.opening.toLowerCase()}-moves-icon.png`}
+                      width={1000}
+                      height={1000}
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    />
+                  )}
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.opening}
                   </span>
@@ -381,13 +390,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
               </div>
               <div className="flex flex-row items-center justify-around gap-2">
                 <div className="flex max-w-[44px] flex-col items-center w-16">
-                  <Image
-                    alt=""
-                    src={`/icons/${blackSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
-                    width={1000}
-                    height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                  />
+                  {blackSide?.analysis?.middleGame && (
+                    <Image
+                      alt=""
+                      src={`/icons/${blackSide?.analysis?.middleGame.toLowerCase()}-moves-icon.png`}
+                      width={1000}
+                      height={1000}
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    />
+                  )}
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.middleGame}
                   </span>
@@ -395,13 +406,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
               </div>
               <div className="flex flex-row items-center justify-around gap-2">
                 <div className="flex max-w-[44px] flex-col items-center w-16">
-                  <Image
-                    alt=""
-                    src={`/icons/${blackSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
-                    width={1000}
-                    height={1000}
-                    className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                  />
+                  {blackSide?.analysis?.endGame && (
+                    <Image
+                      alt=""
+                      src={`/icons/${blackSide?.analysis?.endGame.toLowerCase()}-moves-icon.png`}
+                      width={1000}
+                      height={1000}
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    />
+                  )}
                   <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
                     {blackSide?.analysis?.endGame}
                   </span>

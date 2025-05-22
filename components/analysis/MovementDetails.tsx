@@ -158,7 +158,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const handleOnClickMovement = (move: any, index: number, type: string) => {
     move.index = index;
     move.type = type;
-    console.log(move);
+    console.log("handleOnClickMovement",move);
     setChessMove(move);
   };
   return (
@@ -244,7 +244,9 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               </span>
               <div
                 className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
-                  chessMove.move == move.move && `bg-[#81CFF3] `
+                  chessMove.move == move.move &&
+                  chessMove.moveNumber == move.moveNumber &&
+                  `bg-[#81CFF3] `
                 }`}
               >
                 <Popover>
@@ -345,6 +347,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
               <div
                 className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
                   chessMove.move == movementDetails.black[index]?.move &&
+                  chessMove.moveNumber == movementDetails.black[index]?.moveNumber &&
                   `bg-[#81CFF3] `
                 }`}
               >

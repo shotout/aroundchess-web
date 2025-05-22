@@ -140,7 +140,7 @@ export function AnalysisSection() {
               </div>
               <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
                 <div className="flex flex-col xl:flex-row w-full min-h-[72vh]">
-                  <div className="flex items-center justify-center border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
+                  <div className="flex items-center border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] ">
                       <AnimatePresence>
                         <motion.div

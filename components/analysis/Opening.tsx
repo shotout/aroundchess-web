@@ -114,12 +114,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.white.name}
               </span>
-              <Image
-                alt=""
-                src={`/icons/${whiteOpening.classification.toLowerCase()}-moves-icon.png`}
-                width={20}
-                height={20}
-              />
+              {whiteOpening.classification && (
+                <Image
+                  alt=""
+                  src={`/icons/${whiteOpening.classification.toLowerCase()}-moves-icon.png`}
+                  width={20}
+                  height={20}
+                />
+              )}
               {whiteOpening.classification}
             </div>
           </div>
@@ -131,12 +133,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
                 {openings.black.name}
               </span>
-              <Image
-                alt=""
-                src={`/icons/${blackOpening.classification.toLowerCase()}-moves-icon.png`}
-                width={20}
-                height={20}
-              />
+              {blackOpening.classification && (
+                <Image
+                  alt=""
+                  src={`/icons/${blackOpening.classification.toLowerCase()}-moves-icon.png`}
+                  width={20}
+                  height={20}
+                />
+              )}
               {blackOpening.classification}
             </div>
           </div>
@@ -225,7 +229,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
         <div className="w-8" />
         <button
           onClick={props.next}
-           className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+          className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Middlegame

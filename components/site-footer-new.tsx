@@ -28,9 +28,9 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     setOpen(true);
   };
   const handleDiscord = () => {
-    const discordUrl = `https://discordapp.com/`;
+    const discordUrl = `https://discord.gg/PZWcXsxGM7`;
     // const discordUrl = `https://discordapp.com/channels/SERVERID/CHANNELID`;
-    window.open(discordUrl, "_blank", "width=600,height=400");
+    window.open(discordUrl, "_blank");
   };
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>

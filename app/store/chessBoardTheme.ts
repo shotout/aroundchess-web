@@ -22,7 +22,7 @@ export const useChessBoardThemeStore = create<ChessBoardThemeState>()(
       setStyleChoosed: (StyleChoosed) => set({ StyleChoosed }),
       BoardChoosed: "wood",
       setBoardChoosed: (BoardChoosed) => set({ BoardChoosed }),
-      PieceChoosed: "wood",
+      PieceChoosed: "metallic",
       setPieceChoosed: (PieceChoosed) => set({ PieceChoosed }),
     }),
     {

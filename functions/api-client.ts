@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback} from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useProfileStore } from "@/app/store/profile";
@@ -61,26 +61,34 @@ export function useApiClient() {
           console.log("body", body);
 
           const response = await fetch(url, {
-            method,            headers: {
-              "Accept": "*/*",
+            method,
+            headers: {
+              Accept: "*/*",
               Authorization: `Bearer ${sessionId}`,
               ...headers,
               // Don't set Content-Type for FormData, let the browser set it with the boundary
-              ...(!body || !(body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+              ...(!body || !(body instanceof FormData)
+                ? { "Content-Type": "application/json" }
+                : {}),
             },
-            body: method !== "GET" ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
+            body:
+              method !== "GET"
+                ? body instanceof FormData
+                  ? body
+                  : JSON.stringify(body)
+                : undefined,
           });
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.log("errorData", url, errorData, response);
             if (errorData.statusCode != 401 && errorData.statusCode != 404) {
               toast.error(errorData.message || "API request failed");
+              console.log("errorData", url, errorData, response);
+              throw new Error(errorData.message || "API request failed");
             }
             if (errorData.statusCode == 401) {
               handleSignOut();
             }
-            throw new Error(errorData.message || "API request failed");
           }
 
           const responseData = await response.json();
@@ -597,25 +605,23 @@ export function useApiClient() {
       });
     },
     [apiRequest]
-  );  
+  );
   const contactUs = useCallback(
     (formData: FormData) => {
       return apiRequest({
         method: "POST",
         path: `${process.env.BASE_URL}/contact-us`,
-        body: formData
+        body: formData,
       });
     },
     [apiRequest]
   );
   const GameHistoryOpenings = useCallback(() => {
-      return apiRequest ({
-        method: "GET",
-        path: `${process.env.BASE_URL}/games/my-game-history-opening`,
-      })
-    },
-    [apiRequest]
-  )
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/games/my-game-history-opening`,
+    });
+  }, [apiRequest]);
   return {
     isLoading,
     error,
@@ -671,6 +677,6 @@ export function useApiClient() {
     getFAQ,
     logOut,
     contactUs,
-    GameHistoryOpenings
+    GameHistoryOpenings,
   };
 }
