@@ -9,9 +9,9 @@ import { useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useApiClient } from "@/functions/api-client";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
-
 export function CancelSubscription() {
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+
   const router = useRouter();
   const { activeMembership } = useProfileStore();
   const { open, setOpen } = useCancelSubscription();
