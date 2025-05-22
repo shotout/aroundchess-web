@@ -45,7 +45,11 @@ export function useApiClient() {
       headers = {},
     }: RequestOptions): Promise<T | null> => {
       try {
-        if (sessionId.length > 0) {
+        if (
+          sessionId.length > 0 ||
+          path.includes("faq") ||
+          path.includes("contact")
+        ) {
           setIsLoading(true);
           setError(null);
           let url = path;

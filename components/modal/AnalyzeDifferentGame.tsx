@@ -34,9 +34,15 @@ const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
 interface AnalyzeDifferentGameProps {
   openPopup?: boolean;
+  label?: string;
+  style?: string;
 }
 
-export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
+export function AnalyzeDifferentGame({
+  openPopup,
+  label,
+  style,
+}: AnalyzeDifferentGameProps) {
   const router = useRouter();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
@@ -98,7 +104,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
   const [open, setOpen] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
@@ -281,6 +287,7 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
     } finally {
       setTimeout(() => {
         if (arr != null) {
+          router.push("/analysis")
           setIsLoading(false);
         } else {
           setIsLoading(false);
@@ -353,8 +360,10 @@ export function AnalyzeDifferentGame({ openPopup }: AnalyzeDifferentGameProps) {
       }}
     >
       <DialogTrigger asChild>
-        <button className="w-fill px-5 py-2 btn-primary rounded-full">
-          Analyze a different game
+        <button
+          className={`w-fill px-5 py-2 btn-primary rounded-full ${style}`}
+        >
+          {label && label.length > 0 ? label : "Analyze a different game"}
         </button>
       </DialogTrigger>
       {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}

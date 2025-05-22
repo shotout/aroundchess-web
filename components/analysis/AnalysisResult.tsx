@@ -253,10 +253,10 @@ const AnalysisResult: React.FC = () => {
     console.log("is3DMode", is3DMode);
     setIs3DMode((prev) => !prev);
     let style = !is3DMode ? "3d" : "2d";
-    console.log(is3DMode, style)
+    console.log(is3DMode, style);
     setStyleChoosed(style);
   };
- useEffect(() => {
+  useEffect(() => {
     let is3D = StyleChoosed == "3d" ? true : false;
     setIs3DMode(is3D);
   }, [StyleChoosed]);
@@ -437,7 +437,8 @@ const AnalysisResult: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - (window.innerWidth * 0.54 + 256);
+    let desktopSize =
+      window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
     const maxSize = window.innerWidth >= 1280 ? desktopSize : 480;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -446,7 +447,7 @@ const AnalysisResult: React.FC = () => {
       const availableWidth = width - minPadding * 2;
       // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor));
       console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
       // In landscape, use height as the primary constraint

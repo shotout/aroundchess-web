@@ -39,6 +39,7 @@ export default function AnalysisPage() {
     dataAnalysis,
     setDataAnalysis,
     setOpeningPlayed,
+    hydrated,
   } = usePgnStore();
   const {
     getMistakePrevious,
@@ -87,27 +88,25 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
-    console.log("dataAnalysis", dataAnalysis);
-    console.log("pgn.length", pgn);
-    console.log("isSignedIn", isSignedIn);
+    if (hydrated) {
+      console.log("dataAnalysis", dataAnalysis);
+      console.log("pgn.length", pgn);
+      console.log("isSignedIn", isSignedIn);
 
-    if (isSignedIn) {
-      fetchMistakePrevious();
-      fetchGamheHistoryOpenings();
-    }
+      if (isSignedIn) {
+        fetchMistakePrevious();
+        fetchGamheHistoryOpenings();
+      }
 
-    if (
-      (!isSignedIn && !isLoading) ||
-      pgn.length == 0 ||
-      dataAnalysis == null
-    ) {
-      console.log("No PGN data found, loading famous game as fallback");
-      fetchPgnFamousGame();
-    } else {
-      console.log("Using existing PGN data from store");
-      setIsLoading(false);
+      if (dataAnalysis == null) {
+        console.log("No PGN data found, loading famous game as fallback", isSignedIn, isLoading);
+        fetchPgnFamousGame();
+      } else {
+        console.log("Using existing PGN data from store");
+        setIsLoading(false);
+      }
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, hydrated, dataAnalysis]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;

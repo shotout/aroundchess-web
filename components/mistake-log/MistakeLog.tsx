@@ -1,11 +1,8 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import ChessContent from "./ChessContent";
-import SavedMistakes from "./SavedMistakes";
-import PreviousAnalysis from "./PreviousAnalysis";
+import { useChessMoveStore } from "@/app/store/chessMoveStore";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -13,13 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
-import { usePgnStore } from "@/app/store/zustandStore";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiClient } from "@/functions/api-client";
+import { Filter } from "lucide-react";
+import { useEffect, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
-import { useChessMoveStore } from "@/app/store/chessMoveStore";
+import ChessContent from "./ChessContent";
+import PreviousAnalysis from "./PreviousAnalysis";
+import SavedMistakes from "./SavedMistakes";
 
 const history = [
   { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
@@ -59,6 +57,7 @@ const MistakeLog = () => {
     setPreviousAnalyses,
     setPreviousAnalysesDetail,
     previousAnalysesDetail,
+    setDataAnalysis,
   } = usePgnStore();
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
@@ -139,7 +138,7 @@ const MistakeLog = () => {
     let widthC =
       window?.innerWidth <= 1280
         ? window?.innerWidth
-        : window?.innerWidth * 0.5;
+        : window?.innerWidth * 0.52;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
@@ -338,6 +337,7 @@ const MistakeLog = () => {
       </>
     );
   };
+
   return (
     <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
@@ -361,11 +361,13 @@ const MistakeLog = () => {
             onClick={() => {
               setSelectedTab("saved");
               setChessMove({});
-              setPgn(savedMistakes[0].pgn);
-              setPlayerInfo(savedMistakes[0].playerInfo);
-              setTitleGame(savedMistakes[0].title);
-              setMovementDetails(savedMistakes[0].movementDetail);
-              setPreviousAnalysesDetail(savedMistakes[0]); // Set the first saved mistake as the default detail
+              if (savedMistakes.length > 0) {
+                setPgn(savedMistakes[0].pgn);
+                setPlayerInfo(savedMistakes[0].playerInfo);
+                setTitleGame(savedMistakes[0].title);
+                setMovementDetails(savedMistakes[0].movementDetail);
+                setPreviousAnalysesDetail(savedMistakes[0]);
+              } // Set the first saved mistake as the default detail
             }}
             value="saved"
             className={`${

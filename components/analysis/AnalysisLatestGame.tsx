@@ -17,7 +17,7 @@ import Training from "./Training";
 
 const AnalysisLatestGame: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -70,7 +70,10 @@ const AnalysisLatestGame: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
   const handleResize = () => {
-    let widthC = window?.innerWidth < 1280 ? "auto" : window?.innerWidth * 0.5;
+    let widthC =
+      window?.innerWidth < 1280 || sessionId.length == 0
+        ? "auto"
+        : window?.innerWidth * 0.52;
     console.log("widthC", widthC);
     setWidthContainer(widthC);
   };

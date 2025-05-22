@@ -427,7 +427,7 @@ const ChessContent: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - (window.innerWidth * 0.55 + 256);
+    let desktopSize = window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -467,7 +467,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.blackWin && "text-[#00B427]"
                 }`}
               >
@@ -512,8 +512,8 @@ const ChessContent: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-          <Watch size={16} />
+        <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+          <Watch size={16} className="object-contain w-[16px] h-[16px]" />
           <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
             {currentMoveBlack == 0 ? startTime : currentMoveBlack}
           </span>
@@ -542,7 +542,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.whiteWin && "text-[#00B427]"
                 }`}
               >
@@ -587,8 +587,8 @@ const ChessContent: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
-          <Watch size={16} />
+        <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+          <Watch size={16} className="object-contain w-[16px] h-[16px]" />
           <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
             {currentMoveWhite == 0 ? startTime : currentMoveWhite}
           </span>

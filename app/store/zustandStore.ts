@@ -56,12 +56,12 @@ interface PgnState {
   previousAnalyses: any[];
   previousAnalysesDetail: any;
   savedMistakes: any[];
-  
+
   // Track newly imported games
   importedGames: Game[];
 
   // openings played
-  openingPlayed: any[]
+  openingPlayed: any[];
   setOpeningPlayed: (openingPlayed: any[]) => void;
 
   setPgn: (pgn: string) => void;
@@ -99,17 +99,22 @@ interface PgnState {
   resetPerformanceState: () => void;
 
   clearAll: () => void;
-  
+
   // New function to add imported games
-  addImportedGame: (game: Omit<Game, 'id'>) => Game;
+  addImportedGame: (game: Omit<Game, "id">) => Game;
+  hydrated: boolean;
+  setHydrated: () => void;
 }
 
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
+      hydrated: false, // manually track hydration
+      setHydrated: () => set({ hydrated: true }),
+
       pgn: "",
       username: "",
-      usernameAnalysis:"",
+      usernameAnalysis: "",
       dataAnalysis: null,
       isLoading: false,
       lastFetchTimestamp: 0,
@@ -139,11 +144,11 @@ export const usePgnStore = create<PgnState>()(
       previousAnalyses: [],
       previousAnalysesDetail: [],
       savedMistakes: [],
-      
+
       // Initialize imported games array
       importedGames: [],
       openingPlayed: [],
-      setOpeningPlayed: (openingPlayed: any) => set({openingPlayed}),
+      setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
 
       setPgn: (pgn: string) => set({ pgn }),
 
@@ -153,12 +158,14 @@ export const usePgnStore = create<PgnState>()(
           lastFetchTimestamp:
             username !== state.username ? Date.now() : state.lastFetchTimestamp,
         })),
-        setUsernameAnalysis: (usernameAnalysis: string) =>
-          set((state) => ({
-            usernameAnalysis,
-            lastFetchTimestamp:
-            usernameAnalysis !== state.usernameAnalysis ? Date.now() : state.lastFetchTimestamp,
-          })),
+      setUsernameAnalysis: (usernameAnalysis: string) =>
+        set((state) => ({
+          usernameAnalysis,
+          lastFetchTimestamp:
+            usernameAnalysis !== state.usernameAnalysis
+              ? Date.now()
+              : state.lastFetchTimestamp,
+        })),
       setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
 
       setDataAnalysis: (dataAnalysis: AnalysisResult | null) =>
@@ -250,7 +257,7 @@ export const usePgnStore = create<PgnState>()(
         set({
           pgn: "",
           username: "",
-          usernameAnalysis:"",
+          usernameAnalysis: "",
           dataAnalysis: null,
           isLoading: false,
           lastFetchTimestamp: 0,
@@ -268,45 +275,49 @@ export const usePgnStore = create<PgnState>()(
           hideDiv: false,
           otherGamesData: [],
           otherGamesLastFetched: null,
-          openingPlayed:[],
-        importedGames: []
+          openingPlayed: [],
+          importedGames: [],
         }),
-      
+
       // Add a new imported game to the store
       addImportedGame: (gameData) => {
         // Generate a unique ID for the new game
         const newId = Date.now();
-        
+
         // Create the new game with the generated ID
         const newGame: Game = {
           ...gameData,
-          id: newId
+          id: newId,
         };
-        
+
         // Update the store with the new game
         set((state) => ({
           // Add to imported games array
           importedGames: [newGame, ...state.importedGames],
-          
+
           // Also add to regular games array if it's a user game
           gamesData: [newGame, ...state.gamesData],
-          
+
           // Update the timestamp
-          gamesLastFetched: Date.now()
+          gamesLastFetched: Date.now(),
         }));
-        
+
         // Return the new game so it can be used
         return newGame;
-      }
+      },
     }),
     {
       name: "pgn-session-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
+
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         dataAnalysis: state.dataAnalysis,
         isLoading: state.isLoading,
         username: state.username,
-        usernameAnalysis:state.usernameAnalysis,
+        usernameAnalysis: state.usernameAnalysis,
         pgn: state.pgn,
         openingPlayed: state.openingPlayed,
         gamesData: state.gamesData,

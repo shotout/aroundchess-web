@@ -16,6 +16,7 @@ import Link from "next/link";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { TabsTrigger } from "../ui/tabs";
+import { AnalyzeDifferentGame } from "../modal/AnalyzeDifferentGame";
 interface emptyLogProps {
   title?: string;
   content?: string;
@@ -28,6 +29,8 @@ const EmptyLog: React.FC<emptyLogProps> = ({
   noButton,
   onClickSeePrevious,
 }) => {
+  const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
+
   const router = useRouter();
   const handleAnalyze = () => {
     router.push("/analysis");
@@ -52,12 +55,12 @@ const EmptyLog: React.FC<emptyLogProps> = ({
         </span>
       </div>
 
-      <button
-        onClick={handleAnalyze}
-        className="w-full rounded-full btn-primary font-medium text-[16px] h-[44px]"
-      >
-        Analyze Games
-      </button>
+      <AnalyzeDifferentGame
+        style="w-full"
+        openPopup={openAnalyze}
+        label="Analyze Games"
+      />
+
       {!noButton && (
         <button
           onClick={onClickSeePrevious}
