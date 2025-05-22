@@ -441,7 +441,11 @@ export const PricingOffer: React.FC = () => {
                           `,
                             }
                       }
-                      onClick={() => setSelectedToken(5)}
+                      onClick={() => {
+                        setSelectedToken(5);
+                        handleStop();
+                        setCustomAmount("0");
+                      }}
                     >
                       <div className="absolute top-3 right-3 z-2">
                         <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
