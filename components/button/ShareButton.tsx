@@ -74,7 +74,7 @@ const ShareButton = (props: any) => {
       onPress: () => {
         // Discord doesn't have a direct share URL, but users can copy and paste
         // Some Discord bots support webhooks, but for basic sharing:
-        window.open(`https://discord.com/channels/@me`, "_blank");
+        window.open(`https://discord.gg/PZWcXsxGM7`, "_blank");
         // After opening Discord, show a toast prompting to paste the link
         navigator.clipboard
           .writeText(shareUrl)
