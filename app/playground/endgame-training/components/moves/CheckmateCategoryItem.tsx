@@ -12,7 +12,7 @@ export const CheckmateCategoryItem: React.FC<CheckmateCategoryItemProps> = ({
   onCategorySelect,
 }) => {
   return (
-    <div className="rounded-xl p-2 xl:p-4 border border-gray-200 bg-white flex items-center hover:shadow-md transition-all max-h-40 xl:min-w-[343px]">
+    <div className="rounded-xl p-2 xl:p-4 border border-gray-200 bg-white flex items-center hover:shadow-md transition-all max-h-40 2xl:min-w-[343px]">
       <div className="flex w-full h-full border border-[#DEDEDE] shadow-md rounded-md p-3 bg-[url(/endgame-training/bg-check.png)] bg-cover">
         <div className="w-3/5 flex flex-col justify-center">
           <h3 className="font-semibold text-lg mb-3">

@@ -48,16 +48,15 @@ const GameHistoryPage: React.FC = () => {
 
   return (
     <>
-      <main className="w-full px-4 py-4 space-y-[16px] bg-primary-white relative">
+      <main className="w-full  bg-primary-white relative">
         <ChessAccountSetup isLoading={isLoading} />
-
-        <div className="">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex flex-row items-end gap-2">
-              <h1 className="text-sm lg:text-[32px] font-bold">
+        <div className="p-4">
+          <div className="flex justify-between items-center xl:mb-4">
+            <div className="flex flex-row items-center gap-1 md:gap-2">
+              <h1 className="text-sm md:text-2xl xl:text-[32px] font-bold">
                 My Game History
               </h1>
-              <div className="flex justify-center items-end h-full">
+              <div className="flex items-center h-full">
                 {isUsernameFetching ? (
                   <LoadingDot />
                 ) : (

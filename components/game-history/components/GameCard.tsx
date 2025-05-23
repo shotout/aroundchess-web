@@ -1,7 +1,6 @@
 import React from "react";
 import { ChartNoAxesColumn } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
 
 interface GameCardProps {
@@ -15,7 +14,6 @@ const GameCard: React.FC<GameCardProps> = ({
   onAnalyze,
   isNewlyImported = false,
 }) => {
-  // Data grouped into rows for better symmetry and organization
   const infoRows = [
     [
       { label: "Opponent", value: gameData.opponent },
@@ -30,16 +28,15 @@ const GameCard: React.FC<GameCardProps> = ({
   ];
 
   return (
-    <Card
-      className={`p-4 border rounded-lg shadow-lg ${
+    <div
+      className={`p-4 border md:rounded-md  ${
         isNewlyImported ? "border-green-500 bg-green-50" : ""
       }`}
     >
-      {/* Header section with date and result */}
       <div className="flex justify-between items-center mb-4 text-xs">
         <div className="text-gray-500">{gameData.date}</div>
         <div className={`font-semibold ${gameData.resultColor}`}>
-          {gameData.result} {gameData.eloChange}
+          {gameData.result} ({gameData.eloChange} ELO RATING)
         </div>
       </div>
 
@@ -82,7 +79,7 @@ const GameCard: React.FC<GameCardProps> = ({
           New
         </span>
       )}
-    </Card>
+    </div>
   );
 };
 

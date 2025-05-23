@@ -34,8 +34,8 @@ interface PopupProps {
 }
 
 const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
-    const { sessionId } = useProfileStore();
-  
+  const { sessionId } = useProfileStore();
+
   const router = useRouter();
   const {
     username,
@@ -88,16 +88,13 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         const games = response.data.data;
         setAvailableGames(games);
 
-        // Safely handle the case where fewer games are returned than requested
         const gamesReturned = games.length;
         console.log(
           `Requested ${gameCount} games, received ${gamesReturned} games`
         );
 
-        // Get game details to analyze opponent distribution
         const gameDetails = games.map((game: any) => {
           try {
-            // Try to parse PGN to get opponent information
             const chess = new Chess();
             chess.loadPgn(game.value);
             const headers = chess.header();
@@ -115,7 +112,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           }
         });
 
-        // Count unique opponents
         const uniqueOpponents = new Set(
           gameDetails.map((g: any) => g.opponent)
         );
@@ -123,7 +119,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           `Found ${uniqueOpponents.size} unique opponents in ${gamesReturned} games`
         );
 
-        // Select all games to maximize variety
         setSelectedGames(games.map((game: any) => game.value));
       } else {
         setUsernameStatus("not-found");
@@ -167,19 +162,12 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
 
     try {
       if (usernameStatus === "found" && selectedGames.length > 0) {
-        // First process all the PGNs and generate positions
         try {
-          // Set loading state before processing
-          // We're already using isLoading from the store
-
-          // Pass multiple game PGNs to generate positions
           await loadUserPositions(selectedGames, usernameInput);
 
-          // Only after successful loading, navigate to the user page and close popup
           router.push("/playground/board-vision/user");
           onClose();
         } catch (error) {
-          console.error("Error loading user positions:", error);
           setShowErrorModal(true);
         }
       } else if (usernameStatus === "found") {
@@ -188,7 +176,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setShowErrorModal(true);
       }
     } catch (error) {
-      console.error("Error loading user positions:", error);
       setShowErrorModal(true);
     }
   };
@@ -310,7 +297,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           <div className="grid grid-cols-2 gap-3 mt-4">
             <Button
               variant="outline"
-              className="w-full py-2 rounded-full bg-blue-50 text-blue-600 border border-blue-200"
+              className="w-full py-2 rounded-full btn-tertiary text-blue-base border border-blue-200"
               onClick={handleDefaultPositionClick}
               disabled={isLoading}
             >
@@ -319,7 +306,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
 
             <Button
               variant="default"
-              className="w-full py-2 rounded-full bg-blue-600 text-white"
+              className="w-full py-2 rounded-full bg-blue-base btn-primary text-white"
               onClick={handleStartClick}
               disabled={
                 isLoading ||

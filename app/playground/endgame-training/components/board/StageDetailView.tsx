@@ -584,7 +584,7 @@ export default function StageDetailView({
             </div>
             <div className="xl:border border-gray-200 p-0 mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
-                <div className="aspect-square bg-white flex items-center justify-center w-full  xl:p-12 overflow-hidden max-w-[700px] max-h-[650px]">
+                <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden xl:max-w-[580px] 2xl:max-w-[700px] 2xl:max-h-[650px]">
                   <ChessboardWrapper
                     game={game}
                     position={position}
@@ -621,7 +621,7 @@ export default function StageDetailView({
                 <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
                   <div className="flex flex-row items-center justify-center gap-x-3">
                     <AlertCircle className="h-8 w-8 text-blue-base" />
-                    <h1 className="text-lg xl:text-xl text-black">
+                    <h1 className="text-lg xl:text-base text-black">
                       {isCheckmateMode
                         ? `Find the ${movesToCheckmate} ${
                             movesToCheckmate === 1 ? "move" : "moves"

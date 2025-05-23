@@ -222,7 +222,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const currentEloPercentage = calculateEloPercentage(true);
   const mobileEloPercentage = calculateEloPercentage(false);
   const nextGoalIndex = getNextGoalLevelIndex();
-  // const currentLevelIndex = getCurrentLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
   const badgeClass =
@@ -348,21 +347,20 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   key={`mobile-${level.id}`}
                   className="flex flex-col items-center relative w-full space-y-2"
                 >
-                  {isNextGoal && (
-                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-                      <div
-                        className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
-                      >
-                        Your Next Goal
-                      </div>
-                      <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                    </div>
-                  )}
-
                   <div className="h-8 flex items-center justify-center">
                     {isCompleted && !isNextGoal && (
                       <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                         <Check className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                    {isNextGoal && (
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                        <div
+                          className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
+                        >
+                          Your Next Goal
+                        </div>
+                        <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
                       </div>
                     )}
                   </div>
@@ -389,7 +387,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                       >
                         <div className="flex flex-col gap-y-1 p-2">
                           <h3 className="font-semibold text-sm">
-                            {level.title}awdaw;ldjhn alwif dhb
+                            {level.title}
                           </h3>
                           <p className="text-xs text-gray-600">
                             ELO Requirement: {level.elo}

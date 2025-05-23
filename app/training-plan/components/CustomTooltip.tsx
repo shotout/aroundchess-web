@@ -14,13 +14,28 @@ const CustomInfoTooltip: React.FC<CustomInfoTooltipProps> = ({
   tooltipClassName = "",
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  // Detect if device supports touch
   useEffect(() => {
-    if (!isOpen) return;
+    const checkTouchDevice = () => {
+      setIsTouchDevice(
+        "ontouchstart" in window || navigator.maxTouchPoints > 0
+      );
+    };
 
-    const handleClickOutside = (event: MouseEvent) => {
+    checkTouchDevice();
+    window.addEventListener("resize", checkTouchDevice);
+
+    return () => window.removeEventListener("resize", checkTouchDevice);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !isTouchDevice) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
       if (
         tooltipRef.current &&
@@ -33,10 +48,31 @@ const CustomInfoTooltip: React.FC<CustomInfoTooltipProps> = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, isTouchDevice]);
+
+  const handleClick = () => {
+    if (isTouchDevice) {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (!isTouchDevice) {
+      setIsOpen(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isTouchDevice) {
+      setIsOpen(false);
+    }
+  };
 
   const tooltipVariants = {
     hidden: {
@@ -65,9 +101,9 @@ const CustomInfoTooltip: React.FC<CustomInfoTooltipProps> = ({
     <div className="relative inline-block">
       <button
         ref={triggerRef}
-        onClick={() => setIsOpen(!isOpen)}
-        onPointerEnter={() => setIsOpen(true)}
-        onPointerLeave={() => setIsOpen(false)}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className={`focus:outline-none`}
         aria-label="Show info"
         type="button"

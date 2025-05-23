@@ -152,29 +152,35 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
           </motion.div>
         </div>
 
-        <TrainingSection
-          icon="/training-plan/oc.png"
-          title="Opening Concepts"
-          duration={openingDuration}
-          instruction={`For today's practice, select one of your selected Opening Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Opening Concepts regularly until you can apply them perfectly.`}
-          topics={openingTopics}
-        />
+        {openingTopics.length > 0 && (
+          <TrainingSection
+            icon="/training-plan/oc.png"
+            title="Opening Concepts"
+            duration={openingDuration}
+            instruction={`For today's practice, select one of your selected Opening Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Opening Concepts regularly until you can apply them perfectly.`}
+            topics={openingTopics}
+          />
+        )}
 
-        <TrainingSection
-          icon="/training-plan/mc.png"
-          title="Middlegame Concepts"
-          duration={middlegameDuration}
-          instruction={`For today's practice, select one of your selected Middlegame Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Middlegame Concepts regularly until you can apply them perfectly.`}
-          topics={middlegameTopics}
-        />
+        {middlegameTopics.length > 0 && (
+          <TrainingSection
+            icon="/training-plan/mc.png"
+            title="Middlegame Concepts"
+            duration={middlegameDuration}
+            instruction={`For today's practice, select one of your selected Middlegame Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Middlegame Concepts regularly until you can apply them perfectly.`}
+            topics={middlegameTopics}
+          />
+        )}
 
-        <TrainingSection
-          icon="/training-plan/ec.png"
-          title="Endgame Concepts"
-          duration={endgameDuration}
-          instruction={`For today's practice, select one of your selected Endgame Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Endgame Concepts regularly until you can apply them perfectly.`}
-          topics={endgameTopics}
-        />
+        {endgameTopics.length > 0 && (
+          <TrainingSection
+            icon="/training-plan/ec.png"
+            title="Endgame Concepts"
+            duration={endgameDuration}
+            instruction={`For today's practice, select one of your selected Endgame Concepts and practice it by playing 5 Chess Games using the selected Concept. Practice all of your chosen Endgame Concepts regularly until you can apply them perfectly.`}
+            topics={endgameTopics}
+          />
+        )}
 
         {showTactics && (
           <div className="mb-6 border border-gray-200 rounded-lg p-4">

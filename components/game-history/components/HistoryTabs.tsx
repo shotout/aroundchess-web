@@ -10,17 +10,16 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
   const [activeTab, setActiveTab] = useState<"user" | "other">("user");
 
   return (
-    <div className="lg:border-2 lg:p-4 xl:p-0 lg:rounded-md bg-white">
-      <div className="flex justify-center flex-col">
-        {/* Desktop Tab Navigation */}
-        <div className="xl:flex justify-center hidden">
+    <div className="xl:px-4 pb-4">
+      <div className="flex justify-center flex-col xl:border xl:rounded-md">
+        <div className="flex justify-center  border-gray-200 rounded-t-md overflow-hidden">
           <button
             onClick={() => setActiveTab("user")}
-            className={`flex-1 text-center py-3 text-lg
+            className={`flex-1 py-3 text-center text-sm md:text-base xl:text-lg transition-colors
               ${
-                activeTab !== "user"
-                  ? "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
-                  : "font-bold"
+                activeTab === "user"
+                  ? "font-bold "
+                  : "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
               }
               ${activeTab === "user" ? "rounded-tl-md" : ""}
               border-r border-gray-200`}
@@ -29,11 +28,11 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
           </button>
           <button
             onClick={() => setActiveTab("other")}
-            className={`flex-1 text-center py-3 text-lg
+            className={`flex-1 py-3 text-center text-sm md:text-base xl:text-lg transition-colors
               ${
-                activeTab !== "other"
-                  ? "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
-                  : "font-bold"
+                activeTab === "other"
+                  ? "font-bold "
+                  : "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
               }
               ${activeTab === "other" ? "rounded-tr-md" : ""}`}
           >
@@ -41,36 +40,7 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
           </button>
         </div>
 
-        {/* Mobile Tab Navigation */}
-        <div className="xl:hidden flex justify-center mb-4">
-          <div className="flex w-full shadow-sm border rounded-lg overflow-hidden">
-            <button
-              onClick={() => setActiveTab("user")}
-              className={`flex-1 text-center py-2 text-sm
-                ${
-                  activeTab === "user"
-                    ? "bg-blue-50 text-blue-base font-medium"
-                    : "bg-white text-gray-600"
-                }`}
-            >
-              {username || "My Games"}
-            </button>
-            <button
-              onClick={() => setActiveTab("other")}
-              className={`flex-1 text-center py-2 text-sm
-                ${
-                  activeTab === "other"
-                    ? "bg-blue-50 text-blue-base font-medium"
-                    : "bg-white text-gray-600"
-                }`}
-            >
-              Other Games
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div className="xl:mt-4">
+        <div className="mt-4">
           {activeTab === "user" && <UserHistory />}
           {activeTab === "other" && <OtherHistory />}
         </div>

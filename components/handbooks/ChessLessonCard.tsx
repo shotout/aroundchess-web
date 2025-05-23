@@ -101,7 +101,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               <ReadStatusIndicator readStatus={lesson.readStatus} />
             </div>
 
-            <div className="xl:px-4 flex flex-col mx-1 lg:mx-2 pt-3 h-36">
+            <div className="xl:px-1 2xl:px-4 flex flex-col pt-3 h-36">
               {/* Mobile layout */}
               <div className="flex flex-col lg:hidden">
                 <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">

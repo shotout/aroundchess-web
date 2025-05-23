@@ -10,6 +10,7 @@ export interface UserProfile {
 }
 
 export interface TrainingTopic {
+  name: string | undefined;
   id: string;
   title?: string;
   level?: string;

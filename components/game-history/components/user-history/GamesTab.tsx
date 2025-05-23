@@ -23,15 +23,9 @@ const GamesTab: React.FC = () => {
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token, sessionId } = useProfileStore();
-  const {
-    games,
-    isLoading,
-    error,
-    cacheIsValid,
-    handleRetryFetch,
-    handleForceRefresh,
-  } = useGames("chessdotcom");
+  const { token } = useProfileStore();
+  const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
+    useGames("chessdotcom");
 
   // Handle filters
   const {
@@ -48,7 +42,6 @@ const GamesTab: React.FC = () => {
 
   const paginationProps = usePagination(filteredGames);
 
-  // Handle game analysis
   const handleAnalyzeClick = useCallback(
     async (game: Game) => {
       if (token.balance >= 1) {
@@ -94,7 +87,7 @@ const GamesTab: React.FC = () => {
   ];
 
   return (
-    <div className="mx-auto relative">
+    <div className="mx-auto relative flex flex-col">
       <Filters
         filters={filters}
         setFilters={setFilters}
@@ -105,7 +98,6 @@ const GamesTab: React.FC = () => {
         handleApplyFilters={handleApplyFilters}
         handleClearFilters={handleClearFilters}
         handleForceRefresh={handleForceRefresh}
-        cacheIsValid={cacheIsValid}
         sourceOptions={sourceOptions}
       />
 

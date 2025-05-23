@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, RefreshCw } from "lucide-react";
+import { Filter } from "lucide-react";
 import { FilterState } from "../types/GameHistoryTypes";
 
 interface FiltersProps {
@@ -27,7 +27,6 @@ interface FiltersProps {
   handleApplyFilters: () => void;
   handleClearFilters: () => void;
   handleForceRefresh: () => void;
-  cacheIsValid: boolean;
   sourceOptions?: { value: string; label: string }[];
 }
 
@@ -50,9 +49,9 @@ export const Filters: React.FC<FiltersProps> = ({
   ],
 }) => {
   return (
-    <>
-      <div className="hidden md:flex items-center justify-between gap-6 mb-4 rounded-lg p-4 xl:h-[80px] border shadow-card">
-        <div className="flex items-center space-x-4 w-[70%] 2xl:w-[75%]">
+    <div className="p-0 md:p-4 xl:p-0">
+      <div className="hidden md:flex items-center justify-between gap-2 xl:gap-6 xl:mb-4 rounded-lg p-3 xl:p-4 xl:h-[80px] border shadow-card">
+        <div className="flex items-center space-x-1 2xl:space-x-4 w-[70%] 2xl:w-[75%]">
           <Select
             value={filters.color}
             onValueChange={(value) => setFilters.setColor(value)}
@@ -102,10 +101,10 @@ export const Filters: React.FC<FiltersProps> = ({
           </Select>
         </div>
 
-        <div className="flex items-center space-x-4 w-[30%] 2xl:w-[25%]">
+        <div className="flex items-center space-x-2 xl:space-x-4 w-[40%] xl:w-[30%] 2xl:w-[25%]">
           <Button
             onClick={handleApplyFilters}
-            className="btn-primary text-white flex-1 rounded-full h-12 flex items-center justify-center gap-2 hover:bg-blue-700 text-sm md:text-base"
+            className="btn-primary text-white flex-1 rounded-full h-12 text-nowrap flex items-center justify-center gap-2 text-[11px] 2xl:text-base"
           >
             <Filter className="h-4 w-4" />
             Apply Filters
@@ -113,7 +112,7 @@ export const Filters: React.FC<FiltersProps> = ({
 
           <Button
             onClick={handleClearFilters}
-            className="bg-blue-50 text-blue-600 flex-1 border border-blue-100 btn-tertiary rounded-full h-12 flex items-center justify-center hover:bg-blue-100 text-sm md:text-base"
+            className="bg-blue-50 text-blue-600 flex-1 border border-blue-100 btn-tertiary rounded-full h-12 flex items-center justify-center text-[11px] 2xl:text-base"
           >
             Clear Filters
           </Button>
@@ -121,10 +120,10 @@ export const Filters: React.FC<FiltersProps> = ({
       </div>
 
       <div className="md:hidden relative w-full">
-        <div className="flex w-full items-center justify-between gap-2 mb-4">
+        <div className="flex w-full items-center justify-between gap-2 mb-4 p-4 border">
           <Button
             variant="outline"
-            className={`flex-1 flex items-center justify-center gap-2 py-5 rounded-lg ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 ${
               filtersApplied ? "text-blue-base border-blue-base" : ""
             }`}
             onClick={() => setShowFilters(!showFilters)}
@@ -212,7 +211,7 @@ export const Filters: React.FC<FiltersProps> = ({
           </Card>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -6,7 +6,6 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { gameHistoryApi, refetchGameData } from "../services/api";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 interface ImportDialogButtonProps {
@@ -179,12 +178,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
           throw new Error("No PGN content available");
         }
 
-        console.log("Form data prepared:", {
-          activeTab,
-          hasPgnText: !!pgnText.trim(),
-          hasFileContent: !!fileContent,
-        });
-
         // Send to API
         const response = await gameHistoryApi.importGame(
           requestData,
@@ -196,8 +189,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
             setUploadProgress(percentCompleted);
           }
         );
-
-        console.log("Import response:", response);
 
         // Get PGN content from either source
         const pgnContent = activeTab === "paste" ? pgnText : fileContent;
@@ -327,7 +318,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       {/* Import Button */}
       <button
         type="button"
-        className="flex justify-center items-center lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[130px] md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
+        className="flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[130px] md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
         onClick={() => setOpenDialog(true)}
       >
         <Upload className="h-[20px]" />

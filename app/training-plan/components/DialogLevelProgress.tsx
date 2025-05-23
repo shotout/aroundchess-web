@@ -195,25 +195,14 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
             const mobileWidth = 30;
             const mobileHeight = 30;
 
-            const nextGoalWidth = regularWidth * 1.3;
-            const nextGoalHeight = regularHeight * 1.3;
+            const nextGoalWidth = regularWidth * 1.2;
+            const nextGoalHeight = regularHeight * 1.2;
 
             return (
               <div
                 key={level.id}
                 className="flex flex-col items-center relative w-full space-y-2"
               >
-                {isNextGoal && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div
-                      className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-amber-950`}
-                    >
-                      Your Next Goal
-                    </div>
-                    <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                  </div>
-                )}
-
                 <div className="h-4 lg:h-10 flex items-center justify-center">
                   {isCompleted && (
                     <Image
@@ -222,6 +211,16 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                       height={30}
                       alt=""
                     />
+                  )}
+                  {isNextGoal && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <div
+                        className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-amber-950`}
+                      >
+                        Your Next Goal
+                      </div>
+                      <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                    </div>
                   )}
                 </div>
 

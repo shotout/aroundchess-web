@@ -1,14 +1,12 @@
 import React, { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useAuth } from "@clerk/nextjs";
 
 import Filters from "../Filters";
 import { toast } from "sonner";
 import { useGames } from "../../hooks/useGameData";
 import { useFilters } from "../../hooks/useFilters";
 import { usePagination } from "../../hooks/usePagination";
-import { gameHistoryApi } from "../../services/api";
 import GamesList from "../GameList";
 import { Game } from "../../types/GameHistoryTypes";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
@@ -28,14 +26,8 @@ const OtherGamesTab: React.FC = () => {
   } = usePgnStore();
 
   // Fetch other games data
-  const {
-    games,
-    isLoading,
-    error,
-    cacheIsValid,
-    handleRetryFetch,
-    handleForceRefresh,
-  } = useGames("other");
+  const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
+    useGames("other");
 
   // Handle filters
   const {
@@ -87,6 +79,7 @@ const OtherGamesTab: React.FC = () => {
         setTabType("tokens");
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [router, setPgn, setDataAnalysis, setZustandIsLoading, username]
   );
 
@@ -111,7 +104,6 @@ const OtherGamesTab: React.FC = () => {
         handleApplyFilters={handleApplyFilters}
         handleClearFilters={handleClearFilters}
         handleForceRefresh={handleForceRefresh}
-        cacheIsValid={cacheIsValid}
         sourceOptions={sourceOptions}
       />
 

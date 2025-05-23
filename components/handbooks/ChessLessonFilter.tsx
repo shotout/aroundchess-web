@@ -41,7 +41,7 @@ const ChessLessonFilter: React.FC<ChessLessonFilterProps> = ({
         />
       </div>
 
-      <div className="w-full md:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
+      <div className="w-full md:w-[40%] xl:w-auto 2xl:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
         {difficulties.map((difficulty) => (
           <button
             key={difficulty}

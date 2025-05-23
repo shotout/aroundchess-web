@@ -108,9 +108,11 @@ const ChessProgressionUI: React.FC = () => {
   const shouldShowCreatePlan = !hasPlan || isPlanExpired;
 
   return (
-    <div className="flex flex-col xl:gap-6 lg:gap-4 lg:p-4 xl:p-8">
+    <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
       <div className="lg:flex items-center hidden">
-        <h1 className="font-bold text-2xl p-4 lg:p-0">My Training Plan</h1>
+        <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
+          My Training Plan
+        </h1>
         <p className="xl:hidden">
           ({userProfile?.username || storeUserProfile?.username || "User"})
         </p>

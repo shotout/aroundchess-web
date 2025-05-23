@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { RotateCcw, X } from "lucide-react";
 import { Chess } from "chess.js";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface GameAlertDialogProps {
   open: boolean;
@@ -142,6 +143,7 @@ const GameAlertDialog = ({
   };
 
   const colorStyles = getColorStyles();
+  const route = useRouter();
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -187,6 +189,7 @@ const GameAlertDialog = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  route.push("/playground/endgame-training");
                   onClose();
                 }}
                 className="flex-1 bg-[#2336f3] text-white py-1 px-2 rounded-full text-xs font-bold hover:bg-[#1a29d1] transition-colors"

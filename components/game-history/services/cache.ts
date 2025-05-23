@@ -1,29 +1,35 @@
 import { CacheItem } from "../types/GameHistoryTypes";
 
-export const DEFAULT_CACHE_EXPIRATION = 5 * 60 * 1000;
-
+export const DEFAULT_CACHE_EXPIRATION = 60 * 60 * 1000; 
 
 export const isCacheValid = <T>(
   lastFetched: number | null, 
   cachedData: T | null,
   expiration: number = DEFAULT_CACHE_EXPIRATION
 ): boolean => {
-  if (!lastFetched || !cachedData) return false;
+  // More robust validation
+  if (!lastFetched || lastFetched <= 0) return false;
+  if (!cachedData) return false;
 
   const now = Date.now();
   const cacheAge = now - lastFetched;
   
+  // Check if cache has expired
+  if (cacheAge >= expiration) return false;
+  
+  // Additional validation for arrays
   if (Array.isArray(cachedData)) {
-    return cacheAge < expiration && cachedData.length > 0;
+    return cachedData.length > 0;
   }
   
+  // Additional validation for objects
   if (typeof cachedData === 'object' && cachedData !== null) {
-    return cacheAge < expiration && Object.keys(cachedData).length > 0;
+    return Object.keys(cachedData).length > 0;
   }
   
-  return cacheAge < expiration;
+  // For primitive types, just check if cache hasn't expired
+  return true;
 };
-
 
 export const createCacheItem = <T>(data: T): CacheItem<T> => {
   return {
@@ -31,7 +37,6 @@ export const createCacheItem = <T>(data: T): CacheItem<T> => {
     timestamp: Date.now()
   };
 };
-
 
 export const getFromCacheOrFetch = async <T>(
   cachedItem: CacheItem<T> | null,
@@ -43,4 +48,21 @@ export const getFromCacheOrFetch = async <T>(
   }
   
   return await fetchFn();
+};
+
+// Helper function to debug cache state
+export const debugCacheState = <T>(
+  lastFetched: number | null,
+  cachedData: T | null,
+  label: string = "Cache"
+): void => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`${label} Debug:`, {
+      lastFetched,
+      hasData: !!cachedData,
+      dataLength: Array.isArray(cachedData) ? cachedData.length : 'N/A',
+      cacheAge: lastFetched ? Date.now() - lastFetched : 'N/A',
+      isValid: isCacheValid(lastFetched, cachedData)
+    });
+  }
 };

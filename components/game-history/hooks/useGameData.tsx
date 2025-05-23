@@ -1,32 +1,45 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
-import { isCacheValid } from "../services/cache";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
 
+export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
 
-  return apiData.map((item) => ({
-    id: item.id,
-    date: formatDate(item.date),
-    timeControl: formatTimeControl(item.time_control),
-    result: item.result,
-    opponent: item.opponent,
-    rating: item.rating,
-    eloChange: item.elo_change,
-    moves: item.moves,
-    opening: item.opening_name || "Unknown Opening",
-    source: item.source,
-    color: item.color,
-    playerColor: item.color,
-    gameFormat: item.game_format,
-    pgn: item.pgn,
-    resultColor: item.result_color || getResultColor(item.result),
-    gameType: item.game_type || "standard",
-  }));
+  return apiData
+    .map((item) => {
+      // Pre-validate essential data - skip items with missing critical info
+      if (!item.id || !item.date) return null;
+
+      const transformedOpening = formatOpening(item.opening_name);
+
+      // Skip items with invalid opening data or missing time control
+      if (!transformedOpening || !item.time_control) return null;
+
+      return {
+        id: item.id,
+        date: formatDate(item.date),
+        timeControl: item.time_control, // Use raw string from endpoint
+        result: item.result,
+        opponent: item.opponent || "Unknown Player",
+        rating: item.rating,
+        eloChange: item.elo_change,
+        moves: item.moves || 0,
+        opening: transformedOpening,
+        source: item.source,
+        color: item.color,
+        playerColor: item.color,
+        gameFormat: item.game_format,
+        pgn: item.pgn,
+        resultColor: item.result_color || getResultColor(item.result),
+        gameType: item.game_type || "standard",
+      };
+    })
+    .filter(Boolean) as Game[]; // Remove null entries
 };
 
 const formatDate = (dateString: string): string => {
@@ -51,20 +64,16 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-const formatTimeControl = (timeControlStr: string): string => {
-  if (!timeControlStr) return "0+0";
-
-  const seconds = parseInt(timeControlStr);
-  if (isNaN(seconds)) return timeControlStr;
-
-  if (seconds >= 60) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return remainingSeconds > 0
-      ? `${minutes}+${remainingSeconds}`
-      : `${minutes}+0`;
+const formatOpening = (openingName: string): string | null => {
+  if (
+    !openingName ||
+    openingName.toLowerCase() === "unknown" ||
+    openingName.toLowerCase() === "unknown opening" ||
+    openingName.trim() === ""
+  ) {
+    return null; // Return null for invalid openings
   }
-  return `${seconds}+0`;
+  return openingName.trim();
 };
 
 const getResultColor = (result: string): string => {
@@ -210,10 +219,13 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setOtherGamesData,
     resetFetchState,
   } = usePgnStore();
+
   const { sessionId } = useProfileStore();
+
   const [games, setGames] = useState<Game[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+
   const fetchRef = useRef(false);
 
   const cachedGames =
@@ -223,7 +235,21 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const setGamesInStore =
     type === "chessdotcom" ? setGamesData : setOtherGamesData;
 
-  const cacheIsValid = isCacheValid(gamesLastFetchedTimestamp, cachedGames);
+  const isCacheValid = useMemo(() => {
+    if (!gamesLastFetchedTimestamp || !cachedGames) return false;
+
+    const now = Date.now();
+    const cacheAge = now - gamesLastFetchedTimestamp;
+    return (
+      cacheAge < CACHE_EXPIRATION &&
+      Array.isArray(cachedGames) &&
+      cachedGames.length > 0
+    );
+  }, [gamesLastFetchedTimestamp, cachedGames]);
+
+  const updateStateWithProcessedData = useCallback((processedGames: Game[]) => {
+    setGames(processedGames);
+  }, []);
 
   const fetchGames = useCallback(async () => {
     if (!username || fetchRef.current) {
@@ -233,9 +259,19 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
       return;
     }
 
-    if (cacheIsValid && cachedGames) {
-      setGames(transformApiDataToComponentFormat(cachedGames));
-      setIsLoading(false);
+    if (isCacheValid && cachedGames) {
+      try {
+        const transformedGames = transformApiDataToComponentFormat(cachedGames);
+        updateStateWithProcessedData(transformedGames);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err
+            : new Error("Failed to process cached data")
+        );
+      } finally {
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -250,18 +286,18 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
       );
 
       if (response && response.data) {
-        const transformedGames = transformApiDataToComponentFormat(
-          response.data
-        );
-        setGames(transformedGames);
-        setGamesInStore(transformedGames);
+        const apiData = response.data;
+        setGamesInStore(apiData);
+
+        const transformedGames = transformApiDataToComponentFormat(apiData);
+        updateStateWithProcessedData(transformedGames);
       } else {
-        setGames([]);
-        setGamesInStore([]);
+        throw new Error("Invalid data format received from server");
       }
     } catch (err) {
       const error =
-        err instanceof Error ? err : new Error("Failed to fetch games");
+        err instanceof Error ? err : new Error("An unknown error occurred");
+      console.error("Error fetching games:", error);
       setError(error);
     } finally {
       setIsLoading(false);
@@ -269,11 +305,20 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         fetchRef.current = false;
       }, 3000);
     }
-  }, [username, sessionId, type, cacheIsValid, cachedGames, setGamesInStore]);
+  }, [
+    username,
+    sessionId,
+    type,
+    isCacheValid,
+    cachedGames,
+    setGamesInStore,
+    updateStateWithProcessedData,
+  ]);
 
   useEffect(() => {
+    if (!sessionId) return;
     fetchGames();
-  }, [fetchGames]);
+  }, [fetchGames, sessionId]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
@@ -297,7 +342,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     games,
     isLoading,
     error,
-    cacheIsValid,
+    isCacheValid,
     handleRetryFetch,
     handleForceRefresh,
   };

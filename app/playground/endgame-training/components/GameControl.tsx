@@ -77,42 +77,42 @@ export default function GameControls({
       <div className="grid grid-cols-3 gap-2 2xl:gap-4 rounded-lg p-2 sm:p-3 w-full">
         <button
           onClick={handleShare}
-          className="flex gap-x-1 xl:gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200"
+          className="flex gap-x-1 2xl:gap-x-2 items-center justify-center p-3 bg-white rounded-md border border-gray-200"
         >
           <Image
             src={"/endgame-training/share.png"}
             alt="download icon"
             width={16}
             height={16}
-            className="w-4 h-4 sm:w-5 sm:h-5"
+            className="w-4 h-4"
           />
 
-          <h1 className="text-[10px] sm:text-sm text-nowrap">Share PGN/FEN</h1>
+          <h1 className="text-[10px] md:text-xs text-nowrap">Share PGN/FEN</h1>
         </button>
         <button
           onClick={resetPosition}
-          className="flex gap-x-1 sm:gap-x-2 items-center justify-center p-3 bg-white rounded-full btn-tertiary"
+          className="flex gap-x-1 2xl:gap-x-2 items-center justify-center p-3 bg-white rounded-full btn-tertiary"
         >
           <Image
             src={"/endgame-training/rematch.png"}
             alt="download icon"
             width={16}
             height={16}
-            className="w-4 h-4 sm:w-5 sm:h-5"
+            className="w-4 h-4 "
           />
-          <span className="text-[10px] sm:text-sm">Restart</span>
+          <span className="text-[10px] md:text-xs">Restart</span>
         </button>
         <button
           onClick={navigateNext}
-          className="flex gap-x-1 sm:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
+          className="flex gap-x-1 2xl:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
         >
-          <span className="text-[10px] sm:text-sm">Next Stage</span>
+          <span className="text-[10px] md:text-xs">Next Stage</span>
           <Image
             src={"/endgame-training/Union.png"}
             alt="arrow right icon"
             width={16}
             height={16}
-            className="w-4 h-4 sm:w-5 sm:h-5"
+            className="w-4 h-4 "
           />
         </button>
       </div>
