@@ -52,23 +52,27 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     setTabType(type);
   };
   return (
-    <header className="fixed xl:sticky top-0 z-100 flex w-full items-center justify-between bg-white px-3 lg:px-6 border-b h-[72px] lg:h-[97px]">
+    <header
+      className={`$fixed xl:sticky top-0 z-100 flex w-full items-center ${
+        sessionId.length == 0 ? `justify-between xl:justify-center` : `justify-between`
+      } bg-white px-3 lg:px-6 border-b h-[72px] lg:h-[97px]`}
+    >
       {/* Left section - Logo and navigation (on desktop only) */}
-      <div className="flex items-center h-[70px] lg:h-[100px]">
+      <div className={`flex ${sessionId.length == 0 && `xl:w-full xl:justify-center`} items-center h-[70px] lg:h-[100px]`}>
         {/* Logo/Title - Always visible */}
         <div className="xl:hidden">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/icons/logo.png"
               alt="logo"
-              // className="w-28 h-28 object-contain"
+              className="w-28 h-28 object-contain"
               quality={100}
               width={90}
               height={90}
             />
           </Link>
         </div>
-
+        <div className="hidden xl:flex xl:items-center space-x-2"></div>
         {/* Navigation tabs - visible on desktop only (xl+) */}
         <div className="hidden xl:flex xl:items-center space-x-2">
           <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
@@ -78,8 +82,17 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 variant="outlineprimary"
                 className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
               >
-                <BarChart2 className="mr-2 h-[20px] w-[20px]" />
-                <span className="font-normal text-[18px]">Analytics</span>
+                <BarChart2
+                  className="mr-2 h-[20px] w-[20px]"
+                  color={sessionId.length == 0 ? "#221AE9" : "#000"}
+                />
+                <span
+                  className={`font-normal text-[18px] ${
+                    sessionId.length == 0 && `text-[#221AE9]`
+                  }`}
+                >
+                  {sessionId.length > 0 ? "Analytics" : "Analyze Now"}
+                </span>
               </Button>
             </Link>
           </div>
@@ -131,11 +144,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
       {/* Right section - Auth buttons (desktop) or Analytics + hamburger (tablet/mobile) */}
       {!isLoading && (isMember != null || isSignedIn != null) && (
-        <div className="flex items-center space-x-4">
+        <div className={`flex ${sessionId.length == 0 && `xl:justify-end`} items-center space-x-4`}>
           {/* Auth buttons - visible on desktop only (xl+) */}
 
           {!isSignedIn ? (
-            <div className="hidden sm:flex items-center gap-5">
+            <div className={`hidden sm:flex items-center gap-5 `}>
               <Link href="/login">
                 <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                   Sign-In
@@ -275,7 +288,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 </motion.div>
               )}
               {/* Hamburger menu */}
-              {sessionId.length > 0 && (
                 <button
                   type="button"
                   className="text-gray-700 hover:text-blue-600 focus:outline-none"
@@ -284,7 +296,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
                 >
                   <Menu className="h-6 w-6" />
                 </button>
-              )}
             </div>
           )}
         </div>

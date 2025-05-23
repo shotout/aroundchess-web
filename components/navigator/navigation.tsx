@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useProfileFetch } from "./hook/useProfileFetch";
 import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
+import { usePathname } from "next/navigation";
 
 export default function Navigation({
   children,
@@ -15,6 +16,7 @@ export default function Navigation({
   children: React.ReactNode;
   isDialogOpen?: boolean;
 }) {
+  const pathname = usePathname();
   const { sessionId } = useProfileStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -37,16 +39,18 @@ export default function Navigation({
     let sidebarW = window.innerWidth / 6;
     let contentW = window.innerWidth - sidebarW;
     setIsDesktop(window.innerWidth >= 1280);
+    console.log("sidebarW", sidebarW);
     if (window.innerWidth >= 1280) {
-      console.log("sidebarW", sidebarW);
       setWidthSidebar(sidebarW);
       setWidthContent(contentW);
+    } else {
+      setWidthSidebar(0);
     }
   };
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
-  if (sessionId.length == 0) {
+  if (sessionId.length == 0 && !pathname?.includes("analysis")) {
     return (
       <>
         <SiteHeaderNew />
@@ -57,10 +61,10 @@ export default function Navigation({
   } else {
     return (
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
-        {isDesktop && sessionId.length > 0 && (
+        {isDesktop && (
           <div
             style={{ width: widthSidebar }}
-            className="fixed top-0 left-0 h-full border-r border-gray-200 bg-white z-30"
+            className={`fixed top-0 left-0 h-full border-r border-gray-200 bg-white z-30`}
           >
             <Sidebar />
           </div>
@@ -103,18 +107,21 @@ export default function Navigation({
           </main>
         </div>
 
-        {!isDesktop && isSidebarOpen && sessionId.length > 0 && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/50 z-10"
-              onClick={() => setSidebarOpen(false)}
-            />
+        {!isDesktop &&
+          isSidebarOpen &&
+          sessionId.length > 0 &&
+          pathname?.includes("analysis") && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/50 z-10"
+                onClick={() => setSidebarOpen(false)}
+              />
 
-            <div className="fixed inset-y-0 left-0 z-10 w-64 bg-white border-r border-gray-200">
-              <Sidebar onClose={() => setSidebarOpen(false)} />
-            </div>
-          </>
-        )}
+              <div className="fixed inset-y-0 left-0 z-10 w-64 bg-white border-r border-gray-200">
+                <Sidebar onClose={() => setSidebarOpen(false)} />
+              </div>
+            </>
+          )}
       </div>
     );
   }

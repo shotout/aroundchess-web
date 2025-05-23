@@ -22,6 +22,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 interface TokenOption {
   amount: number;
@@ -30,7 +31,6 @@ interface TokenOption {
 }
 
 export const PricingOffer: React.FC = () => {
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
 

@@ -187,7 +187,7 @@ export default function AnalysisPage() {
               <div className="hidden xl:flex flex-row items-center justify-between">
                 <div
                   className={`hidden lg:block ${
-                    !isSignedIn ? `w-full` : `w-3/5`
+                    !isSignedIn ? `w-4/5` : `w-3/5`
                   } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
                 >
                   Our AI-powered chess analysis provides deep insights into

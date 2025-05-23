@@ -28,7 +28,7 @@ import * as React from "react";
 import { motion } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
@@ -40,6 +40,8 @@ interface SiteHeaderProps {
 export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const { open } = usePricingOffer();
   const clearAll = usePgnStore((state) => state.clearAll);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
   const { setOpen: setOpenPricing } = usePricingOffer();
@@ -101,7 +103,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   };
   return (
     <motion.header
-      className="sticky top-0 z-20 w-full bg-white py-2"
+      className="sticky top-0 z-[200] w-full h-[72px] lg:h-[97px] bg-white py-2"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -124,25 +126,38 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
           <div className="flex justify-center items-center gap-6 lg:w-3/5">
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
-                <NavigationMenuItem className="hidden sm:flex ">
-                  <Link href="/analysis" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-[8px] px-3 py-2 text-sm font-medium transition-colors data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-2">
-                      <Button
-                        color="primary"
-                        variant="outlineprimary"
-                        className="bg-[#221AE910] rounded-[8px]"
+                <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+                  <Link href={"/analysis"}>
+                    <Button
+                      color="primary"
+                      variant="outlineprimary"
+                      className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+                    >
+                      <BarChart2
+                        className="mr-2 h-[20px] w-[20px]"
+                        color={sessionId.length == 0 ? "#221AE9" : "#000"}
+                      />
+                      <span
+                        className={`font-normal text-[18px] ${
+                          sessionId.length == 0 && `text-[#221AE9]`
+                        }`}
                       >
-                        <BarChart2 className="mr-2 h-4 w-4" />
                         Analyze Now
-                      </Button>
-                    </NavigationMenuLink>
+                      </span>
+                    </Button>
                   </Link>
-                </NavigationMenuItem>
-                <div className="hidden xl:flex border border-input rounded-[8px] py-0.5 px-1">
-                  <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
+                </div>
+                <div className="hidden xl:flex border border-input rounded-[8px] p-[16px]">
+                  <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
                     <NavigationMenuItem>
                       <Link href="/about-us" legacyBehavior passHref>
-                        <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+                        <NavigationMenuLink
+                          className={`flex items-center text-[18px] font-medium ${
+                            pathname == "/about-us"
+                              ? "text-[#221AE9]"
+                              : "text-black"
+                          } hover:bg-gray-50`}
+                        >
                           <Info className="mr-2 h-4 w-4" />
                           About
                         </NavigationMenuLink>
@@ -151,7 +166,11 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
 
                     <NavigationMenuItem>
                       <Link href="/faq" legacyBehavior passHref>
-                        <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+                        <NavigationMenuLink
+                          className={`flex items-center text-[18px] font-medium ${
+                            pathname == "/faq" ? "text-[#221AE9]" : "text-black"
+                          } hover:bg-gray-50`}
+                        >
                           <HelpCircle className="mr-2 h-4 w-4" />
                           FAQ
                         </NavigationMenuLink>
@@ -162,7 +181,11 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                         className="cursor-pointer"
                         onClick={() => setOpenPricing(true)}
                       >
-                        <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+                        <NavigationMenuLink
+                          className={`flex items-center text-[18px] font-medium text-black hover:bg-gray-50 ${
+                            open && `text-[#221AE9]`
+                          }`}
+                        >
                           <DollarSign className="mr-2 h-4 w-4" />
                           Pricing
                         </NavigationMenuLink>

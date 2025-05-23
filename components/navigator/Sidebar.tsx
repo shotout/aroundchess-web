@@ -46,13 +46,13 @@ const sidebarLinks: SidebarLink[] = [
     icon: "/icons/sidebar-dashboard-icon.png",
     iconActive: "/icons/sidebar-dashboard-icon-active.png",
     children: [
-      // {
-      //   name: "Analyze Game",
-      //   href: "/analysis",
-      //   icon: "/icons/sidebar-analyze-icon.png",
-      //   iconActive: "/icons/sidebar-analyze-icon-active.png",
-      //   permission: true,
-      // },
+      {
+        name: "Analyze Game",
+        href: "/analysis",
+        icon: "/icons/sidebar-analyze-icon.png",
+        iconActive: "/icons/sidebar-analyze-icon-active.png",
+        permission: true,
+      },
       {
         name: "My Game History",
         href: "/my-game-history",
@@ -177,7 +177,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-36 h-12 object-contain"
+            className="w-[199px] h-[64px] object-contain"
             quality={100}
             width={1000}
             height={1000}
@@ -426,10 +426,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
               size="sm"
             />
             <div className="flex-1 text-left overflow-hidden">
-              <p className="font-medium text-[18px] text-[#121212] line-clamp-1">
+              <p className="font-medium text-[16px] text-[#121212] line-clamp-1">
                 {profile?.name != "" ? profile?.name : username}
               </p>
-              <p className="font-normal text-[#364152] text-[14px] truncate">
+              <p className="font-normal text-[#364152] text-[12px] truncate line-clamp-1">
                 {profile?.email}
               </p>
             </div>
