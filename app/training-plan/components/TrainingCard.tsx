@@ -5,9 +5,6 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
   onCreatePlan,
   hasPlan,
 }) => {
-  // Always show the training plan card if hasPlan is false (which includes the expired plan case)
-  // We removed the return null check that was previously here
-
   return (
     <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border lg:rounded-md overflow-hidden">
       <Image

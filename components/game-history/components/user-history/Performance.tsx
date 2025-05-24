@@ -64,7 +64,7 @@ const Performance: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col lg:border lg:rounded-md">
+    <div className="flex flex-col lg:border lg:rounded-md p-4">
       <GamePhaseChart
         barData={barData}
         isCacheValid={isCacheValid}

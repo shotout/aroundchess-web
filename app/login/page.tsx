@@ -195,10 +195,7 @@ export default function LoginPage() {
 
         <SiteHeaderNew />
 
-        <main
-          style={{ height: `calc(100vh - ${headerHeight}px)` }}
-          className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8"
-        >
+        <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8 py-8">
           <div
             className={`
             w-full
@@ -207,21 +204,22 @@ export default function LoginPage() {
             glassmorphismLogin
             p-4 sm:p-6 md:p-8
             flex flex-col
+            my-4
           `}
           >
-            <div className="flex items-center mb-4 sm:mb-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <Link
                 href="/"
                 className="text-black hover:text-blue-700 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Link>
+              <h1 className="text-2xl sm:text-3xl font-medium text-black flex-grow text-center mr-5">
+                Welcome Back!
+              </h1>
             </div>
 
             <div className="text-center mb-5 sm:mb-6">
-              <h1 className="text-2xl sm:text-3xl font-medium text-black">
-                Welcome Back!
-              </h1>
               <p className="text-black/80 mt-1">
                 Enter your credentials to sign in to your account
               </p>

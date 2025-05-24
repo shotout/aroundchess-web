@@ -2,23 +2,6 @@
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { AnalysisResult, usePgnStore } from "@/app/store/zustandStore";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { Check, Clipboard, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
@@ -28,32 +11,23 @@ import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
-interface AnalyzeDifferentGameProps {
-  openPopup?: boolean;
-  label?: string;
-  style?: string;
+interface AnalyzeGameDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function AnalyzeDifferentGame({
-  openPopup,
-  label,
-  style,
-}: AnalyzeDifferentGameProps) {
+export function AnalyzeGameDialog({
+  open,
+  onOpenChange,
+}: AnalyzeGameDialogProps) {
   const router = useRouter();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token } = useProfileStore();
-
-  const {
-    estimateMinute,
-    estimateSecond,
-    setEstimateMinute,
-    setEstimateSecond,
-  } = useLoadingAPI();
+  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const {
     setPgn,
     setIsLoading,
@@ -61,13 +35,14 @@ export function AnalyzeDifferentGame({
     setDataAnalysis,
     setDataGamesImport,
   } = usePgnStore();
+
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
       value: 10,
       title: "Basic Analysis",
       description:
-        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
+        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
       mustMember: false,
     },
     {
@@ -75,7 +50,7 @@ export function AnalyzeDifferentGame({
       value: 20,
       title: "Standard Analysis",
       description:
-        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
+        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
       mustMember: true,
     },
     {
@@ -83,11 +58,12 @@ export function AnalyzeDifferentGame({
       value: 30,
       title: "Deep Analysis",
       description:
-        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
+        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
       mustMember: true,
     },
   ];
 
+  const [activeTab, setActiveTab] = useState("auto");
   const [username, setUsername] = useState("");
   const [pgnText, setPgnText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -98,23 +74,13 @@ export function AnalyzeDifferentGame({
   const [estimateStandard, setEstimateStandard] = useState<string>("");
   const [estimateDeep, setEstimateDeep] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(10);
-  const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
 
-  // New states for username validation
-  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
-  interface GameOption {
-    value: string;
-    text: string;
-    color: string;
-    result: string;
-    opponent: string;
-  }
+  const [usernameStatus, setUsernameStatus] = useState("idle");
 
   const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
@@ -126,13 +92,6 @@ export function AnalyzeDifferentGame({
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
     return () => clearTimeout(timer);
   }, [username]);
-
-  useEffect(() => {
-    if (openPopup != null && open != true) {
-      setOpen(openPopup);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openPopup]);
 
   useEffect(() => {
     if (debouncedQuery) {
@@ -161,7 +120,6 @@ export function AnalyzeDifferentGame({
       setAvailableGames([]);
       setSelectedGame(undefined);
     }
-    console.log("response", url, response);
   };
 
   const handleDrag = (e: {
@@ -192,7 +150,6 @@ export function AnalyzeDifferentGame({
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      console.log("PGN file:", file);
 
       if (!file) return;
 
@@ -209,13 +166,11 @@ export function AnalyzeDifferentGame({
   };
 
   const handleFile = (file: { name: string; size: number }) => {
-    // Check file type (simple check for .pgn extension)
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
       return;
     }
 
-    // Check file size (5MB = 5 * 1024 * 1024 bytes)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size exceeds 5MB limit.");
       return;
@@ -225,25 +180,14 @@ export function AnalyzeDifferentGame({
     setFileSize(file.size);
   };
 
-  const handleButtonClick = () => {
-    if (!fileName && fileInputRef.current) {
-      fileInputRef.current.click();
-    } else {
-      // Handle import logic
-      setIsSubmitted(true);
-    }
-  };
-
   const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
     if (token.balance >= 1) {
       if (selectedGame) {
-        console.log("Selected game:", selectedGame);
         setDataGamesImport(availableGames[0]?.data_games);
         processAnalyze(selectedGame);
         setPgn(selectedGame);
       } else if (pgnText) {
-        console.log("PGN text provided", pgnText);
         processAnalyze(pgnText);
         setPgn(pgnText);
         setDataGamesImport(null);
@@ -252,12 +196,8 @@ export function AnalyzeDifferentGame({
       setOpenPricing(true);
       setTabType("tokens");
     }
-    // else if (fileName) {
-    //   console.log("File uploaded:", file);
-    //   setDataGamesImport(null);
-    //   processAnalyze(file);
-    // }
   };
+
   const processAnalyze = async (pgn: string | any) => {
     let arr: AnalysisResult | null = null;
     try {
@@ -271,15 +211,10 @@ export function AnalyzeDifferentGame({
         60000
       );
       setDataAnalysis(responseAnalysis.data);
+      onOpenChange(false);
 
-      // Close the dialog
-      setOpen(false);
-
-      console.log("responseAnalysis:", responseAnalysis);
-      console.log("Analysis depth:", depthChoosed || "Not selected");
       arr = responseAnalysis.data;
     } catch (err) {
-      console.log("error", err);
       toast.error(err + "");
       setIsLoading(false);
 
@@ -295,28 +230,25 @@ export function AnalyzeDifferentGame({
       }, 2000);
     }
   };
+
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
     setDepthChoosed(0);
   };
+
   useEffect(() => {
-    let pgn = selectedGame && pgnToFenList(selectedGame);
-    let basic = 5;
-    let standard = 23;
-    let deep = 51;
+    const pgn = selectedGame && pgnToFenList(selectedGame);
+    const basic = 5;
+    const standard = 23;
+    const deep = 51;
 
-    let basicResult = pgn && pgn?.length * basic;
-    let standardResult = pgn && pgn?.length * standard;
-    let deepResult = pgn && pgn?.length * deep;
+    const basicResult = pgn && pgn?.length * basic;
+    const standardResult = pgn && pgn?.length * standard;
+    const deepResult = pgn && pgn?.length * deep;
 
-    let basicString = formatTimeToMinutesSeconds(basicResult || 0);
-    let standardString = formatTimeToMinutesSeconds(standardResult || 0);
-    let deepString = formatTimeToMinutesSeconds(deepResult || 0);
-
-    console.log("pgn?.length", pgn?.length);
-    console.log("basic", basicString);
-    console.log("standard", standardString);
-    console.log("deep", deepString);
+    const basicString = formatTimeToMinutesSeconds(basicResult || 0);
+    const standardString = formatTimeToMinutesSeconds(standardResult || 0);
+    const deepString = formatTimeToMinutesSeconds(deepResult || 0);
 
     setTimeBasic(getTime(basicResult || 0));
     setTimeStandard(getTime(standardResult || 0));
@@ -325,13 +257,13 @@ export function AnalyzeDifferentGame({
     setEstimateBasic(basicString);
     setEstimateStandard(standardString);
     setEstimateDeep(deepString);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGame]);
+
   const formatTimeToMinutesSeconds = (seconds: number): string => {
-    // Calculate minutes and remaining seconds
-    let second = Math.round(seconds / 5) * 5;
+    const second = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(second % 60);
-    // Format as "xx minutes xx seconds"
     if (minutes > 0) {
       return `${minutes} minute${
         minutes !== 1 ? "s" : ""
@@ -340,55 +272,80 @@ export function AnalyzeDifferentGame({
       return `${remainingSeconds} second${remainingSeconds !== 1 ? "s" : ""}`;
     }
   };
+
   const getTime = (seconds: number): any => {
-    let s = Math.round(seconds / 5) * 5;
+    const s = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(s % 60);
-    let time = { minute: minutes, second: remainingSeconds };
+    const time = { minute: minutes, second: remainingSeconds };
     return time;
   };
+
+  if (!open) return null;
+
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = 72;
+  const headerHeightLg = 96;
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={() => {
-        if (!open) {
-          setOpen(true);
-          setOpen(true);
-        } else {
-          setOpen(false);
-        }
+    <div
+      className="fixed bg-black/50 z-50 flex items-center justify-center p-4 md:p-0"
+      style={{
+        top:
+          typeof window !== "undefined" && window.innerWidth >= 1024
+            ? headerHeightLg
+            : headerHeight,
+        left: sidebarWidth,
+        right: 0,
+        bottom: 0,
       }}
+      onClick={() => onOpenChange(false)}
     >
-      <DialogTrigger asChild>
-        <button
-          className={`w-fill px-5 py-2 btn-primary rounded-full ${style}`}
-        >
-          {label && label.length > 0 ? label : "Analyze a different game"}
-        </button>
-      </DialogTrigger>
-      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
-        <DialogHeader className="gap-2 mb-2">
-          <DialogTitle>Analyze your games</DialogTitle>
-          <DialogDescription className="text-black">
+      <div
+        className="w-full mx-auto rounded-lg max-w-sm md:max-w-xl bg-white overflow-y-auto max-h-[95%]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="p-4 border-b">
+          <h2 className="text-xl font-semibold">Analyze your games</h2>
+          <p className="text-sm text-black mt-2">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
-          </DialogDescription>
-        </DialogHeader>
-        <ScrollArea className="overflow-auto md:max-w-[640px] max-h-[480px] md:max-h-screen ">
-          <Tabs defaultValue="auto" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
-              <TabsTrigger value="auto">
-                <span className="text-xs">From Chess.com</span>
-              </TabsTrigger>
-              <TabsTrigger value="manual">
-                <Clipboard className="mr-2 h-4 w-4" />
-                <span className="text-xs">Paste or Upload PGN</span>
-              </TabsTrigger>
-            </TabsList>
+          </p>
+        </div>
 
-            <TabsContent value="auto" className="space-y-4">
+        {/* Content */}
+        <div className="p-4">
+          {/* Custom Tabs */}
+          <div className="w-full mb-4">
+            <div className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1 rounded-md">
+              <button
+                onClick={() => setActiveTab("auto")}
+                className={`p-2 rounded text-xs ${
+                  activeTab === "auto" ? "bg-white shadow-sm" : "bg-transparent"
+                }`}
+              >
+                From Chess.com
+              </button>
+              <button
+                onClick={() => setActiveTab("manual")}
+                className={`p-2 rounded text-xs flex items-center justify-center ${
+                  activeTab === "manual"
+                    ? "bg-white shadow-sm"
+                    : "bg-transparent"
+                }`}
+              >
+                <Clipboard className="mr-2 h-4 w-4" />
+                Paste or Upload PGN
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === "auto" && (
+            <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex flex-row items-center">
                   <Image
@@ -403,7 +360,7 @@ export function AnalyzeDifferentGame({
                     Chess.com Username
                   </p>
                 </div>
-                <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-indigo-500">
                   <input
                     type="text"
                     id="username"
@@ -431,44 +388,48 @@ export function AnalyzeDifferentGame({
                   </div>
                 </div>
               </div>
+
               <div className="space-y-2 mx-1">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
-                <Select
-                  name="game"
-                  disabled={usernameStatus !== "found"}
-                  value={selectedGame}
-                  onValueChange={handleGameSelect}
-                >
-                  <SelectTrigger
-                    className={`w-full ${
+                {/* Custom Select */}
+                <div className="relative">
+                  <select
+                    disabled={usernameStatus !== "found"}
+                    value={selectedGame || ""}
+                    onChange={(e) => handleGameSelect(e.target.value)}
+                    className={`w-full p-3 rounded-lg border appearance-none bg-white ${
                       usernameStatus !== "found"
                         ? "bg-gray-100 cursor-not-allowed"
                         : ""
                     }`}
                   >
-                    <SelectValue placeholder="Select your game" />
-                  </SelectTrigger>
-                  <SelectContent>
+                    <option value="">Select your game</option>
                     {availableGames.map((game, index) => (
-                      <SelectItem key={index} value={game.value}>
+                      <option key={index} value={game.value}>
                         {game.text} ({game.result})
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
+
+              <div className="grid grid-cols-1 md:grid-cols-3  gap-3 items-center">
                 {depths.map((depth, index) => {
-                  let estimate =
+                  const estimate =
                     index == 0
                       ? estimateBasic
                       : index == 1
                       ? estimateStandard
                       : estimateDeep;
 
-                  let time =
+                  const time =
                     index == 0
                       ? timeBasic
                       : index == 1
@@ -519,7 +480,7 @@ export function AnalyzeDifferentGame({
                             ? `bg-[#99A5A9] border-1 border-[#737C7F]`
                             : depthChoosed == depth.value
                             ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
-                            : `border-input border-2`
+                            : `border-gray-300 border-2`
                         } `}
                       />
                       <span className="font-normal text-sm">{depth.title}</span>
@@ -531,7 +492,6 @@ export function AnalyzeDifferentGame({
                           Analysis can take up to:
                         </span>
                         <span className="font-medium text-[11px]  ">
-                          {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
                           {estimate}
                         </span>
                       </div>
@@ -539,11 +499,13 @@ export function AnalyzeDifferentGame({
                   );
                 })}
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            <TabsContent value="manual" className="space-y-4">
+          {activeTab === "manual" && (
+            <div className="space-y-4">
               <div className="space-y-6">
-                <div className="mt-5 border-2 border-input rounded-lg bg-gray-50 p-2">
+                <div className="mt-5 border-2 border-gray-300 rounded-lg bg-gray-50 p-2">
                   <textarea
                     className="w-full h-40 lg:h-48 bg-[#f8f9fc] p-2 resize-none outline-none text-gray-700 placeholder-gray-400"
                     placeholder="Paste your PGN here..."
@@ -557,7 +519,7 @@ export function AnalyzeDifferentGame({
                 <div
                   className={`mt-5 border-2 border-dashed ${
                     dragActive
-                      ? "border-[#3871EC] bg--blue-100"
+                      ? "border-[#3871EC] bg-blue-100"
                       : "border-[#3871EC] bg-blue-50"
                   } rounded-lg p-8 flex flex-col items-center justify-center`}
                   onDragEnter={handleDrag}
@@ -586,7 +548,7 @@ export function AnalyzeDifferentGame({
                   ) : (
                     <div className="text-center lg:h-48 flex flex-col items-center justify-center">
                       <UploadCloud className="h-10 w-10 mx-auto text-blue-600 mb-2" />
-                      <p className="block text-sm text-black-700 mb-1">
+                      <p className="block text-sm text-gray-700 mb-1">
                         Drag & drop or click to
                         <span
                           className="underline text-blue-600 font-bold cursor-pointer"
@@ -597,38 +559,39 @@ export function AnalyzeDifferentGame({
                         </span>{" "}
                         a file
                       </p>
-                      <p className="block text-[10px] text-black-700 mb-1">
+                      <p className="block text-[10px] text-gray-700 mb-1">
                         Maximum file size: 5MB
                       </p>
                     </div>
                   )}
                 </div>
               </div>
-            </TabsContent>
-            <button
-              onClick={handleAnalyzeGame}
-              className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
-                (usernameStatus !== "found" &&
-                  !selectedGame &&
-                  !pgnText &&
-                  !fileName) ||
-                depthChoosed == 0
-                  ? "opacity-70 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={
-                (usernameStatus !== "found" &&
-                  !selectedGame &&
-                  !pgnText &&
-                  !fileName) ||
-                depthChoosed == 0
-              }
-            >
-              Analyze Game
-            </button>
-          </Tabs>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+            </div>
+          )}
+
+          <button
+            onClick={handleAnalyzeGame}
+            className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+              (usernameStatus !== "found" &&
+                !selectedGame &&
+                !pgnText &&
+                !fileName) ||
+              depthChoosed == 0
+                ? "opacity-70 cursor-not-allowed"
+                : ""
+            }`}
+            disabled={
+              (usernameStatus !== "found" &&
+                !selectedGame &&
+                !pgnText &&
+                !fileName) ||
+              depthChoosed == 0
+            }
+          >
+            Analyze Game
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

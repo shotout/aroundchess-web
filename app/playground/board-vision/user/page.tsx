@@ -9,7 +9,7 @@ const Page: React.FC = () => {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full h-auto xl:h-[calc(100vh-97px)] flex justify-center items-center pb-10 xl:pb-0">
+          <div className="w-full h-auto 2xl:h-[calc(100vh-97px)] flex justify-center items-center pb-10 xl:pb-0">
             <UserPGN />
           </div>
         </Navigation>

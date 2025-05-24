@@ -11,8 +11,6 @@ import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
 
-const DEV_MODE = false;
-
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
@@ -50,7 +48,6 @@ export default function AnalysisPage() {
   const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
   const [widthC, setWidthC] = useState<number>(0);
-  const [devMode] = useState(DEV_MODE);
   let lastScrollY = 0;
 
   const fetchMistakePrevious = async () => {
@@ -99,7 +96,11 @@ export default function AnalysisPage() {
       }
 
       if (dataAnalysis == null) {
-        console.log("No PGN data found, loading famous game as fallback", isSignedIn, isLoading);
+        console.log(
+          "No PGN data found, loading famous game as fallback",
+          isSignedIn,
+          isLoading
+        );
         fetchPgnFamousGame();
       } else {
         console.log("Using existing PGN data from store");
@@ -164,9 +165,8 @@ export default function AnalysisPage() {
         <LoadingPage />
       ) : (
         <Navigation>
+          <ChessAccountSetup isLoading={isLoading} />
           <div className="flex flex-col overflow-y-auto relative">
-            <ChessAccountSetup isLoading={isLoading} debugMode={devMode} />
-
             <div
               className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 lg:p-[32px] gap-1 ${
                 hideDiv && "hidden"

@@ -27,7 +27,6 @@ const GamesTab: React.FC = () => {
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
     useGames("chessdotcom");
 
-  // Handle filters
   const {
     filters,
     setFilters,

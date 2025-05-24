@@ -38,16 +38,16 @@ const TrainingTopicCard: React.FC<TrainingTopicCardProps> = ({
   const basePath = getBasePath(topic.id);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 h-full">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="border border-gray-200 rounded-lg p-4 h-full flex flex-col gap-y-3">
+      <div className="flex items-center gap-2">
         <Image src={iconSrc} alt={topic.title} width={30} height={30} />
         <Badge className="border rounded-sm border-blue-base text-blue-base bg-white font-medium">
           {displayLevel}
         </Badge>
       </div>
-      <div className="font-medium mb-4">{topic.title}</div>
+      <div className="font-medium">{topic.title}</div>
       <Link href={`${basePath}/${topic.id}`}>
-        <button className="w-full btn-primary rounded-full">
+        <button className="w-full p-2 btn-primary rounded-full">
           Start Training
         </button>
       </Link>

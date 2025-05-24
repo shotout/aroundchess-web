@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { gameHistoryApi } from "@/components/game-history/services/api";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
+import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -17,10 +17,9 @@ interface ChessAccountSetupProps {
 
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
-  debugMode = false,
 }) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -38,6 +37,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
   const [checkComplete, setCheckComplete] = useState(false);
 
   const handleConnectSuccess = (username: string) => {
@@ -53,24 +53,20 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   const handleClosePremium = () => {
     setShowPremiumDialog(false);
+    setShowAnalyzeDialog(true);
   };
 
   const handleGetPremium = () => {
     setShowPremiumDialog(false);
+    setShowAnalyzeDialog(true);
     toast.success("Thank you for subscribing to Premium!");
   };
 
   const triggerConnectDialog = () => setShowConnectDialog(!showConnectDialog);
   const triggerPremiumDialog = () => setShowPremiumDialog(!showPremiumDialog);
+  const triggerAnalyzeDialog = () => setShowAnalyzeDialog(!showAnalyzeDialog);
 
   useEffect(() => {
-    // Skip API checks in debug mode
-    if (debugMode) {
-      setCheckComplete(true);
-      return;
-    }
-
-    // If we already have a username, don't check
     if (username) {
       setCheckComplete(true);
       return;
@@ -87,6 +83,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
       setShowConnectDialog(false);
       setShowPremiumDialog(false);
+      setShowAnalyzeDialog(false);
 
       try {
         const response = await gameHistoryApi.getProfile(sessionId);
@@ -112,37 +109,17 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     };
 
     fetchProfileData();
-  }, [isSignedIn, sessionId, setUsername, username, debugMode]);
+  }, [isSignedIn, sessionId, setUsername, username]);
 
   return (
     <>
-      {debugMode && (
-        <div className="flex gap-2 mb-4 bg-yellow-100 p-2 rounded-md border border-yellow-300">
-          <button
-            onClick={triggerConnectDialog}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-          >
-            {showConnectDialog ? "Close" : "Open"} Chess Connect
-          </button>
-          <button
-            onClick={triggerPremiumDialog}
-            className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm"
-          >
-            {showPremiumDialog ? "Close" : "Open"} Premium Dialog
-          </button>
-          <span className="text-xs self-center text-yellow-800">
-            DEBUG MODE
-          </span>
-        </div>
-      )}
-
-      {(checkComplete || debugMode) && (
+      {checkComplete && (
         <>
           <ChessConnectDialog
             open={showConnectDialog && !isLoading}
             onOpenChange={(open) => {
               setShowConnectDialog(open);
-              if (!open && !debugMode) {
+              if (!open) {
                 handleConnectClose();
               }
             }}
@@ -153,6 +130,11 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
             visible={showPremiumDialog && !isLoading}
             onClose={handleClosePremium}
             onGetPremium={handleGetPremium}
+          />
+
+          <AnalyzeGameDialog
+            open={showAnalyzeDialog && !isLoading}
+            onOpenChange={setShowAnalyzeDialog}
           />
         </>
       )}

@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -41,6 +41,7 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
   const [isDesktop, setIsDesktop] = useState(false);
   const { allMembershipPackages, activeMembership, isMember } =
     useProfileStore();
+
   useEffect(() => {
     const checkIfDesktop = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -50,21 +51,29 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, [activeMembership]);
+
   if (!visible) return null;
+
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = window.innerWidth >= 1024 ? 96 : 72;
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto pt-24 lg:pt-32 xl:pt-[110px] 2xl:pt-[120px] ${
-        isDesktop ? "xl:pl-64" : ""
-      }`}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
+        paddingTop: headerHeight + 16,
+        paddingBottom: 16,
+        paddingRight: 16,
+      }}
     >
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-[1200px] mx-4 z-10">
-        <div className="relative bg-blue-50 border border-blue-100 rounded-xl overflow-hidden shadow-lg">
+      <div className="relative w-full max-w-6xl mx-auto z-10 h-full flex flex-col">
+        <div className="relative bg-blue-50 border border-blue-100 rounded-xl shadow-lg flex-1 min-h-0 flex flex-col">
           <div className="absolute inset-0 z-0 opacity-55">
             <Image
               src="/my-game-history/pattern.png"
@@ -84,12 +93,12 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
             <X className="w-5 h-5" />
           </button>
 
-          <div className="relative z-10 p-4 md:p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl md:text-3xl font-semibold text-black">
+          <div className="relative z-10 p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+            <div className="text-center space-y-1">
+              <h2 className="text-2xl font-semibold text-black">
                 Go Premium now
               </h2>
-              <p className="text-2xl md:text-3xl text-black font-semibold mt-1">
+              <p className="text-xl text-black font-semibold">
                 for unlimited access and become a Chess Master
               </p>
             </div>
@@ -101,10 +110,10 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
     </div>
   );
 };
+
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
 }> = ({ onGetPremium }) => {
-
   const {
     allMembershipPackages,
     activeMembership,
@@ -117,15 +126,18 @@ export const PremiumSubsContent: React.FC<{
   const { postPurchaseMembership, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
+
   const handleOpenContactUs = () => {
     setOpenPricing(false);
     setOpen(true);
   };
+
   const handleCancelSubscription = () => {
     setOpenCancel(true);
   };
-  let free = allMembershipPackages[0];
-  let premium = allMembershipPackages[1];
+
+  const free = allMembershipPackages[0];
+  const premium = allMembershipPackages[1];
   const deadline = new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
@@ -147,74 +159,74 @@ export const PremiumSubsContent: React.FC<{
     });
 
     const data = await res.json();
-    // if (data.url) {
-    //   window.open(data.url, "_blank"); // Opens in a new tab
-    // }
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };
+
   const { setOpen: setOpenContact } = useContactUs();
 
   return (
-    <div className="mb-4">
-      <p className="text-sm text-black mb-2 text-center">
-        Discover our Suite of Powerful Features with the AroundChess{" "}
-        <span className="text-blue-base font-medium">
-          Premium Subscription:
-        </span>
-      </p>
+    <div className="space-y-4">
+      <div className="text-center space-y-2">
+        <p className="text-sm text-black">
+          Discover our Suite of Powerful Features with the AroundChess{" "}
+          <span className="text-blue-base font-medium">
+            Premium Subscription:
+          </span>
+        </p>
 
-      <div className="flex justify-center mb-6">
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full xl:w-[70%] 2xl:w-[70%]">
-          <FeatureImage
-            imageUrl={"/icons/sidebar-analyze-icon-active.png"}
-            label="Analyze Games"
-          />
-          <FeatureImage
-            imageUrl={"/icons/sidebar-theory-icon-active.png"}
-            label="Handbook: Chess Theory"
-          />
-          <FeatureImage
-            imageUrl={"/icons/sidebar-play-vs-ai-icon-active.png"}
-            label="Playground: Play VS AI"
-          />
-          <FeatureImage
-            imageUrl={"/icons/sidebar-puzzle-icon-active.png"}
-            label="Playground: Chess Puzzles"
-          />
-          <FeatureImage
-            imageUrl={"/icons/sidebar-board-vision-icon-active.png"}
-            label="Playground: Board Vision"
-          />
-          <FeatureImage
-            imageUrl={"/icons/sidebar-endgame-training-icon-active.png"}
-            label="Playground: Endgame Training"
-          />
+        <div className="flex justify-center">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 max-w-2xl">
+            <FeatureImage
+              imageUrl={"/icons/sidebar-analyze-icon-active.png"}
+              label="Analyze Games"
+            />
+            <FeatureImage
+              imageUrl={"/icons/sidebar-theory-icon-active.png"}
+              label="Handbook: Chess Theory"
+            />
+            <FeatureImage
+              imageUrl={"/icons/sidebar-play-vs-ai-icon-active.png"}
+              label="Playground: Play VS AI"
+            />
+            <FeatureImage
+              imageUrl={"/icons/sidebar-puzzle-icon-active.png"}
+              label="Playground: Chess Puzzles"
+            />
+            <FeatureImage
+              imageUrl={"/icons/sidebar-board-vision-icon-active.png"}
+              label="Playground: Board Vision"
+            />
+            <FeatureImage
+              imageUrl={"/icons/sidebar-endgame-training-icon-active.png"}
+              label="Playground: Endgame Training"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-blue-50 rounded-full">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-blue-50 rounded-full">
               <Image
                 src="/onboarding/free.png"
                 alt="Free Icon"
-                width={64}
-                height={64}
+                width={48}
+                height={48}
               />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-black">Free Package</h3>
-              <div className="text-2xl font-semibold text-black">${0}</div>
+              <div className="text-xl font-semibold text-black">${0}</div>
             </div>
           </div>
 
-          <p className="text-gray-700 text-sm mb-4">
+          <p className="text-gray-700 text-sm mb-3">
             Our Basic Package for free limited Access!
           </p>
 
-          <div className="space-y-3 flex-grow">
+          <div className="space-y-2 flex-grow">
             <BenefitItem text="1 Game Analysis every 72h" />
             <BenefitItem text="Basic Game Analysis" />
             <BenefitItem text="Limited Access to the Feedback Log and Game History" />
@@ -224,50 +236,52 @@ export const PremiumSubsContent: React.FC<{
             <BenefitItem text="Endgame Training" />
             <BenefitItem text="Chess Handbook" />
           </div>
+
           {isLoading && <DotSpinner />}
           {!isMember && !isLoading && (
-            <div className="mt-4 relative w-full py-3 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+            <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
               <Image
                 src="/onboarding/currentPackage.png"
                 alt="Free Icon"
                 className=""
-                width={50}
-                height={50}
+                width={40}
+                height={40}
               />
               <p className="text-sm font-medium text-black">
                 You are on this Package
               </p>
 
               <Image
-                width={200}
-                height={200}
+                width={160}
+                height={160}
                 alt="member"
                 src={"/onboarding/member.png"}
-                className="absolute top-0 right-12"
+                className="absolute top-0 right-8"
               />
             </div>
           )}
         </div>
 
-        <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-5 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
-          <div className="absolute -top-3 left-0 right-0 flex justify-center">
-            <div className="bg-[#A855F7] px-4 py-1 xl:px-8 xl:py-2 rounded-full text-xs font-medium">
+        <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
+          <div className="absolute -top-2 left-0 right-0 flex justify-center">
+            <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
               For frequent Chess Players
             </div>
           </div>
+
           {!isMember && profile.discount && isPass > 0 && (
-            <div className="flex justify-center items-center my-[12px]">
+            <div className="flex justify-center items-center my-2">
               <CountdownTimerDiscount />
             </div>
           )}
 
-          <div className="flex items-center gap-4 mb-4 pt-2">
-            <div className="p-2 rounded-full">
+          <div className="flex items-center gap-3 mb-3 pt-1">
+            <div className="p-1 rounded-full">
               <Image
                 src="/onboarding/premium.png"
                 alt="Premium Icon"
-                width={64}
-                height={64}
+                width={48}
+                height={48}
               />
             </div>
             <div>
@@ -275,24 +289,25 @@ export const PremiumSubsContent: React.FC<{
                 Premium Package (Yearly)
               </h3>
               {profile.discount == null && (isMember || isPass < 0) ? (
-                <div className="text-2xl font-semibold">
+                <div className="text-xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                   <PriceDiscount price={99.99} />
-                  <div className="text-2xl font-semibold">
+                  <div className="text-xl font-semibold">
                     $79.99 <span className="text-sm font-normal">/year</span>
                   </div>
                 </div>
               )}
             </div>
           </div>
-          <p className="text-sm mb-4">
+
+          <p className="text-sm mb-3">
             Our Unlimited Package for frequent Chess Players!
           </p>
 
-          <div className="space-y-3 flex-grow">
+          <div className="space-y-2 flex-grow">
             <BenefitItem
               text="1,000 Analyses per year (meaning 0.10 Cent per Analysis)"
               light
@@ -313,32 +328,32 @@ export const PremiumSubsContent: React.FC<{
             <BenefitItem text="Early Feature Update" light />
             <BenefitItem text="Discord VIP Access" light />
           </div>
+
           {isLoading && <DotSpinner />}
           {!isMember && !isLoading && (
             <button
               onClick={handleGetPremium}
-              className="mt-4 w-full py-3 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+              className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
             >
               Get Premium
             </button>
           )}
+
           {isMember && (
             <>
               <motion.div
                 variants={fadeInUp}
-                className={`mt-[12px] relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
+                className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
               >
-                <div
-                  className={`flex h-[56px] flex-row items-center rounded-[8px] gap-2`}
-                >
+                <div className="flex h-12 flex-row items-center rounded-lg gap-2">
                   <Image
-                    src={`/icons/onboarding-popup.png`}
+                    src="/icons/onboarding-popup.png"
                     alt="icon"
-                    width={1000}
-                    height={1000}
-                    className="w-[42px] h-[44px] object-contain m-4 mr-0"
+                    width={32}
+                    height={32}
+                    className="object-contain m-3 mr-0"
                   />
-                  <span className="font-medium text-[11px] xl:text-[14px] z-10 text-black">
+                  <span className="font-medium text-xs text-black z-10">
                     {`You are on this Package. ${
                       activeMembership.autoRenew
                         ? ` The Subscription automatically renews on ` +
@@ -347,20 +362,20 @@ export const PremiumSubsContent: React.FC<{
                         : ``
                     }`}
                   </span>
-                  <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
+                  <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
                     <Image
-                      src={`/icons/sparks-member.png`}
+                      src="/icons/sparks-member.png"
                       alt="icon"
-                      width={1000}
-                      height={1000}
-                      className="w-full h-[56px] object-cover"
+                      width={48}
+                      height={48}
+                      className="object-cover"
                     />
                   </div>
                 </div>
               </motion.div>
-              {activeMembership.autoRenew && activeMembership.autoRenew && (
-                <button className="mt-4" onClick={handleCancelSubscription}>
-                  <span className="font-medium text-[16px] text-white">
+              {activeMembership.autoRenew && (
+                <button className="mt-3" onClick={handleCancelSubscription}>
+                  <span className="font-medium text-sm text-white">
                     Cancel Subscription
                   </span>
                 </button>
@@ -369,8 +384,9 @@ export const PremiumSubsContent: React.FC<{
           )}
         </div>
       </div>
-      <div className="mt-6 bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
-        <Users className="w-5 h-5 text-blue-base flex-shrink-0" />
+
+      <div className="bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
+        <Users className="w-4 h-4 text-blue-base flex-shrink-0" />
         <p className="text-gray-700">
           Are you interested in getting an AroundChess Subscription for your
           Chess Club?{" "}
@@ -387,32 +403,33 @@ export const PremiumSubsContent: React.FC<{
     </div>
   );
 };
+
 const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
   const hasColon = label.includes(":");
-
   const [firstPart, secondPart] = hasColon
     ? [label.split(":")[0], label.split(":")[1]]
     : [label, null];
 
   return (
-    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-[8px] flex flex-col justify-center items-center w-[90px] h-[90px] xl:w-[100px] xl:h-[100px]">
+    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-lg flex flex-col justify-center items-center w-20 h-20">
       <Image
         alt="-"
         src={imageUrl}
-        width={1000}
-        height={1000}
-        className="w-[34px] h-[32px]"
+        width={24}
+        height={24}
+        className="w-6 h-6"
       />
-      <div className="text-center flex flex-col justify-end">
-        <p className="text-[11px] font-normal text-gray-900">
+      <div className="text-center flex flex-col justify-end px-1">
+        <p className="text-[10px] font-normal text-gray-900 leading-tight">
           {firstPart}
           {hasColon ? ":" : ""}
         </p>
         {secondPart ? (
-          <p className="text-[11px] font-medium text-gray-900">{secondPart}</p>
+          <p className="text-[10px] font-medium text-gray-900 leading-tight">
+            {secondPart}
+          </p>
         ) : (
-          // Empty placeholder div to maintain height consistency
-          <div className="h-4"></div>
+          <div className="h-3"></div>
         )}
       </div>
     </div>
@@ -422,10 +439,10 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
 const BenefitItem: React.FC<BenefitItemProps> = ({ text, light = false }) => (
   <div className="flex items-start gap-2">
     <CheckCircle
-      className={`w-5 h-5 flex-shrink-0 ${
+      className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
         light ? "text-white" : "text-blue-base"
       }`}
     />
-    <p className="text-sm">{text}</p>
+    <p className="text-sm leading-relaxed">{text}</p>
   </div>
 );

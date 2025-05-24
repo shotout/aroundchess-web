@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -35,8 +35,38 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
 }) => {
   const { openingPlayed } = usePgnStore();
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const toggleTooltip = () => setOpen((prev) => !prev);
+  // Detect if device is mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768 || "ontouchstart" in window);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+
+  const handleClick = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (isMobile) {
+      setOpen((prev) => !prev);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setOpen(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setOpen(false);
+    }
+  };
 
   const getRelevantOpenings = () => {
     if (!openingPlayed) {
@@ -218,12 +248,14 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
   );
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="focus:outline-none rounded-sm"
-          aria-label="Show opening information"
+          className="rounded-sm"
           type="button"
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {categoryId === "opening" && (
             <Image
@@ -242,6 +274,8 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
         className="p-3 sm:p-4 bg-blue-base/15 backdrop-blur-3xl border border-blue-base w-auto rounded-none rounded-t-md rounded-br-md"
         sideOffset={10}
         alignOffset={10}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {tooltipContent}
       </PopoverContent>

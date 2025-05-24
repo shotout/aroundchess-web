@@ -51,7 +51,7 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="grid md:grid-cols-2 gap-6 bg-transparent">
-      <div className="md:border border-gray-200 rounded-lg md:p-4">
+      <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           <RatingProgressChart
             ratingData={data.ratingData}
@@ -68,7 +68,7 @@ const Analytics: React.FC = () => {
         </div>
       </div>
 
-      <div className="md:border border-gray-200 rounded-lg md:p-4">
+      <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           <div className="hidden md:block lg:hidden">
             {performanceInsightsSection}

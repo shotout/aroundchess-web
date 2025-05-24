@@ -33,7 +33,7 @@ export default function ChessboardWrapper({
   is3DMode,
   handleShare,
 }: ChessboardWrapperProps) {
-  const [boardSize, setBoardSize] = useState<number | undefined>(650);
+  const [boardSize, setBoardSize] = useState<number | undefined>(1000);
   const [mounted, _] = useState<boolean>(true);
   const [rightClickedSquares, setRightClickedSquares] = useState<
     Record<string, { backgroundColor: string }>

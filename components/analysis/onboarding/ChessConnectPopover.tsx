@@ -7,7 +7,6 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export interface ChessConnectDialogProps {
@@ -24,7 +23,7 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   const { setUsername: setStoreUsername } = usePgnStore();
 
@@ -78,10 +77,22 @@ export const ChessConnectDialog = ({
   };
 
   if (!open) return null;
-
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = 72;
+  const headerHeightLg = 96;
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 md:p-0"
+      className="fixed bg-black/50 z-50 flex items-center justify-center p-4 md:p-0"
+      style={{
+        top:
+          typeof window !== "undefined" && window.innerWidth >= 1024
+            ? headerHeightLg
+            : headerHeight,
+        left: sidebarWidth,
+        right: 0,
+        bottom: 0,
+      }}
       onClick={() => onOpenChange(false)}
     >
       <div
