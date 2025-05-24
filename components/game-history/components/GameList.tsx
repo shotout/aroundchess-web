@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChartNoAxesColumn, AlertCircle, Clock, BookOpen } from "lucide-react";
 import GameCard from "./GameCard";
@@ -6,6 +6,7 @@ import PaginationControls from "./PaginationControls";
 import DotSpinner from "../Spinner";
 import { getEloChangeData, getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
+import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
 
 interface GamesListProps {
   games: Game[];
@@ -39,6 +40,8 @@ const GamesList: React.FC<GamesListProps> = ({
   const isNewlyImported = (gameId: string | number) => {
     return recentlyImportedIds.includes(gameId);
   };
+
+  const [openGameId, setOpenGameId] = useState<string | number | null>(null);
 
   const displayTimeControl = (timeControl: string) => {
     if (!timeControl || timeControl.trim() === "") {
@@ -143,6 +146,14 @@ const GamesList: React.FC<GamesListProps> = ({
                   style={{ left: "3rem" }}
                 ></div>
 
+                <AnalyzeGameHistory
+                  open={openGameId === game.id}
+                  onOpenChange={(isOpen) =>
+                    setOpenGameId(isOpen ? game.id : null)
+                  }
+                  game={game}
+                />
+
                 <div className="col-span-1 py-3 pl-4 flex items-center">
                   <span className="inline-block w-6 text-center text-gray-500 mr-4">
                     {indexInPage}
@@ -219,8 +230,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
                 <div className="col-span-1 px-4 py-3 flex items-center">
                   <button
-                    className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center hover:bg-blue-600 transition-colors duration-150"
-                    onClick={() => handleAnalyzeClick(game)}
+                    className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
+                    onClick={() => setOpenGameId(game.id)}
                   >
                     <ChartNoAxesColumn className="h-4 w-4 mr-1" />
                     Analyze
