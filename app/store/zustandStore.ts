@@ -50,7 +50,7 @@ interface PgnState {
   capturedWhite: any[];
   capturedBlack: any[];
   mistakeLogs: any[];
-  movementDetails: any[];
+  movementDetails: any;
   playerInfo: any;
   titleGame: string;
   previousAnalyses: any[];

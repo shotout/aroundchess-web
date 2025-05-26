@@ -162,7 +162,8 @@ export default function MovementTable() {
             <div
               className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-                chessMove.move == move.move
+                (chessMove.move == move.move &&
+                  chessMove.moveNumber == move.moveNumber)
                   ? "bg-[#81CFF3]"
                   : index % 2 != 0
                   ? "bg-[#81]"
@@ -251,7 +252,8 @@ export default function MovementTable() {
               <span
                 className={`text-xs text-center ${
                   tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-                  chessMove.move == move.move
+                  (chessMove.move == move.move &&
+                    chessMove.moveNumber == move.moveNumber)
                     ? "font-bold"
                     : "font-normal"
                 } py-2 ${getScoreClass(move.classification)}`}
@@ -269,7 +271,8 @@ export default function MovementTable() {
             <div
               className={`grid grid-cols-[30%_30%_40%] flex items-center h-10 border-b border-b-[#749BBF] ${
                 tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-                chessMove.move == dataMovement.black[index]?.move
+                (chessMove.move == dataMovement.black[index]?.move &&
+                  chessMove.moveNumber == dataMovement.black[index]?.moveNumber)
                   ? "bg-[#81CFF3]"
                   : index % 2 != 0
                   ? "bg-[#81]"
@@ -284,7 +287,7 @@ export default function MovementTable() {
                   <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div className="flex flex-row items-center gap-2">
-                        <span className="text-[7px]  lg:text-[8px] font-semibold">
+                        <span className="text-[8px] lg:text-[12px] font-semibold">
                           {dataMovement.black[index]?.move}
                         </span>
                         <span
@@ -317,14 +320,14 @@ export default function MovementTable() {
                       </div>
                     </div>
                     {dataMovement.black[index]?.analysis && (
-                      <span className="text-[7px] font-normal py-1">
+                      <span className="text-sm text-left lg:text-md font-normal py-1">
                         {dataMovement.black[index]?.analysis}
                       </span>
                     )}
-                    <div className="flex flex-row gap-1">
+                    <div className="flex flex-row items-center gap-1">
                       <InfoIcon size={16} color="#221AE9" />
-                      <span className="text-[7px]">Type:</span>
-                      <span className="text-[7px] font-semibold ">
+                      <span className="text-sm">Type:</span>
+                      <span className="text-sm font-semibold ">
                         {dataMovement.black[index]?.gamePhase}
                       </span>
                     </div>
@@ -366,7 +369,8 @@ export default function MovementTable() {
               <span
                 className={`text-[11px] text-center  ${
                   tabFocus == move.gamePhase.toLowerCase().replace(/ /g, "") ||
-                  chessMove.move == move.move
+                  (chessMove.move == move.move &&
+                    chessMove.moveNumber == move.moveNumber)
                     ? "font-bold"
                     : "font-normal"
                 } py-2 ${getScoreClass(

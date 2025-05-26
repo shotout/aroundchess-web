@@ -68,11 +68,13 @@ const MistakeLog = () => {
   const [selectedHistory, setSelectedHistory] = useState<string>("1");
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [loadingPrevious, setLoadingPrevious] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const loadData = () => {
-    setLoading(true);
+    // setLoading(true);
     fetchMistakeSaved();
   };
   useEffect(() => {
@@ -81,6 +83,7 @@ const MistakeLog = () => {
 
   const fetchMistakePrevious = async () => {
     try {
+      setLoadingPrevious(true);
       const prevData = await getMistakePrevious();
       console.log("prevData", prevData.data);
       if (prevData.data.length > 0) {
@@ -89,7 +92,6 @@ const MistakeLog = () => {
         setSelectedHistory(prevData.data[0].id);
         fetchMistakePreviousDetail(prevData.data[0].id, false);
       }
-      setLoading(false);
     } catch (error) {
       console.error("Failed to fetch mistake previous:", error);
     }
@@ -108,18 +110,21 @@ const MistakeLog = () => {
       setMovementDetails(dataDetail.movementDetail);
       setPlayerInfo(dataDetail.playerInfo);
       setMistakeLogs(dataDetail.mistakeLogs);
+      setLoadingPrevious(false);
     } catch (error) {
       console.error("Failed to fetch mistake previous:", error);
     }
   };
   const fetchMistakeSaved = async () => {
     try {
+      setLoadingSaved(true);
       let params = { page: 1, limit: 10 };
       const savedData = await getMistakeSaved(params);
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
       setPreviousAnalysesDetail(savedData.data[0]);
       fetchMistakePrevious();
+      setLoadingSaved(false);
     } catch (error) {
       console.error("Failed to fetch mistake saved:", error);
     }
@@ -236,20 +241,20 @@ const MistakeLog = () => {
           </div>
           <div className="flex items-center space-x-1 lg:space-x-2 ml-1 shrink-0">
             <button
-              disabled={isLoading}
+              disabled={loadingPrevious}
               onClick={handleApplyFilters}
               className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
             >
               <Filter className="h-[20px] w-[20px]" />
-              {isLoading ? <DotSpinner size={5} /> : "Apply Filters"}
+              {loadingPrevious ? <DotSpinner size={5} /> : "Apply Filters"}
             </button>
             <button
-              disabled={isLoading}
+              disabled={loadingPrevious}
               onClick={handleClearFilters}
               className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
             >
               <Filter className="h-4 w-4" />
-              {isLoading ? <DotSpinner size={5} /> : "Clear Filters"}
+              {loadingPrevious ? <DotSpinner size={5} /> : "Clear Filters"}
             </button>
           </div>
         </div>
@@ -316,20 +321,20 @@ const MistakeLog = () => {
             </div>
             <div className="flex items-center justify-end space-x-1 lg:space-x-2 ml-1 shrink-0 mt-2">
               <button
-                disabled={isLoading}
+                disabled={loadingPrevious}
                 onClick={handleApplyFilters}
                 className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
               >
                 <Filter className="h-[20px] w-[20px]" />
-                {isLoading ? <DotSpinner size={5} /> : "Apply Filters"}
+                {loadingPrevious ? <DotSpinner size={5} /> : "Apply Filters"}
               </button>
               <button
-                disabled={isLoading}
+                disabled={loadingPrevious}
                 onClick={handleClearFilters}
                 className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
               >
                 <Filter className="h-[20px] w-[20px]" />
-                {isLoading ? <DotSpinner size={5} /> : "Clear Filters"}
+                {loadingPrevious ? <DotSpinner size={5} /> : "Clear Filters"}
               </button>
             </div>
           </div>
@@ -359,6 +364,7 @@ const MistakeLog = () => {
         <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
             onClick={() => {
+              loadData();
               setSelectedTab("saved");
               setChessMove({});
               if (savedMistakes.length > 0) {
@@ -404,30 +410,37 @@ const MistakeLog = () => {
         </TabsList>
 
         <TabsContent value="saved" className="gap-2">
-          {loading ? (
+          {loadingSaved ? (
             <DotSpinner />
           ) : (
             <>
               <span className="hidden lg:block font-semibold text-[20px]">
                 Saved Feedback
               </span>
-              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-                <div className="lg:mt-2">
-                  <ChessContent />
+              {savedMistakes.length > 0 ? (
+                <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+                  <div className="lg:mt-2">
+                    <ChessContent />
+                  </div>
+                  <div className="xl:w-3/4">
+                    <SavedMistakes
+                      reFetch={loadData}
+                      onClickSeePrevious={handleGoPrevious}
+                    />
+                  </div>
                 </div>
-                <div className="xl:w-3/4">
-                  <SavedMistakes
-                    reFetch={loadData}
-                    onClickSeePrevious={handleGoPrevious}
-                  />
-                </div>
-              </div>
+              ) : (
+                <SavedMistakes
+                  reFetch={loadData}
+                  onClickSeePrevious={handleGoPrevious}
+                />
+              )}
             </>
           )}
         </TabsContent>
 
         <TabsContent value="previous">
-          {loading ? (
+          {loadingPrevious ? (
             <DotSpinner />
           ) : (
             <>

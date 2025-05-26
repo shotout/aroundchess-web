@@ -64,7 +64,7 @@ export function AnalyzeDifferentGame({
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: 10,
+      value: 14,
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
@@ -72,7 +72,7 @@ export function AnalyzeDifferentGame({
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: 20,
+      value: 17,
       title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
@@ -80,7 +80,7 @@ export function AnalyzeDifferentGame({
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: 30,
+      value: 20,
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
@@ -102,7 +102,7 @@ export function AnalyzeDifferentGame({
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState(10);
+  const [depthChoosed, setDepthChoosed] = useState(0);
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
 
@@ -155,7 +155,11 @@ export function AnalyzeDifferentGame({
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
       setSelectedGame(response.data.data[0].value);
-      setDepthChoosed(0);
+      let time = timeBasic;
+
+      setEstimateMinute(time.minute);
+      setEstimateSecond(time.second);
+      setDepthChoosed(14);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -237,7 +241,9 @@ export function AnalyzeDifferentGame({
   const handleAnalyzeGame = async () => {
     console.log("Analyzing game with the following data:");
     if (token.balance >= 1) {
+      console.log("selectedGame", selectedGame);
       if (selectedGame) {
+        setDataAnalysis(null);
         console.log("Selected game:", selectedGame);
         setDataGamesImport(availableGames[0]?.data_games);
         processAnalyze(selectedGame);
@@ -297,7 +303,11 @@ export function AnalyzeDifferentGame({
   };
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
-    setDepthChoosed(0);
+    setDepthChoosed(14);
+    let time = timeBasic;
+
+    setEstimateMinute(time.minute);
+    setEstimateSecond(time.second);
   };
   useEffect(() => {
     let pgn = selectedGame && pgnToFenList(selectedGame);
@@ -325,6 +335,9 @@ export function AnalyzeDifferentGame({
     setEstimateBasic(basicString);
     setEstimateStandard(standardString);
     setEstimateDeep(deepString);
+    let basicTime = getTime(basicResult || 0);
+    setEstimateMinute(basicTime.minute);
+    setEstimateSecond(basicTime.second);
   }, [selectedGame]);
   const formatTimeToMinutesSeconds = (seconds: number): string => {
     // Calculate minutes and remaining seconds

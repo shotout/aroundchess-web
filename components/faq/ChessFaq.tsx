@@ -72,8 +72,12 @@ export default function ChessFAQ() {
     getFAQ({})
       .then((response) => {
         console.log("getFAQ", response);
-        setData(response.data);
-        setFilteredData(response.data);
+        let data = response.data;
+        data.sort((a: { label: string }, b: { label: any }) =>
+          a.label.localeCompare(b.label)
+        );
+        setData(data);
+        setFilteredData(data);
         setQuestion(response.data[0].questions);
         setActiveTab(response.data[0].label);
       })
@@ -89,6 +93,7 @@ export default function ChessFAQ() {
         const timer = setTimeout(() => {
           setSearchLoading(true);
           const results = searchFAQs(data, query);
+          results.sort((a, b) => a.label.localeCompare(b.label));
           setSearchResults(results);
           setActiveTab(results[0].label);
           setQuestion(results[0].questions);
@@ -98,6 +103,8 @@ export default function ChessFAQ() {
         }, 300); // Debounce for better performance
         return () => clearTimeout(timer);
       } else {
+        data.sort((a, b) => a.label.localeCompare(b.label));
+
         setQuestion(data[0].questions);
         setActiveTab(data[0].label);
         setFilteredData(data);
@@ -246,8 +253,7 @@ export default function ChessFAQ() {
                             __html: line.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"),
                           }}
                           className="font-normal text-[12px] md:text-[14px] text-[#585858]"
-                        >
-                        </span>
+                        ></span>
                       ))}
                     </div>
                   ) : (

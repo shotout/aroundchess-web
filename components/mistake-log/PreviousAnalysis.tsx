@@ -54,30 +54,62 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     isLoading,
   } = useApiClient();
   const { currentData } = usePagination(previousAnalyses);
+  const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
 
-  const [indexOpen, setIndexOpen] = useState<string>("Threats");
+  const [indexOpen, setIndexOpen] = useState<string>("Critical Mistakes");
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
   useEffect(() => {
+    if (PreviousAnalysis["criticalMistakes"].length > 0) {
+      setIndexOpen("Critical Mistakes");
+    } else if (PreviousAnalysis["badMoves"].length > 0) {
+      setIndexOpen("Bad Moves");
+    } else if (PreviousAnalysis["threats"].length > 0) {
+      setIndexOpen("Threats");
+    } else if (PreviousAnalysis["weaknessIdentification"].length > 0) {
+      setIndexOpen("Weakness Identification");
+    }
     if (previousAnalyses.length > 0) {
       setSelectedMistakes(previousAnalyses[0]);
     }
-  }, [previousAnalyses]);
+  }, [previousAnalyses, chessMove]);
   const handleOnClickMovement = (move: any) => {
     console.log("move", move);
     setChessMove(move);
   };
-  const handleSaveLog = async (id: string) => {
-    saveMistakeLog({ mistakeLogId: id }).then(async (res) => {
-      console.log("handleSaveLog", res);
-      reFetch();
-    });
+  const handleSaveLog = async (id: string, key: string) => {
+    setLoadingToggle(true);
+    saveMistakeLog({ mistakeLogId: id })
+      .then(async (res) => {
+        let dataPrev = PreviousAnalysis;
+        let newData = dataPrev[key].filter((item: any) => item.id != id);
+        newData.push(res.data);
+        dataPrev[key] = newData;
+        setPreviousAnalysis(dataPrev);
+        console.log("newData save", newData);
+        console.log("handleSaveLog", res);
+        setLoadingToggle(false);
+      })
+      .catch((e) => {
+        setLoadingToggle(false);
+      });
   };
-  const handleUnsaveLog = async (id: string) => {
-    unsaveMistakeLog({ mistakeLogId: id }).then(async (res) => {
-      console.log("handleUnsaveLog", res);
-      reFetch();
-    });
+  const handleUnsaveLog = async (id: string, key: string) => {
+    setLoadingToggle(true);
+    unsaveMistakeLog({ mistakeLogId: id })
+      .then(async (res) => {
+        let dataPrev = PreviousAnalysis;
+        let newData = dataPrev[key].filter((item: any) => item.id != id);
+        newData.push(res.data);
+        dataPrev[key] = newData;
+        setPreviousAnalysis(dataPrev);
+        console.log("newData unsave", dataPrev);
+        console.log("handleUnsaveLog", res);
+        setLoadingToggle(false);
+      })
+      .catch((e) => {
+        setLoadingToggle(false);
+      });
   };
 
   const getBadgeClass = (type: string) => {
@@ -128,10 +160,23 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const PreviousAnalysisCard = (data: any[], Type: string) => {
+  const PreviousAnalysisCard = (data: any[], Type: string, keyObj: string) => {
     return (
       <div className="flex flex-col border border-t-[4px] border-[#221AE9] rounded-[16px] p-[12px] lg:p-[16px]">
-        <div className="flex flex-row justify-between items-center gap-2">
+        <div
+          onClick={
+            Type == indexOpen
+              ? () => {
+                  setIndexOpen("");
+                  scrollToTop();
+                }
+              : () => {
+                  setIndexOpen(Type);
+                  scrollToTop();
+                }
+          }
+          className="cursor-pointer flex flex-row justify-between items-center gap-2"
+        >
           <div className="flex flex-row items-center gap-2">
             <Image
               alt=""
@@ -216,18 +261,24 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                       </span>
                     </div>
                     <div className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold">
-                      {item?.saved ? (
-                        <BookmarkFilledIcon
-                          onClick={() => handleUnsaveLog(item?.id)}
-                          className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
-                          color="#221AE9"
-                        />
+                      {loadingToggle ? (
+                        <DotSpinner size={5} />
                       ) : (
-                        <Bookmark
-                          onClick={() => handleSaveLog(item?.id)}
-                          className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
-                          color="#221AE9"
-                        />
+                        <>
+                          {item?.saved ? (
+                            <BookmarkFilledIcon
+                              onClick={() => handleUnsaveLog(item?.id, keyObj)}
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          ) : (
+                            <Bookmark
+                              onClick={() => handleSaveLog(item?.id, keyObj)}
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -289,10 +340,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       </div>
     );
   };
-
-  if (isLoading) {
-    return <DotSpinner />;
-  } else if (!PreviousAnalysis) {
+  if (!PreviousAnalysis) {
     return (
       <EmptyLog
         title="You have not yet Analyses"
@@ -320,22 +368,28 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         PreviousAnalysis?.criticalMistakes.length > 0 &&
         PreviousAnalysisCard(
           PreviousAnalysis?.criticalMistakes,
-          "Critical Mistakes"
+          "Critical Mistakes",
+          "criticalMistakes"
         )}
       {PreviousAnalysis &&
         PreviousAnalysis?.badMoves != null &&
         PreviousAnalysis?.badMoves.length > 0 &&
-        PreviousAnalysisCard(PreviousAnalysis?.badMoves, "Bad Moves")}
+        PreviousAnalysisCard(
+          PreviousAnalysis?.badMoves,
+          "Bad Moves",
+          "badMoves"
+        )}
       {PreviousAnalysis &&
         PreviousAnalysis?.threats != null &&
         PreviousAnalysis?.threats.length > 0 &&
-        PreviousAnalysisCard(PreviousAnalysis?.threats, "Threats")}
+        PreviousAnalysisCard(PreviousAnalysis?.threats, "Threats", "threats")}
       {PreviousAnalysis &&
         PreviousAnalysis?.weaknessIdentification != null &&
         PreviousAnalysis?.weaknessIdentification.length > 0 &&
         PreviousAnalysisCard(
           PreviousAnalysis?.weaknessIdentification,
-          "Weakness Identification"
+          "Weakness Identification",
+          "weaknessIdentification"
         )}
     </div>
   );

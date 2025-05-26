@@ -123,6 +123,7 @@ const AnalysisResult: React.FC = () => {
   }, [mounted, hideDiv, is3DMode]);
   useEffect(() => {
     if (storePgn) {
+      console.log("storePgn", storePgn);
       setPgn(storePgn);
       setIsLoading(true);
       setTimeout(() => {
@@ -355,9 +356,8 @@ const AnalysisResult: React.FC = () => {
     );
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
     setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
-    console.log("storePgn", storePgn);
 
-    console.log("masuk");
+    console.log("masuk",data);
   }, [chessMove]);
 
   useEffect(() => {

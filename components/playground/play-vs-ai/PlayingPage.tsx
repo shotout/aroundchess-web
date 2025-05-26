@@ -51,10 +51,10 @@ type MoveClassification =
 
 export default function PlayingPage() {
   const router = useRouter();
-
+  
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
-  const { isMember } = useProfileStore();
+  const { isMember , token} = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
   const [afterFen, setAfterFen] = useState<string>("");
@@ -637,7 +637,7 @@ export default function PlayingPage() {
     //console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
-    if (isMember) {
+    if (token.balance>0) {
       fetchPgnLocal();
     } else {
       setOpenPricing(true);
