@@ -98,6 +98,80 @@ export function useStockfishAnalysis() {
     },
     []
   );
+
+  const batchStockfishAnalysisAPI = useCallback(
+    async (
+      fenPositions: string[],
+      depth: number = 14
+    ) => {
+      if (depth < 10 || depth > 30) {
+        throw new Error("Depth must be between 10 and 30");
+      }
+
+      const results = [];
+      let count = 0;
+
+      let maxConcurrent = 12;
+      if (depth >= 16 && depth <= 20) {
+        maxConcurrent = 8;
+      } else if (depth >= 21 && depth <= 30) {
+        maxConcurrent = 4;
+      }
+
+      const positions = fenPositions.map((fen) => ({
+        fen,
+        depth,
+      }));
+
+      try {
+        const { default: axios } = await import("axios");
+        const response = await axios.post(
+          `${process.env.BASE_URL}/stockfish/batch-analysis`,
+          {
+            positions,
+            maxConcurrent,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionId}`,
+            },
+          }
+        );
+
+        const apiResults = response.data?.data?.results || [];
+
+        for (let i = 0; i < fenPositions.length; i++) {
+          const fen = fenPositions[i];
+          const fenParts = fen.split(" ");
+          const colorToMove = fenParts.length > 1 ? fenParts[1] : "w";
+          const colorName = colorToMove === "w" ? "White" : "Black";
+          count = Math.round(((i + 1) / fenPositions.length) * 100);
+
+          setProgress(count);
+
+          const analysis = apiResults[i] || {};
+
+          results.push({
+            fen: fen,
+            moveNumber: i + 1,
+            color: colorToMove,
+            colorName: colorName,
+            evaluation: analysis.evaluation,
+            bestMove: analysis.bestMove,
+            depth: depth,
+            evaluationCentiPawns: analysis.evaluationCentiPawns,
+          });
+        }
+        return results;
+      } catch (error) {
+        setError(error instanceof Error ? error : new Error(String(error)));
+        throw error;
+      }
+    },
+    [sessionId]
+  );
+
   /**
    * Analyze a PGN and send results to API
    * @param pgn PGN string to analyze (required)
@@ -179,11 +253,11 @@ export function useStockfishAnalysis() {
           const fenPositions = pgnToFenList(pgn);
           console.log("Generated FEN positions:", fenPositions.length);
 
-          const analysisResults: any[] = await batchStockfishAnalysis(
+          const analysisResults: any[] = await batchStockfishAnalysisAPI(
             fenPositions,
-            depth,
-            moveTime
+            depth
           );
+
           console.log("Analysis complete:", analysisResults);
           setAnalyzeComplete(true);
           try {

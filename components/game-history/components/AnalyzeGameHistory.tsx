@@ -40,7 +40,7 @@ export function AnalyzeGameHistory({
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: 10,
+      value: 14,
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
@@ -48,7 +48,7 @@ export function AnalyzeGameHistory({
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: 20,
+      value: 17,
       title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
@@ -56,7 +56,7 @@ export function AnalyzeGameHistory({
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: 30,
+      value: 20,
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
