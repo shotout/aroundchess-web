@@ -109,32 +109,30 @@ export function useStockfishAnalysis() {
       fenPositions: string[],
       depth: number = 14
     ) => {
-      if (depth < 10 || depth > 30) {
-        throw new Error("Depth must be between 10 and 30");
+      if (depth < 10 || depth > 25) {
+        throw new Error("Depth must be between 10 and 25");
       }
 
       const results = [];
       let count = 0;
 
-      let maxConcurrent = 12;
-      if (depth >= 16 && depth <= 20) {
-        maxConcurrent = 8;
-      } else if (depth >= 21 && depth <= 30) {
-        maxConcurrent = 4;
+      let endpoint = "";
+      if (depth >= 10 && depth <= 15) {
+        endpoint = `${process.env.BASE_URL}/stockfish/basic-analysis`;
+      } else if (depth >= 16 && depth <= 18) {
+        endpoint = `${process.env.BASE_URL}/stockfish/standard-analysis`;
+      } else if (depth >= 19 && depth <= 25) {
+        endpoint = `${process.env.BASE_URL}/stockfish/deep-analysis`;
+      } else {
+        throw new Error("Depth out of supported range");
       }
-
-      const positions = fenPositions.map((fen) => ({
-        fen,
-        depth,
-      }));
 
       try {
         const { default: axios } = await import("axios");
         const response = await axios.post(
-          `${process.env.BASE_URL}/stockfish/batch-analysis`,
+          endpoint,
           {
-            positions,
-            maxConcurrent,
+            positions: fenPositions,
           },
           {
             headers: {
