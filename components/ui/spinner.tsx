@@ -50,6 +50,8 @@ export default function LoadingSpinner() {
     } else if (progress >= 100) {
       setProgress(100);
       setTimeLeft(0);
+      setEstimateMinute(0);
+      setEstimateSecond(0);
       // setIsRunning(false);
     }
     // console.log("cek data analysis", dataAnalysis);

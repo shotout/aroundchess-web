@@ -56,6 +56,7 @@ const SavedMistakes: React.FC<savedProps> = ({
     isLoading,
   } = useApiClient();
   const { currentData } = usePagination(savedMistakes);
+  const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   useEffect(() => {
     if (savedMistakes.length > 0) {
@@ -105,18 +106,24 @@ const SavedMistakes: React.FC<savedProps> = ({
     }
   };
   const handleUnsaveLog = async (id: string) => {
-    unsaveMistakeLog({ mistakeLogId: id }).then(async (res) => {
-      console.log("handleUnsaveLog", res);
-      reFetch();
-    });
+    console.log("handleUnsaveLog id", id);
+    setLoadingUnsave(true);
+    unsaveMistakeLog({ mistakeLogId: id })
+      .then(async (res) => {
+        let data = savedMistakes.filter((item) => item.mistakeLog.id != id);
+        setSavedMistakes(data);
+        console.log("savedMistakes", data);
+        console.log("handleUnsaveLog", res);
+        setLoadingUnsave(false);
+      })
+      .catch((e) => {
+        setLoadingUnsave(false);
+      });
   };
   const handleOnClickMovement = (move: any) => {
     console.log("move", move);
     setChessMove(move);
   };
-  if (isLoading) {
-    return <DotSpinner />;
-  }
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
@@ -157,13 +164,18 @@ const SavedMistakes: React.FC<savedProps> = ({
                     </span> */}
                     </div>
                     <div
-                      onClick={() => handleUnsaveLog(item.id)}
+                      onClick={() => handleUnsaveLog(item.mistakeLog.id)}
+
                       className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold"
                     >
-                      <BookmarkFilledIcon
-                        className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
-                        color="#221AE9"
-                      />
+                      {loadingUnsave ? (
+                        <DotSpinner size={5} />
+                      ) : (
+                        <BookmarkFilledIcon
+                          className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                          color="#221AE9"
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col md:flex-row justify-between gap-2 mb-1 lg:mb-4">

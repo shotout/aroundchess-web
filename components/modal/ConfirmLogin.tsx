@@ -2,6 +2,7 @@
 
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 import {
   Dialog,
   DialogContent,
@@ -18,16 +19,19 @@ import { useEffect, useState } from "react";
 export function ConfirmLogin() {
   const router = useRouter();
   const { open, setOpen } = useConfirmLogin();
+  const { setOpen: setOpenPricingOffer } = usePricingOffer();
   useEffect(() => {
     setOpen(open);
   }, [open]);
 
   const handleRegister = () => {
     setOpen(false);
+    setOpenPricingOffer(false);
     router.push("/register");
   };
   const handleLogin = () => {
     setOpen(false);
+    setOpenPricingOffer(false);
     router.push("/login");
   };
   return (

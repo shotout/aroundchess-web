@@ -143,21 +143,35 @@ export const PremiumSubsContent: React.FC<{
 
   const handleGetPremium = async () => {
     if (sessionId.length == 0) setOpenLogin(true);
+    type BodyType = {
+      productName: any;
+      price: number;
+      quantity: number;
+      description: any;
+      type: string;
+      idUser: any;
+      membershipId: any;
+      stripeProductId: any;
+      couponId?: any;
+    };
+    let body: BodyType = {
+      productName: premium.name,
+      price: isPass > 0 ? 7999 : premium.price * 100,
+      quantity: 1,
+      description: premium.description,
+      type: "membership",
+      idUser: profile.id,
+      membershipId: premium.id,
+      stripeProductId: premium.stripeProductId,
+    };
+    if (profile.discount) {
+      body.couponId = profile.discount;
+    }
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
-      body: JSON.stringify({
-        productName: premium.name,
-        price: isPass > 0 ? 7999 : premium.price * 100,
-        quantity: 1,
-        description: premium.description,
-        type: "membership",
-        idUser: profile.id,
-        membershipId: premium.id,
-        couponId: profile.discount,
-        stripeProductId: premium.stripeProductId,
-      }),
+      body: JSON.stringify(body),
     });
-
+    console.log("body", body);
     const data = await res.json();
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });

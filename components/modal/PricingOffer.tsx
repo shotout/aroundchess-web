@@ -22,7 +22,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useRouter } from "next/navigation";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 interface TokenOption {
   amount: number;
@@ -31,7 +31,6 @@ interface TokenOption {
 }
 
 export const PricingOffer: React.FC = () => {
-
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
   const router = useRouter();
@@ -118,6 +117,7 @@ export const PricingOffer: React.FC = () => {
   const handleGetPremium = () => {
     if (sessionId.length == 0) {
       setOpenConfirmLogin(true);
+      setOpen(false);
     } else {
       handleStop();
       setOpen(false);
@@ -244,10 +244,10 @@ export const PricingOffer: React.FC = () => {
 
             backgroundSize: "cover",
             backgroundPosition: "center",
-            height: "100vh",
+            height: activeTab == "tokens" ? "80vh" : "100vh",
             width: "100%",
           }}
-          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto`}
+          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">

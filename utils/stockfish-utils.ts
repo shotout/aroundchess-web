@@ -5,8 +5,13 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export function useStockfishAnalysis() {
-  const { setAnalyzeComplete, estimateMinute, estimateSecond } =
-    useLoadingAPI();
+  const {
+    setAnalyzeComplete,
+    estimateMinute,
+    estimateSecond,
+    setEstimateMinute,
+    setEstimateSecond,
+  } = useLoadingAPI();
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
@@ -222,6 +227,8 @@ export function useStockfishAnalysis() {
         if (isAlreadyAnalyzed.data.data.exists) {
           console.log("Analysis already exists, retrieving existing analysis");
           try {
+            setEstimateSecond(5);
+            setEstimateMinute(0);
             const { default: axios } = await import("axios");
             const response = await axios.post(
               `${process.env.BASE_URL}/v2/analyze`,
@@ -237,8 +244,8 @@ export function useStockfishAnalysis() {
                 },
               }
             );
-
             console.log("API response:", response.data);
+
             return response.data;
           } catch (apiError) {
             console.error("Error sending analysis to API:", apiError);
@@ -259,7 +266,9 @@ export function useStockfishAnalysis() {
           );
 
           console.log("Analysis complete:", analysisResults);
-          setAnalyzeComplete(true);
+          setTimeout(() => {
+            setAnalyzeComplete(true);
+          }, 5000);
           try {
             console.log("Analysis analyze:", estimateMinute, estimateSecond);
             const { default: axios } = await import("axios");

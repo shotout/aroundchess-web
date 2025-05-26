@@ -32,6 +32,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { useLoadingAPI } from "@/app/store/loadingApi";
 interface SiteHeaderProps {
   children?: React.ReactNode;
   onSidebarOpen?: () => void;
@@ -47,7 +48,52 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const { setOpen: setOpenPricing } = usePricingOffer();
   const { sessionId } = useProfileStore();
   const { logOut } = useApiClient();
+  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
+  const {
+    setUsername: setUsernamePlayer,
+    setPgn,
+    setIsLoading,
+    setError,
+    isLoading,
+    dataAnalysis,
+    setDataAnalysis,
+    setDataGames,
+    dataGames,
+  } = usePgnStore();
+  const fetchPgnFamousGame = async () => {
+    let arr = null;
+    try {
+      setEstimateSecond(5);
+      setEstimateMinute(0);
+      setIsLoading(true);
+      const resFamousGame = await fetch("/local-data/famous-game.txt");
+      const pgnLocal = await resFamousGame.text();
+      setPgn(pgnLocal);
+      const resAnalysis = await fetch("/local-data/analysis.json");
+      const responseAnalysis = await resAnalysis.json();
+      console.log("pgnLocal", pgnLocal);
+      console.log("responseAnalysis", responseAnalysis);
 
+      setDataAnalysis(responseAnalysis);
+      arr = responseAnalysis;
+      setError(null);
+      // router.push("/analysis");
+    } catch (err) {
+      console.log("error", err);
+      router.push("/");
+      setIsLoading(false);
+
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      if (arr != null) {
+        setTimeout(() => {
+          router.push("/analysis");
+        }, 4000);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
   React.useEffect(() => {
     const checkSession = () => {
       console.log("sessionId.length", sessionId.length);
@@ -127,25 +173,24 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
-                  <Link href={"/analysis"}>
-                    <Button
-                      color="primary"
-                      variant="outlineprimary"
-                      className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+                  <Button
+                    onClick={fetchPgnFamousGame}
+                    color="primary"
+                    variant="outlineprimary"
+                    className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+                  >
+                    <BarChart2
+                      className="mr-2 h-[20px] w-[20px]"
+                      color={sessionId.length == 0 ? "#221AE9" : "#000"}
+                    />
+                    <span
+                      className={`font-normal text-[18px] ${
+                        sessionId.length == 0 && `text-[#221AE9]`
+                      }`}
                     >
-                      <BarChart2
-                        className="mr-2 h-[20px] w-[20px]"
-                        color={sessionId.length == 0 ? "#221AE9" : "#000"}
-                      />
-                      <span
-                        className={`font-normal text-[18px] ${
-                          sessionId.length == 0 && `text-[#221AE9]`
-                        }`}
-                      >
-                        Analyze Now
-                      </span>
-                    </Button>
-                  </Link>
+                      Analyze Now
+                    </span>
+                  </Button>
                 </div>
                 <div className="hidden xl:flex border border-input rounded-[8px] p-[16px]">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
@@ -251,68 +296,6 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                   Logout
                 </button>
               </div>
-              // <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
-              //   <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
-              //     Remaining Tokens:{" "}
-              //     <span
-              //       className={`font-bold ${
-              //         token.balance == 0 ? `text-[#FD0000]` : ``
-              //       }`}
-              //     >
-              //       {token.balance}
-              //     </span>
-              //   </span>
-
-              //   {!isMember && (
-              //     <div className="w-full flex flex-row gap-[8px] ">
-              //       <button
-              //         onClick={() => handleOpenOffer("tokens")}
-              //         className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              //       >
-              //         Buy Tokens
-              //       </button>
-              //       <button
-              //         onClick={() => handleOpenOffer("subscription")}
-              //         className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
-              //       >
-              //         Go Unlimited
-              //       </button>
-              //     </div>
-              //   )}
-              //   {isMember && (
-              //     <motion.div
-              //       variants={fadeInUp}
-              //       className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
-              //     >
-              //       <div
-              //         className={`flex xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
-              //       >
-              //         <Image
-              //           src={`/icons/onboarding-popup.png`}
-              //           alt="icon"
-              //           width={1000}
-              //           height={1000}
-              //           className="w-[42px] h-[44px] object-contain m-4 mr-0"
-              //         />
-              //         <span className="block font-medium text-[14px] z-10 text-black">
-              //           {"You are on "}
-              //           <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-              //             {"Premium package!"}
-              //           </span>
-              //         </span>
-              //         <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
-              //           <Image
-              //             src={`/icons/sparks-member.png`}
-              //             alt="icon"
-              //             width={1000}
-              //             height={1000}
-              //             className="w-[56px] h-[56px] object-cover"
-              //           />
-              //         </div>
-              //       </div>
-              //     </motion.div>
-              //   )}
-              // </div>
             )}
           </div>
         </div>
@@ -358,6 +341,53 @@ interface mobileProps {
   handleDashboard: () => void;
 }
 function MobileNav(props: mobileProps) {
+  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
+  const router = useRouter();
+  const {
+    setUsername: setUsernamePlayer,
+    setPgn,
+    setIsLoading,
+    setError,
+    isLoading,
+    dataAnalysis,
+    setDataAnalysis,
+    setDataGames,
+    dataGames,
+  } = usePgnStore();
+  const fetchPgnFamousGame = async () => {
+    let arr = null;
+    try {
+      setEstimateSecond(5);
+      setEstimateMinute(0);
+      setIsLoading(true);
+      const resFamousGame = await fetch("/local-data/famous-game.txt");
+      const pgnLocal = await resFamousGame.text();
+      setPgn(pgnLocal);
+      const resAnalysis = await fetch("/local-data/analysis.json");
+      const responseAnalysis = await resAnalysis.json();
+      console.log("pgnLocal", pgnLocal);
+      console.log("responseAnalysis", responseAnalysis);
+
+      setDataAnalysis(responseAnalysis);
+      arr = responseAnalysis;
+      setError(null);
+      // router.push("/analysis");
+    } catch (err) {
+      console.log("error", err);
+      router.push("/");
+      setIsLoading(false);
+
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      if (arr != null) {
+        setTimeout(() => {
+          router.push("/analysis");
+        }, 4000);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
   return (
     <div className="flex flex-col ml-4 self-center ">
       <div className="flex items-center justify-between mb-8">
@@ -372,7 +402,10 @@ function MobileNav(props: mobileProps) {
           />
         </Link>
       </div>
-      <div className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg">
+      <div
+        onClick={fetchPgnFamousGame}
+        className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg"
+      >
         <BarChart2 className="mr-2 h-4 w-4" />
         Analyze Now
       </div>

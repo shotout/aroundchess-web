@@ -95,7 +95,7 @@ export default function AnalysisPage() {
         fetchGamheHistoryOpenings();
       }
 
-      if (dataAnalysis == null) {
+      if (dataAnalysis == null && !isLoading) {
         console.log(
           "No PGN data found, loading famous game as fallback",
           isSignedIn,
@@ -107,7 +107,7 @@ export default function AnalysisPage() {
         setIsLoading(false);
       }
     }
-  }, [isSignedIn, hydrated, dataAnalysis]);
+  }, [isSignedIn, hydrated]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;
@@ -157,8 +157,10 @@ export default function AnalysisPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY, setHideDiv, setIsLoading]);
-
+  }, [lastScrollY, setHideDiv]);
+  useEffect(()=>{
+    console.log("loading",isLoading)
+  },[isLoading])
   return (
     <>
       {isLoading ? (

@@ -8,6 +8,7 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
+import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
 interface OpeningProps {
   next: () => void;
   prev: () => void;
@@ -18,8 +19,12 @@ const Opening: React.FC<OpeningProps> = (props) => {
     dataAnalysis,
     capturedWhite,
     capturedBlack,
+    movementDetails: logMovement,
   } = usePgnStore(); // Get PGN from the Zustand store
+  const { tabFocus, setTabFocus } = useTabFocusStore();
+
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
     dataAnalysis?.summary ?? {};
@@ -31,6 +36,8 @@ const Opening: React.FC<OpeningProps> = (props) => {
     ? whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
     : "XX";
   const { whiteWin, blackWin, openings } = dataAnalysis?.gameInfo ?? {};
+  let dataMovement = movementDetails != null ? movementDetails : logMovement;
+
   const { whiteOpening, blackOpening } = dataAnalysis?.opening ?? {};
   const [opening, setOpening] = React.useState<any>([
     {
@@ -75,6 +82,20 @@ const Opening: React.FC<OpeningProps> = (props) => {
     }
   };
   const handleOnClickMovement = (move: any) => {
+    let moveOpening =
+      dataMovement != null &&
+      dataMovement.black != null &&
+      dataMovement.black.length > 0
+        ? dataMovement.black.filter(
+            (item: any) =>
+              item.gamePhase.toLowerCase().replace(/ /g, "") == tabFocus
+          )
+        : [];
+    console.log(moveOpening);
+    if (moveOpening.length > 0) {
+      move.move = moveOpening[moveOpening.length-2].move;
+      move.type = "black";
+    }
     console.log(move);
     setChessMove(move);
   };
@@ -150,7 +171,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(whiteOpening)}
-                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+                className="max-w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
@@ -184,7 +205,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(blackOpening)}
-                className="cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+                className="w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
                 <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">

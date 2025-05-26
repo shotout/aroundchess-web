@@ -1,5 +1,6 @@
 "use client";
 
+import { useLoadingAPI } from "@/app/store/loadingApi";
 import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,7 +8,7 @@ import { toast } from "sonner";
 
 export const FamousGameButton = () => {
   const router = useRouter();
-
+  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const {
     setUsername: setUsernamePlayer,
     setPgn,
@@ -22,6 +23,8 @@ export const FamousGameButton = () => {
   const fetchPgnFamousGame = async () => {
     let arr = null;
     try {
+      setEstimateSecond(5);
+      setEstimateMinute(0);
       setIsLoading(true);
       const resFamousGame = await fetch("/local-data/famous-game.txt");
       const pgnLocal = await resFamousGame.text();
