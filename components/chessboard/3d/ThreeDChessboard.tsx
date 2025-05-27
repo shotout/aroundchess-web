@@ -76,7 +76,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  
+
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -120,51 +120,51 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "wN",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "wB",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "wR",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "wQ",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "wK",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bP",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bN",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bB",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bR",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bQ",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
       {
         piece: "bK",
-        pieceHeight: 1.4,
+        pieceHeight: 1.5,
       },
     ];
     const pieceComponents: {
@@ -184,6 +184,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width: squareWidth * pieceHeight,
             height: squareWidth,
             position: "relative",
+            transform: "rotateY(27.5deg)",
           }}
         >
           <img
@@ -213,6 +214,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         height: boardWidth,
       }}
     >
+     
       <div
         className="relative flex items-center justify-center "
         style={{
@@ -278,7 +280,8 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                   return false;
                 }}
                 customBoardStyle={{
-                  transform: "rotateX(27.5deg) scale(1)",
+                  transform: "rotateX(27.5deg) scale(1) perspective(0px)",
+                  transformStyle: "preserve-3d",
                   transformOrigin: "center",
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 }}
