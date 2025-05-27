@@ -197,7 +197,7 @@ export default function ChessBoard() {
   }, []);
   return (
     <div style={boardWrapper}>
-      {/* <ChessGame3D /> */}
+      <ChessGame3D />
 
       {Object.entries(levels).map(([level, depth]) => (
         <button
