@@ -128,7 +128,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
     setTabSelected(value);
   };
   const handleSave = () => {
-    setStyleChoosed(tabSelected);
+    // setStyleChoosed(tabSelected);
     setBoardChoosed(boardSelected);
     setPieceChoosed(pieceSelected);
     setOpen(false);

@@ -120,51 +120,51 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "wN",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "wB",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "wR",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "wQ",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "wK",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bP",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bN",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bB",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bR",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bQ",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
       {
         piece: "bK",
-        pieceHeight: 1.5,
+        pieceHeight: 2,
       },
     ];
     const pieceComponents: {
@@ -185,6 +185,8 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             height: squareWidth,
             position: "relative",
             transform: "rotateY(27.5deg)",
+            // boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
+            borderRadius: "8px",
           }}
         >
           <img
@@ -194,7 +196,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0.12 * squareWidth}px`,
+              bottom: `${0.05 * squareWidth}px`,
               objectFit: "contain",
             }}
           />
@@ -214,7 +216,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         height: boardWidth,
       }}
     >
-     
       <div
         className="relative flex items-center justify-center "
         style={{
@@ -280,10 +281,10 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                   return false;
                 }}
                 customBoardStyle={{
+                  boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
                   transform: "rotateX(27.5deg) scale(1) perspective(0px)",
                   transformStyle: "preserve-3d",
                   transformOrigin: "center",
-                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 }}
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
@@ -311,6 +312,8 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 id="Styled3DBoard"
                 position={position}
                 customBoardStyle={{
+                  boxShadow: "rgba(0, 0, 0, 0.5) 2px 4px 24px 8px",
+
                   transform: "rotateX(27.5deg) scale(1)",
                   transformOrigin: "center",
                   // background:"black"
