@@ -164,8 +164,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       setUploadProgress(0);
 
       try {
-        console.log("Preparing to import game");
-
         // Prepare request data
         const requestData = new FormData();
         if (activeTab === "paste") {
@@ -313,6 +311,12 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   };
 
+  // Calculate positioning (same as AnalyzeGameHistory)
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = 72;
+  const headerHeightLg = 96;
+
   return (
     <div>
       {/* Import Button */}
@@ -327,8 +331,23 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
       {/* Dialog Overlay */}
       {openDialog && (
-        <div className="fixed inset-0 bg-black/25 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-xl overflow-hidden">
+        <div
+          className="fixed bg-black/25 z-50 flex items-center justify-center p-4 md:p-0"
+          style={{
+            top:
+              typeof window !== "undefined" && window.innerWidth >= 1024
+                ? headerHeightLg
+                : headerHeight,
+            left: sidebarWidth,
+            right: 0,
+            bottom: 0,
+          }}
+          onClick={resetDialog}
+        >
+          <div
+            className="w-full mx-auto rounded-lg max-w-sm md:max-w-xl bg-white overflow-y-auto max-h-[95%]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Dialog Header */}
             <div className="flex justify-between items-center p-4">
               <div className="w-6"></div>

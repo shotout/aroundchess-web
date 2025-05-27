@@ -27,6 +27,14 @@ import PracticeSection from "./components/PracticeSection";
 import RelatedLessons from "./components/RelatedLesson";
 import { useProfileStore } from "@/app/store/profile";
 
+interface NextTopicItem {
+  id: string;
+  title: string;
+  difficulty: string;
+  eloRange: string[];
+  moves: string;
+}
+
 interface ChessLessonDetailProps<T extends ChessLesson> {
   params: { slug: string };
   lessonType: LessonType;
@@ -77,8 +85,29 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const lessonId: string = getIdFromSlug(params.slug, lessonType);
   const lesson: T | undefined = lessonDetails[lessonId];
 
+  // Transform nextTopic data to match expected lesson format for RelatedLessons component
+  const transformNextTopicToLesson = (nextTopic: NextTopicItem): T => {
+    return {
+      id: nextTopic.id,
+      title: nextTopic.title,
+      difficulty: nextTopic.difficulty,
+      eloRange: nextTopic.eloRange,
+      moves: nextTopic.moves,
+      description: "",
+      estimatedTime: "",
+      notes: "",
+      relatedTopics: [],
+      strategicIdeas: [],
+      tacticalIdeas: [],
+      resources: [],
+      forColor: "both",
+    } as unknown as T;
+  };
+
   const relatedLessons: T[] =
-    allLessons.length > 0
+    (lesson as any)?.nextTopic && (lesson as any).nextTopic.length > 0
+      ? (lesson as any).nextTopic.map(transformNextTopicToLesson)
+      : allLessons.length > 0
       ? allLessons.filter((l: T) => l.id !== lessonId).slice(0, 3)
       : [];
 
