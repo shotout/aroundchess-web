@@ -4,7 +4,7 @@ import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Square } from "chess.js";
 import { useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
-
+import ChessGame3D from "@/components/chessboard/three/ChessGame3D";
 import { CSSProperties } from "react";
 import ChessWithArrows from "./ChessWithArrows";
 
@@ -197,6 +197,8 @@ export default function ChessBoard() {
   }, []);
   return (
     <div style={boardWrapper}>
+      <ChessGame3D />
+
       {Object.entries(levels).map(([level, depth]) => (
         <button
           key={depth}
@@ -258,7 +260,7 @@ export default function ChessBoard() {
           onMouseOverSquare={(sq) => setActiveSquare(sq)}
           onMouseOutSquare={(sq) => setActiveSquare("")}
         />
-          <ChessWithArrows />
+        <ChessWithArrows />
       </div>
       <div className="mt-12">
         <button
