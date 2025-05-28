@@ -48,6 +48,9 @@ export default function Puzzle() {
     setGameStarted,
     getNextPuzzle,
     getHint,
+    getHintArrow,
+    clearHintArrow,
+    arrow,
     hint,
     clearHint,
     changeTopicPuzzle,
@@ -132,10 +135,17 @@ export default function Puzzle() {
           resetPuzzle={resetPuzzle}
           getNextPuzzle={getNextPuzzle}
           hint={hint}
-          clearHint={clearHint}
+          arrow={arrow}
+          clearHint={() => {
+            clearHint();
+            clearHintArrow();
+          }}
           navigateToMove={handleNavigateToMove}
           onTakeBackMove={handleTakeBackMove}
-          onGetHint={getHint}
+          onGetHint={() => {
+            getHint();
+            getHintArrow();
+          }}
           onChangeTopic={changeTopicPuzzle}
         />
       )}

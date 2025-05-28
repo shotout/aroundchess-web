@@ -4,7 +4,7 @@ import { Engine } from "@/components/playground/src/lib/stockfish";
 import { Chess, Square } from "chess.js";
 import { useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
-
+import ChessGame3D from "@/components/chessboard/three/ChessGame3D";
 import { CSSProperties } from "react";
 import ChessWithArrows from "./ChessWithArrows";
 
@@ -114,19 +114,19 @@ export default function ChessBoard() {
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "wN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "wR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "wQ",
@@ -134,23 +134,23 @@ export default function ChessBoard() {
       },
       {
         piece: "wK",
-        pieceHeight: 0.87,
+        pieceHeight: 1.4,
       },
       {
         piece: "bP",
-        pieceHeight: 1,
+        pieceHeight: 1.4,
       },
       {
         piece: "bN",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bB",
-        pieceHeight: 1.3,
+        pieceHeight: 1.4,
       },
       {
         piece: "bR",
-        pieceHeight: 1.2,
+        pieceHeight: 1.4,
       },
       {
         piece: "bQ",
@@ -158,7 +158,7 @@ export default function ChessBoard() {
       },
       {
         piece: "bK",
-        pieceHeight: 0.8,
+        pieceHeight: 1.4,
       },
     ];
     const pieceComponents: {
@@ -174,19 +174,19 @@ export default function ChessBoard() {
       pieceComponents[piece] = ({ squareWidth, square }) => (
         <div
           style={{
-            width: squareWidth * pieceHeight,
+            width: squareWidth * 1.8,
             height: squareWidth,
             position: "relative",
             pointerEvents: "none",
           }}
         >
           <img
-            src={`/3d-pieces/${piece}.webp`}
-            width={squareWidth * pieceHeight}
+            src={`/3d-pieces/wood/${piece}.png`}
+            width={squareWidth * 1.8}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: `${0.2 * squareWidth}px`,
+              bottom: `${0.05 * squareWidth}px`,
               objectFit: piece[1] === "K" ? "contain" : "cover",
             }}
           />
@@ -197,6 +197,8 @@ export default function ChessBoard() {
   }, []);
   return (
     <div style={boardWrapper}>
+      <ChessGame3D />
+
       {Object.entries(levels).map(([level, depth]) => (
         <button
           key={depth}
@@ -258,7 +260,7 @@ export default function ChessBoard() {
           onMouseOverSquare={(sq) => setActiveSquare(sq)}
           onMouseOutSquare={(sq) => setActiveSquare("")}
         />
-          <ChessWithArrows />
+        <ChessWithArrows />
       </div>
       <div className="mt-12">
         <button

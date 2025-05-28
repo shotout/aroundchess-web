@@ -48,6 +48,7 @@ import { playIncorrectMoveSound, playMoveSound } from "../src/utils/playSound";
 import { playSound } from "@/utils/play-audio";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import ReactCountryFlag from "react-country-flag";
+import { RelativeTooltip } from "../tooltip/RelativeTooltip";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -68,6 +69,7 @@ interface PuzzleGameProps {
   navigateToMove: (index: number) => void;
   onTakeBackMove: () => void;
   onGetHint: () => void;
+  arrow: any[] | null;
   onChangeTopic: () => void;
 }
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({
@@ -88,6 +90,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   navigateToMove,
   onTakeBackMove,
   onGetHint,
+  arrow,
   onChangeTopic,
 }) => {
   const router = useRouter();
@@ -127,9 +130,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   );
   const [whiteMaterialDifference, setWhiteMaterialDifference] = useState(0);
   const [blackMaterialDifference, setBlackMaterialDifference] = useState(0);
+  const [countInvalid, setCountInvalid] = useState<number>(0);
   const [invalidMoveSquares, setInvalidMoveSquares] = useState<string[]>([]);
   const [orientation, setOrientation] =
     useState<BoardOrientation>(boardOrientation);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const prevFenHistory = useRef<string[]>([]);
 
@@ -187,7 +192,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     () => position === fenHistory[fenHistory.length - 1],
     [position, fenHistory]
   );
-
+  useEffect(() => {
+    setOrientation(boardOrientation);
+  }, [boardOrientation]);
   const highlightStyles = useMemo(
     () =>
       isAtCurrentMove
@@ -278,7 +285,20 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setActivePlayer,
     ]
   );
-
+  useEffect(() => {
+    handleShowTooltip();
+  }, [invalidMoveSquares]);
+  const handleShowTooltip = () => {
+    let counting = 0;
+    counting = countInvalid;
+    counting = counting + 1;
+    setCountInvalid(counting);
+    console.log(counting);
+    if (counting >= 3) {
+      setShowTooltip(true);
+      setCountInvalid(0);
+    }
+  };
   const handleSquareClickCallback = useCallback(
     (square: Square) => {
       if (!isAtCurrentMove) return;
@@ -673,11 +693,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return (
       <motion.div
         variants={fadeInUp}
-        className="flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
+        className="relative flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
       >
+        {showTooltip && (
+          <RelativeTooltip onClose={() => setShowTooltip(false)} />
+        )}
         <button
           onClick={handleOnGetHint}
-          className={`flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border ${
+          className={`flex flex-row justify-center items-center w-1/6 min-h-[40px] w-1/3 px-4 py-2 border ${
             hint
               ? `border-[#221AE9] bg-[#221AE908] text-[#221AE9]`
               : `border-[#DEDEDE] bg-white`
@@ -685,7 +708,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         >
           <Image
             src={`${
-              hint ? `/images/puzzle/hint.png` : `/images/puzzle/hint-icon.png`
+              hint
+                ? `/images/play-vs-ai/hint.png`
+                : `/images/play-vs-ai/hint-icon.png`
             } `}
             alt="icon"
             width={1000}
@@ -699,7 +724,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         </button>
         <button
           onClick={onChangeTopic}
-          className="flex flex-row justify-center items-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
+          className="flex flex-row justify-center items-center w-3/6 min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
         >
           <RefreshCcw size={20} />
 
@@ -709,7 +734,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         </button>
         <button
           onClick={getNextPuzzleHandler}
-          className="flex flex-row items-center justify-center min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+          className="flex flex-row items-center justify-center w-2/6 min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
         >
           <span className="font-medium text-[11px] lg:text-[14px] xl:mt-1">
             Next Puzzle
@@ -871,6 +896,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   customSquareStyles={{
                     ...customSquareStyles,
                   }}
+                  customArrows={arrow}
                   arePremovesAllowed={true}
                   promotionToSquare={moveTo}
                   showPromotionDialog={false}
@@ -969,6 +995,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   customSquareStyles={{
                     ...customSquareStyles,
                   }}
+                  customArrowColor={arrow ? "#221AE950" : "transparent"}
+                  customArrows={arrow}
                   areArrowsAllowed={true}
                   promotionToSquare={moveTo}
                   showPromotionDialog={false}

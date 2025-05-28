@@ -59,7 +59,8 @@ const MyAccount = () => {
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 365);
 
-        router.push("/login");
+        // router.push("/login");
+        window.location.href = "/login";
       });
     const { error } = await supabase.auth.signOut();
 

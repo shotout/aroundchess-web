@@ -202,7 +202,7 @@ export function AnalyzeGameHistory({
                   type="text"
                   placeholder="Type here..."
                   className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px]`}
-                  value={username}
+                  value={game.username}
                 />
               </div>
 
@@ -217,7 +217,7 @@ export function AnalyzeGameHistory({
                     className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] rounded-md appearance-none `}
                   >
                     <option>
-                      {game.date} {username} vs {game.opponent}
+                      {game.date} {game.username} vs {game.opponent}
                     </option>
                   </select>
                 </div>
@@ -239,7 +239,7 @@ export function AnalyzeGameHistory({
                       ? timeStandard
                       : timeDeep;
 
-                  console.log("d", estimate);
+                  // console.log("d", estimate);
 
                   return (
                     <button

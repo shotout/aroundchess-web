@@ -93,7 +93,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 return (
                   <span
                     key={prereq.prerequisite}
-                    className="py-1 text-blue-base border px-1 border-blue-base text-sm cursor-pointer"
+                    className="py-1 text-blue-base border px-1 border-blue-base text-sm"
                   >
                     {prereq.prerequisite
                       .split("-")

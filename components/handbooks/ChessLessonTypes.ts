@@ -190,7 +190,6 @@ export interface EndgameLesson extends BaseLesson {
   overview?: EndgameOverview;
 }
 
-// Generic lesson type that can be any of the three
 export type ChessLesson = OpeningLesson | MiddlegameLesson | EndgameLesson;
 
 // Store state interface that works with any lesson type

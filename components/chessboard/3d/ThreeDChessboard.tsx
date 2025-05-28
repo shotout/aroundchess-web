@@ -76,7 +76,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  
+
   useEffect(() => {
     console.log(boardWidth, "boardWidth in 3d board wood");
     console.log(window?.innerWidth, "widthC in 3d board wood");
@@ -120,51 +120,51 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     const pieces = [
       {
         piece: "wP",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "wN",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "wB",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "wR",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "wQ",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "wK",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bP",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bN",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bB",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bR",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bQ",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
       {
         piece: "bK",
-        pieceHeight: 1.4,
+        pieceHeight: 2,
       },
     ];
     const pieceComponents: {
@@ -181,9 +181,13 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         <div
           key={index}
           style={{
+            pointerEvents: "none",
             width: squareWidth * pieceHeight,
             height: squareWidth,
             position: "relative",
+            transform: "rotateY(27.5deg)",
+            // boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
+            borderRadius: "8px",
           }}
         >
           <img
@@ -192,8 +196,9 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
+              pointerEvents: "none",
               position: "absolute",
-              bottom: `${0.12 * squareWidth}px`,
+              bottom: `${0.05 * squareWidth}px`,
               objectFit: "contain",
             }}
           />
@@ -278,9 +283,10 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                   return false;
                 }}
                 customBoardStyle={{
-                  transform: "rotateX(27.5deg) scale(1)",
+                  boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
+                  transform: "rotateX(27.5deg) scale(1) perspective(0px)",
+                  transformStyle: "preserve-3d",
                   transformOrigin: "center",
-                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
                 }}
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
@@ -302,12 +308,14 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               />
             ) : (
               <Chessboard
-                arePiecesDraggable={false}
+                arePiecesDraggable={true}
                 boardOrientation={orientation}
                 boardWidth={Math.round(480 * 0.779)}
                 id="Styled3DBoard"
                 position={position}
                 customBoardStyle={{
+                  boxShadow: "rgba(0, 0, 0, 0.5) 2px 4px 24px 8px",
+
                   transform: "rotateX(27.5deg) scale(1)",
                   transformOrigin: "center",
                   // background:"black"

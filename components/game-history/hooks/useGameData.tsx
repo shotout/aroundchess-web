@@ -37,9 +37,10 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         pgn: item.pgn,
         resultColor: item.result_color || getResultColor(item.result),
         gameType: item.game_type || "standard",
+        username: item.username,
       };
     })
-    .filter(Boolean) as Game[]; // Remove null entries
+    .filter(Boolean) as Game[];
 };
 
 const formatDate = (dateString: string): string => {
