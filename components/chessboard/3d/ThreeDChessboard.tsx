@@ -181,6 +181,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         <div
           key={index}
           style={{
+            pointerEvents: "none",
             width: squareWidth * pieceHeight,
             height: squareWidth,
             position: "relative",
@@ -195,6 +196,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
+              pointerEvents: "none",
               position: "absolute",
               bottom: `${0.05 * squareWidth}px`,
               objectFit: "contain",
@@ -306,7 +308,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               />
             ) : (
               <Chessboard
-                arePiecesDraggable={false}
+                arePiecesDraggable={true}
                 boardOrientation={orientation}
                 boardWidth={Math.round(480 * 0.779)}
                 id="Styled3DBoard"
