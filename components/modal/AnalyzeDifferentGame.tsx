@@ -360,6 +360,89 @@ export function AnalyzeDifferentGame({
     let time = { minute: minutes, second: remainingSeconds };
     return time;
   };
+  const renderDepthChoose = () => {
+    return (
+      <div className="gap-2">
+        <span className="text-[18px] font-medium text-[#121212]">
+          Choose your Analysis Depth
+        </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center mt-2">
+          {depths.map((depth, index) => {
+            let estimate =
+              index == 0
+                ? estimateBasic
+                : index == 1
+                ? estimateStandard
+                : estimateDeep;
+
+            let time =
+              index == 0 ? timeBasic : index == 1 ? timeStandard : timeDeep;
+            return (
+              <button
+                onClick={() => {
+                  setEstimateMinute(time.minute);
+                  setEstimateSecond(time.second);
+                  setDepthChoosed(depth.value);
+                }}
+                key={index}
+                disabled={depth.mustMember && !isMember}
+                className={`relative flex flex-col justify-around px-2 py-2 md:h-[280px] gap-2 items-center shadow-md  ${
+                  depth.mustMember && !isMember ? `bg-[#C0CED4]` : `bg-white`
+                } border ${
+                  depthChoosed == depth.value
+                    ? `border-[#221AE9]`
+                    : isMember
+                    ? `border-[#DEDEDE]`
+                    : `border-[#99A5A9]`
+                } rounded-md`}
+              >
+                <Image
+                  src={depth.image}
+                  alt={depth.title}
+                  width={1000}
+                  height={1000}
+                  className="w-[80px] h-[80px] object-contain relative"
+                  priority
+                />
+                {depth.mustMember && !isMember && (
+                  <Image
+                    src={`/icons/premium-info.png`}
+                    alt={"premium-info"}
+                    width={1000}
+                    height={1000}
+                    className="w-[72px] h-[23px] object-cover absolute left-2 top-2"
+                    priority
+                  />
+                )}
+                <div
+                  className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
+                    depth.mustMember && !isMember
+                      ? `bg-[#99A5A9] border-1 border-[#737C7F]`
+                      : depthChoosed == depth.value
+                      ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
+                      : `border-input border-2`
+                  } `}
+                />
+                <span className="font-normal text-[14px]">{depth.title}</span>
+                <span className="font-light text-[#364152] text-center text-[11px]">
+                  {depth.description}
+                </span>
+                <div className="flex flex-col gap-1 items-center">
+                  <span className="font-medium text-[10px]">
+                    Analysis can take up to:
+                  </span>
+                  <span className="font-medium text-[10px]  ">
+                    {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
+                    {estimate}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
   return (
     <Dialog
       open={open}
@@ -382,8 +465,8 @@ export function AnalyzeDifferentGame({
       {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2">
-          <DialogTitle>Analyze your games</DialogTitle>
-          <DialogDescription className="text-black">
+          <DialogTitle className="text-[24px] font-semibold">Analyze your games</DialogTitle>
+          <DialogDescription className="text-black text-[18px]">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
@@ -472,93 +555,14 @@ export function AnalyzeDifferentGame({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center">
-                {depths.map((depth, index) => {
-                  let estimate =
-                    index == 0
-                      ? estimateBasic
-                      : index == 1
-                      ? estimateStandard
-                      : estimateDeep;
-
-                  let time =
-                    index == 0
-                      ? timeBasic
-                      : index == 1
-                      ? timeStandard
-                      : timeDeep;
-                  return (
-                    <button
-                      onClick={() => {
-                        setEstimateMinute(time.minute);
-                        setEstimateSecond(time.second);
-                        setDepthChoosed(depth.value);
-                      }}
-                      key={index}
-                      disabled={depth.mustMember && !isMember}
-                      className={`relative flex flex-col justify-around px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
-                        depth.mustMember && !isMember
-                          ? `bg-[#C0CED4]`
-                          : `bg-white`
-                      } border ${
-                        depthChoosed == depth.value
-                          ? `border-[#221AE9]`
-                          : isMember
-                          ? `border-[#DEDEDE]`
-                          : `border-[#99A5A9]`
-                      } rounded-md`}
-                    >
-                      <Image
-                        src={depth.image}
-                        alt={depth.title}
-                        width={1000}
-                        height={1000}
-                        className="w-[80px] h-[80px] object-contain relative"
-                        priority
-                      />
-                      {depth.mustMember && !isMember && (
-                        <Image
-                          src={`/icons/premium-info.png`}
-                          alt={"premium-info"}
-                          width={1000}
-                          height={1000}
-                          className="w-[72px] h-[23px] object-cover absolute left-2 top-2"
-                          priority
-                        />
-                      )}
-                      <div
-                        className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
-                          depth.mustMember && !isMember
-                            ? `bg-[#99A5A9] border-1 border-[#737C7F]`
-                            : depthChoosed == depth.value
-                            ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
-                            : `border-input border-2`
-                        } `}
-                      />
-                      <span className="font-normal text-sm">{depth.title}</span>
-                      <span className="font-light text-[#364152] text-center text-[11px]">
-                        {depth.description}
-                      </span>
-                      <div className="flex flex-col gap-1 items-center">
-                        <span className="font-medium text-[11px]">
-                          Analysis can take up to:
-                        </span>
-                        <span className="font-medium text-[11px]  ">
-                          {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
-                          {estimate}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              {renderDepthChoose()}
             </TabsContent>
 
             <TabsContent value="manual" className="space-y-4">
               <div className="space-y-6">
                 <div className="mt-5 border-2 border-input rounded-lg bg-gray-50 p-2">
                   <textarea
-                    className="w-full h-40 lg:h-48 bg-[#f8f9fc] p-2 resize-none outline-none text-gray-700 placeholder-gray-400"
+                    className="w-full h-[120px] lg:h-[160px] bg-[#f8f9fc] p-2 resize-none outline-none text-gray-700 placeholder-gray-400"
                     placeholder="Paste your PGN here..."
                     value={pgnText}
                     onChange={(e) => setPgnText(e.target.value)}
@@ -568,7 +572,7 @@ export function AnalyzeDifferentGame({
                   Or upload a .PGN file below:
                 </span>
                 <div
-                  className={`mt-5 border-2 border-dashed ${
+                  className={`mt-4 border-2 border-dashed h-[120px] lg:h-[160px] ${
                     dragActive
                       ? "border-[#3871EC] bg--blue-100"
                       : "border-[#3871EC] bg-blue-50"
@@ -610,12 +614,13 @@ export function AnalyzeDifferentGame({
                         </span>{" "}
                         a file
                       </p>
-                      <p className="block text-[10px] text-black-700 mb-1">
+                      <p className="block text-[14px] font-normal mb-1">
                         Maximum file size: 5MB
                       </p>
                     </div>
                   )}
                 </div>
+                {renderDepthChoose()}
               </div>
             </TabsContent>
             <button
