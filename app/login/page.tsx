@@ -15,6 +15,11 @@ import DotSpinner from "@/components/game-history/Spinner";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({
+    google: false,
+    facebook: false,
+    apple: false,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const baseUrl = process.env.BASE_URL;
@@ -95,7 +100,7 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
     try {
-      setIsLoading(true);
+      setLoadingStates((prev) => ({ ...prev, google: true }));
       const response = await fetch(`${baseUrl}/auth/sso/google`, {
         method: "POST",
         headers: {
@@ -107,21 +112,22 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      setIsLoading(false);
 
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Google signup");
+        setLoadingStates((prev) => ({ ...prev, google: false }));
       }
     } catch (error) {
       toast.error("Failed to sign up with Google");
+      setLoadingStates((prev) => ({ ...prev, google: false }));
     }
   };
 
   const handleFacebook = async () => {
     try {
-      setIsLoading(true);
+      setLoadingStates((prev) => ({ ...prev, facebook: true }));
       const response = await fetch(`${baseUrl}/auth/sso/facebook`, {
         method: "POST",
         headers: {
@@ -133,21 +139,22 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      setIsLoading(false);
 
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Facebook signup");
+        setLoadingStates((prev) => ({ ...prev, facebook: false }));
       }
     } catch (error) {
       toast.error("Failed to sign up with Facebook");
+      setLoadingStates((prev) => ({ ...prev, facebook: false }));
     }
   };
 
   const handleApple = async () => {
     try {
-      setIsLoading(true);
+      setLoadingStates((prev) => ({ ...prev, apple: true }));
       const response = await fetch(`${baseUrl}/auth/sso/apple`, {
         method: "POST",
         headers: {
@@ -159,19 +166,18 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      setIsLoading(false);
 
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Apple signup");
+        setLoadingStates((prev) => ({ ...prev, apple: false }));
       }
     } catch (error) {
       toast.error("Failed to sign up with Apple");
+      setLoadingStates((prev) => ({ ...prev, apple: false }));
     }
   };
-
-  const headerHeight = 80;
 
   return (
     <>
@@ -299,10 +305,10 @@ export default function LoginPage() {
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
                   onClick={handleGoogle}
-                  disabled={isLoading}
-                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                  disabled={loadingStates.google}
+                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? (
+                  {loadingStates.google ? (
                     <DotSpinner size={5} />
                   ) : (
                     <div className="flex items-center justify-center gap-x-2">
@@ -332,10 +338,10 @@ export default function LoginPage() {
                 </button>
                 <button
                   onClick={handleFacebook}
-                  disabled={isLoading}
-                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                  disabled={loadingStates.facebook}
+                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? (
+                  {loadingStates.facebook ? (
                     <DotSpinner size={5} />
                   ) : (
                     <div className="flex items-center justify-center gap-x-2">
@@ -355,10 +361,10 @@ export default function LoginPage() {
                 </button>
                 <button
                   onClick={handleApple}
-                  disabled={isLoading}
-                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                  disabled={loadingStates.apple}
+                  className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? (
+                  {loadingStates.apple ? (
                     <DotSpinner size={5} />
                   ) : (
                     <div className="flex items-center justify-center gap-x-2">

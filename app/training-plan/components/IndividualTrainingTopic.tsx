@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/tooltip";
 import { usePgnStore } from "@/app/store/zustandStore";
 
-// Type definitions for the data structures
 interface OpeningData {
   opening_name: string;
   total_game: number;
@@ -206,12 +205,43 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   const detailedCount = getDetailedPlayCount();
 
-  // Helper function to format time/times
   const formatPlayCount = (count: number) => {
     return count === 1 ? "Time" : "Times";
   };
 
-  // Determine if tooltip should be shown
+  const renderMobilePlayCount = () => {
+    if (!isOpeningTopic || playCount === 0) return null;
+
+    return (
+      <div className="block md:hidden mt-1">
+        <p className="text-xs text-gray-600">
+          You've played this Topic:{" "}
+          {detailedCount.isLegacy ? (
+            <span className="font-medium">
+              {detailedCount.total}{" "}
+              {formatPlayCount(detailedCount.total).toLowerCase()}
+            </span>
+          ) : (
+            <span className="font-medium">
+              {detailedCount.total}{" "}
+              {formatPlayCount(detailedCount.total).toLowerCase()}
+              {/* {(detailedCount.white > 0 || detailedCount.black > 0) && (
+                <span className="text-gray-500">
+                  {" "}
+                  (
+                  {detailedCount.white > 0 && `${detailedCount.white} as White`}
+                  {detailedCount.white > 0 && detailedCount.black > 0 && ", "}
+                  {detailedCount.black > 0 && `${detailedCount.black} as Black`}
+                  )
+                </span>
+              )} */}
+            </span>
+          )}
+        </p>
+      </div>
+    );
+  };
+
   const shouldShowTooltip = isOpeningTopic && playCount > 0;
 
   const topicContent = (
@@ -255,6 +285,9 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         >
           {topic.title}
         </h2>
+
+        {/* Mobile play count display */}
+        {renderMobilePlayCount()}
       </div>
     </div>
   );

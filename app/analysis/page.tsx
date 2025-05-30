@@ -26,6 +26,7 @@ export default function AnalysisPage() {
 
     checkSession();
   }, [sessionId, isSignedIn]);
+
   const {
     setHideDiv,
     hideDiv,
@@ -36,7 +37,6 @@ export default function AnalysisPage() {
     setPgn,
     dataAnalysis,
     setDataAnalysis,
-    setOpeningPlayed,
     hydrated,
   } = usePgnStore();
   const {
@@ -64,15 +64,6 @@ export default function AnalysisPage() {
     }
   };
 
-  const fetchGamheHistoryOpenings = async () => {
-    try {
-      const data = await GameHistoryOpenings();
-      setOpeningPlayed(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const openModalAnalyze = (data: any) => {
     console.log("openModalAnalyze", data);
     if (data.length == 0) {
@@ -92,7 +83,6 @@ export default function AnalysisPage() {
 
       if (isSignedIn) {
         fetchMistakePrevious();
-        fetchGamheHistoryOpenings();
       }
 
       if (dataAnalysis == null && !isLoading) {
@@ -158,9 +148,9 @@ export default function AnalysisPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, setHideDiv]);
-  useEffect(()=>{
-    console.log("loading",isLoading)
-  },[isLoading])
+  useEffect(() => {
+    console.log("loading", isLoading);
+  }, [isLoading]);
   return (
     <>
       {isLoading ? (

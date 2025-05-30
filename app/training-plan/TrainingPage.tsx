@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
 import { useProfileStore } from "../store/profile";
+import { useApiClient } from "@/functions/api-client";
+import { usePgnStore } from "../store/zustandStore";
 
 const ChessProgressionUI: React.FC = () => {
   const { sessionId } = useProfileStore();
@@ -20,6 +22,8 @@ const ChessProgressionUI: React.FC = () => {
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
+  const { GameHistoryOpenings } = useApiClient();
+  const { setOpeningPlayed } = usePgnStore();
 
   const {
     userProfile: storeUserProfile,
@@ -47,7 +51,9 @@ const ChessProgressionUI: React.FC = () => {
     if (sessionId != "") {
       fetchUserProfile(sessionId);
       fetchTopics(sessionId);
+      fetchGamheHistoryOpenings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, fetchUserProfile, fetchTopics]);
 
   useEffect(() => {
@@ -82,6 +88,15 @@ const ChessProgressionUI: React.FC = () => {
       resetExpiredStatus();
     }
   }, [dialogOpen, resetExpiredStatus]);
+
+  const fetchGamheHistoryOpenings = async () => {
+    try {
+      const data = await GameHistoryOpenings();
+      setOpeningPlayed(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handlePlanCreated = () => {
     if (sessionId != "") {

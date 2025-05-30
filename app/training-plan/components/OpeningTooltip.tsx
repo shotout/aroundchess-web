@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -7,6 +7,8 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DialogHeader } from "@/components/playground/src/Components/ui/dialog";
 
 interface OpeningTooltipProps {
   content?: string;
@@ -34,8 +36,11 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
   openingNames,
 }) => {
   const { openingPlayed } = usePgnStore();
-  const [open, setOpen] = useState(false);
+  const [isMobileDialogOpen, setIsMobileDialogOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Detect if device is mobile
   useEffect(() => {
@@ -46,25 +51,34 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
     checkIsMobile();
     window.addEventListener("resize", checkIsMobile);
 
-    return () => window.removeEventListener("resize", checkIsMobile);
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
   }, []);
 
-  const handleClick = (e: { preventDefault: () => void }) => {
+  const handleMobileClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isMobile) {
-      setOpen((prev) => !prev);
-    }
+    setIsMobileDialogOpen((prev) => !prev);
   };
 
   const handleMouseEnter = () => {
     if (!isMobile) {
-      setOpen(true);
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      setIsPopoverOpen(true);
     }
   };
 
   const handleMouseLeave = () => {
     if (!isMobile) {
-      setOpen(false);
+      // Add a small delay before closing to prevent flickering
+      hoverTimeoutRef.current = setTimeout(() => {
+        setIsPopoverOpen(false);
+      }, 100);
     }
   };
 
@@ -247,15 +261,49 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
     </div>
   );
 
+  if (isMobile) {
+    return (
+      <>
+        <button
+          ref={triggerRef}
+          onClick={handleMobileClick}
+          className="focus:outline-none"
+          aria-label="Show info"
+          type="button"
+        >
+          {categoryId === "opening" && (
+            <Image
+              src="/training-plan/opening-check.png"
+              alt="opening checks"
+              width={25}
+              height={25}
+              className="cursor-pointer"
+            />
+          )}
+        </button>
+
+        <Dialog open={isMobileDialogOpen} onOpenChange={setIsMobileDialogOpen}>
+          <DialogContent className="w-11/12 max-w-sm rounded-lg border border-[#DEDEDE] bg-[#E6F7FE]">
+            <DialogHeader className="space-y-0 pb-2">
+              <DialogTitle className="sr-only">Information</DialogTitle>
+            </DialogHeader>
+            {tooltipContent}
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  // Desktop version with hover
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
         <button
-          className="rounded-sm"
+          className="rounded-sm focus:outline-none"
           type="button"
-          onClick={handleClick}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          aria-label="Show info"
         >
           {categoryId === "opening" && (
             <Image

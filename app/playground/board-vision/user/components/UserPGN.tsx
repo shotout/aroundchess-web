@@ -67,16 +67,30 @@ const UserPGN: React.FC = () => {
         opponentName: "",
       };
 
-    const isWhiteUser = currentPosition.white === username;
+    const isWhiteUser =
+      currentPosition.white?.toLowerCase() === username.toLowerCase();
+    const isBlackUser =
+      currentPosition.black?.toLowerCase() === username.toLowerCase();
+
+    // If username matches neither player, you might want to handle this case
+    if (!isWhiteUser && !isBlackUser) {
+      console.warn("Username does not match either player in the position");
+      // You could default to white or show an error
+    }
+
+    const actuallyWhiteUser = isWhiteUser;
+
     return {
-      isWhiteUser,
-      userProfilePic: isWhiteUser
+      isWhiteUser: actuallyWhiteUser,
+      userProfilePic: actuallyWhiteUser
         ? currentPosition.whiteProfilePic
         : currentPosition.blackProfilePic,
-      opponentProfilePic: isWhiteUser
+      opponentProfilePic: actuallyWhiteUser
         ? currentPosition.blackProfilePic
         : currentPosition.whiteProfilePic,
-      opponentName: isWhiteUser ? currentPosition.black : currentPosition.white,
+      opponentName: actuallyWhiteUser
+        ? currentPosition.black
+        : currentPosition.white,
     };
   };
 
