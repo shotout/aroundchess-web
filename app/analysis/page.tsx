@@ -11,7 +11,6 @@ import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
 
-
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
