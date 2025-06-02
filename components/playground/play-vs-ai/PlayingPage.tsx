@@ -51,10 +51,10 @@ type MoveClassification =
 
 export default function PlayingPage() {
   const router = useRouter();
-  
+
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
-  const { isMember , token} = useProfileStore();
+  const { isMember, token } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
   const [afterFen, setAfterFen] = useState<string>("");
@@ -68,6 +68,7 @@ export default function PlayingPage() {
     username,
     setDataGamesImport,
   } = usePgnStore();
+  const [depthLevel, setDepthLevel] = useState(14);
   const { user } = useAuth();
   const { hideDiv } = usePgnStore();
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
@@ -146,7 +147,7 @@ export default function PlayingPage() {
       const responseAnalysis = await proceedAnalysis(
         game.pgn(),
         username,
-        10,
+        depthLevel,
         60000
       );
       setDataAnalysis(responseAnalysis.data);
@@ -637,7 +638,7 @@ export default function PlayingPage() {
     //console.log(`The ${winnerColor} player wins!`);
   };
   const handleAnalyzeGame = () => {
-    if (token.balance>0) {
+    if (token.balance > 0) {
       fetchPgnLocal();
     } else {
       setOpenPricing(true);
@@ -1036,6 +1037,7 @@ export default function PlayingPage() {
                 />
               ) : (
                 <ButtonFinish
+                  pgn={game.pgn()}
                   handleAnalyzeGame={handleAnalyzeGame}
                   handleNewGame={handleNewGame}
                   handleRematch={handleRematch}

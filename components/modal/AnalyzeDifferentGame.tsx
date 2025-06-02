@@ -105,7 +105,7 @@ export function AnalyzeDifferentGame({
   const [depthChoosed, setDepthChoosed] = useState(0);
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
-
+  const [tabSelected, setTabSelected] = useState("auto");
   // New states for username validation
   const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
   interface GameOption {
@@ -310,7 +310,9 @@ export function AnalyzeDifferentGame({
     setEstimateSecond(time.second);
   };
   useEffect(() => {
-    let pgn = selectedGame && pgnToFenList(selectedGame);
+    let selectedPgn = selectedGame && pgnToFenList(selectedGame);
+    let textCopyPgn = pgnText && pgnToFenList(pgnText);
+    let pgn = tabSelected == "auto" ? selectedPgn : textCopyPgn;
     let basic = 5;
     let standard = 23;
     let deep = 51;
@@ -338,7 +340,7 @@ export function AnalyzeDifferentGame({
     let basicTime = getTime(basicResult || 0);
     setEstimateMinute(basicTime.minute);
     setEstimateSecond(basicTime.second);
-  }, [selectedGame]);
+  }, [selectedGame, pgnText]);
   const formatTimeToMinutesSeconds = (seconds: number): string => {
     // Calculate minutes and remaining seconds
     let second = Math.round(seconds / 5) * 5;
@@ -465,7 +467,9 @@ export function AnalyzeDifferentGame({
       {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2">
-          <DialogTitle className="text-[24px] font-semibold">Analyze your games</DialogTitle>
+          <DialogTitle className="text-[24px] font-semibold">
+            Analyze your games
+          </DialogTitle>
           <DialogDescription className="text-black text-[18px]">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
@@ -473,7 +477,11 @@ export function AnalyzeDifferentGame({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="overflow-auto md:max-w-[640px] max-h-[480px] md:max-h-screen ">
-          <Tabs defaultValue="auto" className="w-full">
+          <Tabs
+            className="w-full"
+            value={tabSelected}
+            onValueChange={setTabSelected}
+          >
             <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
               <TabsTrigger value="auto">
                 <span className="text-xs">From Chess.com</span>

@@ -1,3 +1,4 @@
+import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
 import { BarChart2, Plus } from "lucide-react";
 
@@ -10,6 +11,7 @@ interface ButtonFinishProps {
   handleRematch: () => void;
   handleShare: () => void;
   handleDownload: () => void;
+  pgn: string;
 }
 
 export const ButtonFinish = ({
@@ -18,13 +20,14 @@ export const ButtonFinish = ({
   handleRematch,
   handleShare,
   handleDownload,
+  pgn,
 }: ButtonFinishProps) => {
   return (
     <motion.div
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4"
     >
-      <button
+      {/* <button
         onClick={handleAnalyzeGame}
         className="md:hidden xl:block btn-primary w-full rounded-full h-[40px]"
       >
@@ -32,7 +35,10 @@ export const ButtonFinish = ({
           <BarChart2 color="white" className="w-[20px] h-[20px]" size={20} />
           <span>Analyze Game</span>
         </div>
-      </button>
+      </button> */}
+      <div className="md:hidden xl:block">
+        <ChooseDepthAnalyze pgnParam={pgn} style="w-full" />
+      </div>
       <div className="flex w-full gap-2">
         <button
           onClick={handleShare}
@@ -76,7 +82,10 @@ export const ButtonFinish = ({
           </div>
         </button> */}
 
-        <button
+        <div className="hidden md:block xl:hidden">
+          <ChooseDepthAnalyze style="md:w-2/4" pgnParam={pgn} />
+        </div>
+        {/* <button
           onClick={handleAnalyzeGame}
           className="hidden md:block xl:hidden md:w-2/4 btn-primary w-full rounded-full h-[40px]"
         >
@@ -84,7 +93,7 @@ export const ButtonFinish = ({
             <BarChart2 color="white" className="w-[20px] h-[20px]" size={20} />
             <span>Analyze Game</span>
           </div>
-        </button>
+        </button> */}
       </div>
       {/* <div className="flex w-full gap-2">
         <button

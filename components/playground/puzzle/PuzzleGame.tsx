@@ -706,17 +706,23 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               : `border-[#DEDEDE] bg-white`
           } rounded-[8px] hover:bg-blue-100 gap-1`}
         >
-          <Image
-            src={`${
-              hint
-                ? `/images/play-vs-ai/hint.png`
-                : `/images/play-vs-ai/hint-icon.png`
-            } `}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
-          />
+          {hint ? (
+            <Image
+              src={`/images/play-vs-ai/hint.png`}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+            />
+          ) : (
+            <Image
+              src={`/images/play-vs-ai/hint-icon.png `}
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+            />
+          )}
 
           <span className="font-medium text-[11px] lg:text-[14px]  xl:mt-1 ">
             Hint
