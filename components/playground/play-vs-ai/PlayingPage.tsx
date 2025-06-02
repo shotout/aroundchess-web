@@ -789,7 +789,7 @@ export default function PlayingPage() {
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
             {/* {buttonBoard()} */}
-            <motion.div
+            {/* <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 !is3DMode
@@ -809,7 +809,7 @@ export default function PlayingPage() {
                 backfaceVisibility: "hidden",
                 transformStyle: "preserve-3d",
               }}
-            >
+            > */}
               {is3DMode && (
                 <ThreeDBoard
                   arePiecesDraggable={true}
@@ -843,8 +843,8 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            </motion.div>
-            <motion.div
+            {/* </motion.div> */}
+            {/* <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 is3DMode
@@ -863,10 +863,10 @@ export default function PlayingPage() {
                 display: !is3DMode ? "flex" : "none",
                 backfaceVisibility: "hidden",
               }}
-            >
+            > */}
               {!is3DMode && (
                 <TwoDChessboard
-                  arePiecesDraggable={false}
+                  arePiecesDraggable={true}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
@@ -897,7 +897,7 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            </motion.div>
+            {/* </motion.div> */}
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">

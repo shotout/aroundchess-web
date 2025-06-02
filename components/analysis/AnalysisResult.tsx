@@ -357,7 +357,7 @@ const AnalysisResult: React.FC = () => {
     setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
     setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
 
-    console.log("masuk",data);
+    console.log("masuk", data);
   }, [chessMove]);
 
   useEffect(() => {
@@ -701,6 +701,7 @@ const AnalysisResult: React.FC = () => {
           >
             {is3DMode && (
               <ThreeDBoard
+                arePiecesDraggable={false}
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }
@@ -752,6 +753,7 @@ const AnalysisResult: React.FC = () => {
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }
+                arePiecesDraggable={false}
                 orientation={orientation}
                 position={game.fen()}
                 onSquareClick={function (square: Square): void {

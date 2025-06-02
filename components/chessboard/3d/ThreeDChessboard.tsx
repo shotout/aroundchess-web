@@ -188,6 +188,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             transform: "rotateY(27.5deg)",
             // boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
             borderRadius: "8px",
+            background: "red",
           }}
         >
           <img
@@ -224,7 +225,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           width: 480,
           height: 480,
 
-          transform: `scale(${scale + ``})`,
+          // transform: `scale(${scale + ``})`,
         }}
       >
         <Image
@@ -249,7 +250,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               justifyContent: "start",
             }}
           >
-            {arePiecesDraggable != null ? (
+            {arePiecesDraggable != true ? (
               <Chessboard
                 arePremovesAllowed={arePremovesAllowed}
                 onPieceDrop={onPieceDrop}

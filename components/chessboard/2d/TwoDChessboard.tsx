@@ -177,7 +177,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             justifyContent: "start",
           }}
         >
-          {arePiecesDraggable != null ? (
+          {arePiecesDraggable != true ? (
             <Chessboard
               arePremovesAllowed={arePremovesAllowed}
               onPieceDrop={onPieceDrop}

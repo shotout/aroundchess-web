@@ -427,7 +427,8 @@ const ChessContent: React.FC = () => {
     const isPortrait = height > width;
     const minPadding = 0;
     // const maxSize = window?.innerWidth *0.25;
-    let desktopSize = window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
+    let desktopSize =
+      window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
     // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
@@ -695,6 +696,7 @@ const ChessContent: React.FC = () => {
           >
             {is3DMode && (
               <ThreeDBoard
+                arePiecesDraggable={false}
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }
@@ -743,6 +745,7 @@ const ChessContent: React.FC = () => {
           >
             {!is3DMode && (
               <TwoDChessboard
+                arePiecesDraggable={false}
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
                 }

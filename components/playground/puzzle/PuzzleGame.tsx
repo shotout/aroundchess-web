@@ -985,7 +985,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {!is3DMode && (
                 <TwoDChessboard
-                  arePiecesDraggable={false}
+                  arePiecesDraggable={true}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={position}
