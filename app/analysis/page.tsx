@@ -11,7 +11,6 @@ import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
 
-
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
@@ -42,7 +41,7 @@ export default function AnalysisPage() {
   } = usePgnStore();
   const {
     getMistakePrevious,
-    GameHistoryOpenings,
+    getLastAnalysis,
     getMistakePreviousDetail,
     isLoading: fetchLoading,
   } = useApiClient();
@@ -63,8 +62,8 @@ export default function AnalysisPage() {
         setPreviousAnalyse(dataPrevious);
         openModalAnalyze(dataPrevious);
         fetchMistakePreviousDetail(dataPrevious[0].id);
-      }else{
-        fetchPgnFamousGame()
+      } else {
+        fetchPgnFamousGame();
       }
     } catch (error) {
       openModalAnalyze([]);
@@ -78,7 +77,7 @@ export default function AnalysisPage() {
       console.log("prevDataDetail", prevDataDetail);
       let dataDetail = prevDataDetail.data;
       setLastPgn(dataDetail.pgn);
-      fetchExistAnalyze(dataDetail.pgn);
+      fetchExistAnalyze();
     } catch (error) {
       console.error("Failed to fetch mistake previous:", error);
     }
@@ -93,22 +92,9 @@ export default function AnalysisPage() {
       setOpenAnalyze(false);
     }
   };
-  const fetchExistAnalyze = async (pgn: string) => {
+  const fetchExistAnalyze = async () => {
     try {
-      const { default: axios } = await import("axios");
-      const response = await axios.post(
-        `${process.env.BASE_URL}/v2/analyze/last-analysis`,
-        {
-          pgn: pgn, 
-          // depth: 14,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionId}`,
-          },
-        }
-      );
+      const response = await getLastAnalysis({});
       console.log("exist analysis response:", response.data);
       setDataAnalysis(response.data.data);
       setLoading(false);
@@ -125,7 +111,7 @@ export default function AnalysisPage() {
 
       if (isSignedIn) {
         setLoading(true);
-        fetchMistakePrevious();
+        fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
         console.log(
           "No PGN data found, loading famous game as fallback",
@@ -153,16 +139,16 @@ export default function AnalysisPage() {
 
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
-      setLoading(false)
+      setLoading(false);
     } catch (err) {
       console.log("error", err);
       setIsLoading(false);
-      setLoading(false)
+      setLoading(false);
     } finally {
       if (arr != null) {
       } else {
         setIsLoading(false);
-      setLoading(false)
+        setLoading(false);
       }
     }
   };

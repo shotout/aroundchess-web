@@ -266,7 +266,9 @@ export default function PlayingPage() {
 
       console.log("move.san", move);
       playSound(game, move);
+      setMoveClassification("");
       getClassificationMove(move);
+
       // if invalid, setMoveFrom and getMoveOptions
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
@@ -293,9 +295,8 @@ export default function PlayingPage() {
     let moveUserClassification = await handleClassify(move);
     setMoveClassification(moveUserClassification);
     console.log("moveUserClassification", moveUserClassification);
-    setTimeout(() => {
-      findEnemyMove();
-    }, 2500);
+
+    findEnemyMove();
   };
   const onPromotionPieceSelect = (
     piece?: string,
@@ -371,7 +372,6 @@ export default function PlayingPage() {
       setPreviousSquare(pv.substring(0, 2) as Square);
       setCurrentSquare(pv.substring(2, 4) as Square);
 
-      setMoveClassification("");
       setBestline("");
       setHintClicked(false);
       setGamePosition(game.fen());
@@ -780,11 +780,10 @@ export default function PlayingPage() {
             />
           )}{" "}
           <div className="flex items-center justify-between mb-2">
-            {moveClassification != "" &&
-            moveClassification != "good-move" &&
+            {orientation != "white" &&
+            moveClassification != "" &&
             moveClassification != "excellent-move" &&
             moveClassification != "neutral-move" &&
-            moveClassification != "mistake-move" &&
             moveClassification != "inaccuracy-move" ? (
               <CommentaryMove classify={moveClassification} />
             ) : (
@@ -938,6 +937,19 @@ export default function PlayingPage() {
               </div>
             </div>
           </div>
+          {orientation == "white" && (
+            <div className="flex items-center justify-between mb-2">
+              {moveClassification != "" &&
+              moveClassification != "excellent-move" &&
+              moveClassification != "neutral-move" &&
+              moveClassification != "inaccuracy-move" ? (
+                <CommentaryMove classify={moveClassification} />
+              ) : (
+                <div />
+              )}
+              <div />
+            </div>
+          )}
           {orientation == "white" ? (
             <WhitePlayer
               myColor={myColor}

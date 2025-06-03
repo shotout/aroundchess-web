@@ -600,6 +600,16 @@ export function useApiClient() {
     [apiRequest]
   );
 
+  const getLastAnalysis = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/v2/analyze/last-analysis`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
   const logOut = useCallback(
     (body: any) => {
       return apiRequest({
@@ -679,6 +689,7 @@ export function useApiClient() {
     getMostRead,
     toggleSaveNews,
     getFAQ,
+    getLastAnalysis,
     logOut,
     contactUs,
     GameHistoryOpenings,
