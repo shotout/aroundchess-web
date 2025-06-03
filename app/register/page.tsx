@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const { setSessionId } = useProfileStore();
 
   useEffect(() => {
-    console.log("emailParam",emailParam)
+    console.log("emailParam", emailParam);
     setEmail(emailParam);
     if (typeof window !== "undefined") {
       const hash = window.location.hash;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BoardDisplayProps } from "../../types/default-pgn";
 import { motion } from "framer-motion";
 import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
@@ -24,6 +24,35 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     typeof currentPosition.fen === "string" &&
     currentPosition.fen.includes(" ");
 
+  const [boardSize, setBoardSize] = useState<number | undefined>(1000);
+  const [mounted, _] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    handleResize();
+
+    window?.addEventListener("resize", handleResize);
+    return () => window?.removeEventListener("resize", handleResize);
+  }, [mounted]);
+
+  const handleResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isPortrait = height > width;
+    const minPadding = 0;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
+
+    if (isPortrait) {
+      const availableWidth = width - minPadding * 2;
+      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+    } else {
+      const availableHeight = height - minPadding * 2;
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+    }
+  };
+
   if (!isValidPosition) {
     return (
       <motion.div
@@ -45,19 +74,26 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     >
       <div className="relative w-full flex justify-center items-center">
         <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[750px] max-h-[700px]">
-          <div className="w-full h-full">
-            <Simple2DChess
-              id="board-vision-board"
+          <div className="w-full h-full flex justify-center items-center">
+            <TwoDChessboard
+              boardWidth={boardSize ?? 0}
+              arePiecesDraggable={false}
               position={currentPosition.fen}
               areArrowsAllowed={true}
               customSquareStyles={highlightedSquares}
-              arePiecesDraggable={false}
-              customArrowColor="rgba(34, 26, 233, 0.8)"
+              customArrowColor="#221AE980"
               customArrows={
                 gameQuestion && gameQuestion.text.includes("legal moves")
                   ? []
                   : arrows
               }
+              onPromotionPieceSelect={function (
+                piece?: PromotionPieceOption,
+                promoteFromSquare?: Square,
+                promoteToSquare?: Square
+              ): boolean {
+                throw new Error("Function not implemented.");
+              }}
             />
           </div>
         </div>

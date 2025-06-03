@@ -88,9 +88,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setAvailableGames(games);
 
         const gamesReturned = games.length;
-        console.log(
-          `Requested ${gameCount} games, received ${gamesReturned} games`
-        );
 
         const gameDetails = games.map((game: any) => {
           try {
@@ -114,9 +111,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         const uniqueOpponents = new Set(
           gameDetails.map((g: any) => g.opponent)
         );
-        console.log(
-          `Found ${uniqueOpponents.size} unique opponents in ${gamesReturned} games`
-        );
 
         setSelectedGames(games.map((game: any) => game.value));
       } else {
@@ -125,7 +119,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setSelectedGames([]);
       }
     } catch (error) {
-      console.error("Error fetching user games:", error);
       setUsernameStatus("not-found");
       setAvailableGames([]);
       setSelectedGames([]);
@@ -244,7 +237,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           {/* Updated layout - Input fields in same line and equal sizes */}
           <div className="flex justify-between space-x-4">
             <div className="w-1/2">
-              <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm ">
                 <input
                   type="text"
                   id="username"
@@ -309,6 +302,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               onClick={handleStartClick}
               disabled={
                 isLoading ||
+                usernameStatus === "loading" ||
                 (usernameStatus === "found" && selectedGames.length === 0)
               }
             >
