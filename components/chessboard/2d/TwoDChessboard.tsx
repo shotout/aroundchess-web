@@ -22,6 +22,7 @@ interface TwoDChessboardProps {
     piece: string
   ) => boolean;
   arePiecesDraggable?: boolean;
+  arePiecesClickable?: boolean;
   onSquareClick?: (square: Square) => void;
   onSquareRightClick?: (square: Square) => void;
   onPromotionPieceSelect: (
@@ -47,6 +48,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   onPieceDragBegin,
   onPieceDragEnd,
   arePiecesDraggable = true,
+  arePiecesClickable = false,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
@@ -127,7 +129,6 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             width: PieceChoosed == "wood" ? squareWidth * 0.8 : squareWidth,
             height: PieceChoosed == "wood" ? squareWidth * 0.85 : squareWidth,
             position: "relative",
-            pointerEvents: "none",
             zIndex: 100,
           }}
         >
@@ -140,7 +141,9 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
               bottom:
                 PieceChoosed == "wood"
                   ? `${-0.1 * squareWidth}px`
-                  : PieceChoosed == "glass" ? `${0.1 * squareWidth}px`:`${0 * squareWidth}px`,
+                  : PieceChoosed == "glass"
+                  ? `${0.1 * squareWidth}px`
+                  : `${0 * squareWidth}px`,
               objectFit: "contain",
               zIndex: 100,
             }}
@@ -177,7 +180,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             justifyContent: "start",
           }}
         >
-          {arePiecesDraggable != true ? (
+          {arePiecesDraggable != true && arePiecesClickable == true ? (
             <Chessboard
               arePremovesAllowed={arePremovesAllowed}
               onPieceDrop={onPieceDrop}
@@ -229,7 +232,7 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             <Chessboard
               boardOrientation={orientation}
               boardWidth={Math.round(boardWidth - boardWidth / 8.2)}
-              arePiecesDraggable={arePiecesDraggable}
+              arePiecesDraggable={false}
               position={position}
               customPieces={twoDPieces}
               customBoardStyle={{

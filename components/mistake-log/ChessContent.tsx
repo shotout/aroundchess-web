@@ -696,6 +696,7 @@ const ChessContent: React.FC = () => {
           >
             {is3DMode && (
               <ThreeDBoard
+                arePiecesClickable={false}
                 arePiecesDraggable={false}
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
@@ -745,6 +746,7 @@ const ChessContent: React.FC = () => {
           >
             {!is3DMode && (
               <TwoDChessboard
+                arePiecesClickable={false}
                 arePiecesDraggable={false}
                 boardWidth={
                   hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize

@@ -42,8 +42,11 @@ export default function AnalysisPage() {
   const {
     getMistakePrevious,
     GameHistoryOpenings,
+    getMistakePreviousDetail,
     isLoading: fetchLoading,
   } = useApiClient();
+  const [lastPgn, setLastPgn] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
@@ -53,17 +56,32 @@ export default function AnalysisPage() {
   const fetchMistakePrevious = async () => {
     try {
       const prevData = await getMistakePrevious();
-      console.log("prevData", prevData.data);
-      if (prevData.data.length > 0) {
-        setPreviousAnalyse(prevData.data);
-        openModalAnalyze(prevData.data);
+      let dataPrevious = prevData.data;
+      console.log("prevData", dataPrevious);
+      if (dataPrevious.length > 0) {
+        setPreviousAnalyse(dataPrevious);
+        openModalAnalyze(dataPrevious);
+        fetchMistakePreviousDetail(dataPrevious[0].id);
+      }else{
+        fetchPgnFamousGame()
       }
     } catch (error) {
       openModalAnalyze([]);
       console.error("Failed to fetch mistake previous:", error);
     }
   };
-
+  const fetchMistakePreviousDetail = async (id: string) => {
+    try {
+      let params = { page: 1, limit: 10, phase: "", type: "" };
+      const prevDataDetail = await getMistakePreviousDetail(id, params);
+      console.log("prevDataDetail", prevDataDetail);
+      let dataDetail = prevDataDetail.data;
+      setLastPgn(dataDetail.pgn);
+      fetchExistAnalyze(dataDetail.pgn);
+    } catch (error) {
+      console.error("Failed to fetch mistake previous:", error);
+    }
+  };
   const openModalAnalyze = (data: any) => {
     console.log("openModalAnalyze", data);
     if (data.length == 0) {
@@ -74,7 +92,30 @@ export default function AnalysisPage() {
       setOpenAnalyze(false);
     }
   };
-
+  const fetchExistAnalyze = async (pgn: string) => {
+    try {
+      const { default: axios } = await import("axios");
+      const response = await axios.post(
+        `${process.env.BASE_URL}/v2/analyze/last-analysis`,
+        {
+          pgn: pgn, 
+          // depth: 14,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+      console.log("exist analysis response:", response.data);
+      setDataAnalysis(response.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.log("exist analysis error:", error);
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     if (hydrated) {
       console.log("dataAnalysis", dataAnalysis);
@@ -82,10 +123,9 @@ export default function AnalysisPage() {
       console.log("isSignedIn", isSignedIn);
 
       if (isSignedIn) {
+        setLoading(true);
         fetchMistakePrevious();
-      }
-
-      if (dataAnalysis == null && !isLoading) {
+      } else if (dataAnalysis == null && !isLoading) {
         console.log(
           "No PGN data found, loading famous game as fallback",
           isSignedIn,
@@ -112,13 +152,16 @@ export default function AnalysisPage() {
 
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
+      setLoading(false)
     } catch (err) {
       console.log("error", err);
       setIsLoading(false);
+      setLoading(false)
     } finally {
       if (arr != null) {
       } else {
         setIsLoading(false);
+      setLoading(false)
       }
     }
   };
@@ -168,7 +211,7 @@ export default function AnalysisPage() {
                 Analysis Result from{" "}
                 <span className="text-[#4E7838] font-medium">Chess.com</span>
               </h2>
-              {isSignedIn && widthC <= 1024 && (
+              {isSignedIn && widthC <= 1024 && !loading && (
                 <div className="lg:hidden flex items-center justify-center my-2">
                   <AnalyzeDifferentGame openPopup={openAnalyze} />
                 </div>
@@ -188,12 +231,12 @@ export default function AnalysisPage() {
                   positional advantages, helping players understand strategic
                   strengths and weaknesses.
                 </div>
-                {isSignedIn && widthC > 1024 && (
+                {isSignedIn && widthC > 1024 && !loading && (
                   <AnalyzeDifferentGame openPopup={openAnalyze} />
                 )}
               </div>
             </div>
-            {fetchLoading && pgn.length == 0 ? (
+            {(fetchLoading && pgn.length == 0) || loading ? (
               <DotSpinner />
             ) : (
               <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">

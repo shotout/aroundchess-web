@@ -97,7 +97,7 @@ export function useApiClient() {
 
           const responseData = await response.json();
           if (method == "POST") {
-            toast.success(responseData.message || "Request successful");
+            // toast.success(responseData.message || "Request successful");
           }
           return responseData;
         } else {

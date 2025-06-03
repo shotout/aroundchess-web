@@ -26,6 +26,7 @@ interface ThreeDBoardProps {
     piece: string
   ) => boolean;
   arePiecesDraggable?: boolean;
+  arePiecesClickable?: boolean;
   onSquareClick?: (square: Square) => void;
   onSquareRightClick?: (square: Square) => void;
   onPromotionPieceSelect: (
@@ -51,6 +52,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   onPieceDragEnd,
   onPieceDragBegin,
   arePiecesDraggable = true,
+  arePiecesClickable = false,
   onSquareClick,
   onSquareRightClick,
   onPromotionPieceSelect,
@@ -188,7 +190,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             transform: "rotateY(27.5deg)",
             // boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
             borderRadius: "8px",
-            background: "red",
           }}
         >
           <img
@@ -197,7 +198,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             width={squareWidth * pieceHeight}
             height={squareWidth}
             style={{
-              pointerEvents: "none",
               position: "absolute",
               bottom: `${0.05 * squareWidth}px`,
               objectFit: "contain",
@@ -225,7 +225,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           width: 480,
           height: 480,
 
-          // transform: `scale(${scale + ``})`,
+          transform: `scale(${scale + ``})`,
         }}
       >
         <Image
@@ -250,7 +250,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               justifyContent: "start",
             }}
           >
-            {arePiecesDraggable != true ? (
+            {arePiecesDraggable != true && arePiecesClickable == true ? (
               <Chessboard
                 arePremovesAllowed={arePremovesAllowed}
                 onPieceDrop={onPieceDrop}
@@ -309,7 +309,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
               />
             ) : (
               <Chessboard
-                arePiecesDraggable={true}
+                arePiecesDraggable={false}
                 boardOrientation={orientation}
                 boardWidth={Math.round(480 * 0.779)}
                 id="Styled3DBoard"

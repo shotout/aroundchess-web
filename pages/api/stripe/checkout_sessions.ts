@@ -69,6 +69,7 @@ export default async function handler(
           metadata: metadataMember,
           success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
           cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,
+          // return_url:`${req.headers.origin}/profile`
         };
 
         console.log("Creating subscription checkout with discount");
@@ -93,6 +94,7 @@ export default async function handler(
           metadata: metadataToken,
           success_url: `${req.headers.origin}/profile?${statusurlSuccess}`,
           cancel_url: `${req.headers.origin}/profile?${statusurlFailed}`,
+          // return_url:`${req.headers.origin}/profile`
         };
 
         console.log("Creating payment checkout for tokens");

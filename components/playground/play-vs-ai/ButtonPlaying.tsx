@@ -41,26 +41,26 @@ export const ButtonPlaying = ({
         {!hintClicked && bestLine?.length == null ? (
           <DotSpinner size={5} />
         ) : (
-          <div>
+          < >
             {hintClicked ? (
               <Image
-                src={`/images/play-vs-ai/hint.png`}
+                src={`/icons/hint.png`}
                 alt="icon"
                 width={1000}
                 height={1000}
-                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain"
               />
             ) : (
               <Image
-                src={`/images/play-vs-ai/hint-icon.png `}
+                src={`/icons/hint-icon.png `}
                 alt="icon"
                 width={1000}
                 height={1000}
-                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain"
               />
             )}
             <span className="font-medium text-xs mt-1 ">Hint</span>
-          </div>
+          </ >
         )}
       </button>
       <button

@@ -306,6 +306,7 @@ export default function ChessboardWrapper({
       >
         {is3DMode && (
           <ThreeDBoard
+            arePiecesClickable={true}
             boardWidth={boardSize ?? 0}
             arePiecesDraggable={false}
             orientation={boardOrientation}
@@ -349,6 +350,7 @@ export default function ChessboardWrapper({
       >
         {!is3DMode && (
           <TwoDChessboard
+            arePiecesClickable={true}
             boardWidth={boardSize ?? 0}
             arePiecesDraggable={false}
             orientation={boardOrientation}

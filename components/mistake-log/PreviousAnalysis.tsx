@@ -20,6 +20,7 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { Pagination } from "../pagination/pagination";
 import { usePagination } from "../pagination/hook/usePagination";
+import NoData from "../NoData/NoData";
 interface PreviousAnalysisProps {
   reFetch: () => void;
 }
@@ -60,6 +61,9 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
   useEffect(() => {
+    setPreviousAnalysis(mistakeLogs);
+  }, [mistakeLogs]);
+  useEffect(() => {
     if (PreviousAnalysis["criticalMistakes"].length > 0) {
       setIndexOpen("Critical Mistakes");
     } else if (PreviousAnalysis["badMoves"].length > 0) {
@@ -74,8 +78,14 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     }
   }, [previousAnalyses, chessMove]);
   const handleOnClickMovement = (move: any) => {
-    console.log("move", move);
-    setChessMove(move);
+    if (move.move == chessMove.move) {
+      setChessMove({});
+      setSelectedMistakes({});
+    } else {
+      console.log("move", move);
+      setChessMove(move);
+      setSelectedMistakes(move);
+    }
   };
   const handleSaveLog = async (id: string, key: string) => {
     setLoadingToggle(true);
@@ -208,7 +218,9 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
             )}
           </div>
         </div>
-        {Type == indexOpen &&
+        {Type == indexOpen && data.length == 0 ? (
+          <NoData />
+        ) : (
           data.map((item: any, key: number) => {
             return (
               <div
@@ -216,7 +228,6 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                 className="flex flex-col gap-2 mt-4 cursor-pointer"
                 onClick={() => {
                   handleOnClickMovement(item);
-                  setSelectedMistakes(item);
                 }}
               >
                 <div className="flex flex-row gap-2 items-center">
@@ -336,7 +347,8 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                 </div>
               </div>
             );
-          })}
+          })
+        )}
       </div>
     );
   };
@@ -349,6 +361,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       />
     );
   }
+  if (isLoading) return <DotSpinner />;
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
       {PreviousAnalysis?.criticalMistakes &&
@@ -365,7 +378,6 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
 
       {PreviousAnalysis &&
         PreviousAnalysis?.criticalMistakes != null &&
-        PreviousAnalysis?.criticalMistakes.length > 0 &&
         PreviousAnalysisCard(
           PreviousAnalysis?.criticalMistakes,
           "Critical Mistakes",
@@ -373,7 +385,6 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         )}
       {PreviousAnalysis &&
         PreviousAnalysis?.badMoves != null &&
-        PreviousAnalysis?.badMoves.length > 0 &&
         PreviousAnalysisCard(
           PreviousAnalysis?.badMoves,
           "Bad Moves",
@@ -381,11 +392,9 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         )}
       {PreviousAnalysis &&
         PreviousAnalysis?.threats != null &&
-        PreviousAnalysis?.threats.length > 0 &&
         PreviousAnalysisCard(PreviousAnalysis?.threats, "Threats", "threats")}
       {PreviousAnalysis &&
         PreviousAnalysis?.weaknessIdentification != null &&
-        PreviousAnalysis?.weaknessIdentification.length > 0 &&
         PreviousAnalysisCard(
           PreviousAnalysis?.weaknessIdentification,
           "Weakness Identification",

@@ -121,8 +121,14 @@ const SavedMistakes: React.FC<savedProps> = ({
       });
   };
   const handleOnClickMovement = (move: any) => {
-    console.log("move", move);
-    setChessMove(move);
+    if (move.move == chessMove.move) {
+      setChessMove({});
+      setSelectedMistakes({});
+    } else {
+      console.log("move", move);
+      setChessMove(move);
+      setSelectedMistakes(move);
+    }
   };
   return (
     <>
@@ -139,7 +145,6 @@ const SavedMistakes: React.FC<savedProps> = ({
                 className="flex flex-col gap-2 lg:mt-2 cursor-pointer"
                 onClick={() => {
                   handleOnClickMovement(item.mistakeLog);
-                  setSelectedMistakes(item.mistakeLog);
                   setPreviousAnalysesDetail(item);
                   setPgn(item.pgn);
                 }}
@@ -165,7 +170,6 @@ const SavedMistakes: React.FC<savedProps> = ({
                     </div>
                     <div
                       onClick={() => handleUnsaveLog(item.mistakeLog.id)}
-
                       className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold"
                     >
                       {loadingUnsave ? (

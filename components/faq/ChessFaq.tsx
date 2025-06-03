@@ -176,10 +176,10 @@ export default function ChessFAQ() {
               className="sm:w-2/3 lg:w-[116px] h-full absolute left- inset-0 object-cover z-0"
             />
             <button
-              className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] justify-self-center ${
+              className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${
                 activeTab === tab.label
                   ? "text-[#221AE9] border border-[#221AE9] font-bold"
-                  : "border border-gray-300 rounded-md"
+                  : ""
               }`}
               onClick={() => {
                 setQuestion(tab.questions);
@@ -257,9 +257,15 @@ export default function ChessFAQ() {
                       ))}
                     </div>
                   ) : (
-                    <span className="font-normal text-[12px] md:text-[14px] text-[#585858]">
-                      {faq.answer}
-                    </span>
+                    <span
+                      className="font-normal text-[12px] md:text-[14px] text-[#585858]"
+                      dangerouslySetInnerHTML={{
+                        __html: faq.answer.replace(
+                          /\*\*(.*?)\*\*/g,
+                          "<b>$1</b>"
+                        ),
+                      }}
+                    />
                   )}
                 </div>
               )}

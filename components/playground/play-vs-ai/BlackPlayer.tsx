@@ -68,7 +68,7 @@ export const BlackPlayer = ({
               : "text-[#040404]"
           }`}
         >
-          {myColor != "white" ? "You" : AIChoosed.opponent.name}
+          {myColor != "white" ? username : AIChoosed.opponent.name.replace(/ .*/,'')}
           {/* <div className="text-center">
               <h2 className="text-xl">{blackTime}</h2>
             </div> */}

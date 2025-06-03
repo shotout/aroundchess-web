@@ -18,7 +18,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
-import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
+import {
+  formatDate,
+  formatDatePgn,
+  formatTimePgn,
+} from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
 import { ArrowLeft, MoveRightIcon } from "lucide-react";
@@ -135,7 +139,7 @@ export default function PlayingPage() {
         result: headers.Result == "0-1" ? "win" : "lose",
         username: headers.Black,
       },
-      date: headers.Date,
+      date: formatDatePgn(),
     };
     setDataGamesImport(dataGames);
     let arr = null;
@@ -565,7 +569,13 @@ export default function PlayingPage() {
       //console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
-
+  useEffect(() => {
+    if (AIChoosed.color == "black") {
+      setOrientation("black");
+    } else {
+      setOrientation("white");
+    }
+  }, []);
   const handleSwitch = () => {
     setOrientation((prev) => {
       if (prev == "white") {
@@ -629,9 +639,9 @@ export default function PlayingPage() {
     }, 1000);
     setHeaderGameFinish();
     // Determine the winner based on the player who was in checkmate
-    let loserColor = game.turn(); // 'w' for white, 'b' for black
-    let winnerColor = loserColor === "w" ? "black" : "white";
-    let losserColor = loserColor != "w" ? "black" : "white";
+    let loserColor = myColor;
+    let winnerColor = loserColor === "white" ? "black" : "white";
+    let losserColor = loserColor != "white" ? "black" : "white";
     let isUserWin = myColor === winnerColor;
     setWinnerColor(winnerColor);
     setLoserColor(losserColor);
@@ -789,7 +799,7 @@ export default function PlayingPage() {
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
             {/* {buttonBoard()} */}
-            {/* <motion.div
+            <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 !is3DMode
@@ -809,10 +819,11 @@ export default function PlayingPage() {
                 backfaceVisibility: "hidden",
                 transformStyle: "preserve-3d",
               }}
-            > */}
+            >
               {is3DMode && (
                 <ThreeDBoard
-                  arePiecesDraggable={true}
+                  arePiecesDraggable={false}
+                  arePiecesClickable={statusGame == "Ongoing"}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
@@ -843,8 +854,8 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            {/* </motion.div> */}
-            {/* <motion.div
+            </motion.div>
+            <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 is3DMode
@@ -863,10 +874,11 @@ export default function PlayingPage() {
                 display: !is3DMode ? "flex" : "none",
                 backfaceVisibility: "hidden",
               }}
-            > */}
+            >
               {!is3DMode && (
                 <TwoDChessboard
-                  arePiecesDraggable={true}
+                  arePiecesDraggable={false}
+                  arePiecesClickable={statusGame == "Ongoing"}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
@@ -897,7 +909,7 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            {/* </motion.div> */}
+            </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">

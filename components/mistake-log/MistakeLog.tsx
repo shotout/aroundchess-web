@@ -177,7 +177,7 @@ const MistakeLog = () => {
   const renderFilters = () => {
     return (
       <>
-        <div className="flex flex-row w-full xl:w-[calc(100vw-340px)] overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
+        <div className="flex flex-row w-full xl:w-[calc(100vw-380px)] overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div

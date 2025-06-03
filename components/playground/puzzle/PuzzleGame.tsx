@@ -708,7 +708,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         >
           {hint ? (
             <Image
-              src={`/images/play-vs-ai/hint.png`}
+              src={`/icons/hint.png`}
               alt="icon"
               width={1000}
               height={1000}
@@ -716,7 +716,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             />
           ) : (
             <Image
-              src={`/images/play-vs-ai/hint-icon.png `}
+              src={`/icons/hint-icon.png `}
               alt="icon"
               width={1000}
               height={1000}
@@ -985,6 +985,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               {!is3DMode && (
                 <TwoDChessboard
+                  arePiecesClickable={!isGameOver}
                   arePiecesDraggable={true}
                   orientation={orientation}
                   boardWidth={boardSize}

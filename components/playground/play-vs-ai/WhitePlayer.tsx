@@ -64,7 +64,7 @@ export const WhitePlayer = ({
               : "text-[#040404]"
           }`}
         >
-          {myColor == "white" ? "You" : AIChoosed.opponent.name}
+          {myColor == "white" ? username : AIChoosed.opponent.name.replace(/ .*/,'')}
 
           {/* <div className="text-center">
               <span className="text-xl">{whiteTime}</span>

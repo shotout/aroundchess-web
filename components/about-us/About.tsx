@@ -1,6 +1,18 @@
 "use client";
+import { useContactUs } from "@/app/store/contactUs";
+import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useProfileStore } from "@/app/store/profile";
 import Image from "next/image";
 export default function About() {
+  const { setOpen, open } = useContactUs();
+  const handleContactUs = () => {
+    setOpen(true);
+  };
+  const handleDiscord = () => {
+    const discordUrl = `https://discord.gg/PZWcXsxGM7`;
+    // const discordUrl = `https://discordapp.com/channels/SERVERID/CHANNELID`;
+    window.open(discordUrl, "_blank");
+  };
   const ourValues = [
     {
       icon: "/icons/about-training.png",
@@ -110,11 +122,14 @@ export default function About() {
         </h2>
         <p className="space-y-8 text-xs lg:text-[18px] font-normal text-[#364152] mt-[8px] leading-[1.5]">
           If you have any questions, please{" "}
-          <a href="#" className="text-[#3871EC] font-medium hover:underline">
+          <a href="/faq" className="text-[#3871EC] font-medium hover:underline">
             check our FAQ
           </a>{" "}
           or{" "}
-          <a href="#" className="text-[#3871EC] font-medium hover:underline">
+          <a
+            onClick={handleContactUs}
+            className="text-[#3871EC] font-medium hover:underline cursor-pointer"
+          >
             contact our amazing Member Support Team
           </a>{" "}
           and we will get back to you as fast as we can!
@@ -129,11 +144,11 @@ export default function About() {
           Did you encounter any issues on our Platform, would like to give us
           Feedback or even suggest an amazing Feature that you would like to see
           on AroundChess?{" "}
-          <a href="#" className="text-[#3871EC] font-medium hover:underline">
+          <a onClick={handleContactUs} className="text-[#3871EC] font-medium hover:underline">
             Send us a Message
           </a>{" "}
           on our Feedback Form or{" "}
-          <a href="#" className="text-[#3871EC] font-medium hover:underline">
+          <a onClick={handleDiscord} className="text-[#3871EC] font-medium hover:underline">
             get in Touch on our Discord!
           </a>
         </p>

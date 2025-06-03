@@ -318,6 +318,7 @@ const PgnPlayer: React.FC = () => {
       <div className="flex flex-row gap-3 mx-auto">
         {!is3DMode && (
           <TwoDChessboard
+            arePiecesClickable={false}
             arePiecesDraggable={false}
             boardWidth={boardSize}
             orientation={boardOrientation}
@@ -346,6 +347,7 @@ const PgnPlayer: React.FC = () => {
         {is3DMode && (
           <div className="-mt-[40px]">
             <ThreeDBoard
+              arePiecesClickable={false}
               arePiecesDraggable={false}
               boardWidth={boardSize}
               orientation={boardOrientation}
