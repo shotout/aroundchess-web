@@ -540,7 +540,7 @@ export default function StageDetailView({
   }
 
   return (
-    <div className="w-full h-auto 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+    <div className="w-full h-full flex justify-center items-center">
       <GameAlertDialog
         open={showGameEndDialog}
         game={game || null}

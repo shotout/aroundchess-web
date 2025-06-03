@@ -66,7 +66,7 @@ export function AnalyzeGameHistory({
 
   const [activeTab, setActiveTab] = useState("auto");
   const [pgnText, setPgnText] = useState("");
-  const [depthChoosed, setDepthChoosed] = useState(10);
+  const [depthChoosed, setDepthChoosed] = useState(14);
 
   const [estimateBasic, setEstimateBasic] = useState<string>("");
   const [estimateStandard, setEstimateStandard] = useState<string>("");
