@@ -18,7 +18,7 @@ import { useProfileStore } from "@/app/store/profile";
 
 export default function Article() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -63,17 +63,14 @@ export default function Article() {
   }, []);
   const fetchCategories = () => {
     setIsLoading(true);
-    getNewsCategories({})
-      .then((response) => {
-        console.log("getNewsCategories", response.data);
-        setCategories(response.data);
-        setSelectedTab(response.data[0].id);
-      })
-      .finally(() => {
-        if (isSignedIn) {
-          fetchSavedArticle();
-        }
-      });
+    getNewsCategories({}).then((response) => {
+      console.log("getNewsCategories", response.data);
+      setCategories(response.data);
+      setSelectedTab(response.data[0].id);
+      if (sessionId != "") {
+        fetchSavedArticle();
+      }
+    });
   };
   const fetchSavedArticle = () => {
     getNewsSaved({}).then((response) => {
