@@ -21,11 +21,15 @@ interface ProfileState {
   isMember: any;
   setIsMember: (isMember: any) => void;
   clearAll: () => void;
+  hydrated: boolean;
+  setHydrated: () => void;
 }
 
 export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
+      hydrated: false, // manually track hydration
+      setHydrated: () => set({ hydrated: true }),
       profile: {},
       setProfile: (profile) => set({ profile }),
       tokenPackage: {},
@@ -61,6 +65,9 @@ export const useProfileStore = create<ProfileState>()(
     {
       name: "Profile-storage",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
       partialize: (state) => ({
         profile: state.profile,
         token: state.token,

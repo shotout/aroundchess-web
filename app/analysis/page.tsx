@@ -13,7 +13,7 @@ import { useProfileStore } from "../store/profile";
 
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const { sessionId } = useProfileStore();
+  const { sessionId, hydrated: hydratedProfile } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -96,7 +96,7 @@ export default function AnalysisPage() {
     try {
       const response = await getLastAnalysis({});
       console.log("exist analysis response:", response.data);
-      setDataAnalysis(response.data.data);
+      setDataAnalysis(response.data);
       setLoading(false);
     } catch (error) {
       console.log("exist analysis error:", error);
@@ -104,7 +104,7 @@ export default function AnalysisPage() {
     }
   };
   useEffect(() => {
-    if (hydrated) {
+    if (hydrated && hydratedProfile) {
       console.log("dataAnalysis", dataAnalysis);
       console.log("pgn.length", pgn);
       console.log("isSignedIn", isSignedIn);
@@ -124,7 +124,7 @@ export default function AnalysisPage() {
         setIsLoading(false);
       }
     }
-  }, [isSignedIn, hydrated]);
+  }, [isSignedIn, hydrated, hydratedProfile]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;
