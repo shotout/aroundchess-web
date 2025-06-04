@@ -77,6 +77,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}
+              arePiecesClickable={false}
               arePiecesDraggable={false}
               position={currentPosition.fen}
               areArrowsAllowed={true}
