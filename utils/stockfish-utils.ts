@@ -15,7 +15,7 @@ export function useStockfishAnalysis() {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<Error | null>(null);
-  const { sessionId } = useProfileStore();
+  const { sessionId, setAlreadyFetch } = useProfileStore();
 
   const pgnToFenList = useCallback(
     (pgn: string, includeStartPosition: boolean = true): string[] => {
@@ -105,10 +105,7 @@ export function useStockfishAnalysis() {
   );
 
   const batchStockfishAnalysisAPI = useCallback(
-    async (
-      fenPositions: string[],
-      depth: number = 14
-    ) => {
+    async (fenPositions: string[], depth: number = 14) => {
       if (depth < 10 || depth > 25) {
         throw new Error("Depth must be between 10 and 25");
       }
@@ -194,7 +191,7 @@ export function useStockfishAnalysis() {
         setError(new Error("PGN is required"));
         throw new Error("PGN is required");
       }
-
+      setAlreadyFetch(false);
       setIsAnalyzing(true);
       setError(null);
       setProgress(0);
