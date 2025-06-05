@@ -54,6 +54,14 @@ experimental: {
       {
         protocol:'https',
         hostname:'www.chess.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.chess.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'https://aroundchess-news.s3.amazonaws.com',
       }
     ],
   },
