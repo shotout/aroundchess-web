@@ -18,7 +18,7 @@ import { useProfileStore } from "@/app/store/profile";
 
 export default function Article() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const { sessionId } = useProfileStore();
+  const { sessionId, hydrated } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -59,8 +59,9 @@ export default function Article() {
   const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
   useEffect(() => {
+    if (!hydrated) return;
     fetchCategories();
-  }, []);
+  }, [hydrated]);
   const fetchCategories = () => {
     setIsLoading(true);
     getNewsCategories({}).then((response) => {
