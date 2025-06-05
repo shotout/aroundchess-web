@@ -12,18 +12,16 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
 
   return apiData
     .map((item) => {
-      // Pre-validate essential data - skip items with missing critical info
       if (!item.id || !item.date) return null;
 
       const transformedOpening = formatOpening(item.opening_name);
 
-      // Skip items with invalid opening data or missing time control
       if (!transformedOpening || !item.time_control) return null;
 
       return {
         id: item.id,
         date: formatDate(item.date),
-        timeControl: item.time_control, // Use raw string from endpoint
+        timeControl: item.time_control,
         result: item.result,
         opponent: item.opponent || "Unknown Player",
         rating: item.rating,
@@ -139,60 +137,6 @@ export const getResultData = (
   } else {
     return { text: "DRAW", className: "text-gray-500 font-semibold" };
   }
-};
-
-export const getEloChangeData = (
-  change: string | number | undefined | null,
-  currentRating: number,
-  previousRating: number | null
-): { value: number; text: string; className: string } => {
-  // Handle numeric input directly
-  if (typeof change === "number") {
-    const value = change;
-
-    if (previousRating !== null) {
-      if (currentRating > previousRating) {
-        return { value, text: `+${value}`, className: "text-green-500" };
-      } else if (currentRating < previousRating) {
-        return {
-          value,
-          text: `-${Math.abs(value)}`,
-          className: "text-red-500",
-        };
-      }
-    }
-
-    if (value > 0) {
-      return { value, text: `+${value}`, className: "text-green-500" };
-    } else if (value < 0) {
-      return { value, text: `${value}`, className: "text-red-500" };
-    }
-    return { value, text: "0", className: "text-gray-500" };
-  }
-
-  // Handle string input (old format)
-  if (!change || typeof change !== "string") {
-    return { value: 0, text: "0", className: "text-gray-500" };
-  }
-
-  const match = change.match(/\(([+-]\d+) ELO Rating\)/);
-  const value = match ? parseInt(match[1]) : 0;
-
-  if (previousRating !== null) {
-    if (currentRating > previousRating) {
-      return { value, text: `+${value}`, className: "text-green-500" };
-    } else if (currentRating < previousRating) {
-      return { value, text: `-${Math.abs(value)}`, className: "text-red-500" };
-    }
-  }
-
-  if (value > 0) {
-    return { value, text: `+${value}`, className: "text-green-500" };
-  } else if (value < 0) {
-    return { value, text: `${value}`, className: "text-red-500" };
-  }
-
-  return { value, text: "0", className: "text-gray-500" };
 };
 
 export const countActiveFilters = (

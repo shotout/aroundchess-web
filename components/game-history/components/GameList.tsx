@@ -4,7 +4,7 @@ import { ChartNoAxesColumn, AlertCircle, Clock, BookOpen } from "lucide-react";
 import GameCard from "./GameCard";
 import PaginationControls from "./PaginationControls";
 import DotSpinner from "../Spinner";
-import { getEloChangeData, getResultData } from "../hooks/useGameData";
+import { getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
 
@@ -188,27 +188,15 @@ const GamesList: React.FC<GamesListProps> = ({
                 </div>
 
                 <div className="col-span-1 px-4 py-3 flex items-center">
-                  {(() => {
-                    const currentRating =
-                      typeof game.rating === "string"
-                        ? parseInt(game.rating)
-                        : game.rating;
-                    const previousRating: any =
-                      index > 0
-                        ? typeof currentGames[index - 1].rating === "string"
-                          ? parseInt(currentGames[index - 1].rating)
-                          : currentGames[index - 1].rating
-                        : null;
-
-                    const eloData = getEloChangeData(
-                      game.eloChange,
-                      currentRating,
-                      previousRating
-                    );
-                    return (
-                      <span className={eloData.className}>{eloData.text}</span>
-                    );
-                  })()}
+                  <span
+                    className={
+                      Number(game.eloChange) >= 0
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {game.eloChange}
+                  </span>
                 </div>
 
                 <div className="col-span-1 px-4 py-3 flex items-center">
