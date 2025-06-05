@@ -61,8 +61,8 @@ experimental: {
       },
       {
         protocol: 'https',
-        hostname: 'https://aroundchess-news.s3.amazonaws.com',
-      }
+        hostname: 'aroundchess-news.s3.amazonaws.com',
+      } 
     ],
   },
 }

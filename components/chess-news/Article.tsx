@@ -64,9 +64,11 @@ export default function Article() {
   const fetchCategories = () => {
     setIsLoading(true);
     getNewsCategories({}).then((response) => {
-      console.log("getNewsCategories", response.data);
-      setCategories(response.data);
-      setSelectedTab(response.data[0].id);
+      if (response.data.length > 0) {
+        console.log("getNewsCategories", response.data);
+        setCategories(response.data);
+        setSelectedTab(response.data[0].id);
+      }
       if (sessionId != "") {
         fetchSavedArticle();
       }
