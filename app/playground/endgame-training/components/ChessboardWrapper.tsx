@@ -59,17 +59,14 @@ export default function ChessboardWrapper({
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
-    console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
       const availableHeight = height - minPadding * 2;
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
 
@@ -281,6 +278,79 @@ export default function ChessboardWrapper({
     return null;
   };
 
+  const onPieceDrop = useCallback(
+    (sourceSquare: Square, targetSquare: Square, piece: string) => {
+      if (game.turn() !== playerColor || gameStatus !== "ongoing") {
+        return false;
+      }
+
+      const moves = game.moves({
+        square: sourceSquare,
+        verbose: true,
+      });
+
+      const foundMove = moves.find(
+        (m) => m.from === sourceSquare && m.to === targetSquare
+      );
+
+      if (!foundMove) {
+        return false;
+      }
+
+      if (
+        (foundMove.color === "w" &&
+          foundMove.piece === "p" &&
+          targetSquare[1] === "8") ||
+        (foundMove.color === "b" &&
+          foundMove.piece === "p" &&
+          targetSquare[1] === "1")
+      ) {
+        setMoveFrom(sourceSquare);
+        setMoveTo(targetSquare);
+        setShowPromotionDialog(true);
+        return false;
+      }
+
+      const move = game.move({
+        from: sourceSquare,
+        to: targetSquare,
+      });
+
+      if (move === null) {
+        return false;
+      }
+
+      setMoveHistory(game.history({ verbose: true }));
+      setPosition(game.fen());
+
+      setMoveSquares({
+        [sourceSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+        [targetSquare]: { background: "rgba(255, 255, 0, 0.4)" },
+      });
+
+      setMoveFrom("");
+      setMoveTo(null);
+      setOptionSquares({});
+
+      checkGameStatus();
+
+      return true;
+    },
+    [
+      game,
+      playerColor,
+      gameStatus,
+      setMoveHistory,
+      setPosition,
+      setMoveSquares,
+      setMoveFrom,
+      setMoveTo,
+      setOptionSquares,
+      setShowPromotionDialog,
+      checkGameStatus,
+    ]
+  );
+
   return (
     <div className="flex flex-col justify-center items-center gap-3">
       <motion.div
@@ -329,19 +399,19 @@ export default function ChessboardWrapper({
       </motion.div>
 
       <motion.div
-        initial={{ rotateX: 180 }}
-        animate={
-          is3DMode
-            ? { opacity: 0, display: "none" }
-            : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-        }
-        transition={{
-          duration: 0.5,
-          stiffness: 500,
-          damping: 35,
-          ease: [0.4, 0.0, 0.2, 1],
-          type: "tween",
-        }}
+        // initial={{ rotateX: 180 }}
+        // animate={
+        //   is3DMode
+        //     ? { opacity: 0, display: "none" }
+        //     : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
+        // }
+        // transition={{
+        //   duration: 0.5,
+        //   stiffness: 500,
+        //   damping: 35,
+        //   ease: [0.4, 0.0, 0.2, 1],
+        //   type: "tween",
+        // }}
         style={{
           width: boardSize,
           display: !is3DMode ? "flex" : "none",
@@ -352,12 +422,13 @@ export default function ChessboardWrapper({
           <TwoDChessboard
             arePiecesClickable={true}
             boardWidth={boardSize ?? 0}
-            arePiecesDraggable={false}
+            arePiecesDraggable={true}
             orientation={boardOrientation}
             position={position ?? undefined}
             onSquareClick={onSquareClick}
             onSquareRightClick={onSquareRightClick}
             onPromotionPieceSelect={onPromotionPieceSelect}
+            onPieceDrop={onPieceDrop}
             customSquareStyles={{
               ...moveSquares,
               ...optionSquares,
@@ -368,6 +439,10 @@ export default function ChessboardWrapper({
             customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
             promotionToSquare={moveTo}
             showPromotionDialog={showPromotionDialog}
+            game={game}
+            playerColor={playerColor}
+            gameStatus={gameStatus}
+            setOptionSquares={setOptionSquares}
           />
         )}
       </motion.div>

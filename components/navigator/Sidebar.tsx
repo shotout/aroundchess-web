@@ -15,6 +15,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 interface SidebarProps {
   onClose?: () => void;
+  isMobile?: boolean;
 }
 interface SidebarLink {
   name: string;
@@ -146,7 +147,7 @@ const sidebarLinks: SidebarLink[] = [
   // },
 ];
 
-export default function Sidebar({ onClose }: SidebarProps) {
+export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const { isMember, token, profile } = useProfileStore();
   const router = useRouter();
@@ -161,18 +162,69 @@ export default function Sidebar({ onClose }: SidebarProps) {
     setIsSignedIn(true);
   }, [sessionId]);
 
-  useEffect(() => {}, []);
   const handleToProfile = () => {
     router.push("/profile");
+    if (isMobile && onClose) {
+      onClose();
+    }
   };
 
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
     setTabType(type);
+    if (isMobile && onClose) {
+      onClose();
+    }
   };
-  return (
+
+  const handleNavigation = (href: string, hasPermission: boolean) => {
+    if (!isSignedIn && !hasPermission) {
+      setOpenConfirmLogin(true);
+    } else if (href && href !== "#") {
+      if (isMobile && onClose) {
+        onClose();
+      }
+    }
+  };
+
+  // Animation variants for mobile
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.2,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        duration: 0.2,
+      },
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const sidebarContent = (
     <div className="flex h-full flex-col z-100">
-      <div className="flex h-24 items-center px-6 justify-center sm:border-b">
+      {/* Logo Section */}
+      <motion.div
+        className="flex h-24 items-center px-6 justify-center sm:border-b"
+        variants={isMobile ? itemVariants : {}}
+      >
         <Link href="/" className="flex items-center justify-center">
           <Image
             src="/icons/logo.png"
@@ -183,8 +235,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
             height={1000}
           />
         </Link>
-      </div>
-      <div className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b gap-2">
+      </motion.div>
+
+      {/* Mobile Token Section */}
+      <motion.div
+        className="flex sm:hidden flex-col justify-center pb-[16px] px-[16px] border-b gap-2"
+        variants={isMobile ? itemVariants : {}}
+      >
         <div className="flex flex-row items-center justify-center gap-2">
           <Image
             src={`/images/pricing/token-icon.png`}
@@ -250,9 +307,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
             </div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
+
+      {/* Navigation Links */}
       <ScrollArea className="flex-1 py-3">
-        <nav className="space-y-5 px-2">
+        <motion.nav
+          className="space-y-5 px-2"
+          variants={isMobile ? containerVariants : {}}
+          initial={isMobile ? "hidden" : "visible"}
+          animate="visible"
+        >
           {sidebarLinks.map((section: any) => {
             const hasChildren = section.children && section.children.length > 0;
             const isActive = section.href
@@ -260,17 +324,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
               : section.children?.some((child: any) => pathname === child.href);
 
             return (
-              <div key={section.name}>
+              <motion.div
+                key={section.name}
+                variants={isMobile ? itemVariants : {}}
+              >
                 <div className="space-y-2">
                   {section.href ? (
                     <Link
                       href={
                         !isSignedIn && !section.permission ? "" : section.href
                       }
-                      onClick={
-                        !isSignedIn && !section.permission
-                          ? () => setOpenConfirmLogin(true)
-                          : () => null
+                      onClick={() =>
+                        handleNavigation(section.href, section.permission)
                       }
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
@@ -293,7 +358,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
                           )}
                         />
                       </div>
-
                       <span className="flex-1 font-semibold">
                         {section.name}
                       </span>
@@ -309,9 +373,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                       )}
                     </Link>
                   ) : (
-                    // Non-clickable title (section header)
                     <div
-                      // style={{ width: widthContainer - 50 }}
                       className={cn(
                         "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
@@ -342,78 +404,86 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   )}
 
                   {hasChildren && (
-                    <div className="ml-6 space-y-2 ">
+                    <motion.div
+                      className="ml-6 space-y-2"
+                      variants={isMobile ? containerVariants : {}}
+                    >
                       {section.children.map((child: any) => {
                         const isChildActive = pathname?.includes(child.href);
                         return (
-                          <Link
+                          <motion.div
                             key={child.href}
-                            onClick={
-                              !isSignedIn && !section.permission
-                                ? () => setOpenConfirmLogin(true)
-                                : () => null
-                            }
-                            href={
-                              !isSignedIn && !section.permission
-                                ? ""
-                                : child.href
-                            }
-                            className={cn(
-                              "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
-                              isChildActive
-                                ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
-                                : child.disabled
-                                ? "text-[#AAA4A4]"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
-                            )}
+                            variants={isMobile ? itemVariants : {}}
                           >
-                            <div className="flex flex-row items-center">
-                              <Image
-                                width={1000}
-                                height={1000}
-                                alt={child.href}
-                                src={
-                                  isChildActive ? child.iconActive : child.icon
-                                }
-                                className={cn(
-                                  "mr-3 h-5 w-5",
-                                  isChildActive
-                                    ? "text-[#221AE9]"
-                                    : "text-gray-400 group-hover:text-[#221AE9]"
-                                )}
-                              />
-
-                              <span>{child.name}</span>
-                            </div>
-                            {!isSignedIn &&
-                              !child.permission &&
-                              child.href != "#" && (
+                            <Link
+                              onClick={() =>
+                                handleNavigation(child.href, child.permission)
+                              }
+                              href={
+                                !isSignedIn && !section.permission
+                                  ? ""
+                                  : child.href
+                              }
+                              className={cn(
+                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
+                                isChildActive
+                                  ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4 "
+                                  : child.disabled
+                                  ? "text-[#AAA4A4]"
+                                  : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
+                              )}
+                            >
+                              <div className="flex flex-row items-center">
                                 <Image
-                                  src="/icons/lock.png"
-                                  alt="lock"
-                                  className="w-4 h-4 object-contain"
-                                  quality={100}
                                   width={1000}
                                   height={1000}
+                                  alt={child.href}
+                                  src={
+                                    isChildActive
+                                      ? child.iconActive
+                                      : child.icon
+                                  }
+                                  className={cn(
+                                    "mr-3 h-5 w-5",
+                                    isChildActive
+                                      ? "text-[#221AE9]"
+                                      : "text-gray-400 group-hover:text-[#221AE9]"
+                                  )}
                                 />
-                              )}
-                          </Link>
+                                <span>{child.name}</span>
+                              </div>
+                              {!isSignedIn &&
+                                !child.permission &&
+                                child.href != "#" && (
+                                  <Image
+                                    src="/icons/lock.png"
+                                    alt="lock"
+                                    className="w-4 h-4 object-contain"
+                                    quality={100}
+                                    width={1000}
+                                    height={1000}
+                                  />
+                                )}
+                            </Link>
+                          </motion.div>
                         );
                       })}
-                    </div>
+                    </motion.div>
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </nav>
+        </motion.nav>
       </ScrollArea>
+
+      {/* Profile Section */}
       {sessionId && (
         <motion.div
           className="mt-auto border-t border-gray-200 p-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: isMobile ? 0.4 : 0.3 }}
         >
           <motion.button
             onClick={handleToProfile}
@@ -438,13 +508,21 @@ export default function Sidebar({ onClose }: SidebarProps) {
       )}
     </div>
   );
-}
 
-// className={cn(
-//   "mr-3 h-5 w-5",
-//   isChildActive
-//     ? "text-[#221AE9]"
-//     : child.href == "/training-plan"
-//     ? "text-[#AAA4A4]"
-//     : "text-gray-400 group-hover:text-[#221AE9]"
-// )}
+  // Return wrapped content for mobile with animations
+  if (isMobile) {
+    return (
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="h-full"
+      >
+        {sidebarContent}
+      </motion.div>
+    );
+  }
+
+  // Return plain content for desktop
+  return sidebarContent;
+}

@@ -108,6 +108,14 @@
   }
 }
 
+.react-chessboard .piece {
+  z-index: 1000 !important;
+}
+
+.react-chessboard .dragging {
+  z-index: 1001 !important;
+}
+
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
