@@ -1,8 +1,6 @@
 "use client";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
-import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
-import { SettingBoard } from "@/components/modal/SettingBoard";
 import { fadeInUp, motion } from "@/utils/motion";
 
 import { useProfileStore } from "@/app/store/profile";
@@ -22,8 +20,6 @@ import {
   getMoveHighlightStyle3D,
 } from "@/app/utils/highlightStyles3D";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
-import { useAuth } from "@/context/AuthContext";
-import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Piece, PieceSymbol, Square } from "chess.js";
 import {
@@ -72,12 +68,12 @@ interface PuzzleGameProps {
   arrow: any[] | null;
   onChangeTopic: () => void;
 }
+
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   boardOrientation,
   onGameOver,
   isGameOver,
   currentMoveIndex,
-  activePlayer,
   setActivePlayer,
   fenHistory,
   setFenHistory,
@@ -88,22 +84,15 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   hint,
   clearHint,
   navigateToMove,
-  onTakeBackMove,
   onGetHint,
   arrow,
   onChangeTopic,
 }) => {
-  const router = useRouter();
   const chessGame = useMemo(() => new Chess(), []);
   const refBoard = useRef<HTMLDivElement | null>(null);
-  const { isLoading } = useApiClient();
-  const { user } = useAuth();
   const { profile } = useProfileStore();
-  const { sessionId } = useProfileStore();
   const { hideDiv, username } = usePgnStore();
-  const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { PieceChoosed, StyleChoosed, setStyleChoosed } =
-    useChessBoardThemeStore();
+  const { PieceChoosed, setStyleChoosed } = useChessBoardThemeStore();
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
@@ -139,19 +128,16 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const prevFenHistory = useRef<string[]>([]);
 
   useEffect(() => {
-    // Update material differences when the position changes
     const board = chessGame.board();
     const { whiteMaterialDifference, blackMaterialDifference } =
       getMaterialDifferences(board);
     setWhiteMaterialDifference(whiteMaterialDifference);
     setBlackMaterialDifference(blackMaterialDifference);
 
-    // Update the active player if the game is not over
     if (!chessGame.isGameOver() && !gameEnded) {
       setActivePlayer(chessGame.turn() === "w" ? "white" : "black");
     }
 
-    // Check for game over
     if (!gameEnded && chessGame.isGameOver()) {
       setGameEnded(true);
       onGameOver();
@@ -159,9 +145,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [position, gameEnded, onGameOver]);
 
   useEffect(() => {
-    // Handle changes to fenHistory and position
     if (fenHistory.length < prevFenHistory.current.length) {
-      setLastMove(null); // Clear last move if history has been shortened
+      setLastMove(null);
     }
 
     if (currentMoveIndex >= 0 && currentMoveIndex < fenHistory.length) {
@@ -171,10 +156,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setActivePlayer(chessGame.turn() === "w" ? "white" : "black");
     }
 
-    // Save fenHistory to local storage
     localStorage.setItem("fenHistory", JSON.stringify(fenHistory));
 
-    // Load previous fenHistory on initial render
     if (prevFenHistory.current.length === 0) {
       const savedHistory = JSON.parse(
         localStorage.getItem("fenHistory") || "[]"
@@ -192,9 +175,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     () => position === fenHistory[fenHistory.length - 1],
     [position, fenHistory]
   );
+
   useEffect(() => {
     setOrientation(boardOrientation);
   }, [boardOrientation]);
+
   const highlightStyles = useMemo(
     () =>
       isAtCurrentMove
@@ -229,37 +214,29 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame;
       const expectedMove = puzzleMoves[currentMoveIndex];
       if (!expectedMove) {
-        // console.error('No more moves in the puzzle.')
         return false;
       }
 
       const expectedFrom = expectedMove.slice(0, 2);
       const expectedTo = expectedMove.slice(2, 4);
 
-      // Check if the move is legal
       const legalMoves = game.moves({ square: fromSquare, verbose: true });
       const isMoveLegal = legalMoves.some((m) => m.to === toSquare);
 
       if (!isMoveLegal) {
         playIncorrectMoveSound();
-        // console.error(`Illegal move from ${fromSquare} to ${toSquare}`)
-        return false; // No invalid highlighting for illegal moves
-      }
-
-      // Check if the move matches the puzzle's expected move
-      if (fromSquare !== expectedFrom || toSquare !== expectedTo) {
-        // console.error(
-        //   `Invalid move. Expected: ${expectedFrom} to ${expectedTo}, got: ${fromSquare} to ${toSquare}`
-        // )
-        setInvalidMoveSquares([toSquare]); // Highlight invalid square
-        setTimeout(() => setInvalidMoveSquares([]), 500); // Clear after 1 second
         return false;
       }
 
-      // Perform the move
+      if (fromSquare !== expectedFrom || toSquare !== expectedTo) {
+        setInvalidMoveSquares([toSquare]);
+        setTimeout(() => setInvalidMoveSquares([]), 500);
+        return false;
+      }
+
       const move = game.move({ from: fromSquare, to: toSquare });
       fillMovement(move);
-      console.log("move fillMovement", move);
+
       if (move) {
         playSound(game, move);
         const currentFen = game.fen();
@@ -285,20 +262,31 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setActivePlayer,
     ]
   );
+
+  const handlePieceDrop = useCallback(
+    (sourceSquare: Square, targetSquare: Square, piece: string) => {
+      if (!isAtCurrentMove) return false;
+
+      return makeMoveCallback(sourceSquare, targetSquare);
+    },
+    [makeMoveCallback, isAtCurrentMove]
+  );
+
   useEffect(() => {
     handleShowTooltip();
   }, [invalidMoveSquares]);
+
   const handleShowTooltip = () => {
     let counting = 0;
     counting = countInvalid;
     counting = counting + 1;
     setCountInvalid(counting);
-    console.log(counting);
     if (counting >= 3) {
       setShowTooltip(true);
       setCountInvalid(0);
     }
   };
+
   const handleSquareClickCallback = useCallback(
     (square: Square) => {
       if (!isAtCurrentMove) return;
@@ -306,11 +294,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame;
       const pieceAtSquare = game.get(square);
 
-      // Case 1: A piece is already selected
       if (selectedSquare) {
         const fromSquare = selectedSquare;
 
-        // Case 1a: Clicking on a different piece of the same color
         if (
           pieceAtSquare &&
           pieceAtSquare.color === game.turn() &&
@@ -321,37 +307,28 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           return;
         }
 
-        // Case 1b: Clicking on the same square (deselect)
         if (fromSquare === square) {
           handleClearSelection();
           return;
         }
 
-        // Case 1c: Attempt to move to the square
         const toSquare = square;
-
-        // Delegate move validation and execution to makeMoveCallback
         const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
         if (moveSuccessful) {
-          handleClearSelection(); // Clear selection only after a successful move
-        } else {
+          handleClearSelection();
         }
 
         return;
       }
 
-      // Case 2: No piece is selected yet
       if (pieceAtSquare) {
-        // Select the piece and highlight its moves
         if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
           setSelectedSquare(square);
           getPossibleMoves(square);
         } else {
-          // Clear selection if the piece doesn't belong to the current player
           handleClearSelection();
         }
       } else {
-        // No piece on the clicked square; clear selection
         handleClearSelection();
       }
     },
@@ -364,15 +341,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       makeMoveCallback,
       isAtCurrentMove,
     ]
-  );
-
-  const handlePieceDrop = useCallback(
-    (fromSquare: Square, toSquare: Square) => {
-      if (!isAtCurrentMove) return false;
-
-      return makeMoveCallback(fromSquare, toSquare);
-    },
-    [makeMoveCallback, isAtCurrentMove]
   );
 
   const handleDragEnd = useCallback(
@@ -394,54 +362,50 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   );
 
   const handleSquareRightClick = useCallback((square: Square) => {
-    setHighlightedSquares(
-      (prev) =>
-        prev.includes(square)
-          ? prev.filter((s) => s !== square) // Remove square if already highlighted
-          : [...prev, square] // Add square if not highlighted
+    setHighlightedSquares((prev) =>
+      prev.includes(square)
+        ? prev.filter((s) => s !== square)
+        : [...prev, square]
     );
   }, []);
 
   const customSquareStyles = useMemo(() => {
     return highlightedSquares.reduce((acc, square) => {
-      acc[square] = { backgroundColor: "rgb(255, 5, 5, 0.25)" }; // Correctly type the styles
+      acc[square] = { backgroundColor: "rgb(255, 5, 5, 0.25)" };
       return acc;
-    }, {} as Record<string, Record<string, string | number>>); // Match the expected type
+    }, {} as Record<string, Record<string, string | number>>);
   }, [highlightedSquares]);
 
   const resetPuzzleHandler = useCallback(() => {
     setCapturedBlack([]);
     setCapturedWhite([]);
-    chessGame.reset(); // Reset the chess game instance
-    resetPuzzle(); // Clear the current puzzle state
-    setCurrentMoveIndex(0); // Reset the move index
-    setMoveProcessed(false); // Reset move processing state
-    setGameEnded(false); // Reset the game-ended state
+    chessGame.reset();
+    resetPuzzle();
+    setCurrentMoveIndex(0);
+    setMoveProcessed(false);
+    setGameEnded(false);
   }, [resetPuzzle, setFenHistory, setCurrentMoveIndex]);
 
   const getNextPuzzleHandler = useCallback(() => {
     setCapturedBlack([]);
     setCapturedWhite([]);
-    chessGame.reset(); // Reset the chess game instance
-    setCurrentMoveIndex(0); // Reset the move index
-    setMoveProcessed(false); // Reset move processing state
-    setGameEnded(false); // Reset the game-ended state
-    getNextPuzzle(); // Proceed to the next puzzle
+    chessGame.reset();
+    setCurrentMoveIndex(0);
+    setMoveProcessed(false);
+    setGameEnded(false);
+    getNextPuzzle();
   }, [setFenHistory, setCurrentMoveIndex, getNextPuzzle]);
 
   const isComputerTurn = currentMoveIndex % 2 === 0;
 
   useEffect(() => {
-    // Ensure computer only moves at the latest position
-    if (gameEnded) return; // Exit if the game has ended
-    if (!isComputerTurn || moveProcessed) return; // Exit if not the computer's turn or move already processed
+    if (gameEnded) return;
+    if (!isComputerTurn || moveProcessed) return;
 
-    // Check if we're at the end of the move history
     const isAtCurrentMove = currentMoveIndex === fenHistory.length - 1;
-    if (!isAtCurrentMove) return; // Prevent move execution if not at the latest move
+    if (!isAtCurrentMove) return;
 
     const move = puzzleMoves[currentMoveIndex];
-    console.log("puzzleMoves[currentMoveIndex]", move);
     if (move) {
       const fromSquare = move.slice(0, 2) as Square;
       const toSquare = move.slice(2, 4) as Square;
@@ -449,15 +413,15 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const delay = setTimeout(() => {
         const moveResult = makeMoveCallback(fromSquare, toSquare);
         if (moveResult) {
-          setMoveProcessed(true); // Mark move as processed only after success
+          setMoveProcessed(true);
         }
-      }, 2000); // 2-second delay for move execution
+      }, 2000);
 
-      return () => clearTimeout(delay); // Cleanup timeout on re-render or dependency change
+      return () => clearTimeout(delay);
     }
   }, [
     currentMoveIndex,
-    fenHistory.length, // Track changes in fenHistory length
+    fenHistory.length,
     puzzleMoves,
     gameEnded,
     isComputerTurn,
@@ -466,7 +430,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   ]);
 
   useEffect(() => {
-    // Reset moveProcessed only after the player's turn is processed
     if (currentMoveIndex % 2 !== 0 && moveProcessed) {
       setMoveProcessed(false);
     }
@@ -477,13 +440,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setActivePlayer(chessGame.turn() === "w" ? "white" : "black");
     }
   }, [position, gameEnded]);
+
   const handlePreviousMove = () =>
     navigateToMove(Math.max(currentMoveIndex - 1, 0));
   const handleNextMove = () =>
     navigateToMove(Math.min(currentMoveIndex + 1, fenHistory.length - 1));
 
   const fillMovement = (move: any) => {
-    let capturedPiecesBlack: {
+    const capturedPiecesBlack: {
       captured: string | null;
       capturedTheme: string | null;
       piece: string | null;
@@ -493,7 +457,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       lan: string;
       san: string;
     }[] = capturedBlack;
-    let capturedPiecesWhite: {
+    const capturedPiecesWhite: {
       captured: string | null;
       capturedTheme: string | null;
       piece: string | null;
@@ -527,48 +491,34 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         san: move.san,
       });
     }
-    console.log("capturedPiecesWhite", capturedPiecesWhite);
-    console.log("capturedPiecesBlack", capturedPiecesBlack);
     setCapturedBlack(capturedPiecesBlack);
     setCapturedWhite(capturedPiecesWhite);
   };
+
   const changeNameFull = (piece: string | null) => {
     switch (piece) {
       case "p":
         return "pawn";
-        break;
       case "n":
         return "knight";
-        break;
       case "b":
         return "bishop";
-        break;
-
       case "r":
         return "rook";
-        break;
-
       case "q":
         return "queen";
-        break;
-
       case "k":
         return "king";
-        break;
-
       default:
         return null;
-        break;
     }
   };
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
 
-    // Add event listeners
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
@@ -582,23 +532,17 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 2.93 : 480;
-    console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
+
   const handleSwitch = () => {
     setOrientation((prev) => {
       if (prev == "white") {
@@ -608,11 +552,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       }
     });
   };
+
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
-    let style = !is3DMode ? "3d" : "2d";
+    const style = !is3DMode ? "3d" : "2d";
     setStyleChoosed(style);
   };
+
   const buttonBoard = () => {
     return (
       <div
@@ -628,19 +574,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             className="w-[20px] h-[20px] rounded-full object-contain"
           />
         </button>
-        {/* <SettingBoard enable3D={true} />
-        <button onClick={handleThreeD}>
-          <Image
-            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[22px] h-[27px] object-contain"
-          />
-        </button> */}
       </div>
     );
   };
+
   const cardPlayer = () => {
     return (
       <div
@@ -651,15 +588,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             name={profile?.name != "" ? profile?.name : username}
             size="sm"
           />
-          {/* {user && (
-            <Image
-              src={user?.imageUrl}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[48px] h-[48px] rounded-full object-contain"
-            />
-          )} */}
 
           <span className={`text-[17.23px] font-medium ${"text-[#040404]"}`}>
             {profile?.name != "" ? profile?.name : username}
@@ -676,19 +604,16 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </div>
     );
   };
+
   const handleOnGetHint = () => {
     if (is3DMode) {
       setIs3DMode(false);
-
       onGetHint();
-
-      // setTimeout(() => {
-      //   setIs3DMode(true);
-      // }, 2500);
     } else {
       onGetHint();
     }
   };
+
   const renderButtonPuzzleGame = () => {
     return (
       <motion.div
@@ -708,7 +633,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         >
           {hint ? (
             <Image
-               src={"/images/play-vs-ai/hint.png"}
+              src={"/images/play-vs-ai/hint.png"}
               alt="icon"
               width={1000}
               height={1000}
@@ -750,6 +675,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </motion.div>
     );
   };
+
   const renderButtonFinish = () => {
     return (
       <motion.div
@@ -780,13 +706,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </motion.div>
     );
   };
-  const renderCommentaryGame = () => {
-    let gradColor = `bg-[linear-gradient(to_right,_#A0E2CD,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#A0E2CD)]`;
-    let color = "#00B427";
-    let icon = "you-win";
-    let sparks = "sparks-win";
 
-    let content =
+  const renderCommentaryGame = () => {
+    const gradColor = `bg-[linear-gradient(to_right,_#A0E2CD,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#1BC08C,_#A0E2CD)]`;
+    const color = "#00B427";
+    const icon = "you-win";
+    const sparks = "sparks-win";
+
+    const content =
       "Congratulations, you solved this Puzzle! Let's see if you can also solve the next one.";
 
     return (
@@ -818,7 +745,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </motion.div>
     );
   };
-  let firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
+
+  const firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
@@ -854,7 +783,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             {buttonBoard()}
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
-            {/* {buttonBoard()} */}
             <motion.div
               initial={{ rotateX: 180 }}
               animate={
@@ -888,13 +816,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       : handleSquareClickCallback
                   }
                   arePiecesDraggable={false}
-                  // arePiecesDraggable={!isComputerTurn && !gameEnded}
                   onPieceClick={
                     !isComputerTurn && gameEnded
                       ? undefined
                       : (piece: string, sourceSquare: string) =>
                           handlePieceClick(
-                            { type: piece as PieceSymbol, color: "w" }, // Adjust the piece type
+                            { type: piece as PieceSymbol, color: "w" },
                             sourceSquare as Square
                           )
                   }
@@ -981,12 +908,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 width: boardSize,
                 display: !is3DMode ? "flex" : "none",
                 backfaceVisibility: "hidden",
+                position: "relative",
               }}
             >
               {!is3DMode && (
                 <TwoDChessboard
                   arePiecesClickable={true}
-                  arePiecesDraggable={false}
+                  arePiecesDraggable={true}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={position}
@@ -999,6 +927,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   ): boolean {
                     throw new Error("Function not implemented.");
                   }}
+                  onPieceDrop={handlePieceDrop}
                   customSquareStyles={{
                     ...customSquareStyles,
                   }}
@@ -1085,7 +1014,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </div>
         </div>
       </div>
-      {/* {buttonBoardColumn()} */}
 
       <div
         style={{ maxHeight: heightBoard }}
@@ -1111,11 +1039,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </span>
         </div>
         <div className="w-[94%] mx-[16px] h-full overflow-y-auto rounded-[8px]">
-          <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-collapse border-[#BDD0F9]">
+          <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden  border-[#BDD0F9]">
             <thead>
               <tr className="bg-[#D7E3FB] ">
-                <th className="p-2 border font-normal text-xs border border-[#BDD0F9] border-b-0 border-r-0"></th>
-                <th className="gap-2 p-2 w-[45%] border font-normal text-xs border border-[#BDD0F9]">
+                <th className="p-2 border font-normal text-xs  border-[#BDD0F9] border-b-0 border-r-0"></th>
+                <th className="gap-2 p-2 w-[45%] border font-normal text-xs  border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">White</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
                     {" "}
@@ -1126,7 +1054,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       : profile?.name}
                   </span>
                 </th>
-                <th className="gap-2 p-2 w-[45%] border font-normal text-xs border border-[#BDD0F9]">
+                <th className="gap-2 p-2 w-[45%] border font-normal text-xs  border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">Black</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
                     {boardOrientation != "black"
@@ -1139,12 +1067,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               </tr>
               <tr className="bg-[#D7E3FB] ">
                 <th className="p-2 font-normal text-xs border border-[#D7E3FB] border-t-0 border-r-0"></th>
-                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9] border-t-0">
+                <th className="gap-1 p-2 font-normal text-xs border border-[#BDD0F9] border-t-0">
                   <span className="block font-normal text-[12px]">
                     Movement
                   </span>
                 </th>
-                <th className="gap-1 p-2 border font-normal text-xs border border-[#BDD0F9] border-t-0">
+                <th className="gap-1 p-2 border font-normal text-xs  border-[#BDD0F9] border-t-0">
                   <span className="block font-normal text-[12px]">
                     Movement
                   </span>
@@ -1155,8 +1083,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               {firstTurn &&
                 firstTurn.length > 0 &&
                 firstTurn.map((captured, index) => {
-                  let move = captured.san;
-                  let icon = captured.capturedTheme;
+                  const move = captured.san;
+                  const icon = captured.capturedTheme;
                   return (
                     <tr className="text-center" key={index}>
                       <td className="p-2 border font-normal text-xs border-[#BDD0F9]">

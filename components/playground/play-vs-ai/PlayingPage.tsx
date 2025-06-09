@@ -28,7 +28,14 @@ import { Chess, Square } from "chess.js";
 import { ArrowLeft, MoveRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 import { toast } from "sonner";
 import { BlackPlayer } from "./BlackPlayer";
@@ -721,6 +728,106 @@ export default function PlayingPage() {
     }
   }, [statusGame]);
 
+  const onPieceDrop = useCallback(
+    (sourceSquare: Square, targetSquare: Square, piece: string) => {
+      // Check if it's the player's turn and game is ongoing
+      let isYourTurn = myColor == "white" ? "w" : "b";
+      if (game.turn() !== isYourTurn || statusGame !== "Ongoing") {
+        return false;
+      }
+
+      // Clear any existing squares and hints
+      setRightClickedSquares({} as Record<string, CSSProperties>);
+      setBestline("");
+
+      // Get possible moves for the source square
+      const moves = game.moves({
+        square: sourceSquare,
+        verbose: true,
+      }) as Array<{ from: string; to: string; color: string; piece: string }>;
+
+      const foundMove = moves.find(
+        (m) => m.from === sourceSquare && m.to === targetSquare
+      );
+
+      // Check if it's a valid move
+      if (!foundMove) {
+        return false;
+      }
+
+      // Handle promotion
+      if (
+        (foundMove.color === "w" &&
+          foundMove.piece === "p" &&
+          targetSquare[1] === "8") ||
+        (foundMove.color === "b" &&
+          foundMove.piece === "p" &&
+          targetSquare[1] === "1")
+      ) {
+        setMoveFrom(sourceSquare);
+        setMoveTo(targetSquare);
+        setShowPromotionDialog(true);
+        return false; // Return false to prevent the piece from being moved visually until promotion is selected
+      }
+
+      // Execute the move
+      setBeforeFen(game.fen());
+      const move = game.move({
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: "q", // Default promotion, though this won't be used due to the check above
+      });
+
+      if (move === null) {
+        return false;
+      }
+
+      // Update game state
+      setMoveData(move);
+      playSound(game, move);
+      setMoveClassification("");
+      getClassificationMove(move);
+
+      setGamePosition(game.fen());
+      setAfterFen(game.fen());
+
+      // Update visual indicators
+      setPreviousSquare(sourceSquare);
+      setCurrentSquare(targetSquare);
+
+      setCurrentTurn((turnColor) =>
+        turnColor !== "White" ? "White" : "Black"
+      );
+
+      // Clear move-related states
+      setMoveFrom("");
+      setMoveTo(null);
+      setOptionSquares({});
+
+      return true;
+    },
+    [
+      game,
+      myColor,
+      statusGame,
+      setMoveFrom,
+      setMoveTo,
+      setShowPromotionDialog,
+      setGamePosition,
+      setCurrentTurn,
+      setOptionSquares,
+      getClassificationMove,
+      setMoveData,
+      setBeforeFen,
+      setAfterFen,
+      setPreviousSquare,
+      setCurrentSquare,
+      setMoveClassification,
+      setBestline,
+      setRightClickedSquares,
+    ]
+  );
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
       <GameEndStatus gameStatus={statusGame.toLowerCase()} />
@@ -855,19 +962,19 @@ export default function PlayingPage() {
               )}
             </motion.div>
             <motion.div
-              initial={{ rotateX: 180 }}
-              animate={
-                is3DMode
-                  ? { opacity: 0, display: "none" }
-                  : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-              }
-              transition={{
-                duration: 0.5,
-                stiffness: 500,
-                damping: 35,
-                ease: [0.4, 0.0, 0.2, 1],
-                type: "tween",
-              }}
+              // initial={{ rotateX: 180 }}
+              // animate={
+              //   is3DMode
+              //     ? { opacity: 0, display: "none" }
+              //     : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
+              // }
+              // transition={{
+              //   duration: 0.5,
+              //   stiffness: 500,
+              //   damping: 35,
+              //   ease: [0.4, 0.0, 0.2, 1],
+              //   type: "tween",
+              // }}
               style={{
                 width: boardSize,
                 display: !is3DMode ? "flex" : "none",
@@ -876,7 +983,8 @@ export default function PlayingPage() {
             >
               {!is3DMode && (
                 <TwoDChessboard
-                  arePiecesDraggable={false}
+                  arePiecesDraggable={true}
+                  onPieceDrop={onPieceDrop}
                   arePiecesClickable={statusGame == "Ongoing"}
                   orientation={orientation}
                   boardWidth={boardSize}
