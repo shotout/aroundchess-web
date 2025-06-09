@@ -36,7 +36,15 @@ interface ParsedMove {
   flags: string;
   piece: string;
   san: string;
+  clock?: string;
+  captured?: string;
+  after?: string;
   [key: string]: any;
+}
+
+interface Comment {
+  fen: string;
+  comment: string;
 }
 
 const AnalysisResult: React.FC = () => {
@@ -48,27 +56,14 @@ const AnalysisResult: React.FC = () => {
     capturedBlack,
     setCapturedBlack,
     setCapturedWhite,
-  } = usePgnStore(); // Get PGN from the Zustand store
+    username,
+  } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
-  const { tabFocus, setTabFocus } = useTabFocusStore();
-  const {
-    StyleChoosed,
-    setStyleChoosed,
-    BoardChoosed,
-    setBoardChoosed,
-    PieceChoosed,
-    setPieceChoosed,
-  } = useChessBoardThemeStore();
-  const {
-    gameInfo,
-    summary,
-    movementDetails,
-    opening,
-    middleGame,
-    endGame,
-    improvementRecommendation,
-    training,
-  } = dataAnalysis ?? {};
+  const { tabFocus } = useTabFocusStore();
+  const { StyleChoosed, setStyleChoosed, PieceChoosed } =
+    useChessBoardThemeStore();
+  const { gameInfo, summary } = dataAnalysis ?? {};
+
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
     ?.country
     ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
@@ -78,27 +73,16 @@ const AnalysisResult: React.FC = () => {
     ?.country
     ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
     : "XX";
+
   const [game, setGame] = useState(new Chess());
-  const [bestMove, setBestMove] = useState<string | null>(null);
-  const [evaluation, setEvaluation] = useState<number | null>(null);
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
-  const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
-
-  useEffect(() => {
-    let isOpen =
-      tabFocus == "opening" ||
-      tabFocus == "threats" ||
-      tabFocus == "middlegame" ||
-      tabFocus == "endgame";
-    setShowTable(isOpen);
-  }, [tabFocus]);
-
+  const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
-  const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
-  const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
+  const [currentMoveWhite, setCurrentMoveWhite] = useState<string | number>(0);
+  const [currentMoveBlack, setCurrentMoveBlack] = useState<string | number>(0);
   const [pgn, setPgn] = useState<string>("");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -111,19 +95,27 @@ const AnalysisResult: React.FC = () => {
   const [startTime, setStartTime] = useState("0:10:00:0");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isUserWhite = summary?.whiteSide?.profileInfo.username === username;
+  const defaultUserOrientation = isUserWhite ? "white" : "black";
+
+  useEffect(() => {
+    if (summary && username) {
+      // Set default orientation to user's color so they start at bottom
+      setOrientation(defaultUserOrientation);
+    }
+  }, [summary, username, defaultUserOrientation]);
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
 
-    // Add event listeners
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
+
   useEffect(() => {
     if (storePgn) {
-      console.log("storePgn", storePgn);
       setPgn(storePgn);
       setIsLoading(true);
       setTimeout(() => {
@@ -133,57 +125,45 @@ const AnalysisResult: React.FC = () => {
     } else {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storePgn]);
 
-  // Parse PGN and extract moves
+  useEffect(() => {
+    const isOpen =
+      tabFocus == "opening" ||
+      tabFocus == "threats" ||
+      tabFocus == "middlegame" ||
+      tabFocus == "endgame";
+    setShowTable(isOpen);
+  }, [tabFocus]);
+
   const parsePgn = (pgnText: string): boolean => {
     try {
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
-      // Check if the PGN was loaded successfully
+
       if (tempGame.pgn() === "") {
         setErrorMessage("Invalid PGN format. Please check your input.");
         return false;
       }
-      const comments = tempGame.getComments();
-      console.log("tempGame.getComments()", comments);
 
-      // Extract history of moves
+      const comments = tempGame.getComments() as Comment[];
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
 
-      console.log("history", history);
       setParsedMoves(history);
       comments.forEach((c) => {
-        let index = history.findIndex(({ after }) => after == c.fen);
-        // console.log( index);
-        if (index === -1) {
-          // history.push(o);
-        } else {
+        const index = history.findIndex(({ after }) => after == c.fen);
+        if (index !== -1) {
           history[index].clock = c.comment
             .replace("[%clk ", "")
             .replace("]", "");
         }
       });
-      let capturedPiecesBlack: {
-        captured: string | null;
-        piece: string | null;
-        color: string;
-        from: Square;
-        to: Square;
-        lan: string;
-        san: string;
-      }[] = [];
-      let capturedPiecesWhite: {
-        captured: string | null;
-        piece: string | null;
-        color: string;
-        from: Square;
-        to: Square;
-        lan: string;
-        san: string;
-      }[] = [];
-      // Replay moves and check for captures
-      tempGame.history({ verbose: true }).forEach((move) => {
+
+      const capturedPiecesBlack: any[] = [];
+      const capturedPiecesWhite: any[] = [];
+
+      tempGame.history({ verbose: true }).forEach((move: any) => {
         if (move.captured) {
           if (move.color == "w") {
             capturedPiecesWhite.push({
@@ -208,20 +188,23 @@ const AnalysisResult: React.FC = () => {
           }
         }
       });
+
       setCapturedBlack(capturedPiecesBlack);
       setCapturedWhite(capturedPiecesWhite);
-      console.log("capturedPiecesWhite", capturedPiecesWhite);
-      console.log("capturedPiecesBlack", capturedPiecesBlack);
 
-      getStartTime(comments[0].comment.replace("[%clk ", "").replace("]", ""));
-      // Determine board orientation based on the headers
+      if (comments.length > 0) {
+        getStartTime(
+          comments[0].comment.replace("[%clk ", "").replace("]", "")
+        );
+      }
+
       const headers = tempGame.header();
       if (headers.Black && headers.Black.toLowerCase() === "you") {
         setBoardOrientation("black");
       } else {
         setBoardOrientation("white");
       }
-      // Reset the current game
+
       const newGame = new Chess();
       setGame(newGame);
       setCurrentMoveWhite(0);
@@ -231,7 +214,6 @@ const AnalysisResult: React.FC = () => {
 
       return true;
     } catch (error) {
-      console.error("Error parsing PGN:", error);
       setErrorMessage(
         `Error parsing PGN: ${
           error instanceof Error ? error.message : String(error)
@@ -240,25 +222,26 @@ const AnalysisResult: React.FC = () => {
       return false;
     }
   };
+
   const getStartTime = (time: string) => {
     const [hours, minutes, seconds] = time.split(":").map(Number);
     let totalMinutes = hours * 60 + minutes;
     if (seconds >= 30) {
       totalMinutes += 1;
     }
-    let minuteFormat = totalMinutes <= 9 ? "0" + totalMinutes : totalMinutes;
-    let result = "0:" + minuteFormat + ":00";
+    const minuteFormat = totalMinutes <= 9 ? "0" + totalMinutes : totalMinutes;
+    const result = "0:" + minuteFormat + ":00";
     setStartTime(result);
   };
+
   const toggleBoardMode = () => {
-    console.log("is3DMode", is3DMode);
     setIs3DMode((prev) => !prev);
-    let style = !is3DMode ? "3d" : "2d";
-    console.log(is3DMode, style);
+    const style = !is3DMode ? "3d" : "2d";
     setStyleChoosed(style);
   };
+
   useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
+    const is3D = StyleChoosed == "3d" ? true : false;
     setIs3DMode(is3D);
   }, [StyleChoosed]);
 
@@ -280,26 +263,28 @@ const AnalysisResult: React.FC = () => {
       });
     }, 400);
   };
+
   const setCurrentMove = (index: number) => {
     if (index == 0) {
       setCurrentMoveBlack(0);
       setCurrentMoveWhite(0);
     } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
-      setCurrentMoveWhite(parsedMoves[index].clock);
+      setCurrentMoveWhite(parsedMoves[index].clock || 0);
       if (parsedMoves[index + 1]) {
-        setCurrentMoveBlack(parsedMoves[index + 1].clock);
+        setCurrentMoveBlack(parsedMoves[index + 1].clock || 0);
       } else {
-        setCurrentMoveBlack(parsedMoves[index].clock);
+        setCurrentMoveBlack(parsedMoves[index].clock || 0);
       }
     } else if (parsedMoves[index] && parsedMoves[index].color == "b") {
-      setCurrentMoveBlack(parsedMoves[index].clock);
+      setCurrentMoveBlack(parsedMoves[index].clock || 0);
       if (parsedMoves[index + 1]) {
-        setCurrentMoveWhite(parsedMoves[index + 1].clock);
+        setCurrentMoveWhite(parsedMoves[index + 1].clock || 0);
       } else {
-        setCurrentMoveWhite(parsedMoves[index].clock);
+        setCurrentMoveWhite(parsedMoves[index].clock || 0);
       }
     }
   };
+
   const stopAutoPlay = () => {
     setIsPlaying(false);
     if (autoPlayTimerRef.current) {
@@ -321,7 +306,6 @@ const AnalysisResult: React.FC = () => {
 
     setCurrentMoveIndex((prevIndex) => {
       setCurrentMove(Math.max(0, prevIndex + 1));
-
       return Math.min(parsedMoves.length, prevIndex + 1);
     });
   };
@@ -348,17 +332,16 @@ const AnalysisResult: React.FC = () => {
   };
 
   useEffect(() => {
-    let color = chessMove.type == "black" ? "b" : "w";
-    let data = [];
-
-    data = parsedMoves.filter(
+    const color = chessMove.type == "black" ? "b" : "w";
+    const data = parsedMoves.filter(
       (i) => i.san == chessMove.move && i.color == color
     );
-    setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-    setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
-
-    console.log("masuk", data);
-  }, [chessMove]);
+    if (data.length > 0) {
+      setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
+      setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chessMove, parsedMoves]);
 
   useEffect(() => {
     const newGame = new Chess();
@@ -379,15 +362,6 @@ const AnalysisResult: React.FC = () => {
       }
     };
   }, []);
-
-  const getBoardProps = () => {
-    const baseProps = {
-      position: game.fen(),
-      boardOrientation,
-      animationDuration: 1000,
-    };
-    return baseProps;
-  };
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -413,6 +387,7 @@ const AnalysisResult: React.FC = () => {
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -431,32 +406,26 @@ const AnalysisResult: React.FC = () => {
         return "text-[#364152]";
     }
   };
+
   const handleResize = () => {
     const width = window?.innerWidth;
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    // const maxSize = window?.innerWidth *0.25;
-    let desktopSize =
+    const desktopSize =
       window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
     const maxSize = window.innerWidth >= 1280 ? desktopSize : 480;
-    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
+
   const renderBlackAvatar = () => {
     return (
       <div
@@ -467,13 +436,12 @@ const AnalysisResult: React.FC = () => {
         <div className="flex flex-row items-center gap-2">
           <Image
             alt="avatar"
-            src={summary?.blackSide?.profileInfo.photo}
+            src={summary?.blackSide?.profileInfo.photo || ""}
             className="w-10 h-10 rounded-full"
             width={1000}
             height={1000}
           />
-          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-          <div className="flex flex-col line-clamp-1 ">
+          <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
@@ -495,10 +463,12 @@ const AnalysisResult: React.FC = () => {
               {capturedBlack &&
                 capturedBlack.length > 0 &&
                 capturedBlack
-                  .sort((a, b) => a.captured.localeCompare(b.captured))
-                  .map((captured, index) => {
-                    let icon = captured.captured;
-                    let nextIcon = capturedBlack[index + 1]
+                  .sort((a: any, b: any) =>
+                    a.captured.localeCompare(b.captured)
+                  )
+                  .map((captured: any, index: number) => {
+                    const icon = captured.captured;
+                    const nextIcon = capturedBlack[index + 1]
                       ? capturedBlack[index + 1].captured
                       : "";
                     return (
@@ -532,6 +502,7 @@ const AnalysisResult: React.FC = () => {
       </div>
     );
   };
+
   const renderWhiteAvatar = () => {
     return (
       <div
@@ -542,13 +513,12 @@ const AnalysisResult: React.FC = () => {
         <div className="flex flex-row items-center gap-2">
           <Image
             alt="avatar"
-            src={summary?.whiteSide?.profileInfo.photo}
+            src={summary?.whiteSide?.profileInfo.photo || ""}
             className="w-10 h-10 rounded-full"
             width={1000}
             height={1000}
           />
-          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
-          <div className="flex flex-col line-clamp-1 ">
+          <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
                 className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
@@ -570,10 +540,12 @@ const AnalysisResult: React.FC = () => {
               {capturedWhite &&
                 capturedWhite.length > 0 &&
                 capturedWhite
-                  .sort((a, b) => a.captured.localeCompare(b.captured))
-                  .map((captured, index) => {
-                    let icon = captured.captured;
-                    let nextIcon = capturedWhite[index + 1]
+                  .sort((a: any, b: any) =>
+                    a.captured.localeCompare(b.captured)
+                  )
+                  .map((captured: any, index: number) => {
+                    const icon = captured.captured;
+                    const nextIcon = capturedWhite[index + 1]
                       ? capturedWhite[index + 1].captured
                       : "";
                     return (
@@ -607,10 +579,7 @@ const AnalysisResult: React.FC = () => {
       </div>
     );
   };
-  useEffect(() => {
-    // console.log("Best move:", bestMove);
-    // console.log("Evaluation:", evaluation);
-  }, [bestMove, evaluation]);
+
   const handleSwitch = () => {
     setOrientation((prev) => {
       if (prev == "white") {
@@ -620,6 +589,7 @@ const AnalysisResult: React.FC = () => {
       }
     });
   };
+
   const buttonBoard = () => {
     return (
       <div
@@ -648,6 +618,15 @@ const AnalysisResult: React.FC = () => {
       </div>
     );
   };
+
+  const renderTopAvatar = () => {
+    return orientation === "white" ? renderBlackAvatar() : renderWhiteAvatar();
+  };
+
+  const renderBottomAvatar = () => {
+    return orientation === "white" ? renderWhiteAvatar() : renderBlackAvatar();
+  };
+
   return (
     <div
       className={`${
@@ -664,7 +643,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            {orientation != "black" ? renderBlackAvatar() : renderWhiteAvatar()}
+            {renderTopAvatar()}
           </motion.div>
           <motion.div
             animate={
@@ -779,13 +758,12 @@ const AnalysisResult: React.FC = () => {
               />
             )}
           </motion.div>
-          {/* Group Button */}
-          <div className="flex flex-row justify-around gap-2 ">
+          <div className="flex flex-row justify-around gap-2">
             <button
               onClick={jumpToFirstMove}
               disabled={currentMoveIndex === 0}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
-              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px]"
             >
               <SkipBackIcon fill="black" size={boardSize / 22} color="black" />
             </button>
@@ -794,14 +772,14 @@ const AnalysisResult: React.FC = () => {
               onClick={jumpToPreviousMove}
               disabled={currentMoveIndex === 0}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
-              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px]"
             >
               <ChevronLeft size={boardSize / 22} color="black" />
             </button>
             <button
               onClick={togglePlayPause}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
-              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px]"
             >
               {isPlaying ? (
                 <PauseIcon size={boardSize / 22} fill="black" color="black" />
@@ -814,7 +792,7 @@ const AnalysisResult: React.FC = () => {
               onClick={jumpToNextMove}
               disabled={currentMoveIndex >= parsedMoves.length}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
-              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px]"
             >
               <ChevronRight size={boardSize / 22} color="black" />
             </button>
@@ -822,7 +800,7 @@ const AnalysisResult: React.FC = () => {
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
-              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px] "
+              className="w-1/5 bg-[#221AE904] flex justify-center items-center h-[32px] sm:h-[40px] border border-primary rounded-[4px]"
             >
               <SkipForwardIcon
                 fill="black"
@@ -838,7 +816,7 @@ const AnalysisResult: React.FC = () => {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{ display: !hideDiv ? "block" : "none" }}
           >
-            {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
+            {renderBottomAvatar()}
           </motion.div>
 
           {showTable && <MovementTable />}
@@ -847,13 +825,13 @@ const AnalysisResult: React.FC = () => {
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
                   <div className="flex flex-row items-center gap-2">
-                    <span className="text-xs  sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
+                    <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
                       {chessMove.move}
                     </span>
                     {chessMove?.evaluation && (
                       <span
-                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal py-2 ${getScoreClass(
-                          chessMove?.classification.toLowerCase()
+                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal  ${getScoreClass(
+                          chessMove?.classification?.toLowerCase() || ""
                         )}`}
                       >
                         {chessMove.evaluation}
@@ -904,7 +882,7 @@ const AnalysisResult: React.FC = () => {
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />
                     <span className="text-sm">Type:</span>
-                    <span className="text-sm font-semibold ">
+                    <span className="text-sm font-semibold">
                       {chessMove.gamePhase}
                     </span>
                   </div>

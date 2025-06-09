@@ -77,14 +77,12 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is ready before measuring
     const initialResize = () => {
       requestAnimationFrame(() => {
         handleResize();
       });
     };
 
-    // Call initial resize with a small delay to ensure DOM is rendered
     const timeoutId = setTimeout(initialResize, 0);
 
     const debouncedResize = debounce(handleResize, 100);

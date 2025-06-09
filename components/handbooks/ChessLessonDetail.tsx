@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DotSpinner from "../game-history/Spinner";
 import {
@@ -26,6 +26,7 @@ import LessonTabs from "./components/LessonTabs";
 import PracticeSection from "./components/PracticeSection";
 import RelatedLessons from "./components/RelatedLesson";
 import { useProfileStore } from "@/app/store/profile";
+import { Chess } from "chess.js";
 
 interface NextTopicItem {
   id: string;
@@ -67,6 +68,12 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
   const [isCheckingReadStatus, setIsCheckingReadStatus] =
     useState<boolean>(false);
+
+  // Chess game instance and position states
+  const game = useMemo(() => new Chess(), []);
+  const [position, setPosition] = useState<string>("");
+  const [initialFen, setInitialFen] = useState<string>("");
+  const [boardKey, setBoardKey] = useState<string>("initial");
 
   const sections = ["Online Materials", "Video Explanations", "Puzzles"];
   const [sectionName, setSectionName] = useState<string>(sections[0]);
@@ -110,6 +117,20 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       : allLessons.length > 0
       ? allLessons.filter((l: T) => l.id !== lessonId).slice(0, 3)
       : [];
+
+  // Initialize chess position when lesson loads
+  useEffect(() => {
+    if (lesson && lesson.moves) {
+      const fenPosition = getFenFromMoves(lesson.moves);
+      try {
+        game.load(fenPosition);
+        setPosition(fenPosition);
+        setInitialFen(fenPosition);
+      } catch (e) {
+        console.error("Invalid FEN position:", e);
+      }
+    }
+  }, [lesson, game]);
 
   useEffect(() => {
     if (readStatusMap && readStatusMap[lessonId]) {
@@ -166,6 +187,18 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       router.push(`${basePath}/${slug}`);
     };
     setTimeout(navigateToLesson, 200);
+  };
+
+  const handleResetPosition = (): void => {
+    if (initialFen) {
+      try {
+        game.load(initialFen);
+        setPosition(initialFen);
+        setBoardKey(`reset-${Date.now()}`);
+      } catch (e) {
+        console.error("Error resetting position:", e);
+      }
+    }
   };
 
   const markLessonAsRead = async (
@@ -287,10 +320,22 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-1 xl:grid-cols-10 2xl:grid-cols-10 gap-6">
             <div className="xl:col-span-7 2xl:col-span-7 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
-              <ChessboardDisplay
-                slug={params.slug}
-                fenPosition={getFenFromMoves(lesson.moves)}
-              />
+              {/* Reset button above the chessboard */}
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleResetPosition}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 hover:bg-gray-50"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Reset Position
+                </Button>
+              </div>
+
+              <div key={boardKey}>
+                <ChessboardDisplay slug={params.slug} fenPosition={position} />
+              </div>
 
               <div className="w-full flex justify-center items-center gap-x-3">
                 <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">

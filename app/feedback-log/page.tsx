@@ -10,9 +10,15 @@ export default function FeedbackLog() {
       {isLoading ? (
         <LoadingPage />
       ) : (
-        <Navigation>
-          <MistakeLog />
-        </Navigation>
+        <div className="flex overflow-hidden bg-primary-white">
+          <div className="flex flex-col overflow-y-auto w-full">
+            <Navigation>
+              <div className="w-full">
+                <MistakeLog />
+              </div>
+            </Navigation>
+          </div>
+        </div>
       )}
     </>
   );

@@ -23,7 +23,6 @@ export default function AnalysisPage() {
         setIsSignedIn(false);
       }
     };
-
     checkSession();
   }, [sessionId, isSignedIn]);
 
@@ -32,19 +31,20 @@ export default function AnalysisPage() {
     hideDiv,
     isLoading,
     setIsLoading,
-    username,
     pgn,
     setPgn,
     dataAnalysis,
     setDataAnalysis,
     hydrated,
   } = usePgnStore();
+
   const {
     getMistakePrevious,
     getLastAnalysis,
     getMistakePreviousDetail,
     isLoading: fetchLoading,
   } = useApiClient();
+
   const [lastPgn, setLastPgn] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isVisible, setIsVisible] = useState<boolean>(true);
@@ -56,8 +56,7 @@ export default function AnalysisPage() {
   const fetchMistakePrevious = async () => {
     try {
       const prevData = await getMistakePrevious();
-      let dataPrevious = prevData.data;
-      console.log("prevData", dataPrevious);
+      const dataPrevious = prevData.data;
       if (dataPrevious.length > 0) {
         setPreviousAnalyse(dataPrevious);
         openModalAnalyze(dataPrevious);
@@ -67,23 +66,22 @@ export default function AnalysisPage() {
       }
     } catch (error) {
       openModalAnalyze([]);
-      console.error("Failed to fetch mistake previous:", error);
     }
   };
+
   const fetchMistakePreviousDetail = async (id: string) => {
     try {
-      let params = { page: 1, limit: 10, phase: "", type: "" };
+      const params = { page: 1, limit: 10, phase: "", type: "" };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
-      console.log("prevDataDetail", prevDataDetail);
-      let dataDetail = prevDataDetail.data;
+      const dataDetail = prevDataDetail.data;
       setLastPgn(dataDetail.pgn);
       fetchExistAnalyze();
     } catch (error) {
-      console.error("Failed to fetch mistake previous:", error);
+      // Handle error silently
     }
   };
+
   const openModalAnalyze = (data: any) => {
-    console.log("openModalAnalyze", data);
     if (data.length == 0) {
       if (!openAnalyze) {
         setOpenAnalyze(true);
@@ -92,35 +90,25 @@ export default function AnalysisPage() {
       setOpenAnalyze(false);
     }
   };
+
   const fetchExistAnalyze = async () => {
     try {
       const response = await getLastAnalysis({});
-      console.log("exist analysis response:", response.data);
       setDataAnalysis(response.data);
       setLoading(false);
     } catch (error) {
-      console.log("exist analysis error:", error);
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (hydrated && hydratedProfile) {
-      console.log("dataAnalysis", dataAnalysis);
-      console.log("pgn.length", pgn);
-      console.log("isSignedIn", isSignedIn);
-
       if (isSignedIn) {
         setLoading(true);
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
-        console.log(
-          "No PGN data found, loading famous game as fallback",
-          isSignedIn,
-          isLoading
-        );
         fetchPgnFamousGame();
       } else {
-        console.log("Using existing PGN data from store");
         setIsLoading(false);
       }
     }
@@ -134,18 +122,15 @@ export default function AnalysisPage() {
       setPgn(pgnLocal);
       const resAnalysis = await fetch("/local-data/analysis.json");
       const responseAnalysis = await resAnalysis.json();
-      console.log("pgnLocal", pgnLocal);
-      console.log("responseAnalysis", responseAnalysis);
-
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setLoading(false);
     } catch (err) {
-      console.log("error", err);
       setIsLoading(false);
       setLoading(false);
     } finally {
       if (arr != null) {
+        // Do nothing
       } else {
         setIsLoading(false);
         setLoading(false);
@@ -178,62 +163,76 @@ export default function AnalysisPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, setHideDiv]);
-  useEffect(() => {
-    console.log("loading", isLoading);
-  }, [isLoading]);
+
   return (
-    <>
+    <div className="min-h-screen">
       {isLoading ? (
         <LoadingPage />
       ) : (
-        <Navigation>
-          <ChessAccountSetup isLoading={isLoading} />
-          <div className="flex flex-col overflow-y-auto relative">
-            <div
-              className={`flex flex-col mt-2 bg-white px-2 sm:px-4 md:px-6 pb-2 sm:pb-4 md:pb-6 lg:pb-8 lg:p-[32px] gap-1 ${
-                hideDiv && "hidden"
-              }`}
-            >
-              <h2 className="text-md pt-4 text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
-                Analysis Result from{" "}
-                <span className="text-[#4E7838] font-medium">Chess.com</span>
-              </h2>
-              {isSignedIn && widthC <= 1024 && !loading && (
-                <div className="lg:hidden flex items-center justify-center my-2">
-                  <AnalyzeDifferentGame openPopup={openAnalyze} />
+        <div className="flex overflow-hidden bg-primary-white">
+          <div className="flex flex-col overflow-y-auto w-full">
+            <Navigation>
+              <div className="w-full space-y-4">
+                <ChessAccountSetup isLoading={isLoading} />
+
+                <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
+                  <div
+                    className={`flex flex-col space-y-4 ${hideDiv && "hidden"}`}
+                  >
+                    <div className="space-y-2 pt-4">
+                      <h2 className="text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
+                        Analysis Result from{" "}
+                        <span className="text-[#4E7838] font-medium">
+                          Chess.com
+                        </span>
+                      </h2>
+
+                      {isSignedIn && widthC <= 1024 && !loading && (
+                        <div className="lg:hidden flex items-center justify-center my-2">
+                          <AnalyzeDifferentGame openPopup={openAnalyze} />
+                        </div>
+                      )}
+
+                      <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
+                        Discover a Chess.com Game Analysis.
+                      </span>
+                    </div>
+
+                    <div className="hidden xl:flex flex-row items-center justify-between space-x-4">
+                      <div
+                        className={`hidden lg:block ${
+                          !isSignedIn ? `w-4/5` : `w-3/5`
+                        } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
+                      >
+                        Our AI-powered chess analysis provides deep insights
+                        into positional and tactical aspects of a game. It
+                        evaluates piece coordination, pawn structure, king
+                        safety, and overall positional advantages, helping
+                        players understand strategic strengths and weaknesses.
+                      </div>
+
+                      {isSignedIn && widthC > 1024 && !loading && (
+                        <AnalyzeDifferentGame openPopup={openAnalyze} />
+                      )}
+                    </div>
+                  </div>
+
+                  {(fetchLoading && pgn.length == 0) || loading ? (
+                    <div className="py-4">
+                      <DotSpinner />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col xl:flex-row-reverse gap-4 justify-center py-4">
+                      <AnalysisResult />
+                      <AnalysisLatestGame />
+                    </div>
+                  )}
                 </div>
-              )}
-              <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
-                Discover a Chess.com Game Analysis.
-              </span>
-              <div className="hidden xl:flex flex-row items-center justify-between">
-                <div
-                  className={`hidden lg:block ${
-                    !isSignedIn ? `w-4/5` : `w-3/5`
-                  } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
-                >
-                  Our AI-powered chess analysis provides deep insights into
-                  positional and tactical aspects of a game. It evaluates piece
-                  coordination, pawn structure, king safety, and overall
-                  positional advantages, helping players understand strategic
-                  strengths and weaknesses.
-                </div>
-                {isSignedIn && widthC > 1024 && !loading && (
-                  <AnalyzeDifferentGame openPopup={openAnalyze} />
-                )}
               </div>
-            </div>
-            {(fetchLoading && pgn.length == 0) || loading ? (
-              <DotSpinner />
-            ) : (
-              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white px-4 lg:px-[32px]">
-                <AnalysisResult />
-                <AnalysisLatestGame />
-              </div>
-            )}
+            </Navigation>
           </div>
-        </Navigation>
+        </div>
       )}
-    </>
+    </div>
   );
 }
