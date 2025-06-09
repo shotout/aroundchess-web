@@ -13,6 +13,9 @@ import { LessonType, getLessonBasePath } from "./ChessLessonTypes";
 import Image from "next/image";
 import Simple2DChess from "./components/Simple2DChess";
 import DotSpinner from "../game-history/Spinner";
+import TwoDChessboard from "../chessboard/2d/TwoDChessboard";
+import { Square } from "chess.js";
+import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 interface ChessLessonCardProps {
   lesson: {

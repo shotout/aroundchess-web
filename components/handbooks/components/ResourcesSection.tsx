@@ -21,12 +21,26 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
   resources,
   title,
 }) => {
+  const handleDiscord = () => {
+    const discordUrl = `https://discord.gg/PZWcXsxGM7`;
+    window.open(discordUrl, "_blank");
+  };
+
   if (!resources || resources.length === 0) {
     return (
       <div className="border rounded-lg p-4 bg-light-40">
         <h3 className="font-semibold text-sm mb-4">{title}:</h3>
         <div className="col-span-1 md:col-span-3 text-gray-600 p-4 border bg-white rounded-lg">
-          <p className="text-center">No Data available for this lesson.</p>
+          <p className="text-center">
+            New Data for this lesson is coming soon,{" "}
+            <a
+              onClick={handleDiscord}
+              className="text-blue-base cursor-pointer"
+            >
+              join our Discord
+            </a>{" "}
+            community to get the latest news
+          </p>
         </div>
       </div>
     );

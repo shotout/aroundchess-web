@@ -6,6 +6,7 @@ import {
   BoardOrientation,
   PromotionPieceOption,
 } from "react-chessboard/dist/chessboard/types";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
 interface Simple2DChessProps {
   position?: string;
@@ -59,7 +60,9 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
   id,
   keys,
 }) => {
-  const [boardSize, setBoardSize] = useState<number | undefined>(700);
+  const [boardSize, setBoardSize] = useState<number | undefined>(undefined);
+  const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
+
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -74,12 +77,21 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
       }
     };
 
-    handleResize();
+    // Use requestAnimationFrame to ensure DOM is ready before measuring
+    const initialResize = () => {
+      requestAnimationFrame(() => {
+        handleResize();
+      });
+    };
+
+    // Call initial resize with a small delay to ensure DOM is rendered
+    const timeoutId = setTimeout(initialResize, 0);
 
     const debouncedResize = debounce(handleResize, 100);
     window.addEventListener("resize", debouncedResize);
 
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener("resize", debouncedResize);
       debouncedResize.cancel();
     };
@@ -97,18 +109,54 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
 
   const twoDPieces = useMemo(() => {
     const pieces = [
-      { piece: "wP", pieceHeight: 1.2 },
-      { piece: "wN", pieceHeight: 1.2 },
-      { piece: "wB", pieceHeight: 1.2 },
-      { piece: "wR", pieceHeight: 1.2 },
-      { piece: "wQ", pieceHeight: 1.5 },
-      { piece: "wK", pieceHeight: 1.6 },
-      { piece: "bP", pieceHeight: 1.2 },
-      { piece: "bN", pieceHeight: 1.2 },
-      { piece: "bB", pieceHeight: 1.2 },
-      { piece: "bR", pieceHeight: 1.2 },
-      { piece: "bQ", pieceHeight: 1.5 },
-      { piece: "bK", pieceHeight: 1.6 },
+      {
+        piece: "wP",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "wN",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "wB",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "wR",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "wQ",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "wK",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bP",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bN",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bB",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bR",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bQ",
+        pieceHeight: 1.6,
+      },
+      {
+        piece: "bK",
+        pieceHeight: 1.6,
+      },
     ];
 
     const pieceComponents: {
@@ -126,23 +174,25 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
         <div
           key={index}
           style={{
-            width: squareWidth * 0.8,
-            height: squareWidth * 0.85,
+            width: PieceChoosed == "wood" ? squareWidth * 0.8 : squareWidth,
+            height: PieceChoosed == "wood" ? squareWidth * 0.85 : squareWidth,
             position: "relative",
             pointerEvents: "none",
           }}
         >
           <Image
-            src={`/pieces/wood/${piece}.png`}
+            src={`/pieces/${PieceChoosed}/${piece}.png`}
             alt={`${piece} chess piece`}
             width={squareWidth}
             height={squareWidth}
             style={{
               position: "absolute",
-              bottom: -1.5,
-              objectFit: "contain",
-              width: "100%",
-              height: "auto",
+              bottom:
+                PieceChoosed == "wood"
+                  ? `${-0.1 * squareWidth}px`
+                  : PieceChoosed == "glass"
+                  ? `${0.1 * squareWidth}px`
+                  : `${0 * squareWidth}px`,
             }}
           />
         </div>
@@ -152,11 +202,23 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
     return pieceComponents;
   }, []);
 
+  // Don't render the chessboard until we have a proper board size
+  if (!boardSize) {
+    return (
+      <div key={keys} id={id} className="relative w-full h-full" ref={ref}>
+        <div className="w-full h-full flex items-center justify-center">
+          {/* Optional loading state */}
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div key={keys} id={id} className="relative w-full h-full">
       <div className="absolute inset-0">
         <Image
-          src={`/boards/wood.png`}
+          src={`/boards/${BoardChoosed}.png`}
           alt="wood board"
           width={boardSize}
           height={boardSize}
@@ -167,7 +229,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = ({
       <div
         className="relative w-full h-full"
         ref={ref}
-        style={{ padding: boardSize && Math.round(boardSize / 16.5) }}
+        style={{ padding: Math.round(boardSize / 16.5) }}
       >
         <div className="w-full h-full">
           <Chessboard
