@@ -18,6 +18,7 @@ import { usePgnStore } from "../store/zustandStore";
 const ChessProgressionUI: React.FC = () => {
   const { sessionId } = useProfileStore();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"create" | "adjust">("create");
   const [hasPlan, setHasPlan] = useState(false);
   const [isCheckingPlan, setIsCheckingPlan] = useState(true);
   const states = ["My Training Plan", "My Progress"];
@@ -29,6 +30,7 @@ const ChessProgressionUI: React.FC = () => {
     userProfile: storeUserProfile,
     fetchTopics,
     error: topicsError,
+    setAdjustMode,
   } = useTrainingPlanStore();
 
   const {
@@ -98,6 +100,18 @@ const ChessProgressionUI: React.FC = () => {
     }
   };
 
+  const handleCreatePlan = () => {
+    setDialogMode("create");
+    setAdjustMode(false);
+    setDialogOpen(true);
+  };
+
+  const handleAdjustPlan = () => {
+    setDialogMode("adjust");
+    setAdjustMode(true);
+    setDialogOpen(true);
+  };
+
   const handlePlanCreated = () => {
     if (sessionId != "") {
       setIsCheckingPlan(true);
@@ -160,10 +174,7 @@ const ChessProgressionUI: React.FC = () => {
             </div>
           </div>
         ) : shouldShowCreatePlan ? (
-          <TrainingPlanCard
-            onCreatePlan={() => setDialogOpen(true)}
-            hasPlan={false}
-          />
+          <TrainingPlanCard onCreatePlan={handleCreatePlan} hasPlan={false} />
         ) : (
           <>
             <div className="flex w-full justify-center lg:justify-between px-4 py-1 lg:p-0">
@@ -185,7 +196,7 @@ const ChessProgressionUI: React.FC = () => {
               <div className="lg:flex justify-center items-center hidden">
                 <Button
                   className="btn-secondary rounded-full"
-                  onClick={() => setDialogOpen(true)}
+                  onClick={handleAdjustPlan}
                 >
                   Adjust Training Plan
                 </Button>
@@ -194,7 +205,7 @@ const ChessProgressionUI: React.FC = () => {
 
             {activeState === "My Training Plan" ? (
               <TrainingPlanDisplay
-                setDialogOpen={setDialogOpen}
+                onAdjustPlan={handleAdjustPlan}
                 schedule={schedule}
                 isLoading={isScheduleLoading}
                 error={scheduleError}
@@ -209,6 +220,7 @@ const ChessProgressionUI: React.FC = () => {
       <ChessTrainingPlanDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        mode={dialogMode}
         userProfile={{
           username: userProfile?.username || storeUserProfile?.username || "",
           currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
