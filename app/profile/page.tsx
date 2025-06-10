@@ -12,8 +12,6 @@ import { useCancelSubscription } from "../store/cancelSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import { Suspense } from "react";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
-import { formatTimePgn } from "@/functions/format-date";
-import { useSuccessSent } from "../store/successSent";
 
 export default function Profile() {
   const searchParams = useSearchParams();
@@ -30,7 +28,7 @@ export default function Profile() {
   useEffect(() => {
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
-    console.log("INI", status)
+
     if (status == "successSubscribe") {
       // http://localhost:3000/profile?status=successSubscribe
       // setCallFetch(formatTimePgn());
@@ -39,7 +37,7 @@ export default function Profile() {
     } else if (status == "cancelSubscribe") {
       // http://localhost:3000/profile?status=cancelSubscribe
       setOpenPurchaseStatus(true);
-      setStatus("failed-membership")
+      setStatus("failed-membership");
       router.replace("/profile");
     } else if (status == "successToken") {
       // http://localhost:3000/profile?status=successToken&amount=20
@@ -56,6 +54,7 @@ export default function Profile() {
       router.replace("/profile");
     }
   }, [status]);
+
   return (
     <Suspense>
       <Navigation>

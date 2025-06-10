@@ -10,10 +10,12 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
+  const { setCallFetch } = useProfileFetch();
 
   useEffect(() => {
     const checkSession = () => {
