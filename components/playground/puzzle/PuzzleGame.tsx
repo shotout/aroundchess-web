@@ -891,19 +891,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               ))}
             </motion.div>
             <motion.div
-              initial={{ rotateX: 180 }}
-              animate={
-                is3DMode
-                  ? { opacity: 0, display: "none" }
-                  : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-              }
-              transition={{
-                duration: 0.5,
-                stiffness: 500,
-                damping: 35,
-                ease: [0.4, 0.0, 0.2, 1],
-                type: "tween",
-              }}
+              // initial={{ rotateX: 180 }}
+              // animate={
+              //   is3DMode
+              //     ? { opacity: 0, display: "none" }
+              //     : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
+              // }
+              // transition={{
+              //   duration: 0.5,
+              //   stiffness: 500,
+              //   damping: 35,
+              //   ease: [0.4, 0.0, 0.2, 1],
+              //   type: "tween",
+              // }}
               style={{
                 width: boardSize,
                 display: !is3DMode ? "flex" : "none",

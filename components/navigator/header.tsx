@@ -152,13 +152,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         <div className="w-full flex flex-row gap-[8px]">
           <button
             onClick={() => handleOpenOffer("tokens")}
-            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 "
           >
             Buy Tokens
           </button>
           <button
             onClick={() => handleOpenOffer("subscription")}
-            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white "
           >
             Go Unlimited
           </button>

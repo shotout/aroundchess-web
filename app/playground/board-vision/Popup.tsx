@@ -70,6 +70,22 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, sessionId, gameCount]);
 
+  // Reset form when popup opens
+  useEffect(() => {
+    if (isOpen) {
+      setShowErrorModal(false);
+      // Keep the current username if it exists, otherwise start fresh
+      if (!username) {
+        setUsernameInput("");
+        setUsernameStatus("idle");
+        setAvailableGames([]);
+        setSelectedGames([]);
+      } else {
+        setUsernameInput(username);
+      }
+    }
+  }, [isOpen, username]);
+
   const fetchUserGames = async () => {
     try {
       const url = `${endpoint}/games/get-data/${debouncedQuery}?limit=${gameCount}`;
@@ -150,16 +166,20 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    setUsername(usernameInput);
-
     try {
       if (usernameStatus === "found" && selectedGames.length > 0) {
+        // Set the username first
+        setUsername(usernameInput);
+
         try {
+          // This will clear existing data and load new games
           await loadUserPositions(selectedGames, usernameInput);
 
+          // Success - navigate to user page and close popup
           router.push("/playground/board-vision/user");
           onClose();
         } catch (error) {
+          console.error("Error loading user positions:", error);
           setShowErrorModal(true);
         }
       } else if (usernameStatus === "found") {
@@ -168,15 +188,10 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setShowErrorModal(true);
       }
     } catch (error) {
+      console.error("Error in handleStartClick:", error);
       setShowErrorModal(true);
     }
   };
-
-  useEffect(() => {
-    if (isOpen) {
-      setShowErrorModal(false);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 

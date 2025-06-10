@@ -177,9 +177,7 @@ export default function ChessFAQ() {
             />
             <button
               className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${
-                activeTab === tab.label
-                  ? "text-[#221AE9] border border-[#221AE9] font-bold"
-                  : ""
+                activeTab === tab.label ? "text-[#221AE9]  font-bold" : ""
               }`}
               onClick={() => {
                 setQuestion(tab.questions);

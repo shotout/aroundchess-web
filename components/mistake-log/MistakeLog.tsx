@@ -344,7 +344,7 @@ const MistakeLog = () => {
   };
 
   return (
-    <main className="w-full p-4 xl:p-[32px] pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+    <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>

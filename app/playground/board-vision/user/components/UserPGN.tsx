@@ -31,6 +31,7 @@ const UserPGN: React.FC = () => {
     startUserGameAgain,
     isChangingQuestion,
     loadingError,
+    _hasHydrated,
   } = useBoardVisionStore();
 
   const {
@@ -45,6 +46,7 @@ const UserPGN: React.FC = () => {
   } = userGame;
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
   useEffect(() => {
     if (loadingError) {
@@ -57,6 +59,18 @@ const UserPGN: React.FC = () => {
       });
     }
   }, [loadingError]);
+
+  // Handle initialization after hydration
+  useEffect(() => {
+    if (_hasHydrated) {
+      // Small delay to ensure all data is properly loaded
+      const timer = setTimeout(() => {
+        setIsInitializing(false);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [_hasHydrated]);
 
   const getUserInfo = () => {
     if (!currentPosition || !username)
@@ -98,6 +112,23 @@ const UserPGN: React.FC = () => {
     router.push("/playground/board-vision/default");
   };
 
+  // Show loading while waiting for hydration
+  if (!_hasHydrated || isInitializing) {
+    return (
+      <>
+        <LoadingState
+          setShowSetupPopup={setShowSetupPopup}
+          message="Loading your game data..."
+        />
+        <Popup
+          isOpen={showSetupPopup}
+          onClose={() => setShowSetupPopup(false)}
+        />
+      </>
+    );
+  }
+
+  // After hydration, check if we have game data
   if (!currentPosition || !gameQuestion) {
     return (
       <>

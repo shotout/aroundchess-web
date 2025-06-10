@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
-import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Square } from "chess.js";
 import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
@@ -27,6 +26,9 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   const [boardSize, setBoardSize] = useState<number | undefined>(1000);
   const [mounted, _] = useState<boolean>(true);
 
+  const isUserPlayingWhite =
+    currentPosition?.white?.toLowerCase() === username?.toLowerCase();
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -34,14 +36,30 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
 
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
+
+  const getMaxBoardSize = (screenWidth: number) => {
+    const LARGE_SCREEN_BREAKPOINT = 2000;
+    const MEDIUM_SCREEN_BREAKPOINT = 1280;
+    const MIN_BOARD_SIZE = 480;
+
+    if (screenWidth >= LARGE_SCREEN_BREAKPOINT) {
+      return screenWidth / 5.2;
+    } else if (screenWidth >= MEDIUM_SCREEN_BREAKPOINT) {
+      return screenWidth / 4.2;
+    } else {
+      return MIN_BOARD_SIZE;
+    }
+  };
 
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
+
+    const maxSize = getMaxBoardSize(width);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -75,12 +93,13 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
 
       <div className="relative w-full flex justify-center items-center my-4">
-        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[500px]  2xl:max-w-[600px]">
+        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[500px] 2xl:max-w-[600px]">
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}
               arePiecesDraggable={false}
               position={currentPosition.fen}
+              orientation={isUserPlayingWhite ? "white" : "black"}
               areArrowsAllowed={true}
               customSquareStyles={highlightedSquares}
               customArrowColor="#221AE980"

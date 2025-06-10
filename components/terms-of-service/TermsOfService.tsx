@@ -10,7 +10,7 @@ export default function TermsOfService() {
             TERMS AND CONDITIONS
           </h1>
           <p className="text-sm text-gray-600 italic">
-            last updated on 12.05.2025
+            last updated on 05.06.2025
           </p>
         </div>
 
@@ -31,12 +31,11 @@ export default function TermsOfService() {
 
           <p className="text-gray-700 leading-relaxed mt-4">
             aroundchess is a brand name used exclusively by aroundchess AG,
-            registered in Switzerland with registration nr. CH-170-3051046-9
-            (the "Legal Entity"). The Website and content available on the
-            website is seen as commercial information provided by the Legal
-            Entity. These Terms apply to all Users regardless of their location
-            and nationality to the maximum extent permissible under applicable
-            law.
+            registered in Switzerland with registration nr. CHE-222.910.638 (the
+            "Legal Entity"). The Website and content available on the website is
+            seen as commercial information provided by the Legal Entity. These
+            Terms apply to all Users regardless of their location and
+            nationality to the maximum extent permissible under applicable law.
           </p>
 
           <p className="text-gray-700 leading-relaxed mt-4">
@@ -46,7 +45,8 @@ export default function TermsOfService() {
             the amendments that will be published on this page in case of any
             amendments. If you do not agree to be bound by these Terms, you
             should leave the Website and discontinue using the services
-            immediately.
+            immediately. As long as you do not cease using our services, you
+            will be conclusively deemed to have accepted these Terms.
           </p>
         </div>
 
@@ -114,9 +114,10 @@ export default function TermsOfService() {
             <p className="text-gray-700 leading-relaxed">
               In order to get access to the services, you will be required to
               register and create an account by choosing username/login and
-              password, or authorize via any of the social networks connected to
-              the Website. You will be asked to provide additional details for
-              your account on our Website such as email address, full name, etc.
+              password, or authorized via any of the social networks connected
+              to the Website. You will be asked to provide additional details
+              for your account on our Website such as email address, full name,
+              etc.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
@@ -151,10 +152,20 @@ export default function TermsOfService() {
                     The basic free-of-charge subscription, which allows you to
                     access the platform and request up to 1 (one) analysis token
                     per 3 (three) days. Each game analysis token enables the
-                    user to exactly 1 (one) chess game analysis. Free analyses
+                    user to exactly 1 (one) chess game analysis. Free analysis
                     tokens cannot be accumulated, also not if the free game
                     analysis token has not been used within the 3 (three)
-                    aforementioned days.
+                    aforementioned days. If a user purchases individual game
+                    analysis tokens, the user will not receive additional free
+                    game analysis tokens until the purchased game analysis
+                    tokens are fully used. Once the purchased game analysis
+                    tokens are fully used, the user will again be entitled to 1
+                    (one) free game analysis token per 3 (three) days. Apart
+                    from receiving 1 (one) free Game Analysis Token per 3 days,
+                    free users can also play up to 20 Puzzles per month and
+                    receive limited access to the feedback log and game history.
+                    The scope of the free-of-charge subscription can change
+                    anytime without prior notice.
                   </p>
                 </div>
 
@@ -163,11 +174,21 @@ export default function TermsOfService() {
                     b. Paid Yearly Subscription
                   </h4>
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    Paid yearly subscription with which the User can use up
-                    1.000 game analysis tokens within a year starting with the
-                    date of subscription. Users on the paid yearly subscription
-                    are not entitled to free game analysis tokens as described
-                    in "a.".
+                    Paid yearly subscription with which the User can use up 1000
+                    game analysis tokens within a year starting with the date of
+                    subscription. Users on the paid yearly subscription are not
+                    entitled to free game analysis tokens as described in "A.".
+                    Within their subscription, Users of the paid yearly
+                    subscription can play unlimited puzzles and can access the
+                    games in the feedback log and game history that they have
+                    previously analyzed by the use of Tokens. In general, only
+                    Games that have previously been analyzed by the use of
+                    Tokens can be accessed in the feedback log and game history.
+                    Once users of the paid yearly subscription run out of Game
+                    Analysis Tokens, they have the option to purchase additional
+                    tokens or get in contact with the AroundChess team via email
+                    through contact@aroundchess.com for individual package
+                    options.
                   </p>
                 </div>
 
@@ -179,11 +200,24 @@ export default function TermsOfService() {
                     Game Analysis Tokens that can be purchased in individual
                     amounts by both users of the free-of-charge subscription as
                     well as the paid yearly subscription. One Game Analysis
-                    token can be used for one chess game analysis.
+                    token can be used for one chess game analysis. If a user
+                    purchases individual game analysis tokens, the user will not
+                    receive additional free game analysis tokens as described in
+                    "A." until the purchased game analysis tokens are fully
+                    used. Once the purchased game analysis tokens are fully
+                    used, the user will again be entitled to 1 (one) free game
+                    analysis token per 3 (three) days.
                   </p>
                 </div>
               </div>
             </div>
+
+            <p className="text-gray-700 leading-relaxed">
+              Users can access paid subscriptions by signing up and making
+              corresponding yearly payments that will allow Users to access the
+              platform and increase the limit for the amount of game analyses.
+              All matches are analyzed by our platform and third party tools.
+            </p>
 
             <p className="text-gray-700 leading-relaxed">
               By registering and using an account on the Website, User provides
@@ -192,6 +226,42 @@ export default function TermsOfService() {
               his/her consent, he/she can contact aroundchess with this request
               at any moment.
             </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              If your billing information and payment source you provided while
+              registering for a subscription is invalid, if charges billed to
+              you are declined or not paid or if you fail to pay charges when
+              due, your account may be suspended or cancelled at our sole
+              discretion.
+            </p>
+
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+              <p className="text-gray-700 font-medium mb-2">
+                aroundchess reserves the right to:
+              </p>
+              <ul className="space-y-2 text-gray-700 text-sm">
+                <li>
+                  • Refuse to offer access to or use of the Website and services
+                  to any User, and change its eligibility criteria at any time
+                </li>
+                <li>
+                  • Terminate your account immediately and without prior notice
+                  if you do not comply with these Terms
+                </li>
+                <li>
+                  • Modify, suspend, or discontinue, temporarily or permanently,
+                  the Services or any part thereof, or your access thereto, and
+                  to modify, suspend or terminate the Website or any part
+                  thereof, at its sole discretion at any time and from time to
+                  time, without being obligated to provide prior notice
+                </li>
+              </ul>
+              <p className="text-gray-700 text-sm mt-3">
+                You agree to have no claim, complaint or demand against
+                aroundchess for applying such changes or for failures incidental
+                to such changes.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -208,18 +278,26 @@ export default function TermsOfService() {
               interrupted due to IT or other software malfunctions. If a User
               has paid monthly or annual subscription fees of aroundchess, yet
               the Website is not generating the required game analyses due to
-              public API malfunctions or total stop of functioning - aroundchess
-              shall cancel paid subscription(s) and will not deduct any further
-              charges. However, the User agrees and confirms that the already
-              paid fees will not be refunded.
+              public API (application program interface) of underlying websites
+              (websites where the User was playing chess and from which the
+              analysis report should be drawn) malfunctions or total stop of
+              functioning - aroundchess shall cancel paid subscription(s) and
+              will not deduct any further charges. However, the User agrees and
+              confirms that the already paid fees will not be refunded.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
               If the Website is not generating the required analyses due to
-              public API being temporarily down - the User agrees and confirms
-              that the temporary fail to deliver the services to the User will
-              not result in partial or full refunds, and the User agrees to wait
-              for up to 5 (five) working days until the services are restored.
+              public API (application program interface) of underlying websites
+              (websites where the User was playing chess and from which the
+              analysis report should be drawn) being temporary down - the User
+              agrees and confirms that the temporary fail to deliver the
+              services to the User will not result in partial or full refunds,
+              and the User agrees to wait for up to 5 (five) working days until
+              the services are restored. In case if the services are not
+              restored in the designated time frame, the User shall be governed
+              by the provision related to malfunctions or total stop of
+              functioning (above).
             </p>
           </div>
         </section>
@@ -253,22 +331,32 @@ export default function TermsOfService() {
               <li className="text-gray-700 flex items-start">
                 <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 User cannot use the Website for any illegal, immoral or
-                unauthorized purpose.
+                unauthorized purpose, encourages criminal behavior or conduct
+                that would constitute a criminal offense under any law, or could
+                give rise to civil liability or other lawsuit.
               </li>
               <li className="text-gray-700 flex items-start">
                 <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                User cannot modify the Website or interfere with its underlying
-                software or technology.
+                User cannot in any way modify the Website or otherwise interfere
+                with the Website, the services, their underlying software, or
+                other technology, code, algorithm or other proprietary
+                information of aroundchess in any manner, or disobey any
+                requirements, procedures, policies, or regulations of networks
+                connected to the Website or the services.
               </li>
               <li className="text-gray-700 flex items-start">
                 <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 User acknowledges that he/she can create only one account with
+                aroundchess. Having more than one account for one User shall
+                constitute the violation of these Terms, and may lead to
+                permanent restriction for use of the services provided by
                 aroundchess.
               </li>
               <li className="text-gray-700 flex items-start">
                 <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 User agrees not to use the Website and services in a way that
-                infringes or violates these Terms.
+                infringes or violates these Terms, or infringes or violates the
+                terms of other service providers.
               </li>
             </ul>
           </div>
@@ -284,23 +372,46 @@ export default function TermsOfService() {
             <p className="text-gray-700 leading-relaxed">
               We make no representation or warranties about the suitability,
               reliability, security, correctness, availability, timeliness and
-              accuracy of the services or their content. We expressly disclaim
-              any warranties or conditions, express or implied.
+              accuracy of the services or their content, and we expressly
+              disclaim any warranties or conditions, express or implied. We give
+              no warranty that you will obtain specific results by using our
+              services.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
               To the maximum extent permitted by the applicable law, aroundchess
               shall not be liable for any indirect, incidental, special,
               consequential or punitive damages, as well as any loss of profits
-              or revenues of any kind, whether incurred directly or indirectly.
+              or revenues of any kind, whether incurred directly or indirectly,
+              or any loss of data, use, goodwill or other intangible losses
+              resulted from your:
             </p>
+
+            <ul className="space-y-2 text-gray-700 pl-4">
+              <li>
+                • Access to or use of (or inability to access or use) the
+                services
+              </li>
+              <li>
+                • Any conduct or content of any party, including without
+                limitation any offensive or illegal conduct
+              </li>
+              <li>
+                • Unauthorized access, use, or alteration of your content or
+                information
+              </li>
+            </ul>
 
             <p className="text-gray-700 leading-relaxed">
               Use of our Website, the content and the services obtained from or
               through the Website is fully at your own risk. You fully accept
               the risks and you agree that you will have no recourse to seek
               damages against us even if you suffer loss or damage from using
-              our Website and associated services.
+              our Website and associated services. Laws of certain jurisdictions
+              do not allow limitations on implied warranties or the exclusion or
+              limitation of certain damages. If these laws apply to you, some or
+              all of the above disclaimers, exclusions, or limitations may not
+              be applicable to you.
             </p>
           </div>
         </section>
@@ -324,14 +435,37 @@ export default function TermsOfService() {
               communication between yourself and aroundchess. Your Personal Data
               will not be sold, traded or rented to third parties. We only share
               Personal Data with third parties in connection with the provision
-              of the services to our Users.
+              of the services to our Users, and we ensure that any recipient
+              adheres to the same standard of privacy rules.
+            </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              We implement a variety of security measures to maintain the safety
+              of your Personal Data as are customary in the industry with
+              similar sites. Nevertheless, these security measures cannot fully
+              eliminate security risks associated with personal information.
+              Therefore, aroundchess shall not be liable for any damages caused
+              by unauthorized access to your Personal Data and/or to your
+              Account.
+            </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              You may be entitled under applicable law to request to review,
+              amend, erase or restrict the processing of your Personal Data.
+              Please note that in case you request to erase or restrict the
+              processing of your Personal Data, your use of the Services may be
+              restricted or disabled.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
               All reports or game analyses provided to you by aroundchess are
-              confidential. Third parties will not have access to your reports
-              or game analyses unless you explicitly consent to share these to
-              the public by clicking on the "share" button.
+              confidential, i.e. third parties will not have access to your
+              reports or game analyses. You will not have access to the reports
+              of other users of the Website unless they have consented to share
+              these to the public. Each user of the Website will have the
+              opportunity to share his/her reports to the public, thus making it
+              available to other users. To make the reports public, the user
+              must explicitly consent to it by clicking on the button "share".
             </p>
 
             <p className="text-gray-700 italic text-sm">
@@ -351,21 +485,55 @@ export default function TermsOfService() {
             <p className="text-gray-700 leading-relaxed">
               You understand, acknowledge and accept that the services and the
               Website are currently under testing and some of the
-              services/features may not be available at all times.
+              services/features of the services may not be available at all
+              times.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
-              These Terms shall be governed by the laws of Switzerland without
-              reference to its choice or conflict of law principles. You agree
-              that all such claims and disputes will be heard and resolved
-              exclusively in state courts located in Switzerland.
+              These Terms shall be regarded as the entire agreement between you
+              as the Customer and aroundchess with respect to use of the
+              aroundchess website, superseding any prior agreement between you
+              and aroundchess regarding the use of our Website.
+            </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              In case it appears that a particular provision of these Terms is
+              not enforceable, this shall not affect the other terms of this
+              agreement. If any provision of the Terms is found by a court of
+              applicable jurisdiction to be invalid, the parties nevertheless
+              agree that the court shall endeavour to give effect to the
+              parties' intentions as reflected in the provision and the other
+              provision of the Terms shall remain in full force and effect.
             </p>
 
             <p className="text-gray-700 leading-relaxed">
               You agree to indemnify, defend and hold aroundchess harmless from
               any and all claims, liabilities, expenses and damages, including
               reasonable attorneys' fees and costs, made by any third party
-              related to your use of the services in violation of these Terms.
+              related to your use or attempted use of the services in violation
+              of these Terms, your violation of any law or the rights of any
+              third party, or user content, including without limitation any
+              claim of infringement or misappropriation of intellectual property
+              or any proprietary rights.
+            </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              No agency, partnership, joint venture, employee-employer or
+              franchisor-franchise relationship is intended or created by these
+              Terms between you and aroundchess. You as the customer may not
+              assign this agreement. aroundchess may assign this agreement at
+              any time to the successor in interest in connection with a merger,
+              consolidation or other corporate reorganization.
+            </p>
+
+            <p className="text-gray-700 leading-relaxed">
+              These Terms shall be governed by the laws of Switzerland without
+              reference to its choice or conflict of law principles. You agree
+              that all such claims and disputes will be heard and resolved
+              exclusively in state courts located in Switzerland. You hereby
+              consent to the personal jurisdiction to those courts over you for
+              this purpose, and you waive and agree not to assert any objection
+              to such proceedings in those courts.
             </p>
           </div>
         </section>
@@ -381,10 +549,10 @@ export default function TermsOfService() {
               If you have any questions, comments, concerns or any feedback
               about our services, please contact our Support Team via{" "}
               <a
-                href="mailto:xyz@aroundchess.com"
+                href="mailto:contact@aroundchess.com"
                 className="text-blue-600 hover:text-blue-800 underline"
               >
-                xyz@aroundchess.com
+                contact@aroundchess.com
               </a>
             </p>
           </div>

@@ -14,7 +14,7 @@ export const usePlayVSAIStore = create<PlayVSAIState>()(
         difficulty: "beginner",
         opponent: {
           id: 0,
-          name: "Thomas De",
+          name: "Thomas",
           elo: 250,
           img: "/images/play-vs-ai/thomas.png",
         },
@@ -22,8 +22,8 @@ export const usePlayVSAIStore = create<PlayVSAIState>()(
       setAIChoosed: (AIChoosed) => set({ AIChoosed }),
     }),
     {
-      name: "AI-storage", // unique name for the storage
-      storage: createJSONStorage(() => localStorage), // use localStorage by default
+      name: "AI-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         AIChoosed: state.AIChoosed,
       }),

@@ -190,7 +190,7 @@ export default function PrivacyPolicy() {
             providers.
           </p>
 
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-gray-700 leading-relaxed mb-4">
             For service efficiency purposes, some of these providers are located
             in territories outside the EU/EEA, and from time to time we may
             transfer your personal data to a third country not being approved by
@@ -206,6 +206,88 @@ export default function PrivacyPolicy() {
             </a>{" "}
             to ensure an equivalent level of protection as granted within the
             EU/EEA or other lawful grounds for carrying out said transfer.
+          </p>
+
+          <p className="text-gray-700 leading-relaxed mb-4">
+            When you choose to log in using your Google, Facebook, or Apple
+            account, we collect certain information provided by these platforms,
+            such as your name, email address, and profile picture, to streamline
+            the registration process. This data is used solely for
+            authentication and account management purposes. We do not store your
+            social media credentials, and your permissions can be revoked at any
+            time through the respective platform's settings. For more details on
+            how these services handle your data, please refer to their privacy
+            policies:{" "}
+            <a
+              href="https://policies.google.com/privacy"
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Privacy Policy
+            </a>
+            ,{" "}
+            <a
+              href="https://www.facebook.com/privacy/policy"
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Facebook Data Policy
+            </a>
+            , and{" "}
+            <a
+              href="https://www.apple.com/legal/privacy/"
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apple Privacy Policy
+            </a>
+            . Your privacy and security remain our top priority.
+          </p>
+
+          <p className="text-gray-700 leading-relaxed mb-4">
+            When you make a payment through our website using Stripe, all
+            sensitive financial information—including credit card details, bank
+            account numbers, and transaction data—is securely processed and
+            stored by Stripe in compliance with PCI-DSS standards. We do not
+            store or have access to your full payment information on our
+            servers. Your payment data is encrypted and handled exclusively by
+            Stripe, a trusted and globally recognized payment processor. For
+            more details on how Stripe manages and protects your information,
+            please review{" "}
+            <a
+              href="https://stripe.com/privacy"
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Stripe's Privacy Policy
+            </a>
+            . Your financial security is our priority, and we ensure that all
+            transactions remain confidential and secure.
+          </p>
+
+          <p className="text-gray-700 leading-relaxed">
+            All user data collected by our website, including account
+            information, preferences, and activity logs, is securely stored in
+            Supabase, a reliable and GDPR-compliant cloud database service.
+            Supabase employs strong encryption (both in transit and at rest),
+            access controls, and regular security audits to protect your
+            information. While we manage and process your data within Supabase,
+            we ensure that only authorized personnel have access, and we adhere
+            to strict data protection policies. For more details on Supabase's
+            security measures, please refer to their{" "}
+            <a
+              href="https://supabase.com/privacy"
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </a>
+            . Your data's confidentiality and integrity are our top priorities.
           </p>
         </section>
 
@@ -565,10 +647,10 @@ export default function PrivacyPolicy() {
               to us emailing you with marketing information. Any consent you
               provide may be withdrawn at any time by emailing{" "}
               <a
-                href="mailto:xyz@aroundchess.com"
+                href="mailto:contact@aroundchess.com"
                 className="text-blue-600 hover:text-blue-800 underline"
               >
-                xyz@aroundchess.com
+                contact@aroundchess.com
               </a>
               .
             </p>
@@ -587,10 +669,10 @@ export default function PrivacyPolicy() {
               your rights and interests do outweigh our legitimate interests in
               providing our services, please let us know by emailing us at{" "}
               <a
-                href="mailto:xyz@aroundchess.com"
+                href="mailto:contact@aroundchess.com"
                 className="text-blue-600 hover:text-blue-800 underline"
               >
-                xyz@aroundchess.com
+                contact@aroundchess.com
               </a>
               .
             </p>
@@ -607,8 +689,8 @@ export default function PrivacyPolicy() {
 
             <p>
               You can do this by emailing us at{" "}
-              <span className="font-medium">xyz@aroundchess.com</span>. If you
-              do withdraw your consent, and if we do not have another legal
+              <span className="font-medium">contact@aroundchess.com</span>. If
+              you do withdraw your consent, and if we do not have another legal
               basis for processing your information, then we will stop
               processing your personal data. If we do have another legal basis
               for processing your information, then we may continue to do so
@@ -655,7 +737,7 @@ export default function PrivacyPolicy() {
 
             <p>
               If you wish to exercise this right, please send a request to{" "}
-              <span className="font-medium">xyz@aroundchess.com</span>.
+              <span className="font-medium">contact@aroundchess.com</span>.
             </p>
 
             <p>You also have the following rights:</p>
@@ -689,10 +771,10 @@ export default function PrivacyPolicy() {
               </li>
               <li>
                 You can also exercise these rights at any time by contacting us
-                at <span className="font-medium">xyz@aroundchess.com</span>. To
-                the extent that it does not involve disproportionate effort on
-                our part, if you exercise any of the above rights we will tell
-                any third parties to whom we have passed your data.
+                at <span className="font-medium">contact@aroundchess.com</span>.
+                To the extent that it does not involve disproportionate effort
+                on our part, if you exercise any of the above rights we will
+                tell any third parties to whom we have passed your data.
               </li>
               <li>You can delete your own account via the settings page.</li>
             </ul>
@@ -744,15 +826,15 @@ export default function PrivacyPolicy() {
               We welcome your feedback and questions. If you wish to contact us,
               please send an email to{" "}
               <a
-                href="mailto:xyz@aroundchess.com"
+                href="mailto:contact@aroundchess.com"
                 className="text-blue-600 hover:text-blue-800 underline font-medium"
               >
-                xyz@aroundchess.com
+                contact@aroundchess.com
               </a>{" "}
               or you can write to us at:
             </p>
             <address className="text-gray-700 not-italic">
-              aroundchess, AG Neugasse 6, 6300 Zug Switzerland
+              aroundchess AG, Neugasse 6, 6300 Zug, Switzerland
             </address>
           </div>
         </section>
@@ -760,7 +842,7 @@ export default function PrivacyPolicy() {
         {/* Footer */}
         <footer className="border-t border-gray-200 pt-6">
           <p className="text-sm text-gray-600 text-center">
-            Last update of this Privacy Policy: 12 May, 2025.
+            Last update of this Privacy Policy: 5 June, 2025.
           </p>
         </footer>
       </div>

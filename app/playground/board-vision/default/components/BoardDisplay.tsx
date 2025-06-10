@@ -41,7 +41,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 4.2 : 480;
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
