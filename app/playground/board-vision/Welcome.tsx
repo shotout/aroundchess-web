@@ -39,12 +39,12 @@ const Welcome: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="absolute z-0 bottom-0 left-0">
+          <div className="absolute z-0 bottom-0 left-0 min-w-full">
             <Image
               src="/board-vision/board.png"
               alt="Background"
               priority
-              width={2000}
+              width={3000}
               height={1000}
               className="object-cover"
               quality={100}

@@ -1,27 +1,78 @@
 "use client";
 
-import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import DotSpinner from "../game-history/Spinner";
 
-interface StartPlayVSAIProps {
-  onLimit: (isLimit: boolean) => void;
+export interface StartPlayVSAIProps {
+  visible: boolean;
+  onClose: () => void;
+  onLimit?: (isLimit: boolean) => void;
 }
 
-export function StartPlayVSAI() {
+export function StartPlayVSAI({
+  visible,
+  onClose,
+  onLimit,
+}: StartPlayVSAIProps) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkIfDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1280);
+    };
+
+    checkIfDesktop();
+    window.addEventListener("resize", checkIfDesktop);
+    return () => window.removeEventListener("resize", checkIfDesktop);
+  }, []);
+
+  if (!visible) return null;
+
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = window.innerWidth >= 1024 ? 96 : 72;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
+        paddingTop: headerHeight + 16,
+        paddingBottom: 16,
+        paddingRight: 16,
+      }}
+    >
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
+
+      <div className="relative w-full max-w-7xl mx-auto z-10 h-full flex flex-col">
+        <div className="relative bg-white rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col overflow-hidden">
+          <button
+            onClick={onClose}
+            className="absolute right-6 top-6 p-2 rounded-full hover:bg-gray-100 transition-colors z-20"
+            aria-label="Close dialog"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+
+          <div className="relative z-10 p-4 overflow-y-auto flex-1 min-h-0">
+            <StartPlayVSAIContent onClose={onClose} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
+  onClose,
+}) => {
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { getVSAILogs, isLoading } = useApiClient();
   const router = useRouter();
@@ -93,16 +144,15 @@ export function StartPlayVSAI() {
     { id: 17, name: "Astrid", elo: 850, img: "/images/play-vs-ai/astrid.png" },
     { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
   ];
-  const [open, setOpen] = useState(false);
 
   const handlePlayNow = () => {
-    let index = opponents.findIndex((o) => o.id == selectedOpponent);
-    let ELO =
+    const index = opponents.findIndex((o) => o.id == selectedOpponent);
+    const ELO =
       opponents[index].elo +
       difficulties.findIndex((d) => d.key == difficulty) * 650;
-    let opponentData = opponents[index];
+    const opponentData = opponents[index];
     opponentData.elo = ELO;
-    let body = {
+    const body = {
       color: selectedColor,
       difficulty: difficulty,
       opponent: opponentData,
@@ -110,139 +160,227 @@ export function StartPlayVSAI() {
     console.log("body", body);
     setAIChoosed(body);
     router.push("/playground/play-vs-ai/playing");
+    onClose();
   };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild disabled={isLoading}>
-        {isLoading ? (
-          <DotSpinner />
-        ) : (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Choose Your Color
+        </h1>
+        <p className="text-gray-600">
+          Select which color you want to play as. The computer will play as the
+          opposite color.
+        </p>
+      </div>
+
+      {/* Color Selection */}
+      <div className="grid grid-cols-2 gap-4">
+        {[
+          {
+            color: "white",
+            icon: "/images/play-vs-ai/white-king.png",
+            label: "White",
+          },
+          {
+            color: "black",
+            icon: "/images/play-vs-ai/black-king.png",
+            label: "Black",
+          },
+        ].map(({ color, icon, label }) => (
           <button
-            onClick={() => setOpen(true)}
-            className="w-full px-4 py-2 btn-primary rounded-full"
+            key={color}
+            onClick={() => setSelectedColor(color)}
+            className={`relative p-3 border-2 rounded-xl transition-all hover:shadow-md ${
+              selectedColor === color
+                ? "border-blue-base "
+                : "border-gray-200 bg-white hover:border-gray-300"
+            }`}
           >
-            Start Now
-          </button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:min-w-[640px] md:max-w-xl lg:max-h-[90vh] lg:max-w-[902px] xl:max-w-[1141px] bg-white overflow-y-auto">
-        <DialogHeader className="gap-1 mb-2">
-          <DialogTitle>
-            <h2 className="text-[18px] font-semibold text-center">
-              Choose Your Color
-            </h2>
-          </DialogTitle>
-          <DialogDescription className="text-black font-normal text-center text-[14px] sm:text-xs">
-            Select which color you want to play as. The computer will play as
-            the opposite color.
-          </DialogDescription>
-        </DialogHeader>
-        <ScrollArea className="flex flex-col justify-center items-center bg-white">
-          <div className="flex flex-row items-center justify-center gap-3 border-b-2 border-b-input pb-2">
-            {[
-              { color: "white", icon: "/images/play-vs-ai/white-king.png" },
-              { color: "black", icon: "/images/play-vs-ai/black-king.png" },
-            ].map(({ color, icon }) => (
-              <button
-                key={color}
-                onClick={() => setSelectedColor(color)}
-                className={`relative w-1/2 sm:min-w-1/2 md:min-w-1/2 h-[174px] shadow-md px-2 py-3 gap-2 border rounded-lg text-lg font-normal flex flex-col justify-center items-center ${
-                  selectedColor === color ? "border-2 border-[#3871EC]" : ""
-                }`}
-              >
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-20 h-20 flex items-center justify-center">
                 <Image
                   src={icon}
                   alt={color}
-                  width={1000}
-                  height={1000}
-                  className="w-[79px] h-[80px] object-contain"
+                  width={80}
+                  height={80}
+                  className="max-w-full max-h-full object-contain"
                 />
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-medium text-gray-900">
+                  {label}
+                </span>
+              </div>
+            </div>
+            {selectedColor === color && (
+              <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-blue-base"></div>
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
 
-                <div
-                  className={`absolute top-4 right-4 w-3 h-3 rounded-full ${
-                    selectedColor === color
-                      ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
-                      : `border-input border-2`
-                  } `}
-                />
-                <span className="capitalize text-sm">{color}</span>
-              </button>
-            ))}
-          </div>
-          <h2 className="text-[24px] font-semibold text-center mt-2">
-            Choose your Opponent
-          </h2>
-          <div className="flex max-w-xs sm:max-w-lg md:max-w-full overflow-x-scroll sm:overflow-hidden gap-2 mt-4 py-2 px-1">
+      {/* Opponent Selection */}
+      <div className="space-y-3">
+        <h2 className="text-2xl font-semibold text-gray-900 text-center">
+          Choose your Opponent
+        </h2>
+
+        {/* Difficulty Selection */}
+        <div className="md:grid md:grid-cols-4 md:gap-3 hidden">
+          {difficulties.map((diff) => (
+            <button
+              key={diff.key}
+              onClick={() => setDifficulty(diff.key)}
+              className={`p-2 rounded-lg border transition-all text-center ${
+                difficulty === diff.key
+                  ? "shadow-lg text-blue-base"
+                  : "bg-white border-none  text-gray-700"
+              }`}
+            >
+              <div className="flex flex-col items-center space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-4 flex items-center justify-center">
+                    <Image
+                      src={
+                        difficulty === diff.key ? diff.iconActive : diff.icon
+                      }
+                      alt={diff.label}
+                      width={24}
+                      height={16}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <div
+                    className={`text-sm font-semibold ${
+                      difficulty === diff.key
+                        ? "text-blue-700"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {diff.label}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">{diff.range}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Mobile Difficulty Selection - Horizontal Scroll */}
+        <div className="md:hidden">
+          <div
+            className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
             {difficulties.map((diff) => (
               <button
                 key={diff.key}
                 onClick={() => setDifficulty(diff.key)}
-                className={`flex flex-col items-center justify-center px-1 py-1 min-w-[120px] md:min-w-[24%] rounded-[6px] gap-1 ${
+                className={`flex-shrink-0 p-1 rounded-sm border transition-all text-center min-w-[140px] ${
                   difficulty === diff.key
-                    ? "text-[#221AE9] shadow-md border border-input"
-                    : ""
+                    ? "shadow-lg text-blue-base"
+                    : "bg-white border-none  text-gray-700"
                 }`}
               >
-                <div className="flex flex-row items-center justify-center gap-1">
-                  <Image
-                    src={difficulty === diff.key ? diff.iconActive : diff.icon}
-                    alt={diff.icon}
-                    width={1000}
-                    height={1000}
-                    className="w-[22px] h-[15px] object-contain"
-                  />
-                  <span
-                    className={`text-xs  ${
-                      difficulty === diff.key ? "font-semibold" : ""
-                    } `}
-                  >
-                    {diff.label} <br />{" "}
-                  </span>
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-4 flex items-center justify-center">
+                      <Image
+                        src={
+                          difficulty === diff.key ? diff.iconActive : diff.icon
+                        }
+                        alt={diff.label}
+                        width={24}
+                        height={16}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <div
+                      className={`text-sm font-semibold ${
+                        difficulty === diff.key
+                          ? "text-blue-700"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {diff.label}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">{diff.range}</div>
                 </div>
-                <span className={`text-[11px] font-normal `}>{diff.range}</span>
               </button>
             ))}
           </div>
+        </div>
 
-          <div className="flex items-center justify-center grid grid-cols-3 sm:grid-cols-6 gap-2 my-4 border border-input shadow-md rounded-sm p-4">
+        {/* Opponents Grid */}
+        <div className="border border-gray-200 rounded-xl p-4">
+          <div
+            className="grid gap-3 max-h-80 overflow-y-auto justify-center"
+            style={{ gridTemplateColumns: "repeat(auto-fit, 120px)" }}
+          >
             {opponents.map((opponent) => {
-              let ELO =
+              const ELO =
                 opponent.elo +
                 difficulties.findIndex((d) => d.key == difficulty) * 650;
               return (
                 <button
-                  key={opponent.name}
-                  onClick={() => {
-                    setSelectedOpponent(opponent.id);
-                  }}
-                  className={`flex flex-col items-center max-w-[82px] p-1 rounded-sm gap-1 border ${
+                  key={opponent.id}
+                  onClick={() => setSelectedOpponent(opponent.id)}
+                  className={`p-1 rounded-lg border transition-all w-24 ${
                     selectedOpponent === opponent.id
-                      ? "border-[#221AE9] text-[#221AE9] font-bold"
-                      : "border-[transparent]"
+                      ? "border-blue-base bg-blue-base/5 text-blue-base"
+                      : "border-transparent hover:border-gray-200 text-gray-700"
                   }`}
                 >
-                  <Image
-                    src={opponent.img}
-                    alt={opponent.name}
-                    width={1000}
-                    height={1000}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <span className="text-xs">{opponent.name}</span>
-                  <span className="text-xs font-normal">ELO {ELO}</span>
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-12 h-12 flex items-center justify-center">
+                      <Image
+                        src={opponent.img}
+                        alt={opponent.name}
+                        width={48}
+                        height={48}
+                        className="max-w-full max-h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <div
+                        className={`text-xs font-medium ${
+                          selectedOpponent === opponent.id
+                            ? "text-blue-base"
+                            : "text-gray-900"
+                        }`}
+                      >
+                        {opponent.name}
+                      </div>
+                      <div className="text-xs text-gray-500">ELO {ELO}</div>
+                    </div>
+                  </div>
                 </button>
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
+      </div>
 
-        <button
-          onClick={handlePlayNow}
-          className="w-full rounded-full h-[48px] btn-primary"
-        >
-          Play Now
-        </button>
-      </DialogContent>
-    </Dialog>
+      {/* Play Button */}
+      <div className="pt-4">
+        {isLoading ? (
+          <div className="flex justify-center">
+            <DotSpinner />
+          </div>
+        ) : (
+          <button
+            onClick={handlePlayNow}
+            className="w-full py-3 btn-primary text-white font-semibold rounded-full transition-colors"
+          >
+            Play Now
+          </button>
+        )}
+      </div>
+    </div>
   );
-}
+};
