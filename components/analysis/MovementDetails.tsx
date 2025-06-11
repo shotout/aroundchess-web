@@ -31,7 +31,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
   useEffect(() => {
     console.log("movementDetails", movementDetails);
-  }, []);
+  }, [movementDetails]);
   const moves = [
     {
       whiteMove: "d4",

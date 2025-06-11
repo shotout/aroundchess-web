@@ -94,7 +94,9 @@ export default function AnalysisPage() {
   const fetchExistAnalyze = async () => {
     try {
       const response = await getLastAnalysis({});
+      console.log("fetchExistAnalyze",response.data)
       setDataAnalysis(response.data);
+      setPgn(response.data.gameInfo.pgn)
       setLoading(false);
     } catch (error) {
       setLoading(false);

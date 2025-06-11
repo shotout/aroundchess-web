@@ -139,6 +139,7 @@ const AnalysisResult: React.FC = () => {
 
   const parsePgn = (pgnText: string): boolean => {
     try {
+      console.log("parsePgn",pgnText)
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
 
@@ -336,6 +337,7 @@ const AnalysisResult: React.FC = () => {
     const data = parsedMoves.filter(
       (i) => i.san == chessMove.move && i.color == color
     );
+    console.log("data move",data)
     if (data.length > 0) {
       setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
       setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
