@@ -198,6 +198,14 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                     Terms of Service
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/eu-compliance"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    EU Compliance
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

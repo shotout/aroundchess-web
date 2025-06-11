@@ -22,6 +22,7 @@ interface ExtendedChessLessonState<T extends ChessLesson>
   readStatusMap: Record<string, boolean>;
   checkReadStatus: (id: string, sessionId?: string) => Promise<boolean>;
   markLessonAsRead: (id: string, sessionId?: string) => Promise<boolean>;
+  markLessonAsUnread: (id: string, sessionId?: string) => Promise<boolean>;
   isLoadingDetails: Record<string, boolean>;
   isCheckingReadStatus: boolean;
   fetchReadStatuses: (sessionId?: string) => Promise<void>;
@@ -525,6 +526,119 @@ export function createChessLessonStore<T extends ChessLesson>({
               ),
               filteredLessons: state.filteredLessons.map((lesson) =>
                 lesson.id === id ? { ...lesson, readStatus: true } : lesson
+              ),
+            }));
+
+            return true;
+          }
+        },
+
+        markLessonAsUnread: async (id: string, sessionId?: string) => {
+          if (!sessionId) {
+            return false;
+          }
+
+          try {
+            const apiBaseUrl = process.env.BASE_URL;
+            const apiUrl = `${apiBaseUrl}/handbooks/unread/`;
+
+            const headers: HeadersInit = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionId}`,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                id: id,
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+
+              // Update the read status map
+              set((state) => ({
+                readStatusMap: {
+                  ...state.readStatusMap,
+                  [id]: false,
+                },
+              }));
+
+              // Update lesson details if it exists
+              if (get().lessonDetails[id]) {
+                set((state) => ({
+                  lessonDetails: {
+                    ...state.lessonDetails,
+                    [id]: {
+                      ...state.lessonDetails[id],
+                      readStatus: false,
+                    },
+                  },
+                }));
+              }
+
+              // Update all lessons and filtered lessons
+              set((state) => ({
+                allLessons: state.allLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: false } : lesson
+                ),
+                filteredLessons: state.filteredLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: false } : lesson
+                ),
+              }));
+
+              return true;
+            } else {
+              const errorData = await response.json();
+              console.error("Failed to mark lesson as unread:", errorData);
+
+              // Even if the API call fails, update the local state
+              set((state) => ({
+                readStatusMap: {
+                  ...state.readStatusMap,
+                  [id]: false,
+                },
+              }));
+
+              if (get().lessonDetails[id]) {
+                set((state) => ({
+                  lessonDetails: {
+                    ...state.lessonDetails,
+                    [id]: {
+                      ...state.lessonDetails[id],
+                      readStatus: false,
+                    },
+                  },
+                }));
+              }
+
+              set((state) => ({
+                allLessons: state.allLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: false } : lesson
+                ),
+                filteredLessons: state.filteredLessons.map((lesson) =>
+                  lesson.id === id ? { ...lesson, readStatus: false } : lesson
+                ),
+              }));
+
+              return true;
+            }
+          } catch (error) {
+            console.error("Error marking lesson as unread:", error);
+
+            // Update local state even if API call fails
+            set((state) => ({
+              readStatusMap: {
+                ...state.readStatusMap,
+                [id]: false,
+              },
+              allLessons: state.allLessons.map((lesson) =>
+                lesson.id === id ? { ...lesson, readStatus: false } : lesson
+              ),
+              filteredLessons: state.filteredLessons.map((lesson) =>
+                lesson.id === id ? { ...lesson, readStatus: false } : lesson
               ),
             }));
 

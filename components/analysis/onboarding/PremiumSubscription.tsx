@@ -143,6 +143,7 @@ export const PremiumSubsContent: React.FC<{
 
   const handleGetPremium = async () => {
     if (sessionId.length == 0) setOpenLogin(true);
+
     type BodyType = {
       productName: any;
       price: number;
@@ -154,7 +155,7 @@ export const PremiumSubsContent: React.FC<{
       stripeProductId: any;
       couponId?: any;
     };
-    let body: BodyType = {
+    const body: BodyType = {
       productName: premium.name,
       price: isPass > 0 ? 7999 : premium.price * 100,
       quantity: 1,
@@ -171,13 +172,10 @@ export const PremiumSubsContent: React.FC<{
       method: "POST",
       body: JSON.stringify(body),
     });
-    console.log("body", body);
     const data = await res.json();
     const stripe = await stripePromise;
     await stripe?.redirectToCheckout({ sessionId: data.id });
   };
-
-  const { setOpen: setOpenContact } = useContactUs();
 
   return (
     <div className="space-y-4">

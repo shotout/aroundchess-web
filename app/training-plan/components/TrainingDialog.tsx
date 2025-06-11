@@ -20,6 +20,7 @@ import WhiteSpinner from "@/components/SpinnerWhite";
 interface ChessTrainingPlanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode: "create" | "adjust";
   userProfile: {
     username?: string;
     currentElo?: number;
@@ -66,6 +67,7 @@ const defaultCategoryInfo = [
 const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   open,
   onOpenChange,
+  mode = "create",
   userProfile,
   onPlanCreated,
 }) => {
@@ -81,6 +83,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     isLoading,
     error,
     fetchTopics,
+    fetchExistingTopics,
     toggleTopic,
     createTrainingPlan,
     reset,
@@ -99,7 +102,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   useEffect(() => {
     if (open && sessionId) {
-      fetchTopics(sessionId);
+      if (mode === "adjust") {
+        // Fetch existing topics when adjusting
+        fetchExistingTopics(sessionId);
+      } else {
+        // Fetch regular topics when creating new
+        fetchTopics(sessionId);
+      }
     }
 
     return () => {
@@ -107,7 +116,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         reset();
       }
     };
-  }, [open, sessionId, fetchTopics, reset]);
+  }, [open, sessionId, mode, fetchTopics, fetchExistingTopics, reset]);
 
   const transformTopics = () => {
     if (!topics) return [];
@@ -251,6 +260,15 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     approximateDuration: "6-9 Months",
   };
 
+  const dialogTitle =
+    mode === "adjust" ? "Adjust Training Plan" : "Create Training Plan";
+  const buttonText =
+    mode === "adjust" ? "Update Training Plan" : "Create Training Plan";
+  const headerText =
+    mode === "adjust"
+      ? "Adjust your training topics"
+      : "Rise to the next Level";
+
   if (error) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -264,7 +282,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                 width={30}
                 height={30}
               />
-              Create Training Plan
+              {dialogTitle}
             </DialogTitle>
             <Button
               variant="ghost"
@@ -282,7 +300,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           <div className="flex justify-center mt-4">
             <Button
               onClick={() => {
-                if (sessionId) fetchTopics(sessionId);
+                if (sessionId) {
+                  if (mode === "adjust") {
+                    fetchExistingTopics(sessionId);
+                  } else {
+                    fetchTopics(sessionId);
+                  }
+                }
               }}
               className="btn-primary"
             >
@@ -306,7 +330,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
               width={30}
               height={30}
             />
-            Create Training Plan
+            {dialogTitle}
           </DialogTitle>
           <Button
             variant="ghost"
@@ -324,9 +348,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           </div>
         ) : (
           <div className="p-0 lg:p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Rise to the next Level
-            </h2>
+            <h2 className="text-lg font-semibold mb-4">{headerText}</h2>
 
             <div className="bg-[#F6F9FF] rounded-lg border border-gray-200 p-2 lg:p-4 mb-6">
               <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full">
@@ -350,7 +372,9 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             </div>
 
             <h2 className="text-lg font-semibold mb-4">
-              Select your primary topics to improve your Skills
+              {mode === "adjust"
+                ? "Modify your selected topics"
+                : "Select your primary topics to improve your Skills"}
             </h2>
 
             <div className="block lg:hidden mb-4">
@@ -408,11 +432,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                 disabled={isLoading || isCreatingPlan}
               >
                 <div className="min-h-6 min-w-52 flex justify-center items-center">
-                  {isCreatingPlan ? (
-                    <WhiteSpinner size={10} />
-                  ) : (
-                    "Create Training Plan"
-                  )}
+                  {isCreatingPlan ? <WhiteSpinner size={10} /> : buttonText}
                 </div>
               </button>
             </div>

@@ -1,6 +1,9 @@
-// types/ChessLessonTypes.ts
-export type LessonType = 'opening' | 'middlegame' | 'endgame';
-export type DifficultyLevel = "Beginner" | "Intermediate" | "Advanced" | "Expert";
+export type LessonType = "opening" | "middlegame" | "endgame";
+export type DifficultyLevel =
+  | "Beginner"
+  | "Intermediate"
+  | "Advanced"
+  | "Expert";
 export type DifficultyFilter = DifficultyLevel | null;
 
 export interface Pagination {
@@ -219,54 +222,68 @@ export interface ChessLessonState<T extends ChessLesson> {
   applyFilters: () => void;
 }
 
-// Type guard functions to differentiate between lesson types
-export function isOpeningLesson(lesson: ChessLesson): lesson is OpeningLesson {
-  return lesson.category === 'opening' && 'variations' in lesson;
+// Extended interface for stores that support read/unread functionality
+export interface ExtendedChessLessonState<T extends ChessLesson>
+  extends ChessLessonState<T> {
+  readStatusMap: Record<string, boolean>;
+  checkReadStatus: (id: string, sessionId?: string) => Promise<boolean>;
+  markLessonAsRead: (id: string, sessionId?: string) => Promise<boolean>;
+  markLessonAsUnread: (id: string, sessionId?: string) => Promise<boolean>;
+  isLoadingDetails: Record<string, boolean>;
+  isCheckingReadStatus: boolean;
+  fetchReadStatuses: (sessionId?: string) => Promise<void>;
 }
 
-export function isMiddlegameLesson(lesson: ChessLesson): lesson is MiddlegameLesson {
-  return lesson.category === 'middlegame';
+// Type guard functions to differentiate between lesson types
+export function isOpeningLesson(lesson: ChessLesson): lesson is OpeningLesson {
+  return lesson.category === "opening" && "variations" in lesson;
+}
+
+export function isMiddlegameLesson(
+  lesson: ChessLesson
+): lesson is MiddlegameLesson {
+  return lesson.category === "middlegame";
 }
 
 export function isEndgameLesson(lesson: ChessLesson): lesson is EndgameLesson {
-  return lesson.category === 'endgame';
+  return lesson.category === "endgame";
 }
 
 // Helper function to get the appropriate base URL path based on lesson type
 export function getLessonBasePath(lessonType: LessonType): string {
   switch (lessonType) {
-    case 'opening':
-      return '/opening-theory';
-    case 'middlegame':
-      return '/middlegame-strategy';
-    case 'endgame':
-      return '/endgame-mastery';
+    case "opening":
+      return "/opening-theory";
+    case "middlegame":
+      return "/middlegame-strategy";
+    case "endgame":
+      return "/endgame-mastery";
     default:
-      return '/';
+      return "/";
   }
 }
 
 // Helper function to get appropriate tab options based on lesson type
-export function getLessonTabOptions(lessonType: LessonType): { id: string, label: string }[] {
+export function getLessonTabOptions(
+  lessonType: LessonType
+): { id: string; label: string }[] {
   switch (lessonType) {
-    case 'opening':
+    case "opening":
       return [
         { id: "overview", label: "Overview" },
-        { id: "variations", label: "Variations" }
+        { id: "variations", label: "Variations" },
       ];
-    case 'middlegame':
+    case "middlegame":
       return [
         { id: "overview", label: "Overview" },
-        { id: "patterns", label: "Patterns" }
+        { id: "patterns", label: "Patterns" },
       ];
-    case 'endgame':
+    case "endgame":
       return [
         { id: "overview", label: "Overview" },
-        { id: "patterns", label: "Patterns" }
+        { id: "patterns", label: "Patterns" },
       ];
     default:
-      return [
-        { id: "overview", label: "Overview" }
-      ];
+      return [{ id: "overview", label: "Overview" }];
   }
 }

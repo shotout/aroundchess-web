@@ -37,7 +37,6 @@ const MyAccount = () => {
   }, [profile, username]);
 
   const handleOnChange = (e: any) => {
-    console.log("handleOnChange", e);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -58,14 +57,11 @@ const MyAccount = () => {
         clearAll();
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 365);
-
-        // router.push("/login");
         window.location.href = "/login";
       });
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      console.error("Error logging out:", error.message);
       throw error;
     }
   };
