@@ -5,7 +5,6 @@ import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { motion } from "@/utils/motion";
-
 import { useGameEndStatus } from "@/app/store/gameEndStatus";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
@@ -18,11 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
-import {
-  formatDate,
-  formatDatePgn,
-  formatTimePgn,
-} from "@/functions/format-date";
+import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
 import { ArrowLeft, MoveRightIcon } from "lucide-react";
@@ -48,6 +43,7 @@ import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
 import { playSound } from "@/utils/play-audio";
 import { classifyMove } from "../src/lib/classifyMove";
+
 type MoveClassification =
   | "best-move"
   | "brilliant-move"
@@ -62,9 +58,8 @@ type MoveClassification =
 
 export default function PlayingPage() {
   const router = useRouter();
-
   const { setFen, setPGN, setOpen } = useShareGame();
-  const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
+  const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, token } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
@@ -74,30 +69,26 @@ export default function PlayingPage() {
     setIsLoading,
     setPgn,
     setDataAnalysis,
-    setDataGames,
+    setDataGamesImport,
     setError,
     username,
-    setDataGamesImport,
+    hideDiv,
   } = usePgnStore();
-  const [depthLevel, setDepthLevel] = useState(14);
+  const [depthLevel] = useState(14);
   const { user } = useAuth();
-  const { hideDiv } = usePgnStore();
-  const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { open, setOpen: setOpenGameStatus } = useGameEndStatus();
+  const { AIChoosed } = usePlayVSAIStore();
+  const { setOpen: setOpenGameStatus } = useGameEndStatus();
   const refBoard = useRef<HTMLDivElement | null>(null);
-
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
   const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
-
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
-  const [mounted, setMounted] = useState<boolean>(true);
+  const [mounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
   const engine = useMemo(() => new Engine(), []);
-  const engine2 = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [pastGames, setPastGames] = useState<any[]>([]);
   const [heightScreen, setHeightScreen] = useState<number>(0);
@@ -106,7 +97,7 @@ export default function PlayingPage() {
   const [bestLine, setBestline] = useState<string | null>("");
   const [positionEvaluation, setPositionEvaluation] = useState<number>(0);
   const [moveClassification, setMoveClassification] = useState<string>("");
-  const [depth, setDepth] = useState<number>(20);
+  const [depth] = useState<number>(20);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
   const [possibleMate, setPossibleMate] = useState<string>("");
   const [statusGame, setStatusGame] = useState<string>("Ongoing");
@@ -121,9 +112,7 @@ export default function PlayingPage() {
   const [rightClickedSquares, setRightClickedSquares] = useState<
     Record<string, CSSProperties>
   >({});
-  const [moveSquares, setMoveSquares] = useState<Record<string, CSSProperties>>(
-    {}
-  );
+  const [moveSquares] = useState<Record<string, CSSProperties>>({});
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
   >({});
@@ -133,17 +122,18 @@ export default function PlayingPage() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
-  let isYourTurn = myColor == "white" ? "w" : "b";
+
+  const isYourTurn = myColor === "white" ? "w" : "b";
 
   const fetchPgnLocal = async () => {
-    let headers = game.getHeaders();
-    let dataGames = {
+    const headers = game.getHeaders();
+    const dataGames = {
       white: {
-        result: headers.Result == "0-1" ? "lose" : "win",
+        result: headers.Result === "0-1" ? "lose" : "win",
         username: headers.White,
       },
       black: {
-        result: headers.Result == "0-1" ? "win" : "lose",
+        result: headers.Result === "0-1" ? "win" : "lose",
         username: headers.Black,
       },
       date: formatDatePgn(),
@@ -153,7 +143,6 @@ export default function PlayingPage() {
     try {
       setIsLoading(true);
       setDataAnalysis(arr);
-      //console.log("body analysis", JSON.stringify(game.pgn()), username);
       setPgn(game.pgn());
       const responseAnalysis = await proceedAnalysis(
         game.pgn(),
@@ -163,32 +152,26 @@ export default function PlayingPage() {
       );
       setDataAnalysis(responseAnalysis.data);
       arr = responseAnalysis.data;
-
-      //console.log("responseAnalysis:", responseAnalysis);
     } catch (err) {
-      //console.log("error", err);
       toast.error(err + "");
       setIsLoading(false);
-
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
-      if (arr != null) {
+      if (arr !== null) {
         router.push("/analysis");
       } else {
         setIsLoading(false);
       }
     }
   };
+
   useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
+    const is3D = StyleChoosed === "3d";
     setIs3DMode(is3D);
   }, [StyleChoosed]);
 
   const getMoveOptions = (square: Square) => {
-    const moves = game.moves({
-      square,
-      verbose: true,
-    });
+    const moves = game.moves({ square, verbose: true });
     if (moves.length === 0) {
       setOptionSquares({});
       return false;
@@ -207,18 +190,15 @@ export default function PlayingPage() {
       };
       return move;
     });
-    newSquares[square] = {
-      background: "#F5F682",
-    };
-
+    newSquares[square] = { background: "#F5F682" };
     setOptionSquares(newSquares);
     return true;
   };
+
   const onSquareClick = (square: Square) => {
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
 
-    // from square
     if (!moveFrom) {
       const hasMoveOptions = getMoveOptions(square);
       if (hasMoveOptions) {
@@ -228,29 +208,29 @@ export default function PlayingPage() {
       return;
     }
 
-    // to square
     if (!moveTo) {
-      // check if valid move before showing dialog
       const moves = game.moves({
         square: moveFrom as Square,
         verbose: true,
-      }) as Array<{ from: string; to: string; color: string; piece: string }>;
+      }) as Array<{
+        from: string;
+        to: string;
+        color: string;
+        piece: string;
+      }>;
       const foundMove = moves.find(
         (m) => m.from === moveFrom && m.to === square
       );
-      // not a valid move
+
       if (!foundMove) {
-        // check if clicked on new piece
         const hasMoveOptions = getMoveOptions(square);
-        // if new piece, setMoveFrom, otherwise clear moveFrom
         setMoveFrom(hasMoveOptions ? square : "");
         return;
       }
 
-      // valid move
       setMoveTo(square);
       setCurrentSquare(square);
-      // if promotion move
+
       if (
         (foundMove.color === "w" &&
           foundMove.piece === "p" &&
@@ -263,20 +243,12 @@ export default function PlayingPage() {
         return;
       }
 
-      // is normal move
-      const move = game.move({
-        from: moveFrom,
-        to: square,
-        promotion: "q",
-      });
+      const move = game.move({ from: moveFrom, to: square, promotion: "q" });
       setMoveData(move);
-
-      console.log("move.san", move);
       playSound(game, move);
       setMoveClassification("");
       getClassificationMove(move);
 
-      // if invalid, setMoveFrom and getMoveOptions
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
         if (hasMoveOptions) setMoveFrom(square);
@@ -285,44 +257,43 @@ export default function PlayingPage() {
 
       setGamePosition(game.fen());
       setAfterFen(game.fen());
-
-      setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+      setCurrentTurn((turnColor) =>
+        turnColor !== "White" ? "White" : "Black"
+      );
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
       return;
     }
   };
+
   const handleClassify = async (move: any) => {
     const result = await classifyMove(beforeFen, game.fen(), move.to);
-    console.log(`Move classification: ${result}`);
     return result;
   };
-  const getClassificationMove = async (move: any) => {
-    let moveUserClassification = await handleClassify(move);
-    setMoveClassification(moveUserClassification);
-    console.log("moveUserClassification", moveUserClassification);
 
+  const getClassificationMove = async (move: any) => {
+    const moveUserClassification = await handleClassify(move);
+    setMoveClassification(moveUserClassification);
     findEnemyMove();
   };
+
   const onPromotionPieceSelect = (
     piece?: string,
     promoteFromSquare?: Square,
     promoteToSquare?: Square
   ) => {
-    // if no piece passed then user has cancelled dialog, don't make move and reset
     setBestline("");
     setHintClicked(false);
     setBeforeFen(game.fen());
 
     if (piece) {
-      let move = game.move({
+      const move = game.move({
         from: promoteFromSquare || moveFrom,
         to: promoteToSquare || moveTo!,
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
       setMoveData(move);
-
       setGamePosition(game.fen());
       playSound(game, move);
     }
@@ -332,6 +303,7 @@ export default function PlayingPage() {
     setOptionSquares({});
     return true;
   };
+
   const onSquareRightClick = (square: Square) => {
     const colour = "rgba(0, 0, 255, 0.4)";
     setRightClickedSquares({
@@ -342,79 +314,67 @@ export default function PlayingPage() {
       },
     });
   };
+
   const prevCurrentColor = {
     ...(previousSquare && {
-      [previousSquare]: {
-        backgroundColor: "#B9CA43",
-        // marginLeft: -0.5,
-        // marginTop: is3DMode ? 0.5 : -1.5,
-      }, // Green for previous
+      [previousSquare]: { backgroundColor: "#B9CA43" },
     }),
     ...(currentSquare && {
-      [currentSquare]: {
-        backgroundColor: "#F5F682",
-        // marginLeft: -0.5,
-        // marginTop: is3DMode ? 0 : -1.5,
-      }, // Yellow for current
+      [currentSquare]: { backgroundColor: "#F5F682" },
     }),
   };
 
   const findEnemyMove = () => {
-    let isYourTurn = myColor == "white" ? "w" : "b";
-    // //console.log("game.turn() == isYourTurn", game.turn() == isYourTurn);
-    if (game.turn() == isYourTurn) return false;
-    engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
-      console.log("response getStockfishMove", pv);
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    if (game.turn() === isYourTurnLocal) return false;
 
-      let move = game.move({
+    engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
+      const move = game.move({
         from: pv.substring(0, 2),
         to: pv.substring(2, 4),
         promotion: pv.substring(4, 5),
       });
       setMoveData(move);
-
       playSound(game, move);
       setBeforeFen(game.fen());
-
       setPreviousSquare(pv.substring(0, 2) as Square);
       setCurrentSquare(pv.substring(2, 4) as Square);
-
       setBestline("");
       setHintClicked(false);
       setGamePosition(game.fen());
-      setCurrentTurn((turnColor) => (turnColor != "White" ? "White" : "Black"));
+      setCurrentTurn((turnColor) =>
+        turnColor !== "White" ? "White" : "Black"
+      );
     });
   };
+
   const handleHint = () => {
-    let depthHint = depth;
-    let isYourTurn = myColor == "white" ? "w" : "b";
+    const depthHint = depth;
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
     setBestline(null);
     engine.evaluatePosition(game.fen(), depthHint);
-    engine.onMessage(
-      ({ positionEvaluation, possibleMate, pv, depth, bestMove }) => {
-        if (depth && depth < 10) return;
-        positionEvaluation &&
-          setPositionEvaluation(
-            ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
-          );
-        possibleMate && setPossibleMate(possibleMate);
-        if (game.turn() == isYourTurn) {
-          //console.log("handle hint", bestMove);
-          !bestMove && setHintClicked(false);
-          !bestMove && setBestline(null);
-          bestMove && setBestline(bestMove);
-          bestMove && setHintClicked(true);
-        }
+    engine.onMessage(({ positionEvaluation, possibleMate, bestMove }) => {
+      positionEvaluation &&
+        setPositionEvaluation(
+          ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
+        );
+      possibleMate && setPossibleMate(possibleMate);
+      if (game.turn() === isYourTurnLocal) {
+        !bestMove && setHintClicked(false);
+        !bestMove && setBestline(null);
+        bestMove && setBestline(bestMove);
+        bestMove && setHintClicked(true);
       }
-    );
+    });
   };
+
   useEffect(() => {
     fillMovement();
     checkStatusGame();
   }, [gamePosition]);
 
   const fillMovement = () => {
-    let capturedPiecesBlack: {
+    const capturedPiecesBlack: Array<{
       captured: string | null;
       capturedTheme: string | null;
       piece: string | null;
@@ -423,8 +383,8 @@ export default function PlayingPage() {
       to: Square;
       lan: string;
       san: string;
-    }[] = [];
-    let capturedPiecesWhite: {
+    }> = [];
+    const capturedPiecesWhite: Array<{
       captured: string | null;
       capturedTheme: string | null;
       piece: string | null;
@@ -433,10 +393,10 @@ export default function PlayingPage() {
       to: Square;
       lan: string;
       san: string;
-    }[] = [];
+    }> = [];
+
     game.history({ verbose: true }).forEach((move) => {
-      //console.log(move);
-      if (move.color == "w") {
+      if (move.color === "w") {
         capturedPiecesWhite.push({
           captured: changeNameFull(move.captured ?? null),
           piece: changeNameFull(move.piece),
@@ -460,54 +420,47 @@ export default function PlayingPage() {
         });
       }
     });
-    //console.log("capturedPiecesWhite", capturedPiecesWhite);
-    //console.log("capturedPiecesBlack", capturedPiecesBlack);
     setCapturedBlack(capturedPiecesBlack);
     setCapturedWhite(capturedPiecesWhite);
   };
+
   const changeNameFull = (piece: string | null) => {
     switch (piece) {
       case "p":
         return "pawn";
-        break;
       case "n":
         return "knight";
-        break;
       case "b":
         return "bishop";
-        break;
-
       case "r":
         return "rook";
-        break;
-
       case "q":
         return "queen";
-        break;
-
       case "k":
         return "king";
-        break;
-
       default:
         return null;
-        break;
     }
   };
+
   useEffect(() => {
     getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
-      //console.log("res getVSAILogs", res);
       setPastGames(res.data);
     });
   }, []);
+
   const setHeaderGameStart = () => {
-    let date = formatDatePgn();
-    let time = formatTimePgn();
-    let whiteName =
-      AIChoosed.color == "white" ? AIChoosed.opponent.name + " (AI)" : username;
-    let blackName =
-      AIChoosed.color != "white" ? AIChoosed.opponent.name + " (AI)" : username;
-    // set header
+    const date = formatDatePgn();
+    const time = formatTimePgn();
+    const whiteName =
+      AIChoosed.color === "white"
+        ? AIChoosed.opponent.name + " (AI)"
+        : username;
+    const blackName =
+      AIChoosed.color !== "white"
+        ? AIChoosed.opponent.name + " (AI)"
+        : username;
+
     game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
     game.header("Site", "aroundchess.com");
     game.header("Date", date);
@@ -517,23 +470,24 @@ export default function PlayingPage() {
     game.header("UTCDate", date);
     game.header("UTCTime", time);
   };
+
   const setHeaderGameFinish = () => {
-    let date = formatDatePgn();
-    let time = formatTimePgn();
-    let isWhiteWin = winnerColor == "white" ? "1" : "0";
-    let isBlackWin = winnerColor != "white" ? "1" : "0";
-    let winResult = isWhiteWin + "-" + isBlackWin;
-    // set header
+    const date = formatDatePgn();
+    const time = formatTimePgn();
+    const isWhiteWin = winnerColor === "white" ? "1" : "0";
+    const isBlackWin = winnerColor !== "white" ? "1" : "0";
+    const winResult = isWhiteWin + "-" + isBlackWin;
+
     game.header("Result", winResult);
     game.header("EndDate", date);
     game.header("EndTime", time);
   };
+
   useEffect(() => {
     setMyColor(AIChoosed.color);
-    //console.log("AIChoosed.color", AIChoosed.color);
     setHeaderGameStart();
     setBeforeFen(game.fen());
-    if (AIChoosed.color == "black") {
+    if (AIChoosed.color === "black") {
       setTimeout(() => {
         findEnemyMove();
       }, 1000);
@@ -544,11 +498,7 @@ export default function PlayingPage() {
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
-
-    // Initial size calculation
     handleResize();
-
-    // Add event listeners
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
@@ -559,39 +509,35 @@ export default function PlayingPage() {
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
-    //console.log("Resizing board...", isPortrait, window.innerWidth);
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      //console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      //console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
+
   useEffect(() => {
-    if (AIChoosed.color == "black") {
+    if (AIChoosed.color === "black") {
       setOrientation("black");
     } else {
       setOrientation("white");
     }
   }, []);
+
   const handleSwitch = () => {
     setOrientation((prev) => {
-      if (prev == "white") {
+      if (prev === "white") {
         return "black";
       } else {
         return "white";
       }
     });
   };
+
   const handleShare = async () => {
     try {
       const currentPgn = game.pgn();
@@ -603,57 +549,49 @@ export default function PlayingPage() {
       console.error("Failed to copy:", err);
     }
   };
+
   const handleDownload = () => {
     if (game) {
       const currentPgn = game.pgn();
-
-      // Create a blob with the PGN content
       const blob = new Blob([currentPgn], { type: "text/plain" });
-
-      // Create a URL for the blob
       const url = URL.createObjectURL(blob);
-
-      // Create a temporary anchor element to trigger the download
       const a = document.createElement("a");
       a.href = url;
       const currentEpochTimeMs = Date.now();
-
-      let fileName =
+      const fileName =
         AIChoosed.opponent.name +
         "_" +
         AIChoosed.opponent.elo +
         "_" +
         currentEpochTimeMs;
-      a.download = fileName + ".pgn"; // Name of the downloaded file
+      a.download = fileName + ".pgn";
       document.body.appendChild(a);
       a.click();
-
-      // Clean up by removing the anchor and revoking the URL
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast("Current PGN Downloaded!");
     }
   };
+
   const handleThreeD = () => {
     setIs3DMode(!is3DMode);
-    let style = !is3DMode ? "3d" : "2d";
+    const style = !is3DMode ? "3d" : "2d";
     setStyleChoosed(style);
   };
+
   const handleResign = () => {
     setStatusGame("Loss");
     setTimeout(() => {
       setOpenGameStatus(true);
     }, 1000);
     setHeaderGameFinish();
-    // Determine the winner based on the player who was in checkmate
-    let loserColor = myColor;
-    let winnerColor = loserColor === "white" ? "black" : "white";
-    let losserColor = loserColor != "white" ? "black" : "white";
-    let isUserWin = myColor === winnerColor;
-    setWinnerColor(winnerColor);
-    setLoserColor(losserColor);
-    //console.log(`The ${winnerColor} player wins!`);
+    const loserColorLocal = myColor;
+    const winnerColorLocal = loserColorLocal === "white" ? "black" : "white";
+    const losserColorLocal = loserColorLocal !== "white" ? "black" : "white";
+    setWinnerColor(winnerColorLocal);
+    setLoserColor(losserColorLocal);
   };
+
   const handleAnalyzeGame = () => {
     if (token.balance > 0) {
       fetchPgnLocal();
@@ -661,6 +599,7 @@ export default function PlayingPage() {
       setOpenPricing(true);
     }
   };
+
   const handleRematch = () => {
     setStatusGame("Ongoing");
     game.reset();
@@ -671,11 +610,13 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
   };
+
   const handleNewGame = () => {
     router.back();
   };
+
   const handleSaveLog = async () => {
-    let body = {
+    const body = {
       enemyTag: AIChoosed.opponent.name,
       eloRating: AIChoosed.opponent.elo + "",
       totalMoves: game.history().length,
@@ -685,35 +626,27 @@ export default function PlayingPage() {
     };
     await postVSAILogs(body);
   };
+
   const checkStatusGame = () => {
-    let isUserWin = false;
-    let isDraw = false;
-    //console.log("game.isGameOver()", game.isGameOver(), formatTimePgn());
     if (game.isGameOver()) {
       setHeaderGameFinish();
-      // Determine the winner based on the player who was in checkmate
-      let loserColor = game.turn(); // 'w' for white, 'b' for black
-      let winnerColor = loserColor === "w" ? "black" : "white";
-      let losserColor = loserColor != "w" ? "black" : "white";
-      isUserWin = myColor === winnerColor;
-      setWinnerColor(winnerColor);
-      setLoserColor(losserColor);
-      //console.log(`The ${winnerColor} player wins!`);
+      const loserColorLocal = game.turn();
+      const winnerColorLocal = loserColorLocal === "w" ? "black" : "white";
+      const losserColorLocal = loserColorLocal !== "w" ? "black" : "white";
+      const isUserWin = myColor === winnerColorLocal;
+      setWinnerColor(winnerColorLocal);
+      setLoserColor(losserColorLocal);
 
       if (game.isCheckmate()) {
-        //console.log("Game Over! Checkmate!");
-
-        let gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
-        let commentar =
-          gameStatus == "Win" ? "checkmate-you" : "checkmate-opponent";
+        const gameStatus = isUserWin ? "Win" : !isUserWin ? "Loss" : "Ongoing";
+        const commentar =
+          gameStatus === "Win" ? "checkmate-you" : "checkmate-opponent";
         setMoveClassification(commentar);
         setStatusGame(gameStatus);
         setTimeout(() => {
           setOpenGameStatus(true);
         }, 1000);
       } else {
-        isDraw = true;
-        //console.log("Game Over! Stalemate or Draw.");
         setStatusGame("Draw");
         setTimeout(() => {
           setOpenGameStatus(true);
@@ -721,41 +654,45 @@ export default function PlayingPage() {
       }
     }
   };
+
   useEffect(() => {
-    //console.log("statusGame useEffect", statusGame);
-    if (statusGame == "Win" || statusGame == "Loss" || statusGame == "Draw") {
+    if (
+      statusGame === "Win" ||
+      statusGame === "Loss" ||
+      statusGame === "Draw"
+    ) {
       handleSaveLog();
     }
   }, [statusGame]);
 
   const onPieceDrop = useCallback(
     (sourceSquare: Square, targetSquare: Square, piece: string) => {
-      // Check if it's the player's turn and game is ongoing
-      let isYourTurn = myColor == "white" ? "w" : "b";
-      if (game.turn() !== isYourTurn || statusGame !== "Ongoing") {
+      const isYourTurnLocal = myColor === "white" ? "w" : "b";
+      if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
         return false;
       }
 
-      // Clear any existing squares and hints
       setRightClickedSquares({} as Record<string, CSSProperties>);
       setBestline("");
 
-      // Get possible moves for the source square
       const moves = game.moves({
         square: sourceSquare,
         verbose: true,
-      }) as Array<{ from: string; to: string; color: string; piece: string }>;
+      }) as Array<{
+        from: string;
+        to: string;
+        color: string;
+        piece: string;
+      }>;
 
       const foundMove = moves.find(
         (m) => m.from === sourceSquare && m.to === targetSquare
       );
 
-      // Check if it's a valid move
       if (!foundMove) {
         return false;
       }
 
-      // Handle promotion
       if (
         (foundMove.color === "w" &&
           foundMove.piece === "p" &&
@@ -767,39 +704,31 @@ export default function PlayingPage() {
         setMoveFrom(sourceSquare);
         setMoveTo(targetSquare);
         setShowPromotionDialog(true);
-        return false; // Return false to prevent the piece from being moved visually until promotion is selected
+        return false;
       }
 
-      // Execute the move
       setBeforeFen(game.fen());
       const move = game.move({
         from: sourceSquare,
         to: targetSquare,
-        promotion: "q", // Default promotion, though this won't be used due to the check above
+        promotion: "q",
       });
 
       if (move === null) {
         return false;
       }
 
-      // Update game state
       setMoveData(move);
       playSound(game, move);
       setMoveClassification("");
       getClassificationMove(move);
-
       setGamePosition(game.fen());
       setAfterFen(game.fen());
-
-      // Update visual indicators
       setPreviousSquare(sourceSquare);
       setCurrentSquare(targetSquare);
-
       setCurrentTurn((turnColor) =>
         turnColor !== "White" ? "White" : "Black"
       );
-
-      // Clear move-related states
       setMoveFrom("");
       setMoveTo(null);
       setOptionSquares({});
@@ -854,16 +783,17 @@ export default function PlayingPage() {
             <span className="text-xs font-normal">
               Current Turn:{" "}
               <span className="text-[14px] font-medium">
-                {game.turn() == "w" ? "White" : "Black"}
+                {game.turn() === "w" ? "White" : "Black"}
               </span>
             </span>
           </div>
         </div>
+
         <div
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          {orientation != "white" ? (
+          {orientation !== "white" ? (
             <WhitePlayer
               myColor={myColor}
               statusGame={statusGame}
@@ -885,13 +815,14 @@ export default function PlayingPage() {
               user={user}
               PieceChoosed={PieceChoosed}
             />
-          )}{" "}
+          )}
+
           <div className="flex items-center justify-between mb-2">
-            {orientation != "white" &&
-            moveClassification != "" &&
-            moveClassification != "excellent-move" &&
-            moveClassification != "neutral-move" &&
-            moveClassification != "inaccuracy-move" ? (
+            {(orientation as string) !== myColor &&
+            moveClassification !== "" &&
+            moveClassification !== "excellent-move" &&
+            moveClassification !== "neutral-move" &&
+            moveClassification !== "inaccuracy-move" ? (
               <CommentaryMove classify={moveClassification} />
             ) : (
               <div />
@@ -903,8 +834,8 @@ export default function PlayingPage() {
               boardSize={boardSize}
             />
           </div>
+
           <div className="flex flex-col justify-center items-center gap-3 ">
-            {/* {buttonBoard()} */}
             <motion.div
               initial={{ rotateX: 180 }}
               animate={
@@ -929,12 +860,12 @@ export default function PlayingPage() {
               {is3DMode && (
                 <ThreeDBoard
                   arePiecesDraggable={false}
-                  arePiecesClickable={statusGame == "Ongoing"}
+                  arePiecesClickable={statusGame === "Ongoing"}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
                   onSquareClick={
-                    game.turn() == isYourTurn ? onSquareClick : () => null
+                    game.turn() === isYourTurn ? onSquareClick : () => null
                   }
                   onSquareRightClick={onSquareRightClick}
                   onPromotionPieceSelect={onPromotionPieceSelect}
@@ -961,20 +892,8 @@ export default function PlayingPage() {
                 />
               )}
             </motion.div>
+
             <motion.div
-              // initial={{ rotateX: 180 }}
-              // animate={
-              //   is3DMode
-              //     ? { opacity: 0, display: "none" }
-              //     : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-              // }
-              // transition={{
-              //   duration: 0.5,
-              //   stiffness: 500,
-              //   damping: 35,
-              //   ease: [0.4, 0.0, 0.2, 1],
-              //   type: "tween",
-              // }}
               style={{
                 width: boardSize,
                 display: !is3DMode ? "flex" : "none",
@@ -985,12 +904,12 @@ export default function PlayingPage() {
                 <TwoDChessboard
                   arePiecesDraggable={true}
                   onPieceDrop={onPieceDrop}
-                  arePiecesClickable={statusGame == "Ongoing"}
+                  arePiecesClickable={statusGame === "Ongoing"}
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
                   onSquareClick={
-                    game.turn() == isYourTurn ? onSquareClick : () => null
+                    game.turn() === isYourTurn ? onSquareClick : () => null
                   }
                   onSquareRightClick={onSquareRightClick}
                   onPromotionPieceSelect={onPromotionPieceSelect}
@@ -1045,20 +964,21 @@ export default function PlayingPage() {
               </div>
             </div>
           </div>
-          {orientation == "white" && (
-            <div className="flex items-center justify-between mb-2">
-              {moveClassification != "" &&
-              moveClassification != "excellent-move" &&
-              moveClassification != "neutral-move" &&
-              moveClassification != "inaccuracy-move" ? (
-                <CommentaryMove classify={moveClassification} />
-              ) : (
-                <div />
-              )}
+
+          <div className="flex items-center justify-between mb-2">
+            {(orientation as string) === myColor &&
+            moveClassification !== "" &&
+            moveClassification !== "excellent-move" &&
+            moveClassification !== "neutral-move" &&
+            moveClassification !== "inaccuracy-move" ? (
+              <CommentaryMove classify={moveClassification} />
+            ) : (
               <div />
-            </div>
-          )}
-          {orientation == "white" ? (
+            )}
+            <div />
+          </div>
+
+          {orientation === "white" ? (
             <WhitePlayer
               myColor={myColor}
               statusGame={statusGame}
@@ -1083,12 +1003,13 @@ export default function PlayingPage() {
           )}
         </div>
       </div>
+
       <Tabs defaultValue="current" className="w-full">
         <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
           <TabsTrigger
             value="current"
             className={`gap-2 py-2 ${
-              selectedTab == "current"
+              selectedTab === "current"
                 ? `shadow-md border border-[#DEDEDE]`
                 : ``
             }`}
@@ -1096,7 +1017,7 @@ export default function PlayingPage() {
           >
             <Image
               src={`/images/play-vs-ai/chess-king-rook${
-                selectedTab == "current" ? `-active` : ``
+                selectedTab === "current" ? `-active` : ``
               }.png`}
               alt="icon"
               width={1000}
@@ -1105,7 +1026,7 @@ export default function PlayingPage() {
             />
             <span
               className={`text-[16px] font-semibold ${
-                selectedTab == "current" ? `text-[#221AE9]` : `text-black`
+                selectedTab === "current" ? `text-[#221AE9]` : `text-black`
               }`}
             >
               Current Game
@@ -1114,13 +1035,13 @@ export default function PlayingPage() {
           <TabsTrigger
             value="past"
             className={`gap-2 py-2 ${
-              selectedTab == "past" ? `shadow-md border border-[#DEDEDE]` : ``
+              selectedTab === "past" ? `shadow-md border border-[#DEDEDE]` : ``
             }`}
             onClick={() => setSelectedTab("past")}
           >
             <Image
               src={`/images/play-vs-ai/past-games${
-                selectedTab == "past" ? `-active` : ``
+                selectedTab === "past" ? `-active` : ``
               }.png`}
               alt="icon"
               width={1000}
@@ -1129,7 +1050,7 @@ export default function PlayingPage() {
             />
             <span
               className={`text-[16px] font-semibold ${
-                selectedTab == "past" ? `text-[#221AE9]` : `text-black`
+                selectedTab === "past" ? `text-[#221AE9]` : `text-black`
               }`}
             >
               Past Games
@@ -1154,10 +1075,10 @@ export default function PlayingPage() {
               />
             </div>
             <div className="flex flex-col items-center w-full gap-2">
-              {statusGame != "Ongoing" && (
+              {statusGame !== "Ongoing" && (
                 <CommentarGame statusGame={statusGame} />
               )}
-              {statusGame == "Ongoing" ? (
+              {statusGame === "Ongoing" ? (
                 <ButtonPlaying
                   handleHint={handleHint}
                   handleNewGame={handleNewGame}
@@ -1193,7 +1114,7 @@ export default function PlayingPage() {
                   <GameCard
                     key={index}
                     result={
-                      past.status.toLowerCase() == "Ongoing"
+                      past.status.toLowerCase() === "Ongoing"
                         ? "loss"
                         : past.status.toLowerCase()
                     }

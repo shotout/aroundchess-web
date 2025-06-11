@@ -357,7 +357,7 @@ const MistakeLog = () => {
       </div>
       <Tabs
         defaultValue="saved"
-        className="w-full p-0 xl:p-[8px] "
+        className="w-full p-0"
         value={tabSelected}
         onValueChange={setSelectedTab}
       >

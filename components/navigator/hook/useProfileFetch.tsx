@@ -1,8 +1,6 @@
-import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 export type AuthState = {
   isAuthenticated: boolean;
@@ -13,7 +11,6 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  // Add other user properties as needed
 };
 
 export const useProfileFetch = () => {
@@ -46,51 +43,45 @@ export const useProfileFetch = () => {
   } = useProfileStore();
   useEffect(() => {
     if (sessionId.length > 0 && alreadyFetch == false) {
-      console.log("sessionId, callFetch", sessionId, callFetch);
       setAlreadyFetch(true);
       getProfile({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getProfile", data);
+          const data = response.data;
           setProfile(data);
           setUsername(data.username);
         }
       });
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getTokenBalance", data);
+          const data = response.data;
           setToken(data);
         }
       });
       getTokenPackage({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getTokenPackage", data);
+          const data = response.data;
           setTokenPackage(data);
         }
       });
       getActiveMembership({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getActiveMembership", data);
+          const data = response.data;
           setIsMember(data.membershipPackage.type != "FREE");
           setActiveMembership(data);
         }
       });
       getAllMembershipPackage({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getAllMembershipPackage", data);
+          const data = response.data;
           setAllMembershipPackages(data);
         }
       });
       getPuzzle().then((res) => {
-        let logs = res.data;
+        const logs = res.data;
         setPuzzleLog(logs);
-        console.log("log puzzle", logs);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, callFetch]);
   return { callFetch, setCallFetch };
 };

@@ -4,7 +4,7 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-03-31.basil",
 });
- 
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -20,28 +20,28 @@ export default async function handler(
         idUser,
         membershipId,
         stripeProductId,
-        couponId
+        couponId,
       } = JSON.parse(req.body);
-      let isMembership = stripeProductId!=null
+      const isMembership = stripeProductId != null;
 
-      let metadataToken = {
+      const metadataToken = {
         itemType: type,
         userId: idUser,
         quantity,
       };
 
-      let metadataMember = {
+      const metadataMember = {
         itemType: type,
         userId: idUser,
         membershipId,
       };
-      let statusurlSuccess =
+      const statusurlSuccess =
         type == "membership"
           ? "status=successSubscribe"
           : `status=successToken&amount=${quantity}`;
-      let statusurlFailed =
+      const statusurlFailed =
         type == "token"
-          ? `status=successToken&amount=${quantity}`
+          ? `status=cancelToken&amount=${quantity}`
           : `status=cancelSubscribe`;
 
       console.log("req.body", req.body);
@@ -51,7 +51,9 @@ export default async function handler(
       if (isMembership) {
         // Untuk keanggotaan, gunakan mode subscription dengan price ID dan diskon
         sessionConfig = {
-          payment_method_types: ["card"] as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
+          payment_method_types: [
+            "card",
+          ] as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
           mode: "subscription",
           line_items: [
             {
@@ -76,7 +78,9 @@ export default async function handler(
       } else {
         // Untuk token, tetap gunakan mode payment dengan price_data
         sessionConfig = {
-          payment_method_types: ["card"] as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
+          payment_method_types: [
+            "card",
+          ] as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
           mode: "payment",
           line_items: [
             {

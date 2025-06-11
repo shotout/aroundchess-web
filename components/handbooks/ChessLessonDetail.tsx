@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, RotateCcw } from "lucide-react";
+import { Check, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DotSpinner from "../game-history/Spinner";
 import {
@@ -43,6 +43,7 @@ interface ChessLessonDetailProps<T extends ChessLesson> {
     readStatusMap?: Record<string, boolean>;
     checkReadStatus?: (id: string, sessionId?: string) => Promise<boolean>;
     markLessonAsRead?: (id: string, sessionId?: string) => Promise<boolean>;
+    markLessonAsUnread?: (id: string, sessionId?: string) => Promise<boolean>;
     set?: (
       updater: (
         state: any
@@ -66,6 +67,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
+  const [isMarkingAsUnread, setIsMarkingAsUnread] = useState<boolean>(false);
   const [isCheckingReadStatus, setIsCheckingReadStatus] =
     useState<boolean>(false);
 
@@ -273,6 +275,29 @@ export default function ChessLessonDetail<T extends ChessLesson>({
     }
   };
 
+  const handleMarkAsUnread = async (): Promise<void> => {
+    if (lesson && lessonFinished && sessionId) {
+      setIsMarkingAsUnread(true);
+      try {
+        if (lessonStore.markLessonAsUnread) {
+          const success = await lessonStore.markLessonAsUnread(
+            lessonId,
+            sessionId
+          );
+          if (success) {
+            setLessonFinished(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error marking lesson as unread:", error);
+      } finally {
+        setIsMarkingAsUnread(false);
+      }
+    } else if (!sessionId) {
+      console.warn("Cannot mark lesson as unread: User not authenticated");
+    }
+  };
+
   if (isLoading && !lesson) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
@@ -394,20 +419,34 @@ export default function ChessLessonDetail<T extends ChessLesson>({
               )}
 
               <div className="flex flex-col gap-4">
-                <Button
-                  className={`w-full py-3 text-white rounded-full ${
-                    lessonFinished ? "bg-green-500" : "bg-blue-base"
-                  }`}
-                  onClick={handleFinishLesson}
-                  disabled={lessonFinished || isMarkingAsRead}
-                >
-                  <Check className="mr-2 h-5 w-5" />
-                  {lessonFinished
-                    ? "Lesson Finished"
-                    : isMarkingAsRead
-                    ? "Saving..."
-                    : "Finish Lesson"}
-                </Button>
+                {!lessonFinished ? (
+                  <Button
+                    className="w-full py-3 text-white rounded-full bg-blue-base"
+                    onClick={handleFinishLesson}
+                    disabled={isMarkingAsRead}
+                  >
+                    <Check className="mr-2 h-5 w-5" />
+                    {isMarkingAsRead ? "Saving..." : "Finish Lesson"}
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1 py-3 text-white rounded-full bg-green-500"
+                      disabled
+                    >
+                      <Check className="mr-2 h-5 w-5" />
+                      Lesson Finished
+                    </Button>
+                    <Button
+                      className="flex-1 py-3 text-white rounded-full bg-gray-500 hover:bg-gray-600"
+                      onClick={handleMarkAsUnread}
+                      disabled={isMarkingAsUnread}
+                    >
+                      <X className="mr-2 h-5 w-5" />
+                      {isMarkingAsUnread ? "Updating..." : "Mark as Unread"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 

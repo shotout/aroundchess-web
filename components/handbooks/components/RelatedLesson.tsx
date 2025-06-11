@@ -55,11 +55,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                 const topicFen = getFenFromMoves(topic.moves as any);
 
                 return (
-                  <div
-                    key={index}
-                    onClick={() => handleLessonNavigation(topicSlug)}
-                    className="cursor-pointer w-full xl:mx-auto"
-                  >
+                  <div key={index} className="cursor-pointer w-full xl:mx-auto">
                     <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
                       <div className="relative">
                         <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
@@ -105,7 +101,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                           </h3>
                         </div>
 
-                        <div className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer btn-primary mb-1">
+                        <div
+                          onClick={() => handleLessonNavigation(topicSlug)}
+                          className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer btn-primary mb-1"
+                        >
                           <BookOpen className="h-4 w-4" />
                           <span className="text-xs md:text-sm">
                             Start Learning

@@ -15,14 +15,14 @@ interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
   isLoading?: boolean;
   error?: string | null;
-  setDialogOpen?: any;
+  onAdjustPlan?: () => void;
 }
 
 const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   schedule,
   isLoading,
   error,
-  setDialogOpen,
+  onAdjustPlan,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -116,7 +116,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
       <div className="flex w-full flex-col gap-y-4">
         <div className="flex justify-between">
           <h1 className="font-bold text-lg">Your Training Plan</h1>
-          <button onClick={() => setDialogOpen(true)}>
+          <button onClick={onAdjustPlan}>
             <Settings className="w-5 h-5 lg:hidden text-black" />
           </button>
         </div>

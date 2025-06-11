@@ -1,14 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Bookmark,
-  ChevronDown,
-  ChevronUp,
-  InfoIcon,
-} from "lucide-react";
+import { Bookmark, ChevronDown, ChevronUp, InfoIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
@@ -18,9 +10,8 @@ import EmptyLog from "./EmptyLog";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
-import { Pagination } from "../pagination/pagination";
-import { usePagination } from "../pagination/hook/usePagination";
 import NoData from "../NoData/NoData";
+
 interface PreviousAnalysisProps {
   reFetch: () => void;
 }
@@ -28,65 +19,53 @@ interface PreviousAnalysisProps {
 const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
 
-  const {
-    username,
-    mistakeLogs,
-    setMistakeLogs,
-    movementDetails,
-    setMovementDetails,
-    playerInfo,
-    setPlayerInfo,
-    setPgn,
-    pgn,
-    titleGame,
-    setTitleGame,
-    savedMistakes,
-    setSavedMistakes,
-    previousAnalyses,
-    setPreviousAnalyses,
-    previousAnalysesDetail,
-    setPreviousAnalysesDetail,
-  } = usePgnStore();
-  const {
-    saveMistakeLog,
-    getMistakeSaved,
-    getMistakePrevious,
-    unsaveMistakeLog,
-    isLoading,
-  } = useApiClient();
-  const { currentData } = usePagination(previousAnalyses);
-  const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
+  const { mistakeLogs, previousAnalyses } = usePgnStore();
 
-  const [indexOpen, setIndexOpen] = useState<string>("Critical Mistakes");
+  const { saveMistakeLog, unsaveMistakeLog, isLoading } = useApiClient();
+
+  const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
+  const [indexOpen, setIndexOpen] = useState<string[]>(["Critical Mistakes"]);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
+
   useEffect(() => {
     setPreviousAnalysis(mistakeLogs);
   }, [mistakeLogs]);
+
   useEffect(() => {
-    if (PreviousAnalysis["criticalMistakes"].length > 0) {
-      setIndexOpen("Critical Mistakes");
-    } else if (PreviousAnalysis["badMoves"].length > 0) {
-      setIndexOpen("Bad Moves");
-    } else if (PreviousAnalysis["threats"].length > 0) {
-      setIndexOpen("Threats");
-    } else if (PreviousAnalysis["weaknessIdentification"].length > 0) {
-      setIndexOpen("Weakness Identification");
+    const openSections: string[] = [];
+    if (PreviousAnalysis["criticalMistakes"]?.length > 0) {
+      openSections.push("Critical Mistakes");
     }
+    if (PreviousAnalysis["badMoves"]?.length > 0) {
+      openSections.push("Bad Moves");
+    }
+    if (PreviousAnalysis["threats"]?.length > 0) {
+      openSections.push("Threats");
+    }
+    if (PreviousAnalysis["weaknessIdentification"]?.length > 0) {
+      openSections.push("Weakness Identification");
+    }
+
+    if (openSections.length > 0) {
+      setIndexOpen(openSections);
+    }
+
     if (previousAnalyses.length > 0) {
       setSelectedMistakes(previousAnalyses[0]);
     }
   }, [previousAnalyses, chessMove]);
+
   const handleOnClickMovement = (move: any) => {
     if (move.move == chessMove.move) {
       setChessMove({});
       setSelectedMistakes({});
     } else {
-      console.log("move", move);
       setChessMove(move);
       setSelectedMistakes(move);
     }
   };
+
   const handleSaveLog = async (id: string, key: string) => {
     setLoadingToggle(true);
     saveMistakeLog({ mistakeLogId: id })
@@ -96,14 +75,13 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         newData.push(res.data);
         dataPrev[key] = newData;
         setPreviousAnalysis(dataPrev);
-        console.log("newData save", newData);
-        console.log("handleSaveLog", res);
         setLoadingToggle(false);
       })
       .catch((e) => {
         setLoadingToggle(false);
       });
   };
+
   const handleUnsaveLog = async (id: string, key: string) => {
     setLoadingToggle(true);
     unsaveMistakeLog({ mistakeLogId: id })
@@ -113,13 +91,20 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         newData.push(res.data);
         dataPrev[key] = newData;
         setPreviousAnalysis(dataPrev);
-        console.log("newData unsave", dataPrev);
-        console.log("handleUnsaveLog", res);
         setLoadingToggle(false);
       })
       .catch((e) => {
         setLoadingToggle(false);
       });
+  };
+
+  const toggleSection = (type: string) => {
+    if (indexOpen.includes(type)) {
+      setIndexOpen(indexOpen.filter((section) => section !== type));
+    } else {
+      setIndexOpen([...indexOpen, type]);
+    }
+    scrollToTop();
   };
 
   const getBadgeClass = (type: string) => {
@@ -146,6 +131,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -164,6 +150,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
         return "text-[#FD0000]";
     }
   };
+
   const scrollToTop = () => {
     const isBrowser = () => typeof window !== "undefined";
     if (!isBrowser()) return;
@@ -174,17 +161,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
     return (
       <div className="flex flex-col border border-t-[4px] border-[#221AE9] rounded-[16px] p-[12px] lg:p-[16px]">
         <div
-          onClick={
-            Type == indexOpen
-              ? () => {
-                  setIndexOpen("");
-                  scrollToTop();
-                }
-              : () => {
-                  setIndexOpen(Type);
-                  scrollToTop();
-                }
-          }
+          onClick={() => toggleSection(Type)}
           className="cursor-pointer flex flex-row justify-between items-center gap-2"
         >
           <div className="flex flex-row items-center gap-2">
@@ -198,29 +175,18 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
             <span className="text-[20px]">Mistake Type:</span>
             <span className="text-[20px] font-semibold">{Type}</span>
           </div>
-          <div
-            onClick={
-              Type == indexOpen
-                ? () => {
-                    setIndexOpen("");
-                    scrollToTop();
-                  }
-                : () => {
-                    setIndexOpen(Type);
-                    scrollToTop();
-                  }
-            }
-          >
-            {Type == indexOpen ? (
+          <div onClick={() => toggleSection(Type)}>
+            {indexOpen.includes(Type) ? (
               <ChevronUp size={24} color="black" />
             ) : (
               <ChevronDown size={24} color="black" />
             )}
           </div>
         </div>
-        {Type == indexOpen && data.length == 0 ? (
+        {indexOpen.includes(Type) && data.length == 0 ? (
           <NoData />
         ) : (
+          indexOpen.includes(Type) &&
           data.map((item: any, key: number) => {
             return (
               <div
@@ -332,7 +298,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                               className="btn-tertiary rounded-full flex items-center justify-center"
                               style={{
                                 boxShadow: `inset 0px -2px 2px #C6EEFE,
-                                   inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
+                                   inset 0px 2px 0px #FFFFFF`,
                               }}
                             >
                               <span className="text-center text-xs sm:text-[14px] text-[#221AE9] font-medium">
@@ -352,6 +318,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       </div>
     );
   };
+
   if (!PreviousAnalysis) {
     return (
       <EmptyLog
@@ -361,7 +328,9 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       />
     );
   }
+
   if (isLoading) return <DotSpinner />;
+
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
       {PreviousAnalysis?.criticalMistakes &&
