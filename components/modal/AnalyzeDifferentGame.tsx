@@ -277,6 +277,7 @@ export function AnalyzeDifferentGame({
         60000
       );
       setDataAnalysis(responseAnalysis.data);
+      setPgn(responseAnalysis.data.gameInfo.pgn)
 
       // Close the dialog
       setOpen(false);
