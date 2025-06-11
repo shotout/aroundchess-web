@@ -47,6 +47,7 @@ interface PgnState {
   error: Error | null;
   dataGamesImport: any;
   dataGames: any;
+  historyGame: any[];
   capturedWhite: any[];
   capturedBlack: any[];
   mistakeLogs: any[];
@@ -75,6 +76,7 @@ interface PgnState {
   setDataGames: (dataGames: any) => void;
   setHideDiv: (hideDiv: boolean) => void;
 
+  setHistoryGame: (historyGame: any[]) => void;
   setCapturedWhite: (capturedWhite: any[]) => void;
   setCapturedBlack: (capturedBlack: any[]) => void;
   setMistakeLogs: (mistakeLogs: any[]) => void;
@@ -135,6 +137,7 @@ export const usePgnStore = create<PgnState>()(
       error: null,
       dataGamesImport: null,
       dataGames: null,
+      historyGame:[],
       capturedWhite: [],
       capturedBlack: [],
       mistakeLogs: [],
@@ -181,6 +184,7 @@ export const usePgnStore = create<PgnState>()(
 
       setDataGames: (dataGames: any) => set({ dataGames }),
 
+      setHistoryGame: (historyGame: any[]) => set({ historyGame }),
       setCapturedWhite: (capturedWhite: any[]) => set({ capturedWhite }),
 
       setCapturedBlack: (capturedBlack: any[]) => set({ capturedBlack }),

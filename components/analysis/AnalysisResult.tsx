@@ -54,6 +54,8 @@ const AnalysisResult: React.FC = () => {
     hideDiv,
     capturedWhite,
     capturedBlack,
+    historyGame,
+    setHistoryGame,
     setCapturedBlack,
     setCapturedWhite,
     username,
@@ -139,7 +141,7 @@ const AnalysisResult: React.FC = () => {
 
   const parsePgn = (pgnText: string): boolean => {
     try {
-      console.log("parsePgn",pgnText)
+      console.log("parsePgn", pgnText);
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
 
@@ -152,6 +154,7 @@ const AnalysisResult: React.FC = () => {
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
 
       setParsedMoves(history);
+      setHistoryGame(history);
       comments.forEach((c) => {
         const index = history.findIndex(({ after }) => after == c.fen);
         if (index !== -1) {
@@ -333,16 +336,29 @@ const AnalysisResult: React.FC = () => {
   };
 
   useEffect(() => {
-    const color = chessMove.type == "black" ? "b" : "w";
-    const data = parsedMoves.filter(
-      (i) => i.san == chessMove.move && i.color == color
-    );
-    console.log("data move",data)
-    if (data.length > 0) {
-      setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-      setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+    if (chessMove.index != null) {
+      const colorIndex = chessMove.type == "black" ? 1 : 0;
+      let indexOf = chessMove.index * 2 + colorIndex;
+      console.log("indexOf", indexOf);
+      const data = parsedMoves[indexOf];
+      console.log("parsedMoves", parsedMoves);
+      console.log("data move", data);
+      if (data!=null) {
+        setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
+        setCurrentMove(parsedMoves.indexOf(data) + 1);
+      }
+    } else {
+      const color = chessMove.type == "black" ? "b" : "w";
+      const data = parsedMoves.filter(
+        (i) => i.san == chessMove.move && i.color == color
+      );
+      console.log("parsedMoves", parsedMoves);
+      console.log("data move", data);
+      if (data.length > 0) {
+        setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
+        setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chessMove, parsedMoves]);
 
   useEffect(() => {
