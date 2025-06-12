@@ -19,7 +19,7 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     const checkSession = () => {
-      if (sessionId) {
+      if (sessionId.length > 0) {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -55,50 +55,15 @@ export default function AnalysisPage() {
   const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
 
-  const fetchMistakePrevious = async () => {
-    try {
-      const prevData = await getMistakePrevious();
-      const dataPrevious = prevData.data;
-      if (dataPrevious.length > 0) {
-        setPreviousAnalyse(dataPrevious);
-        openModalAnalyze(dataPrevious);
-        fetchMistakePreviousDetail(dataPrevious[0].id);
-      } else {
-        fetchPgnFamousGame();
-      }
-    } catch (error) {
-      openModalAnalyze([]);
-    }
-  };
-
-  const fetchMistakePreviousDetail = async (id: string) => {
-    try {
-      const params = { page: 1, limit: 10, phase: "", type: "" };
-      const prevDataDetail = await getMistakePreviousDetail(id, params);
-      const dataDetail = prevDataDetail.data;
-      setLastPgn(dataDetail.pgn);
-      fetchExistAnalyze();
-    } catch (error) {
-      // Handle error silently
-    }
-  };
-
-  const openModalAnalyze = (data: any) => {
-    if (data.length == 0) {
-      if (!openAnalyze) {
-        setOpenAnalyze(true);
-      }
-    } else {
-      setOpenAnalyze(false);
-    }
-  };
-
   const fetchExistAnalyze = async () => {
     try {
       const response = await getLastAnalysis({});
-      console.log("fetchExistAnalyze",response.data)
-      setDataAnalysis(response.data);
-      setPgn(response.data.gameInfo.pgn)
+      if (response.data != null) {
+        setDataAnalysis(response.data);
+        setPgn(response.data.gameInfo.pgn);
+      } else {
+        setOpenAnalyze(true);
+      }
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -107,7 +72,7 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     if (hydrated && hydratedProfile) {
-      if (isSignedIn) {
+      if (sessionId.length > 0 && !isLoading) {
         setLoading(true);
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
@@ -129,6 +94,7 @@ export default function AnalysisPage() {
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setLoading(false);
+      setOpenAnalyze(true);
     } catch (err) {
       setIsLoading(false);
       setLoading(false);
