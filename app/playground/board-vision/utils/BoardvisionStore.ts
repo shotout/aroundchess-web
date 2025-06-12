@@ -24,7 +24,6 @@ interface GameState {
   arrows: Arrow[] | any;
 }
 
-// Persistent data structure - only what we want to save
 interface PersistedGameState {
   positions: Position[];
   currentPositionIndex: number;
@@ -49,7 +48,6 @@ interface BoardVisionState {
   isChangingQuestion: boolean;
   loadingError: string | null;
 
-  // Flag to track if we've restored from persistence
   _hasHydrated: boolean;
   setHasHydrated: (hasHydrated: boolean) => void;
 
@@ -183,14 +181,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
             const newArrows: Arrow[] = [];
 
             if (defaultGame.gameQuestion.text.includes("legal moves")) {
-              // Highlight all legal moves
               allMoves.forEach((move) => {
                 newHighlightedSquares[move.to] = {
                   background: "none",
                   borderRadius: "100px",
                   border: "3px solid #0000C8",
                 };
-                // Optionally add arrows for all legal moves
                 newArrows.push([move.from, move.to]);
               });
             } else if (defaultGame.gameQuestion.text.includes("check moves")) {
@@ -703,7 +699,6 @@ export const useBoardVisionStore = create<BoardVisionState>()(
         if (state) {
           state.setHasHydrated(true);
 
-          // Regenerate game questions after hydration if we have valid positions
           if (
             state.userGame.currentPosition &&
             state.userGame.positions.length > 0

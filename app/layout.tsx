@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { AuthProvider, useAuth } from "../context/AuthContext";
-import React from 'react';
-
-const inter = Inter({ subsets: ["latin"] });
+import { AuthProvider } from "../context/AuthContext";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "AroundChess",
@@ -27,12 +23,12 @@ export default function RootLayout({
         <script src="/stockfish.js" defer></script>
       </head>
       <body>
-      <React.StrictMode>
-        <AuthProvider>
-          {children}
-          {/* <Analytics /> */}
-          <Toaster />
-        </AuthProvider>
+        <React.StrictMode>
+          <AuthProvider>
+            {children}
+            {/* <Analytics /> */}
+            <Toaster />
+          </AuthProvider>
         </React.StrictMode>
       </body>
     </html>

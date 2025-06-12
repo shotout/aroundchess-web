@@ -239,6 +239,7 @@ export default function PlayingPage() {
           foundMove.piece === "p" &&
           square[1] === "1")
       ) {
+        setBeforeFen(game.fen());
         setShowPromotionDialog(true);
         return;
       }
@@ -272,6 +273,7 @@ export default function PlayingPage() {
     return result;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getClassificationMove = async (move: any) => {
     const moveUserClassification = await handleClassify(move);
     setMoveClassification(moveUserClassification);
@@ -285,7 +287,6 @@ export default function PlayingPage() {
   ) => {
     setBestline("");
     setHintClicked(false);
-    setBeforeFen(game.fen());
 
     if (piece) {
       const move = game.move({
@@ -293,10 +294,25 @@ export default function PlayingPage() {
         to: promoteToSquare || moveTo!,
         promotion: piece?.[1]?.toLowerCase() ?? "q",
       });
-      setMoveData(move);
-      setGamePosition(game.fen());
-      playSound(game, move);
+
+      if (move) {
+        setMoveData(move);
+        setGamePosition(game.fen());
+        setAfterFen(game.fen());
+        playSound(game, move);
+
+        setPreviousSquare((promoteFromSquare || moveFrom) as Square);
+        setCurrentSquare((promoteToSquare || moveTo) as Square);
+
+        setCurrentTurn((turnColor) =>
+          turnColor !== "White" ? "White" : "Black"
+        );
+
+        setMoveClassification("");
+        getClassificationMove(move);
+      }
     }
+
     setMoveFrom("");
     setMoveTo(null);
     setShowPromotionDialog(false);
@@ -494,6 +510,7 @@ export default function PlayingPage() {
     }
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
   useEffect(() => {

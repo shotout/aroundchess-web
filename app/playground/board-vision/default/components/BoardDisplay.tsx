@@ -41,7 +41,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 4.2 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -69,11 +69,11 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
 
   return (
     <motion.div
-      className={`xl:border border-gray-200 p-4 rounded-md flex flex-col md:col-span-6 ${className}`}
+      className={`xl:border border-gray-200 p-4 space-y-2 rounded-md flex flex-col md:col-span-6 ${className}`}
       variants={leftPanelVariants}
     >
       <div className="relative w-full flex justify-center items-center">
-        <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-12 overflow-hidden max-w-[750px] max-h-[700px]">
+        <div className="aspect-square bg-white flex items-center justify-center  xl:p-12 overflow-hidden max-w-[750px] max-h-[700px]">
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}
@@ -105,7 +105,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
           href={currentPosition.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-black hover:underline text-xl text-center flex items-center justify-center mt-4"
+          className="text-black hover:underline text-xl text-center flex items-center justify-center"
         >
           {currentPosition.white} vs {currentPosition.black}
         </a>

@@ -65,33 +65,22 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   onPieceClick,
   arePremovesAllowed,
 }) => {
-  const {
-    StyleChoosed,
-    setStyleChoosed,
-    BoardChoosed,
-    setBoardChoosed,
-    PieceChoosed,
-    setPieceChoosed,
-    trigger,
-  } = useChessBoardThemeStore();
-  // Board boardWidth configuration
-  const [boardSize, setBoardSize] = useState<number | any>(700); // Default boardWidth
+  const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
+  const [boardSize, setBoardSize] = useState<number | any>(700);
   const [scale, setScale] = useState<number | any>(0);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(boardWidth, "boardWidth in 3d board wood");
-    console.log(window?.innerWidth, "widthC in 3d board wood");
     if (boardWidth) {
-      let fixScale = boardWidth / 480;
-
+      const fixScale = boardWidth / 480;
       setScale(fixScale);
-      let sz = boardWidth < 480 ? 480 : boardWidth;
       setBoardSize(boardWidth);
     } else {
       handleResize();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardWidth, window?.innerWidth]);
+
   const handleResize = () => {
     const width = window?.innerWidth;
     const height = window?.innerHeight;
@@ -101,23 +90,15 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log(
-        "boardWidth board...",
-        Math.min(maxSize, availableHeight * 0.8)
-      );
     }
   };
+
   const threeDPieces = useMemo(() => {
     const pieces = [
       {
@@ -188,7 +169,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
             height: squareWidth,
             position: "relative",
             transform: "rotateY(27.5deg)",
-            // boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 24px 8px",
             borderRadius: "8px",
           }}
         >
@@ -208,9 +188,11 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     });
     return pieceComponents;
   }, [PieceChoosed]);
-  // Frame dimensions
-  let paddingTop = 48;
+
+  const shouldRotateBoard = orientation === "black";
+
   if (loading) return <DotSpinner />;
+
   return (
     <div
       className="relative flex flex-col items-center justify-center"
@@ -224,7 +206,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         style={{
           width: 480,
           height: 480,
-
           transform: `scale(${scale + ``})`,
         }}
       >
@@ -233,7 +214,12 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           alt="Chess board frame"
           width={1000}
           height={1000}
-          className={`absolute z-2 w-[480px] h-[480px] object-contain `}
+          className={`absolute z-2 object-contain`}
+          style={{
+            width: 480,
+            height: 480,
+            transform: shouldRotateBoard ? "rotate(180deg)" : "none",
+          }}
           priority
         />
         <div
@@ -316,19 +302,15 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 position={position}
                 customBoardStyle={{
                   boxShadow: "rgba(0, 0, 0, 0.5) 2px 4px 24px 8px",
-
                   transform: "rotateX(27.5deg) scale(1)",
                   transformOrigin: "center",
-                  // background:"black"
                 }}
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#00000080",
                 }}
                 customDarkSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#00000070",
                 }}
                 animationDuration={100}
               />

@@ -19,11 +19,13 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setTokenId] = useLocalStorage<string>("token", "");
+  const { setCallFetch } = useProfileFetch();
 
   const { setSessionId } = useProfileStore();
   const router = useRouter();

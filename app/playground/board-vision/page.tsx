@@ -9,7 +9,7 @@ const BoardVisionPage: React.FC = () => {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+          <div className="w-full  h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
             <Welcome />
           </div>
         </Navigation>

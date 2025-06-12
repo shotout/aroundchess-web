@@ -151,7 +151,7 @@ const UserPGN: React.FC = () => {
     <>
       <main className="w-full h-full p-4 xl:p-8">
         <motion.div
-          className="grid grid-cols-1 xl:grid-cols-10 min-h-full bg-white xl:gap-5"
+          className="grid grid-cols-1 xl:grid-cols-10 min-h-full bg-white xl:gap-4"
           variants={containerVariants}
           initial="hidden"
           animate="visible"

@@ -39,27 +39,12 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
 
-  const getMaxBoardSize = (screenWidth: number) => {
-    const LARGE_SCREEN_BREAKPOINT = 2000;
-    const MEDIUM_SCREEN_BREAKPOINT = 1280;
-    const MIN_BOARD_SIZE = 480;
-
-    if (screenWidth >= LARGE_SCREEN_BREAKPOINT) {
-      return screenWidth / 5.2;
-    } else if (screenWidth >= MEDIUM_SCREEN_BREAKPOINT) {
-      return screenWidth / 4.2;
-    } else {
-      return MIN_BOARD_SIZE;
-    }
-  };
-
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-
-    const maxSize = getMaxBoardSize(width);
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -93,7 +78,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
 
       <div className="relative w-full flex justify-center items-center my-4">
-        <div className="aspect-square bg-white flex items-center justify-center w-full overflow-hidden max-w-[500px] 2xl:max-w-[600px]">
+        <div className="aspect-square bg-white flex items-center justify-center overflow-hidden max-w-[500px] 2xl:max-w-[750px] 2xl:max-h-[700px]">
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}

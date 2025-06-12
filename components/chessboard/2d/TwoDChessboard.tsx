@@ -70,6 +70,12 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
 }) => {
   const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
 
+  const boardImageSrc = useMemo(() => {
+    const isFlipped = orientation === "black";
+    const suffix = isFlipped ? "-flipped" : "";
+    return `/boards/${BoardChoosed}${suffix}.png`;
+  }, [BoardChoosed, orientation]);
+
   const handlePieceDragBegin = (piece: string, sourceSquare: string) => {
     if (onPieceDragBegin) {
       onPieceDragBegin(piece, sourceSquare);
@@ -229,8 +235,8 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
       <Image
-        src={`/boards/${BoardChoosed}.png`}
-        alt="wood"
+        src={boardImageSrc}
+        alt="chessboard"
         width={1000}
         height={1000}
         className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}]`}
