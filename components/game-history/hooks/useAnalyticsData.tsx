@@ -11,8 +11,8 @@ import {
 import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
 
-// Constants
-export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+
+export const CACHE_EXPIRATION = 5 * 60 * 1000; 
 export const MONTHS: string[] = [
   "Jan",
   "Feb",
@@ -61,21 +61,21 @@ export const processApiData = (
     },
   ];
 
-  // Process opening statistics
+  
   const openingStats = apiData.openingStatistics.map((opening) => ({
     name: opening.name,
     games: opening.games,
     winrate: `${opening.winRate}%`,
   }));
 
-  // Process time control performance
+  
   const timeControlData = apiData.timeControlPerformance.map((item) => ({
     category: item.type,
     games: item.games,
     winRate: item.winRate,
   }));
 
-  // Process performance insights
+  
   const insights = {
     averageGameLength: apiData.performanceInsights.averageGameLength,
     accuracy: apiData.performanceInsights.accuracy,
@@ -83,7 +83,7 @@ export const processApiData = (
     blunderRate: apiData.blunderRate,
   };
 
-  // Process key statistics
+  
   interface KeyStatistics {
     totalGames: number;
     averageRating: number;
@@ -94,11 +94,11 @@ export const processApiData = (
   const stats: KeyStatistics = {
     totalGames: apiData.keyStatistics.totalGames,
     averageRating: apiData.keyStatistics.averageRating,
-    winRate: "hardcode",
-    longestStreak: "hardcode",
+    winRate: apiData.keyStatistics.winRate,
+    longestStreak: apiData.keyStatistics.longestStreak,
   };
 
-  // Process achievements
+  
   const achievementsData = apiData.recentAchievements || [];
 
   return {
@@ -113,19 +113,103 @@ export const processApiData = (
 };
 
 export const getAchievementDetails = (achievement: string) => {
-  if (achievement.includes("Classical Win")) {
-    return {
-      icon: "trophy",
-      title: "First Classical Win",
-      description: "Won against 2,000+ rated player",
-    };
-  } else if (achievement.includes("consecutive wins")) {
+  if (achievement.includes("win streak") || achievement.includes("consecutive wins")) {
     return {
       icon: "swords",
       title: "Winning Streak",
       description: achievement,
     };
-  } else {
+  }
+  
+  else if (achievement.includes("Rating improved") || achievement.includes("points recently")) {
+    return {
+      icon: "trophy",
+      title: "Rating Progress",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("Reached") && achievement.includes("rating")) {
+    return {
+      icon: "trophy",
+      title: "Rating Milestone",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("this week") || achievement.includes("this month")) {
+    return {
+      icon: "swords",
+      title: "Recent Success",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("high accuracy") || achievement.includes("accuracy games")) {
+    return {
+      icon: "trophy",
+      title: "Precision Play",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("Quick victory") || achievement.includes("moves!")) {
+    return {
+      icon: "swords",
+      title: "Lightning Victory",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("bullet") || achievement.includes("Bullet")) {
+    return {
+      icon: "timer",
+      title: "Speed Chess Master",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("blitz") || achievement.includes("Blitz")) {
+    return {
+      icon: "timer",
+      title: "Blitz Warrior",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("win rate") || achievement.includes("%")) {
+    return {
+      icon: "trophy",
+      title: "Consistent Performance", 
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("Played") && achievement.includes("games")) {
+    return {
+      icon: "swords",
+      title: "Active Player",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("Current rating")) {
+    return {
+      icon: "trophy",
+      title: "Chess Rating",
+      description: achievement,
+    };
+  }
+  
+  else if (achievement.includes("Classical Win")) {
+    return {
+      icon: "trophy",
+      title: "First Classical Win",
+      description: "Won against 2,000+ rated player",
+    };
+  }
+  
+  else {
     return {
       icon: "timer",
       title: "Achievement",

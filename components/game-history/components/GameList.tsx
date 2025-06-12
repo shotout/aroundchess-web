@@ -119,7 +119,8 @@ const GamesList: React.FC<GamesListProps> = ({
           <div className="col-span-1 px-4 text-left">Result</div>
           <div className="col-span-1 px-4 text-left">Opponent</div>
           <div className="col-span-1 px-4 text-left">Rating</div>
-          <div className="col-span-1 px-4 text-left">ELO Change</div>
+          <div className="col-span-1 px-4 text-left">Game Type</div>
+          {/* <div className="col-span-1 px-4 text-left">ELO Change</div> */}
           <div className="col-span-1 px-4 text-left">Moves</div>
           <div className="col-span-1 px-4 text-left">Opening</div>
           <div className="col-span-1 px-4 text-left">Source</div>
@@ -187,7 +188,7 @@ const GamesList: React.FC<GamesListProps> = ({
                   {game.rating || "N/A"}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* <div className="col-span-1 px-4 py-3 flex items-center">
                   <span
                     className={
                       Number(game.eloChange) >= 0
@@ -197,6 +198,9 @@ const GamesList: React.FC<GamesListProps> = ({
                   >
                     {game.eloChange}
                   </span>
+                </div> */}
+                <div className="col-span-1 px-4 py-3 flex items-center truncate">
+                  {game.timeClass || "Unknown Game Type"}
                 </div>
 
                 <div className="col-span-1 px-4 py-3 flex items-center">

@@ -4,6 +4,7 @@ import { gameHistoryApi } from "../services/api";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
+import { time } from "console";
 
 export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
 
@@ -36,6 +37,7 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         resultColor: item.result_color || getResultColor(item.result),
         gameType: item.game_type || "standard",
         username: item.username,
+        timeClass: item.time_class || "Unknown",
       };
     })
     .filter(Boolean) as Game[];
