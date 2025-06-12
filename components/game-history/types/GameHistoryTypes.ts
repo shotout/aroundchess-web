@@ -16,6 +16,7 @@ export interface Game {
   color: string;
   gameFormat: string;
   pgn: string;
+  timeClass: string;
 }
 
 // Filter Types
@@ -141,6 +142,8 @@ export interface AnalyticsData {
   keyStatistics: {
     totalGames: number;
     averageRating: number;
+    winRate: number;
+    longestStreak: number;
   };
   recentAchievements: string[];
 }

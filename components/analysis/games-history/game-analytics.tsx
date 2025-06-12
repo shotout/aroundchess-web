@@ -42,7 +42,7 @@ export function GameAnalytics() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium mb-4">Rating Progress</h3>
+        <h3 className="text-lg font-medium mb-4">dsadsadsadsa</h3>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ratingHistory}>
