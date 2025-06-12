@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = [
   "/",
+  "/apps-use/terms-of-service",
+  "/apps-use/privacy-policy",
+  "/apps-use/eu-compilance",
   "/faq",
   "/chessboard",
   "/about-us",
