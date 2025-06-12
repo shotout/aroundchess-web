@@ -4,7 +4,7 @@ const publicRoutes = [
   "/",
   "/apps-use/terms-of-service",
   "/apps-use/privacy-policy",
-  "/apps-use/eu-compilance",
+  "/apps-use/eu-compliance",
   "/faq",
   "/chessboard",
   "/about-us",
