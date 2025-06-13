@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle, Info, X } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -39,7 +39,6 @@ export const ChessConnectDialog = ({
 
   const { setUsername: setStoreUsername } = usePgnStore();
 
-  // Resize observer to track window dimensions
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -50,18 +49,13 @@ export const ChessConnectDialog = ({
       });
     };
 
-    // Create ResizeObserver
     const resizeObserver = new ResizeObserver(() => {
       updateDimensions();
     });
 
-    // Observe the html element for viewport changes
     resizeObserver.observe(document.documentElement);
-
-    // Also listen to window resize as fallback
     window.addEventListener("resize", updateDimensions);
 
-    // Cleanup
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", updateDimensions);
@@ -131,8 +125,7 @@ export const ChessConnectDialog = ({
 
   const topOffset =
     windowDimensions.width >= 1024 ? headerHeightLg : headerHeight;
-  const availableHeight = windowDimensions.height - topOffset;
-  const isShortScreen = availableHeight < 600;
+  const availableHeight = windowDimensions.height - topOffset - 32;
 
   return (
     <div
@@ -146,22 +139,23 @@ export const ChessConnectDialog = ({
       onClick={() => onOpenChange(false)}
     >
       <div
-        className={`w-full mx-auto rounded-md bg-white overflow-hidden md:w-[640px] xl:w-[600px] ${
-          isShortScreen ? "h-full max-h-full" : "h-auto max-h-[90%]"
-        }`}
+        className="w-full mx-auto rounded-md  bg-white overflow-hidden md:w-[640px] xl:w-[600px] flex flex-col relative"
+        style={{
+          maxHeight: Math.min(availableHeight, windowDimensions.height * 0.9),
+          height: "auto",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Scrollable container */}
-        <div className={`${isShortScreen ? "h-full overflow-y-auto" : ""}`}>
-          {/* Image section - responsive height */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 p-1 border-gray-200 border rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 transition-colors z-20"
+          aria-label="Close dialog"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <div className="flex-1 overflow-y-auto">
           <div className="w-full flex items-center justify-center p-2 2xl:p-4">
-            <div
-              className={`w-full relative ${
-                isShortScreen
-                  ? "h-24 sm:h-32" // Much smaller on short screens
-                  : "h-32 sm:h-40 md:h-48" // Original sizing for taller screens
-              }`}
-            >
+            <div className="w-full relative h-24 sm:h-32 md:h-40">
               <Image
                 src="/icons/onboarding-popup.png"
                 alt="Chess.com Connection"
@@ -171,7 +165,6 @@ export const ChessConnectDialog = ({
             </div>
           </div>
 
-          {/* Content section */}
           <div className="w-full p-4 md:p-6">
             <div className="flex flex-col gap-y-1">
               <h2 className="text-2xl font-bold text-center">
@@ -192,7 +185,6 @@ export const ChessConnectDialog = ({
             </div>
 
             <div className="mt-4 space-y-4">
-              {/* Chess.com Username Input */}
               <div className="flex items-center gap-x-2">
                 <Image
                   src={"/my-game-history/knight.png"}
@@ -214,7 +206,6 @@ export const ChessConnectDialog = ({
                 disabled={isSubmitting}
               />
 
-              {/* Game Type Select */}
               <div className="flex items-center gap-x-2">
                 <p className="text-sm text-left text-gray-700">Game Type</p>
               </div>
@@ -233,7 +224,6 @@ export const ChessConnectDialog = ({
                 </SelectContent>
               </Select>
 
-              {/* Info note about changing game type later */}
               <div className="flex items-center gap-x-2 text-blue-base">
                 <Info className="w-4 h-4 flex-shrink-0 text-blue-base" />
                 <p className="text-xs">
@@ -254,9 +244,6 @@ export const ChessConnectDialog = ({
                 {isSubmitting ? "Connecting..." : "Save"}
               </button>
             </div>
-
-            {/* Add some bottom padding for short screens */}
-            {isShortScreen && <div className="h-4" />}
           </div>
         </div>
       </div>
