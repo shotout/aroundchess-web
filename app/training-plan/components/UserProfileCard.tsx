@@ -1,12 +1,10 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { AlertCircle } from "lucide-react";
 import { UserProfileCardProps } from "./types";
 import Image from "next/image";
 import { useUserStore } from "../store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack from "./SkillProgressTrack";
-import { useProfileStore } from "@/app/store/profile";
 import CustomInfoTooltip from "./CustomTooltip";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
@@ -14,16 +12,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   avatar,
   schedule,
 }) => {
-  const { sessionId } = useProfileStore();
   const [isMobile, setIsMobile] = useState(false);
 
-  const { profile, isLoading, error, fetchUserProfile } = useUserStore();
-
-  useEffect(() => {
-    if (sessionId != "") {
-      fetchUserProfile(sessionId);
-    }
-  }, [sessionId, fetchUserProfile]);
+  // Only get profile data from store, don't trigger fetches
+  const { profile, isLoading, error } = useUserStore();
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -71,7 +63,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     );
   }
 
-  if (isLoading) {
+  if (isLoading && !profile && !userProfile) {
     return (
       <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF] shadow-sm p-8">
         <div className="flex justify-center items-center">

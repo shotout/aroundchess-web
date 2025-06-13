@@ -1,7 +1,14 @@
-import { Lock, LogOut, Mail } from "lucide-react";
+import { Lock, LogOut, Mail, Info } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/functions/api-client";
@@ -22,6 +29,7 @@ const MyAccount = () => {
   const router = useRouter();
   const { username, setUsername, clearAll } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [gameType, setGameType] = useState<string>("rapid"); // Default game type
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
     defaultUsername: username,
@@ -86,7 +94,9 @@ const MyAccount = () => {
           )}
         </button>
       </div>
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+
+      {/* First Row: Email | Password */}
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
         <div className="space-y-2 w-full">
           <label
             htmlFor="email"
@@ -107,38 +117,6 @@ const MyAccount = () => {
             onChange={handleOnChange}
           />
         </div>
-        <div className="space-y-2 w-full">
-          <label
-            htmlFor="email"
-            className="flex flex-row gap-2 text-[14px] font-normal"
-          >
-            <Image
-              src="/icons/hero-section.png"
-              alt="chess"
-              width={100}
-              height={100}
-              className="w-[16px] h-[20px] relative z-10"
-              priority
-            />{" "}
-            Default Chess.com Username
-          </label>
-          <Input
-            disabled={true}
-            id="username"
-            name="defaultUsername"
-            type="text"
-            placeholder="Type here..."
-            className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border ${
-              form.defaultUsername.length > 0
-                ? `border-[#737c7f]`
-                : `border-[#C0CED4]`
-            } px-[16px] py-[12px]`}
-            value={form.defaultUsername}
-            onChange={handleOnChange}
-          />
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
         <div className="space-y-2 w-full">
           <label
             htmlFor="password"
@@ -167,7 +145,80 @@ const MyAccount = () => {
             </span>
           </button>
         </div>
-        <div className="space-y-2 w-full"></div>
+      </div>
+
+      {/* Second Row: Default Chess.com Username | Game Type */}
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+        <div className="space-y-2 w-full">
+          <label
+            htmlFor="username"
+            className="flex flex-row gap-2 text-[14px] font-normal"
+          >
+            <Image
+              src="/icons/hero-section.png"
+              alt="chess"
+              width={100}
+              height={100}
+              className="w-[16px] h-[20px] relative z-10"
+              priority
+            />{" "}
+            Default Chess.com Username
+          </label>
+          <Input
+            disabled={true}
+            id="username"
+            name="defaultUsername"
+            type="text"
+            placeholder="Type here..."
+            className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border ${
+              form.defaultUsername.length > 0
+                ? `border-[#737c7f]`
+                : `border-[#C0CED4]`
+            } px-[16px] py-[12px]`}
+            value={form.defaultUsername}
+            onChange={handleOnChange}
+          />
+        </div>
+        <div className="space-y-2 w-full">
+          <label
+            htmlFor="gameType"
+            className="flex flex-row gap-2 text-[14px] font-normal"
+          >
+            <Image
+              src="/my-game-history/knight.png"
+              alt="knight"
+              width={20}
+              height={20}
+              className="w-[20px] h-[20px] relative z-10"
+              priority
+            />{" "}
+            Game Type
+          </label>
+          <Select value={gameType} onValueChange={setGameType}>
+            <SelectTrigger
+              className={`w-full shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
+                gameType ? `border-[#737c7f]` : `border-[#C0CED4]`
+              } px-[16px] py-[12px]`}
+            >
+              <SelectValue placeholder="Select Game Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rapid">Rapid</SelectItem>
+              <SelectItem value="blitz">Blitz</SelectItem>
+              <SelectItem value="bullet">Bullet</SelectItem>
+              <SelectItem value="classical">Classical</SelectItem>
+            </SelectContent>
+          </Select>
+          {/* Info text below game type */}
+          <div className="flex items-center gap-x-1 text-blue-base mt-1">
+            <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />{" "}
+            {/* Made square */}
+            <p className="text-xs">
+              Changing your Game Type will affect the Game History and Training
+              Plan
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Password Change Dialog */}

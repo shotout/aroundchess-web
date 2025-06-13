@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +93,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   const [activeCategory, setActiveCategory] = useState("opening");
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const categories = ["opening", "middlegame", "endgame"];
 
   const selectedTopics = [
@@ -102,35 +103,43 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     ...selectedEndgames,
   ];
 
-  useEffect(() => {
-    if (open && sessionId) {
+  // Initialize data when dialog opens
+  const initializeDialogData = useCallback(async () => {
+    if (!open || !sessionId || hasInitialized) return;
+
+    try {
       if (mode === "adjust") {
-        fetchExistingTopics(sessionId);
+        await fetchExistingTopics(sessionId);
       } else {
-        fetchTopics(sessionId);
+        await fetchTopics(sessionId);
+      }
+      setHasInitialized(true);
+    } catch (error) {
+      console.error("Error initializing dialog data:", error);
+    }
+  }, [open, sessionId, mode, fetchTopics, fetchExistingTopics, hasInitialized]);
+
+  // Reset state when dialog closes
+  const resetDialogState = useCallback(() => {
+    if (!open) {
+      setHasInitialized(false);
+      if (mode === "adjust") {
+        reset();
+      } else {
+        resetPartial();
       }
     }
+  }, [open, mode, reset, resetPartial]);
 
-    return () => {
-      if (!open) {
-        if (mode === "adjust") {
-          reset();
-        } else {
-          resetPartial();
-        }
-      }
-    };
-  }, [
-    open,
-    sessionId,
-    mode,
-    fetchTopics,
-    fetchExistingTopics,
-    reset,
-    resetPartial,
-  ]);
+  useEffect(() => {
+    initializeDialogData();
+  }, [initializeDialogData]);
 
-  const transformTopics = () => {
+  useEffect(() => {
+    resetDialogState();
+  }, [resetDialogState]);
+
+  const transformTopics = useCallback(() => {
     if (!topics) return [];
 
     const transformed: any[] = [];
@@ -176,9 +185,9 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     }
 
     return transformed;
-  };
+  }, [topics]);
 
-  const transformCategoryInfo = () => {
+  const transformCategoryInfo = useCallback(() => {
     if (!config?.requirements) return defaultCategoryInfo;
 
     const requirements = config.requirements;
@@ -217,57 +226,66 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         subcategories: [],
       },
     ];
-  };
+  }, [config]);
 
-  const getRecommendationsForCategory = (categoryId: string) => {
-    if (!recommendations) return [];
+  const getRecommendationsForCategory = useCallback(
+    (categoryId: string) => {
+      if (!recommendations) return [];
 
-    switch (categoryId) {
-      case "opening":
-        return [
-          ...(recommendations.openings?.white || []),
-          ...(recommendations.openings?.black || []),
-        ];
-      case "middlegame":
-        return recommendations.middlegames || [];
-      case "endgame":
-        return recommendations.endgames || [];
-      default:
-        return [];
-    }
-  };
+      switch (categoryId) {
+        case "opening":
+          return [
+            ...(recommendations.openings?.white || []),
+            ...(recommendations.openings?.black || []),
+          ];
+        case "middlegame":
+          return recommendations.middlegames || [];
+        case "endgame":
+          return recommendations.endgames || [];
+        default:
+          return [];
+      }
+    },
+    [recommendations]
+  );
 
-  const handleToggleTopic = (topicId: string) => {
-    const transformedTopics = transformTopics();
-    const topic = transformedTopics.find((t) => t.id === topicId);
+  const handleToggleTopic = useCallback(
+    (topicId: string) => {
+      const transformedTopics = transformTopics();
+      const topic = transformedTopics.find((t) => t.id === topicId);
 
-    if (topic) {
-      toggleTopic(topicId, topic.category);
-    }
-  };
+      if (topic) {
+        toggleTopic(topicId, topic.category);
+      }
+    },
+    [transformTopics, toggleTopic]
+  );
 
-  const getTopicsByCategory = (categoryId: string) => {
-    const transformedTopics = transformTopics();
-    const category = transformCategoryInfo().find(
-      (cat) => cat.id === categoryId
-    );
-
-    if (
-      category &&
-      category.subcategories &&
-      category.subcategories.length > 0
-    ) {
-      const subcategoryIds = category.subcategories.map((sub) => sub.id);
-      return transformedTopics.filter((topic) =>
-        subcategoryIds.includes(topic.category)
+  const getTopicsByCategory = useCallback(
+    (categoryId: string) => {
+      const transformedTopics = transformTopics();
+      const category = transformCategoryInfo().find(
+        (cat) => cat.id === categoryId
       );
-    }
 
-    return transformedTopics.filter((topic) => topic.category === categoryId);
-  };
+      if (
+        category &&
+        category.subcategories &&
+        category.subcategories.length > 0
+      ) {
+        const subcategoryIds = category.subcategories.map((sub) => sub.id);
+        return transformedTopics.filter((topic) =>
+          subcategoryIds.includes(topic.category)
+        );
+      }
 
-  const handleCreatePlan = async () => {
-    if (sessionId != "") {
+      return transformedTopics.filter((topic) => topic.category === categoryId);
+    },
+    [transformTopics, transformCategoryInfo]
+  );
+
+  const handleCreatePlan = useCallback(async () => {
+    if (sessionId && !isCreatingPlan) {
       setIsCreatingPlan(true);
       try {
         const success = await createTrainingPlan(sessionId);
@@ -280,7 +298,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         setIsCreatingPlan(false);
       }
     }
-  };
+  }, [
+    sessionId,
+    isCreatingPlan,
+    createTrainingPlan,
+    onOpenChange,
+    onPlanCreated,
+  ]);
 
   const displayUserProfile = storeUserProfile || userProfile;
   const keyInfo = {
@@ -330,13 +354,8 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           <div className="flex justify-center mt-4">
             <Button
               onClick={() => {
-                if (sessionId) {
-                  if (mode === "adjust") {
-                    fetchExistingTopics(sessionId);
-                  } else {
-                    fetchTopics(sessionId);
-                  }
-                }
+                setHasInitialized(false);
+                initializeDialogData();
               }}
               className="btn-primary"
             >
@@ -372,7 +391,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
           </Button>
         </DialogHeader>
 
-        {isLoading ? (
+        {isLoading || !hasInitialized ? (
           <div className="p-4 flex items-center justify-center">
             <DotSpinner />
           </div>

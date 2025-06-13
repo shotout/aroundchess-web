@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { AlertCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AlertCircle, Info } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -21,6 +28,7 @@ export const ChessConnectDialog = ({
   onSuccess,
 }: ChessConnectDialogProps) => {
   const [username, setUsername] = useState<string>("");
+  const [gameType, setGameType] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [windowDimensions, setWindowDimensions] = useState({
@@ -69,6 +77,12 @@ export const ChessConnectDialog = ({
       return;
     }
 
+    if (!gameType) {
+      setErrorMessage("Please select a game type");
+      toast.error("Please select a game type");
+      return;
+    }
+
     if (!sessionId) {
       setErrorMessage(
         "You must be logged in to connect your Chess.com account"
@@ -102,7 +116,6 @@ export const ChessConnectDialog = ({
     }
   };
 
-  // Handle Enter key press
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !isSubmitting) {
       handleSave();
@@ -116,11 +129,10 @@ export const ChessConnectDialog = ({
   const headerHeight = 72;
   const headerHeightLg = 96;
 
-  // Calculate available height more carefully
   const topOffset =
     windowDimensions.width >= 1024 ? headerHeightLg : headerHeight;
   const availableHeight = windowDimensions.height - topOffset;
-  const isShortScreen = availableHeight < 600; // Consider screens with less than 600px available height as "short"
+  const isShortScreen = availableHeight < 600;
 
   return (
     <div
@@ -180,6 +192,7 @@ export const ChessConnectDialog = ({
             </div>
 
             <div className="mt-4 space-y-4">
+              {/* Chess.com Username Input */}
               <div className="flex items-center gap-x-2">
                 <Image
                   src={"/my-game-history/knight.png"}
@@ -200,6 +213,34 @@ export const ChessConnectDialog = ({
                 onKeyDown={handleKeyDown}
                 disabled={isSubmitting}
               />
+
+              {/* Game Type Select */}
+              <div className="flex items-center gap-x-2">
+                <p className="text-sm text-left text-gray-700">Game Type</p>
+              </div>
+
+              <Select
+                value={gameType}
+                onValueChange={setGameType}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger className="w-full h-12 px-4 rounded-lg border-light-60 bg-[#F2FBFE]">
+                  <SelectValue placeholder="Select your Game Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rapid">Rapid</SelectItem>
+                  <SelectItem value="blitz">Blitz</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Info note about changing game type later */}
+              <div className="flex items-center gap-x-2 text-blue-base">
+                <Info className="w-4 h-4 flex-shrink-0 text-blue-base" />
+                <p className="text-xs">
+                  You can still change the Game type later in the Profile
+                  Settings
+                </p>
+              </div>
 
               {errorMessage && (
                 <p className="text-sm text-red-500">{errorMessage}</p>

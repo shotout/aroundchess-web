@@ -122,6 +122,8 @@ export default function PlayingPage() {
   const [previousSquare, setPreviousSquare] = useState<Square | undefined>(
     undefined
   );
+  const [isClassifying, setIsClassifying] = useState(false);
+  const classificationTimeoutRef = useRef<NodeJS.Timeout>();
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
@@ -268,17 +270,42 @@ export default function PlayingPage() {
     }
   };
 
-  const handleClassify = async (move: any) => {
-    const result = await classifyMove(beforeFen, game.fen(), move.to);
-    return result;
-  };
+  const handleClassify = useCallback(
+    async (move: any) => {
+      try {
+        setIsClassifying(true);
+        const result = await classifyMove(beforeFen, game.fen(), move.to);
+        return result;
+      } catch (error) {
+        return "good-move";
+      } finally {
+        setIsClassifying(false);
+      }
+    },
+    [beforeFen]
+  );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getClassificationMove = async (move: any) => {
-    const moveUserClassification = await handleClassify(move);
-    setMoveClassification(moveUserClassification);
-    findEnemyMove();
-  };
+  const getClassificationMove = useCallback(
+    async (move: any) => {
+      if (classificationTimeoutRef.current) {
+        clearTimeout(classificationTimeoutRef.current);
+      }
+
+      classificationTimeoutRef.current = setTimeout(async () => {
+        try {
+          const moveUserClassification = await handleClassify(move);
+          setMoveClassification(moveUserClassification);
+
+          setTimeout(() => {
+            findEnemyMove();
+          }, 500);
+        } catch (error) {
+          findEnemyMove();
+        }
+      }, 300);
+    },
+    [handleClassify]
+  );
 
   const onPromotionPieceSelect = (
     piece?: string,
@@ -510,7 +537,6 @@ export default function PlayingPage() {
     }
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
   useEffect(() => {
@@ -562,9 +588,7 @@ export default function PlayingPage() {
       setFen(currentFen);
       setPGN(currentPgn);
       setOpen(true);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+    } catch (err) {}
   };
 
   const handleDownload = () => {
@@ -681,6 +705,14 @@ export default function PlayingPage() {
       handleSaveLog();
     }
   }, [statusGame]);
+
+  useEffect(() => {
+    return () => {
+      if (classificationTimeoutRef.current) {
+        clearTimeout(classificationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const onPieceDrop = useCallback(
     (sourceSquare: Square, targetSquare: Square, piece: string) => {

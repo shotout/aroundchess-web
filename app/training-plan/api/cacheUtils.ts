@@ -1,6 +1,7 @@
 interface CacheItem {
   data: any;
   timestamp: number;
+  version?: string;
 }
 
 export const CACHE_KEYS = {
@@ -9,94 +10,217 @@ export const CACHE_KEYS = {
   EXISTING_TRAINING_TOPICS: "existing_training_topics",
   TRAINING_SCHEDULE: "training_schedule",
   PROGRESS_DATA: "progress_data",
+} as const;
+
+const CACHE_EXPIRATION = 60 * 60 * 1000;
+const CACHE_VERSION = "1.0.0";
+const memoryCache = new Map<string, CacheItem>();
+
+const isValidCacheItem = (cacheItem: CacheItem): boolean => {
+  const now = Date.now();
+
+  if (now - cacheItem.timestamp > CACHE_EXPIRATION) {
+    return false;
+  }
+
+  if (cacheItem.version && cacheItem.version !== CACHE_VERSION) {
+    return false;
+  }
+
+  return true;
 };
 
-// Cache expiration time in milliseconds (5 minutes)
-const CACHE_EXPIRATION = 5 * 60 * 1000;
-
 export const CacheUtil = {
-  /**
-   * Set item in cache with current timestamp
-   */
   setItem: (key: string, data: any): void => {
     try {
       const cacheItem: CacheItem = {
         data,
         timestamp: Date.now(),
+        version: CACHE_VERSION,
       };
-      localStorage.setItem(key, JSON.stringify(cacheItem));
+
+      memoryCache.set(key, cacheItem);
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem(key, JSON.stringify(cacheItem));
+      }
     } catch (error) {
       console.error("Error setting cache item:", error);
     }
   },
 
-  /**
-   * Get item from cache if it exists and hasn't expired
-   * @returns The cached data or null if not found or expired
-   */
   getItem: (key: string): any | null => {
     try {
-      const cachedItem = localStorage.getItem(key);
-      if (!cachedItem) return null;
+      const memoryItem = memoryCache.get(key);
+      if (memoryItem && isValidCacheItem(memoryItem)) {
+        return memoryItem.data;
+      }
 
-      const { data, timestamp }: CacheItem = JSON.parse(cachedItem);
-      const now = Date.now();
-
-      // Check if cache has expired
-      if (now - timestamp > CACHE_EXPIRATION) {
-        localStorage.removeItem(key);
+      if (typeof window === "undefined" || !window.localStorage) {
         return null;
       }
 
-      return data;
+      const cachedItem = localStorage.getItem(key);
+      if (!cachedItem) return null;
+
+      const parsedItem: CacheItem = JSON.parse(cachedItem);
+
+      if (!isValidCacheItem(parsedItem)) {
+        CacheUtil.clearItem(key);
+        return null;
+      }
+
+      memoryCache.set(key, parsedItem);
+
+      return parsedItem.data;
     } catch (error) {
       console.error("Error getting cache item:", error);
+      CacheUtil.clearItem(key);
       return null;
     }
   },
 
-  /**
-   * Clear a specific cache item
-   */
   clearItem: (key: string): void => {
     try {
-      localStorage.removeItem(key);
+      memoryCache.delete(key);
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.removeItem(key);
+      }
     } catch (error) {
       console.error("Error clearing cache item:", error);
     }
   },
 
-  /**
-   * Clear all cache items
-   */
   clearAll: (): void => {
     try {
-      Object.values(CACHE_KEYS).forEach((key) => {
-        localStorage.removeItem(key);
-      });
+      memoryCache.clear();
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        Object.values(CACHE_KEYS).forEach((key) => {
+          localStorage.removeItem(key);
+        });
+      }
     } catch (error) {
       console.error("Error clearing all cache items:", error);
     }
   },
 
-  /**
-   * Check if a cache item exists and is not expired
-   */
   hasValidCache: (key: string): boolean => {
     try {
+      const memoryItem = memoryCache.get(key);
+      if (memoryItem) {
+        return isValidCacheItem(memoryItem);
+      }
+
+      if (typeof window === "undefined" || !window.localStorage) {
+        return false;
+      }
+
       const cachedItem = localStorage.getItem(key);
       if (!cachedItem) return false;
 
-      const { timestamp }: CacheItem = JSON.parse(cachedItem);
-      const now = Date.now();
-
-      // Check if cache has expired
-      return now - timestamp <= CACHE_EXPIRATION;
+      const parsedItem: CacheItem = JSON.parse(cachedItem);
+      return isValidCacheItem(parsedItem);
     } catch (error) {
       console.error("Error checking cache validity:", error);
       return false;
     }
   },
+
+  getCacheInfo: (): {
+    memorySize: number;
+    localStorageSize: number;
+    keys: string[];
+  } => {
+    try {
+      const info = {
+        memorySize: memoryCache.size,
+        localStorageSize: 0,
+        keys: Array.from(memoryCache.keys()),
+      };
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        Object.values(CACHE_KEYS).forEach((key) => {
+          if (localStorage.getItem(key)) {
+            info.localStorageSize++;
+          }
+        });
+      }
+
+      return info;
+    } catch (error) {
+      console.error("Error getting cache info:", error);
+      return { memorySize: 0, localStorageSize: 0, keys: [] };
+    }
+  },
+
+  preloadCache: (): void => {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return;
+      }
+
+      Object.values(CACHE_KEYS).forEach((key) => {
+        const cachedItem = localStorage.getItem(key);
+        if (cachedItem) {
+          try {
+            const parsedItem: CacheItem = JSON.parse(cachedItem);
+            if (isValidCacheItem(parsedItem)) {
+              memoryCache.set(key, parsedItem);
+            } else {
+              localStorage.removeItem(key);
+            }
+          } catch (error) {
+            localStorage.removeItem(key);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error preloading cache:", error);
+    }
+  },
+
+  cleanupExpiredCache: (): void => {
+    try {
+      const memoryEntries = Array.from(memoryCache.entries());
+      for (const [key, item] of memoryEntries) {
+        if (!isValidCacheItem(item)) {
+          memoryCache.delete(key);
+        }
+      }
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        Object.values(CACHE_KEYS).forEach((key) => {
+          const cachedItem = localStorage.getItem(key);
+          if (cachedItem) {
+            try {
+              const parsedItem: CacheItem = JSON.parse(cachedItem);
+              if (!isValidCacheItem(parsedItem)) {
+                localStorage.removeItem(key);
+              }
+            } catch (error) {
+              localStorage.removeItem(key);
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error cleaning up expired cache:", error);
+    }
+  },
 };
+
+if (typeof window !== "undefined") {
+  CacheUtil.preloadCache();
+
+  setInterval(() => {
+    CacheUtil.cleanupExpiredCache();
+  }, 60 * 60 * 1000);
+
+  window.addEventListener("beforeunload", () => {
+    CacheUtil.cleanupExpiredCache();
+  });
+}
 
 export default CacheUtil;

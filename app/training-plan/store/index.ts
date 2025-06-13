@@ -76,12 +76,21 @@ interface ExistingTopicsResponse {
   };
 }
 
+interface RecommendationsData {
+  openings: {
+    white: Topic[];
+    black: Topic[];
+  };
+  middlegames: Topic[];
+  endgames: Topic[];
+}
+
 interface TrainingPlanState {
   // API data
   userProfile: UserProfile | null;
   config: Config | null;
   topics: TopicsData | null;
-  recommendations: RecommendationsData | null; // Add this line
+  recommendations: RecommendationsData | null;
 
   // Selected topics
   selectedWhiteOpenings: string[];
@@ -95,6 +104,9 @@ interface TrainingPlanState {
   error: string | null;
   isAdjustMode: boolean;
 
+  // Fetch tracking
+  _fetchPromises: Map<string, Promise<any>>;
+
   // Actions
   fetchTopics: (sessionId: string) => Promise<void>;
   fetchExistingTopics: (sessionId: string) => Promise<void>;
@@ -102,17 +114,7 @@ interface TrainingPlanState {
   createTrainingPlan: (sessionId: string) => Promise<boolean>;
   setAdjustMode: (mode: boolean) => void;
   reset: () => void;
-  resetPartial: () => void; // Add this line
-}
-
-// Add the recommendations interface
-interface RecommendationsData {
-  openings: {
-    white: Topic[];
-    black: Topic[];
-  };
-  middlegames: Topic[];
-  endgames: Topic[];
+  resetPartial: () => void;
 }
 
 // Helper function to auto-select recommended topics
@@ -144,7 +146,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
   userProfile: null,
   config: null,
   topics: null,
-  recommendations: null, // Add this line
+  recommendations: null,
 
   selectedWhiteOpenings: [],
   selectedBlackOpenings: [],
@@ -156,20 +158,56 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
   error: null,
   isAdjustMode: false,
 
+  _fetchPromises: new Map(),
+
   // Set adjust mode
   setAdjustMode: (mode: boolean) => {
     set({ isAdjustMode: mode });
   },
 
-  // Update fetchTopics to include recommendations and auto-select them
+  // Optimized fetchTopics with deduplication
   fetchTopics: async (sessionId: string) => {
-    set({ isLoading: true, error: null });
+    const state = get();
+    const cacheKey = `fetchTopics_${sessionId}`;
 
-    try {
-      // Check if we have valid cached data
-      const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_TOPICS);
-      if (cachedData) {
-        const { userProfile, config, topics, recommendations } = cachedData;
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
+    }
+
+    const fetchPromise = (async () => {
+      set({ isLoading: true, error: null });
+
+      try {
+        // Check if we have valid cached data
+        const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_TOPICS);
+        if (cachedData) {
+          const { userProfile, config, topics, recommendations } = cachedData;
+
+          // Auto-select recommended topics
+          const autoSelectedTopics =
+            autoSelectRecommendedTopics(recommendations);
+
+          set({
+            userProfile,
+            config,
+            topics,
+            recommendations,
+            ...autoSelectedTopics,
+            isLoading: false,
+          });
+          return;
+        }
+
+        // If no valid cache, fetch from API
+        const response = await apiService.get(
+          endpoints.trainingPlan.getTopics,
+          sessionId
+        );
+        const { userProfile, config, topics, recommendations } = response.data;
+
+        // Cache the response
+        CacheUtil.setItem(CACHE_KEYS.TRAINING_TOPICS, response.data);
 
         // Auto-select recommended topics
         const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
@@ -182,96 +220,105 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
           ...autoSelectedTopics,
           isLoading: false,
         });
-        return;
+      } catch (error) {
+        console.error("Error fetching training plan topics:", error);
+        set({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch training plan topics",
+          isLoading: false,
+        });
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
       }
+    })();
 
-      // If no valid cache, fetch from API
-      const response = await apiService.get(
-        endpoints.trainingPlan.getTopics,
-        sessionId
-      );
-      const { userProfile, config, topics, recommendations } = response.data;
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
 
-      // Cache the response
-      CacheUtil.setItem(CACHE_KEYS.TRAINING_TOPICS, response.data);
-
-      // Auto-select recommended topics
-      const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
-
-      set({
-        userProfile,
-        config,
-        topics,
-        recommendations,
-        ...autoSelectedTopics,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Error fetching training plan topics:", error);
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch training plan topics",
-        isLoading: false,
-      });
-    }
+    return fetchPromise;
   },
 
-  // Update fetchExistingTopics to include recommendations
+  // Optimized fetchExistingTopics with deduplication
   fetchExistingTopics: async (sessionId: string) => {
-    set({ isLoading: true, error: null });
+    const state = get();
+    const cacheKey = `fetchExistingTopics_${sessionId}`;
 
-    try {
-      // First, fetch the existing topics to get what's currently selected
-      const existingResponse = await apiService.get(
-        endpoints.trainingPlan.getExistingTopics,
-        sessionId
-      );
-      const existingData: ExistingTopicsResponse = existingResponse.data;
-
-      // Extract the selected topic IDs from the existing topics
-      const selectedWhiteOpenings = existingData.topics.openings.white.map(
-        (topic) => topic.id
-      );
-      const selectedBlackOpenings = existingData.topics.openings.black.map(
-        (topic) => topic.id
-      );
-      const selectedMiddlegames = existingData.topics.middlegames.map(
-        (topic) => topic.id
-      );
-      const selectedEndgames = existingData.topics.endgames.map(
-        (topic) => topic.id
-      );
-
-      // Also fetch all available topics to get the full list and config
-      const allTopicsResponse = await apiService.get(
-        endpoints.trainingPlan.getTopics,
-        sessionId
-      );
-      const allTopicsData = allTopicsResponse.data;
-
-      set({
-        userProfile: allTopicsData.userProfile,
-        config: allTopicsData.config,
-        topics: allTopicsData.topics,
-        recommendations: allTopicsData.recommendations,
-        selectedWhiteOpenings,
-        selectedBlackOpenings,
-        selectedMiddlegames,
-        selectedEndgames,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Error fetching existing training plan topics:", error);
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch existing training plan topics",
-        isLoading: false,
-      });
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
     }
+
+    const fetchPromise = (async () => {
+      set({ isLoading: true, error: null });
+
+      try {
+        // First, fetch the existing topics to get what's currently selected
+        const existingResponse = await apiService.get(
+          endpoints.trainingPlan.getExistingTopics,
+          sessionId
+        );
+        const existingData: ExistingTopicsResponse = existingResponse.data;
+
+        // Extract the selected topic IDs from the existing topics
+        const selectedWhiteOpenings = existingData.topics.openings.white.map(
+          (topic) => topic.id
+        );
+        const selectedBlackOpenings = existingData.topics.openings.black.map(
+          (topic) => topic.id
+        );
+        const selectedMiddlegames = existingData.topics.middlegames.map(
+          (topic) => topic.id
+        );
+        const selectedEndgames = existingData.topics.endgames.map(
+          (topic) => topic.id
+        );
+
+        // Also fetch all available topics to get the full list and config
+        const allTopicsResponse = await apiService.get(
+          endpoints.trainingPlan.getTopics,
+          sessionId
+        );
+        const allTopicsData = allTopicsResponse.data;
+
+        set({
+          userProfile: allTopicsData.userProfile,
+          config: allTopicsData.config,
+          topics: allTopicsData.topics,
+          recommendations: allTopicsData.recommendations,
+          selectedWhiteOpenings,
+          selectedBlackOpenings,
+          selectedMiddlegames,
+          selectedEndgames,
+          isLoading: false,
+        });
+      } catch (error) {
+        console.error("Error fetching existing training plan topics:", error);
+        set({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch existing training plan topics",
+          isLoading: false,
+        });
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
+      }
+    })();
+
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
+
+    return fetchPromise;
   },
 
   // Rest of the methods remain the same...
@@ -359,6 +406,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
       selectedEndgames: [],
       error: null,
       isAdjustMode: false,
+      _fetchPromises: new Map(),
     });
   },
 
@@ -398,74 +446,97 @@ interface ScheduleState {
   isLoading: boolean;
   error: string | null;
   planExpired: boolean;
+  _fetchPromises: Map<string, Promise<any>>;
   fetchSchedule: (sessionId: string) => Promise<void>;
   resetExpiredStatus: () => void;
 }
 
-export const useScheduleStore = create<ScheduleState>((set) => ({
+export const useScheduleStore = create<ScheduleState>((set, get) => ({
   schedule: null,
   isLoading: false,
   error: null,
   planExpired: false,
+  _fetchPromises: new Map(),
 
   fetchSchedule: async (sessionId: string) => {
     if (!sessionId) return;
 
-    set({ isLoading: true, error: null, planExpired: false });
+    const state = get();
+    const cacheKey = `fetchSchedule_${sessionId}`;
 
-    try {
-      // Check if we have valid cached data
-      const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
-      if (cachedData) {
-        set({ schedule: cachedData, isLoading: false });
-        return;
-      }
-
-      // If no valid cache, fetch from API
-      const response = await apiService.get(
-        endpoints.trainingPlan.getTodaySchedule,
-        sessionId
-      );
-
-      // Cache the response
-      CacheUtil.setItem(CACHE_KEYS.TRAINING_SCHEDULE, response.data);
-
-      set({ schedule: response.data, isLoading: false });
-    } catch (error: any) {
-      console.error("Error fetching training schedule:", error);
-
-      // Check if this is an expired plan error
-      const errorMessage = error instanceof Error ? error.message : "";
-      const responseData = error?.response?.data;
-
-      // Various ways the API might indicate an expired plan
-      const isExpiredPlanError =
-        responseData?.message?.includes("expired") ||
-        errorMessage.includes("expired") ||
-        (responseData?.statusCode === 400 &&
-          responseData?.message?.includes("training plan"));
-
-      if (isExpiredPlanError) {
-        // For expired plan errors, set planExpired flag but don't treat as a fatal error
-        set({
-          planExpired: true,
-          schedule: null,
-          isLoading: false,
-          error:
-            responseData?.message ||
-            "Your training plan has expired. Please create a new one.",
-        });
-      } else {
-        // For other errors, handle normally
-        set({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch training schedule",
-          isLoading: false,
-        });
-      }
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
     }
+
+    const fetchPromise = (async () => {
+      set({ isLoading: true, error: null, planExpired: false });
+
+      try {
+        // Check if we have valid cached data
+        const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
+        if (cachedData) {
+          set({ schedule: cachedData, isLoading: false });
+          return;
+        }
+
+        // If no valid cache, fetch from API
+        const response = await apiService.get(
+          endpoints.trainingPlan.getTodaySchedule,
+          sessionId
+        );
+
+        // Cache the response
+        CacheUtil.setItem(CACHE_KEYS.TRAINING_SCHEDULE, response.data);
+
+        set({ schedule: response.data, isLoading: false });
+      } catch (error: any) {
+        console.error("Error fetching training schedule:", error);
+
+        // Check if this is an expired plan error
+        const errorMessage = error instanceof Error ? error.message : "";
+        const responseData = error?.response?.data;
+
+        // Various ways the API might indicate an expired plan
+        const isExpiredPlanError =
+          responseData?.message?.includes("expired") ||
+          errorMessage.includes("expired") ||
+          (responseData?.statusCode === 400 &&
+            responseData?.message?.includes("training plan"));
+
+        if (isExpiredPlanError) {
+          // For expired plan errors, set planExpired flag but don't treat as a fatal error
+          set({
+            planExpired: true,
+            schedule: null,
+            isLoading: false,
+            error:
+              responseData?.message ||
+              "Your training plan has expired. Please create a new one.",
+          });
+        } else {
+          // For other errors, handle normally
+          set({
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to fetch training schedule",
+            isLoading: false,
+          });
+        }
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
+      }
+    })();
+
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
+
+    return fetchPromise;
   },
 
   resetExpiredStatus: () => {
@@ -534,6 +605,7 @@ interface ProgressState {
   isLoading: boolean;
   error: string | null;
   currentMonth: string;
+  _fetchPromises: Map<string, Promise<any>>;
   setCurrentMonth: (month: string) => void;
   fetchProgressData: (sessionId: string, month?: string) => Promise<void>;
 }
@@ -543,6 +615,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
   isLoading: false,
   error: null,
   currentMonth: getCurrentMonth(),
+  _fetchPromises: new Map(),
 
   setCurrentMonth: (month: string) => {
     set({ currentMonth: month });
@@ -553,35 +626,55 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     if (!sessionId) return;
 
     const selectedMonth = month || get().currentMonth;
+    const state = get();
+    const cacheKey = `fetchProgress_${sessionId}_${selectedMonth}`;
 
-    set({ isLoading: true, error: null });
-
-    try {
-      const cachedData = CacheUtil.getItem(CACHE_KEYS.PROGRESS_DATA);
-      if (cachedData && !month) {
-        set({ progressData: cachedData, isLoading: false });
-        return;
-      }
-
-      const response = await apiService.get(
-        endpoints.trainingPlan.getProgress(selectedMonth),
-        sessionId
-      );
-
-      if (!month) {
-        CacheUtil.setItem(CACHE_KEYS.PROGRESS_DATA, response.data);
-      }
-
-      set({ progressData: response.data, isLoading: false });
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch progress data",
-        isLoading: false,
-      });
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
     }
+
+    const fetchPromise = (async () => {
+      set({ isLoading: true, error: null });
+
+      try {
+        const cachedData = CacheUtil.getItem(CACHE_KEYS.PROGRESS_DATA);
+        if (cachedData && !month) {
+          set({ progressData: cachedData, isLoading: false });
+          return;
+        }
+
+        const response = await apiService.get(
+          endpoints.trainingPlan.getProgress(selectedMonth),
+          sessionId
+        );
+
+        if (!month) {
+          CacheUtil.setItem(CACHE_KEYS.PROGRESS_DATA, response.data);
+        }
+
+        set({ progressData: response.data, isLoading: false });
+      } catch (error) {
+        set({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch progress data",
+          isLoading: false,
+        });
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
+      }
+    })();
+
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
+
+    return fetchPromise;
   },
 }));
 
@@ -590,50 +683,73 @@ interface UserState {
   profile: UserProfile | null;
   isLoading: boolean;
   error: string | null;
+  _fetchPromises: Map<string, Promise<any>>;
   fetchUserProfile: (sessionId: string) => Promise<void>;
 }
 
-export const useUserStore = create<UserState>((set) => ({
+export const useUserStore = create<UserState>((set, get) => ({
   profile: null,
   isLoading: false,
   error: null,
+  _fetchPromises: new Map(),
 
   fetchUserProfile: async (sessionId: string) => {
     if (!sessionId) return;
 
-    set({ isLoading: true, error: null });
+    const state = get();
+    const cacheKey = `fetchUserProfile_${sessionId}`;
 
-    try {
-      const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
-      if (cachedData) {
-        set({ profile: cachedData, isLoading: false });
-        return;
-      }
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
+    }
 
-      const response = await apiService.get(
-        endpoints.trainingPlan.getTopics,
-        sessionId
-      );
+    const fetchPromise = (async () => {
+      set({ isLoading: true, error: null });
 
-      if (response.data?.userProfile) {
-        CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
+      try {
+        const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
+        if (cachedData) {
+          set({ profile: cachedData, isLoading: false });
+          return;
+        }
 
+        const response = await apiService.get(
+          endpoints.trainingPlan.getTopics,
+          sessionId
+        );
+
+        if (response.data?.userProfile) {
+          CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
+
+          set({
+            profile: response.data.userProfile,
+            isLoading: false,
+          });
+        } else {
+          throw new Error("User profile not found in the response");
+        }
+      } catch (error) {
         set({
-          profile: response.data.userProfile,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch user profile",
           isLoading: false,
         });
-      } else {
-        throw new Error("User profile not found in the response");
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
       }
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch user profile",
-        isLoading: false,
-      });
-    }
+    })();
+
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
+
+    return fetchPromise;
   },
 }));
 
