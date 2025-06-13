@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
-import { Check, Clipboard, UploadCloud, X } from "lucide-react";
+import { Check, Clipboard, Info, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -28,7 +28,6 @@ import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -67,7 +66,7 @@ export function AnalyzeDifferentGame({
       value: 14,
       title: "Basic Analysis",
       description:
-        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
+        "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
       mustMember: false,
     },
     {
@@ -75,7 +74,7 @@ export function AnalyzeDifferentGame({
       value: 17,
       title: "Standard Analysis",
       description:
-        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
+        "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
       mustMember: true,
     },
     {
@@ -83,7 +82,7 @@ export function AnalyzeDifferentGame({
       value: 20,
       title: "Deep Analysis",
       description:
-        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
+        "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
       mustMember: true,
     },
   ];
@@ -98,29 +97,19 @@ export function AnalyzeDifferentGame({
   const [estimateStandard, setEstimateStandard] = useState<string>("");
   const [estimateDeep, setEstimateDeep] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [file, setFile] = useState<any>(null);
   const [fileSize, setFileSize] = useState(0);
   const [depthChoosed, setDepthChoosed] = useState(0);
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
   const [tabSelected, setTabSelected] = useState("auto");
-  // New states for username validation
-  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
-  interface GameOption {
-    value: string;
-    text: string;
-    color: string;
-    result: string;
-    opponent: string;
-  }
-
+  const [usernameStatus, setUsernameStatus] = useState("idle");
   const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
     undefined
   );
   const [debouncedQuery, setDebouncedQuery] = useState(username);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);
@@ -131,7 +120,6 @@ export function AnalyzeDifferentGame({
     if (openPopup != null && open != true) {
       setOpen(openPopup);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openPopup]);
 
   useEffect(() => {
@@ -139,7 +127,6 @@ export function AnalyzeDifferentGame({
       setUsernameStatus("loading");
       getByUsername();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery]);
 
   const getByUsername = async () => {
@@ -165,7 +152,6 @@ export function AnalyzeDifferentGame({
       setAvailableGames([]);
       setSelectedGame(undefined);
     }
-    console.log("response", url, response);
   };
 
   const handleDrag = (e: {
@@ -196,7 +182,6 @@ export function AnalyzeDifferentGame({
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      console.log("PGN file:", file);
 
       if (!file) return;
 
@@ -204,7 +189,6 @@ export function AnalyzeDifferentGame({
       reader.onload = (e: any) => {
         const pgnText = e.target.result;
         setPgnText(pgnText);
-        console.log("PGN loaded:", pgnText);
       };
       reader.readAsText(file);
 
@@ -213,43 +197,27 @@ export function AnalyzeDifferentGame({
   };
 
   const handleFile = (file: { name: string; size: number }) => {
-    // Check file type (simple check for .pgn extension)
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       alert("Please upload a PGN file.");
       return;
     }
 
-    // Check file size (5MB = 5 * 1024 * 1024 bytes)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size exceeds 5MB limit.");
       return;
     }
-    setFile(file);
     setFileName(file.name);
     setFileSize(file.size);
   };
 
-  const handleButtonClick = () => {
-    if (!fileName && fileInputRef.current) {
-      fileInputRef.current.click();
-    } else {
-      // Handle import logic
-      setIsSubmitted(true);
-    }
-  };
-
   const handleAnalyzeGame = async () => {
-    console.log("Analyzing game with the following data:");
     if (token.balance >= 1) {
-      console.log("selectedGame", selectedGame);
       if (selectedGame) {
         setDataAnalysis(null);
-        console.log("Selected game:", selectedGame);
         setDataGamesImport(availableGames[0]?.data_games);
         processAnalyze(selectedGame);
         setPgn(selectedGame);
       } else if (pgnText) {
-        console.log("PGN text provided", pgnText);
         processAnalyze(pgnText);
         setPgn(pgnText);
         setDataGamesImport(null);
@@ -258,12 +226,8 @@ export function AnalyzeDifferentGame({
       setOpenPricing(true);
       setTabType("tokens");
     }
-    // else if (fileName) {
-    //   console.log("File uploaded:", file);
-    //   setDataGamesImport(null);
-    //   processAnalyze(file);
-    // }
   };
+
   const processAnalyze = async (pgn: string | any) => {
     let arr: AnalysisResult | null = null;
     try {
@@ -277,16 +241,12 @@ export function AnalyzeDifferentGame({
         60000
       );
       setDataAnalysis(responseAnalysis.data);
-      setPgn(responseAnalysis.data.gameInfo.pgn)
+      setPgn(responseAnalysis.data.gameInfo.pgn);
 
-      // Close the dialog
       setOpen(false);
 
-      console.log("responseAnalysis:", responseAnalysis);
-      console.log("Analysis depth:", depthChoosed || "Not selected");
       arr = responseAnalysis.data;
     } catch (err) {
-      console.log("error", err);
       toast.error(err + "");
       setIsLoading(false);
 
@@ -302,6 +262,7 @@ export function AnalyzeDifferentGame({
       }, 2000);
     }
   };
+
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
     setDepthChoosed(14);
@@ -310,6 +271,7 @@ export function AnalyzeDifferentGame({
     setEstimateMinute(time.minute);
     setEstimateSecond(time.second);
   };
+
   useEffect(() => {
     let selectedPgn = selectedGame && pgnToFenList(selectedGame);
     let textCopyPgn = pgnText && pgnToFenList(pgnText);
@@ -326,11 +288,6 @@ export function AnalyzeDifferentGame({
     let standardString = formatTimeToMinutesSeconds(standardResult || 0);
     let deepString = formatTimeToMinutesSeconds(deepResult || 0);
 
-    console.log("pgn?.length", pgn?.length);
-    console.log("basic", basicString);
-    console.log("standard", standardString);
-    console.log("deep", deepString);
-
     setTimeBasic(getTime(basicResult || 0));
     setTimeStandard(getTime(standardResult || 0));
     setTimeDeep(getTime(deepResult || 0));
@@ -342,12 +299,11 @@ export function AnalyzeDifferentGame({
     setEstimateMinute(basicTime.minute);
     setEstimateSecond(basicTime.second);
   }, [selectedGame, pgnText]);
+
   const formatTimeToMinutesSeconds = (seconds: number): string => {
-    // Calculate minutes and remaining seconds
     let second = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(second % 60);
-    // Format as "xx minutes xx seconds"
     if (minutes > 0) {
       return `${minutes} minute${
         minutes !== 1 ? "s" : ""
@@ -356,6 +312,7 @@ export function AnalyzeDifferentGame({
       return `${remainingSeconds} second${remainingSeconds !== 1 ? "s" : ""}`;
     }
   };
+
   const getTime = (seconds: number): any => {
     let s = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
@@ -363,6 +320,7 @@ export function AnalyzeDifferentGame({
     let time = { minute: minutes, second: remainingSeconds };
     return time;
   };
+
   const renderDepthChoose = () => {
     return (
       <div className="gap-2">
@@ -434,10 +392,7 @@ export function AnalyzeDifferentGame({
                   <span className="font-medium text-[10px]">
                     Analysis can take up to:
                   </span>
-                  <span className="font-medium text-[10px]  ">
-                    {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
-                    {estimate}
-                  </span>
+                  <span className="font-medium text-[10px]  ">{estimate}</span>
                 </div>
               </button>
             );
@@ -446,6 +401,7 @@ export function AnalyzeDifferentGame({
       </div>
     );
   };
+
   return (
     <Dialog
       open={open}
@@ -465,7 +421,6 @@ export function AnalyzeDifferentGame({
           {label && label.length > 0 ? label : "Analyze a different game"}
         </button>
       </DialogTrigger>
-      {/* <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]"> */}
       <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
         <DialogHeader className="gap-2 mb-2">
           <DialogTitle className="text-[24px] font-semibold">
@@ -536,7 +491,7 @@ export function AnalyzeDifferentGame({
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 mx-1">
+              <div className="space-y-2 ">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
@@ -545,6 +500,7 @@ export function AnalyzeDifferentGame({
                   disabled={usernameStatus !== "found"}
                   value={selectedGame}
                   onValueChange={handleGameSelect}
+                  onOpenChange={setIsSelectOpen}
                 >
                   <SelectTrigger
                     className={`w-full ${
@@ -557,7 +513,15 @@ export function AnalyzeDifferentGame({
                   </SelectTrigger>
                   <SelectContent>
                     {availableGames.map((game, index) => (
-                      <SelectItem key={index} value={game.value}>
+                      <SelectItem
+                        key={index}
+                        value={game.value}
+                        className={
+                          index !== availableGames.length - 1
+                            ? "border-b border-gray-200"
+                            : ""
+                        }
+                      >
                         {game.text} ({game.result})
                       </SelectItem>
                     ))}
@@ -632,27 +596,42 @@ export function AnalyzeDifferentGame({
                 {renderDepthChoose()}
               </div>
             </TabsContent>
-            <button
-              onClick={handleAnalyzeGame}
-              className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
-                (usernameStatus !== "found" &&
-                  !selectedGame &&
-                  !pgnText &&
-                  !fileName) ||
-                depthChoosed == 0
-                  ? "opacity-70 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={
-                (usernameStatus !== "found" &&
-                  !selectedGame &&
-                  !pgnText &&
-                  !fileName) ||
-                depthChoosed == 0
-              }
-            >
-              Analyze Game
-            </button>
+            {/* Show info text only when user is actively selecting games */}
+            {tabSelected === "auto" &&
+            usernameStatus === "found" &&
+            availableGames.length > 0 &&
+            isSelectOpen ? (
+              <div className="flex items-center gap-2 p-3 bg-blue-base/5 border border-blue-base rounded-md my-4">
+                <div className="flex-shrink-0 w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                  <Info className="text-blue-base" />
+                </div>
+                <p className="text-sm text-blue-base">
+                  If you want to analyse more, check the My Game History page
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={handleAnalyzeGame}
+                className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+                  (usernameStatus !== "found" &&
+                    !selectedGame &&
+                    !pgnText &&
+                    !fileName) ||
+                  depthChoosed == 0
+                    ? "opacity-70 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={
+                  (usernameStatus !== "found" &&
+                    !selectedGame &&
+                    !pgnText &&
+                    !fileName) ||
+                  depthChoosed == 0
+                }
+              >
+                Analyze Game
+              </button>
+            )}
           </Tabs>
         </ScrollArea>
       </DialogContent>

@@ -7,7 +7,6 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { getMaterialDifferences } from "@/app/utils/calculateMaterialDifference";
 import { clearSelection } from "@/app/utils/gameUtils";
 import { getMoveHighlightStyle } from "@/app/utils/highlightStyles2D";
-import { getMoveHighlightStyle3D } from "@/app/utils/highlightStyles3D";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Piece, PieceSymbol, Square } from "chess.js";
@@ -101,8 +100,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(
     null
   );
-  const [whiteMaterialDifference, setWhiteMaterialDifference] = useState(0);
-  const [blackMaterialDifference, setBlackMaterialDifference] = useState(0);
   const [countInvalid, setCountInvalid] = useState<number>(0);
   const [invalidMoveSquares, setInvalidMoveSquares] = useState<string[]>([]);
   const [orientation, setOrientation] =
@@ -113,10 +110,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
   useEffect(() => {
     const board = chessGame.board();
-    const { whiteMaterialDifference, blackMaterialDifference } =
-      getMaterialDifferences(board);
-    setWhiteMaterialDifference(whiteMaterialDifference);
-    setBlackMaterialDifference(blackMaterialDifference);
+    getMaterialDifferences(board);
 
     if (!chessGame.isGameOver() && !gameEnded) {
       setActivePlayer(chessGame.turn() === "w" ? "white" : "black");
@@ -350,23 +344,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const customSquareStyles = useMemo(() => {
     const styles: Record<string, Record<string, string | number>> = {};
 
-    // Right-clicked squares
     highlightedSquares.forEach((square) => {
       styles[square] = { backgroundColor: "rgb(255, 5, 5, 0.25)" };
     });
 
-    // Last move indicators (behind pieces)
     if (lastMove && isAtCurrentMove) {
       styles[lastMove.from] = { backgroundColor: "#B9CA4390" };
       styles[lastMove.to] = { backgroundColor: "#F5F68290" };
     }
 
-    // Selected square highlight
     if (selectedSquare && isAtCurrentMove) {
       styles[selectedSquare] = { backgroundColor: "#F5F682" };
     }
 
-    // Possible moves (blue circles and black capture rings)
     if (isAtCurrentMove && possibleMoves.length > 0) {
       possibleMoves.forEach(({ square, isCapture }) => {
         if (!styles[square]) {
@@ -378,7 +368,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       });
     }
 
-    // Hint indicator
     if (hint && isAtCurrentMove && !isComputerTurn) {
       const hintTo = hint.slice(2, 4);
       if (!styles[hintTo]) {
@@ -387,7 +376,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       styles[hintTo].backgroundColor = "#221AE950";
     }
 
-    // Invalid move indicators
     invalidMoveSquares.forEach((square) => {
       styles[square] = { backgroundColor: "rgba(255, 0, 0, 0.5)" };
     });
@@ -674,7 +662,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         variants={fadeInUp}
         className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4"
       >
-        {renderCommentaryGame()}
+        {/* Hide congratulations message on mobile (xl:block) since it's now shown above */}
+        <div className="hidden xl:block">{renderCommentaryGame()}</div>
         <div className="flex flex-row w-full items-center gap-2 lg:gap-4">
           <button
             onClick={resetPuzzleHandler}
@@ -914,11 +903,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           />
           <span className="font-semibold text-[20px]">Puzzle</span>
         </div>
-        <div className="w-[94%] mx-[16px] p-[16px] xl:mt-0 mt-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
-          <Info className="w-[24px] h-[24px]" color="#221AE9" />
-          <span className="font-medium text-[16px]">
-            You are {boardOrientation === "white" ? "white" : "black"}
-          </span>
+
+        <div className="w-[94%] mx-[16px] xl:mt-0 mt-[16px] flex flex-col gap-3">
+          {/* Show congratulations message on mobile only when game is over */}
+          {isGameOver && (
+            <div className="xl:hidden">{renderCommentaryGame()}</div>
+          )}
+
+          <div className="p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
+            <Info className="w-[24px] h-[24px]" color="#221AE9" />
+            <span className="font-medium text-[16px]">
+              You are {boardOrientation === "white" ? "white" : "black"}
+            </span>
+          </div>
         </div>
         <div className="w-[94%] mx-[16px] h-full overflow-y-auto rounded-[8px]">
           <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-[#BDD0F9]">
