@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useLoadingAPI } from "@/app/store/loadingApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export function useStockfishAnalysis() {

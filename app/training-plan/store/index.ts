@@ -81,6 +81,7 @@ interface TrainingPlanState {
   userProfile: UserProfile | null;
   config: Config | null;
   topics: TopicsData | null;
+  recommendations: RecommendationsData | null; // Add this line
 
   // Selected topics
   selectedWhiteOpenings: string[];
@@ -101,13 +102,49 @@ interface TrainingPlanState {
   createTrainingPlan: (sessionId: string) => Promise<boolean>;
   setAdjustMode: (mode: boolean) => void;
   reset: () => void;
+  resetPartial: () => void; // Add this line
 }
+
+// Add the recommendations interface
+interface RecommendationsData {
+  openings: {
+    white: Topic[];
+    black: Topic[];
+  };
+  middlegames: Topic[];
+  endgames: Topic[];
+}
+
+// Helper function to auto-select recommended topics
+const autoSelectRecommendedTopics = (
+  recommendations: RecommendationsData | null
+) => {
+  if (!recommendations) {
+    return {
+      selectedWhiteOpenings: [],
+      selectedBlackOpenings: [],
+      selectedMiddlegames: [],
+      selectedEndgames: [],
+    };
+  }
+
+  return {
+    selectedWhiteOpenings:
+      recommendations.openings?.white?.map((topic) => topic.id) || [],
+    selectedBlackOpenings:
+      recommendations.openings?.black?.map((topic) => topic.id) || [],
+    selectedMiddlegames:
+      recommendations.middlegames?.map((topic) => topic.id) || [],
+    selectedEndgames: recommendations.endgames?.map((topic) => topic.id) || [],
+  };
+};
 
 export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
   // Initial state
   userProfile: null,
   config: null,
   topics: null,
+  recommendations: null, // Add this line
 
   selectedWhiteOpenings: [],
   selectedBlackOpenings: [],
@@ -124,7 +161,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     set({ isAdjustMode: mode });
   },
 
-  // Fetch topics from API (for creating new plan)
+  // Update fetchTopics to include recommendations and auto-select them
   fetchTopics: async (sessionId: string) => {
     set({ isLoading: true, error: null });
 
@@ -132,11 +169,17 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
       // Check if we have valid cached data
       const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_TOPICS);
       if (cachedData) {
-        const { userProfile, config, topics } = cachedData;
+        const { userProfile, config, topics, recommendations } = cachedData;
+
+        // Auto-select recommended topics
+        const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
+
         set({
           userProfile,
           config,
           topics,
+          recommendations,
+          ...autoSelectedTopics,
           isLoading: false,
         });
         return;
@@ -147,15 +190,20 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
         endpoints.trainingPlan.getTopics,
         sessionId
       );
-      const { userProfile, config, topics } = response.data;
+      const { userProfile, config, topics, recommendations } = response.data;
 
       // Cache the response
       CacheUtil.setItem(CACHE_KEYS.TRAINING_TOPICS, response.data);
+
+      // Auto-select recommended topics
+      const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
 
       set({
         userProfile,
         config,
         topics,
+        recommendations,
+        ...autoSelectedTopics,
         isLoading: false,
       });
     } catch (error) {
@@ -170,7 +218,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
   },
 
-  // Fetch existing topics (for adjusting existing plan)
+  // Update fetchExistingTopics to include recommendations
   fetchExistingTopics: async (sessionId: string) => {
     set({ isLoading: true, error: null });
 
@@ -207,6 +255,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
         userProfile: allTopicsData.userProfile,
         config: allTopicsData.config,
         topics: allTopicsData.topics,
+        recommendations: allTopicsData.recommendations,
         selectedWhiteOpenings,
         selectedBlackOpenings,
         selectedMiddlegames,
@@ -225,7 +274,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
   },
 
-  // Toggle a topic selection
+  // Rest of the methods remain the same...
   toggleTopic: (topicId: string, category: string) => {
     if (category.includes("white")) {
       const { selectedWhiteOpenings } = get();
@@ -266,7 +315,6 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
   },
 
-  // Create training plan with selected topics
   createTrainingPlan: async (sessionId: string) => {
     const {
       selectedWhiteOpenings,
@@ -302,13 +350,21 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
   },
 
-  // Reset store state
+  // Reset store state (but preserve auto-selected recommendations in create mode)
   reset: () => {
     set({
       selectedWhiteOpenings: [],
       selectedBlackOpenings: [],
       selectedMiddlegames: [],
       selectedEndgames: [],
+      error: null,
+      isAdjustMode: false,
+    });
+  },
+
+  // New method to reset only error and adjust mode but keep selections
+  resetPartial: () => {
+    set({
       error: null,
       isAdjustMode: false,
     });

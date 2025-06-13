@@ -2,8 +2,6 @@ import React from "react";
 import { AlertCircle, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { IndividualTrainingTopicProps } from "./types";
-import Image from "next/image";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePgnStore } from "@/app/store/zustandStore";
+import Image from "next/image";
 
 interface OpeningData {
   opening_name: string;
@@ -23,17 +22,21 @@ interface OpeningsByColor {
 }
 
 type LegacyOpeningData = OpeningData[];
-type OpeningPlayedData = OpeningsByColor | LegacyOpeningData | null | undefined;
 
-const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
-  topic,
-  isSelected,
-  onSelect,
-}) => {
+interface UpdatedIndividualTrainingTopicProps
+  extends IndividualTrainingTopicProps {
+  isRecommended?: boolean;
+}
+
+const IndividualTrainingTopic: React.FC<
+  UpdatedIndividualTrainingTopicProps
+> = ({ topic, isSelected, onSelect, isRecommended = false }) => {
   const isOpeningTopic =
     topic.category === "whiteOpening" || topic.category === "blackOpening";
 
-  const bgColor = isSelected ? "bg-blue-base/5" : "bg-white";
+  const bgColor = isSelected
+    ? "bg-gradient-to-r from-white to-blue-base/30"
+    : "bg-white";
   const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
 
   const { openingPlayed } = usePgnStore();
@@ -43,7 +46,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
     let totalPlayCount = 0;
 
-    // Check if openingPlayed has the new structure with white/black categories
     const hasColorCategories =
       openingPlayed &&
       typeof openingPlayed === "object" &&
@@ -51,10 +53,8 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
       ("white" in openingPlayed || "black" in openingPlayed);
 
     if (hasColorCategories) {
-      // Handle new structure with white/black categories
       const coloredData = openingPlayed as OpeningsByColor;
 
-      // Search in white openings
       if (Array.isArray(coloredData.white)) {
         const whiteMatch = coloredData.white.find(
           (opening) => opening.opening_name === topic.title
@@ -64,7 +64,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         }
       }
 
-      // Search in black openings
       if (Array.isArray(coloredData.black)) {
         const blackMatch = coloredData.black.find(
           (opening) => opening.opening_name === topic.title
@@ -74,7 +73,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         }
       }
     } else if (Array.isArray(openingPlayed)) {
-      // Handle legacy structure (array of openings)
       const legacyOpenings = openingPlayed as LegacyOpeningData;
       const matchingOpening = legacyOpenings.find(
         (opening) => opening.opening_name === topic.title
@@ -87,66 +85,10 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
 
   const playCount = getOpeningPlayCount();
 
-  const getBackgroundImage = () => {
-    if (isOpeningTopic) {
-      switch (topic.level) {
-        case "Beginner":
-          return "bg-[url('/training-plan/Mobile-Opening-Beginner-Selected.png')]";
-        case "Intermediate":
-          return "bg-[url('/training-plan/Mobile-Opening-Intermediate.png')]";
-        case "Advanced":
-          return "bg-[url('/training-plan/Mobile-Opening-Advanced.png')]";
-        case "Expert":
-          return "bg-[url('/training-plan/Mobile-Opening-Expert.png')]";
-        default:
-          return "bg-[url('/training-plan/Mobile-Opening-Beginner-Selected.png')]";
-      }
-    } else {
-      switch (topic.level) {
-        case "Beginner":
-          return "bg-[url('/training-plan/Desktop-Beginner.png')]";
-        case "Intermediate":
-          return "bg-[url('/training-plan/Desktop-Intermediate.png')]";
-        case "Advanced":
-          return "bg-[url('/training-plan/Desktop-Advanced.png')]";
-        case "Expert":
-          return "bg-[url('/training-plan/Desktop-Expert.png')]";
-        default:
-          return "bg-[url('/training-plan/Desktop-Beginner.png')]";
-      }
-    }
-  };
-
-  const bgImage = getBackgroundImage();
-
-  let badgeIcon: string | StaticImport = "";
-  let width: number = 10;
-  let height: number = 10;
-
-  switch (topic.level) {
-    case "Beginner":
-      badgeIcon = "/training-plan/beginner.png";
-      width = 8;
-      height = 8;
-      break;
-    case "Intermediate":
-      badgeIcon = "/training-plan/intermediate.png";
-      width = 15;
-      height = 15;
-      break;
-    case "Advanced":
-    case "Expert":
-      badgeIcon = "/training-plan/advanced.png";
-      width = 15;
-      height = 15;
-      break;
-  }
-
   const handleClick = () => {
     onSelect(topic.id);
   };
 
-  // Get detailed play count information for tooltip
   const getDetailedPlayCount = () => {
     if (!isOpeningTopic || !openingPlayed) {
       return { white: 0, black: 0, total: 0 };
@@ -155,7 +97,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
     let whiteCount = 0;
     let blackCount = 0;
 
-    // Check if openingPlayed has the new structure with white/black categories
     const hasColorCategories =
       openingPlayed &&
       typeof openingPlayed === "object" &&
@@ -165,7 +106,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
     if (hasColorCategories) {
       const coloredData = openingPlayed as OpeningsByColor;
 
-      // Count white openings
       if (Array.isArray(coloredData.white)) {
         const whiteMatch = coloredData.white.find(
           (opening) => opening.opening_name === topic.title
@@ -173,7 +113,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         whiteCount = whiteMatch ? whiteMatch.total_game : 0;
       }
 
-      // Count black openings
       if (Array.isArray(coloredData.black)) {
         const blackMatch = coloredData.black.find(
           (opening) => opening.opening_name === topic.title
@@ -181,12 +120,10 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         blackCount = blackMatch ? blackMatch.total_game : 0;
       }
     } else if (Array.isArray(openingPlayed)) {
-      // For legacy data, we can't distinguish colors, so put everything in total
       const legacyOpenings = openingPlayed as LegacyOpeningData;
       const matchingOpening = legacyOpenings.find(
         (opening) => opening.opening_name === topic.title
       );
-      // For legacy data, we'll show it as total without color breakdown
       return {
         white: 0,
         black: 0,
@@ -213,8 +150,8 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
     if (!isOpeningTopic || playCount === 0) return null;
 
     return (
-      <div className="block md:hidden mt-1">
-        <p className="text-xs text-gray-600">
+      <div className="block md:hidden mt-2">
+        <p className="text-xs text-gray-600 leading-tight">
           You've played this Topic:{" "}
           {detailedCount.isLegacy ? (
             <span className="font-medium">
@@ -225,16 +162,6 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
             <span className="font-medium">
               {detailedCount.total}{" "}
               {formatPlayCount(detailedCount.total).toLowerCase()}
-              {/* {(detailedCount.white > 0 || detailedCount.black > 0) && (
-                <span className="text-gray-500">
-                  {" "}
-                  (
-                  {detailedCount.white > 0 && `${detailedCount.white} as White`}
-                  {detailedCount.white > 0 && detailedCount.black > 0 && ", "}
-                  {detailedCount.black > 0 && `${detailedCount.black} as Black`}
-                  )
-                </span>
-              )} */}
             </span>
           )}
         </p>
@@ -243,31 +170,36 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
   };
 
   const shouldShowTooltip = isOpeningTopic && playCount > 0;
+  const shouldShowRecommendedTooltip = isRecommended;
 
   const topicContent = (
     <div
-      className={`relative border bg-no-repeat bg-cover ${borderColor} ${bgColor} ${bgImage} rounded-xl p-4 mb-3 cursor-pointer transition-all overflow-hidden ${
-        isOpeningTopic ? "h-24" : "h-auto"
-      }`}
+      className={`relative border ${borderColor} ${bgColor} rounded-xl p-3 cursor-pointer transition-all overflow-hidden h-[90px] flex flex-col justify-between`}
       onClick={handleClick}
       data-testid={`topic-${topic.id}`}
     >
       <div className="relative z-10">
-        <div className="flex items-center justify-between">
-          <Badge
-            className={`flex text-xs items-center gap-1 py-1 hover:bg-white px-2 font-bold rounded-sm bg-white border-blue-base text-blue-base`}
-          >
-            <span className="flex items-center justify-center">
+        <div
+          className={`flex items-center ${
+            isRecommended ? "justify-between" : "justify-end"
+          }`}
+        >
+          {isRecommended && (
+            <Badge
+              className={`flex text-xs items-center gap-x-2 font-bold rounded-[2px] border border-gray-200 ${
+                isRecommended ? "bg-white" : " border-blue-base text-blue-base"
+              }`}
+            >
               <Image
-                src={badgeIcon}
-                width={width}
-                height={height}
-                alt=""
-                className="inline-block"
+                src={"/training-plan/recom.png"}
+                alt="recommendation tag"
+                width={30}
+                height={30}
+                className="max-w-5"
               />
-            </span>
-            <span className="inline-block">{topic.level}</span>
-          </Badge>
+              <span className="inline-block text-black">Recommended</span>
+            </Badge>
+          )}
 
           <div
             className={`w-5 h-5 p-1 border rounded-sm border-[#d0cffa] flex items-center ${
@@ -279,64 +211,135 @@ const IndividualTrainingTopic: React.FC<IndividualTrainingTopicProps> = ({
         </div>
 
         <h2
-          className={`font-bold ${
+          className={`font-bold mt-2 text-sm ${
             isSelected ? "text-blue-base" : "text-black"
           }`}
         >
           {topic.title}
         </h2>
 
-        {/* Mobile play count display */}
         {renderMobilePlayCount()}
       </div>
     </div>
   );
 
-  if (!shouldShowTooltip) {
-    return topicContent;
+  if (shouldShowRecommendedTooltip) {
+    return (
+      <TooltipProvider delayDuration={300} skipDelayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {shouldShowTooltip ? (
+              <TooltipProvider delayDuration={300} skipDelayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>{topicContent}</TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    align="start"
+                    sideOffset={20}
+                    alignOffset={100}
+                    className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+                  >
+                    <AlertCircle className="text-blue-base w-5 h-5" />
+                    <div className="flex flex-col gap-y-2">
+                      <h3 className="font-semibold text-sm">
+                        You've played this opening
+                      </h3>
+                      <div className="text-xs text-gray-600">
+                        {detailedCount.isLegacy ? (
+                          <p>
+                            {detailedCount.total}{" "}
+                            {formatPlayCount(detailedCount.total)}
+                          </p>
+                        ) : (
+                          <div className="space-y-1">
+                            <p className="font-medium">
+                              Total: {detailedCount.total}{" "}
+                              {formatPlayCount(detailedCount.total)}
+                            </p>
+                            {detailedCount.white > 0 && (
+                              <p>As White: {detailedCount.white}</p>
+                            )}
+                            {detailedCount.black > 0 && (
+                              <p>As Black: {detailedCount.black}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              topicContent
+            )}
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            align="center"
+            sideOffset={5}
+            alignOffset={5}
+            className="max-w-[230px] rounded-none rounded-t-md rounded-br-md bg-blue-base/5 backdrop-blur-3xl border border-blue-base "
+          >
+            <div className="flex items-center gap-x-2 p-1">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="text-blue-base max-w-5" />
+              </div>
+              <p className="text-xs text-black">
+                Grandmasters recommend this Concept for the Training Plan of
+                your current level.
+              </p>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
   }
 
-  return (
-    <TooltipProvider delayDuration={300} skipDelayDuration={100}>
-      <Tooltip>
-        <TooltipTrigger asChild>{topicContent}</TooltipTrigger>
-        <TooltipContent
-          side="top"
-          align="start"
-          sideOffset={20}
-          alignOffset={100}
-          className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
-        >
-          <AlertCircle className="text-blue-base w-5 h-5" />
-          <div className="flex flex-col gap-y-2">
-            <h3 className="font-semibold text-sm">
-              You've played this opening
-            </h3>
-            <div className="text-xs text-gray-600">
-              {detailedCount.isLegacy ? (
-                <p>
-                  {detailedCount.total} {formatPlayCount(detailedCount.total)}
-                </p>
-              ) : (
-                <div className="space-y-1">
-                  <p className="font-medium">
-                    Total: {detailedCount.total}{" "}
-                    {formatPlayCount(detailedCount.total)}
+  if (shouldShowTooltip) {
+    return (
+      <TooltipProvider delayDuration={300} skipDelayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>{topicContent}</TooltipTrigger>
+          <TooltipContent
+            side="top"
+            align="start"
+            sideOffset={20}
+            alignOffset={100}
+            className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+          >
+            <AlertCircle className="text-blue-base w-5 h-5" />
+            <div className="flex flex-col gap-y-2">
+              <h3 className="font-semibold text-sm">
+                You've played this opening
+              </h3>
+              <div className="text-xs text-gray-600">
+                {detailedCount.isLegacy ? (
+                  <p>
+                    {detailedCount.total} {formatPlayCount(detailedCount.total)}
                   </p>
-                  {detailedCount.white > 0 && (
-                    <p>As White: {detailedCount.white}</p>
-                  )}
-                  {detailedCount.black > 0 && (
-                    <p>As Black: {detailedCount.black}</p>
-                  )}
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      Total: {detailedCount.total}{" "}
+                      {formatPlayCount(detailedCount.total)}
+                    </p>
+                    {detailedCount.white > 0 && (
+                      <p>As White: {detailedCount.white}</p>
+                    )}
+                    {detailedCount.black > 0 && (
+                      <p>As Black: {detailedCount.black}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return topicContent;
 };
 
 export default IndividualTrainingTopic;

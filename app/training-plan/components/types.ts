@@ -1,6 +1,5 @@
-import React from 'react';
+import React from "react";
 
-// Basic types
 export interface UserProfile {
   username?: string;
   level?: string;
@@ -17,8 +16,6 @@ export interface TrainingTopic {
   difficulty?: string;
   category?: string;
   forColor?: string;
-
-
 }
 
 export interface WeekDay {
@@ -27,13 +24,12 @@ export interface WeekDay {
   name: string;
 }
 
-// Component props
 export interface UserProfileCardProps {
   userProfile?: UserProfile;
   avatar?: string;
   skillLevels?: any[];
   goals?: { id: string; text: string }[];
-  schedule?:any
+  schedule?: any;
 }
 
 export interface SkillProgressTrackProps {
@@ -55,8 +51,8 @@ export interface IndividualTrainingTopicProps {
   topic: TrainingTopic;
   isSelected: boolean;
   onSelect: (topicId: string) => void;
+  isRecommended?: boolean;
 }
-
 export interface TopicSelectionSectionProps {
   categoryId: string;
   title: string;
@@ -70,6 +66,8 @@ export interface TopicSelectionSectionProps {
   topics: TrainingTopic[];
   selectedTopics: string[];
   onToggleTopic: (topicId: string) => void;
+  recommendations?: any[];
+  isAdjustMode?: boolean;
 }
 
 export interface ChessTrainingPlanDialogProps {
@@ -77,7 +75,7 @@ export interface ChessTrainingPlanDialogProps {
   onOpenChange: (open: boolean) => void;
   userProfile: UserProfile;
   onPlanCreated: () => void;
-  
+
   skillLevels?: any[];
   trainingTopics?: TrainingTopic[];
   topicCategoryInfo?: Array<{
@@ -136,7 +134,6 @@ export interface TrainingPlanDisplayProps {
   error?: string | null;
 }
 
-// Progress-related types
 export interface KeyStat {
   title: string;
   value: string;

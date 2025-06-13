@@ -47,11 +47,10 @@ export default function StockfishEngine({
   const [_, setPositionEvaluation] = useState<number>(0);
   const [, setPossibleMate] = useState<string>("");
   const solutionInProgress = useRef(false);
-  const highDepth = 18; // Higher depth for solution mode
+  const highDepth = 18;
 
-  // Function to play computer's move (when it's not player's turn)
   const findBestMove = useCallback(
-    (customDepth = depth, moveDelay = 300) => {
+    (customDepth = depth, moveDelay = 150) => {
       if (
         (!isAutoSolution && game.turn() === playerColor) ||
         game.isGameOver() ||
@@ -60,42 +59,53 @@ export default function StockfishEngine({
         return;
       }
 
-      engine.evaluatePosition(game.fen(), customDepth);
+      try {
+        engine.evaluatePosition(game.fen(), customDepth);
 
-      engine.onMessage(({ bestMove }) => {
-        if (bestMove) {
-          const move = game.move({
-            from: bestMove.substring(0, 2) as Square,
-            to: bestMove.substring(2, 4) as Square,
-            promotion: bestMove.substring(4, 5) || undefined,
-          });
+        engine.onMessage(({ bestMove }) => {
+          try {
+            if (bestMove) {
+              const move = game.move({
+                from: bestMove.substring(0, 2) as Square,
+                to: bestMove.substring(2, 4) as Square,
+                promotion: bestMove.substring(4, 5) || undefined,
+              });
 
-          if (move) {
-            setMoveHistory(game.history({ verbose: true }));
-            setPosition(game.fen());
+              if (move) {
+                setMoveHistory(game.history({ verbose: true }));
+                setPosition(game.fen());
 
-            setMoveSquares({
-              [bestMove.substring(0, 2)]: {
-                background: "rgba(255, 255, 0, 0.4)",
-              },
-              [bestMove.substring(2, 4)]: {
-                background: "rgba(255, 255, 0, 0.4)",
-              },
-            });
+                setMoveSquares({
+                  [bestMove.substring(0, 2)]: {
+                    background: "rgba(255, 255, 0, 0.4)",
+                  },
+                  [bestMove.substring(2, 4)]: {
+                    background: "rgba(255, 255, 0, 0.4)",
+                  },
+                });
 
-            const isGameOver = checkGameStatus();
+                const isGameOver = checkGameStatus();
 
-            // If in auto solution mode and game is not over, continue playing
-            if (isAutoSolution && !isGameOver && solutionInProgress.current) {
-              setTimeout(() => {
-                findBestMove(highDepth, 200); // Continue with solution mode
-              }, moveDelay);
-            } else if (isGameOver && onSolutionComplete) {
-              onSolutionComplete();
+                if (
+                  isAutoSolution &&
+                  !isGameOver &&
+                  solutionInProgress.current
+                ) {
+                  setTimeout(() => {
+                    findBestMove(highDepth, 150);
+                  }, moveDelay);
+                } else if (isGameOver && onSolutionComplete) {
+                  onSolutionComplete();
+                }
+              }
             }
+          } catch (error) {
+            // Silently catch and ignore errors
           }
-        }
-      });
+        });
+      } catch (error) {
+        // Silently catch and ignore errors
+      }
     },
     [
       game,
@@ -116,40 +126,49 @@ export default function StockfishEngine({
     if (!position || gameStatus !== "ongoing") return;
 
     setBestMove(null);
-    engine.evaluatePosition(game.fen(), depth);
-    engine.onMessage(
-      ({
-        positionEvaluation,
-        possibleMate,
-        pv,
-        depth: responseDepth,
-        bestMove,
-      }) => {
-        if (responseDepth && responseDepth < Math.floor(depth / 2)) return;
+    try {
+      engine.evaluatePosition(game.fen(), depth);
+      engine.onMessage(
+        ({
+          positionEvaluation,
+          possibleMate,
+          pv,
+          depth: responseDepth,
+          bestMove,
+        }) => {
+          try {
+            if (responseDepth && responseDepth < Math.floor(depth / 2)) return;
 
-        if (positionEvaluation) {
-          setPositionEvaluation(
-            ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) / 100
-          );
-        }
+            if (positionEvaluation) {
+              setPositionEvaluation(
+                ((game.turn() === "w" ? 1 : -1) * Number(positionEvaluation)) /
+                  100
+              );
+            }
 
-        if (possibleMate) {
-          setPossibleMate(possibleMate);
-        }
+            if (possibleMate) {
+              setPossibleMate(possibleMate);
+            }
 
-        if (bestMove && game.turn() === playerColor) {
-          setBestMove(bestMove);
-          setMoveSquares({
-            [bestMove.substring(0, 2)]: {
-              background: "rgba(0, 120, 255, 0.4)",
-            },
-            [bestMove.substring(2, 4)]: {
-              background: "rgba(0, 120, 255, 0.4)",
-            },
-          });
+            if (bestMove && game.turn() === playerColor) {
+              setBestMove(bestMove);
+              setMoveSquares({
+                [bestMove.substring(0, 2)]: {
+                  background: "rgba(0, 120, 255, 0.4)",
+                },
+                [bestMove.substring(2, 4)]: {
+                  background: "rgba(0, 120, 255, 0.4)",
+                },
+              });
+            }
+          } catch (error) {
+            // Silently catch and ignore errors
+          }
         }
-      }
-    );
+      );
+    } catch (error) {
+      // Silently catch and ignore errors
+    }
   }, [
     position,
     game,
@@ -161,7 +180,6 @@ export default function StockfishEngine({
     playerColor,
   ]);
 
-  // Regular computer move when it's computer's turn (not in auto solution mode)
   useEffect(() => {
     if (
       position &&
@@ -177,7 +195,6 @@ export default function StockfishEngine({
     }
   }, [position, game, gameStatus, findBestMove, playerColor, isAutoSolution]);
 
-  // Handle auto solution mode
   useEffect(() => {
     if (
       isAutoSolution &&
@@ -186,8 +203,7 @@ export default function StockfishEngine({
       !game.isGameOver()
     ) {
       solutionInProgress.current = true;
-      // Start playing moves automatically with higher depth and faster speed
-      findBestMove(highDepth, 200);
+      findBestMove(highDepth, 150);
     } else {
       solutionInProgress.current = false;
     }
@@ -197,7 +213,6 @@ export default function StockfishEngine({
     };
   }, [isAutoSolution, position, gameStatus, game, findBestMove]);
 
-  // Handle hint request
   useEffect(() => {
     if (showHint && position && gameStatus === "ongoing") {
       handleHint();

@@ -76,6 +76,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     userProfile: storeUserProfile,
     config,
     topics,
+    recommendations,
     selectedWhiteOpenings,
     selectedBlackOpenings,
     selectedMiddlegames,
@@ -87,6 +88,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     toggleTopic,
     createTrainingPlan,
     reset,
+    resetPartial,
   } = useTrainingPlanStore();
 
   const [activeCategory, setActiveCategory] = useState("opening");
@@ -103,20 +105,30 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
   useEffect(() => {
     if (open && sessionId) {
       if (mode === "adjust") {
-        // Fetch existing topics when adjusting
         fetchExistingTopics(sessionId);
       } else {
-        // Fetch regular topics when creating new
         fetchTopics(sessionId);
       }
     }
 
     return () => {
       if (!open) {
-        reset();
+        if (mode === "adjust") {
+          reset();
+        } else {
+          resetPartial();
+        }
       }
     };
-  }, [open, sessionId, mode, fetchTopics, fetchExistingTopics, reset]);
+  }, [
+    open,
+    sessionId,
+    mode,
+    fetchTopics,
+    fetchExistingTopics,
+    reset,
+    resetPartial,
+  ]);
 
   const transformTopics = () => {
     if (!topics) return [];
@@ -205,6 +217,24 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
         subcategories: [],
       },
     ];
+  };
+
+  const getRecommendationsForCategory = (categoryId: string) => {
+    if (!recommendations) return [];
+
+    switch (categoryId) {
+      case "opening":
+        return [
+          ...(recommendations.openings?.white || []),
+          ...(recommendations.openings?.black || []),
+        ];
+      case "middlegame":
+        return recommendations.middlegames || [];
+      case "endgame":
+        return recommendations.endgames || [];
+      default:
+        return [];
+    }
   };
 
   const handleToggleTopic = (topicId: string) => {
@@ -421,6 +451,8 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                     topics={getTopicsByCategory(category.id)}
                     selectedTopics={selectedTopics}
                     onToggleTopic={handleToggleTopic}
+                    recommendations={getRecommendationsForCategory(category.id)}
+                    isAdjustMode={mode === "adjust"}
                   />
                 </div>
               ))}

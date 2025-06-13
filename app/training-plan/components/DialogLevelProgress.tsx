@@ -85,18 +85,18 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     const currentIndex = getCurrentLevelIndex();
     const nextIndex = getNextGoalLevelIndex();
 
-    if (currentIndex === 0) {
+    if (currentIndex === 0 && (currentElo || 0) < skillLevels[0].elo) {
       return skillLevels.slice(0, 3);
     }
 
-    if (currentIndex >= skillLevels.length - 2) {
+    if (nextIndex >= skillLevels.length - 1) {
       return skillLevels.slice(skillLevels.length - 3, skillLevels.length);
     }
 
     return [
-      skillLevels[currentIndex - 1],
-      skillLevels[currentIndex],
-      skillLevels[nextIndex === currentIndex ? nextIndex + 1 : nextIndex],
+      skillLevels[currentIndex], // Current level (left)
+      skillLevels[nextIndex], // Next goal (center)
+      skillLevels[nextIndex + 1], // Level after next goal (right)
     ];
   };
 
@@ -135,7 +135,6 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const currentEloPercentage = calculateEloPercentage();
   const displayLevels = getDisplayLevels();
   const nextGoalIndex = getNextGoalLevelIndex();
-  const currentLevelIndex = getCurrentLevelIndex();
 
   const badgeClass =
     "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
@@ -213,7 +212,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                     />
                   )}
                   {isNextGoal && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
                       <div
                         className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-amber-950`}
                       >
