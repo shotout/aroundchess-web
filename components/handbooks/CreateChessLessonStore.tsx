@@ -628,7 +628,6 @@ export function createChessLessonStore<T extends ChessLesson>({
           } catch (error) {
             console.error("Error marking lesson as unread:", error);
 
-            // Update local state even if API call fails
             set((state) => ({
               readStatusMap: {
                 ...state.readStatusMap,
@@ -662,6 +661,7 @@ export function createChessLessonStore<T extends ChessLesson>({
           allLessons: state.allLessons,
           lessonDetails: state.lessonDetails,
           initialized: state.initialized,
+          readStatusMap: state.readStatusMap,
         }),
       }
     )

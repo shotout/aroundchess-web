@@ -61,17 +61,14 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 }: ChessLessonDetailProps<T>) {
   const router = useRouter();
   const basePath = getLessonBasePath(lessonType);
-  const tabOptions: any = getLessonTabOptions(lessonType);
+  const tabOptions = getLessonTabOptions(lessonType);
   const { sessionId } = useProfileStore();
 
   const [activeTab, setActiveTab] = useState<string>(tabOptions[0].id);
   const [lessonFinished, setLessonFinished] = useState<boolean>(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState<boolean>(false);
   const [isMarkingAsUnread, setIsMarkingAsUnread] = useState<boolean>(false);
-  const [isCheckingReadStatus, setIsCheckingReadStatus] =
-    useState<boolean>(false);
 
-  // Chess game instance and position states
   const game = useMemo(() => new Chess(), []);
   const [position, setPosition] = useState<string>("");
   const [initialFen, setInitialFen] = useState<string>("");
@@ -94,7 +91,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   const lessonId: string = getIdFromSlug(params.slug, lessonType);
   const lesson: T | undefined = lessonDetails[lessonId];
 
-  // Transform nextTopic data to match expected lesson format for RelatedLessons component
   const transformNextTopicToLesson = (nextTopic: NextTopicItem): T => {
     return {
       id: nextTopic.id,
@@ -120,7 +116,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       ? allLessons.filter((l: T) => l.id !== lessonId).slice(0, 3)
       : [];
 
-  // Initialize chess position when lesson loads
   useEffect(() => {
     if (lesson && lesson.moves) {
       const fenPosition = getFenFromMoves(lesson.moves);
@@ -135,10 +130,17 @@ export default function ChessLessonDetail<T extends ChessLesson>({
   }, [lesson, game]);
 
   useEffect(() => {
-    if (readStatusMap && readStatusMap[lessonId]) {
-      setLessonFinished(true);
+    if (readStatusMap && readStatusMap.hasOwnProperty(lessonId)) {
+      setLessonFinished(readStatusMap[lessonId]);
     }
   }, [readStatusMap, lessonId]);
+
+  useEffect(() => {
+    if (lesson && lesson.readStatus !== undefined) {
+      setLessonFinished(lesson.readStatus);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson?.readStatus]);
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
@@ -148,9 +150,11 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         }
 
         if (!initialized) {
-          fetchAllLessons(sessionId || undefined);
+          await fetchAllLessons(sessionId || undefined);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error loading lesson data:", error);
+      }
     };
 
     loadData();
@@ -165,24 +169,28 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
   useEffect(() => {
     const checkReadStatusAsync = async () => {
-      if (!lesson || !checkReadStatus || !sessionId || isCheckingReadStatus) {
+      if (!lesson || !checkReadStatus || !sessionId) {
         return;
       }
 
-      setIsCheckingReadStatus(true);
+      if (readStatusMap && readStatusMap.hasOwnProperty(lessonId)) {
+        return;
+      }
+
+      if (lesson.readStatus !== undefined) {
+        return;
+      }
+
       try {
         const isRead = await checkReadStatus(lessonId, sessionId);
-        if (isRead) {
-          setLessonFinished(true);
-        }
+        setLessonFinished(isRead);
       } catch (error) {
-      } finally {
-        setIsCheckingReadStatus(false);
+        console.error("Error checking read status:", error);
       }
     };
 
     checkReadStatusAsync();
-  }, [checkReadStatus, lesson, lessonId, sessionId, isCheckingReadStatus]);
+  }, [checkReadStatus, lesson, lessonId, sessionId, readStatusMap]);
 
   const handleLessonNavigation = (slug: string): void => {
     const navigateToLesson = (): void => {
@@ -240,7 +248,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
         return true;
       } else {
-        const errorData = await response.json();
         return false;
       }
     } catch (error) {
@@ -267,11 +274,10 @@ export default function ChessLessonDetail<T extends ChessLesson>({
           }
         }
       } catch (error) {
+        console.error("Error marking lesson as read:", error);
       } finally {
         setIsMarkingAsRead(false);
       }
-    } else if (!sessionId) {
-      console.warn("Cannot mark lesson as read: User not authenticated");
     }
   };
 
@@ -293,8 +299,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
       } finally {
         setIsMarkingAsUnread(false);
       }
-    } else if (!sessionId) {
-      console.warn("Cannot mark lesson as unread: User not authenticated");
     }
   };
 
@@ -345,7 +349,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-1 xl:grid-cols-10 2xl:grid-cols-10 gap-6">
             <div className="xl:col-span-7 2xl:col-span-7 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
-              {/* Reset button above the chessboard */}
               <div className="flex justify-center">
                 <Button
                   onClick={handleResetPosition}

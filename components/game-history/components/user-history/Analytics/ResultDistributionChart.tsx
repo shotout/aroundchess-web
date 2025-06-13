@@ -1,10 +1,29 @@
 import { ResultDistributionItem } from "@/components/game-history/types/GameHistoryTypes";
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 interface ResultDistributionChartProps {
   distributionData: ResultDistributionItem[];
 }
+
+const CustomTooltip = ({ active, payload, data }: any) => {
+  if (active && payload && payload.length) {
+    const item = payload[0];
+    const total = data.reduce(
+      (sum: number, entry: ResultDistributionItem) => sum + entry.value,
+      0
+    );
+    const percentage = ((item.value / total) * 100).toFixed(1);
+
+    return (
+      <div className="bg-white p-3 border border-gray-200 rounded-lg flex gap-x-2 shadow-lg cursor-pointer">
+        <p className="text-sm text-black">{item.payload.name}</p>
+        <p className="text-sm text-black">{percentage}%</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
   distributionData,
@@ -26,11 +45,13 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
                 dataKey="value"
                 startAngle={90}
                 endAngle={-270}
+                className="cursor-pointer"
               >
                 {distributionData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
+              <Tooltip content={<CustomTooltip data={distributionData} />} />
             </PieChart>
           </ResponsiveContainer>
         </div>

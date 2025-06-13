@@ -50,7 +50,7 @@ const Analytics: React.FC = () => {
   );
 
   return (
-    <div className="grid md:grid-cols-2 gap-6 bg-transparent">
+    <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
       <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
           <RatingProgressChart
@@ -59,7 +59,7 @@ const Analytics: React.FC = () => {
             handleForceRefresh={handleForceRefresh}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:bg-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <ResultDistributionChart distributionData={data.distributionData} />
             <OpeningStatistics openingData={data.openingData} />
           </div>

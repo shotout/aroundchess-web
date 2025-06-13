@@ -23,13 +23,11 @@ interface SiteFooterProps {
 export function SiteFooterNew({ className }: SiteFooterProps) {
   const { setOpen, open } = useContactUs();
   const { setOpen: setOpenPricing } = usePricingOffer();
-  const { sessionId } = useProfileStore();
   const handleContactUs = () => {
     setOpen(true);
   };
   const handleDiscord = () => {
     const discordUrl = `https://discord.gg/PZWcXsxGM7`;
-    // const discordUrl = `https://discordapp.com/channels/SERVERID/CHANNELID`;
     window.open(discordUrl, "_blank");
   };
   return (
@@ -220,10 +218,10 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 href="#"
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
-                <span className="sr-only">TikTok</span>
+                <span className="sr-only">Discord</span>
                 <Image
-                  src="/icons/tiktok.png"
-                  alt="tiktok"
+                  src="/images/footer/discord.png"
+                  alt="discord"
                   className="w-7 h-7"
                   width={600}
                   height={600}
@@ -235,7 +233,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               >
                 <span className="sr-only">Facebook</span>
                 <Image
-                  src="/icons/facebook.png"
+                  src="/images/footer/facebook.png"
                   alt="facebook"
                   className="w-7 h-7"
                   width={600}
@@ -246,10 +244,23 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 href="#"
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
-                <span className="sr-only">YouTube</span>
+                <span className="sr-only">Instagram</span>
                 <Image
-                  src="/icons/youtube.png"
-                  alt="youtube"
+                  src="/images/footer/instagram.png"
+                  alt="instagram"
+                  className="w-7 h-7"
+                  width={600}
+                  height={600}
+                />
+              </Link>
+              <Link
+                href="#"
+                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+              >
+                <span className="sr-only">Twitter</span>
+                <Image
+                  src="/images/footer/twitter.png"
+                  alt="twitter"
                   className="w-7 h-7"
                   width={600}
                   height={600}
