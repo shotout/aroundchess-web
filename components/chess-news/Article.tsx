@@ -6,7 +6,7 @@ import { formatDateNews } from "@/functions/format-date";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useChessNewsStore } from "../../app/store/chessNewsStore";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
@@ -44,7 +44,7 @@ export default function Article() {
   const [stateNews, setStateNews] = useState<number>(0);
   const [selectedTab, setSelectedTab] = useState<number>(1);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     fetchCategories();
   }, []);
   const fetchCategories = () => {

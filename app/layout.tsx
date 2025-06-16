@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
 import { AuthProvider } from "../context/AuthContext";
 import React from "react";
 
@@ -23,13 +22,12 @@ export default function RootLayout({
         <script src="/stockfish.js" defer></script>
       </head>
       <body>
-        <React.StrictMode>
-          <AuthProvider>
-            {children}
-            {/* <Analytics /> */}
-            <Toaster />
-          </AuthProvider>
-        </React.StrictMode>
+        {/* <React.StrictMode> */}
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
+        {/* </React.StrictMode> */}
       </body>
     </html>
   );
