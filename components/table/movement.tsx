@@ -26,6 +26,7 @@ export default function MovementTable() {
     capturedBlack,
     capturedWhite,
     movementDetails: logMovement,
+    historyGame,
     playerInfo,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -227,20 +228,18 @@ export default function MovementTable() {
                     className="rounded-none hover:bg-[#81CFF3]"
                     onClick={() => handleOnClickMovement(move, index, "white")}
                   >
-                    {capturedWhite
-                      .filter((wp) => wp.san == move?.move)
-                      .map((item, index) => {
-                        return (
-                          <Image
-                            key={index}
-                            src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                            alt="icon"
-                            width={1000}
-                            height={1000}
-                            className="w-[12px] h-[12px] object-contain inline-block mr-[1px]"
-                          />
-                        );
-                      })}
+                    {historyGame[index * 2].captured != null && (
+                      <Image
+                        key={index}
+                        src={`/pieces/${PieceChoosed}/${
+                          "w" + historyGame[index * 2].captured
+                        }.png`}
+                        alt="icon"
+                        width={1000}
+                        height={1000}
+                        className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                      />
+                    )}
                     <span className="text-[11px] text-center font-semibold py-2">
                       {move.move}
                     </span>
@@ -344,20 +343,18 @@ export default function MovementTable() {
                       )
                     }
                   >
-                    {capturedBlack
-                      .filter((bp) => bp.san == dataMovement.black[index]?.move)
-                      .map((item, index) => {
-                        return (
-                          <Image
-                            key={index}
-                            src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                            alt="icon"
-                            width={1000}
-                            height={1000}
-                            className="w-[12px] h-[12px] object-contain inline-block mr-[1px]"
-                          />
-                        );
-                      })}
+                    {historyGame[index * 2 + 1].captured != null && (
+                      <Image
+                        key={index}
+                        src={`/pieces/${PieceChoosed}/${
+                          "b" + historyGame[index * 2 + 1].captured
+                        }.png`}
+                        alt="icon"
+                        width={1000}
+                        height={1000}
+                        className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                      />
+                    )}
                     <span className="text-[11px] text-center font-semibold py-2">
                       {dataMovement.black[index]?.move}
                     </span>

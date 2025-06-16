@@ -53,6 +53,7 @@ const ChessContent: React.FC = () => {
     playerInfo,
     movementDetails,
     previousAnalysesDetail,
+    setHistoryGame,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
@@ -146,6 +147,7 @@ const ChessContent: React.FC = () => {
 
       // Extract history of moves
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
+      setHistoryGame(history);
 
       comments.forEach((c) => {
         let index = history.findIndex(({ after }) => after == c.fen);
@@ -338,16 +340,30 @@ const ChessContent: React.FC = () => {
   };
 
   useEffect(() => {
-    let color = chessMove.type == "black" ? "b" : "w";
-    let data = [];
-
-    data = parsedMoves.filter(
-      (i) => i.san == chessMove.move && i.color == color
-    );
-    setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-    setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
-    console.log("masuk");
-  }, [chessMove]);
+    if (chessMove.index != null) {
+      const colorIndex = chessMove.type == "black" ? 1 : 0;
+      let indexOf = chessMove.index * 2 + colorIndex;
+      console.log("indexOf", indexOf);
+      const data = parsedMoves[indexOf];
+      console.log("parsedMoves", parsedMoves);
+      console.log("data move", data);
+      if (data != null) {
+        setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
+        setCurrentMove(parsedMoves.indexOf(data) + 1);
+      }
+    } else {
+      const color = chessMove.type == "black" ? "b" : "w";
+      const data = parsedMoves.filter(
+        (i) => i.san == chessMove.move && i.color == color
+      );
+      console.log("parsedMoves", parsedMoves);
+      console.log("data move", data);
+      if (data.length > 0) {
+        setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
+        setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+      }
+    }
+  }, [chessMove, parsedMoves]);
 
   useEffect(() => {
     const newGame = new Chess();
