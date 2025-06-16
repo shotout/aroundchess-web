@@ -40,7 +40,7 @@ export default function MovementTable() {
     summary?.whiteSide != null
       ? summary?.whiteSide?.profileInfo
       : playerInfo?.white;
-  let dataMovement = movementDetails != null ? movementDetails : logMovement;
+  let dataMovement = logMovement;
   useEffect(() => {
     console.log("movementDetails", movementDetails);
     console.log("logMovement", logMovement);
