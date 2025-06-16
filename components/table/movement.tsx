@@ -42,7 +42,6 @@ export default function MovementTable() {
       : playerInfo?.white;
   let dataMovement = logMovement;
   useEffect(() => {
-    console.log("movementDetails", movementDetails);
     console.log("logMovement", logMovement);
   }, []);
   const getBadgeClass = (type: string) => {
