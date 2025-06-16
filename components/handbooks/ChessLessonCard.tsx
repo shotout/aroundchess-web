@@ -95,7 +95,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                   <Simple2DChess
                     id={`board-${slug}`}
                     keys={`board-${slug}`}
-                    position={getFenFromMoves(lesson.moves)}
+                    position={getFenFromMoves(lesson.moves)?.trim()}
                     arePiecesDraggable={false}
                   />
                 </div>
