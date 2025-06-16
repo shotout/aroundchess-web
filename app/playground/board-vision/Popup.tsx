@@ -24,6 +24,7 @@ import Image from "next/image";
 import axios from "axios";
 import { Chess } from "chess.js";
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const endpoint = process.env.BASE_URL;
 
@@ -34,6 +35,7 @@ interface PopupProps {
 
 const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   const { sessionId } = useProfileStore();
+  const { username: globalUsername } = usePgnStore();
 
   const router = useRouter();
   const {
@@ -45,11 +47,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     loadingError,
   } = useBoardVisionStore();
 
-  const [usernameInput, setUsernameInput] = useState(username);
+  const [usernameInput, setUsernameInput] = useState("");
   const [usernameStatus, setUsernameStatus] = useState("idle");
   const [availableGames, setAvailableGames] = useState<any[]>([]);
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
-  const [debouncedQuery, setDebouncedQuery] = useState(usernameInput);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [gameCount, setGameCount] = useState("50");
 
@@ -57,34 +59,48 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     ((i + 1) * 10).toString()
   );
 
+  // Debounce the username input
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
     return () => clearTimeout(timer);
   }, [usernameInput]);
 
+  // Fetch games when debounced query changes (and other dependencies)
   useEffect(() => {
-    if (debouncedQuery && debouncedQuery.trim() !== "") {
+    if (debouncedQuery && debouncedQuery.trim() !== "" && sessionId) {
       setUsernameStatus("loading");
       fetchUserGames();
+    } else if (!debouncedQuery || debouncedQuery.trim() === "") {
+      // Reset state when query is empty
+      setUsernameStatus("idle");
+      setAvailableGames([]);
+      setSelectedGames([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, sessionId, gameCount]);
 
-  // Reset form when popup opens
+  // Reset form when popup opens and set default username
   useEffect(() => {
     if (isOpen) {
       setShowErrorModal(false);
-      // Keep the current username if it exists, otherwise start fresh
-      if (!username) {
+
+      // Priority: globalUsername > username > empty
+      if (globalUsername && globalUsername.trim() !== "") {
+        setUsernameInput(globalUsername);
+        setDebouncedQuery(""); // Reset to trigger fresh fetch
+      } else if (username && username.trim() !== "") {
+        setUsernameInput(username);
+        setDebouncedQuery(""); // Reset to trigger fresh fetch
+      } else {
+        // Start fresh
         setUsernameInput("");
+        setDebouncedQuery("");
         setUsernameStatus("idle");
         setAvailableGames([]);
         setSelectedGames([]);
-      } else {
-        setUsernameInput(username);
       }
     }
-  }, [isOpen, username]);
+  }, [isOpen, globalUsername, username]);
 
   const fetchUserGames = async () => {
     try {
@@ -135,6 +151,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setSelectedGames([]);
       }
     } catch (error) {
+      console.error("Error fetching user games:", error);
       setUsernameStatus("not-found");
       setAvailableGames([]);
       setSelectedGames([]);
@@ -142,8 +159,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsernameInput(e.target.value);
-    if (e.target.value.trim() === "") {
+    const newValue = e.target.value;
+    setUsernameInput(newValue);
+
+    // Reset status when user starts typing
+    if (newValue.trim() === "") {
       setUsernameStatus("idle");
       setAvailableGames([]);
       setSelectedGames([]);
@@ -257,7 +277,9 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
                   type="text"
                   id="username"
                   value={usernameInput}
-                  placeholder="Enter your Chess.com Username"
+                  placeholder={
+                    usernameInput ? "" : "Enter your Chess.com Username"
+                  }
                   onChange={handleUsernameChange}
                   className="w-full bg-transparent h-[24px] focus:outline-none"
                 />

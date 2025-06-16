@@ -29,7 +29,7 @@ const MyAccount = () => {
   const router = useRouter();
   const { username, setUsername, clearAll } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [gameType, setGameType] = useState<string>("rapid"); // Default game type
+  const [gameType, setGameType] = useState<string>("rapid");
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
     defaultUsername: username,
@@ -184,14 +184,6 @@ const MyAccount = () => {
             htmlFor="gameType"
             className="flex flex-row gap-2 text-[14px] font-normal"
           >
-            <Image
-              src="/my-game-history/knight.png"
-              alt="knight"
-              width={20}
-              height={20}
-              className="w-[20px] h-[20px] relative z-10"
-              priority
-            />{" "}
             Game Type
           </label>
           <Select value={gameType} onValueChange={setGameType}>

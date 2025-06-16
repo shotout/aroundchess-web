@@ -15,54 +15,24 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+
 interface EndgameProps {
   next: () => void;
   prev: () => void;
 }
+
 const EndGame: React.FC<EndgameProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { PieceChoosed } = useChessBoardThemeStore();
 
-  const { bestMoves, badMoves } = dataAnalysis?.endGame;
+  // Safe destructuring with defaults
+  const endGameData = dataAnalysis?.endGame || {};
+  const { bestMoves = [], badMoves = [] } = endGameData;
+
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openBadMove, setopenBadMove] = useState<boolean>(true);
-  const [bestmoves, setBestMoves] = useState<any[]>([
-    {
-      number: 5,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Brilliant",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 2,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Great",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
-  const [badMove, setBadMove] = useState<any[]>([
-    {
-      number: 1,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 7,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Miss",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -87,6 +57,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -105,9 +76,11 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         return "text-[#364152]";
     }
   };
+
   const handleOnClickMovement = (move: any) => {
     setChessMove(move);
   };
+
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -143,8 +116,9 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               )}
             </div>
           </div>
-          {bestMoves && bestMoves.length == 0 && <NoData />}
+          {bestMoves && bestMoves.length === 0 && <NoData />}
           {openBestMoves &&
+            bestMoves &&
             bestMoves.map((item: any, index: number) => {
               return (
                 <div key={index} className="flex flex-col gap-2 mt-2">
@@ -162,24 +136,25 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
                         >
                           Move {item?.moveNumber}:{" "}
-                          {capturedWhite
-                            .filter((wp) => wp.san == item?.move)
-                            .map((item, index) => {
-                              return (
-                                <Image
-                                  key={index}
-                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                  alt="icon"
-                                  width={1000}
-                                  height={1000}
-                                  className="w-[12px] h-[12px] object-contain inline-block"
-                                />
-                              );
-                            })}
+                          {capturedWhite &&
+                            capturedWhite
+                              .filter((wp) => wp.san == item?.move)
+                              .map((item, index) => {
+                                return (
+                                  <Image
+                                    key={index}
+                                    src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                    alt="icon"
+                                    width={1000}
+                                    height={1000}
+                                    className="w-[12px] h-[12px] object-contain inline-block"
+                                  />
+                                );
+                              })}
                           <span className="font-bold">{item?.move}</span>
                         </span>
                         <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md  text-center font-normal ${getScoreClass(
+                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                             item.classification
                           )}`}
                         >
@@ -187,14 +162,14 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                         </span>
                       </div>
                       <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
+                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                           item.classification
                         )}`}
                       >
                         {item.classification}
                       </span>
                     </div>
-                    <span className="text-sm sm:text-md md:text-md lg:text-md  font-normal">
+                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
                       <span className="font-bold">Analysis: </span>
                       {item.analysis}
                     </span>
@@ -235,8 +210,9 @@ const EndGame: React.FC<EndgameProps> = (props) => {
               )}
             </div>
           </div>
-          {badMoves && badMoves.length == 0 && <NoData />}
+          {badMoves && badMoves.length === 0 && <NoData />}
           {openBadMove &&
+            badMoves &&
             badMoves.map((item: any, index: number) => {
               return (
                 <div key={index} className="flex flex-col gap-2 mt-2">
@@ -254,20 +230,21 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
                         >
                           Move {item?.moveNumber}:{" "}
-                          {capturedWhite
-                            .filter((wp) => wp.san == item?.move)
-                            .map((item, index) => {
-                              return (
-                                <Image
-                                  key={index}
-                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                  alt="icon"
-                                  width={1000}
-                                  height={1000}
-                                  className="w-[12px] h-[12px] object-contain inline-block"
-                                />
-                              );
-                            })}
+                          {capturedWhite &&
+                            capturedWhite
+                              .filter((wp) => wp.san == item?.move)
+                              .map((item, index) => {
+                                return (
+                                  <Image
+                                    key={index}
+                                    src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                    alt="icon"
+                                    width={1000}
+                                    height={1000}
+                                    className="w-[12px] h-[12px] object-contain inline-block"
+                                  />
+                                );
+                              })}
                           <span className="font-bold">{item?.move}</span>
                         </span>
                         <span
@@ -294,21 +271,6 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                 </div>
               );
             })}
-          {/* {openBadMove && badMoves&&badMoves.length > 0 && (
-            <div className="flex flex-row bg-gradient mt-4 rounded-md p-2 sm:p-4 md:p-6 lg:p-8">
-              <Image
-                alt=""
-                src={"/icons/info-banner-icon.png"}
-                width={1000}
-                height={1000}
-                className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
-              />
-              <span className="text-xs sm:text-md md:text-lg lg:text-lg font-normal text-primary ml-4">
-                We have added Exercises to your Training Plan to improve your
-                Strategy for the analyzed weaknesses.
-              </span>
-            </div>
-          )} */}
         </div>
       </div>
 

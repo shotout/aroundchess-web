@@ -152,7 +152,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 Avg. Time to Invest Daily:
               </div>
               <div className="flex items-center gap-1 text-blue-800 text-sm md:text-base font-semibold">
-                ~{schedule?.durations?.avgMinutesDaily || 66} min
+                ~{schedule?.durations?.avgMinutesDaily || 0} min
               </div>
             </div>
           </div>

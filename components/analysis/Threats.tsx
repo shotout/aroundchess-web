@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -8,20 +7,25 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+
 interface ThreatsProps {
   next: () => void;
   prev: () => void;
 }
+
 const Threats: React.FC<ThreatsProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { PieceChoosed } = useChessBoardThemeStore();
 
-  const { threats } = dataAnalysis ?? {};
+  // Safe destructuring with defaults
+  const { threats = [] } = dataAnalysis ?? {};
+
   const handleOnClickMovement = (move: any) => {
     console.log("move", move);
     setChessMove(move);
   };
+
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -39,7 +43,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
             </span>
           </div>
           <div className="flex flex-col gap-2 mt-2">
-            {threats.length == 0 && <NoData />}
+            {threats.length === 0 && <NoData />}
             {threats.map((item: any, index: number) => {
               return (
                 <div
@@ -56,20 +60,21 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                       className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
                     >
                       Move {item?.moveNumber}:{" "}
-                      {capturedWhite
-                        .filter((wp) => wp.san == item?.move)
-                        .map((item, index) => {
-                          return (
-                            <Image
-                              key={index}
-                              src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                              alt="icon"
-                              width={1000}
-                              height={1000}
-                              className="w-[12px] h-[12px] object-contain inline-block"
-                            />
-                          );
-                        })}
+                      {capturedWhite &&
+                        capturedWhite
+                          .filter((wp) => wp.san == item?.move)
+                          .map((item, index) => {
+                            return (
+                              <Image
+                                key={index}
+                                src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                alt="icon"
+                                width={1000}
+                                height={1000}
+                                className="w-[12px] h-[12px] object-contain inline-block"
+                              />
+                            );
+                          })}
                       <span className="font-bold">{item?.move}</span>
                     </span>
                     <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">

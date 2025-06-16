@@ -5,37 +5,12 @@ import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { searchFAQs } from "./search";
+
 interface Question {
   question: string;
   answer: string[];
 }
 
-interface Category {
-  id: string;
-  label: string;
-  questions: Question[];
-}
-
-const tabs = [
-  {
-    id: "General",
-    label: "General Questions",
-    img: "/images/faq/question-mark.png",
-  },
-  { id: "Analysis", label: "Analysis", img: "/images/faq/analysis-mark.png" },
-  {
-    id: "Theory",
-    title: "Handbook: ",
-    label: "Chess Theory",
-    img: "/images/faq/theory-mark.png",
-  },
-  {
-    id: "Practice",
-    title: "Playground: ",
-    label: "Practice",
-    img: "/images/faq/practice-mark.png",
-  },
-];
 export default function ChessFAQ() {
   const { getFAQ, isLoading } = useApiClient();
   const [activeTab, setActiveTab] = useState<string>("");
@@ -46,32 +21,27 @@ export default function ChessFAQ() {
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [filteredData, setFilteredData] = useState<any[]>([]);
-  const [searchResults, setSearchResults] = useState<
-    { id: string; label: string; questions: Question[] }[]
-  >([]);
-  const [searchLoading, setSearchLoading] = useState(false);
 
   useEffect(() => {
     fetchFAQ();
   }, []);
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
-
-    // Add event listeners
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
+
   const handleResize = () => {
     let widthC = window?.innerWidth;
     setWidthContainer(widthC);
   };
+
   const fetchFAQ = () => {
     getFAQ({})
       .then((response) => {
-        console.log("getFAQ", response);
         let data = response.data;
         data.sort((a: { label: string }, b: { label: any }) =>
           a.label.localeCompare(b.label)
@@ -87,24 +57,20 @@ export default function ChessFAQ() {
   const toggleQuestion = (index: any) => {
     setOpenQuestion(openQuestion === index ? null : index);
   };
+
   useEffect(() => {
     if (data.length > 0) {
       if (query.length >= 3) {
         const timer = setTimeout(() => {
-          setSearchLoading(true);
           const results = searchFAQs(data, query);
           results.sort((a, b) => a.label.localeCompare(b.label));
-          setSearchResults(results);
           setActiveTab(results[0].label);
           setQuestion(results[0].questions);
           setFilteredData(results);
-          console.log("results", results);
-          setSearchLoading(false);
-        }, 300); // Debounce for better performance
+        }, 300);
         return () => clearTimeout(timer);
       } else {
         data.sort((a, b) => a.label.localeCompare(b.label));
-
         setQuestion(data[0].questions);
         setActiveTab(data[0].label);
         setFilteredData(data);
@@ -115,10 +81,11 @@ export default function ChessFAQ() {
   const handleOnSearch = (e: any) => {
     setQuery(e.target.value);
   };
+
   if (isLoading) return <DotSpinner />;
+
   return (
     <div className="flex flex-col w-full bg-gradient-to-b from-[#BDD5FF] via-[#FCFCFD] to-[#FCFCFD] gap-3">
-      {/* Header with logo */}
       <div className="relative flex justify-center p-[16px] md:mt-[72px]">
         <Image
           src={`/images/faq/background-${
@@ -140,12 +107,10 @@ export default function ChessFAQ() {
         </div>
       </div>
 
-      {/* FAQ Title */}
       <h1 className="text-[18px] font-semibold text-center px-[16px] md:text-[33.47px]">
         Frequently Asked Questions
       </h1>
 
-      {/* Search Bar */}
       <div className="relative flex flex-row items-center md:w-[445px] md:self-center mx-[16px] p-3 gap-2 bg-[#F8F9FC] rounded-md border border-[#DEDEDE]">
         <Search size={20} color="#73778B" className="pl-1" />
         <input
@@ -157,7 +122,6 @@ export default function ChessFAQ() {
         />
       </div>
 
-      {/* Tabs > Mobile width*/}
       <div className="hidden md:flex w-[95%] self-center flex-row items-center justify-center xl:justify-around gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
         {filteredData.map((tab, index) => (
           <button
@@ -191,16 +155,18 @@ export default function ChessFAQ() {
           </button>
         ))}
       </div>
-      {/* Tabs Mobile width*/}
-      <div className="md:hidden flex flex-row items-center gap-1 mx-[16px]">
-        {filteredData.map((tab) => (
+
+      <div className="md:hidden flex flex-row mx-[16px]">
+        {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-            className={`flex flex-col items-center justify-center min-w-[23%] px-[12px] h-[42px] rounded-[12px] ${
+            className={`flex flex-col items-center justify-center px-[12px] h-[42px] rounded-[12px] ${
+              tab.label.includes("General") ? "w-[40%]" : "w-[60%]"
+            } ${
               activeTab === tab.label
                 ? "text-[#221AE9] border border-[#221AE9]"
                 : "bg-white border border-gray-300 rounded-md"
-            }`}
+            } ${index < filteredData.length - 1 ? "mr-1" : ""}`}
             onClick={() => {
               setQuestion(tab.questions);
               setActiveTab(tab.label);
@@ -215,12 +181,10 @@ export default function ChessFAQ() {
         ))}
       </div>
 
-      {/* Category Title */}
       <h2 className="text-[16px] md:text-[24px] text-center font-bold mx-4 mt-8">
         {activeTab}
       </h2>
 
-      {/* Accordion FAQ items */}
       <div className="space-y-3 mx-4 mb-[32px]">
         {question != null &&
           question.length > 0 &&

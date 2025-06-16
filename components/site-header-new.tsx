@@ -14,14 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  BarChart2,
-  DollarSign,
-  HelpCircle,
-  Home,
-  Info,
-  Menu,
-} from "lucide-react";
+import { BarChart2, DollarSign, HelpCircle, Info, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -33,13 +26,12 @@ import { supabase } from "@/lib/supabase";
 import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+
 interface SiteHeaderProps {
   children?: React.ReactNode;
-  onSidebarOpen?: () => void;
 }
 
-export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
-  const [isScrolled, setIsScrolled] = React.useState(false);
+export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { open } = usePricingOffer();
@@ -49,17 +41,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const { sessionId } = useProfileStore();
   const { logOut } = useApiClient();
   const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
-  const {
-    setUsername: setUsernamePlayer,
-    setPgn,
-    setIsLoading,
-    setError,
-    isLoading,
-    dataAnalysis,
-    setDataAnalysis,
-    setDataGames,
-    dataGames,
-  } = usePgnStore();
+  const { setPgn, setIsLoading, setError, setDataAnalysis } = usePgnStore();
+
   const fetchPgnFamousGame = async () => {
     let arr = null;
     try {
@@ -71,18 +54,13 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
       setPgn(pgnLocal);
       const resAnalysis = await fetch("/local-data/analysis.json");
       const responseAnalysis = await resAnalysis.json();
-      console.log("pgnLocal", pgnLocal);
-      console.log("responseAnalysis", responseAnalysis);
 
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setError(null);
-      // router.push("/analysis");
     } catch (err) {
-      console.log("error", err);
       router.push("/");
       setIsLoading(false);
-
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       if (arr != null) {
@@ -94,9 +72,9 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
       }
     }
   };
+
   React.useEffect(() => {
     const checkSession = () => {
-      console.log("sessionId.length", sessionId.length);
       if (sessionId.length > 0) {
         setIsSignedIn(true);
       } else {
@@ -110,22 +88,17 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
   const { isMember, token, clearAll: clearProfile } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
   const handleDashboard = () => {
     router.push("/profile");
   };
+
   const handleLogout = async () => {
     clearAll();
     clearProfile();
     localStorage.removeItem("token");
     handleSignOut();
   };
+
   const handleSignOut = async () => {
     logOut({ sessionId })
       .then(() => {})
@@ -133,8 +106,6 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
         clearAll();
         localStorage.removeItem("token");
         setPersistedCookie("token", "", 365);
-
-        // router.push("/login");
         window.location.href = "/login";
       });
     const { error } = await supabase.auth.signOut();
@@ -144,25 +115,28 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
       throw error;
     }
   };
+
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
     setTabType(type);
   };
+
   return (
     <motion.header
-      className="sticky top-0 z-[200] w-full h-[72px] lg:h-[97px] bg-white py-2"
+      className="sticky top-0 z-[200] w-full h-[72px] lg:h-[97px] bg-white"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="container px-4 md:px-6 lg:px-12 py-[16px] mx-auto w-full">
-        <div className="flex items-center justify-between">
-          <div className="flex md:w-full lg:w-1/5 items-center gap-2">
+      <div className="container px-4 md:px-6 lg:px-12 mx-auto w-full h-full">
+        <div className="flex items-center justify-between h-full">
+          {/* Left: Logo */}
+          <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/icons/logo.png"
                 alt="logo"
-                className="w-36 h-12"
+                className="w-24 h-8 sm:w-28 sm:h-9 lg:w-36 lg:h-12"
                 quality={100}
                 width={600}
                 height={600}
@@ -170,7 +144,8 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
             </Link>
           </div>
 
-          <div className="flex justify-center items-center gap-6 lg:w-3/5">
+          {/* Center: Desktop Navigation */}
+          <div className="hidden xl:flex justify-center items-center gap-6 flex-1">
             <NavigationMenu>
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
@@ -193,7 +168,7 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
                     </span>
                   </Button>
                 </div>
-                <div className="hidden xl:flex border border-input rounded-[8px] p-[16px]">
+                <div className="border border-input rounded-[8px] p-[16px]">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
                     <NavigationMenuItem>
                       <Link href="/about-us" legacyBehavior passHref>
@@ -242,62 +217,90 @@ export function SiteHeaderNew({ onSidebarOpen, children }: SiteHeaderProps) {
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
+
+          {/* Right: Mobile Analyze Button + Menu / Desktop Auth Buttons */}
+          <div className="flex items-center gap-2">
+            {/* Mobile: Analyze Button + Hamburger */}
+            <div className="flex xl:hidden items-center gap-2">
+              <Button
+                onClick={fetchPgnFamousGame}
+                color="primary"
+                variant="outlineprimary"
+                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-sm"
+              >
+                <BarChart2
+                  className="mr-1 h-[16px] w-[16px]"
+                  color={sessionId.length == 0 ? "#221AE9" : "#000"}
+                />
+                <span
+                  className={`font-normal text-[14px] ${
+                    sessionId.length == 0 && `text-[#221AE9]`
+                  }`}
+                >
+                  Analyze
+                </span>
               </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="pl-0"
-              aria-describedby="mobile-nav-description"
-            >
-              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div id="mobile-nav-description" className="sr-only">
-                Mobile navigation menu for AroundChess
-              </div>
-              <MobileNav
-                isSignedIn={isSignedIn}
-                handleLogout={handleLogout}
-                handleDashboard={handleDashboard}
-                isMember={isMember}
-                token={token.balance}
-                handleOpenOffer={handleOpenOffer}
-              />
-            </SheetContent>
-          </Sheet>
-          <div className="hidden xl:flex items-center gap-2 lg:w-1/5">
-            {!isSignedIn ? (
-              <div className="hidden sm:flex items-center gap-5">
-                <Link href="/login">
-                  <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    Sign-In
-                  </button>
-                </Link>
-                <Link href="/register">
-                  <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
-                    Try Now
-                  </button>
-                </Link>
-              </div>
-            ) : (
-              <div className="hidden lg:flex flex-row w-full items-center gap-[16px]">
-                <button
-                  onClick={handleDashboard}
-                  className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[12px] xl:text-[12px] font-medium"
+
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" className="h-9 w-9 p-0">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="pl-0 z-[300]"
+                  aria-describedby="mobile-nav-description"
                 >
-                  My Dashboard
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[12px] font-medium text-white"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  <div id="mobile-nav-description" className="sr-only">
+                    Mobile navigation menu for AroundChess
+                  </div>
+                  <MobileNav
+                    isSignedIn={isSignedIn}
+                    handleLogout={handleLogout}
+                    handleDashboard={handleDashboard}
+                    isMember={isMember}
+                    token={token.balance}
+                    handleOpenOffer={handleOpenOffer}
+                  />
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Desktop: Auth Buttons */}
+            <div className="hidden xl:flex items-center gap-2">
+              {!isSignedIn ? (
+                <div className="flex items-center gap-5">
+                  <Link href="/login">
+                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      Sign-In
+                    </button>
+                  </Link>
+                  <Link href="/register">
+                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                      Try Now
+                    </button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center gap-[16px]">
+                  <button
+                    onClick={handleDashboard}
+                    className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[12px] font-medium"
+                  >
+                    My Dashboard
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[12px] font-medium text-white"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -333,6 +336,7 @@ const ListItem = React.forwardRef<
 });
 
 ListItem.displayName = "ListItem";
+
 interface mobileProps {
   isSignedIn: any;
   handleLogout: () => void;
@@ -341,20 +345,12 @@ interface mobileProps {
   handleOpenOffer: (type: string) => void;
   handleDashboard: () => void;
 }
+
 function MobileNav(props: mobileProps) {
   const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const router = useRouter();
-  const {
-    setUsername: setUsernamePlayer,
-    setPgn,
-    setIsLoading,
-    setError,
-    isLoading,
-    dataAnalysis,
-    setDataAnalysis,
-    setDataGames,
-    dataGames,
-  } = usePgnStore();
+  const { setPgn, setIsLoading, setError, setDataAnalysis } = usePgnStore();
+
   const fetchPgnFamousGame = async () => {
     let arr = null;
     try {
@@ -366,18 +362,13 @@ function MobileNav(props: mobileProps) {
       setPgn(pgnLocal);
       const resAnalysis = await fetch("/local-data/analysis.json");
       const responseAnalysis = await resAnalysis.json();
-      console.log("pgnLocal", pgnLocal);
-      console.log("responseAnalysis", responseAnalysis);
 
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setError(null);
-      // router.push("/analysis");
     } catch (err) {
-      console.log("error", err);
       router.push("/");
       setIsLoading(false);
-
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
     } finally {
       if (arr != null) {
@@ -389,6 +380,9 @@ function MobileNav(props: mobileProps) {
       }
     }
   };
+
+  const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
+
   return (
     <div className="flex flex-col ml-4 self-center ">
       <div className="flex items-center justify-between mb-8">
@@ -411,24 +405,24 @@ function MobileNav(props: mobileProps) {
         Analyze Now
       </div>
       <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6 bg-white ">
-        <Link href="/about-us" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+        <Link href="/about-us">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <Info className="mr-2 h-4 w-4" />
             About
           </div>
         </Link>
-        <Link href="/faq" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+        <Link href="/faq">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <HelpCircle className="mr-2 h-4 w-4" />
             FAQ
           </div>
         </Link>
-        <Link href="/pricing" legacyBehavior passHref>
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+        <button onClick={() => setOpenSubscribe(true)}>
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
             <DollarSign className="mr-2 h-4 w-4" />
             Pricing
           </div>
-        </Link>
+        </button>
       </div>
 
       <div className="flex flex-1 gap-2 mt-8 w-full">
@@ -462,72 +456,12 @@ function MobileNav(props: mobileProps) {
               Logout
             </button>
           </div>
-          // <div className="flex flex-col xl:flex-row w-full items-center justify-center gap-[8px]">
-          //   <span className="block lg:text-[16px] w-full text-[#221AE9] font-medium">
-          //     Remaining Tokens:{" "}
-          //     <span
-          //       className={`font-bold ${
-          //         props.token == 0 ? `text-[#FD0000]` : ``
-          //       }`}
-          //     >
-          //       {props.token}
-          //     </span>
-          //   </span>
-          //   {!props.isMember && (
-          //     <div className="w-full flex flex-col gap-[16px] ">
-          //       <button
-          //         onClick={() => props.handleOpenOffer("token")}
-          //         className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          //       >
-          //         Buy Tokens
-          //       </button>
-          //       <button
-          //         onClick={() => props.handleOpenOffer("subscription")}
-          //         className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
-          //       >
-          //         Go Unlimited
-          //       </button>
-          //     </div>
-          //   )}
-          //   {props.isMember && (
-          //     <motion.div
-          //       variants={fadeInUp}
-          //       className={`relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]`}
-          //     >
-          //       <div
-          //         className={`flex xl:min-w-[280px] h-[56px] flex-row items-center rounded-[8px] gap-2`}
-          //       >
-          //         <Image
-          //           src={`/icons/onboarding-popup.png`}
-          //           alt="icon"
-          //           width={1000}
-          //           height={1000}
-          //           className="w-[42px] h-[44px] object-contain m-4 mr-0"
-          //         />
-          //         <span className="block font-medium text-[14px] z-10 text-black">
-          //           {"You are on "}
-          //           <span className="font-semibold text-[14px] z-10 text-[#17119B]">
-          //             {"Premium package!"}
-          //           </span>
-          //         </span>
-          //         <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
-          //           <Image
-          //             src={`/icons/sparks-member.png`}
-          //             alt="icon"
-          //             width={1000}
-          //             height={1000}
-          //             className="w-[56px] h-[56px] object-cover"
-          //           />
-          //         </div>
-          //       </div>
-          //     </motion.div>
-          //   )}
-          // </div>
         )}
       </div>
     </div>
   );
 }
+
 function cn(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }

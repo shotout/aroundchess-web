@@ -55,6 +55,7 @@ export function AnalyzeDifferentGame({
   } = useLoadingAPI();
   const {
     setPgn,
+    username: globalUsername,
     setIsLoading,
     setError,
     setDataAnalysis,
@@ -87,7 +88,8 @@ export function AnalyzeDifferentGame({
     },
   ];
 
-  const [username, setUsername] = useState("");
+  // Initialize username with globalUsername if available
+  const [username, setUsername] = useState(globalUsername || "");
   const [pgnText, setPgnText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [timeBasic, setTimeBasic] = useState<any>({});
@@ -108,8 +110,16 @@ export function AnalyzeDifferentGame({
   const [selectedGame, setSelectedGame] = useState<string | undefined>(
     undefined
   );
-  const [debouncedQuery, setDebouncedQuery] = useState(username);
+  const [debouncedQuery, setDebouncedQuery] = useState(globalUsername || "");
   const [isSelectOpen, setIsSelectOpen] = useState(false);
+
+  // Update local username when globalUsername changes
+  useEffect(() => {
+    if (globalUsername && globalUsername !== username) {
+      setUsername(globalUsername);
+      setDebouncedQuery(globalUsername);
+    }
+  }, [globalUsername]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(username), 500);

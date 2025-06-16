@@ -126,21 +126,18 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
-  // Single useEffect for initial data loading
   useEffect(() => {
     if (sessionId && !initialLoadComplete) {
       fetchAllData(sessionId);
     }
   }, [sessionId, fetchAllData, initialLoadComplete]);
 
-  // Separate useEffect for schedule data
   useEffect(() => {
     if (sessionId && initialLoadComplete) {
       fetchScheduleData(sessionId);
     }
   }, [sessionId, fetchScheduleData, initialLoadComplete]);
 
-  // Effect to determine if user has a plan
   useEffect(() => {
     if (schedule && Object.keys(schedule).length > 0) {
       const hasContent =
@@ -155,7 +152,6 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [schedule]);
 
-  // Effect to reset expired status when dialog opens
   useEffect(() => {
     if (dialogOpen) {
       resetExpiredStatus();

@@ -12,8 +12,6 @@ import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 import { usePagination } from "../pagination/hook/usePagination";
 import { Pagination } from "../pagination/pagination";
-import { useAuth } from "@clerk/nextjs";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export default function Article() {

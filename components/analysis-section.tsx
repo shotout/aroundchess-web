@@ -3,7 +3,7 @@
 import { motion } from "@/utils/motion";
 import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
@@ -16,6 +16,7 @@ const analysisFeatures = [
   "Opening repertoire builder",
   "Endgame training modules",
 ];
+
 const analysis = [
   {
     image: "/images/homepage/assesment.png",
@@ -32,8 +33,7 @@ const analysis = [
     image: "/images/homepage/threats.png",
     title: "THREATS",
     description:
-      "Get insights into your Game’s <b>most Critical Threats</b> and find out how to avoid them in the next Game. ",
-
+      "Get insights into your Game's <b>most Critical Threats</b> and find out how to avoid them in the next Game. ",
     idea: `<span>Identify and display <b style="color:#221AE9">Critical Threats</b> in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.</span>`,
     problem:
       "Players often miss crucial threats to their pieces or king position during the game, leading to unexpected losses and missed opportunities.",
@@ -44,7 +44,7 @@ const analysis = [
     image: "/images/homepage/threats.png",
     title: "MOVE QUALITY",
     description:
-      "Discover an in-depth <b>analysis of each of your and your Opponent’s moves</b> and find suggestions for improvements. ",
+      "Discover an in-depth <b>analysis of each of your and your Opponent's moves</b> and find suggestions for improvements. ",
     idea: `<span>Provide a comprehensive <b style="color:#221AE9">Move Quality Analysis</b> that evaluates your moves to identify strengths and weaknesses, offering insights into the effectiveness of strategies employed during the game.</span>`,
     problem:
       "Players may struggle to assess the quality of their moves and those of their opponents, leading to repeated mistakes and missed opportunities for improvement.",
@@ -85,39 +85,43 @@ const analysis = [
       "Use the analysis tool to generate a customized training plan that focuses on specific weaknesses, reinforcing crucial strategies, and improving overall performance through targeted practice.",
   },
 ];
+
 export function AnalysisSection() {
   const router = useRouter();
-  const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const checkSession = () => {
-      if (sessionId != "") {
-        setIsSignedIn(true);
-      } else {
-        setIsSignedIn(false);
-      }
-    };
-
-    checkSession();
-  }, [sessionId, isSignedIn]);
   const [current, setCurrent] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
-  const prevSlide = () => {
+  // Memoize the sign-in status to prevent unnecessary re-renders
+  const isSignedIn = useMemo(() => {
+    return sessionId && sessionId.length > 0;
+  }, [sessionId]);
+
+  // Handle image loading for each slide
+  const handleImageLoad = useCallback((index: number) => {
+    setImagesLoaded((prev) => ({ ...prev, [index]: true }));
+  }, []);
+
+  const prevSlide = useCallback(() => {
     setCurrent((prev) => (prev === 0 ? analysis.length - 1 : prev - 1));
-  };
+  }, []);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrent((prev) => (prev === analysis.length - 1 ? 0 : prev + 1));
-  };
-  const handleAnalysis = () => {
+  }, []);
+
+  const handleAnalysis = useCallback(() => {
     if (isSignedIn) {
       router.push("/analysis");
     } else {
       router.push("/register");
     }
-  };
+  }, [isSignedIn, router]);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrent(index);
+  }, []);
+
   return (
     <section className="py-2 sm:py-4 bg-white flex items-center justify-center">
       <div className="container w-full px-4 sm:px-6 lg:px-8">
@@ -138,129 +142,163 @@ export function AnalysisSection() {
                   </span>
                 </span>
               </div>
+
+              {/* Fixed height carousel container */}
               <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
-                <div className="flex flex-col xl:flex-row w-full ">
+                <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-auto">
+                  {/* Image container with fixed dimensions */}
                   <div className="flex items-start border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
-                    <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] ">
-                      <AnimatePresence>
+                    <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] w-full flex xl:items-center">
+                      <div className="relative h-[200px] sm:h-[250px] xl:h-[600px] w-full">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={current}
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -50 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 flex items-center justify-center"
+                          >
+                            {!imagesLoaded[current] && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
+                                <DotSpinner size={20} />
+                              </div>
+                            )}
+                            <Image
+                              src={analysis[current].image}
+                              alt={analysis[current].title}
+                              fill
+                              className="object-contain"
+                              onLoad={() => handleImageLoad(current)}
+                              priority={current === 0}
+                            />
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Content container with fixed height */}
+                  <div className="px-1 lg:px-4 w-full xl:w-1/2 md:mt-2 flex flex-col">
+                    <div className="flex-1 overflow-hidden">
+                      <AnimatePresence mode="wait">
                         <motion.div
                           key={current}
-                          initial={{ opacity: 0, x: 50 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.5 }}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3 }}
+                          className="h-full flex flex-col"
                         >
-                          <Image
-                            src={analysis[current].image}
-                            alt={analysis[current].title}
-                            width={1000}
-                            height={1000}
-                            className="w-full object-contain"
-                            onLoadingComplete={() => setLoaded(true)}
+                          <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
+                            {analysis[current].title}
+                          </span>
+
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: analysis[current].description.replace(
+                                /\*\*(.*?)\*\*/g,
+                                "<b>$1</b>"
+                              ),
+                            }}
+                            className="block mt-1 text-xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3"
                           />
-                          {!loaded && <DotSpinner size={20} />}
+
+                          {/* Content sections with scroll if needed */}
+                          <div className="flex-1 overflow-y-auto mt-4 space-y-3 max-h-[500px] sm:max-h-[200px] xl:max-h-[400px]">
+                            <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
+                              <span className="text-[#221AE9] text-sm sm:text-md font-bold">
+                                Idea
+                              </span>
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: analysis[current].idea.replace(
+                                    /\*\*(.*?)\*\*/g,
+                                    "<b>$1</b>"
+                                  ),
+                                }}
+                                className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
+                              />
+                            </div>
+
+                            <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4">
+                              <span className="text-[#FA402D] text-sm sm:text-md font-bold">
+                                Problem
+                              </span>
+                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                                {analysis[current].problem}
+                              </span>
+                            </div>
+
+                            <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4">
+                              <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
+                                Solution
+                              </span>
+                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                                {analysis[current].solution}
+                              </span>
+                            </div>
+                          </div>
                         </motion.div>
                       </AnimatePresence>
                     </div>
-                  </div>
-                  <div className="px-1 lg:px-4 w-full xl:w-1/2 md:mt-2">
-                    <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
-                      {analysis[current].title}
-                    </span>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: analysis[current].description.replace(
-                          /\*\*(.*?)\*\*/g,
-                          "<b>$1</b>"
-                        ),
-                      }}
-                      className="block mt-1 text-xs sm:text-md lg:text-[18px] font-normal text-[#364152] lg:text-left leading-[1.2]"
-                    ></span>
-                    <div className="flex flex-col md:flex-row xl:flex-col md:gap-2">
-                      <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#221AE9] text-sm sm:text-md font-bold">
-                          Idea
-                        </span>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: analysis[current].idea.replace(
-                              /\*\*(.*?)\*\*/g,
-                              "<b>$1</b>"
-                            ),
-                          }}
-                          className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left"
-                        ></span>
-                      </div>
 
-                      <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#FA402D] text-sm sm:text-md font-bold">
-                          Problem
-                        </span>
-                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left">
-                          {analysis[current].problem}
-                        </span>
-                      </div>
-
-                      <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
-                          Solution
-                        </span>
-                        <span className="flex flex-row md:flex-col xl:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left">
-                          {analysis[current].solution}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col w-full items-center justify-center pt-6 md:pt-2 lg:pt-6">
+                    {/* Button container - always at bottom */}
+                    <div className="flex flex-col w-full items-center justify-center pt-4">
                       <button
                         onClick={handleAnalysis}
-                        className="btn-primary rounded-full py-2 w-full md:w-full px-7 sm:px-16 font-normal text-sm sm:text-md"
+                        className="btn-primary rounded-full py-2 w-full px-7 sm:px-16 font-normal text-sm sm:text-md hover:opacity-90 transition-opacity"
                       >
                         Discover AroundChess's Analysis
                       </button>
-                      {/* <Button
-                        variant="link"
-                        className="w-fill text-black px-7 sm:px-16 font-normal text-sm sm:text-md"
-                      >
-                        No Sign-Up required
-                      </Button> */}
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Navigation controls */}
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
                 {/* Left Arrow */}
                 <button
-                  disabled={current == 0}
                   onClick={prevSlide}
-                  className="p-2 text-[#221AE9] transition"
+                  disabled={current === 0}
+                  className="p-2 transition-opacity hover:opacity-70 disabled:opacity-30"
+                  aria-label="Previous slide"
                 >
                   <ChevronLeft
                     size={28}
-                    color={current != 0 ? "#221AE9" : "#221AE950"}
+                    color={current !== 0 ? "#221AE9" : "#221AE950"}
                   />
                 </button>
+
                 {/* Dot Indicators */}
                 <div className="flex gap-1.5 sm:gap-2">
                   {analysis.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrent(index)}
+                      onClick={() => goToSlide(index)}
                       className={`${
                         current === index ? "w-5" : "w-3"
-                      } h-3 rounded-full transition ${
+                      } h-3 rounded-full transition-all duration-200 hover:opacity-70 ${
                         current === index ? "bg-[#221AE9]" : "bg-gray-300"
                       }`}
+                      aria-label={`Go to slide ${index + 1}`}
                     />
                   ))}
                 </div>
+
                 {/* Right Arrow */}
                 <button
-                  disabled={current == analysis.length}
                   onClick={nextSlide}
-                  className="p-2 text-[221AE9] transition"
+                  disabled={current === analysis.length - 1}
+                  className="p-2 transition-opacity hover:opacity-70 disabled:opacity-30"
+                  aria-label="Next slide"
                 >
                   <ChevronRight
                     size={28}
-                    color={current != analysis.length ? "#221AE9" : "#221AE950"}
+                    color={
+                      current !== analysis.length - 1 ? "#221AE9" : "#221AE950"
+                    }
                   />
                 </button>
               </div>

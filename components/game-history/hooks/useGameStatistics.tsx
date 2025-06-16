@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { GameStatistics } from "../types/GameHistoryTypes";
 import { gameHistoryApi } from "../services/api";
 import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 interface UseGameStatisticsResult {
@@ -34,19 +33,30 @@ const DEFAULT_STATISTICS: GameStatistics = {
 };
 
 export function useGameStatistics(): UseGameStatisticsResult {
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
   const { username } = usePgnStore();
   const [statistics, setStatistics] =
     useState<GameStatistics>(DEFAULT_STATISTICS);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const isExecutingRef = useRef(false);
+  const lastExecutedRef = useRef<string>("");
+
   const fetchStatistics = useCallback(async () => {
+    const executionKey = `${sessionId}-${username}`;
+
+    if (isExecutingRef.current || lastExecutedRef.current === executionKey) {
+      return;
+    }
+
     if (!sessionId || !username) {
       setIsLoading(false);
       return;
     }
 
+    isExecutingRef.current = true;
+    lastExecutedRef.current = executionKey;
     setIsLoading(true);
     setError(null);
 
@@ -67,14 +77,21 @@ export function useGameStatistics(): UseGameStatisticsResult {
       toast.error("Failed to load statistics. Please try again later.");
     } finally {
       setIsLoading(false);
+      isExecutingRef.current = false;
     }
-  }, [sessionId, username]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    fetchStatistics();
-  }, [fetchStatistics]);
+    const executionKey = `${sessionId}-${username}`;
+
+    if (lastExecutedRef.current !== executionKey && !isExecutingRef.current) {
+      fetchStatistics();
+    }
+  }, [sessionId, username, fetchStatistics]);
 
   const refreshStatistics = useCallback(async () => {
+    lastExecutedRef.current = "";
     toast.info("Refreshing statistics...");
     await fetchStatistics();
   }, [fetchStatistics]);

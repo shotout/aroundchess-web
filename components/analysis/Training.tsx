@@ -13,37 +13,26 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
+
 interface TrainingProps {
   next: () => void;
   prev: () => void;
 }
+
 const Training: React.FC<TrainingProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
-  const { criticalMistakes, weaknessIdentification } =
-    dataAnalysis?.training ?? {};
+  const { pgn: storePgn, dataAnalysis } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
+
+  // Safe destructuring with defaults
+  const trainingData = dataAnalysis?.training || {};
+  const {
+    criticalMistakes = { opening: [], middleGame: [], endGame: [] },
+    weaknessIdentification = { opening: [], middleGame: [], endGame: [] },
+  } = trainingData;
 
   const [openCriticalMistakes, setOpenCriticalMistakes] =
     useState<boolean>(true);
   const [openWeakness, setopenWeakness] = useState<boolean>(true);
-  const [criticalMoves, setCriticalMoves] = useState<any[]>([
-    {
-      number: 5,
-      score: "+0.20",
-      moves: "e4, c5",
-      classification: "Brilliant",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-    {
-      number: 2,
-      score: "+0.20",
-      moves: "f5, e5",
-      classification: "Great",
-      analysis:
-        "Pieces before pawns.  The only Pawn moves that should be made in the opening are the pawns that help develop your pieces.  Now this weakens your light squares e8-f7-g6-h5",
-    },
-  ]);
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -69,6 +58,7 @@ const Training: React.FC<TrainingProps> = (props) => {
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -87,9 +77,80 @@ const Training: React.FC<TrainingProps> = (props) => {
         return "text-[#364152]";
     }
   };
+
   const handleOnClickMovement = (move: any) => {
     setChessMove(move);
   };
+
+  const renderTrainingItem = (item: any, index: number, phase: string) => (
+    <div
+      key={index}
+      className={`flex flex-col gap-2 mt-2 border ${
+        chessMove.move == item.move ? `border-[#221AE9]` : `border-input`
+      } rounded-md p-4`}
+    >
+      <div className="p-1">
+        <div className="flex flex-row justify-between gap-2 mb-4">
+          <div className="flex flex-row items-center gap-2">
+            <span
+              onClick={() => handleOnClickMovement(item)}
+              className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+            >
+              Move {item.moveNumber}:{" "}
+              <span className="font-bold">{item.move}</span>
+            </span>
+
+            <span
+              className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                item.classification
+              )}`}
+            >
+              {item.evaluation}
+            </span>
+            <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
+              {phase}
+            </span>
+          </div>
+          <span
+            className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
+              item.classification
+            )}`}
+          >
+            {item.classification}
+          </span>
+        </div>
+        <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
+          <span className="font-bold">Analysis: </span>
+          {item.analysis}
+        </span>
+      </div>
+      <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
+        <div className="flex flex-row items-center justify-start gap-2">
+          <Image
+            alt=""
+            src={"/icons/recommended-training-icon.png"}
+            width={1000}
+            height={1000}
+            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+          />
+          <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
+            {item.recommendedTrainingExercise}
+          </span>
+        </div>
+        <Button
+          onClick={props.next}
+          size="lg"
+          variant="default"
+          className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
+        >
+          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
+            Go To Exercise
+          </div>
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
@@ -116,238 +177,31 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {criticalMistakes.opening.length == 0 &&
-            criticalMistakes.middleGame.length == 0 &&
-            criticalMistakes.endGame.length == 0 && (
+
+          {criticalMistakes.opening.length === 0 &&
+            criticalMistakes.middleGame.length === 0 &&
+            criticalMistakes.endGame.length === 0 && (
               <NoData>Critical Mistakes Empty</NoData>
             )}
-          {openCriticalMistakes &&
-            criticalMistakes &&
-            criticalMistakes.opening.length > 0 &&
-            criticalMistakes.opening.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col gap-2 mt-2 border ${
-                    chessMove.move == item.move
-                      ? `border-[#221AE9]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="p-1">
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.move}</span>
-                        </span>
 
-                        <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.evaluation}
-                        </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                          Opening
-                        </span>
-                      </div>
-                      <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                          item.classification
-                        )}`}
-                      >
-                        {item.classification}
-                      </span>
-                    </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item.analysis}
-                    </span>
-                  </div>
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                        {item.recommendedTrainingExercise}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={props.next}
-                      size="lg"
-                      variant="default"
-                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                    >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                        Go To Exercise
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          {openCriticalMistakes &&
-            criticalMistakes &&
-            criticalMistakes.middleGame.length > 0 &&
-            criticalMistakes.middleGame.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col gap-2 mt-2 border ${
-                    chessMove.move == item.move
-                      ? `border-[#221AE9]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="p-1">
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.move}</span>
-                        </span>
+          {openCriticalMistakes && (
+            <>
+              {criticalMistakes.opening.map((item: any, index: number) =>
+                renderTrainingItem(item, index, "Opening")
+              )}
 
-                        <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.evaluation}
-                        </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                          MiddleGame
-                        </span>
-                      </div>
-                      <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                          item.classification
-                        )}`}
-                      >
-                        {item.classification}
-                      </span>
-                    </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item.analysis}
-                    </span>
-                  </div>
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                        {item.recommendedTrainingExercise}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={props.next}
-                      size="lg"
-                      variant="default"
-                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                    >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                        Go To Exercise
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          {openCriticalMistakes &&
-            criticalMistakes &&
-            criticalMistakes.endGame.length > 0 &&
-            criticalMistakes.endGame.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col gap-2 mt-2 border ${
-                    chessMove.move == item.move
-                      ? `border-[#221AE9]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="p-1">
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.move}</span>
-                        </span>
+              {criticalMistakes.middleGame.map((item: any, index: number) =>
+                renderTrainingItem(item, index, "MiddleGame")
+              )}
 
-                        <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.evaluation}
-                        </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                          EndGame
-                        </span>
-                      </div>
-                      <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                          item.classification
-                        )}`}
-                      >
-                        {item.classification}
-                      </span>
-                    </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item.analysis}
-                    </span>
-                  </div>
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                        {item.recommendedTrainingExercise}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={props.next}
-                      size="lg"
-                      variant="default"
-                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                    >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                        Go To Exercise
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+              {criticalMistakes.endGame.map((item: any, index: number) =>
+                renderTrainingItem(item, index, "EndGame")
+              )}
+            </>
+          )}
         </div>
-        {/* critical mistakes moves  */}
+
+        {/* Weakness Identification */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
@@ -370,241 +224,29 @@ const Training: React.FC<TrainingProps> = (props) => {
               )}
             </div>
           </div>
-          {weaknessIdentification.opening.length == 0 &&
-            weaknessIdentification.middleGame.length == 0 &&
-            weaknessIdentification.endGame.length == 0 && (
+
+          {weaknessIdentification.opening.length === 0 &&
+            weaknessIdentification.middleGame.length === 0 &&
+            weaknessIdentification.endGame.length === 0 && (
               <NoData>Weakness Identification Empty</NoData>
             )}
-          {openWeakness &&
-            weaknessIdentification &&
-            weaknessIdentification.opening.length > 0 &&
-            weaknessIdentification.opening.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col gap-2 mt-2 border ${
-                    chessMove.move == item.move
-                      ? `border-[#221AE9]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="p-1">
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.move}</span>
-                        </span>
 
-                        <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.evaluation}
-                        </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                          Opening
-                        </span>
-                      </div>
-                      <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                          item.classification
-                        )}`}
-                      >
-                        {item.classification}
-                      </span>
-                    </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item.analysis}
-                    </span>
-                  </div>
+          {openWeakness && (
+            <>
+              {weaknessIdentification.opening.map((item: any, index: number) =>
+                renderTrainingItem(item, index, "Opening")
+              )}
 
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                        {item.recommendedTrainingExercise}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={props.next}
-                      size="lg"
-                      variant="default"
-                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                    >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                        Go To Exercise
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          {openWeakness &&
-            weaknessIdentification &&
-            weaknessIdentification.middleGame.length > 0 &&
-            weaknessIdentification.middleGame.map(
-              (item: any, index: number) => {
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-col gap-2 mt-2 border ${
-                      chessMove.move == item.move
-                        ? `border-[#221AE9]`
-                        : `border-input`
-                    } rounded-md p-4`}
-                  >
-                    <div className="p-1">
-                      <div className="flex flex-row justify-between gap-2 mb-4">
-                        <div className="flex flex-row items-center gap-2">
-                          <span
-                            onClick={() => handleOnClickMovement(item)}
-                            className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                          >
-                            Move {item.moveNumber}:{" "}
-                            <span className="font-bold">{item.move}</span>
-                          </span>
+              {weaknessIdentification.middleGame.map(
+                (item: any, index: number) =>
+                  renderTrainingItem(item, index, "MiddleGame")
+              )}
 
-                          <span
-                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                              item.classification
-                            )}`}
-                          >
-                            {item.evaluation}
-                          </span>
-                          <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                            MiddleGame
-                          </span>
-                        </div>
-                        <span
-                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.classification}
-                        </span>
-                      </div>
-                      <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
-                        <span className="font-bold">Analysis: </span>
-                        {item.analysis}
-                      </span>
-                    </div>
-
-                    <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        <Image
-                          alt=""
-                          src={"/icons/recommended-training-icon.png"}
-                          width={1000}
-                          height={1000}
-                          className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                        />
-                        <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                          {item.recommendedTrainingExercise}
-                        </span>
-                      </div>
-                      <Button
-                        onClick={props.next}
-                        size="lg"
-                        variant="default"
-                        className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                      >
-                        <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                          Go To Exercise
-                        </div>
-                      </Button>
-                    </div>
-                  </div>
-                );
-              }
-            )}
-          {openWeakness &&
-            weaknessIdentification &&
-            weaknessIdentification.endGame.length > 0 &&
-            weaknessIdentification.endGame.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col gap-2 mt-2 border ${
-                    chessMove.move == item.move
-                      ? `border-[#221AE9]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="p-1">
-                    <div className="flex flex-row justify-between gap-2 mb-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <span
-                          onClick={() => handleOnClickMovement(item)}
-                          className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {item.moveNumber}:{" "}
-                          <span className="font-bold">{item.move}</span>
-                        </span>
-
-                        <span
-                          className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                            item.classification
-                          )}`}
-                        >
-                          {item.evaluation}
-                        </span>
-                        <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
-                          EndGame
-                        </span>
-                      </div>
-                      <span
-                        className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                          item.classification
-                        )}`}
-                      >
-                        {item.classification}
-                      </span>
-                    </div>
-                    <span className="text-sm sm:text-sm md:text-md lg:text-md  font-normal">
-                      <span className="font-bold">Analysis: </span>
-                      {item.analysis}
-                    </span>
-                  </div>
-
-                  <div className="border-l-4 border-l-primary bg-[#F6F9FF] flex flex-col gap-3 justify-center border-primary rounded-md p-2 py-4 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
-                      />
-                      <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
-                        {item.recommendedTrainingExercise}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={props.next}
-                      size="lg"
-                      variant="default"
-                      className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
-                    >
-                      <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
-                        Go To Exercise
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+              {weaknessIdentification.endGame.map((item: any, index: number) =>
+                renderTrainingItem(item, index, "EndGame")
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -615,7 +257,7 @@ const Training: React.FC<TrainingProps> = (props) => {
         >
           <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
             <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
-            Imporvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Improvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
         <div className="w-8" />

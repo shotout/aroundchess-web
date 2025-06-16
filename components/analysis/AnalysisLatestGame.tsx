@@ -2,7 +2,7 @@
 
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { usePgnStore } from "../../app/store/zustandStore";
@@ -18,10 +18,11 @@ import Training from "./Training";
 const AnalysisLatestGame: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkSession = () => {
-      if (sessionId != "") {
+      if (sessionId !== "") {
         setIsSignedIn(true);
       } else {
         setIsSignedIn(false);
@@ -30,26 +31,19 @@ const AnalysisLatestGame: React.FC = () => {
 
     checkSession();
   }, [sessionId, isSignedIn]);
-  const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore(); // Get PGN from the Zustand store
-  const { setTabFocus, tabFocus } = useTabFocusStore();
-  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
-  const {
-    gameInfo,
-    summary,
-    movementDetails,
-    opening,
-    middleGame,
-    endGame,
-    improvementRecommendation,
-    training,
-  } = dataAnalysis ?? {};
+  const { setIsLoading, dataAnalysis, hideDiv } = usePgnStore();
+  const { setTabFocus } = useTabFocusStore();
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { gameInfo, summary } = dataAnalysis ?? {};
   const [widthContainer, setWidthContainer] = useState<number | string>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [focusPage, setFocusPage] = useState<string>("summary");
-  const { chessMove, setChessMove } = useChessMoveStore();
+  const [userInitiatedChange, setUserInitiatedChange] =
+    useState<boolean>(false);
+  const { setChessMove } = useChessMoveStore();
 
-  const [tabsMenu, setTabsMenu] = useState<any[]>([
+  const tabsMenu = [
     { name: "summary", label: "Summary" },
     { name: "movement", label: "Movement Details" },
     { name: "threats", label: "Threats" },
@@ -57,96 +51,181 @@ const AnalysisLatestGame: React.FC = () => {
     { name: "middlegame", label: "Middlegame" },
     { name: "endgame", label: "Endgame" },
     { name: "improvement", label: "Improvement" },
-    // { name: "training", label: "Training" },
-  ]);
+  ];
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
-
-    // Add event listeners
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
+
   const handleResize = () => {
-    let widthC =
-      window?.innerWidth < 1280 || sessionId.length == 0
+    const widthC =
+      window?.innerWidth < 1280 || sessionId.length === 0
         ? "auto"
         : window?.innerWidth * 0.52;
-    console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
+
   useEffect(() => {
     setIsLoading(false);
-    renderView(focusPage);
-  }, [focusPage]);
+
+    if (userInitiatedChange) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        if (containerRef.current) {
+          containerRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }, 100);
+
+      setUserInitiatedChange(false);
+    }
+  }, [focusPage, setIsLoading, userInitiatedChange]);
+
   const renderView = (focusPage: string) => {
+    if (!dataAnalysis) {
+      return (
+        <div className="flex justify-center items-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading analysis data...</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (focusPage) {
       case "summary":
-        return <Summary next={() => setFocusPage("movement")} />;
+        return (
+          <Summary
+            next={() => {
+              setUserInitiatedChange(true); // Set flag when user clicks next
+              setFocusPage("movement");
+            }}
+          />
+        );
       case "movement":
         return (
           <MovementDetails
-            prev={() => setFocusPage("summary")}
-            next={() => setFocusPage("threats")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("summary");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("threats");
+            }}
           />
         );
       case "threats":
         return (
           <Threats
-            prev={() => setFocusPage("movement")}
-            next={() => setFocusPage("opening")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("movement");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("opening");
+            }}
           />
         );
       case "opening":
         return (
           <Opening
-            prev={() => setFocusPage("threats")}
-            next={() => setFocusPage("middlegame")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("threats");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("middlegame");
+            }}
           />
         );
       case "middlegame":
         return (
           <MiddleGame
-            prev={() => setFocusPage("opening")}
-            next={() => setFocusPage("endgame")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("opening");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("endgame");
+            }}
           />
         );
       case "endgame":
         return (
           <EndGame
-            prev={() => setFocusPage("middlegame")}
-            next={() => setFocusPage("improvement")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("middlegame");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("improvement");
+            }}
           />
         );
       case "improvement":
         return (
           <Improvement
-            prev={() => setFocusPage("endgame")}
-            next={() => setFocusPage("training")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("endgame");
+            }}
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("training");
+            }}
           />
         );
       case "training":
         return (
           <Training
-            prev={() => setFocusPage("improvement")}
+            prev={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("improvement");
+            }}
             next={() => null}
+          />
+        );
+      default:
+        return (
+          <Summary
+            next={() => {
+              setUserInitiatedChange(true);
+              setFocusPage("movement");
+            }}
           />
         );
     }
   };
-  const handleOnChangeTab = (tab: any) => {
+
+  const handleOnChangeTab = (tab: { name: string; label: string }) => {
     if (isSignedIn) {
       setTabFocus(tab.name);
+      setUserInitiatedChange(true);
       setFocusPage(tab.name);
       setChessMove({});
     } else {
       setOpenConfirmLogin(true);
     }
   };
+
   return (
     <div
+      ref={containerRef}
       style={{ width: widthContainer }}
       className={`${
         hideDiv && "mt-96 sm:mt-[64%]"
@@ -157,11 +236,12 @@ const AnalysisLatestGame: React.FC = () => {
           Analysis
         </span>
         <span className="text-md sm:text-md md:text-md lg:text-md mb-1">
-          {gameInfo?.date}, {summary?.whiteSide?.profileInfo.username} (White
+          {gameInfo?.date || "Loading..."},{" "}
+          {summary?.whiteSide?.profileInfo?.username || "Player 1"} (White
           <span className="text-[#00B427]">
             {gameInfo?.whiteWin && " - WIN"}
           </span>
-          ) vs {summary?.blackSide?.profileInfo.username} (Black
+          ) vs {summary?.blackSide?.profileInfo?.username || "Player 2"} (Black
           <span className="text-[#00B427]">
             {gameInfo?.blackWin && " - WIN"}
           </span>
@@ -170,17 +250,16 @@ const AnalysisLatestGame: React.FC = () => {
       </div>
 
       <div className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] overflow-x-auto gap-1 p-[8px]">
-        {/* tab horizontal */}
         {tabsMenu.map((tab, index) => {
           return (
             <div
               key={index}
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
-                tab.name == "movement" &&
+                tab.name === "movement" &&
                 `min-w-[136px] sm:min-w-[154px] lg:min-w-[154px]`
               } p-2 ${
-                focusPage == tab.name &&
+                focusPage === tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `
               }`}
             >
