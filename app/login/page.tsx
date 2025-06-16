@@ -43,15 +43,75 @@ export default function LoginPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
-  const handleSSOSuccess = (accessToken: string) => {
+  // const handleSSOSuccess = (accessToken: string) => {
+  //   try {
+  //     setPersistedCookie("token", accessToken, 365);
+  //     setSessionId(accessToken);
+
+  //     toast.success("Logged in successfully with Google!");
+
+  //     router.push("/analysis");
+  //   } catch (error) {
+  //     toast.error("Failed to process Google login");
+  //   }
+  // };
+
+  const handleSSOSuccess = async (accessToken: string) => {
     try {
-      setPersistedCookie("token", accessToken, 365);
-      setSessionId(accessToken);
+      
+      const response = await fetch(`${baseUrl}/profile/status`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      toast.success("Logged in successfully with Google!");
+      if (!response.ok) {
+        toast.error("Authentication failed. Please try again.");
+        return;
+      }
 
-      router.push("/analysis");
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        if (!data.data.isActive || !data.data.canLogin) {
+          
+          try {
+            
+            await fetch(`${baseUrl}/auth/logout`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setPersistedCookie("token", "", 0); 
+            setSessionId(""); 
+            
+          } catch (logoutError) {
+            console.error("Error during logout:", logoutError);
+            
+          }
+          toast.error("Account has been deactivated.");
+          router.push(`/login`);
+          return;
+        }
+
+        setPersistedCookie("token", accessToken, 365);
+        setSessionId(accessToken);
+        
+        toast.success("Logged in successfully with Google!");
+        router.push("/analysis");
+      } else {
+        toast.error("Failed to verify account status");
+      }
+      
     } catch (error) {
+      console.error("Error checking user status:", error);
       toast.error("Failed to process Google login");
     }
   };
