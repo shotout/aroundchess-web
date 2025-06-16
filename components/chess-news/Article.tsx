@@ -17,20 +17,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 export default function Article() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId, hydrated } = useProfileStore();
-
-  useEffect(() => {
-    const checkSession = () => {
-      if (sessionId != "") {
-        setIsSignedIn(true);
-      } else {
-        setIsSignedIn(false);
-      }
-    };
-
-    checkSession();
-  }, [sessionId, isSignedIn]);
   const {
     categories,
     setCategories,
@@ -54,20 +41,18 @@ export default function Article() {
   const { isLoading: loadingFetch } = useLoadingAPI();
   const [searchLoading, setSearchLoading] = useState(false);
   const [query, setQuery] = useState<string>("");
+  const [stateNews, setStateNews] = useState<number>(0);
   const [selectedTab, setSelectedTab] = useState<number>(1);
-  const [pagination, setPagination] = useState<number>(1);
-  const [pages, setPages] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
   useEffect(() => {
-    if (!hydrated) return;
     fetchCategories();
-  }, [hydrated]);
+  }, []);
   const fetchCategories = () => {
-    setIsLoading(true);
     getNewsCategories({}).then((response) => {
       if (response.data.length > 0) {
         console.log("getNewsCategories", response.data);
         setCategories(response.data);
+        setStateNews(response.data);
         setSelectedTab(response.data[0].id);
       }
       if (sessionId != "") {
@@ -81,17 +66,15 @@ export default function Article() {
       setSavedArticles(response.data);
     });
   };
-  const fetchArticles = () => {
-    let params = { categoryId: selectedTab, page: currentPage };
+  const fetchArticles = (id: string) => {
+    let idArticle = id != null ? id : selectedTab;
+    let params = { categoryId: idArticle, page: currentPage };
     getNews(params).then((response) => {
       console.log("getNews", response.data);
       setChessNews(response.data);
       setIsLoading(false);
     });
   };
-  useEffect(() => {
-    fetchArticles();
-  }, [selectedTab]);
   useEffect(() => {
     if (query.length >= 3) {
       setSearchLoading(true);
@@ -109,7 +92,7 @@ export default function Article() {
   const handleOnSearch = (e: any) => {
     setQuery(e.target.value);
   };
-  if (isLoading) return <DotSpinner />;
+  // if (isLoading) return <DotSpinner />;
   return (
     <div className="flex flex-col w-full p-[32px] justify-center items-between">
       <div className="flex items-center gap-2">
@@ -128,8 +111,8 @@ export default function Article() {
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
         <div
-          className={`md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-${
-            isSignedIn ? `2/3` : `full`
+          className={`md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white ${
+            sessionId != "" ? `xl:w-2/3` : `xl:full`
           }`}
         >
           <div className="flex flex-col mt-4 md:mt-0 bg-white">
@@ -148,7 +131,10 @@ export default function Article() {
                   categories.map((tab: any, index) => (
                     <button
                       key={tab.id}
-                      onClick={() => setSelectedTab(tab.id)}
+                      onClick={() => {
+                        setSelectedTab(tab.id);
+                        fetchArticles(tab.id);
+                      }}
                       className={`py-1 px-3 font-medium rounded-[4px] border-input border
                   ${
                     tab.id == selectedTab
@@ -221,7 +207,7 @@ export default function Article() {
         </div>
         <div
           className={`md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full ${
-            isSignedIn ? `xl:w-1/3` : `hidden`
+            sessionId != "" ? `xl:w-1/3` : `hidden`
           }`}
         >
           <span className="text-md font-bold mt-4">Saved Articles</span>
