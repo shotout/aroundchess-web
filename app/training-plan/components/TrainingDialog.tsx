@@ -311,7 +311,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     keyToReachNextLevel: config?.eloRange
       ? `Continued practice with improved openings and deeper study of middlegame and endgame concepts for ${config.eloRange} ELO range.`
       : "Improve your skills with focused training.",
-    approximateDuration: "6-9 Months",
   };
 
   const dialogTitle =

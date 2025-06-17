@@ -6,7 +6,6 @@ interface DialogUserInfoProps {
   username: string;
   keyInfo: {
     keyToReachNextLevel: string;
-    approximateDuration: string;
   };
   skillLevels?: any[];
 }
@@ -146,23 +145,6 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
               ? "Congratulations on achieving Grand Master status!"
               : keyInfo.keyToReachNextLevel}
           </p>
-        </div>
-
-        <div className="rounded-md p-3">
-          <div className="flex items-center gap-2">
-            <Image
-              src={"/training-plan/duration.png"}
-              alt=""
-              width={15}
-              height={15}
-            />
-            <h1 className="text-sm font-semibold text-black">
-              {isMaxLevel ? "Status:" : "Approximate Duration:"}
-            </h1>
-            <p className="bg-[#5E84FF] text-white text-sm py-1 px-2 rounded inline-block">
-              {isMaxLevel ? "Mastered" : keyInfo.approximateDuration}
-            </p>
-          </div>
         </div>
       </div>
     </div>

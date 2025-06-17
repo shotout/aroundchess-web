@@ -54,6 +54,51 @@ const CustomTooltipContent = ({
   return null;
 };
 
+const CustomBarTooltipContent = ({
+  active,
+  payload,
+}: {
+  active: boolean;
+  payload: any[];
+}) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="p-3 border rounded-md shadow-md bg-white">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-4 h-4 border"
+            style={{ backgroundColor: data.fill }}
+          />
+          <div className="flex flex-col">
+            <p className="text-sm text-black">{data.category}:</p>
+            <p className="text-sm " style={{ color: data.fill }}>
+              {data.minutes} Minutes
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomCursor = (props: {
+  payload: any;
+  x: any;
+  y: any;
+  width: any;
+  height: any;
+}) => {
+  const { payload, x, y, width, height } = props;
+  const fillColor =
+    payload && payload.length > 0
+      ? payload[0].payload.fill + "29"
+      : "#2780F829";
+
+  return <rect x={x} y={y} width={width} height={height} fill={fillColor} />;
+};
+
 const MONTHS = [
   "January",
   "February",
@@ -390,9 +435,9 @@ const ProgressDisplay = () => {
 
           <div className="overflow-hidden">
             <h3 className="text-xl font-bold mb-1">
-              Last Week's Training Distribution
+              Weekly Training Distribution
             </h3>
-            <p className="text-base mb-4">Minutes spent on different aspects</p>
+            <p className="text-base mb-4">Minutes to invest per Topic</p>
             {isChartLoading ? (
               <div className="h-[400px] flex items-center justify-center">
                 <DotSpinner />
@@ -411,7 +456,7 @@ const ProgressDisplay = () => {
                 </p>
               </div>
             ) : (
-              <div className="w-full overflow-x-auto">
+              <div className="w-full overflow-x-auto ">
                 <ResponsiveContainer width="100%" height={400} minWidth={300}>
                   <BarChart
                     data={trainingData}
@@ -439,7 +484,14 @@ const ProgressDisplay = () => {
                       tick={{ fill: "#000", fontSize: 12 }}
                       width={40}
                     />
-                    <RechartsTooltip />
+                    <RechartsTooltip
+                      content={
+                        <CustomBarTooltipContent active={false} payload={[]} />
+                      }
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      //@ts-expect-error
+                      cursor={<CustomCursor />}
+                    />
                     <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
                       {trainingData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
