@@ -9,6 +9,8 @@ import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import DotSpinner from "../game-history/Spinner";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 export default function Navigation({
   children,
@@ -18,7 +20,8 @@ export default function Navigation({
   isDialogOpen?: boolean;
 }) {
   const pathname = usePathname();
-  const { sessionId } = useProfileStore();
+  const { hydrated: pgnReady } = usePgnStore();
+  const { sessionId, hydrated } = useProfileStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [widthSidebar, setWidthSidebar] = useState(0);
@@ -85,8 +88,13 @@ export default function Navigation({
       },
     },
   };
-
-  if (sessionId.length == 0 && !pathname?.includes("analysis")) {
+  useEffect(() => {
+    if (hydrated ) {
+      console.log("TEST SESSIONID", hydrated);
+    }
+  }, [hydrated]);
+  if (!hydrated) return <DotSpinner />;
+  if (hydrated && sessionId.length == 0 && !pathname?.includes("analysis")) {
     return (
       <>
         <SiteHeaderNew />
@@ -94,7 +102,8 @@ export default function Navigation({
         <SiteFooterNew />
       </>
     );
-  } else {
+  }
+  if (hydrated && sessionId.length > 0) {
     return (
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         {isDesktop && (

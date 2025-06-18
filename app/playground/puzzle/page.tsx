@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type Puzzle = {
@@ -61,6 +61,8 @@ export default function Puzzle() {
   const { postPuzzle, getPuzzle, isLoading } = useApiClient();
   const [puzzleLog, setPuzzleLog] = useState<any[]>([]);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const hasRun = useRef(false);
+
   const handleClosePremium = () => {
     setShowPremiumDialog(false);
   };
@@ -70,8 +72,13 @@ export default function Puzzle() {
     toast.success("Thank you for subscribing to Premium!");
   };
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     handleGetLog();
+  }, []);
+  useEffect(() => {
     if (isSolved) {
+      handleGetLog();
       handleSaveLog();
     }
   }, [isSolved]);

@@ -74,6 +74,8 @@ export default function PlayingPage() {
     username,
     hideDiv,
   } = usePgnStore();
+  const hasRun = useRef(false);
+
   const [depthLevel] = useState(14);
   const { user } = useAuth();
   const { AIChoosed } = usePlayVSAIStore();
@@ -487,6 +489,9 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
+    
+      if (hasRun.current) return;
+      hasRun.current = true;
     getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
       setPastGames(res.data);
     });

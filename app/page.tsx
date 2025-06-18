@@ -11,7 +11,7 @@ import { ImproveSection } from "@/components/improve-section";
 import { BenefitsOf } from "@/components/benefits-of";
 import { usePgnStore } from "./store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
@@ -61,10 +61,13 @@ export default function Home() {
   const { getActiveMembership, getTokenPackage } = useApiClient();
   const { sessionId, setActiveMembership, setIsMember, setTokenPackage } =
     useProfileStore();
+  const hasRun = useRef(false);
+
   useEffect(() => {
     if (sessionId && sessionId != "") {
       localStorage.setItem("token", token);
-
+      if (hasRun.current) return;
+      hasRun.current = true;
       getTokenPackage({}).then((response) => {
         if (response.data != null) {
           let data = response.data;

@@ -6,7 +6,7 @@ import { formatDateNews } from "@/functions/format-date";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useChessNewsStore } from "../../app/store/chessNewsStore";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
@@ -41,8 +41,11 @@ export default function Article() {
   const [query, setQuery] = useState<string>("");
   const [stateNews, setStateNews] = useState<number>(0);
   const [selectedTab, setSelectedTab] = useState<number>(1);
+  const hasRun = useRef(false);
 
   useLayoutEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     fetchCategories();
   }, []);
   const fetchCategories = () => {
@@ -52,6 +55,7 @@ export default function Article() {
         setCategories(response.data);
         setStateNews(response.data);
         setSelectedTab(response.data[0].id);
+        fetchArticles(response.data[0].id);
       }
       if (sessionId != "") {
         fetchSavedArticle();
@@ -90,7 +94,7 @@ export default function Article() {
   const handleOnSearch = (e: any) => {
     setQuery(e.target.value);
   };
-  // if (isLoading) return <DotSpinner />;
+  if (isLoading) return <DotSpinner />;
   return (
     <div className="flex flex-col w-full p-[32px] justify-center items-between">
       <div className="flex items-center gap-2">

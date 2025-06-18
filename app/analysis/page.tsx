@@ -74,6 +74,7 @@ export default function AnalysisPage() {
     if (hydrated && hydratedProfile) {
       if (sessionId.length > 0 && !isLoading) {
         setLoading(true);
+        console.log("TEST", hydrated)
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
         fetchPgnFamousGame();
@@ -81,7 +82,7 @@ export default function AnalysisPage() {
         setIsLoading(false);
       }
     }
-  }, [isSignedIn, hydrated, hydratedProfile]);
+  }, [hydratedProfile]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;

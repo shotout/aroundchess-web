@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
@@ -21,8 +21,11 @@ export default function ChessFAQ() {
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [filteredData, setFilteredData] = useState<any[]>([]);
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     fetchFAQ();
   }, []);
 

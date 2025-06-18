@@ -6,12 +6,11 @@ import { formatDateNews } from "@/functions/format-date";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 
-export default function Detail() { 
-
+export default function Detail() {
   const {
     isLoading,
     setIsLoading,
@@ -39,7 +38,11 @@ export default function Detail() {
   const [htmlContent, setHtmlContent] = useState("");
   const router = useRouter();
   const params = useParams();
+  const hasRun = useRef(false);
+
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     setIsLoading(true);
     fetchMostRead();
     console.log("params", params);

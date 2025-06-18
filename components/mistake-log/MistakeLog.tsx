@@ -13,7 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiClient } from "@/functions/api-client";
 import { Filter } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DotSpinner from "../game-history/Spinner";
 import ChessContent from "./ChessContent";
 import PreviousAnalysis from "./PreviousAnalysis";
@@ -40,6 +40,7 @@ const MistakeLog = () => {
   const { chessMove, setChessMove } = useChessMoveStore();
 
   const {
+    hydrated,
     username,
     mistakeLogs,
     setMistakeLogs,
@@ -73,13 +74,21 @@ const MistakeLog = () => {
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
+  const hasRun = useRef(false);
+
   const loadData = () => {
     // setLoading(true);
     fetchMistakeSaved();
   };
   useEffect(() => {
-    loadData();
-  }, []);
+    if (hydrated) {
+      console.log("TEST loadData", hydrated);
+      if (hasRun.current) return;
+      hasRun.current = true;
+
+      loadData();
+    }
+  }, [hydrated]);
 
   const fetchMistakePrevious = async () => {
     try {
@@ -342,7 +351,7 @@ const MistakeLog = () => {
       </>
     );
   };
-
+  if (!hydrated) return <DotSpinner />;
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
