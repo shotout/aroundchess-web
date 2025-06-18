@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { Game, FilterState, DefaultFilters } from "../types/GameHistoryTypes";
-import { countActiveFilters, filterGames } from "./useGameData";
 
 interface UseFiltersResult {
   filters: FilterState;
@@ -19,6 +18,51 @@ interface UseFiltersResult {
   handleApplyFilters: () => void;
   handleClearFilters: () => void;
 }
+
+// Updated filter function that only considers color and results
+export const filterGames = (
+  gamesData: Game[],
+  filters: FilterState
+): Game[] => {
+  if (!Array.isArray(gamesData)) return [];
+
+  let filtered = [...gamesData];
+
+  // Filter by color
+  if (filters.color !== "All Colors") {
+    filtered = filtered.filter(
+      (game) =>
+        game.color?.toLowerCase() === filters.color.toLowerCase() ||
+        game.playerColor?.toLowerCase() === filters.color.toLowerCase()
+    );
+  }
+
+  // Filter by results
+  if (filters.results !== "All Results") {
+    const resultMap: Record<string, string> = {
+      Wins: "WIN",
+      Losses: "LOSS",
+      Draws: "DRAW",
+    };
+    filtered = filtered.filter(
+      (game) =>
+        game.result === resultMap[filters.results as keyof typeof resultMap]
+    );
+  }
+
+  return filtered;
+};
+
+// Updated count function that only considers color and results
+export const countActiveFilters = (
+  filters: FilterState,
+  defaultFilters: FilterState
+): number => {
+  let count = 0;
+  if (filters.color !== defaultFilters.color) count++;
+  if (filters.results !== defaultFilters.results) count++;
+  return count;
+};
 
 export function useFilters(gamesData: Game[]): UseFiltersResult {
   const [showFilters, setShowFilters] = useState(false);
@@ -55,33 +99,28 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
     [timeRange, gameType, color, gameFormat, results]
   );
 
-  // Update active filters count
+  // Update active filters count (only count color and results)
   useEffect(() => {
     const count = countActiveFilters(currentFilters, defaultFilters);
     setActiveFiltersCount(count);
     setFiltersApplied(count > 0);
   }, [
-    timeRange,
-    gameType,
-    color,
-    gameFormat,
+    color, // Only watch color and results since those are the only active filters
     results,
     defaultFilters,
     currentFilters,
   ]);
 
-  // Apply filters to games
+  // Apply filters to games (only apply color and results filters)
   useEffect(() => {
     const filtered = filterGames(gamesData, currentFilters);
     setFilteredGames(filtered);
   }, [
-    timeRange,
-    gameType,
-    color,
-    gameFormat,
+    color, // Only watch color and results since those are the only active filters
     results,
     filtersApplied,
     gamesData,
+    currentFilters,
   ]);
 
   // Handle filter application

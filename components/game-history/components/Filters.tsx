@@ -39,19 +39,13 @@ export const Filters: React.FC<FiltersProps> = ({
   filtersApplied,
   handleApplyFilters,
   handleClearFilters,
-  sourceOptions = [
-    { value: "All Formats", label: "All Sources" },
-    { value: "Chess.com", label: "Chess.com" },
-    { value: "Lichess", label: "Lichess" },
-    { value: "PGN Upload", label: "PGN Upload" },
-    { value: "Online Games", label: "Online Games" },
-    { value: "Tournaments", label: "Tournaments" },
-  ],
 }) => {
   return (
     <div className="p-0 md:p-4 xl:p-0">
+      {/* Desktop Filters */}
       <div className="hidden md:flex items-center justify-between gap-2 xl:gap-6 xl:mb-4 rounded-lg p-3 xl:p-4 xl:h-[80px] border shadow-card">
         <div className="flex items-center space-x-1 2xl:space-x-4 w-[70%] 2xl:w-[75%]">
+          {/* Color Filter */}
           <Select
             value={filters.color}
             onValueChange={(value) => setFilters.setColor(value)}
@@ -67,23 +61,7 @@ export const Filters: React.FC<FiltersProps> = ({
             </SelectContent>
           </Select>
 
-          <Select
-            value={filters.gameFormat}
-            onValueChange={(value) => setFilters.setGameFormat(value)}
-            defaultValue="All Formats"
-          >
-            <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
-              <SelectValue placeholder="All Sources" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-placeholder">
-              {sourceOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+          {/* Results Filter */}
           <Select
             value={filters.results}
             onValueChange={(value) => setFilters.setResults(value)}
@@ -119,6 +97,7 @@ export const Filters: React.FC<FiltersProps> = ({
         </div>
       </div>
 
+      {/* Mobile Filters */}
       <div className="md:hidden relative w-full">
         <div className="flex w-full items-center justify-between gap-2 mb-4 p-4 border">
           <Button
@@ -147,11 +126,12 @@ export const Filters: React.FC<FiltersProps> = ({
         {showFilters && (
           <Card className="md:hidden p-4 border rounded-lg mb-4 absolute top-full left-0 right-0 z-20 bg-white shadow-lg">
             <div className="flex flex-wrap gap-2 mb-4">
+              {/* Color Filter */}
               <Select
                 value={filters.color}
                 onValueChange={(value) => setFilters.setColor(value)}
               >
-                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
+                <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
                   <SelectValue className="text-xs" placeholder="Both Colors" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -161,27 +141,12 @@ export const Filters: React.FC<FiltersProps> = ({
                 </SelectContent>
               </Select>
 
-              <Select
-                value={filters.gameFormat}
-                onValueChange={(value) => setFilters.setGameFormat(value)}
-              >
-                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
-                  <SelectValue className="text-xs" placeholder="All Sources" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {sourceOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
+              {/* Results Filter */}
               <Select
                 value={filters.results}
                 onValueChange={(value) => setFilters.setResults(value)}
               >
-                <SelectTrigger className="w-[120px] h-8 border rounded-md bg-gray-50">
+                <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
                   <SelectValue className="text-xs" placeholder="All Results" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">

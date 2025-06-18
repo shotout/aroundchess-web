@@ -4,9 +4,8 @@ import { gameHistoryApi } from "../services/api";
 import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
-import { time } from "console";
 
-export const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+export const CACHE_EXPIRATION = 60 * 60 * 1000;
 
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
@@ -72,7 +71,7 @@ const formatOpening = (openingName: string): string | null => {
     openingName.toLowerCase() === "unknown opening" ||
     openingName.trim() === ""
   ) {
-    return null; // Return null for invalid openings
+    return null;
   }
   return openingName.trim();
 };
@@ -96,17 +95,6 @@ export const filterGames = (
       (game) =>
         game.color?.toLowerCase() === filters.color.toLowerCase() ||
         game.playerColor?.toLowerCase() === filters.color.toLowerCase()
-    );
-  }
-
-  if (filters.gameFormat !== "All Formats") {
-    filtered = filtered.filter(
-      (game) =>
-        game.source === filters.gameFormat ||
-        game.gameFormat === filters.gameFormat ||
-        (filters.gameFormat === "Online Games" &&
-          ["Chess.com", "Lichess"].includes(game.source || "")) ||
-        (filters.gameFormat === "Tournaments" && game.source === "Tournament")
     );
   }
 
@@ -155,7 +143,41 @@ export const countActiveFilters = (
   return count;
 };
 
-// useGameData.tsx - Fixed useGames function
+// Enhanced cache validation function
+const isValidCache = (
+  timestamp: number | null,
+  data: any[] | null,
+  expiration: number = CACHE_EXPIRATION
+): boolean => {
+  // Check if timestamp exists and is valid
+  if (!timestamp || timestamp <= 0) {
+    console.log("Cache invalid: No timestamp");
+    return false;
+  }
+
+  // Check if data exists and is array with content
+  if (!data || !Array.isArray(data)) {
+    console.log("Cache invalid: No data or not array");
+    return false;
+  }
+
+  // Check cache age
+  const now = Date.now();
+  const cacheAge = now - timestamp;
+
+  if (cacheAge >= expiration) {
+    console.log(
+      `Cache expired: Age ${Math.round(cacheAge / 1000)}s, Max ${Math.round(
+        expiration / 1000
+      )}s`
+    );
+    return false;
+  }
+
+  return true;
+};
+
+// Updated useGames function with improved caching
 export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const {
     username,
@@ -177,53 +199,70 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const fetchRef = useRef(false);
   const lastExecutedRef = useRef<string>("");
 
+  // Get appropriate cached data and timestamps based on type
   const cachedGames =
     type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
   const gamesLastFetchedTimestamp =
     type === "chessdotcom" ? gamesLastFetched : otherGamesLastFetched;
+  const setGamesInStore =
+    type === "chessdotcom" ? setGamesData : setOtherGamesData;
 
-  // Stabilize setGamesInStore reference
-  const setGamesInStore = useMemo(
-    () => (type === "chessdotcom" ? setGamesData : setOtherGamesData),
-    [type, setGamesData, setOtherGamesData]
+  // Enhanced cache validation with logging
+  const isCacheValid = useMemo(() => {
+    console.log(`[${type.toUpperCase()}] Checking cache validity:`);
+    console.log(`- Timestamp: ${gamesLastFetchedTimestamp}`);
+    console.log(`- Data length: ${cachedGames?.length || 0}`);
+
+    const isValid = isValidCache(
+      gamesLastFetchedTimestamp,
+      cachedGames,
+      CACHE_EXPIRATION
+    );
+    console.log(`- Cache valid: ${isValid}`);
+
+    return isValid;
+  }, [gamesLastFetchedTimestamp, cachedGames, type]);
+
+  const updateStateWithProcessedData = useCallback(
+    (processedGames: Game[]) => {
+      console.log(
+        `[${type.toUpperCase()}] Updating state with ${
+          processedGames.length
+        } games`
+      );
+      setGames(processedGames);
+    },
+    [type]
   );
 
-  const isCacheValid = useMemo(() => {
-    if (!gamesLastFetchedTimestamp || !cachedGames) return false;
-
-    const now = Date.now();
-    const cacheAge = now - gamesLastFetchedTimestamp;
-    return (
-      cacheAge < CACHE_EXPIRATION &&
-      Array.isArray(cachedGames) &&
-      cachedGames.length > 0
-    );
-  }, [gamesLastFetchedTimestamp, cachedGames]);
-
-  const updateStateWithProcessedData = useCallback((processedGames: Game[]) => {
-    setGames(processedGames);
-  }, []);
-
   const fetchGames = useCallback(async () => {
-    // Create unique execution key
     const executionKey = `${sessionId}-${username}-${type}`;
 
     // Prevent duplicate executions
     if (fetchRef.current || lastExecutedRef.current === executionKey) {
+      console.log(
+        `[${type.toUpperCase()}] Fetch already in progress or completed`
+      );
       return;
     }
 
-    if (!username) {
+    if (!username && type === "chessdotcom") {
+      console.log(`[${type.toUpperCase()}] No username for Chess.com games`);
       setIsLoading(false);
       return;
     }
 
     // Use cache if valid
     if (isCacheValid && cachedGames) {
+      console.log(`[${type.toUpperCase()}] Using cached data`);
       try {
         const transformedGames = transformApiDataToComponentFormat(cachedGames);
         updateStateWithProcessedData(transformedGames);
       } catch (err) {
+        console.error(
+          `[${type.toUpperCase()}] Error processing cached data:`,
+          err
+        );
         setError(
           err instanceof Error
             ? err
@@ -248,56 +287,97 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
       if (response && response.data) {
         const apiData = response.data;
+        console.log(
+          `[${type.toUpperCase()}] Received ${apiData.length} games from API`
+        );
+
+        // Store in cache
         setGamesInStore(apiData);
 
         const transformedGames = transformApiDataToComponentFormat(apiData);
         updateStateWithProcessedData(transformedGames);
+
+        console.log(
+          `[${type.toUpperCase()}] Successfully processed and cached ${
+            transformedGames.length
+          } games`
+        );
       } else {
         throw new Error("Invalid data format received from server");
       }
     } catch (err) {
       const error =
         err instanceof Error ? err : new Error("An unknown error occurred");
-      console.error("Error fetching games:", error);
+      console.error(`[${type.toUpperCase()}] Error fetching games:`, error);
       setError(error);
     } finally {
       setIsLoading(false);
       // Reset fetch ref after a delay
       setTimeout(() => {
         fetchRef.current = false;
-      }, 1000); // Reduced from 3000ms
+      }, 1000);
     }
-  }, []); // Remove all dependencies to prevent recreation
+  }, [
+    sessionId,
+    username,
+    type,
+    isCacheValid,
+    cachedGames,
+    setGamesInStore,
+    updateStateWithProcessedData,
+  ]);
 
-  // Manual dependency checking in useEffect
+  // Effect to trigger fetch when needed
   useEffect(() => {
     if (!sessionId) return;
 
     const executionKey = `${sessionId}-${username}-${type}`;
 
-    // Only fetch if we haven't executed for this combination
+    // Only fetch if we haven't executed for this combination and not currently fetching
     if (lastExecutedRef.current !== executionKey && !fetchRef.current) {
+      console.log(
+        `[${type.toUpperCase()}] Triggering fetch for new combination`
+      );
       fetchGames();
+    } else if (isCacheValid && cachedGames) {
+      // If we have valid cache, use it immediately
+      console.log(`[${type.toUpperCase()}] Using existing valid cache`);
+      const transformedGames = transformApiDataToComponentFormat(cachedGames);
+      updateStateWithProcessedData(transformedGames);
+      setIsLoading(false);
     }
-  }, [sessionId, username, type, fetchGames]);
+  }, [
+    sessionId,
+    username,
+    type,
+    fetchGames,
+    isCacheValid,
+    cachedGames,
+    updateStateWithProcessedData,
+  ]);
 
   const handleRetryFetch = useCallback(() => {
+    console.log(`[${type.toUpperCase()}] Manual retry fetch`);
     fetchRef.current = false;
     lastExecutedRef.current = "";
     resetFetchState();
     fetchGames();
-  }, [resetFetchState, fetchGames]);
+  }, [resetFetchState, fetchGames, type]);
 
   const handleForceRefresh = useCallback(() => {
+    console.log(`[${type.toUpperCase()}] Force refresh - clearing cache`);
     fetchRef.current = false;
     lastExecutedRef.current = "";
+
+    // Clear the appropriate cache
     if (type === "chessdotcom") {
       usePgnStore.getState().clearGamesData();
     } else {
       usePgnStore.getState().clearOtherGamesData();
     }
+
     resetFetchState();
-    toast.info("Refreshing games data...");
+    toast.info(`Refreshing ${type} games data...`);
     fetchGames();
   }, [type, resetFetchState, fetchGames]);
 

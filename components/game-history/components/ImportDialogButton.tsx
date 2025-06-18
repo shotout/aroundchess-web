@@ -17,7 +17,8 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 }) => {
   const { sessionId } = useProfileStore();
 
-  const { addImportedGame } = usePgnStore();
+  // Use addOtherImportedGame instead of addImportedGame to ensure it goes to Other Games
+  const { addOtherImportedGame } = usePgnStore();
 
   // Dialog state
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -213,7 +214,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
             opening: "Unknown Opening",
             moves: "0",
             timeControl: "?",
-            source: "PGN Upload",
+            source: "PGN Upload", // This ensures it's categorized as uploaded content
             color: "White",
             gameFormat: "PGN Upload",
             gameType: "standard",
@@ -221,9 +222,13 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
           };
         }
 
-        // Add to store
-        const newGame = addImportedGame(gameData);
-        console.log("Game added to store:", newGame);
+        // Ensure the game is marked as an "other" game, not a Chess.com game
+        gameData.source = gameData.source || "PGN Upload";
+        gameData.gameFormat = "PGN Upload";
+
+        // Add to OTHER games store (not user games)
+        const newGame = addOtherImportedGame(gameData);
+        console.log("Game added to OTHER games store:", newGame);
 
         setImportedGameId(newGame.id.toString());
         setIsOperationCompleted(true);
@@ -236,9 +241,9 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         setTimeout(() => {
           resetDialog();
           if (onSuccess) onSuccess();
-          // window.location.reload();
+          // Refresh ONLY the "other" games data
           refetchGameData(sessionId ?? null, "other").then(() => {
-            console.log("Game data refetched successfully");
+            console.log("Other games data refetched successfully");
           });
         }, 2000);
       } catch (err) {
@@ -259,7 +264,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     fileName,
     pgnText,
     resetDialog,
-    addImportedGame,
+    addOtherImportedGame, // Changed from addImportedGame
     sessionId,
     uploadedFile,
     isConfirmationMode,

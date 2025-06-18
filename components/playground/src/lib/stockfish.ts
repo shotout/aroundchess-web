@@ -1,9 +1,10 @@
-// Add TypeScript declarations
 declare global {
   interface Window {
     Stockfish?: any;
   }
 }
+
+import { Chess } from "chess.js";
 
 interface EngineMessage {
   bestMove: any;
@@ -15,6 +16,11 @@ interface EngineMessage {
 
 interface EngineMessageCallback {
   (message: EngineMessage): void;
+}
+
+interface EloSettings {
+  depth: number;
+  randomness: number;
 }
 
 export class Engine {
@@ -33,7 +39,6 @@ export class Engine {
   private init() {
     if (!this.worker) return;
 
-    // Initialize with all settings at once
     const commands = [
       "uci",
       "setoption name Use NNUE value false",
@@ -45,25 +50,19 @@ export class Engine {
     ];
 
     commands.forEach((cmd) => {
-      //console.log("Sending command:", cmd);
       this.worker?.postMessage(cmd);
     });
   }
 
   private handleMessage(data: string) {
-    // //console.log('Engine received:', data);
-
-    // Handle initialization messages
     if (data === "readyok") {
       this.isReady = true;
       return;
     }
 
     if (!this.messageCallback) return;
-    // //console.log("handleMessage",data)
-    // Parse info messages for moves
+
     if (data.startsWith("info")) {
-      // Look for score and pv
       const scoreMatch = data.match(/score (?:cp|mate) (-?\d+)/);
       const pvMatch = data.match(/pv ([a-h][1-8][a-h][1-8])/);
       const depthMatch = data.match(/depth (\d+)/);
@@ -73,7 +72,7 @@ export class Engine {
         const scoreType = scoreMatch[1];
         const value = parseInt(scoreMatch[2]);
         scoreType === "cp" ? value : value > 0 ? 10000 - value : -10000 - value;
-        //console.log("Found move, depth move:", depthMatch, move);
+
         this.messageCallback({
           pv: move,
           depth: depthMatch ? parseInt(depthMatch[1]) : undefined,
@@ -83,13 +82,11 @@ export class Engine {
       }
     }
 
-    // Handle bestmove messages
     if (data.startsWith("bestmove")) {
       const parts = data.split(" ");
       if (parts.length >= 2) {
         const move = parts[1];
         if (move && move !== "(none)" && move.length >= 4) {
-          //console.log("Best move found:", move);
           this.messageCallback({
             pv: move,
             bestMove: move,
@@ -100,23 +97,110 @@ export class Engine {
     }
   }
 
-  async getStockfishMove(fen: string, playerElo: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const stockfish = new Worker("/stockfish/stockfish-nnue-16-single.js"); // or stockfish.wasm if using WebAssembly
+  private getEloSettings(elo: number): EloSettings {
+    if (elo <= 250) return { depth: 1, randomness: 1.0 };
+    else if (elo <= 400) return { depth: 1, randomness: 0.95 };
+    else if (elo <= 600) return { depth: 2, randomness: 0.9 };
+    else if (elo <= 800) return { depth: 2, randomness: 0.85 };
+    else if (elo <= 1000) return { depth: 3, randomness: 0.8 };
+    else if (elo <= 1200) return { depth: 4, randomness: 0.7 };
+    else if (elo <= 1400) return { depth: 5, randomness: 0.6 };
+    else if (elo <= 1600) return { depth: 6, randomness: 0.5 };
+    else if (elo <= 1800) return { depth: 8, randomness: 0.4 };
+    else if (elo <= 2000) return { depth: 10, randomness: 0.3 };
+    else if (elo <= 2200) return { depth: 12, randomness: 0.2 };
+    else if (elo <= 2400) return { depth: 14, randomness: 0.15 };
+    else if (elo <= 2600) return { depth: 16, randomness: 0.1 };
+    else return { depth: 18, randomness: 0.01 };
+  }
 
-      const skillLevel = this.eloToSkillLevel(playerElo);
-      console.log("skillLevel", skillLevel);
+  private getRandomMove(fen: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        const tempGame = new Chess(fen);
+        const legalMoves = tempGame.moves({ verbose: true });
+
+        if (legalMoves.length === 0) {
+          reject(new Error("No legal moves available"));
+          return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * legalMoves.length);
+        const randomMove = legalMoves[randomIndex];
+
+        let moveString = randomMove.from + randomMove.to;
+        if (randomMove.promotion) {
+          moveString += randomMove.promotion;
+        }
+
+        console.log("🎲");
+        resolve(moveString);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async getStockfishMove(fen: string, playerElo: number): Promise<string> {
+    const settings = this.getEloSettings(playerElo);
+    const shouldUseRandomMove = Math.random() < settings.randomness;
+
+    if (shouldUseRandomMove && playerElo <= 400) {
+      return this.getRandomMove(fen);
+    }
+
+    if (playerElo <= 1000) {
+      console.log("🤖");
+    } else {
+      console.log("🔍");
+    }
+
+    return new Promise((resolve, reject) => {
+      const stockfish = new Worker("/stockfish/stockfish-nnue-16-single.js");
+
+      let skillLevel;
+      if (playerElo <= 250) {
+        skillLevel = 0;
+      } else if (playerElo <= 400) {
+        skillLevel = 1;
+      } else if (playerElo <= 600) {
+        skillLevel = 2;
+      } else {
+        skillLevel = Math.floor((1 - settings.randomness) * 20);
+      }
+
       stockfish.postMessage("uci");
-      stockfish.postMessage("setoption name Skill Level value " + skillLevel);
+      stockfish.postMessage(`setoption name Skill Level value ${skillLevel}`);
+
+      if (playerElo <= 600) {
+        stockfish.postMessage("setoption name Use NNUE value false");
+        stockfish.postMessage("setoption name Hash value 1");
+        stockfish.postMessage("setoption name Threads value 8");
+        stockfish.postMessage("setoption name Contempt value -100");
+      }
+
+      stockfish.postMessage(`setoption name MultiPV value 1`);
       stockfish.postMessage("ucinewgame");
-      stockfish.postMessage("position fen " + fen);
-      const depth = this.eloToDepth(playerElo);
-      console.log("depth", depth);
-      stockfish.postMessage(`go depth ${depth}`);
+      stockfish.postMessage(`position fen ${fen}`);
+
+      if (playerElo <= 250) {
+        stockfish.postMessage("go movetime 50");
+      } else if (playerElo <= 400) {
+        stockfish.postMessage("go movetime 100");
+      } else {
+        stockfish.postMessage(`go depth ${settings.depth}`);
+      }
+
+      const timeout = setTimeout(() => {
+        stockfish.terminate();
+        reject(new Error("Stockfish timeout"));
+      }, 5000);
 
       stockfish.onmessage = function (e) {
         const line = typeof e === "object" ? e.data : e;
+
         if (line.startsWith("bestmove")) {
+          clearTimeout(timeout);
           const move = line.split(" ")[1];
           stockfish.terminate();
           resolve(move);
@@ -124,11 +208,13 @@ export class Engine {
       };
 
       stockfish.onerror = (err) => {
+        clearTimeout(timeout);
         stockfish.terminate();
         reject(err);
       };
     });
   }
+
   eloToDepth(elo: number): number {
     const minDepth = 1;
     const maxDepth = 26;
@@ -150,15 +236,10 @@ export class Engine {
 
   evaluatePosition(fen: string, stockfishLevel: number) {
     if (!this.worker) return;
-
-    // Stop any ongoing analysis
     this.stop();
-
-    // Set position and start analysis
-    // //console.log('Evaluating position:', fen);
     this.worker.postMessage("position fen " + fen);
     this.worker.postMessage(`go depth ${stockfishLevel}`);
-    this.worker.postMessage("go movetime 2000"); // Just use movetime for faster response
+    this.worker.postMessage("go movetime 2000");
   }
 
   onMessage(callback: EngineMessageCallback) {
@@ -167,7 +248,6 @@ export class Engine {
 
   stop() {
     if (!this.worker) return;
-    //console.log("Stopping engine");
     this.worker.postMessage("stop");
   }
 
@@ -180,12 +260,10 @@ export class Engine {
   }
 }
 
-// Singleton instance
 let stockfishService: Engine | null = null;
 
 export const getStockfishService = () => {
   if (!stockfishService) {
-    //console.log("Creating new StockfishService instance"); // Debug log
     stockfishService = new Engine();
   }
   return stockfishService;

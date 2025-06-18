@@ -102,8 +102,9 @@ interface PgnState {
 
   clearAll: () => void;
 
-  // New function to add imported games
+  // Functions to add imported games
   addImportedGame: (game: Omit<Game, "id">) => Game;
+  addOtherImportedGame: (game: Omit<Game, "id">) => Game; // New function for other games
   hydrated: boolean;
   setHydrated: () => void;
 }
@@ -137,7 +138,7 @@ export const usePgnStore = create<PgnState>()(
       error: null,
       dataGamesImport: null,
       dataGames: null,
-      historyGame:[],
+      historyGame: [],
       capturedWhite: [],
       capturedBlack: [],
       mistakeLogs: [],
@@ -283,30 +284,38 @@ export const usePgnStore = create<PgnState>()(
           importedGames: [],
         }),
 
-      // Add a new imported game to the store
       addImportedGame: (gameData) => {
-        // Generate a unique ID for the new game
-        const newId = Date.now();
+        const newId = `imported_user_${Date.now()}_${Math.random()}`;
 
-        // Create the new game with the generated ID
         const newGame: Game = {
           ...gameData,
           id: newId,
         };
 
-        // Update the store with the new game
         set((state) => ({
-          // Add to imported games array
           importedGames: [newGame, ...state.importedGames],
-
-          // Also add to regular games array if it's a user game
           gamesData: [newGame, ...state.gamesData],
-
-          // Update the timestamp
           gamesLastFetched: Date.now(),
         }));
+        return newGame;
+      },
 
-        // Return the new game so it can be used
+      addOtherImportedGame: (gameData) => {
+        const newId = `imported_other_${Date.now()}_${Math.random()}`;
+
+        const newGame: Game = {
+          ...gameData,
+          id: newId,
+          source: gameData.source || "PGN Upload",
+          gameFormat: gameData.gameFormat || "PGN Upload",
+        };
+
+        set((state) => ({
+          importedGames: [newGame, ...state.importedGames],
+          otherGamesData: [newGame, ...state.otherGamesData],
+          otherGamesLastFetched: Date.now(),
+        }));
+
         return newGame;
       },
     }),
@@ -326,6 +335,8 @@ export const usePgnStore = create<PgnState>()(
         openingPlayed: state.openingPlayed,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
+        otherGamesData: state.otherGamesData,
+        otherGamesLastFetched: state.otherGamesLastFetched,
         analyticsData: state.analyticsData,
         analyticsLastFetched: state.analyticsLastFetched,
         performanceData: state.performanceData,

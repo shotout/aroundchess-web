@@ -74,7 +74,7 @@ export default function AnalysisPage() {
     if (hydrated && hydratedProfile) {
       if (sessionId.length > 0 && !isLoading) {
         setLoading(true);
-        console.log("TEST", hydrated)
+        console.log("TEST", hydrated);
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
         fetchPgnFamousGame();
