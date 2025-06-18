@@ -16,11 +16,8 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
   const { sessionId } = useProfileStore();
+  const { addOtherImportedGame, username } = usePgnStore();
 
-  // Use addOtherImportedGame instead of addImportedGame to ensure it goes to Other Games
-  const { addOtherImportedGame } = usePgnStore();
-
-  // Dialog state
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("paste");
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -28,25 +25,21 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const [isOperationCompleted, setIsOperationCompleted] =
     useState<boolean>(false);
 
-  // File state
   const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
   const [fileContent, setFileContent] = useState<string>("");
   const [pgnText, setPgnText] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-  // Upload state
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [importedGameId, setImportedGameId] = useState<string | null>(null);
 
-  // Drag and drop state
   const [dragActive, setDragActive] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset the dialog to initial state
   const resetDialog = useCallback(() => {
     setIsSubmitted(false);
     setOpenDialog(false);
@@ -65,7 +58,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     setIsOperationCompleted(false);
   }, []);
 
-  // Handle tab change
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     setPgnText("");
@@ -81,7 +73,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     setIsOperationCompleted(false);
   }, []);
 
-  // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -93,7 +84,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   }, []);
 
-  // Handle drop event
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -104,7 +94,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   }, []);
 
-  // Handle file input change
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
@@ -114,7 +103,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     []
   );
 
-  // Process file
   const handleFile = useCallback((file: File) => {
     if (!file.name.toLowerCase().endsWith(".pgn")) {
       toast.error("Please upload a PGN file.");
@@ -139,7 +127,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     reader.readAsText(file);
   }, []);
 
-  // Handle button click (either to select file or show confirmation)
   const handleButtonClick = useCallback(() => {
     if (activeTab === "upload" && !fileName) {
       if (fileInputRef.current) {
@@ -149,15 +136,99 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       (activeTab === "paste" && pgnText.trim()) ||
       (activeTab === "upload" && fileName)
     ) {
-      // Show confirmation view instead of submitting
       setIsSubmitted(true);
       setIsConfirmationMode(true);
     }
   }, [activeTab, fileName, pgnText]);
 
-  // Handle analyze button click (actual form submission)
+  const parsePgnGameInfo = useCallback((pgnContent: string) => {
+    const lines = pgnContent.split("\n");
+    let whitePlayer = "Unknown";
+    let blackPlayer = "Unknown";
+    let result = "DRAW";
+    let date = new Date().toISOString().slice(0, 10);
+    let opening = "Unknown Opening";
+    let timeControl = "?";
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      if (trimmedLine.startsWith('[White "')) {
+        whitePlayer = trimmedLine.match(/\[White "(.+)"\]/)?.[1] || "Unknown";
+      } else if (trimmedLine.startsWith('[Black "')) {
+        blackPlayer = trimmedLine.match(/\[Black "(.+)"\]/)?.[1] || "Unknown";
+      } else if (trimmedLine.startsWith('[Result "')) {
+        const resultMatch = trimmedLine.match(/\[Result "(.+)"\]/)?.[1];
+        if (resultMatch === "1-0") {
+          result = "WIN";
+        } else if (resultMatch === "0-1") {
+          result = "LOSS";
+        } else {
+          result = "DRAW";
+        }
+      } else if (trimmedLine.startsWith('[Date "')) {
+        const dateMatch = trimmedLine.match(/\[Date "(.+)"\]/)?.[1];
+        if (dateMatch && dateMatch !== "????.??.??") {
+          date = dateMatch.replace(/\./g, "-");
+        }
+      } else if (trimmedLine.startsWith('[Opening "')) {
+        opening =
+          trimmedLine.match(/\[Opening "(.+)"\]/)?.[1] || "Unknown Opening";
+      } else if (trimmedLine.startsWith('[TimeControl "')) {
+        timeControl = trimmedLine.match(/\[TimeControl "(.+)"\]/)?.[1] || "?";
+      }
+    }
+
+    const parsed = {
+      whitePlayer,
+      blackPlayer,
+      result,
+      date,
+      opening,
+      timeControl,
+    };
+
+    return parsed;
+  }, []);
+
+  const determineOpponentAndColor = useCallback(
+    (whitePlayer: string, blackPlayer: string, result: string) => {
+      const userIsWhite =
+        username &&
+        (whitePlayer.toLowerCase().includes(username.toLowerCase()) ||
+          username.toLowerCase().includes(whitePlayer.toLowerCase()));
+
+      const userIsBlack =
+        username &&
+        (blackPlayer.toLowerCase().includes(username.toLowerCase()) ||
+          username.toLowerCase().includes(blackPlayer.toLowerCase()));
+
+      let opponent = "Unknown";
+      let userColor = "White";
+      let userResult = result;
+
+      if (userIsWhite) {
+        opponent = blackPlayer;
+        userColor = "White";
+      } else if (userIsBlack) {
+        opponent = whitePlayer;
+        userColor = "Black";
+        if (result === "WIN") {
+          userResult = "LOSS";
+        } else if (result === "LOSS") {
+          userResult = "WIN";
+        }
+      } else {
+        opponent = blackPlayer;
+        userColor = "White";
+      }
+
+      return { opponent, userColor, userResult };
+    },
+    [username]
+  );
+
   const handleAnalyzeButtonClick = useCallback(async () => {
-    // If we're in confirmation mode, this is the actual submission
     if (isConfirmationMode) {
       setIsLoading(true);
       setError(null);
@@ -165,19 +236,15 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       setUploadProgress(0);
 
       try {
-        // Prepare request data
         const requestData = new FormData();
         if (activeTab === "paste") {
-          // For pasted PGN - use the text directly
           requestData.append("pgn", pgnText);
         } else if (activeTab === "upload" && fileContent) {
-          // For uploaded PGN file - use the file content, not the File object
           requestData.append("pgn", fileContent);
         } else {
           throw new Error("No PGN content available");
         }
 
-        // Send to API
         const response = await gameHistoryApi.importGame(
           requestData,
           sessionId ?? null,
@@ -189,46 +256,57 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
           }
         );
 
-        // Get PGN content from either source
         const pgnContent = activeTab === "paste" ? pgnText : fileContent;
 
-        // Process response data for store
+        const pgnInfo = parsePgnGameInfo(pgnContent);
+        const { opponent, userColor, userResult } = determineOpponentAndColor(
+          pgnInfo.whitePlayer,
+          pgnInfo.blackPlayer,
+          pgnInfo.result
+        );
+
+        const getResultColor = (result: string) => {
+          if (result === "WIN") return "text-green-500";
+          if (result === "LOSS") return "text-red-500";
+          return "text-gray-500";
+        };
+
         let gameData;
         if (response && response.data) {
-          // If API returns game data, use it
-          gameData = response.data;
-
-          // If PGN is not included, add it
-          if (!gameData.pgn) {
-            gameData.pgn = pgnContent;
-          }
-        } else {
-          // Create a minimal game object if no data returned
           gameData = {
-            date: new Date().toISOString().slice(0, 10),
-            opponent: "Unknown",
-            result: "DRAW",
+            ...response.data,
+            opponent,
+            color: userColor,
+            result: userResult,
+            resultColor: getResultColor(userResult),
+            date: pgnInfo.date,
+            opening: pgnInfo.opening,
+            timeControl: pgnInfo.timeControl,
+            pgn: pgnContent,
+          };
+        } else {
+          gameData = {
+            date: pgnInfo.date,
+            opponent,
+            result: userResult,
             eloChange: "(+0 ELO Rating)",
-            resultColor: "text-gray-500",
+            resultColor: getResultColor(userResult),
             rating: "0",
-            opening: "Unknown Opening",
+            opening: pgnInfo.opening,
             moves: "0",
-            timeControl: "?",
-            source: "PGN Upload", // This ensures it's categorized as uploaded content
-            color: "White",
+            timeControl: pgnInfo.timeControl,
+            source: "PGN Upload",
+            color: userColor,
             gameFormat: "PGN Upload",
             gameType: "standard",
             pgn: pgnContent,
           };
         }
 
-        // Ensure the game is marked as an "other" game, not a Chess.com game
         gameData.source = gameData.source || "PGN Upload";
         gameData.gameFormat = "PGN Upload";
 
-        // Add to OTHER games store (not user games)
         const newGame = addOtherImportedGame(gameData);
-        console.log("Game added to OTHER games store:", newGame);
 
         setImportedGameId(newGame.id.toString());
         setIsOperationCompleted(true);
@@ -237,17 +315,12 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
         toast.success("Game imported successfully!");
 
-        // Close dialog and refresh after a delay
         setTimeout(() => {
           resetDialog();
           if (onSuccess) onSuccess();
-          // Refresh ONLY the "other" games data
-          refetchGameData(sessionId ?? null, "other").then(() => {
-            console.log("Other games data refetched successfully");
-          });
+          refetchGameData(sessionId ?? null, "other").then(() => {});
         }, 2000);
       } catch (err) {
-        console.error("Error importing game:", err);
         const errorMessage =
           err instanceof Error ? err.message : "Failed to import PGN data";
         setError(errorMessage);
@@ -264,14 +337,15 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     fileName,
     pgnText,
     resetDialog,
-    addOtherImportedGame, // Changed from addImportedGame
+    addOtherImportedGame,
     sessionId,
     uploadedFile,
     isConfirmationMode,
     onSuccess,
+    parsePgnGameInfo,
+    determineOpponentAndColor,
   ]);
 
-  // Handle file removal
   const handleRemoveFile = useCallback(() => {
     setFileName("");
     setFileSize(0);
@@ -280,13 +354,11 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     setUploadedFile(null);
   }, []);
 
-  // Handle cancellation of confirmation
   const handleCancelConfirmation = useCallback(() => {
     setIsSubmitted(false);
     setIsConfirmationMode(false);
   }, []);
 
-  // Get customized success view props based on current mode
   const getSuccessViewProps = () => {
     if (isConfirmationMode) {
       return {
@@ -316,7 +388,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   };
 
-  // Calculate positioning (same as AnalyzeGameHistory)
   const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
   const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
   const headerHeight = 72;
@@ -324,7 +395,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
   return (
     <div>
-      {/* Import Button */}
       <button
         type="button"
         className="flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[130px] md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
@@ -334,7 +404,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         <h1 className="text-xs lg:text-sm font-primary">Import Games</h1>
       </button>
 
-      {/* Dialog Overlay */}
       {openDialog && (
         <div
           className="fixed bg-black/25 z-50 flex items-center justify-center p-4 md:p-0"
@@ -353,7 +422,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
             className="w-full mx-auto rounded-lg max-w-sm md:max-w-xl bg-white overflow-y-auto max-h-[95%]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Dialog Header */}
             <div className="flex justify-between items-center p-4">
               <div className="w-6"></div>
               <h2 className="text-xl font-semibold text-center flex-1">
@@ -368,13 +436,11 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
               </button>
             </div>
 
-            {/* Dialog Content */}
             <div className="px-6 py-4">
               {isSubmitted ? (
                 <SuccessView {...getSuccessViewProps()} />
               ) : (
                 <>
-                  {/* Instructions */}
                   <p className="text-sm text-center max-w-2xl mx-auto text-gray-700 mb-6">
                     Upload your previous Game's{" "}
                     <span className="font-bold">PGN</span> for a detailed
@@ -383,7 +449,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                     <span className="font-bold">PGN</span> file.
                   </p>
 
-                  {/* Tab Selector */}
                   <Card className="flex gap-3 mt-5 bg-[#F9FAFC] border-2 border-gray-100 p-1">
                     <button
                       className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-sm ${
@@ -408,9 +473,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                     </button>
                   </Card>
 
-                  {/* Tab Content */}
                   <div className="mt-5 h-[200px]">
-                    {/* Paste Tab */}
                     {activeTab === "paste" && (
                       <div className="h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50 p-2">
                         <textarea
@@ -422,7 +485,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                       </div>
                     )}
 
-                    {/* Upload Tab - Empty State */}
                     {activeTab === "upload" && !fileName && (
                       <div
                         className={`h-full border-2 border-dashed ${
@@ -468,7 +530,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                       </div>
                     )}
 
-                    {/* Upload Tab - File Selected */}
                     {activeTab === "upload" && fileName && (
                       <div className="h-full border-2 border-dashed border-blue-base bg-blue-base/5 rounded-lg p-4 flex flex-col justify-center items-center">
                         {isUploading ? (
@@ -558,12 +619,10 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                     )}
                   </div>
 
-                  {/* Error Message */}
                   {error && (
                     <div className="mt-2 text-red-500 text-sm">{error}</div>
                   )}
 
-                  {/* File Format Info */}
                   {activeTab === "upload" && (
                     <div className="flex justify-between mt-2 text-sm">
                       <span>
@@ -575,7 +634,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                     </div>
                   )}
 
-                  {/* Submit Button */}
                   <button
                     type="button"
                     className={`w-full mt-5 py-4 rounded-3xl flex items-center justify-center ${
@@ -607,7 +665,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   );
 };
 
-// Success/Confirmation View Component
 interface SuccessViewProps {
   resetDialog: () => void;
   handleAnalyzeButtonClick: () => void;

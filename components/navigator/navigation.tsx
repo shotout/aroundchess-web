@@ -88,8 +88,9 @@ export default function Navigation({
       },
     },
   };
+
   useEffect(() => {
-    if (hydrated ) {
+    if (hydrated) {
       console.log("TEST SESSIONID", hydrated);
     }
   }, [hydrated]);

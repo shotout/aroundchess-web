@@ -15,8 +15,10 @@ export interface Game {
   source: string;
   gameType: string;
   color: string;
+  playerColor?: string; // Add optional playerColor for compatibility
   gameFormat: string;
   pgn: string;
+  timeClass?: string; // Add optional timeClass
 }
 
 export interface AnalysisResult {
@@ -284,38 +286,69 @@ export const usePgnStore = create<PgnState>()(
           importedGames: [],
         }),
 
+      // Add a new imported game to the USER games (Chess.com games)
       addImportedGame: (gameData) => {
+        // Generate a unique ID for the new game
         const newId = `imported_user_${Date.now()}_${Math.random()}`;
 
+        // Create the new game with the generated ID
         const newGame: Game = {
           ...gameData,
           id: newId,
         };
 
+        // Update the store with the new game
         set((state) => ({
+          // Add to imported games array
           importedGames: [newGame, ...state.importedGames],
+
+          // Add to USER games array (Chess.com games)
           gamesData: [newGame, ...state.gamesData],
+
+          // Update the timestamp
           gamesLastFetched: Date.now(),
         }));
+
+        // Return the new game so it can be used
         return newGame;
       },
 
+      // Add a new imported game to the OTHER games (PGN uploads, etc.)
       addOtherImportedGame: (gameData) => {
+        // Generate a unique ID for the new game
         const newId = `imported_other_${Date.now()}_${Math.random()}`;
 
+        // Create the new game with the generated ID and ensure proper categorization
         const newGame: Game = {
           ...gameData,
           id: newId,
           source: gameData.source || "PGN Upload",
           gameFormat: gameData.gameFormat || "PGN Upload",
+          playerColor: gameData.color || gameData.playerColor || "White", // Ensure playerColor is set
+          timeClass: gameData.timeClass || "Unknown",
         };
 
+        console.log("🎮 Adding game to OTHER games store:", {
+          id: newGame.id,
+          opponent: newGame.opponent,
+          color: newGame.color,
+          playerColor: newGame.playerColor,
+          result: newGame.result,
+        });
+
+        // Update the store with the new game
         set((state) => ({
+          // Add to imported games array for tracking
           importedGames: [newGame, ...state.importedGames],
+
+          // Add to OTHER games array (NOT user games)
           otherGamesData: [newGame, ...state.otherGamesData],
+
+          // Update the timestamp for other games
           otherGamesLastFetched: Date.now(),
         }));
 
+        // Return the new game so it can be used
         return newGame;
       },
     }),

@@ -38,6 +38,18 @@ const MistakeLog = () => {
     error,
   } = useApiClient();
   const { chessMove, setChessMove } = useChessMoveStore();
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [widthSidebar, setWidthSidebar] = useState(0);
+
+  const checkIfDesktop = () => {
+    const sidebarW = window.innerWidth / 6;
+    setIsDesktop(window.innerWidth >= 1280);
+    if (window.innerWidth >= 1280) {
+      setWidthSidebar(sidebarW);
+    } else {
+      setWidthSidebar(0);
+    }
+  };
 
   const {
     hydrated,
@@ -107,12 +119,12 @@ const MistakeLog = () => {
   };
   const fetchMistakePreviousDetail = async (id: string, reset: boolean) => {
     try {
-      let params = reset
+      const params = reset
         ? {}
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       console.log("prevDataDetail", prevDataDetail);
-      let dataDetail = prevDataDetail.data;
+      const dataDetail = prevDataDetail.data;
       setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
@@ -127,7 +139,7 @@ const MistakeLog = () => {
   const fetchMistakeSaved = async () => {
     try {
       setLoadingSaved(true);
-      let params = { page: 1, limit: 10 };
+      const params = { page: 1, limit: 10 };
       const savedData = await getMistakeSaved(params);
       console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
@@ -141,23 +153,27 @@ const MistakeLog = () => {
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
+    checkIfDesktop();
 
-    // Add event listeners
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", checkIfDesktop);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", checkIfDesktop);
+    };
   }, [mounted]);
+
   const handleResize = () => {
-    let widthC =
+    const widthC =
       window?.innerWidth <= 1280
         ? window?.innerWidth
         : window?.innerWidth * 0.52;
-    console.log("widthC", widthC);
     setWidthContainer(widthC);
   };
+
   useEffect(() => {
-    let count = 0;
+    const count = 0;
 
     setActiveFiltersCount(count);
     setFiltersApplied(count > 0);
@@ -186,7 +202,10 @@ const MistakeLog = () => {
   const renderFilters = () => {
     return (
       <>
-        <div className="flex flex-row w-full xl:w-[calc(100vw-380px)] overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] ">
+        <div
+          style={{ maxWidth: `calc(100vw - ${widthSidebar}px - 32px)` }}
+          className={`flex flex-row w-full  overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] `}
+        >
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
