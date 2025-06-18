@@ -107,7 +107,7 @@ const AnalysisLatestGame: React.FC = () => {
         return (
           <Summary
             next={() => {
-              setUserInitiatedChange(true); // Set flag when user clicks next
+              setUserInitiatedChange(true);
               setFocusPage("movement");
             }}
           />

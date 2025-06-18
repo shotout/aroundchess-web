@@ -71,10 +71,10 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
   const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
 
   const boardImageSrc = useMemo(() => {
-    const isFlipped = orientation === "black";
-    const suffix = isFlipped ? "-flipped" : "";
-    return `/boards/${BoardChoosed}${suffix}.png`;
-  }, [BoardChoosed, orientation]);
+    const isPlayingAsBlack = playerColor === "b" || orientation === "black";
+    const boardSuffix = isPlayingAsBlack ? "-flipped" : "";
+    return `/boards/${BoardChoosed}${boardSuffix}.png`;
+  }, [BoardChoosed, orientation, playerColor]);
 
   const handlePieceDragBegin = (piece: string, sourceSquare: string) => {
     if (onPieceDragBegin) {

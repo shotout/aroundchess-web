@@ -42,6 +42,7 @@ interface ThreeDBoardProps {
   areArrowsAllowed?: boolean;
   arePremovesAllowed?: boolean;
   customArrowColor?: string;
+  playerColor?: "w" | "b";
 }
 
 const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
@@ -64,6 +65,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
   customArrowColor,
   onPieceClick,
   arePremovesAllowed,
+  playerColor,
 }) => {
   const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
   const [boardSize, setBoardSize] = useState<number | any>(700);
@@ -98,6 +100,12 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
     }
   };
+
+  const boardImageSrc = useMemo(() => {
+    const isPlayingAsBlack = playerColor === "b" || orientation === "black";
+    const boardSuffix = isPlayingAsBlack ? "-flipped" : "";
+    return `/boards/3d-${BoardChoosed}-board${boardSuffix}.png`;
+  }, [BoardChoosed, orientation, playerColor]);
 
   const threeDPieces = useMemo(() => {
     const pieces = [
@@ -189,7 +197,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     return pieceComponents;
   }, [PieceChoosed]);
 
-  const shouldRotateBoard = orientation === "black";
+  // Removed manual rotation logic - now handled by board image selection
 
   if (loading) return <DotSpinner />;
 
@@ -210,7 +218,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
         }}
       >
         <Image
-          src={`/boards/3d-${BoardChoosed}-board.png`}
+          src={boardImageSrc}
           alt="Chess board frame"
           width={1000}
           height={1000}
@@ -218,7 +226,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           style={{
             width: 480,
             height: 480,
-            transform: shouldRotateBoard ? "rotate(180deg)" : "none",
+            // Removed manual rotation - now using different board images
           }}
           priority
         />

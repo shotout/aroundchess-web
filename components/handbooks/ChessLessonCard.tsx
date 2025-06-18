@@ -86,7 +86,6 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="h-full"
         >
           <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col p-4">
             <div className="relative">
@@ -104,61 +103,34 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               <ReadStatusIndicator readStatus={lesson.readStatus} />
             </div>
 
-            <div className="xl:px-1 2xl:px-4 flex flex-col pt-3 h-36">
-              {/* Mobile layout */}
-              <div className="flex flex-col lg:hidden">
-                <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
-                  {lesson.difficulty}
-                </h1>
-                <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
-                  {lesson.title}
-                </h3>
-              </div>
-
-              {/* Desktop layout */}
-              <div className="hidden lg:block">
-                <div className="flex justify-between items-center">
-                  {" "}
-                  <div className="flex items-center flex-1">
-                    <div className="font-medium text-gray-900 text-xs flex gap-x-1 px-2 py-1 items-center line-clamp-1 border border-blue-base max-w-[200px] overflow-hidden">
-                      <AlertCircle className="text-blue-base w-4 h-4 flex-shrink-0" />
-                      <h1 className="flex-shrink-0">ELO Rating:</h1>{" "}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <h1 className="text-blue-base truncate">
-                              {lesson.eloRange
-                                ? Array.isArray(lesson.eloRange) &&
-                                  lesson.eloRange.length > 0
-                                  ? lesson.eloRange.join(", ")
-                                  : String(lesson.eloRange)
-                                : "-"}
-                            </h1>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">
-                              {lesson.eloRange
-                                ? Array.isArray(lesson.eloRange) &&
-                                  lesson.eloRange.length > 0
-                                  ? lesson.eloRange.join(", ")
-                                  : String(lesson.eloRange)
-                                : "-"}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
-                  <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
+            <div className="xl:px-1 2xl:px-4 flex flex-col flex-1 min-h-0">
+              {/* Content area that grows */}
+              <div className="flex-1">
+                {/* Mobile layout */}
+                <div className="flex flex-col lg:hidden">
+                  <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
                     {lesson.difficulty}
                   </h1>
+                  <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
+                    {lesson.title}
+                  </h3>
                 </div>
-                <h1 className="font-semibold h-10 line-clamp-2 mt-2">
-                  {lesson.title}
-                </h1>
+
+                {/* Desktop layout */}
+                <div className="hidden  lg:flex justify-between">
+                  <h1 className="font-semibold h-10 line-clamp-2">
+                    {lesson.title}
+                  </h1>
+                  <div>
+                    <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
+                      {lesson.difficulty}
+                    </h1>
+                  </div>
+                </div>
               </div>
 
-              <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer btn-primary mt-auto mb-1">
+              {/* Button stays at bottom */}
+              <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer btn-primary">
                 <BookOpen className="h-4 w-4" />
                 <span className="text-[10px] md:text-sm">Start Learning</span>
               </div>

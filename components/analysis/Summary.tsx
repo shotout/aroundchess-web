@@ -428,7 +428,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold">
             Overall Game Assessment
           </span>
-          <div className="flex flex-row gap-2 mt-2">
+          <div className="flex items-center flex-row gap-2 mt-2">
             <Image
               alt=""
               src={"/icons/target.png"}
@@ -444,7 +444,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </span>
           </div>
           <div className="flex flex-col gap-3 mt-2">
-            <span className="text-sm sm:text-md md:text-lg lg:text-md font-light">
+            <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
               {overallGameAssessment?.analysis}
             </span>
           </div>

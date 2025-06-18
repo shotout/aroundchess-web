@@ -81,7 +81,8 @@ export async function classifyMove(
     if (absDelta < -200 && absDelta >= -500) return "mistake-move";
     return "blunder-move";
   } catch (error) {
-    return "good-move";
+    console.error("Error in classifyMove:", error);
+    throw error;
   }
 }
 

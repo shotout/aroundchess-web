@@ -11,7 +11,6 @@ export default function FeedbackLog() {
   useEffect(() => {
     if (hydrated) {
       setReady(true);
-      console.log(hydrated, "TEST hydrated");
     }
   }, [hydrated]);
   if (!hydrated) return <DotSpinner />;
