@@ -27,8 +27,20 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     setOpen(true);
   };
   const handleDiscord = () => {
-    const discordUrl = `https://discord.gg/PZWcXsxGM7`;
-    window.open(discordUrl, "_blank");
+    const url = `https://discord.gg/PZWcXsxGM7`;
+    window.open(url, "_blank");
+  };
+  const handleFacebook = () => {
+    const url = `https://www.facebook.com/aroundchess`;
+    window.open(url, "_blank");
+  };
+  const handleInstagram= () => {
+    const url = `https://www.instagram.com/aroundchess/`;
+    window.open(url, "_blank");
+  };
+  const handleTwitter= () => {
+    const url = `https://x.com/AroundChess`;
+    window.open(url, "_blank");
   };
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
@@ -214,8 +226,8 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               © 2025 aroundchess. All rights reserved.
             </p>
             <div className="flex space-x-2">
-              <Link
-                href="#"
+              <div
+                onClick={handleDiscord}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <span className="sr-only">Discord</span>
@@ -226,9 +238,9 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   width={600}
                   height={600}
                 />
-              </Link>
-              <Link
-                href="#"
+              </div>
+              <div
+                onClick={handleFacebook}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <span className="sr-only">Facebook</span>
@@ -239,9 +251,9 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   width={600}
                   height={600}
                 />
-              </Link>
-              <Link
-                href="#"
+              </div>
+              <div
+                onClick={handleInstagram}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <span className="sr-only">Instagram</span>
@@ -252,9 +264,9 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   width={600}
                   height={600}
                 />
-              </Link>
-              <Link
-                href="#"
+              </div>
+              <div
+                onClick={handleTwitter}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <span className="sr-only">Twitter</span>
@@ -265,7 +277,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   width={600}
                   height={600}
                 />
-              </Link>
+              </div>
             </div>
           </div>
         </div>

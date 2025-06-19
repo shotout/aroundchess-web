@@ -125,9 +125,9 @@ export function BenefitsOf() {
           >
             Analyze your most recent Game now
           </Button>
-          <span className="w-fill px-16 font-normal text-[#364152] text-sm sm:text-[14px] my-3">
+          {/* <span className="w-fill px-16 font-normal text-[#364152] text-sm sm:text-[14px] my-3">
             No Sign-Up required
-          </span>
+          </span> */}
         </div>
       </div>
     </section>

@@ -154,9 +154,9 @@ export function ImproveSection() {
                   >
                     Analyze your most recent Game now
                   </Button>
-                  <span className="w-fill px-16 font-normal text-xs sm:text-[14px] text-white my-3">
+                  {/* <span className="w-fill px-16 font-normal text-xs sm:text-[14px] text-white my-3">
                     No Sign-Up required
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>
