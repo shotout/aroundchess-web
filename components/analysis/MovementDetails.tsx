@@ -249,6 +249,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                               alt="icon"
                               width={1000}
                               height={1000}
+                              unoptimized
                               className="w-[16px] h-[16px] object-contain inline-block mr-1"
                             />
                           )}
@@ -362,6 +363,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                                   alt="icon"
                                   width={1000}
                                   height={1000}
+                                  unoptimized
                                   className="w-[16px] h-[16px] object-contain inline-block mr-1"
                                 />
                               )}
