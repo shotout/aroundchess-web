@@ -256,7 +256,7 @@ export default function MovementTable() {
                         <Image
                           key={`white-${index}`}
                           src={`/pieces/${PieceChoosed}/${
-                            "w" + whiteHistoryItem.captured
+                            "w" + whiteHistoryItem.captured.toUpperCase()
                           }.png`}
                           alt="icon"
                           width={1000}
@@ -368,7 +368,7 @@ export default function MovementTable() {
                             <Image
                               key={`black-${index}`}
                               src={`/pieces/${PieceChoosed}/${
-                                "b" + blackHistoryItem.captured
+                                "b" + blackHistoryItem.captured.toUpperCase()
                               }.png`}
                               alt="icon"
                               width={1000}

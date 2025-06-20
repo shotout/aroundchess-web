@@ -243,8 +243,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                           historyGame[index * 2].captured != null && (
                             <Image
                               key={index}
-                              src={`/images/pieces/${PieceChoosed}/${
-                                "w" + historyGame[index * 2].captured
+                              src={`/pieces/${PieceChoosed}/${
+                                "w" + historyGame[index * 2].captured.toUpperCase()
                               }.png`}
                               alt="icon"
                               width={1000}
@@ -357,8 +357,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                               historyGame[index * 2 + 1].captured != null && (
                                 <Image
                                   key={index}
-                                  src={`/images/pieces/${PieceChoosed}/${
-                                    "b" + historyGame[index * 2 + 1].captured
+                                  src={`/pieces/${PieceChoosed}/${
+                                    "b" + historyGame[index * 2 + 1].captured.toUpperCase()
                                   }.png`}
                                   alt="icon"
                                   width={1000}
