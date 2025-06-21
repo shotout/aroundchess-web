@@ -8,7 +8,7 @@ export const endpoints = {
     getTopics: `${BASE_URL}/training-plan/topics`,
     getExistingTopics: `${BASE_URL}/training-plan/existing-topics`,
     createPlan: `${BASE_URL}/training-plan/create`,
-    getTodaySchedule: `${BASE_URL}/training-plan/today-schedule`,
+    getTodaySchedule: `${BASE_URL}/v2/training-plan/today-schedule`,
     getProgress: (month?: string) =>
       `${BASE_URL}/training-plan/my-progress-training-plan${
         month ? `?month=${month}` : ""

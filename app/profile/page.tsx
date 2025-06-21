@@ -12,6 +12,7 @@ import MySubscription from "@/components/profile/MySubscription";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
+import DeleteAccount from "@/components/profile/DeleteAccount";
 
 export default function Profile() {
   const searchParams = useSearchParams();
@@ -75,6 +76,7 @@ export default function Profile() {
           <MySubscription />
           <MyRemainingAnalysisTokens />
           <MyRemainingPuzzle />
+          <DeleteAccount />
         </div>
       </Navigation>
     </Suspense>

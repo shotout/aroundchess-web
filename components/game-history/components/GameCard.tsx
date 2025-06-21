@@ -45,7 +45,7 @@ const GameCard: React.FC<GameCardProps> = ({
         <div className="flex justify-between items-center mb-4 text-xs">
           <div className="text-gray-500">{gameData.date}</div>
           <div className={`font-semibold ${gameData.resultColor}`}>
-            {gameData.result} ({gameData.eloChange} ELO RATING)
+            {gameData.result}
           </div>
         </div>
 

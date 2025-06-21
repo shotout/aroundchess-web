@@ -32,7 +32,7 @@ import { playSound } from "@/utils/play-audio";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import ReactCountryFlag from "react-country-flag";
 import { RelativeTooltip } from "../tooltip/RelativeTooltip";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -76,7 +76,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   arrow,
   onChangeTopic,
 }) => {
-  const router = useRouter()
+  const router = useRouter();
   const chessGame = useMemo(() => new Chess(), []);
   const refBoard = useRef<HTMLDivElement | null>(null);
   const { profile } = useProfileStore();
@@ -893,7 +893,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className="flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
       >
         <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
-          <button onClick={()=> router.back()}>
+          <button onClick={() => router.back()}>
             <ArrowLeft color="black" size={24} />
           </button>
           <Image

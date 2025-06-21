@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -40,6 +40,31 @@ export const Filters: React.FC<FiltersProps> = ({
   handleApplyFilters,
   handleClearFilters,
 }) => {
+  const mobileFilterRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close mobile filters
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showFilters &&
+        mobileFilterRef.current &&
+        !mobileFilterRef.current.contains(event.target as Node)
+      ) {
+        setShowFilters(false);
+      }
+    };
+
+    // Add event listener when mobile filters are shown
+    if (showFilters) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup function to remove event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilters, setShowFilters]);
+
   return (
     <div className="p-0 md:p-4 xl:p-0">
       {/* Desktop Filters */}
@@ -98,7 +123,7 @@ export const Filters: React.FC<FiltersProps> = ({
       </div>
 
       {/* Mobile Filters */}
-      <div className="md:hidden relative w-full">
+      <div className="md:hidden relative w-full" ref={mobileFilterRef}>
         <div className="flex w-full items-center justify-between gap-2 mb-4 p-4 border">
           <Button
             variant="outline"
