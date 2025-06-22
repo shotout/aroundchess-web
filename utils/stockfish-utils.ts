@@ -224,21 +224,8 @@ export function useStockfishAnalysis() {
             setEstimateSecond(5);
             setEstimateMinute(0);
             const { default: axios } = await import("axios");
-            
-            // Determine the correct endpoint based on depth
-            let endpoint = "";
-            if (depth >= 10 && depth <= 15) {
-              endpoint = `${process.env.BASE_URL}/v2/basic-analyze`;
-            } else if (depth >= 16 && depth <= 18) {
-              endpoint = `${process.env.BASE_URL}/v2/standard-analyze`;
-            } else if (depth >= 19 && depth <= 25) {
-              endpoint = `${process.env.BASE_URL}/v2/deep-analyze`;
-            } else {
-              throw new Error("Depth out of supported range");
-            }
-            
             const response = await axios.post(
-              endpoint,
+              `${process.env.BASE_URL}/v2/analyze`,
               {
                 pgn: pgn,
                 username: username,
@@ -279,21 +266,8 @@ export function useStockfishAnalysis() {
           try {
             console.log("Analysis analyze:", estimateMinute, estimateSecond);
             const { default: axios } = await import("axios");
-            
-            // Determine the correct endpoint based on depth
-            let endpoint = "";
-            if (depth >= 10 && depth <= 15) {
-              endpoint = `${process.env.BASE_URL}/v2/basic-analyze`;
-            } else if (depth >= 16 && depth <= 18) {
-              endpoint = `${process.env.BASE_URL}/v2/standard-analyze`;
-            } else if (depth >= 19 && depth <= 25) {
-              endpoint = `${process.env.BASE_URL}/v2/deep-analyze`;
-            } else {
-              throw new Error("Depth out of supported range");
-            }
-            
             const response = await axios.post(
-              endpoint,
+              `${process.env.BASE_URL}/v2/analyze`,
               {
                 pgn: pgn,
                 depth: depth,
