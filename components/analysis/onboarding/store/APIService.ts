@@ -2,47 +2,107 @@
 
 const endpoint = process.env.BASE_URL;
 
+export interface GameTypeData {
+  game_type: string;
+  elo: number;
+  label: string;
+}
+
+export interface PlayerStatsResponse {
+  success: boolean;
+  message: string;
+  data: GameTypeData[];
+  statusCode: number;
+}
+
 export const ChessApiService = {
-  async setUsername(username: string, sessionId: string): Promise<any> {
+  async checkPlayerStats(
+    username: string,
+    sessionId: string
+  ): Promise<PlayerStatsResponse> {
     try {
-      if (!username || !sessionId) {
-        throw new Error("Username and session ID are required");
+      if (!username) {
+        throw new Error("Username is required");
       }
 
-      console.log("Making request to set username:", username);
-      console.log("Using session ID (truncated):", `${sessionId.substring(0, 10)}...`);
+      if (!sessionId) {
+        throw new Error("Session ID is required");
+      }
+
+      const response = await fetch(
+        `${endpoint}/games/player-stats/${username}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Player not found: ${response.status}`);
+      }
+
+      const responseText = await response.text();
+
+      let responseData;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        throw new Error("Invalid response from server");
+      }
+
+      return responseData;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async setUsername(
+    username: string,
+    gameType: string,
+    elo: number,
+    sessionId: string
+  ): Promise<any> {
+    try {
+      if (!username || !sessionId || !gameType || elo === undefined) {
+        throw new Error("Username, gameType, elo, and session ID are required");
+      }
 
       const response = await fetch(`${endpoint}/profile/set-username`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${sessionId}`
+          Authorization: `Bearer ${sessionId}`,
         },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({
+          username,
+          gameType,
+          latestElo: elo,
+        }),
       });
 
-      console.log("Response status:", response.status);
-      
       const responseText = await response.text();
-      console.log("Raw response:", responseText);
-      
+
       let responseData;
       try {
         responseData = responseText ? JSON.parse(responseText) : {};
       } catch (e) {
-        console.error("Failed to parse response as JSON:", e);
-        console.log("Response wasn't valid JSON:", responseText);
-        throw new Error("Server returned an invalid response. Please check console for details.");
+        throw new Error(
+          "Server returned an invalid response. Please check console for details."
+        );
       }
 
-      // Check if the username already exists (check message for "already exists")
-      if (responseData.message && responseData.message.toLowerCase().includes("already exists")) {
-        // This is actually a success case for our UI flow
+      if (
+        responseData.message &&
+        responseData.message.toLowerCase().includes("already exists")
+      ) {
         return {
           success: true,
           usernameAlreadyExists: true,
           message: responseData.message,
-          username
+          username,
         };
       }
 
@@ -54,9 +114,10 @@ export const ChessApiService = {
 
       return responseData;
     } catch (error) {
-      console.error("Chess API error:", error);
       if (error instanceof SyntaxError) {
-        throw new Error("Server returned an invalid response. Please try again later.");
+        throw new Error(
+          "Server returned an invalid response. Please try again later."
+        );
       }
       throw error;
     }
@@ -68,60 +129,51 @@ export const ChessApiService = {
         throw new Error("Session ID is required");
       }
 
-      console.log("Fetching profile with session ID (truncated):", `${sessionId.substring(0, 10)}...`);
-
       const response = await fetch(`${endpoint}/profile`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${sessionId}`
-        }
+          Authorization: `Bearer ${sessionId}`,
+        },
       });
 
-      console.log("Profile API response status:", response.status);
-      
       if (!response.ok) {
-        console.log("Error in profile API, status:", response.status);
         throw new Error(`Failed to get profile: ${response.status}`);
       }
-      
+
       const responseText = await response.text();
-      console.log("Profile data retrieved:", responseText.substring(0, 100) + "...");
-      
+
       let responseData;
       try {
         responseData = responseText ? JSON.parse(responseText) : {};
       } catch (e) {
-        console.error("Failed to parse profile response as JSON:", e);
-        console.log("Raw response text:", responseText);
         throw new Error("Invalid JSON response from server");
       }
 
       return responseData;
     } catch (error) {
-      console.error("Chess API getProfile error:", error);
       throw error;
     }
   },
 
-  async checkChessConnection(sessionId: string): Promise<{isConnected: boolean, username?: string, profile?: any}> {
+  async checkChessConnection(
+    sessionId: string
+  ): Promise<{ isConnected: boolean; username?: string; profile?: any }> {
     try {
       const profileData = await this.getProfile(sessionId);
-      
-      // Correctly handle the nested data structure
+
       const username = profileData?.data?.username;
-      
+
       if (username) {
-        return { 
-          isConnected: true, 
+        return {
+          isConnected: true,
           username,
-          profile: profileData
+          profile: profileData,
         };
       }
 
       return { isConnected: false };
     } catch (error) {
-      console.error("Chess connection check error:", error);
       return { isConnected: false };
     }
-  }
+  },
 };

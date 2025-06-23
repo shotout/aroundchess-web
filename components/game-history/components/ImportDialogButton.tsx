@@ -141,93 +141,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   }, [activeTab, fileName, pgnText]);
 
-  const parsePgnGameInfo = useCallback((pgnContent: string) => {
-    const lines = pgnContent.split("\n");
-    let whitePlayer = "Unknown";
-    let blackPlayer = "Unknown";
-    let result = "DRAW";
-    let date = new Date().toISOString().slice(0, 10);
-    let opening = "Unknown Opening";
-    let timeControl = "?";
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-
-      if (trimmedLine.startsWith('[White "')) {
-        whitePlayer = trimmedLine.match(/\[White "(.+)"\]/)?.[1] || "Unknown";
-      } else if (trimmedLine.startsWith('[Black "')) {
-        blackPlayer = trimmedLine.match(/\[Black "(.+)"\]/)?.[1] || "Unknown";
-      } else if (trimmedLine.startsWith('[Result "')) {
-        const resultMatch = trimmedLine.match(/\[Result "(.+)"\]/)?.[1];
-        if (resultMatch === "1-0") {
-          result = "WIN";
-        } else if (resultMatch === "0-1") {
-          result = "LOSS";
-        } else {
-          result = "DRAW";
-        }
-      } else if (trimmedLine.startsWith('[Date "')) {
-        const dateMatch = trimmedLine.match(/\[Date "(.+)"\]/)?.[1];
-        if (dateMatch && dateMatch !== "????.??.??") {
-          date = dateMatch.replace(/\./g, "-");
-        }
-      } else if (trimmedLine.startsWith('[Opening "')) {
-        opening =
-          trimmedLine.match(/\[Opening "(.+)"\]/)?.[1] || "Unknown Opening";
-      } else if (trimmedLine.startsWith('[TimeControl "')) {
-        timeControl = trimmedLine.match(/\[TimeControl "(.+)"\]/)?.[1] || "?";
-      }
-    }
-
-    const parsed = {
-      whitePlayer,
-      blackPlayer,
-      result,
-      date,
-      opening,
-      timeControl,
-    };
-
-    return parsed;
-  }, []);
-
-  const determineOpponentAndColor = useCallback(
-    (whitePlayer: string, blackPlayer: string, result: string) => {
-      const userIsWhite =
-        username &&
-        (whitePlayer.toLowerCase().includes(username.toLowerCase()) ||
-          username.toLowerCase().includes(whitePlayer.toLowerCase()));
-
-      const userIsBlack =
-        username &&
-        (blackPlayer.toLowerCase().includes(username.toLowerCase()) ||
-          username.toLowerCase().includes(blackPlayer.toLowerCase()));
-
-      let opponent = "Unknown";
-      let userColor = "White";
-      let userResult = result;
-
-      if (userIsWhite) {
-        opponent = blackPlayer;
-        userColor = "White";
-      } else if (userIsBlack) {
-        opponent = whitePlayer;
-        userColor = "Black";
-        if (result === "WIN") {
-          userResult = "LOSS";
-        } else if (result === "LOSS") {
-          userResult = "WIN";
-        }
-      } else {
-        opponent = blackPlayer;
-        userColor = "White";
-      }
-
-      return { opponent, userColor, userResult };
-    },
-    [username]
-  );
-
   const handleAnalyzeButtonClick = useCallback(async () => {
     if (isConfirmationMode) {
       setIsLoading(true);
@@ -237,12 +150,17 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
       try {
         const requestData = new FormData();
-        if (activeTab === "paste") {
-          requestData.append("pgn", pgnText);
-        } else if (activeTab === "upload" && fileContent) {
-          requestData.append("pgn", fileContent);
-        } else {
+
+        // Get PGN content
+        const pgnContent = activeTab === "paste" ? pgnText : fileContent;
+        if (!pgnContent) {
           throw new Error("No PGN content available");
+        }
+
+        // Send both PGN and username to backend
+        requestData.append("pgn", pgnContent);
+        if (username) {
+          requestData.append("username", username);
         }
 
         const response = await gameHistoryApi.importGame(
@@ -256,58 +174,17 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
           }
         );
 
-        const pgnContent = activeTab === "paste" ? pgnText : fileContent;
-
-        const pgnInfo = parsePgnGameInfo(pgnContent);
-        const { opponent, userColor, userResult } = determineOpponentAndColor(
-          pgnInfo.whitePlayer,
-          pgnInfo.blackPlayer,
-          pgnInfo.result
-        );
-
-        const getResultColor = (result: string) => {
-          if (result === "WIN") return "text-green-500";
-          if (result === "LOSS") return "text-red-500";
-          return "text-gray-500";
-        };
-
-        let gameData;
-        if (response && response.data) {
-          gameData = {
-            ...response.data,
-            opponent,
-            color: userColor,
-            result: userResult,
-            resultColor: getResultColor(userResult),
-            date: pgnInfo.date,
-            opening: pgnInfo.opening,
-            timeControl: pgnInfo.timeControl,
-            pgn: pgnContent,
-          };
-        } else {
-          gameData = {
-            date: pgnInfo.date,
-            opponent,
-            result: userResult,
-            eloChange: "(+0 ELO Rating)",
-            resultColor: getResultColor(userResult),
-            rating: "0",
-            opening: pgnInfo.opening,
-            moves: "0",
-            timeControl: pgnInfo.timeControl,
-            source: "PGN Upload",
-            color: userColor,
-            gameFormat: "PGN Upload",
-            gameType: "standard",
-            pgn: pgnContent,
-          };
+        // Only use data from backend response
+        if (!response || !response.data) {
+          throw new Error("Invalid response from server");
         }
 
-        gameData.source = gameData.source || "PGN Upload";
-        gameData.gameFormat = "PGN Upload";
+        const gameData = {
+          ...response.data,
+          pgn: pgnContent,
+        };
 
         const newGame = addOtherImportedGame(gameData);
-
         setImportedGameId(newGame.id.toString());
         setIsOperationCompleted(true);
         setIsConfirmationMode(false);
@@ -330,20 +207,16 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         setIsUploading(false);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeTab,
     fileContent,
-    fileName,
     pgnText,
-    resetDialog,
-    addOtherImportedGame,
+    username,
     sessionId,
-    uploadedFile,
     isConfirmationMode,
+    addOtherImportedGame,
+    resetDialog,
     onSuccess,
-    parsePgnGameInfo,
-    determineOpponentAndColor,
   ]);
 
   const handleRemoveFile = useCallback(() => {

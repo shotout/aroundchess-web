@@ -6,15 +6,7 @@ import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSub
 import Navigation from "@/components/navigator/navigation";
 import { PuzzleGame } from "@/components/playground/puzzle/PuzzleGame";
 import PuzzleInitialize from "@/components/playground/puzzle/PuzzleInitialize";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useApiClient } from "@/functions/api-client";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,10 +16,11 @@ type Puzzle = {
   Moves: string;
   Themes: string;
 };
-export default function Puzzle() {
-  const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]); // Store filtered puzzles
 
-  // Use the custom hook with the filtered puzzles
+export default function Puzzle() {
+  const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]);
+  const [showInitialization, setShowInitialization] = useState(true);
+
   const {
     currentPuzzle,
     getRandomPuzzle,
@@ -42,7 +35,6 @@ export default function Puzzle() {
     playerColor,
     handleNavigateToMove,
     handleTakeBackMove,
-    toggleBoardOrientation,
     boardOrientation,
     setCurrentSolutionIndex,
     setGameStarted,
@@ -54,9 +46,8 @@ export default function Puzzle() {
     hint,
     clearHint,
     changeTopicPuzzle,
-    showConfirmationBox,
-    handleConfirm,
-  } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
+  } = usePuzzles(filteredPuzzles);
+
   const { isMember } = useProfileStore();
   const { postPuzzle, getPuzzle, isLoading } = useApiClient();
   const [puzzleLog, setPuzzleLog] = useState<any[]>([]);
@@ -71,57 +62,64 @@ export default function Puzzle() {
     setShowPremiumDialog(false);
     toast.success("Thank you for subscribing to Premium!");
   };
+
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
     handleGetLog();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
     if (isSolved) {
       handleGetLog();
       handleSaveLog();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSolved]);
+
   const handleGetLog = async () => {
     await getPuzzle().then((res) => {
-      let logs = res.data;
+      const logs = res.data;
       setPuzzleLog(logs);
-      console.log("log puzzle", logs);
       if (logs.length >= 20 && !isMember) {
-        // kondisi kalo udah 20
         setShowPremiumDialog(true);
       }
     });
   };
+
   const handleSaveLog = async () => {
-    let body = {
+    const body = {
       puzzleId: filteredPuzzles[0].PuzzleId,
     };
     await postPuzzle(body);
   };
-  // Callback for when puzzles are fetched and filtered
+
   const handleFetchPuzzles = (puzzles: Puzzle[]) => {
     if (puzzles.length === 0) {
-      // console.warn('No puzzles fetched.')
       return;
     }
-    console.log("puzzles", puzzles);
-    setFilteredPuzzles(puzzles); // Update state first
+    setFilteredPuzzles(puzzles);
+    setShowInitialization(false);
 
-    // Wait for the state to update before calling getRandomPuzzle
     setTimeout(() => {
-      // console.log('Filtered puzzles updated. Fetching random puzzle...')
       getRandomPuzzle();
     }, 0);
   };
 
-  const handleStart = () => {};
+  const handleBackToPuzzleInitialize = () => {
+    setShowInitialization(true);
+    setFilteredPuzzles([]);
+    resetPuzzle();
+    setGameStarted(false);
+  };
+
   return (
     <Navigation>
-      {!currentPuzzle ? (
+      {showInitialization || !currentPuzzle ? (
         <PuzzleInitialize
-          jsonPath="/puzzle/mate_puzzles.json" // Path to your JSON file
-          onFetchPuzzles={handleFetchPuzzles} // Pass filtered puzzles to this callback
+          jsonPath="/puzzle/mate_puzzles.json"
+          onFetchPuzzles={handleFetchPuzzles}
           filteredPuzzles={filteredPuzzles}
           setFilteredPuzzles={setFilteredPuzzles}
           setGameStarted={setGameStarted}
@@ -154,6 +152,7 @@ export default function Puzzle() {
             getHintArrow();
           }}
           onChangeTopic={changeTopicPuzzle}
+          onBackToPuzzleInitialize={handleBackToPuzzleInitialize}
         />
       )}
       <PremiumSubscription

@@ -17,6 +17,9 @@ import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "../game-history/Spinner";
 import ChangePasswordDialog from "./ChangePasswordDialog";
+import { toast } from "sonner";
+import { ChessApiService } from "../analysis/onboarding/store/APIService";
+import { usePlayerStatsStore } from "../analysis/onboarding/store/usePlayerStatsStore";
 
 const MyAccount = () => {
   const { getProfile, logOut, isLoading } = useApiClient();
@@ -29,12 +32,22 @@ const MyAccount = () => {
   const router = useRouter();
   const { username, setUsername, clearAll } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [gameType, setGameType] = useState<string>("rapid");
+  const [isUpdatingGameType, setIsUpdatingGameType] = useState(false);
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
     defaultUsername: username,
     password: "",
   });
+
+  const {
+    username: storeUsername,
+    gameTypesData,
+    selectedGameType,
+    setPlayerData,
+    setSelectedGameType,
+    getSelectedGameData,
+    clearPlayerStats,
+  } = usePlayerStatsStore();
 
   useEffect(() => {
     setForm({
@@ -44,6 +57,30 @@ const MyAccount = () => {
     });
   }, [profile, username]);
 
+  useEffect(() => {
+    const loadUserGameTypes = async () => {
+      if (username && sessionId) {
+        try {
+          const response = await ChessApiService.checkPlayerStats(
+            username,
+            sessionId
+          );
+          if (
+            response.success &&
+            response.data &&
+            Array.isArray(response.data)
+          ) {
+            setPlayerData(username, response.data);
+          }
+        } catch (error) {
+          clearPlayerStats();
+        }
+      }
+    };
+
+    loadUserGameTypes();
+  }, [username, sessionId, setPlayerData, clearPlayerStats]);
+
   const handleOnChange = (e: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -52,12 +89,50 @@ const MyAccount = () => {
     router.push("/forgot-password");
   };
 
+  const handleGameTypeChange = async (newGameType: string) => {
+    if (!sessionId) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    if (!username) {
+      toast.error("Username not found");
+      return;
+    }
+
+    const gameData = gameTypesData.find(
+      (game) => game.game_type === newGameType
+    );
+    if (!gameData) {
+      toast.error("Invalid game type selected");
+      return;
+    }
+
+    setIsUpdatingGameType(true);
+
+    try {
+      await ChessApiService.setUsername(
+        username,
+        gameData.game_type,
+        gameData.elo,
+        sessionId
+      );
+      setSelectedGameType(newGameType);
+      toast.success(`Game type updated to ${gameData.label}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update game type");
+    } finally {
+      setIsUpdatingGameType(false);
+    }
+  };
+
   const handleLogout = async () => {
     clearAll();
     clearProfile();
     localStorage.removeItem("token");
     handleSignOut();
   };
+
   const handleSignOut = async () => {
     logOut({ sessionId })
       .then(() => {})
@@ -95,7 +170,6 @@ const MyAccount = () => {
         </button>
       </div>
 
-      {/* First Row: Email | Password */}
       <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
         <div className="space-y-2 w-full">
           <label
@@ -147,7 +221,6 @@ const MyAccount = () => {
         </div>
       </div>
 
-      {/* Second Row: Default Chess.com Username | Game Type */}
       <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
         <div className="space-y-2 w-full">
           <label
@@ -186,25 +259,32 @@ const MyAccount = () => {
           >
             Game Type
           </label>
-          <Select value={gameType} onValueChange={setGameType}>
+          <Select
+            value={selectedGameType || ""}
+            onValueChange={handleGameTypeChange}
+            disabled={isUpdatingGameType || gameTypesData.length === 0}
+          >
             <SelectTrigger
               className={`w-full shadow-sm min-h-[44px] bg-[#FAFDFF] border ${
-                gameType ? `border-[#737c7f]` : `border-[#C0CED4]`
-              } px-[16px] py-[12px]`}
+                selectedGameType ? `border-[#737c7f]` : `border-[#C0CED4]`
+              } px-[16px] py-[12px] ${isUpdatingGameType ? "opacity-50" : ""}`}
             >
-              <SelectValue placeholder="Select Game Type" />
+              <SelectValue
+                placeholder={
+                  gameTypesData.length > 0 ? "Select Game Type" : "Loading..."
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="rapid">Rapid</SelectItem>
-              <SelectItem value="blitz">Blitz</SelectItem>
-              <SelectItem value="bullet">Bullet</SelectItem>
-              <SelectItem value="classical">Classical</SelectItem>
+              {gameTypesData.map((gameData) => (
+                <SelectItem key={gameData.game_type} value={gameData.game_type}>
+                  {gameData.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          {/* Info text below game type */}
           <div className="flex items-center gap-x-1 text-blue-base mt-1">
-            <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />{" "}
-            {/* Made square */}
+            <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />
             <p className="text-xs">
               Changing your Game Type will affect the Game History and Training
               Plan
@@ -213,7 +293,6 @@ const MyAccount = () => {
         </div>
       </div>
 
-      {/* Password Change Dialog */}
       <ChangePasswordDialog
         isOpen={isPasswordDialogOpen}
         onClose={() => setIsPasswordDialogOpen(false)}

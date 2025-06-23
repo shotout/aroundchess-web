@@ -55,6 +55,7 @@ interface PuzzleGameProps {
   onGetHint: () => void;
   arrow: any[] | null;
   onChangeTopic: () => void;
+  onBackToPuzzleInitialize: () => void;
 }
 
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({
@@ -75,6 +76,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   onGetHint,
   arrow,
   onChangeTopic,
+  onBackToPuzzleInitialize,
 }) => {
   const router = useRouter();
   const chessGame = useMemo(() => new Chess(), []);
@@ -727,6 +729,41 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     );
   };
 
+  // New function to render mobile game completion section
+  const renderMobileGameCompletion = () => {
+    return (
+      <motion.div
+        variants={fadeInUp}
+        className="flex flex-col w-full gap-3 xl:hidden"
+      >
+        {/* Congratulations banner */}
+        {renderCommentaryGame()}
+
+        {/* Action buttons directly below */}
+        <div className="flex flex-row w-full items-center gap-2">
+          <button
+            onClick={resetPuzzleHandler}
+            className="btn-secondary w-full md:w-1/3 rounded-full h-[40px]"
+          >
+            <div className="flex flex-row items-center justify-center gap-2">
+              <RotateCcw size={20} color="#221AE9" />
+              <span>Retry</span>
+            </div>
+          </button>
+          <button
+            onClick={getNextPuzzleHandler}
+            className="btn-primary w-full md:w-2/3 rounded-full h-[40px]"
+          >
+            <div className="flex flex-row items-center justify-center gap-2">
+              <span>Next Puzzle </span>
+              <ArrowRight size={20} color="#fff" />
+            </div>
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
+
   const firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
 
   return (
@@ -739,7 +776,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         }}
       >
         <div className="xl:hidden flex flex-row items-center justify-between mb-2">
-          <button onClick={resetPuzzle}>
+          <button onClick={onBackToPuzzleInitialize}>
             <ArrowLeft color="black" size={24} />
           </button>
           <div className="flex flex-1 flex-row justify-center items-center gap-2">
@@ -893,7 +930,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className="flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
       >
         <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
-          <button onClick={() => router.back()}>
+          <button onClick={onBackToPuzzleInitialize}>
             <ArrowLeft color="black" size={24} />
           </button>
           <Image
@@ -907,10 +944,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         </div>
 
         <div className="w-[94%] mx-[16px] xl:mt-0 mt-[16px] flex flex-col gap-3">
-          {/* Show congratulations message on mobile only when game is over */}
-          {isGameOver && (
-            <div className="xl:hidden">{renderCommentaryGame()}</div>
-          )}
+          {/* Mobile game completion section - banner + buttons grouped together */}
+          {isGameOver && renderMobileGameCompletion()}
 
           <div className="p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[24px] h-[24px]" color="#221AE9" />
@@ -1038,7 +1073,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             </button>
           </div>
         </div>
-        {!isGameOver ? renderButtonPuzzleGame() : renderButtonFinish()}
+        {!isGameOver ? (
+          renderButtonPuzzleGame()
+        ) : (
+          <div className="hidden xl:block w-full">{renderButtonFinish()}</div>
+        )}
       </div>
     </div>
   );
