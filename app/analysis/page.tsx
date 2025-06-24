@@ -151,7 +151,8 @@ export default function AnalysisPage() {
 
                 <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
                   <div
-                    className={`flex flex-col space-y-4 ${hideDiv && "hidden"}`}
+                    className={`flex flex-col space-y-4`}
+                    // className={`flex flex-col space-y-4 ${hideDiv && "hidden"}`}
                   >
                     <div className="space-y-2 pt-4">
                       <h2 className="text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">

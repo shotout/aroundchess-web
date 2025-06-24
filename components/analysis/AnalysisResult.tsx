@@ -343,7 +343,7 @@ const AnalysisResult: React.FC = () => {
       const data = parsedMoves[indexOf];
       console.log("parsedMoves", parsedMoves);
       console.log("data move", data);
-      if (data!=null) {
+      if (data != null) {
         setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
         setCurrentMove(parsedMoves.indexOf(data) + 1);
       }
@@ -647,29 +647,38 @@ const AnalysisResult: React.FC = () => {
 
   return (
     <div
-      className={`${
-        hideDiv &&
-        "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
-      } flex justify-center gap-4 bg-white pb-4`}
+      className={`flex justify-center gap-4 bg-white pb-4`}
+      // className={`${
+      //   hideDiv &&
+      //   "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
+      // } flex justify-center gap-4 bg-white pb-4`}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <motion.div
             animate={
-              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+              // hideDiv ? { opacity: 0, display: "hidden" } :
+              { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: !hideDiv ? "block" : "none" }}
+            style={{
+              display:
+                //  !hideDiv ? "block" :
+                "none",
+            }}
           >
             {renderTopAvatar()}
           </motion.div>
           <motion.div
             animate={
-              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+              // hideDiv ? { opacity: 0, display: "hidden" } : 
+              { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
             style={{
-              display: !hideDiv ? "flex" : "none",
+              display: 
+              // !hideDiv ? "flex" :
+               "none",
               justifyContent: "end",
             }}
           >
@@ -701,7 +710,8 @@ const AnalysisResult: React.FC = () => {
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
                 boardWidth={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                  // hideDiv ? boardSize - 80 : 
+                  is3DMode ? boardSize : boardSize
                 }
                 orientation={orientation}
                 position={game.fen()}
@@ -750,7 +760,8 @@ const AnalysisResult: React.FC = () => {
               <TwoDChessboard
                 arePiecesClickable={false}
                 boardWidth={
-                  hideDiv ? boardSize - 80 : is3DMode ? boardSize : boardSize
+                  // hideDiv ? boardSize - 80 :
+                   is3DMode ? boardSize : boardSize
                 }
                 arePiecesDraggable={false}
                 orientation={orientation}
@@ -829,10 +840,13 @@ const AnalysisResult: React.FC = () => {
           </div>
           <motion.div
             animate={
-              hideDiv ? { opacity: 0, display: "hidden" } : { opacity: 1 }
+              // hideDiv ? { opacity: 0, display: "hidden" } :
+               { opacity: 1 }
             }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: !hideDiv ? "block" : "none" }}
+            style={{ display:
+              //  !hideDiv ? "block" : 
+               "none" }}
           >
             {renderBottomAvatar()}
           </motion.div>
