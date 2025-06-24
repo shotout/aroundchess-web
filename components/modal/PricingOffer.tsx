@@ -110,7 +110,7 @@ export const PricingOffer: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
   const handleResize = () => {
-    let width = window?.innerWidth;
+    const width = window?.innerWidth;
     console.log("width", width);
     setWidthC(width);
   };
@@ -129,11 +129,11 @@ export const PricingOffer: React.FC = () => {
       setOpenConfirmLogin(true);
     } else {
       setLoading(true);
-      let tokenAmount =
+      const tokenAmount =
         selectedToken != null && selectedToken != 5
           ? tokenOptions[selectedToken].amount
           : customAmount;
-      let price =
+      const price =
         selectedToken != null && selectedToken != 5
           ? tokenOptions[selectedToken].pricePerToken * 100
           : parseFloat(pricePerToken) * 100;
@@ -209,19 +209,19 @@ export const PricingOffer: React.FC = () => {
     };
   }, []);
   const handleOnChange = (e: any) => {
-    let value = parseInt(e.target.value);
+    const value = parseInt(e.target.value);
     handleOnChangePrice(value);
   };
   const handleOnChangePrice = (value: number) => {
-    let conditionedValue =
+    const conditionedValue =
       value > 100 ? 100 : isNaN(value) ? 0 : value < 0 ? 0 : value;
     setCustomAmount(conditionedValue.toString());
     if (conditionedValue > 0 && tokenPackage.length > 0) {
-      let dataPrice = tokenPackage.find(
+      const dataPrice = tokenPackage.find(
         (price: any) => price.quantity == conditionedValue
       );
-      let perToken = dataPrice.pricePerToken;
-      let totalPrice = dataPrice.totalPrice;
+      const perToken = dataPrice.pricePerToken;
+      const totalPrice = dataPrice.totalPrice;
       // console.log("token package", tokenPackage);
       // console.log("dataPrice package", dataPrice);
       setPricePerToken(perToken);
@@ -247,7 +247,7 @@ export const PricingOffer: React.FC = () => {
             height: activeTab == "tokens" ? "80vh" : "100vh",
             width: "100%",
           }}
-          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
+          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">

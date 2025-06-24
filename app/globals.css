@@ -252,12 +252,9 @@ p{
               inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7);
   position: relative;
   transition: all 0.2s;
-  cursor: pointer;
 }
 
-.btn-secondary:hover {
-  transform: translateY(-1px);
-}
+
 
 .btn-secondary:focus {
   outline: none;

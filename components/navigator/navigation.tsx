@@ -57,14 +57,14 @@ export default function Navigation({
 
   const sidebarVariants = {
     hidden: {
-      x: "-100%",
+      x: "100%", // Slides off-screen to the right
       transition: {
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1],
       },
     },
     visible: {
-      x: 0,
+      x: 0, // Slides back to normal position
       transition: {
         duration: 0.4,
         ease: [0.4, 0, 0.2, 1],
@@ -164,7 +164,7 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200 shadow-xl" // Changed left-0 to right-0, and border-r to border-l
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"

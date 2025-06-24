@@ -58,12 +58,11 @@ export default function LoginPage() {
 
   const handleSSOSuccess = async (accessToken: string) => {
     try {
-      
       const response = await fetch(`${baseUrl}/profile/status`, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -72,29 +71,24 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         if (!data.data.isActive || !data.data.canLogin) {
-          
           try {
-            
             await fetch(`${baseUrl}/auth/logout`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-              }
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
             });
-            
-            
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            setPersistedCookie("token", "", 0); 
-            setSessionId(""); 
-            
+
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            setPersistedCookie("token", "", 0);
+            setSessionId("");
           } catch (logoutError) {
             console.error("Error during logout:", logoutError);
-            
           }
           toast.error("Account has been deactivated.");
           router.push(`/login`);
@@ -103,13 +97,12 @@ export default function LoginPage() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        
+
         toast.success("Logged in successfully with Google!");
         router.push("/analysis");
       } else {
         toast.error("Failed to verify account status");
       }
-      
     } catch (error) {
       console.error("Error checking user status:", error);
       toast.error("Failed to process Google login");

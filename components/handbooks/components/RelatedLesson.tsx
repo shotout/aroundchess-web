@@ -57,9 +57,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                 return (
                   <div key={index} className="cursor-pointer w-full xl:mx-auto">
                     <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
-                      <div className="relative">
-                        <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
-                          <div className="w-full h-full p-2 md:p-3 xl:p-4">
+                      <div className="relative p-3 flex flex-col">
+                        {/* Chessboard */}
+                        <div className="aspect-square bg-white flex items-center justify-center overflow-hidden mb-2">
+                          <div className="w-full h-full">
                             <Simple2DChess
                               id={`next-topic-${topicSlug}`}
                               position={topicFen}
@@ -67,11 +68,13 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                             />
                           </div>
                         </div>
-                        <span className="absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
+
+                        {/* Status badges - positioned absolutely over the chessboard */}
+                        <span className="absolute top-5 left-5 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
                           {getLessonTypeLabel()}
                         </span>
                         {!topic.readStatus ? (
-                          <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
+                          <div className="absolute top-5 right-5 h-8 w-8 xl:h-10 xl:w-10 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
                             <Image
                               src={"/handbooks/not-finished.png"}
                               alt="finish lesson icon"
@@ -80,7 +83,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                             />
                           </div>
                         ) : (
-                          <div className="absolute top-2 right-2 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
+                          <div className="absolute top-5 right-5 h-8 w-8 xl:h-10 xl:w-10 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
                             <Image
                               src={"/handbooks/finished.png"}
                               alt="finish lesson icon"
@@ -89,24 +92,19 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                             />
                           </div>
                         )}
-                      </div>
 
-                      <div className="p-4 xl:py-4 flex flex-col justify-between h-40">
-                        <div>
-                          <span className="text-xs border border-blue-base text-blue-base inline-block px-2 py-1 w-fit">
-                            {topic.difficulty}
-                          </span>
-                          <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
-                            {topic.title}
-                          </h3>
-                        </div>
+                        {/* Title */}
+                        <h3 className="font-medium text-gray-900 text-xs mb-3">
+                          {topic.title}
+                        </h3>
 
+                        {/* Button */}
                         <div
                           onClick={() => handleLessonNavigation(topicSlug)}
-                          className="w-full flex items-center justify-center space-x-2 rounded-full px-4 py-2 cursor-pointer btn-primary mb-1"
+                          className="w-full flex items-center justify-center space-x-2 rounded-full px-4 cursor-pointer btn-secondary"
                         >
                           <BookOpen className="h-4 w-4" />
-                          <span className="text-xs md:text-sm">
+                          <span className="text-xs md:text-sm font-semibold">
                             Start Learning
                           </span>
                         </div>

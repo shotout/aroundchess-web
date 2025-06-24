@@ -365,12 +365,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                 <ChessboardDisplay slug={params.slug} fenPosition={position} />
               </div>
 
-              <div className="w-full flex justify-center items-center gap-x-3">
-                <span className="inline-block text-xs px-2 py-1 rounded-[2px] border border-blue-base text-blue-base">
-                  {lesson.difficulty || "Not specified"}
-                </span>
-              </div>
-
               {lessonFinished && <FinishedBanner />}
 
               <LessonInfoSection lesson={lesson} lessonType={lessonType} />
@@ -434,11 +428,13 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                 ) : (
                   <div className="flex gap-2">
                     <Button
-                      className="flex-1 py-3 text-white rounded-full bg-green-500"
+                      className="flex-1 py-3 text-white rounded-full btn-secondary cursor-default"
                       disabled
                     >
                       <Check className="mr-2 h-5 w-5" />
-                      Lesson Finished
+                      <h1 className="text-blue-base font-semibold">
+                        Lesson Finished
+                      </h1>
                     </Button>
                     <Button
                       className="flex-1 py-3 text-white rounded-full bg-gray-500 hover:bg-gray-600"
@@ -446,7 +442,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                       disabled={isMarkingAsUnread}
                     >
                       <X className="mr-2 h-5 w-5" />
-                      {isMarkingAsUnread ? "Updating..." : "Mark as Unread"}
+                      {isMarkingAsUnread ? "Updating..." : "Unread The Lesson"}
                     </Button>
                   </div>
                 )}

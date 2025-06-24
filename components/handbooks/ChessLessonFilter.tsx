@@ -29,7 +29,7 @@ const ChessLessonFilter: React.FC<ChessLessonFilterProps> = ({
 
   return (
     <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2 mb-4 xl:mb-0">
-      <div className="relative w-full md:w-[60%]">
+      <div className="relative w-full">
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
           <Search className="h-4 w-4" />
         </div>
@@ -41,7 +41,7 @@ const ChessLessonFilter: React.FC<ChessLessonFilterProps> = ({
         />
       </div>
 
-      <div className="w-full md:w-[40%] xl:w-auto 2xl:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
+      {/* <div className="w-full md:w-[40%] xl:w-auto 2xl:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
         {difficulties.map((difficulty) => (
           <button
             key={difficulty}
@@ -54,7 +54,7 @@ const ChessLessonFilter: React.FC<ChessLessonFilterProps> = ({
             {difficulty}
           </button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };

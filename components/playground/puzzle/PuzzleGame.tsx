@@ -234,6 +234,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
       return false;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       puzzleMoves,
       currentMoveIndex,
@@ -258,7 +259,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [invalidMoveSquares]);
 
   const handleShowTooltip = () => {
-    let counting = countInvalid + 1;
+    const counting = countInvalid + 1;
     setCountInvalid(counting);
     if (counting >= 3) {
       setShowTooltip(true);
@@ -313,6 +314,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         handleClearSelection();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       chessGame,
       selectedSquare,
@@ -568,7 +570,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const cardPlayer = () => {
     return (
       <div
-        className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
+        className={`flex flex-row h-[60px] md:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
           <InitialAvatar
@@ -712,9 +714,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             alt="icon"
             width={1000}
             height={1000}
-            className="w-[30px] h-[30px] object-contain m-4 mr-0"
+            className="max-w-[20px] max-h-[20px] md:max-w-[30px] md:max-h-[30px] object-contain m-4 mr-0"
           />
-          <span className="font-medium text-[14px] z-10">{content}</span>
+          <span className="font-medium text-xs md:text-[14px] z-10">
+            {content}
+          </span>
           <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
             <Image
               src={`/images/play-vs-ai/${sparks}.png`}
@@ -769,7 +773,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
-        className="flex flex-col w-full gap-4"
+        className="flex flex-col w-full"
         style={{
           minHeight:
             widthScreen > 1024 ? heightScreen * 0.86 : heightScreen * 0.6,

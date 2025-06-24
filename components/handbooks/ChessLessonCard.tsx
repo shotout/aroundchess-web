@@ -121,11 +121,11 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                   <h1 className="font-semibold h-10 line-clamp-2">
                     {lesson.title}
                   </h1>
-                  <div>
+                  {/* <div>
                     <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
                       {lesson.difficulty}
                     </h1>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
