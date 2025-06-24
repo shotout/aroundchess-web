@@ -62,11 +62,14 @@ export default function AnalysisPage() {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
       } else {
+        fetchPgnFamousGame();
         setOpenAnalyze(true);
       }
       setLoading(false);
     } catch (error) {
       setLoading(false);
+       fetchPgnFamousGame();
+        setOpenAnalyze(true);
     }
   };
 
