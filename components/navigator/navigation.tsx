@@ -104,7 +104,7 @@ export default function Navigation({
       </>
     );
   }
-  if (hydrated && sessionId.length > 0) {
+  if (hydrated ) {
     return (
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         {isDesktop && (

@@ -68,20 +68,24 @@ export default function AnalysisPage() {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-       fetchPgnFamousGame();
-        setOpenAnalyze(true);
+      fetchPgnFamousGame();
+      setOpenAnalyze(true);
     }
   };
 
   useEffect(() => {
     if (hydrated && hydratedProfile) {
+      console.log("sessionId.length", sessionId.length);
+      console.log("dataAnalysis", dataAnalysis);
+      console.log("isLoading", isLoading);
       if (sessionId.length > 0 && !isLoading) {
         setLoading(true);
         console.log("TEST", hydrated);
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
         fetchPgnFamousGame();
-      } else {
+      } else if (dataAnalysis != null) {
+        setLoading(false);
         setIsLoading(false);
       }
     }
