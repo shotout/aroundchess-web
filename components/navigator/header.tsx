@@ -141,10 +141,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         Remaining Tokens:{" "}
         <span
           className={`font-bold ${
-            tokenBalance.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]"
+            tokenBalance.balance <= 0 ? "text-[#FD0000]" : "text-[#221AE9]"
           }`}
         >
-          {tokenBalance.balance}
+          {tokenBalance.balance < 0 ? 0 : tokenBalance.balance}
         </span>
       </span>
 
@@ -205,10 +205,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </span>
           <span
             className={`font-bold ${
-              tokenBalance.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]"
+              tokenBalance.balance <= 0 ? "text-[#FD0000]" : "text-[#221AE9]"
             }`}
           >
-            {tokenBalance.balance}
+            {tokenBalance.balance < 0 ? 0 : tokenBalance.balance}
           </span>
         </div>
       )}

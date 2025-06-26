@@ -28,7 +28,6 @@ export default function RegisterPage() {
   const { setSessionId } = useProfileStore();
 
   useEffect(() => {
-    console.log("emailParam", emailParam);
     setEmail(emailParam);
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
@@ -259,39 +258,48 @@ export default function RegisterPage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col relative">
-        {/* Background with adjustable positioning */}
-        <div className="absolute inset-0 -z-10">
-          <Image
-            src="/images/auth-background.png"
-            fill
-            priority
-            quality={90}
-            sizes="100vw"
-            style={{
-              objectFit: "cover",
-              objectPosition:
-                "var(--bg-position-x, center) var(--bg-position-y, top)",
-            }}
-            alt="Authentication background"
-          />
-          {/* overlay*/}
-          <div className="absolute inset-0 bg-black/5"></div>
-        </div>
-
+      {/* Main container with full viewport height */}
+      <div className="h-screen flex flex-col">
+        {/* Header with fixed height */}
         <SiteHeaderNew />
 
-        {/* Main Content with fixed dimensions based on device */}
-        <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
+        {/* Main content taking remaining space after header */}
+        <main
+          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
+                     h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
+                     min-h-[600px] overflow-y-auto"
+        >
+          {/* Background image */}
+          <div className="absolute inset-0 -z-10">
+            <Image
+              src="/images/auth-background.png"
+              fill
+              priority
+              quality={90}
+              sizes="100vw"
+              style={{
+                objectFit: "cover",
+                objectPosition:
+                  "var(--bg-position-x, center) var(--bg-position-y, top)",
+              }}
+              alt="Authentication background"
+            />
+            <div className="absolute inset-0 bg-black/5"></div>
+          </div>
+
+          {/* Register form container */}
           <div
             className={`
-          w-full
-          md:max-w-2xl
-          z-10 
-          glassmorphismLogin
-          p-4 sm:p-6 md:p-8
-          flex flex-col
-        `}
+              w-full
+              md:max-w-2xl
+              z-10 
+              glassmorphismLogin
+              p-4 sm:p-6 md:p-8
+              flex flex-col
+              my-4
+              max-h-full
+              overflow-y-auto
+            `}
           >
             <div className="flex items-center mb-4 sm:mb-6">
               <Link
@@ -625,6 +633,10 @@ export default function RegisterPage() {
             )}
           </div>
         </main>
+      </div>
+
+      {/* Footer positioned below the main content, only visible when scrolling */}
+      <div className="w-full">
         <SiteFooterNew />
       </div>
     </>

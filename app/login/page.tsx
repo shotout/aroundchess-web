@@ -12,6 +12,15 @@ import { useProfileStore } from "../store/profile";
 import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +31,7 @@ export default function LoginPage() {
   });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [deactivatedAlert, setDeactivatedAlert] = useState(false);
   const baseUrl = process.env.BASE_URL;
   const { sessionId, setSessionId } = useProfileStore();
   const router = useRouter();
@@ -40,21 +50,7 @@ export default function LoginPage() {
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
-
-  // const handleSSOSuccess = (accessToken: string) => {
-  //   try {
-  //     setPersistedCookie("token", accessToken, 365);
-  //     setSessionId(accessToken);
-
-  //     toast.success("Logged in successfully with Google!");
-
-  //     router.push("/analysis");
-  //   } catch (error) {
-  //     toast.error("Failed to process Google login");
-  //   }
-  // };
 
   const handleSSOSuccess = async (accessToken: string) => {
     try {
@@ -66,14 +62,17 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        toast.error("Authentication failed. Please try again.");
+        alert("Authentication failed. Please try again.");
+        router.push("/login");
         return;
       }
 
       const data = await response.json();
 
       if (data.success && data.data) {
-        if (!data.data.isActive || !data.data.canLogin) {
+        const { isActive, canLogin } = data.data;
+
+        if (!isActive && !canLogin) {
           try {
             await fetch(`${baseUrl}/auth/logout`, {
               method: "POST",
@@ -82,30 +81,31 @@ export default function LoginPage() {
                 "Content-Type": "application/json",
               },
             });
-
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            setPersistedCookie("token", "", 0);
-            setSessionId("");
           } catch (logoutError) {
-            console.error("Error during logout:", logoutError);
+            console.error("Error during SSO logout:", logoutError);
           }
-          toast.error("Account has been deactivated.");
-          router.push(`/login`);
+
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          setPersistedCookie("token", "", 0);
+          setSessionId("");
+
+          router.push("/login");
           return;
         }
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-
-        toast.success("Logged in successfully with Google!");
+        toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
-        toast.error("Failed to verify account status");
+        alert("Failed to verify account status. Please try again.");
+        router.push("/login");
       }
     } catch (error) {
-      console.error("Error checking user status:", error);
-      toast.error("Failed to process Google login");
+      console.error("Error processing SSO login:", error);
+      alert("Failed to process login. Please try again.");
+      router.push("/login");
     }
   };
 
@@ -132,9 +132,49 @@ export default function LoginPage() {
       }
 
       if (data.data.access_token) {
+        try {
+          const statusResponse = await fetch(`${baseUrl}/profile/status`, {
+            headers: {
+              Authorization: `Bearer ${data.data.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json();
+
+            if (statusData.success && statusData.data) {
+              const { isActive, canLogin } = statusData.data;
+
+              if (!isActive && !canLogin) {
+                try {
+                  await fetch(`${baseUrl}/auth/logout`, {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${data.data.access_token}`,
+                      "Content-Type": "application/json",
+                    },
+                  });
+                } catch (logoutError) {
+                  console.error("Error during logout:", logoutError);
+                }
+
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
+                setPersistedCookie("token", "", 0);
+                setSessionId("");
+
+                setDeactivatedAlert(true);
+                return;
+              }
+            }
+          }
+        } catch (statusError) {
+          console.error("Error checking account status:", statusError);
+        }
+
         setPersistedCookie("token", data.data.access_token, 365);
         setSessionId(data.data.access_token);
-
         toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
@@ -234,37 +274,48 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col relative">
-        <div className="absolute inset-0 -z-10">
-          <Image
-            src="/images/auth-background.png"
-            fill
-            priority
-            quality={90}
-            sizes="100vw"
-            style={{
-              objectFit: "cover",
-              objectPosition:
-                "var(--bg-position-x, center) var(--bg-position-y, top)",
-            }}
-            alt="Authentication background"
-          />
-          <div className="absolute inset-0 bg-black/5"></div>
-        </div>
-
+      {/* Main container with full viewport height */}
+      <div className="h-screen flex flex-col">
+        {/* Header with fixed height */}
         <SiteHeaderNew />
 
-        <main className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8 py-8">
+        {/* Main content taking remaining space after header */}
+        <main
+          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
+                     h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
+                     min-h-[500px] overflow-y-auto"
+        >
+          {/* Background image */}
+          <div className="absolute inset-0 -z-10">
+            <Image
+              src="/images/auth-background.png"
+              fill
+              priority
+              quality={90}
+              sizes="100vw"
+              style={{
+                objectFit: "cover",
+                objectPosition:
+                  "var(--bg-position-x, center) var(--bg-position-y, top)",
+              }}
+              alt="Authentication background"
+            />
+            <div className="absolute inset-0 bg-black/5"></div>
+          </div>
+
+          {/* Login form container */}
           <div
             className={`
-            w-full
-            md:max-w-2xl
-            z-10 
-            glassmorphismLogin
-            p-4 sm:p-6 md:p-8
-            flex flex-col
-            my-4
-          `}
+              w-full
+              md:max-w-2xl
+              z-10 
+              glassmorphismLogin
+              p-4 sm:p-6 md:p-8
+              flex flex-col
+              my-4
+              max-h-full
+              overflow-y-auto
+            `}
           >
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <Link
@@ -451,8 +502,28 @@ export default function LoginPage() {
             </div>
           </div>
         </main>
+      </div>
+
+      <div className="w-full">
         <SiteFooterNew />
       </div>
+
+      <AlertDialog open={deactivatedAlert} onOpenChange={setDeactivatedAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Account Deactivated</AlertDialogTitle>
+            <AlertDialogDescription>
+              Account has been deactivated. Please use account reactivation or
+              contact support.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setDeactivatedAlert(false)}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

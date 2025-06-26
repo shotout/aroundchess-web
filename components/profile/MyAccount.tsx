@@ -21,7 +21,11 @@ import { toast } from "sonner";
 import { ChessApiService } from "../analysis/onboarding/store/APIService";
 import { usePlayerStatsStore } from "../analysis/onboarding/store/usePlayerStatsStore";
 
-const MyAccount = () => {
+interface MyAccountProps {
+  onLogoutStart: () => void;
+}
+
+const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
   const { getProfile, logOut, isLoading } = useApiClient();
   const {
     profile,
@@ -127,6 +131,7 @@ const MyAccount = () => {
   };
 
   const handleLogout = async () => {
+    onLogoutStart(); // Trigger parent overlay
     clearAll();
     clearProfile();
     localStorage.removeItem("token");
@@ -269,11 +274,7 @@ const MyAccount = () => {
                 selectedGameType ? `border-[#737c7f]` : `border-[#C0CED4]`
               } px-[16px] py-[12px] ${isUpdatingGameType ? "opacity-50" : ""}`}
             >
-              <SelectValue
-                placeholder={
-                  gameTypesData.length > 0 ? "Select Game Type" : "Loading..."
-                }
-              />
+              <SelectValue placeholder={profile.gameType} />
             </SelectTrigger>
             <SelectContent>
               {gameTypesData.map((gameData) => (

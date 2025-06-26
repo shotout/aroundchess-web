@@ -20,15 +20,62 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setTokenId] = useLocalStorage<string>("token", "");
   const { setCallFetch } = useProfileFetch();
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+  });
 
   const { setSessionId } = useProfileStore();
   const router = useRouter();
+  const baseUrl = process.env.BASE_URL;
+
+  const showAlert = (
+    title: string,
+    message: string,
+    onConfirm?: () => void
+  ) => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertDialog((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
+  };
+
+  const handleAlertConfirm = () => {
+    if (alertDialog.onConfirm) {
+      alertDialog.onConfirm();
+    }
+    closeAlert();
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -41,20 +88,76 @@ export default function Home() {
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSSOSuccess = (accessToken: string) => {
+  const handleSSOSuccess = async (accessToken: string) => {
     try {
-      setPersistedCookie("token", accessToken, 365);
+      const response = await fetch(`${baseUrl}/profile/status`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      setSessionId(accessToken);
+      if (!response.ok) {
+        showAlert(
+          "Authentication Failed",
+          "Authentication failed. Please try again.",
+          () => router.push("/login")
+        );
+        return;
+      }
 
-      toast.success("Logged in successfully with Google!");
+      const data = await response.json();
 
-      router.push("/analysis");
+      if (data.success && data.data) {
+        const { isActive, canLogin } = data.data;
+
+        if (!isActive && !canLogin) {
+          try {
+            await fetch(`${baseUrl}/auth/logout`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            });
+          } catch (logoutError) {
+            console.error("Error during SSO logout:", logoutError);
+          }
+
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          localStorage.removeItem("token");
+          setPersistedCookie("token", "", 0);
+          setSessionId("");
+
+          showAlert(
+            "Account Deactivated",
+            "Account has been deactivated. Please use account reactivation or contact support.",
+            () => router.push("/login")
+          );
+          return;
+        }
+
+        setPersistedCookie("token", accessToken, 365);
+        setSessionId(accessToken);
+        toast.success("Logged in successfully!");
+        router.push("/analysis");
+      } else {
+        showAlert(
+          "Verification Failed",
+          "Failed to verify account status. Please try again.",
+          () => router.push("/login")
+        );
+      }
     } catch (error) {
-      toast.error("Failed to process Google login");
+      console.error("Error processing SSO login:", error);
+      showAlert(
+        "Login Failed",
+        "Failed to process login. Please try again.",
+        () => router.push("/login")
+      );
     }
   };
 
@@ -83,6 +186,7 @@ export default function Home() {
       });
     }
   }, [token]);
+
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -91,6 +195,7 @@ export default function Home() {
     console.log("listening dataAnalysis", dataAnalysis);
     setLoading(isLoading);
   }, [dataAnalysis, isLoading]);
+
   return (
     <div>
       {loading == true ? (
@@ -109,6 +214,22 @@ export default function Home() {
           <SiteFooterNew />
         </>
       )}
+
+      <AlertDialog open={alertDialog.isOpen} onOpenChange={closeAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alertDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alertDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleAlertConfirm}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

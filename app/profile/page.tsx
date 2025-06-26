@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { ChangePassword } from "@/components/modal/ChangePassword";
@@ -13,6 +13,7 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import DeleteAccount from "@/components/profile/DeleteAccount";
+import DotSpinner from "@/components/game-history/Spinner";
 
 export default function Profile() {
   const searchParams = useSearchParams();
@@ -24,6 +25,8 @@ export default function Profile() {
     setQuantity,
     setStatus,
   } = useStatusPurchaseTokens();
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const status = searchParams?.get("status");
@@ -69,14 +72,32 @@ export default function Profile() {
 
   return (
     <Suspense>
+      {/* Loading Overlay */}
+      {isLoggingOut && (
+        <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <DotSpinner size={8} />
+            <span className="text-lg font-medium text-gray-600">
+              Signing out...
+            </span>
+          </div>
+        </div>
+      )}
       <Navigation>
         <ChangePassword />
-        <div className="flex flex-col z-10 p-[32px] gap-4">
-          <MyAccount />
-          <MySubscription />
-          <MyRemainingAnalysisTokens />
-          <MyRemainingPuzzle />
-          <DeleteAccount />
+        <div className="relative">
+          {/* Main Content */}
+          <div
+            className={`flex flex-col z-10 p-[32px] gap-4 ${
+              isLoggingOut ? "pointer-events-none" : ""
+            }`}
+          >
+            <MyAccount onLogoutStart={() => setIsLoggingOut(true)} />
+            <MySubscription />
+            <MyRemainingAnalysisTokens />
+            <MyRemainingPuzzle />
+            <DeleteAccount />
+          </div>
         </div>
       </Navigation>
     </Suspense>

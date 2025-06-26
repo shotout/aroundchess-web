@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Info, X } from "lucide-react";
+import { Info, X, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,14 +11,77 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { useApiClient } from "@/functions/api-client";
+import { setPersistedCookie } from "@/utils/persisted-cookie";
 
 const DeleteAccount = () => {
-  const route = useRouter();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { logOut } = useApiClient();
+  const { clearAll: clearProfile, sessionId } = useProfileStore();
+  const { clearAll } = usePgnStore();
 
-  const handleDeleteAccount = () => {
-    route.push("/delete-account");
-    setIsOpen(false);
+  const baseUrl = process.env.BASE_URL;
+
+  const handleSignOut = async () => {
+    try {
+      await logOut({ sessionId });
+    } catch (error) {
+      console.error("Error during sign out:", error);
+    } finally {
+      clearAll();
+      localStorage.removeItem("token");
+      setPersistedCookie("token", "", 365);
+    }
+  };
+
+  const handleLogout = async () => {
+    clearAll();
+    clearProfile();
+    localStorage.removeItem("token");
+    await handleSignOut();
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${baseUrl}/auth/delete-account`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+        body: JSON.stringify({
+          reason: "User requested account deletion",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete account: ${response.status}`);
+      }
+
+      // Call handleLogout after successful account deletion
+      await handleLogout();
+
+      // Then navigate to the delete-account page
+      router.push("/delete-account");
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Error deleting account:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to delete account. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -78,16 +141,27 @@ const DeleteAccount = () => {
               </p>
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div className="flex border border-red-500 bg-red-50 rounded-md p-3 items-center gap-x-2 my-4">
+                <X className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-red-700">{error}</p>
+              </div>
+            )}
+
             <DialogFooter className="flex gap-3 sm:gap-3">
               <button
-                className="flex-1 border border-red-600 text-red-600 bg-white hover:bg-red-50 px-4 py-2 rounded-full transition-colors"
+                className="flex-1 border border-red-600 text-red-600 bg-white hover:bg-red-50 px-4 py-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 onClick={handleDeleteAccount}
+                disabled={isDeleting}
               >
-                Delete Account
+                {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isDeleting ? "Deleting Account..." : "Delete Account"}
               </button>
               <button
-                className="flex-1 bg-red-600 text-white hover:bg-red-700 border-red-600 px-4 py-2 rounded-full transition-colors"
+                className="flex-1 bg-red-600 text-white hover:bg-red-700 border-red-600 px-4 py-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => setIsOpen(false)}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
