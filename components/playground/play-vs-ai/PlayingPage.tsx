@@ -20,7 +20,14 @@ import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
-import { ArrowLeft, MoveRightIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  RefreshCcw,
+  ChevronLeft,
+  ChevronRight,
+  RotateCw,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -44,17 +51,272 @@ import { WhitePlayer } from "./WhitePlayer";
 import { playSound } from "@/utils/play-audio";
 import { classifyMove } from "../src/lib/classifyMove";
 
-type MoveClassification =
-  | "best-move"
-  | "brilliant-move"
-  | "excellent-move"
-  | "good-move"
-  | "neutral-move"
-  | "inaccuracy-move"
-  | "mistake-move"
-  | "blunder-move"
-  | "checkmate-you"
-  | "checkmate-opponent";
+interface MobileCapturedPiecesProps {
+  capturedWhite: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  capturedBlack: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  PieceChoosed: string;
+}
+
+const MobileCapturedPieces = ({
+  capturedWhite,
+  capturedBlack,
+  PieceChoosed,
+}: MobileCapturedPiecesProps) => {
+  const whiteCapturedPieces = capturedWhite
+    .filter((move) => move.captured !== null)
+    .map((move) => move.capturedTheme)
+    .filter((theme) => theme && theme.length === 2);
+
+  const blackCapturedPieces = capturedBlack
+    .filter((move) => move.captured !== null)
+    .map((move) => move.capturedTheme)
+    .filter((theme) => theme && theme.length === 2);
+
+  return (
+    <div className="sm:hidden flex justify-between items-center w-full px-4 py-2 ">
+      <div className="flex items-center flex-1">
+        {whiteCapturedPieces.map((pieceTheme, index) => (
+          <Image
+            key={`white-captured-${index}`}
+            src={`/pieces/${PieceChoosed}/${pieceTheme}.png`}
+            alt="captured piece"
+            width={1000}
+            height={1000}
+            className={`w-[25px] h-[25px] object-contain ${
+              index > 0 ? "-ml-3" : ""
+            }`}
+            style={{ zIndex: whiteCapturedPieces.length - index }}
+          />
+        ))}
+      </div>
+
+      <div className="w-px mx-2" />
+
+      <div className="flex items-center flex-1 justify-end">
+        {blackCapturedPieces.map((pieceTheme, index) => (
+          <Image
+            key={`black-captured-${index}`}
+            src={`/pieces/${PieceChoosed}/${pieceTheme}.png`}
+            alt="captured piece"
+            width={1000}
+            height={1000}
+            className={`w-[25px] h-[25px] object-contain ${
+              index > 0 ? "-ml-3" : ""
+            }`}
+            style={{ zIndex: blackCapturedPieces.length - index }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface MobileMoveBoxesProps {
+  capturedWhite: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  capturedBlack: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  statusGame: string;
+}
+
+const MobileMoveBoxes = ({
+  capturedWhite,
+  capturedBlack,
+  statusGame,
+}: MobileMoveBoxesProps) => {
+  const whiteMoves = capturedWhite;
+  const blackMoves = capturedBlack;
+  const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [shouldUseProximity, setShouldUseProximity] = useState(false);
+  const prevMaxMovesRef = useRef(-1);
+
+  const getStatusDisplay = () => {
+    if (statusGame === "Win") return "WIN";
+    if (statusGame === "Loss") return "LOSE";
+    if (statusGame === "Draw") return "DRAW";
+    return null;
+  };
+
+  const statusDisplay = getStatusDisplay();
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrollLeft(e.currentTarget.scrollLeft);
+  };
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const isOverflowing = scrollWidth > clientWidth;
+
+      setShouldUseProximity(isOverflowing);
+    }
+  }, [maxMoves, statusDisplay]);
+
+  const autoScrollToLatest = useCallback(() => {
+    if (scrollContainerRef.current && maxMoves > 5) {
+      const container = scrollContainerRef.current;
+      const columnWidth = 65;
+      const visibleColumns = Math.floor(container.clientWidth / columnWidth);
+
+      const targetMoveToShow = Math.max(0, maxMoves - visibleColumns + 1);
+      const targetScroll = targetMoveToShow * columnWidth;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: "smooth",
+      });
+    }
+  }, [maxMoves]);
+
+  useEffect(() => {
+    const prevMaxMoves = prevMaxMovesRef.current;
+
+    if (prevMaxMoves === -1) {
+      prevMaxMovesRef.current = maxMoves;
+      return;
+    }
+
+    if (maxMoves > prevMaxMoves && maxMoves > 5) {
+      autoScrollToLatest();
+    }
+
+    prevMaxMovesRef.current = maxMoves;
+  }, [maxMoves, autoScrollToLatest]);
+
+  const movesToShow = Math.max(maxMoves, 1);
+
+  return (
+    <div className="sm:hidden w-full">
+      <div className="relative">
+        <div className="absolute left-0 top-0 z-20">
+          <div className="flex flex-col gap-1 min-w-[60px]">
+            <div className="h-[25px] bg-white"></div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">White</span>
+            </div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">Black</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto pl-[70px] scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onScroll={handleScroll}
+        >
+          <div className="flex gap-1 min-w-max pb-2">
+            {Array.from({ length: movesToShow }, (_, index) => {
+              const moveNumber = index + 1;
+              const whiteMove = whiteMoves[index];
+              const blackMove = blackMoves[index];
+              let opacity = 1;
+              if (shouldUseProximity) {
+                const columnWidth = 65;
+                const columnPosition = index * columnWidth;
+                const fixedColumnWidth = 70;
+                const relativePosition = columnPosition - scrollLeft;
+
+                if (relativePosition < fixedColumnWidth) {
+                  const overlap = fixedColumnWidth - relativePosition;
+                  const fadeZone = 80;
+                  opacity = Math.max(0.2, 1 - overlap / fadeZone);
+                }
+              }
+
+              return (
+                <div
+                  key={moveNumber}
+                  className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
+                  style={{ opacity }}
+                >
+                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                    Move {moveNumber}
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {whiteMove ? whiteMove.san : ""}
+                    </span>
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {blackMove ? blackMove.san : ""}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {statusDisplay && (
+              <div className="flex flex-col gap-1 min-w-[60px]">
+                <div className="h-[25px]"></div>
+                <div
+                  className={`rounded-lg bg-white border px-3 py-2 text-center min-h-[40px] flex items-center justify-center font-bold  ${
+                    statusGame === "Win"
+                      ? "text-green-500"
+                      : statusGame === "Loss"
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {statusDisplay}
+                </div>
+                <div className="min-h-[40px]"></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export default function PlayingPage() {
   const router = useRouter();
@@ -126,53 +388,83 @@ export default function PlayingPage() {
   );
   const [isClassifying, setIsClassifying] = useState(false);
   const classificationTimeoutRef = useRef<NodeJS.Timeout>();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Simple navigation state like PuzzleGame
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
+  const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
-  const fetchPgnLocal = async () => {
-    const headers = game.getHeaders();
-    const dataGames = {
-      white: {
-        result: headers.Result === "0-1" ? "lose" : "win",
-        username: headers.White,
-      },
-      black: {
-        result: headers.Result === "0-1" ? "win" : "lose",
-        username: headers.Black,
-      },
-      date: formatDatePgn(),
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 640);
     };
-    setDataGamesImport(dataGames);
-    let arr = null;
-    try {
-      setIsLoading(true);
-      setDataAnalysis(arr);
-      setPgn(game.pgn());
-      const responseAnalysis = await proceedAnalysis(
-        game.pgn(),
-        username,
-        depthLevel,
-        60000
-      );
-      setDataAnalysis(responseAnalysis.data);
-      arr = responseAnalysis.data;
-    } catch (err) {
-      toast.error(err + "");
-      setIsLoading(false);
-      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
-    } finally {
-      if (arr !== null) {
-        router.push("/analysis");
-      } else {
-        setIsLoading(false);
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+
+  // Simple navigation functions like PuzzleGame
+  const navigateToMove = (index: number) => {
+    if (index >= 0 && index < fenHistory.length) {
+      setCurrentMoveIndex(index);
+      const fen = fenHistory[index];
+      setGamePosition(fen);
+
+      // Create a temporary game to load the position
+      const tempGame = new Chess();
+      const moves = game.history();
+      tempGame.reset();
+
+      // Replay moves to get to this position
+      for (let i = 0; i < index; i++) {
+        if (moves[i]) {
+          tempGame.move(moves[i]);
+        }
       }
+
+      setGamePosition(tempGame.fen());
     }
   };
 
+  const handlePreviousMove = () => {
+    const newIndex = Math.max(currentMoveIndex - 1, 0);
+    navigateToMove(newIndex);
+  };
+
+  const handleNextMove = () => {
+    const newIndex = Math.min(currentMoveIndex + 1, fenHistory.length - 1);
+    navigateToMove(newIndex);
+  };
+
+  const resetToBeginning = () => {
+    navigateToMove(0);
+  };
+
+  // Update fenHistory when moves are made
   useEffect(() => {
-    const is3D = StyleChoosed === "3d";
-    setIs3DMode(is3D);
-  }, [StyleChoosed]);
+    const moves = game.history();
+    const newFenHistory = [game.fen()]; // Start with initial position
+
+    const tempGame = new Chess();
+    moves.forEach((move) => {
+      tempGame.move(move);
+      newFenHistory.push(tempGame.fen());
+    });
+
+    setFenHistory(newFenHistory);
+    if (currentMoveIndex >= newFenHistory.length) {
+      setCurrentMoveIndex(newFenHistory.length - 1);
+    }
+  }, [gamePosition]);
+
+  const isAtCurrentMove = useMemo(
+    () => currentMoveIndex === fenHistory.length - 1,
+    [currentMoveIndex, fenHistory]
+  );
 
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({ square, verbose: true });
@@ -200,6 +492,13 @@ export default function PlayingPage() {
   };
 
   const onSquareClick = (square: Square) => {
+    // Don't allow moves when viewing history
+    if (!isAtCurrentMove) {
+      // If viewing history, return to current position
+      navigateToMove(fenHistory.length - 1);
+      return;
+    }
+
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
 
@@ -252,7 +551,14 @@ export default function PlayingPage() {
       setMoveData(move);
       playSound(game, move);
       setMoveClassification("");
-      getClassificationMove(move);
+
+      if (!isMobile) {
+        getClassificationMove(move);
+      } else {
+        setTimeout(() => {
+          findEnemyMove();
+        }, 500);
+      }
 
       if (move === null) {
         const hasMoveOptions = getMoveOptions(square);
@@ -289,6 +595,13 @@ export default function PlayingPage() {
 
   const getClassificationMove = useCallback(
     async (move: any) => {
+      if (isMobile) {
+        setTimeout(() => {
+          findEnemyMove();
+        }, 500);
+        return;
+      }
+
       if (classificationTimeoutRef.current) {
         clearTimeout(classificationTimeoutRef.current);
       }
@@ -306,7 +619,7 @@ export default function PlayingPage() {
         }
       }, 300);
     },
-    [handleClassify]
+    [handleClassify, isMobile]
   );
 
   const onPromotionPieceSelect = (
@@ -338,7 +651,14 @@ export default function PlayingPage() {
         );
 
         setMoveClassification("");
-        getClassificationMove(move);
+
+        if (!isMobile) {
+          getClassificationMove(move);
+        } else {
+          setTimeout(() => {
+            findEnemyMove();
+          }, 500);
+        }
       }
     }
 
@@ -489,9 +809,8 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
-    
-      if (hasRun.current) return;
-      hasRun.current = true;
+    if (hasRun.current) return;
+    hasRun.current = true;
     getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
       setPastGames(res.data);
     });
@@ -655,6 +974,8 @@ export default function PlayingPage() {
     setWinnerColor("");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
+    setCurrentMoveIndex(0);
+    setFenHistory([game.fen()]);
   };
 
   const handleNewGame = () => {
@@ -721,6 +1042,13 @@ export default function PlayingPage() {
 
   const onPieceDrop = useCallback(
     (sourceSquare: Square, targetSquare: Square, piece: string) => {
+      // Don't allow moves when viewing history
+      if (!isAtCurrentMove) {
+        // If viewing history, return to current position
+        navigateToMove(fenHistory.length - 1);
+        return false;
+      }
+
       const isYourTurnLocal = myColor === "white" ? "w" : "b";
       if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
         return false;
@@ -775,7 +1103,15 @@ export default function PlayingPage() {
       setMoveData(move);
       playSound(game, move);
       setMoveClassification("");
-      getClassificationMove(move);
+
+      if (!isMobile) {
+        getClassificationMove(move);
+      } else {
+        setTimeout(() => {
+          findEnemyMove();
+        }, 500);
+      }
+
       setGamePosition(game.fen());
       setAfterFen(game.fen());
       setPreviousSquare(sourceSquare);
@@ -808,14 +1144,63 @@ export default function PlayingPage() {
       setMoveClassification,
       setBestline,
       setRightClickedSquares,
+      isMobile,
+      isAtCurrentMove,
+      navigateToMove,
+      fenHistory,
     ]
   );
 
+  const fetchPgnLocal = async () => {
+    const headers = game.getHeaders();
+    const dataGames = {
+      white: {
+        result: headers.Result === "0-1" ? "lose" : "win",
+        username: headers.White,
+      },
+      black: {
+        result: headers.Result === "0-1" ? "win" : "lose",
+        username: headers.Black,
+      },
+      date: formatDatePgn(),
+    };
+    setDataGamesImport(dataGames);
+    let arr = null;
+    try {
+      setIsLoading(true);
+      setDataAnalysis(arr);
+      setPgn(game.pgn());
+      const responseAnalysis = await proceedAnalysis(
+        game.pgn(),
+        username,
+        depthLevel,
+        60000
+      );
+      setDataAnalysis(responseAnalysis.data);
+      arr = responseAnalysis.data;
+    } catch (err) {
+      toast.error(err + "");
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+    } finally {
+      if (arr !== null) {
+        router.push("/analysis");
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const is3D = StyleChoosed === "3d";
+    setIs3DMode(is3D);
+  }, [StyleChoosed]);
+
   return (
-    <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
+    <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
       <GameEndStatus gameStatus={statusGame.toLowerCase()} />
-      <div className="flex flex-col w-full gap-4 ">
-        <div className="xl:hidden flex flex-row items-center justify-between mb-2">
+      <div className="flex flex-col w-full gap-y-2 ">
+        <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
           <button>
             <ArrowLeft color="black" size={24} />
           </button>
@@ -832,7 +1217,8 @@ export default function PlayingPage() {
           <div className="flex " />
         </div>
 
-        <div className="rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
+        {/* Hide current turn on mobile, show on tablet and desktop */}
+        <div className="hidden sm:block rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
           <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
             <span className="text-xs font-normal">
               Current Turn:{" "}
@@ -848,36 +1234,43 @@ export default function PlayingPage() {
           ref={refBoard}
         >
           {orientation !== "white" ? (
-            <WhitePlayer
-              myColor={myColor}
-              statusGame={statusGame}
-              capturedWhite={capturedWhite}
-              winnerColor={winnerColor}
-              loserColor={loserColor}
-              AIChoosed={AIChoosed}
-              user={user}
-              PieceChoosed={PieceChoosed}
-            />
+            <div className="hidden sm:block">
+              <WhitePlayer
+                myColor={myColor}
+                statusGame={statusGame}
+                capturedWhite={capturedWhite}
+                winnerColor={winnerColor}
+                loserColor={loserColor}
+                AIChoosed={AIChoosed}
+                user={user}
+                PieceChoosed={PieceChoosed}
+              />
+            </div>
           ) : (
-            <BlackPlayer
-              myColor={myColor}
-              statusGame={statusGame}
-              capturedBlack={capturedBlack}
-              winnerColor={winnerColor}
-              loserColor={loserColor}
-              AIChoosed={AIChoosed}
-              user={user}
-              PieceChoosed={PieceChoosed}
-            />
+            <div className="hidden sm:block">
+              <BlackPlayer
+                myColor={myColor}
+                statusGame={statusGame}
+                capturedBlack={capturedBlack}
+                winnerColor={winnerColor}
+                loserColor={loserColor}
+                AIChoosed={AIChoosed}
+                user={user}
+                PieceChoosed={PieceChoosed}
+              />
+            </div>
           )}
 
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2 px-5 sm:px-0">
+            {/* Hide CommentaryMove on mobile */}
             {(orientation as string) !== myColor &&
             moveClassification !== "" &&
             moveClassification !== "excellent-move" &&
             moveClassification !== "neutral-move" &&
             moveClassification !== "inaccuracy-move" ? (
-              <CommentaryMove classify={moveClassification} />
+              <div className="hidden sm:block">
+                <CommentaryMove classify={moveClassification} />
+              </div>
             ) : (
               <div />
             )}
@@ -888,8 +1281,14 @@ export default function PlayingPage() {
               boardSize={boardSize}
             />
           </div>
+          {/* Mobile Captured Pieces - Only show on mobile */}
+          <MobileCapturedPieces
+            capturedWhite={capturedWhite}
+            capturedBlack={capturedBlack}
+            PieceChoosed={PieceChoosed}
+          />
 
-          <div className="flex flex-col justify-center items-center gap-3 ">
+          <div className="flex flex-col justify-center items-center gap-3">
             <motion.div
               initial={{ rotateX: 180 }}
               animate={
@@ -914,7 +1313,9 @@ export default function PlayingPage() {
               {is3DMode && (
                 <ThreeDBoard
                   arePiecesDraggable={false}
-                  arePiecesClickable={statusGame === "Ongoing"}
+                  arePiecesClickable={
+                    statusGame === "Ongoing" && isAtCurrentMove
+                  }
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
@@ -956,9 +1357,11 @@ export default function PlayingPage() {
             >
               {!is3DMode && (
                 <TwoDChessboard
-                  arePiecesDraggable={true}
+                  arePiecesDraggable={isAtCurrentMove}
                   onPieceDrop={onPieceDrop}
-                  arePiecesClickable={statusGame === "Ongoing"}
+                  arePiecesClickable={
+                    statusGame === "Ongoing" && isAtCurrentMove
+                  }
                   orientation={orientation}
                   boardWidth={boardSize}
                   position={gamePosition}
@@ -1010,8 +1413,8 @@ export default function PlayingPage() {
                   Possible Move
                 </span>
               </div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <MoveRightIcon color="#221AE950" size={16} />
+              <div className="hidden sm:flex flex-row items-center justify-center gap-1">
+                <ArrowRight color="#221AE950" size={16} />
                 <span className="h-[14px] font-normal text-[11px]">
                   Move Recommendation
                 </span>
@@ -1019,13 +1422,168 @@ export default function PlayingPage() {
             </div>
           </div>
 
+          <div className="sm:hidden flex flex-col gap-4 mt-4">
+            {statusGame !== "Ongoing" && (
+              <div className="flex justify-center items-center">
+                <CommentarGame statusGame={statusGame} />
+              </div>
+            )}
+
+            {statusGame === "Ongoing" ? (
+              <ButtonPlaying
+                handleHint={handleHint}
+                handleNewGame={handleNewGame}
+                handleResign={handleResign}
+                myColor={myColor}
+                currentTurn={currentTurn}
+                bestLine={bestLine}
+                hintClicked={hintClicked}
+              />
+            ) : (
+              <ButtonFinish
+                pgn={game.pgn()}
+                handleAnalyzeGame={handleAnalyzeGame}
+                handleNewGame={handleNewGame}
+                handleRematch={handleRematch}
+                handleShare={handleShare}
+                handleDownload={handleDownload}
+              />
+            )}
+
+            {/* Mobile tabs */}
+            <div className="flex bg-[#F7FCFF] border-b border-gray-200">
+              <button
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 relative ${
+                  selectedTab === "current" ? "" : ""
+                }`}
+                onClick={() => setSelectedTab("current")}
+              >
+                <Image
+                  src={`/images/play-vs-ai/chess-king-rook${
+                    selectedTab === "current" ? `-active` : ``
+                  }.png`}
+                  alt="icon"
+                  width={19}
+                  height={19}
+                  className="object-contain"
+                />
+                <span
+                  className={`text-sm font-semibold ${
+                    selectedTab === "current" ? `text-[#221AE9]` : `text-black`
+                  }`}
+                >
+                  Current Game
+                </span>
+                {selectedTab === "current" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#221AE9]"></div>
+                )}
+              </button>
+              <button
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 relative ${
+                  selectedTab === "past" ? "" : ""
+                }`}
+                onClick={() => setSelectedTab("past")}
+              >
+                <Image
+                  src={`/images/play-vs-ai/past-games${
+                    selectedTab === "past" ? `-active` : ``
+                  }.png`}
+                  alt="icon"
+                  width={18}
+                  height={18}
+                  className="object-contain"
+                />
+                <span
+                  className={`text-sm font-semibold ${
+                    selectedTab === "past" ? `text-[#221AE9]` : `text-black`
+                  }`}
+                >
+                  Past Games
+                </span>
+                {selectedTab === "past" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#221AE9]"></div>
+                )}
+              </button>
+            </div>
+
+            {selectedTab === "current" ? (
+              <>
+                <div className="px-4">
+                  <MobileMoveBoxes
+                    capturedWhite={capturedWhite}
+                    capturedBlack={capturedBlack}
+                    statusGame={statusGame}
+                  />
+                </div>
+
+                {!game.isGameOver() && (
+                  <div className="flex flex-row justify-center items-center gap-2 px-4">
+                    <button
+                      disabled={currentMoveIndex === 0}
+                      onClick={handlePreviousMove}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        currentMoveIndex === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronLeft size={20} color="#000" />
+                    </button>
+                    <button
+                      disabled={currentMoveIndex >= fenHistory.length - 1}
+                      onClick={handleNextMove}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        currentMoveIndex >= fenHistory.length - 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronRight size={20} color="#000" />
+                    </button>
+                    <button
+                      onClick={resetToBeginning}
+                      className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+                    >
+                      <RotateCw size={20} color="#000" />
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Past games content */
+              <div className="bg-white border border-[#DEDEDE] rounded-[16px] p-4">
+                {isLoading && <DotSpinner />}
+                <div className="max-h-[400px] overflow-y-auto">
+                  {pastGames.map((past, index) => (
+                    <GameCard
+                      key={index}
+                      result={
+                        past.status.toLowerCase() === "Ongoing"
+                          ? "loss"
+                          : past.status.toLowerCase()
+                      }
+                      date={past.updatedAt}
+                      opponent={past.enemyTag}
+                      elo={past.eloRating}
+                      moves={past.totalMoves}
+                      time={past.totalTime}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between mb-2">
+            {/* Hide CommentaryMove on mobile */}
             {(orientation as string) === myColor &&
             moveClassification !== "" &&
             moveClassification !== "excellent-move" &&
             moveClassification !== "neutral-move" &&
             moveClassification !== "inaccuracy-move" ? (
-              <CommentaryMove classify={moveClassification} />
+              <div className="hidden sm:block">
+                <CommentaryMove classify={moveClassification} />
+              </div>
             ) : (
               <div />
             )}
@@ -1033,157 +1591,200 @@ export default function PlayingPage() {
           </div>
 
           {orientation === "white" ? (
-            <WhitePlayer
-              myColor={myColor}
-              statusGame={statusGame}
-              capturedWhite={capturedWhite}
-              winnerColor={winnerColor}
-              loserColor={loserColor}
-              AIChoosed={AIChoosed}
-              user={user}
-              PieceChoosed={PieceChoosed}
-            />
+            <div className="hidden sm:block">
+              <WhitePlayer
+                myColor={myColor}
+                statusGame={statusGame}
+                capturedWhite={capturedWhite}
+                winnerColor={winnerColor}
+                loserColor={loserColor}
+                AIChoosed={AIChoosed}
+                user={user}
+                PieceChoosed={PieceChoosed}
+              />
+            </div>
           ) : (
-            <BlackPlayer
-              myColor={myColor}
-              statusGame={statusGame}
-              capturedBlack={capturedBlack}
-              winnerColor={winnerColor}
-              loserColor={loserColor}
-              AIChoosed={AIChoosed}
-              user={user}
-              PieceChoosed={PieceChoosed}
-            />
+            <div className="hidden sm:block">
+              <BlackPlayer
+                myColor={myColor}
+                statusGame={statusGame}
+                capturedBlack={capturedBlack}
+                winnerColor={winnerColor}
+                loserColor={loserColor}
+                AIChoosed={AIChoosed}
+                user={user}
+                PieceChoosed={PieceChoosed}
+              />
+            </div>
           )}
         </div>
       </div>
 
-      <Tabs defaultValue="current" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
-          <TabsTrigger
-            value="current"
-            className={`gap-2 py-2 ${
-              selectedTab === "current"
-                ? `shadow-md border border-[#DEDEDE]`
-                : ``
-            }`}
-            onClick={() => setSelectedTab("current")}
-          >
-            <Image
-              src={`/images/play-vs-ai/chess-king-rook${
-                selectedTab === "current" ? `-active` : ``
-              }.png`}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[19px] h-[19px] object-contain"
-            />
-            <span
-              className={`text-[16px] font-semibold ${
-                selectedTab === "current" ? `text-[#221AE9]` : `text-black`
+      {/* Desktop/tablet tabs - hidden on mobile */}
+      <div className="hidden sm:block w-full">
+        <Tabs defaultValue="current" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
+            <TabsTrigger
+              value="current"
+              className={`gap-2 py-2 ${
+                selectedTab === "current"
+                  ? `shadow-md border border-[#DEDEDE]`
+                  : ``
               }`}
+              onClick={() => setSelectedTab("current")}
             >
-              Current Game
-            </span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="past"
-            className={`gap-2 py-2 ${
-              selectedTab === "past" ? `shadow-md border border-[#DEDEDE]` : ``
-            }`}
-            onClick={() => setSelectedTab("past")}
-          >
-            <Image
-              src={`/images/play-vs-ai/past-games${
-                selectedTab === "past" ? `-active` : ``
-              }.png`}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[18px] h-[18px] object-contain"
-            />
-            <span
-              className={`text-[16px] font-semibold ${
-                selectedTab === "past" ? `text-[#221AE9]` : `text-black`
-              }`}
-            >
-              Past Games
-            </span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="current" className="gap-2">
-          <div
-            className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
-            style={{ height: heightBoard }}
-          >
-            <div className="flex flex-col px-4 w-full overflow-y-auto ">
-              <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
-                Movement Details
-              </span>
-              <TableMovement
-                myColor={myColor}
-                capturedWhite={capturedWhite}
-                capturedBlack={capturedBlack}
-                PieceChoosed={PieceChoosed}
+              <Image
+                src={`/images/play-vs-ai/chess-king-rook${
+                  selectedTab === "current" ? `-active` : ``
+                }.png`}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[19px] h-[19px] object-contain"
               />
-            </div>
-            <div className="flex flex-col items-center w-full gap-2">
-              {statusGame !== "Ongoing" && (
-                <CommentarGame statusGame={statusGame} />
-              )}
-              {statusGame === "Ongoing" ? (
-                <ButtonPlaying
-                  handleHint={handleHint}
-                  handleNewGame={handleNewGame}
-                  handleResign={handleResign}
-                  myColor={myColor}
-                  currentTurn={currentTurn}
-                  bestLine={bestLine}
-                  hintClicked={hintClicked}
-                />
-              ) : (
-                <ButtonFinish
-                  pgn={game.pgn()}
-                  handleAnalyzeGame={handleAnalyzeGame}
-                  handleNewGame={handleNewGame}
-                  handleRematch={handleRematch}
-                  handleShare={handleShare}
-                  handleDownload={handleDownload}
-                />
-              )}
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="past" className="gap-2">
-          <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
-            {isLoading && <DotSpinner />}
-            <div
-              style={{ height: heightScreen * 0.75 }}
-              className="px-4 w-full xl:max-h-[80vh] overflow-y-auto"
+              <span
+                className={`text-[16px] font-semibold ${
+                  selectedTab === "current" ? `text-[#221AE9]` : `text-black`
+                }`}
+              >
+                Current Game
+              </span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="past"
+              className={`gap-2 py-2 ${
+                selectedTab === "past"
+                  ? `shadow-md border border-[#DEDEDE]`
+                  : ``
+              }`}
+              onClick={() => setSelectedTab("past")}
             >
-              {pastGames.map((past, index) => {
-                return (
-                  <GameCard
-                    key={index}
-                    result={
-                      past.status.toLowerCase() === "Ongoing"
-                        ? "loss"
-                        : past.status.toLowerCase()
-                    }
-                    date={past.updatedAt}
-                    opponent={past.enemyTag}
-                    elo={past.eloRating}
-                    moves={past.totalMoves}
-                    time={past.totalTime}
+              <Image
+                src={`/images/play-vs-ai/past-games${
+                  selectedTab === "past" ? `-active` : ``
+                }.png`}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[18px] h-[18px] object-contain"
+              />
+              <span
+                className={`text-[16px] font-semibold ${
+                  selectedTab === "past" ? `text-[#221AE9]` : `text-black`
+                }`}
+              >
+                Past Games
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="current" className="gap-2">
+            <div
+              className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
+              style={{ height: heightBoard }}
+            >
+              <div className="flex flex-col px-4 w-full overflow-y-auto ">
+                <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
+                  Movement Details
+                </span>
+                <TableMovement
+                  myColor={myColor}
+                  capturedWhite={capturedWhite}
+                  capturedBlack={capturedBlack}
+                  PieceChoosed={PieceChoosed}
+                />
+              </div>
+              <div className="flex flex-col items-center w-full gap-2">
+                {/* Desktop navigation buttons */}
+                {!game.isGameOver() && (
+                  <div className="flex flex-row justify-center items-center gap-2 my-2">
+                    <button
+                      disabled={currentMoveIndex === 0}
+                      onClick={handlePreviousMove}
+                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        currentMoveIndex === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronLeft size={24} color="#000" />
+                    </button>
+                    <button
+                      disabled={currentMoveIndex >= fenHistory.length - 1}
+                      onClick={handleNextMove}
+                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        currentMoveIndex >= fenHistory.length - 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronRight size={24} color="#000" />
+                    </button>
+                    <button
+                      onClick={resetToBeginning}
+                      className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+                    >
+                      <RotateCw size={20} color="#000" />
+                    </button>
+                  </div>
+                )}
+
+                {statusGame !== "Ongoing" && (
+                  <CommentarGame statusGame={statusGame} />
+                )}
+                {statusGame === "Ongoing" ? (
+                  <ButtonPlaying
+                    handleHint={handleHint}
+                    handleNewGame={handleNewGame}
+                    handleResign={handleResign}
+                    myColor={myColor}
+                    currentTurn={currentTurn}
+                    bestLine={bestLine}
+                    hintClicked={hintClicked}
                   />
-                );
-              })}
+                ) : (
+                  <ButtonFinish
+                    pgn={game.pgn()}
+                    handleAnalyzeGame={handleAnalyzeGame}
+                    handleNewGame={handleNewGame}
+                    handleRematch={handleRematch}
+                    handleShare={handleShare}
+                    handleDownload={handleDownload}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+
+          <TabsContent value="past" className="gap-2">
+            <div className="flex flex-col py-4 rounded-[16px] bg-white border border-[#DEDEDE] gap-2">
+              {isLoading && <DotSpinner />}
+              <div
+                style={{ height: heightScreen * 0.75 }}
+                className="px-4 w-full xl:max-h-[80vh] overflow-y-auto"
+              >
+                {pastGames.map((past, index) => {
+                  return (
+                    <GameCard
+                      key={index}
+                      result={
+                        past.status.toLowerCase() === "Ongoing"
+                          ? "loss"
+                          : past.status.toLowerCase()
+                      }
+                      date={past.updatedAt}
+                      opponent={past.enemyTag}
+                      elo={past.eloRating}
+                      moves={past.totalMoves}
+                      time={past.totalTime}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

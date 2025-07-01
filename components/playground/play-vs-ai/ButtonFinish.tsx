@@ -25,7 +25,7 @@ export const ButtonFinish = ({
   return (
     <motion.div
       variants={fadeInUp}
-      className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4"
+      className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
       {/* <button
         onClick={handleAnalyzeGame}

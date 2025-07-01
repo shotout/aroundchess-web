@@ -33,6 +33,7 @@ import InitialAvatar from "@/components/avatar/InitialAvatar";
 import ReactCountryFlag from "react-country-flag";
 import { RelativeTooltip } from "../tooltip/RelativeTooltip";
 import { useRouter } from "next/navigation";
+import { ButtonBoard } from "../play-vs-ai/ButtonBoard";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -57,6 +58,196 @@ interface PuzzleGameProps {
   onChangeTopic: () => void;
   onBackToPuzzleInitialize: () => void;
 }
+
+// Mobile Move Boxes Component (adapted from playing page)
+interface MobileMoveBoxesProps {
+  capturedWhite: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  capturedBlack: Array<{
+    captured: string | null;
+    capturedTheme: string | null;
+    piece: string | null;
+    color: string;
+    from: Square;
+    to: Square;
+    lan: string;
+    san: string;
+  }>;
+  statusGame: string;
+}
+
+const MobileMoveBoxes = ({
+  capturedWhite,
+  capturedBlack,
+  statusGame,
+}: MobileMoveBoxesProps) => {
+  const whiteMoves = capturedWhite;
+  const blackMoves = capturedBlack;
+  const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [shouldUseProximity, setShouldUseProximity] = useState(false);
+  const prevMaxMovesRef = useRef(-1);
+
+  const getStatusDisplay = () => {
+    if (statusGame === "Win") return "WIN";
+    if (statusGame === "Loss") return "LOSE";
+    if (statusGame === "Draw") return "DRAW";
+    return null;
+  };
+
+  const statusDisplay = getStatusDisplay();
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrollLeft(e.currentTarget.scrollLeft);
+  };
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const isOverflowing = scrollWidth > clientWidth;
+
+      setShouldUseProximity(isOverflowing);
+    }
+  }, [maxMoves, statusDisplay]);
+
+  const autoScrollToLatest = useCallback(() => {
+    if (scrollContainerRef.current && maxMoves > 5) {
+      const container = scrollContainerRef.current;
+      const columnWidth = 65;
+      const visibleColumns = Math.floor(container.clientWidth / columnWidth);
+
+      const targetMoveToShow = Math.max(0, maxMoves - visibleColumns + 1);
+      const targetScroll = targetMoveToShow * columnWidth;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: "smooth",
+      });
+    }
+  }, [maxMoves]);
+
+  useEffect(() => {
+    const prevMaxMoves = prevMaxMovesRef.current;
+
+    if (prevMaxMoves === -1) {
+      prevMaxMovesRef.current = maxMoves;
+      return;
+    }
+
+    if (maxMoves > prevMaxMoves && maxMoves > 5) {
+      autoScrollToLatest();
+    }
+
+    prevMaxMovesRef.current = maxMoves;
+  }, [maxMoves, autoScrollToLatest]);
+
+  const movesToShow = Math.max(maxMoves, 1);
+
+  return (
+    <div className="sm:hidden w-full">
+      <div className="relative">
+        <div className="absolute left-0 top-0 z-20">
+          <div className="flex flex-col gap-1 min-w-[60px]">
+            <div className="h-[25px] bg-white"></div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">White</span>
+            </div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">Black</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto pl-[70px] scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onScroll={handleScroll}
+        >
+          <div className="flex gap-1 min-w-max pb-2">
+            {Array.from({ length: movesToShow }, (_, index) => {
+              const moveNumber = index + 1;
+              const whiteMove = whiteMoves[index];
+              const blackMove = blackMoves[index];
+              let opacity = 1;
+              if (shouldUseProximity) {
+                const columnWidth = 65;
+                const columnPosition = index * columnWidth;
+                const fixedColumnWidth = 70;
+                const relativePosition = columnPosition - scrollLeft;
+
+                if (relativePosition < fixedColumnWidth) {
+                  const overlap = fixedColumnWidth - relativePosition;
+                  const fadeZone = 80;
+                  opacity = Math.max(0.2, 1 - overlap / fadeZone);
+                }
+              }
+
+              return (
+                <div
+                  key={moveNumber}
+                  className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
+                  style={{ opacity }}
+                >
+                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                    Move {moveNumber}
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {whiteMove ? whiteMove.san : ""}
+                    </span>
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {blackMove ? blackMove.san : ""}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {statusDisplay && (
+              <div className="flex flex-col gap-1 min-w-[60px]">
+                <div className="h-[25px]"></div>
+                <div
+                  className={`rounded-lg bg-white border px-3 py-2 text-center min-h-[40px] flex items-center justify-center font-bold  ${
+                    statusGame === "Win"
+                      ? "text-green-500"
+                      : statusGame === "Loss"
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {statusDisplay}
+                </div>
+                <div className="min-h-[40px]"></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   boardOrientation,
@@ -548,24 +739,24 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     setStyleChoosed(style);
   };
 
-  const buttonBoard = () => {
-    return (
-      <div
-        style={{ width: boardSize }}
-        className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
-      >
-        <button onClick={handleSwitch}>
-          <Image
-            src={"/images/play-vs-ai/switch.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[20px] h-[20px] rounded-full object-contain"
-          />
-        </button>
-      </div>
-    );
-  };
+  // const buttonBoard = () => {
+  //   return (
+  //     <div
+  //       style={{ width: boardSize }}
+  //       className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
+  //     >
+  //       <button onClick={handleSwitch}>
+  //         <Image
+  //           src={"/images/play-vs-ai/switch.png"}
+  //           alt="icon"
+  //           width={1000}
+  //           height={1000}
+  //           className="w-[20px] h-[20px] rounded-full object-contain"
+  //         />
+  //       </button>
+  //     </div>
+  //   );
+  // };
 
   const cardPlayer = () => {
     return (
@@ -602,11 +793,82 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     }
   };
 
+  // Mobile buttons component (only show on mobile)
+  const renderMobileButtons = () => {
+    return (
+      <div className="flex flex-col gap-y-3">
+        <motion.div
+          variants={fadeInUp}
+          className="sm:hidden relative flex w-full  gap-2 px-5 py-2 border-b"
+        >
+          {showTooltip && (
+            <RelativeTooltip onClose={() => setShowTooltip(false)} />
+          )}
+          <button
+            onClick={handleOnGetHint}
+            className={`flex flex-row justify-center items-center w-1/4 min-h-[40px] px-4 py-2 border ${
+              hint
+                ? `border-[#221AE9] bg-[#221AE908] text-[#221AE9]`
+                : `border-[#DEDEDE] bg-white`
+            } rounded-[8px] hover:bg-blue-100 gap-1`}
+          >
+            {hint ? (
+              <Image
+                src={"/images/play-vs-ai/hint.png"}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+              />
+            ) : (
+              <Image
+                src={"/images/play-vs-ai/hint-icon.png"}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain "
+              />
+            )}
+            <span className="font-medium text-[11px] lg:text-[14px] xl:mt-1 ">
+              Hint
+            </span>
+          </button>
+          <button
+            onClick={onChangeTopic}
+            className="flex flex-row justify-center items-center w-2/4 min-h-[40px]  px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
+          >
+            <RefreshCcw size={20} />
+            <span className="font-medium text-[11px] md:text-[12px] lg:text-[14px] xl:mt-1 ">
+              Change Puzzle Topic
+            </span>
+          </button>
+          <button
+            onClick={getNextPuzzleHandler}
+            className="flex flex-row items-center justify-center w-1/4 min-h-[40px] p-0 sm:px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+          >
+            <span className="font-medium text-[11px] lg:text-[14px] xl:mt-1">
+              Next Puzzle
+            </span>
+            <ArrowRight size={20} />
+          </button>
+        </motion.div>
+        <div className="px-5">
+          <div className=" flex flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
+            <Info className="w-[18px] h-[18px]" color="#221AE9" />
+            <span className="font-medium text-sm">
+              You are {boardOrientation === "white" ? "white" : "black"}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderButtonPuzzleGame = () => {
     return (
       <motion.div
         variants={fadeInUp}
-        className="relative flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
+        className="hidden sm:block relative flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
       >
         {showTooltip && (
           <RelativeTooltip onClose={() => setShowTooltip(false)} />
@@ -738,16 +1000,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return (
       <motion.div
         variants={fadeInUp}
-        className="flex flex-col w-full gap-3 xl:hidden"
+        className="flex flex-col w-full gap-3 sm:hidden px-5"
       >
-        {/* Congratulations banner */}
         {renderCommentaryGame()}
-
-        {/* Action buttons directly below */}
         <div className="flex flex-row w-full items-center gap-2">
           <button
             onClick={resetPuzzleHandler}
-            className="btn-secondary w-full md:w-1/3 rounded-full h-[40px]"
+            className="btn-tertiary w-1/3 rounded-full h-[40px]"
           >
             <div className="flex flex-row items-center justify-center gap-2">
               <RotateCcw size={20} color="#221AE9" />
@@ -756,7 +1015,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </button>
           <button
             onClick={getNextPuzzleHandler}
-            className="btn-primary w-full md:w-2/3 rounded-full h-[40px]"
+            className="btn-primary w-2/3 rounded-full h-[40px]"
           >
             <div className="flex flex-row items-center justify-center gap-2">
               <span>Next Puzzle </span>
@@ -771,7 +1030,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
 
   return (
-    <div className="flex flex-col xl:flex-row w-full bg-white p-2 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
+    <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
         className="flex flex-col w-full"
         style={{
@@ -779,7 +1038,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             widthScreen > 1024 ? heightScreen * 0.86 : heightScreen * 0.6,
         }}
       >
-        <div className="xl:hidden flex flex-row items-center justify-between mb-2">
+        <div className="xl:hidden flex flex-row items-center justify-between mb-2 p-4 sm:p-0 border-b">
           <button onClick={onBackToPuzzleInitialize}>
             <ArrowLeft color="black" size={24} />
           </button>
@@ -800,9 +1059,14 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          {cardPlayer()}
-          <div className="flex items-center justify-end mb-2">
-            {buttonBoard()}
+          <div className="hidden sm:block">{cardPlayer()}</div>
+          <div className="flex items-center justify-end px-5 sm:px-0 mb-2">
+            <ButtonBoard
+              handleSwitch={handleSwitch}
+              handleThreeD={handleThreeD}
+              is3DMode={is3DMode}
+              boardSize={boardSize}
+            />
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
             <motion.div
@@ -926,12 +1190,59 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Mobile buttons below board (only show when game is not over) */}
+          {!isGameOver && renderMobileButtons()}
+          {isGameOver && (
+            <div className="sm:hidden">{renderMobileGameCompletion()}</div>
+          )}
+
+          {/* Mobile moves section */}
+          <div className="sm:hidden px-5 py-4">
+            <MobileMoveBoxes
+              capturedWhite={capturedWhite}
+              capturedBlack={capturedBlack}
+              statusGame={isGameOver ? "Win" : "Ongoing"}
+            />
+          </div>
+
+          {/* Mobile navigation buttons */}
+          <div className="sm:hidden px-5 flex flex-row justify-center items-center gap-2">
+            <button
+              disabled={currentMoveIndex === 0}
+              onClick={handlePreviousMove}
+              className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <ChevronLeft size={20} color="#000" />
+            </button>
+            <button
+              disabled={currentMoveIndex >= fenHistory.length - 1}
+              onClick={handleNextMove}
+              className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                currentMoveIndex >= fenHistory.length - 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+            >
+              <ChevronRight size={20} color="#000" />
+            </button>
+            <button
+              onClick={resetPuzzleHandler}
+              className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+            >
+              <RotateCw size={20} color="#000" />
+            </button>
+          </div>
+
+          {/* Mobile game completion section - banner + buttons grouped together */}
         </div>
       </div>
 
       <div
         style={{ maxHeight: heightBoard }}
-        className="flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
+        className="hidden sm:flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
       >
         <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
           <button onClick={onBackToPuzzleInitialize}>
@@ -948,9 +1259,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         </div>
 
         <div className="w-[94%] mx-[16px] xl:mt-0 mt-[16px] flex flex-col gap-3">
-          {/* Mobile game completion section - banner + buttons grouped together */}
-          {isGameOver && renderMobileGameCompletion()}
-
           <div className="p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[24px] h-[24px]" color="#221AE9" />
             <span className="font-medium text-[16px]">

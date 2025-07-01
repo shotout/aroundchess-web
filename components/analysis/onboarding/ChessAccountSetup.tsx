@@ -62,10 +62,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     toast.success("Thank you for subscribing to Premium!");
   };
 
-  const triggerConnectDialog = () => setShowConnectDialog(!showConnectDialog);
-  const triggerPremiumDialog = () => setShowPremiumDialog(!showPremiumDialog);
-  const triggerAnalyzeDialog = () => setShowAnalyzeDialog(!showAnalyzeDialog);
-
   useEffect(() => {
     if (username) {
       setCheckComplete(true);
@@ -87,19 +83,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
       try {
         const response = await gameHistoryApi.getProfile(sessionId);
-        console.log(
-          "Profile response structure:",
-          JSON.stringify(response).substring(0, 200)
-        );
 
         if (response?.success && response?.data?.username) {
           setUsername(response.data.username);
         } else {
-          console.log("No username found in response:", response);
           setShowConnectDialog(true);
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
         setShowConnectDialog(true);
       } finally {
         // Dismiss the toast when check completes

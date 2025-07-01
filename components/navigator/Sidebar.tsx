@@ -36,7 +36,7 @@ interface SidebarLink {
 
 const sidebarLinks: SidebarLink[] = [
   {
-    name: "Chess News",
+    name: "Chess Blogs",
     icon: "/icons/sidebar-news-icon.png",
     iconActive: "/icons/sidebar-news-icon-active.png",
     href: "/chess-news",

@@ -19,15 +19,14 @@ export const WhitePlayer = ({
   loserColor,
   myColor,
   AIChoosed,
-  user,
   capturedWhite,
   PieceChoosed,
 }: WhitePlayerProps) => {
-  let isWin = winnerColor == "white";
-  let isDraw = statusGame == "Draw";
-  let isLoss = loserColor == "white";
+  const isWin = winnerColor == "white";
+  const isDraw = statusGame == "Draw";
+  const isLoss = loserColor == "white";
   const { profile } = useProfileStore();
-  const {username} = usePgnStore()
+  const { username } = usePgnStore();
   return (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
@@ -42,7 +41,10 @@ export const WhitePlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor == "white" ? (
-          <InitialAvatar name={profile?.name!=""?profile?.name:username} size="sm" />
+          <InitialAvatar
+            name={profile?.name != "" ? profile?.name : username}
+            size="sm"
+          />
         ) : (
           <Image
             src={AIChoosed.opponent.img}
@@ -64,19 +66,17 @@ export const WhitePlayer = ({
               : "text-[#040404]"
           }`}
         >
-          {myColor == "white" ? username : AIChoosed.opponent.name.replace(/ .*/,'')}
-
-          {/* <div className="text-center">
-              <span className="text-xl">{whiteTime}</span>
-            </div> */}
+          {myColor == "white"
+            ? username
+            : AIChoosed.opponent.name.replace(/ .*/, "")}
         </span>
       </div>
       <div className="flex flex-row items-center ">
         {capturedWhite &&
           capturedWhite.length > 0 &&
           capturedWhite.map((captured: any, index: any) => {
-            let icon = captured.capturedTheme;
-            let nextIcon = capturedWhite[index + 1]
+            const icon = captured.capturedTheme;
+            const nextIcon = capturedWhite[index + 1]
               ? capturedWhite[index + 1].capturedTheme
               : "";
             if (icon.length != 2) return null;

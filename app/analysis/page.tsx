@@ -38,6 +38,7 @@ export default function AnalysisPage() {
     dataAnalysis,
     setDataAnalysis,
     hydrated,
+    username,
   } = usePgnStore();
 
   const {
@@ -75,12 +76,8 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     if (hydrated && hydratedProfile) {
-      console.log("sessionId.length", sessionId.length);
-      console.log("dataAnalysis", dataAnalysis);
-      console.log("isLoading", isLoading);
-      if (sessionId.length > 0 && !isLoading) {
+      if (sessionId.length > 0 && !isLoading && username) {
         setLoading(true);
-        console.log("TEST", hydrated);
         fetchExistAnalyze();
       } else if (dataAnalysis == null && !isLoading) {
         fetchPgnFamousGame();
@@ -89,6 +86,7 @@ export default function AnalysisPage() {
         setIsLoading(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydratedProfile]);
 
   const fetchPgnFamousGame = async () => {
@@ -135,6 +133,7 @@ export default function AnalysisPage() {
           setIsVisible(true);
         }
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       lastScrollY = window.scrollY;
     };
 
@@ -166,7 +165,7 @@ export default function AnalysisPage() {
                         </span>
                       </h2>
 
-                      {isSignedIn && widthC <= 1024 && !loading && (
+                      {isSignedIn && widthC <= 1024 && !loading && username && (
                         <div className="lg:hidden flex items-center justify-center my-2">
                           <AnalyzeDifferentGame openPopup={openAnalyze} />
                         </div>
@@ -190,7 +189,7 @@ export default function AnalysisPage() {
                         players understand strategic strengths and weaknesses.
                       </div>
 
-                      {isSignedIn && widthC > 1024 && !loading && (
+                      {isSignedIn && widthC > 1024 && !loading && username && (
                         <AnalyzeDifferentGame openPopup={openAnalyze} />
                       )}
                     </div>

@@ -108,7 +108,7 @@ export default function Article() {
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
       </div>
       <p className="text-gray-600 text-md md:text-[18px] py-[8px]">
-        Stay updated with the latest chess news, tournaments, and player
+        Stay updated with the latest blog posts, tournaments, and player
         insights from around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">

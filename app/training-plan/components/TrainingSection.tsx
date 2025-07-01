@@ -1,7 +1,6 @@
-import React, { useRef } from "react";
+import React from "react";
 import TrainingTopicCard from "./TrainingTopicCard";
 import Image from "next/image";
-import { motion } from "framer-motion";
 
 interface Topic {
   id: string;
@@ -26,7 +25,6 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
   instruction,
   topics = [],
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const iconSrc =
     typeof icon === "string" ? icon : "/training-plan/default.png";
 
@@ -54,33 +52,23 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
       </div>
 
       {topics.length > 0 ? (
-        <div className="overflow-hidden">
-          <motion.div
-            ref={scrollRef}
-            className="flex gap-4 w-full no-scrollbar cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.1}
-            dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
-            onDrag={(_, info) => {
-              if (scrollRef.current) {
-                scrollRef.current.scrollLeft -= info.delta.x;
-              }
-            }}
-            style={{
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            {topics.map((topic) => (
-              <div
-                key={topic.id}
-                className="flex-shrink-0 min-w-[200px] sm:min-w-[250px] max-w-[250px] sm:max-w-[300px]"
-              >
-                <TrainingTopicCard topic={topic} icon={iconSrc} />
-              </div>
-            ))}
-          </motion.div>
+        <div
+          className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            scrollBehavior: "smooth",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {topics.map((topic) => (
+            <div
+              key={topic.id}
+              className="flex-shrink-0 min-w-[200px] sm:max-w-[300px]"
+            >
+              <TrainingTopicCard topic={topic} icon={iconSrc} />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-4 text-gray-500 text-sm sm:text-base">

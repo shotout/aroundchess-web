@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import DaySelector from "./DaySelector";
 import TrainingSection from "./TrainingSection";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import { TrainingSchedule } from "../store";
@@ -24,11 +23,12 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   error,
   onAdjustPlan,
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
   const handleStartPuzzle = () => {
     router.push("/playground/puzzle");
   };
+
   if (isLoading) {
     return (
       <Card className="xl:border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -121,35 +121,20 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
           </button>
         </div>
 
-        <div className="overflow-hidden">
-          <motion.div
-            ref={scrollRef}
-            className="flex gap-2 w-full no-scrollbar cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.1}
-            dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
-            onDrag={(_, info) => {
-              if (scrollRef.current) {
-                scrollRef.current.scrollLeft -= info.delta.x;
-              }
-            }}
-            style={{
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            {weekDays.map((day) => (
-              <div key={day.id} className="flex-1 flex-shrink-0 min-w-[100px]">
-                <DaySelector
-                  day={day}
-                  isActive={day.id === todayId}
-                  onSelect={() => {}}
-                  disabled={day.id !== todayId}
-                />
-              </div>
-            ))}
-          </motion.div>
+        <div
+          className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {weekDays.map((day) => (
+            <div key={day.id} className="flex-1 flex-shrink-0 min-w-[100px]">
+              <DaySelector
+                day={day}
+                isActive={day.id === todayId}
+                onSelect={() => {}}
+                disabled={day.id !== todayId}
+              />
+            </div>
+          ))}
         </div>
 
         {openingTopics.length > 0 && (

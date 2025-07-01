@@ -5,32 +5,32 @@ interface CommentarGameProps {
   statusGame: string;
 }
 export const CommentarGame = ({ statusGame }: CommentarGameProps) => {
-  let gradColor =
+  const gradColor =
     statusGame == "Win"
       ? `bg-[linear-gradient(to_right,_#FFFFFF58,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#FFFFFF40)]`
       : statusGame == "Draw"
       ? `bg-[linear-gradient(to_right,_#FFFFFF58,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#221AE9,_#FFFFFF40)]`
       : `bg-[linear-gradient(to_right,_#FFFFFF58,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#C01B1B,_#FFFFFF40)]`;
-  let color =
+  const color =
     statusGame == "Win"
       ? "#00B427"
       : statusGame == "Draw"
       ? "#221AE9"
       : "#C01B1B";
-  let icon =
+  const icon =
     statusGame == "Win"
       ? "you-win"
       : statusGame == "Draw"
       ? "you-draw"
       : "you-loss";
-  let sparks =
+  const sparks =
     statusGame == "Win"
       ? "sparks-win"
       : statusGame == "Draw"
       ? "sparks-draw"
       : "sparks-loss";
 
-  let content =
+  const content =
     statusGame == "Win"
       ? "Congratulations! You won this game!"
       : statusGame == "Draw"

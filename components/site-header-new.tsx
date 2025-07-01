@@ -89,7 +89,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   const handleDashboard = () => {
-    router.push("/profile");
+    router.push("/analysis");
   };
 
   const handleLogout = async () => {

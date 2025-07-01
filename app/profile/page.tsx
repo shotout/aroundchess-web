@@ -14,6 +14,8 @@ import { useSuccessSubscription } from "../store/successSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import DeleteAccount from "@/components/profile/DeleteAccount";
 import DotSpinner from "@/components/game-history/Spinner";
+import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+import { usePgnStore } from "../store/zustandStore";
 
 export default function Profile() {
   const searchParams = useSearchParams();
@@ -25,6 +27,7 @@ export default function Profile() {
     setQuantity,
     setStatus,
   } = useStatusPurchaseTokens();
+  const { isLoading } = usePgnStore();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -85,6 +88,7 @@ export default function Profile() {
       )}
       <Navigation>
         <ChangePassword />
+        <ChessAccountSetup isLoading={isLoading} />
         <div className="relative">
           {/* Main Content */}
           <div

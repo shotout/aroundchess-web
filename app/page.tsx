@@ -29,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { GrandmastersSection } from "@/components/GrandmasterSection";
 
 export default function Home() {
   const { isLoading, dataAnalysis } = usePgnStore();
@@ -152,7 +153,6 @@ export default function Home() {
         );
       }
     } catch (error) {
-      console.error("Error processing SSO login:", error);
       showAlert(
         "Login Failed",
         "Failed to process login. Please try again.",
@@ -173,18 +173,17 @@ export default function Home() {
       hasRun.current = true;
       getTokenPackage({}).then((response) => {
         if (response.data != null) {
-          let data = response.data;
-          console.log("getTokenPackage", data);
+          const data = response.data;
           setTokenPackage(data);
         }
       });
       getActiveMembership({}).then((response) => {
-        let data = response.data;
-        console.log("getActiveMembership", data);
+        const data = response.data;
         setIsMember(data.status == "ACTIVE");
         setActiveMembership(data);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -192,7 +191,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log("listening dataAnalysis", dataAnalysis);
     setLoading(isLoading);
   }, [dataAnalysis, isLoading]);
 
@@ -210,6 +208,7 @@ export default function Home() {
           <ImproveSection />
           <BenefitsOf />
           <BasedOnAI />
+          <GrandmastersSection />
           <CTASection />
           <SiteFooterNew />
         </>

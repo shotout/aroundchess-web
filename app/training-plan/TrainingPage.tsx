@@ -14,6 +14,7 @@ import CacheUtil from "./api/cacheUtils";
 import { useProfileStore } from "../store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { usePgnStore } from "../store/zustandStore";
+import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 
 const ChessProgressionUI: React.FC = () => {
   const { sessionId } = useProfileStore();
@@ -25,7 +26,7 @@ const ChessProgressionUI: React.FC = () => {
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
   const { GameHistoryOpenings } = useApiClient();
-  const { setOpeningPlayed } = usePgnStore();
+  const { setOpeningPlayed, isLoading: pgnLoading } = usePgnStore();
 
   const fetchingRefs = useRef({
     topics: false,
@@ -197,6 +198,7 @@ const ChessProgressionUI: React.FC = () => {
 
   return (
     <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
+      <ChessAccountSetup isLoading={pgnLoading} />
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
           My Training Plan

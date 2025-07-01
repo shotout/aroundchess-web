@@ -12,7 +12,7 @@ const analysisFeatures = [
 ];
 
 export function BasedOnAI() {
-  return ( 
+  return (
     <section className="py-2 sm:py-6 md:py-6 xl:py-8 bg-[#E6F7FE] sm:mt-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
@@ -61,8 +61,13 @@ export function BasedOnAI() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <CheckCircle color="#221AE9" className="mr-2 h-5 w-5 sm:h-6 sm:w-6 text-green-500 flex-shrink-0" />
-                  <span className="text-sm sm:text-[18px] font-normal text-[#2e2e2e]">{feature}</span>
+                  <CheckCircle
+                    color="#221AE9"
+                    className="mr-2 h-5 w-5 sm:h-6 sm:w-6 text-green-500 flex-shrink-0"
+                  />
+                  <span className="text-sm sm:text-[18px] font-normal text-[#2e2e2e]">
+                    {feature}
+                  </span>
                 </motion.li>
               ))}
             </ul>

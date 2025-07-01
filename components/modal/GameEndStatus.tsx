@@ -20,7 +20,7 @@ export function GameEndStatus({ gameStatus }: any) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogOverlay
         onClick={() => setOpen(false)}
-        className="fixed inset-0 bg-black/50"
+        className="fixed inset-0 bg-black/50 border-none"
       />
       <DialogContent
         onClick={() => setOpen(false)}

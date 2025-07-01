@@ -5,6 +5,8 @@ import { usePgnStore } from "../store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useEffect, useState } from "react";
 import DotSpinner from "@/components/game-history/Spinner";
+import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+
 export default function FeedbackLog() {
   const { isLoading, hydrated } = usePgnStore();
   const [ready, setReady] = useState(false);
@@ -23,6 +25,7 @@ export default function FeedbackLog() {
           <div className="flex overflow-hidden bg-primary-white">
             <div className="flex flex-col overflow-y-auto w-full">
               <Navigation>
+                <ChessAccountSetup isLoading={isLoading} />
                 <div className="w-full">
                   <MistakeLog />
                 </div>
