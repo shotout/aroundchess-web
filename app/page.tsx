@@ -143,7 +143,7 @@ export default function Home() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        toast.success("Logged in successfully!");
+        // toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
         showAlert(

@@ -50,6 +50,7 @@ export default function LoginPage() {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   const handleSSOSuccess = async (accessToken: string) => {
@@ -96,7 +97,7 @@ export default function LoginPage() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        toast.success("Logged in successfully!");
+        // toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
         alert("Failed to verify account status. Please try again.");

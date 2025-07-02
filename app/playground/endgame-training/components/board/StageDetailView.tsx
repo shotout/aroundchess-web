@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCw, AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,12 +34,215 @@ import Image from "next/image";
 import ChessboardWrapper from "../ChessboardWrapper";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useShareGame } from "@/app/store/shareGame";
+import GameAlertDialogMobile from "../GameAlertDialogMobile";
 
 interface StageDetailViewProps {
   categorySlug: string;
   subcategorySlug: string;
   stageNumber: string;
 }
+
+interface MobileMoveBoxesProps {
+  moveHistory: any[];
+}
+
+const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [shouldUseProximity, setShouldUseProximity] = useState(false);
+  const prevMaxMovesRef = useRef(-1);
+
+  const whiteMoves: any[] = [];
+  const blackMoves: any[] = [];
+
+  moveHistory.forEach((move, index) => {
+    if (index % 2 === 0) {
+      whiteMoves.push(move);
+    } else {
+      blackMoves.push(move);
+    }
+  });
+
+  const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrollLeft(e.currentTarget.scrollLeft);
+  };
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const isOverflowing = scrollWidth > clientWidth;
+
+      setShouldUseProximity(isOverflowing);
+    }
+  }, [maxMoves]);
+
+  const autoScrollToLatest = useCallback(() => {
+    if (scrollContainerRef.current && maxMoves > 5) {
+      const container = scrollContainerRef.current;
+      const columnWidth = 65;
+      const visibleColumns = Math.floor(container.clientWidth / columnWidth);
+
+      const targetMoveToShow = Math.max(0, maxMoves - visibleColumns + 1);
+      const targetScroll = targetMoveToShow * columnWidth;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: "smooth",
+      });
+    }
+  }, [maxMoves]);
+
+  useEffect(() => {
+    const prevMaxMoves = prevMaxMovesRef.current;
+
+    if (prevMaxMoves === -1) {
+      prevMaxMovesRef.current = maxMoves;
+      return;
+    }
+
+    if (maxMoves > prevMaxMoves && maxMoves > 5) {
+      autoScrollToLatest();
+    }
+
+    prevMaxMovesRef.current = maxMoves;
+  }, [maxMoves, autoScrollToLatest]);
+
+  const movesToShow = Math.max(maxMoves, 1);
+
+  // const getPieceType = (move: any) => {
+  //   if (!move || !move.san) return "P";
+
+  //   const san = move.san;
+
+  //   if (san.startsWith("O-O")) return "K";
+
+  //   const firstChar = san.charAt(0);
+
+  //   if (firstChar === firstChar.toUpperCase() && firstChar.match(/[KQRBN]/)) {
+  //     switch (firstChar) {
+  //       case "K":
+  //         return "K";
+  //       case "Q":
+  //         return "Q";
+  //       case "R":
+  //         return "R";
+  //       case "B":
+  //         return "B";
+  //       case "N":
+  //         return "N";
+  //     }
+  //   }
+
+  //   return "P";
+  // };
+
+  return (
+    <div className="sm:hidden w-full">
+      <div className="relative">
+        <div className="absolute left-0 top-0 z-20">
+          <div className="flex flex-col gap-1 min-w-[60px]">
+            <div className="h-[25px] bg-white"></div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">White</span>
+            </div>
+            <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+              <span className="text-sm font-medium text-black">Black</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto pl-[70px] scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onScroll={handleScroll}
+        >
+          <div className="flex gap-1 min-w-max pb-2">
+            {Array.from({ length: movesToShow }, (_, index) => {
+              const moveNumber = index + 1;
+              const whiteMove = whiteMoves[index];
+              const blackMove = blackMoves[index];
+              let opacity = 1;
+
+              if (shouldUseProximity) {
+                const columnWidth = 65;
+                const columnPosition = index * columnWidth;
+                const fixedColumnWidth = 70;
+                const relativePosition = columnPosition - scrollLeft;
+
+                if (relativePosition < fixedColumnWidth) {
+                  const overlap = fixedColumnWidth - relativePosition;
+                  const fadeZone = 80;
+                  opacity = Math.max(0.2, 1 - overlap / fadeZone);
+                }
+              }
+
+              return (
+                <div
+                  key={moveNumber}
+                  className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
+                  style={{ opacity }}
+                >
+                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                    Move {moveNumber}
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    {whiteMove ? (
+                      <div className="flex items-center justify-center">
+                        {/* <Image
+                          src={`/pieces/wood/w${getPieceType(whiteMove)}.png`}
+                          width={16}
+                          height={16}
+                          alt={whiteMove?.san || ""}
+                          className="mr-1"
+                        /> */}
+                        <span className="text-xs font-medium truncate">
+                          {whiteMove.san}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm font-medium"></span>
+                    )}
+                  </div>
+
+                  <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
+                    {blackMove ? (
+                      <div className="flex items-center justify-center">
+                        {/* <Image
+                          src={`/pieces/wood/b${getPieceType(blackMove)}.png`}
+                          width={16}
+                          height={16}
+                          alt={blackMove?.san || ""}
+                          className="mr-1"
+                        /> */}
+                        <span className="text-xs font-medium truncate">
+                          {blackMove.san}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm font-medium"></span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export default function StageDetailView({
   categorySlug,
@@ -54,6 +257,7 @@ export default function StageDetailView({
   const [initialFen, setInitialFen] = useState<string | null>(null);
   const [targetPosition, setTargetPosition] = useState<string | null>(null);
   const [moveHistory, setMoveHistory] = useState<any[]>([]);
+  const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [isSolved, setIsSolved] = useState<boolean>(false);
   const [playerColor, setPlayerColor] = useState<"w" | "b">("w");
   const [isAutoSolution, setIsAutoSolution] = useState<boolean>(false);
@@ -97,6 +301,15 @@ export default function StageDetailView({
   const [showHint, setShowHint] = useState<boolean>(false);
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const { setFen, setPGN, setOpen } = useShareGame();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleShare = async () => {
     try {
@@ -173,6 +386,46 @@ export default function StageDetailView({
       setIsSyzygyLoading(false);
     }
   }, [position, game, isSolved]);
+
+  // Move navigation functions
+  const handlePreviousMove = useCallback(() => {
+    if (currentMoveIndex > 0) {
+      const newIndex = currentMoveIndex - 1;
+      setCurrentMoveIndex(newIndex);
+
+      if (newIndex === 0) {
+        // Go to initial position
+        game.load(initialFen || game.fen());
+        setPosition(initialFen);
+      } else {
+        // Replay moves up to the new index
+        game.load(initialFen || game.fen());
+        const history = game.history({ verbose: true });
+        for (let i = 0; i < newIndex; i++) {
+          if (moveHistory[i]) {
+            game.move(moveHistory[i]);
+          }
+        }
+        setPosition(game.fen());
+      }
+    }
+  }, [currentMoveIndex, initialFen, game, moveHistory]);
+
+  const handleNextMove = useCallback(() => {
+    if (currentMoveIndex < moveHistory.length) {
+      const newIndex = currentMoveIndex + 1;
+      setCurrentMoveIndex(newIndex);
+
+      // Replay moves up to the new index
+      game.load(initialFen || game.fen());
+      for (let i = 0; i < newIndex; i++) {
+        if (moveHistory[i]) {
+          game.move(moveHistory[i]);
+        }
+      }
+      setPosition(game.fen());
+    }
+  }, [currentMoveIndex, moveHistory, initialFen, game]);
 
   useEffect(() => {
     if (position) {
@@ -261,6 +514,7 @@ export default function StageDetailView({
         setTargetPosition(null);
         setShowGameEndDialog(false);
         setMoveHistory([]);
+        setCurrentMoveIndex(0);
         setIsSolved(false);
         setMoveSquares({});
         setOptionSquares({});
@@ -269,7 +523,7 @@ export default function StageDetailView({
         setShowHint(false);
         setGameStartTime(Date.now());
         setGameEndTime(undefined);
-        setSyzygyMateDistance(null); // Reset Syzygy mate distance
+        setSyzygyMateDistance(null);
 
         setPlayerColorFromFen(fen);
 
@@ -315,6 +569,7 @@ export default function StageDetailView({
           setTargetPosition(gameData.target || null);
           setShowGameEndDialog(false);
           setMoveHistory([]);
+          setCurrentMoveIndex(0);
           setIsSolved(false);
           setMoveSquares({});
           setOptionSquares({});
@@ -408,6 +663,7 @@ export default function StageDetailView({
         game.load(initialFen);
         setPosition(initialFen);
         setMoveHistory([]);
+        setCurrentMoveIndex(0);
         setIsSolved(false);
         setShowGameEndDialog(false);
         setShowHint(false);
@@ -417,11 +673,9 @@ export default function StageDetailView({
         setRightClickedSquares({});
         setGameStartTime(Date.now());
         setGameEndTime(undefined);
-        setSyzygyMateDistance(null); // Reset Syzygy mate distance
+        setSyzygyMateDistance(null);
 
         setPlayerColorFromFen(initialFen);
-
-        // After reset, update Syzygy analysis for the initial position
         updateSyzygyAnalysis();
       } catch (e) {
         console.error("Error resetting position:", e);
@@ -499,6 +753,154 @@ export default function StageDetailView({
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
+  // Mobile button renderers
+  const renderMobileButtons = () => {
+    return (
+      <div className="sm:hidden px-4 py-2 border-b">
+        {/* Game control buttons */}
+        <div className="space-y-2">
+          {!isSolved && (
+            <div className="flex gap-x-1 w-full justify-between">
+              <button
+                className="flex gap-x-1 text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                onClick={() => setShowHint(true)}
+              >
+                <Image
+                  src={"/endgame-training/hint.png"}
+                  alt="hint icon"
+                  width={12}
+                  height={12}
+                />
+                Hint
+              </button>
+
+              {/* {!isCheckmateMode && ( */}
+              <button
+                className={`flex gap-x-2 text-xs items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
+                  isAutoSolution
+                    ? "border-blue-base bg-blue-base/5 text-blue-base"
+                    : "border-primary-gray text-black"
+                }`}
+                onClick={handleShowSolution}
+                disabled={isAutoSolution}
+              >
+                <Image
+                  src={"/endgame-training/show-solution.png"}
+                  alt="solution icon"
+                  width={12}
+                  height={12}
+                />
+                {isAutoSolution ? "Solving..." : "Show Solution"}
+              </button>
+              {/* )} */}
+
+              <button
+                onClick={resetPosition}
+                className="flex gap-x-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
+              >
+                <Image
+                  src={"/endgame-training/rematch.png"}
+                  alt="restart icon"
+                  width={12}
+                  height={12}
+                />
+                <span className="text-[11px]">Restart</span>
+              </button>
+
+              <button
+                onClick={navigateNext}
+                className="flex gap-x-1 items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
+              >
+                <span className="text-[11px]">Next Stage</span>
+                <Image
+                  src={"/endgame-training/Union.png"}
+                  alt="arrow right icon"
+                  width={12}
+                  height={12}
+                />
+              </button>
+            </div>
+          )}
+          {isSolved && (
+            <div className="flex gap-x-1 w-full justify-between">
+              <button
+                className="flex flex-1 gap-x-1 text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                onClick={handleShare}
+              >
+                <Image
+                  src={"/endgame-training/share.png"}
+                  alt="download icon"
+                  width={12}
+                  height={12}
+                />
+                Share PGN/FEN
+              </button>
+
+              <button
+                onClick={resetPosition}
+                className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
+              >
+                <Image
+                  src={"/endgame-training/rematch.png"}
+                  alt="restart icon"
+                  width={12}
+                  height={12}
+                />
+                <span className="text-[11px]">Rematch</span>
+              </button>
+
+              <button
+                onClick={navigateNext}
+                className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
+              >
+                <span className="text-[11px]">Next Stage</span>
+                <Image
+                  src={"/endgame-training/Union.png"}
+                  alt="arrow right icon"
+                  width={12}
+                  height={12}
+                />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMobileNavigation = () => {
+    return (
+      <div className="sm:hidden px-4 py-3 flex flex-row justify-center items-center gap-2">
+        <button
+          disabled={currentMoveIndex === 0}
+          onClick={handlePreviousMove}
+          className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+            currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <ChevronLeft size={20} color="#000" />
+        </button>
+        <button
+          disabled={currentMoveIndex >= moveHistory.length}
+          onClick={handleNextMove}
+          className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+            currentMoveIndex >= moveHistory.length
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+        >
+          <ChevronRight size={20} color="#000" />
+        </button>
+        <button
+          onClick={resetPosition}
+          className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+        >
+          <RotateCw size={20} color="#000" />
+        </button>
+      </div>
+    );
+  };
+
   const isLoading = isEndgameLoading || isCheckmateLoading;
   const error = isCheckmateMode ? checkmateError : endgameError;
 
@@ -541,14 +943,28 @@ export default function StageDetailView({
 
   return (
     <div className="w-full h-full flex justify-center items-center">
-      <GameAlertDialog
-        open={showGameEndDialog}
-        game={game || null}
-        playerColor={playerColor}
-        onRematch={resetPosition}
-        onClose={handleCloseAlert}
-      />
-      <main className="w-full h-full p-4 flex flex-col space-y-4">
+      {!isMobile ? (
+        <GameAlertDialog
+          open={showGameEndDialog}
+          game={game || null}
+          playerColor={playerColor}
+          onRematch={resetPosition}
+          onClose={handleCloseAlert}
+        />
+      ) : (
+        <GameAlertDialogMobile
+          open={showGameEndDialog}
+          game={game || null}
+          playerColor={playerColor}
+          onRematch={resetPosition}
+          onClose={handleCloseAlert}
+          navigateNext={navigateNext}
+          resetPosition={resetPosition}
+          handleShare={handleShare}
+        />
+      )}
+
+      <main className="w-full h-full sm:p-4 flex flex-col space-y-4">
         <GameHeader
           categoryData={categoryData}
           subcategoryName={subcategoryName}
@@ -560,7 +976,7 @@ export default function StageDetailView({
 
         <div className="grid grid-cols-1 xl:grid-cols-10 bg-white xl:gap-5">
           <div className="xl:col-span-6 flex flex-col">
-            <div className="flex flex-row self-end justify-end items-center gap-x-2 mb-2">
+            <div className="flex flex-row self-end justify-end items-center px-4 sm:p-0 gap-x-2 sm:mb-2">
               <button onClick={handleSwitch}>
                 <Image
                   src={"/images/play-vs-ai/switch.png"}
@@ -582,7 +998,7 @@ export default function StageDetailView({
                 />
               </button>
             </div>
-            <div className="xl:border border-gray-200 p-0 mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
+            <div className="xl:border border-gray-200 p-0 sm:mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
                 <div className="aspect-square bg-white flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden xl:max-w-[650px] 2xl:max-w-[700px] 2xl:max-h-[650px]">
                   <ChessboardWrapper
@@ -611,11 +1027,68 @@ export default function StageDetailView({
                     handleShare={handleShare}
                   />
                 </div>
+                {isSolved && (
+                  <div className="w-full overflow-hidden px-4">
+                    <GameOutcomeDisplay
+                      game={game}
+                      playerColor={playerColor}
+                      moveHistory={moveHistory}
+                      pieceConfig={pieceConfig}
+                      subcategoryName={subcategoryName}
+                      startTime={gameStartTime}
+                      endTime={gameEndTime}
+                      isGameOver={isSolved}
+                      onNewGame={handleNewGame}
+                      onRematch={resetPosition}
+                    />
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Mobile controls below board */}
+            {renderMobileButtons()}
+            <div className="px-4 py-2 flex flex-col gap-y-1">
+              <div className="sm:hidden">
+                <SyzygyAnalysis
+                  mateDistance={syzygyMateDistance}
+                  playerColor={playerColor}
+                  currentTurn={game.turn()}
+                  isLoading={isSyzygyLoading}
+                />
+              </div>
+              {!isSolved && (
+                <div className="flex sm:hidden flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-[4px] p-0">
+                  <div className="flex  flex-col items-center py-1 justify-center gap-x-3 gap-y-2">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-4 w-4 text-blue-base" />
+                      <h1 className="text-sm text-black">
+                        {isCheckmateMode
+                          ? `Find the ${movesToCheckmate} ${
+                              movesToCheckmate === 1 ? "move" : "moves"
+                            } to checkmate`
+                          : playerColor === "w"
+                          ? "White to Checkmate"
+                          : "Black to Checkmate"}
+                      </h1>
+                    </div>
+                    <div className="truncate text-xs">{position}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile move history */}
+            <div className="sm:hidden px-4 py-3">
+              <MobileMoveBoxes moveHistory={moveHistory} />
+            </div>
+
+            {/* Mobile navigation buttons */}
+            {renderMobileNavigation()}
           </div>
 
-          <div className="border border-gray-200 rounded-md flex flex-col xl:col-span-4">
+          {/* Desktop sidebar */}
+          <div className="hidden sm:flex border border-gray-200 rounded-md flex-col xl:col-span-4">
             <div className="flex flex-col h-full">
               <div className="w-full p-4 h-auto">
                 <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
@@ -630,7 +1103,7 @@ export default function StageDetailView({
                         ? "White to Checkmate"
                         : "Black to Checkmate"}
                     </h1>
-                  </div>{" "}
+                  </div>
                   <div className="bg-white text-xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
                     <TooltipProvider>
                       <Tooltip>

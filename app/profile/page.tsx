@@ -75,7 +75,6 @@ export default function Profile() {
 
   return (
     <Suspense>
-      {/* Loading Overlay */}
       {isLoggingOut && (
         <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
@@ -90,7 +89,6 @@ export default function Profile() {
         <ChangePassword />
         <ChessAccountSetup isLoading={isLoading} />
         <div className="relative">
-          {/* Main Content */}
           <div
             className={`flex flex-col z-10 p-[32px] gap-4 ${
               isLoggingOut ? "pointer-events-none" : ""

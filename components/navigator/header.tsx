@@ -34,6 +34,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const isSignedIn = sessionId.length > 0;
   const isGuestMode = !isSignedIn;
+  const isEndgameTraining = pathname?.includes("endgame-training");
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -257,7 +258,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     <header
       className={`fixed xl:sticky top-0 z-100 flex w-full items-center ${
         isGuestMode ? "justify-between xl:justify-center" : "justify-between"
-      } bg-white px-3 lg:px-6 border-b h-[72px] lg:h-[97px]`}
+      } ${
+        isEndgameTraining && !isDesktop ? "bg-[#E6F7FE]" : "bg-white border-b"
+      } px-3 lg:px-6 h-[72px] lg:h-[97px]`}
     >
       <div
         className={`flex ${
@@ -291,6 +294,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           <p className="sm:hidden text-[10px] text-gray-500">
             ({profile?.username || "User"})
           </p>
+        </div>
+      )}
+
+      {pathname?.includes("endgame-training") && !isDesktop && (
+        <div className="flex justify-center items-center flex-col">
+          <h1 className="sm:hidden text-lg font-semibold">Endgame Training</h1>
         </div>
       )}
 

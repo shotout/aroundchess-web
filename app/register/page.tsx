@@ -48,7 +48,7 @@ export default function RegisterPage() {
 
       setSessionId(accessToken);
 
-      toast.success("Logged in successfully with Google!");
+      // toast.success("Logged in successfully with Google!");
       window.location.href = "/analysis";
     } catch (error) {
       toast.error("Failed to process Google login");

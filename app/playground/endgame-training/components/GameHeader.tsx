@@ -24,7 +24,7 @@ export default function GameHeader({
   goBackToSelection,
 }: GameHeaderProps) {
   return (
-    <div className="w-full max-w-none flex relative overflow-hidden items-center min-h-14 justify-between bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10 border border-[#C0CED4] p-2 rounded-md">
+    <div className="w-full max-w-none flex relative overflow-hidden items-center min-h-14 justify-between bg-[#E6F7FE] sm:bg-gradient-to-br from-[#C7DEE9]/10 via-[#BAE2F4]/10 to-[#56B8E9]/10 sm:border border-[#C0CED4] p-2 sm:rounded-md">
       {isCheckmateMode ? (
         <>
           <div className="flex items-center min-w-14 shrink-0">
