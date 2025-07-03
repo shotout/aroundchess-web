@@ -50,7 +50,7 @@ const benefits = [
 export function BenefitsOf() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-   const { sessionId } = useProfileStore();
+  const { sessionId } = useProfileStore();
 
   useEffect(() => {
     const checkSession = () => {
@@ -67,7 +67,7 @@ export function BenefitsOf() {
     router.push("/analysis");
   };
   return (
-    <section className="py-2 sm:py-2 lg:py-2 xl:py-4 bg-white">
+    <section className="py-2 sm:py-2 lg:py-2 xl:py-4 bg-white rounded-b-[32px]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col xl:flex-row items-center gap-8 lg:gap-12">
           <motion.div

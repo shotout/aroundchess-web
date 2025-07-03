@@ -853,7 +853,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </button>
         </motion.div>
         <div className="px-5">
-          <div className=" flex flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
+          <div className="flex sm:hidden flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[18px] h-[18px]" color="#221AE9" />
             <span className="font-medium text-sm">
               You are {boardOrientation === "white" ? "white" : "black"}
@@ -868,7 +868,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return (
       <motion.div
         variants={fadeInUp}
-        className="hidden sm:block relative flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
+        className="hidden  relative sm:flex w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-2 p-2 -mx-[16px]"
       >
         {showTooltip && (
           <RelativeTooltip onClose={() => setShowTooltip(false)} />

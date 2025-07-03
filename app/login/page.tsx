@@ -275,16 +275,13 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* Main container with full viewport height */}
       <div className="h-screen flex flex-col">
-        {/* Header with fixed height */}
         <SiteHeaderNew />
 
-        {/* Main content taking remaining space after header */}
         <main
           className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
                      h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
-                     min-h-[500px] overflow-y-auto"
+                     min-h-[580px] overflow-y-auto"
         >
           {/* Background image */}
           <div className="absolute inset-0 -z-10">

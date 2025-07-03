@@ -62,15 +62,16 @@ export default function AnalysisPage() {
       if (response.data != null) {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
+        setOpenAnalyze(false); // User has existing analysis
       } else {
-        fetchPgnFamousGame();
+        // User has no previous analysis - show analyze modal
         setOpenAnalyze(true);
       }
       setLoading(false);
     } catch (error) {
+      console.error("Error fetching analysis:", error);
       setLoading(false);
-      fetchPgnFamousGame();
-      setOpenAnalyze(true);
+      setOpenAnalyze(true); // Show analyze modal on error
     }
   };
 
@@ -87,7 +88,7 @@ export default function AnalysisPage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydratedProfile]);
+  }, [hydratedProfile, username]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;

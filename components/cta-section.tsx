@@ -2,10 +2,8 @@
 
 import { motion } from "@/utils/motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
 
 export function CTASection() {
@@ -20,7 +18,7 @@ export function CTASection() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <div className="px-4 py-8 md:px-8 lg:px-12 md:py-4 lg:py-8 lg:px-16 relative z-10">
+          <div className="px-4 py-8 md:px-8 lg:px-12 md:py-4 lg:py-8 xl:py-16 relative z-10">
             <div className="mx-auto max-w-2xl text-center mb-4 sm:mb-8">
               <Link href={"/register"}>
                 <Button

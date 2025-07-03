@@ -143,7 +143,6 @@ export default function Home() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        // toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
         showAlert(
@@ -195,7 +194,7 @@ export default function Home() {
   }, [dataAnalysis, isLoading]);
 
   return (
-    <div>
+    <div className="bg-[#e6f7fe]">
       {loading == true ? (
         <LoadingPage />
       ) : (

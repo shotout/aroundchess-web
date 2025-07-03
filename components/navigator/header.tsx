@@ -197,7 +197,18 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     </div>
   );
 
-  const MobileUI = () => (
+  const MobileMenuButton = () => (
+    <button
+      type="button"
+      className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-md p-1"
+      onClick={handleSidebarToggle}
+      aria-label="Toggle sidebar menu"
+    >
+      <Menu className="h-6 w-6" />
+    </button>
+  );
+
+  const MobileUserInfo = () => (
     <div className="flex items-center space-x-3 w-full">
       {isSignedIn && (
         <div className="hidden sm:flex flex-row w-full">
@@ -242,15 +253,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           </div>
         </motion.div>
       )}
-
-      <button
-        type="button"
-        className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-md p-1"
-        onClick={handleSidebarToggle}
-        aria-label="Toggle sidebar menu"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
     </div>
   );
 
@@ -303,17 +305,26 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </div>
       )}
 
-      {!isLoading && (isMember !== null || isSignedIn !== null) && (
-        <div
-          className={`flex ${
-            isGuestMode ? "xl:justify-end" : ""
-          } items-center space-x-4`}
-        >
-          {!isSignedIn ? <AuthButtons /> : <SignedInUserUI />}
-
-          {!isDesktop && <MobileUI />}
+      {!isDesktop && (
+        <div className="flex items-center space-x-3">
+          {!isLoading && (isMember !== null || isSignedIn !== null) && (
+            <MobileUserInfo />
+          )}
+          <MobileMenuButton />
         </div>
       )}
+
+      {isDesktop &&
+        !isLoading &&
+        (isMember !== null || isSignedIn !== null) && (
+          <div
+            className={`flex ${
+              isGuestMode ? "xl:justify-end" : ""
+            } items-center space-x-4`}
+          >
+            {!isSignedIn ? <AuthButtons /> : <SignedInUserUI />}
+          </div>
+        )}
     </header>
   );
 };

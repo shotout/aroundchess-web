@@ -53,6 +53,9 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     clearPlayerStats,
   } = usePlayerStatsStore();
 
+  // Check if user is using email provider
+  const isEmailProvider = profile.provider === "email";
+
   useEffect(() => {
     setForm({
       email: profile.email ?? "",
@@ -131,7 +134,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
   };
 
   const handleLogout = async () => {
-    onLogoutStart(); // Trigger parent overlay
+    onLogoutStart();
     clearAll();
     clearProfile();
     localStorage.removeItem("token");
@@ -196,6 +199,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             onChange={handleOnChange}
           />
         </div>
+
         <div className="space-y-2 w-full">
           <label
             htmlFor="password"
@@ -215,14 +219,16 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             value={"••••••••"}
             onChange={handleOnChange}
           />
-          <button
-            onClick={handleChangePassword}
-            className="w-full flex justify-end"
-          >
-            <span className="font-normal text-[14px] text-[#221AE9] underline">
-              Change Password
-            </span>
-          </button>
+          {isEmailProvider && (
+            <button
+              onClick={handleChangePassword}
+              className="w-full flex justify-end"
+            >
+              <span className="font-normal text-[14px] text-[#221AE9] underline">
+                Change Password
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -294,10 +300,12 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
         </div>
       </div>
 
-      <ChangePasswordDialog
-        isOpen={isPasswordDialogOpen}
-        onClose={() => setIsPasswordDialogOpen(false)}
-      />
+      {isEmailProvider && (
+        <ChangePasswordDialog
+          isOpen={isPasswordDialogOpen}
+          onClose={() => setIsPasswordDialogOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -171,13 +171,13 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                 <div className="border border-input rounded-[8px] p-[16px]">
                   <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
                     <NavigationMenuItem>
-                      <Link href="/about-us" legacyBehavior passHref>
+                      <Link href="/about-us">
                         <NavigationMenuLink
                           className={`flex items-center text-[18px] font-medium ${
                             pathname == "/about-us"
                               ? "text-[#221AE9]"
                               : "text-black"
-                          } hover:bg-gray-50`}
+                          } hover:text-[#221AE9]`}
                         >
                           <Info className="mr-2 h-4 w-4" />
                           About
@@ -186,11 +186,11 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
-                      <Link href="/faq" legacyBehavior passHref>
+                      <Link href="/faq">
                         <NavigationMenuLink
                           className={`flex items-center text-[18px] font-medium ${
                             pathname == "/faq" ? "text-[#221AE9]" : "text-black"
-                          } hover:bg-gray-50`}
+                          } hover:text-[#221AE9]`}
                         >
                           <HelpCircle className="mr-2 h-4 w-4" />
                           FAQ
@@ -203,7 +203,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                         onClick={() => setOpenPricing(true)}
                       >
                         <NavigationMenuLink
-                          className={`flex items-center text-[18px] font-medium text-black hover:bg-gray-50 ${
+                          className={`flex items-center text-[18px] font-medium text-black hover:text-[#221AE9] ${
                             open && `text-[#221AE9]`
                           }`}
                         >
@@ -274,12 +274,12 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
               {!isSignedIn ? (
                 <div className="flex items-center gap-5">
                   <Link href="/login">
-                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 ">
                       Sign-In
                     </button>
                   </Link>
                   <Link href="/register">
-                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white ">
                       Try Now
                     </button>
                   </Link>
@@ -406,19 +406,19 @@ function MobileNav(props: mobileProps) {
       </div>
       <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6 bg-white ">
         <Link href="/about-us">
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
             <Info className="mr-2 h-4 w-4" />
             About
           </div>
         </Link>
         <Link href="/faq">
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
             <HelpCircle className="mr-2 h-4 w-4" />
             FAQ
           </div>
         </Link>
         <button onClick={() => setOpenSubscribe(true)}>
-          <div className="text-sm sm:text-lg w-full flex flex-row h-9  items-center  rounded-md bg-background px-3 py-2  font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5">
+          <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
             <DollarSign className="mr-2 h-4 w-4" />
             Pricing
           </div>

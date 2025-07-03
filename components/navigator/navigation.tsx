@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import DotSpinner from "../game-history/Spinner";
 import { usePgnStore } from "@/app/store/zustandStore";
 
+// In navigation.tsx - Always render header, but conditionally render sidebar content
+
 export default function Navigation({
   children,
   isDialogOpen = false,
@@ -57,14 +59,14 @@ export default function Navigation({
 
   const sidebarVariants = {
     hidden: {
-      x: "100%", // Slides off-screen to the right
+      x: "100%",
       transition: {
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1],
       },
     },
     visible: {
-      x: 0, // Slides back to normal position
+      x: 0,
       transition: {
         duration: 0.4,
         ease: [0.4, 0, 0.2, 1],
@@ -89,12 +91,23 @@ export default function Navigation({
     },
   };
 
-  useEffect(() => {
-    if (hydrated) {
-      console.log("TEST SESSIONID", hydrated);
-    }
-  }, [hydrated]);
-  if (!hydrated) return <DotSpinner />;
+  if (!hydrated && !pathname?.includes("analysis")) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
+        <div className="flex flex-col w-full">
+          <div className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0">
+            <Header onSidebarToggle={toggleSidebar} />
+          </div>
+          <main className="flex-1 overflow-y-auto pt-[72px] lg:pt-24">
+            <div className="flex items-center justify-center min-h-[calc(100vh-72px)]">
+              <DotSpinner />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   if (hydrated && sessionId.length == 0 && !pathname?.includes("analysis")) {
     return (
       <>
@@ -104,7 +117,8 @@ export default function Navigation({
       </>
     );
   }
-  if (hydrated ) {
+
+  if (hydrated) {
     return (
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         {isDesktop && (
@@ -164,7 +178,7 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200 shadow-xl" // Changed left-0 to right-0, and border-r to border-l
+                className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200 shadow-xl"
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"
@@ -178,4 +192,6 @@ export default function Navigation({
       </div>
     );
   }
+
+  return <DotSpinner />;
 }
