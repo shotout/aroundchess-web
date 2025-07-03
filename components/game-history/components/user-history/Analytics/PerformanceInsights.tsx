@@ -30,7 +30,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
         </Card>
 
         {/* Time Management Card */}
-        <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
+        {/* <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
           <h1 className="text-sm font-semibold">Time Management</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
@@ -39,7 +39,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
               </h1>
             </div>
           </div>
-        </Card>
+        </Card> */}
 
         {/* Accuracy Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
