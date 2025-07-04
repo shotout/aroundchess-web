@@ -16,7 +16,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
   return (
     <div className="md:p-4 rounded-lg">
       <h1 className="text-base font-medium mb-3">Performance Insights</h1>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1  sm:grid-cols-3 gap-3">
         {/* Average Game Length Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
           <h1 className="text-sm font-semibold">Average Game Length</h1>

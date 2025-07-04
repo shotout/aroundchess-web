@@ -89,8 +89,8 @@ export function HeroSection() {
         setDataAnalysis(responseAnalysis.data);
         arr = responseAnalysis.data;
         setError(null);
-      }else{
-        toast.error("Username not exist in database")
+      } else {
+        toast.error("Username not exist in database");
       }
       // router.push("/analysis");
     } catch (err) {
@@ -197,7 +197,7 @@ export function HeroSection() {
                   <span className="text-primary font-bold">Chess</span> Game
                   with our
                 </span>
-                <span className="font-heading text-lg sm:text-xl xl:text-4xl font-bold tracking-tight text-black-900">
+                <span className="font-heading text-lg sm:text-xl xl:text-4xl font-bold tracking-wide text-black-900">
                   Advanced Game Analysis
                 </span>
               </h1>
