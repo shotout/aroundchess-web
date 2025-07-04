@@ -29,8 +29,8 @@ export default function MovementTable() {
   const { PieceChoosed } = useChessBoardThemeStore();
   const { summary } = dataAnalysis ?? {};
 
-  const blackPlayer = summary?.blackSide?.profileInfo ?? playerInfo?.black;
-  const whitePlayer = summary?.whiteSide?.profileInfo ?? playerInfo?.white;
+  const blackPlayer = playerInfo?.black;
+  const whitePlayer = playerInfo?.white;
 
   const dataMovement = logMovement || { white: [], black: [] };
   const whiteMoves = Array.isArray(dataMovement.white)
