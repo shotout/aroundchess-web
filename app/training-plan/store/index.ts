@@ -98,8 +98,9 @@ interface TrainingPlanState {
   selectedMiddlegames: string[];
   selectedEndgames: string[];
 
-  // UI state
-  isLoading: boolean;
+  // Independent loading states
+  isLoadingTopics: boolean;
+  isLoadingProfile: boolean;
   isCreating: boolean;
   error: string | null;
   isAdjustMode: boolean;
@@ -153,7 +154,8 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
   selectedMiddlegames: [],
   selectedEndgames: [],
 
-  isLoading: false,
+  isLoadingTopics: false,
+  isLoadingProfile: false,
   isCreating: false,
   error: null,
   isAdjustMode: false,
@@ -165,7 +167,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     set({ isAdjustMode: mode });
   },
 
-  // Optimized fetchTopics with deduplication
+  // Optimized fetchTopics with independent loading
   fetchTopics: async (sessionId: string) => {
     const state = get();
     const cacheKey = `fetchTopics_${sessionId}`;
@@ -176,7 +178,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
 
     const fetchPromise = (async () => {
-      set({ isLoading: true, error: null });
+      set({ isLoadingTopics: true, error: null });
 
       try {
         // Check if we have valid cached data
@@ -194,7 +196,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
             topics,
             recommendations,
             ...autoSelectedTopics,
-            isLoading: false,
+            isLoadingTopics: false,
           });
           return;
         }
@@ -218,7 +220,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
           topics,
           recommendations,
           ...autoSelectedTopics,
-          isLoading: false,
+          isLoadingTopics: false,
         });
       } catch (error) {
         console.error("Error fetching training plan topics:", error);
@@ -227,7 +229,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
             error instanceof Error
               ? error.message
               : "Failed to fetch training plan topics",
-          isLoading: false,
+          isLoadingTopics: false,
         });
       } finally {
         // Remove the promise from tracking
@@ -244,7 +246,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     return fetchPromise;
   },
 
-  // Optimized fetchExistingTopics with deduplication
+  // Optimized fetchExistingTopics with independent loading
   fetchExistingTopics: async (sessionId: string) => {
     const state = get();
     const cacheKey = `fetchExistingTopics_${sessionId}`;
@@ -255,7 +257,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
     }
 
     const fetchPromise = (async () => {
-      set({ isLoading: true, error: null });
+      set({ isLoadingTopics: true, error: null });
 
       try {
         // First, fetch the existing topics to get what's currently selected
@@ -295,7 +297,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
           selectedBlackOpenings,
           selectedMiddlegames,
           selectedEndgames,
-          isLoading: false,
+          isLoadingTopics: false,
         });
       } catch (error) {
         console.error("Error fetching existing training plan topics:", error);
@@ -304,7 +306,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
             error instanceof Error
               ? error.message
               : "Failed to fetch existing training plan topics",
-          isLoading: false,
+          isLoadingTopics: false,
         });
       } finally {
         // Remove the promise from tracking
@@ -419,7 +421,7 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
   },
 }));
 
-// ========== SCHEDULE STORE ==========
+// ========== SCHEDULE STORE with Independent Loading ==========
 export interface TrainingTopic {
   id: string;
   title: string;
@@ -443,8 +445,8 @@ export interface TrainingSchedule {
 
 interface ScheduleState {
   schedule: TrainingSchedule | null;
-  isLoading: boolean;
-  error: string | null;
+  isLoadingSchedule: boolean;
+  scheduleError: string | null;
   planExpired: boolean;
   _fetchPromises: Map<string, Promise<any>>;
   fetchSchedule: (sessionId: string) => Promise<void>;
@@ -453,8 +455,8 @@ interface ScheduleState {
 
 export const useScheduleStore = create<ScheduleState>((set, get) => ({
   schedule: null,
-  isLoading: false,
-  error: null,
+  isLoadingSchedule: false,
+  scheduleError: null,
   planExpired: false,
   _fetchPromises: new Map(),
 
@@ -470,13 +472,13 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
     }
 
     const fetchPromise = (async () => {
-      set({ isLoading: true, error: null, planExpired: false });
+      set({ isLoadingSchedule: true, scheduleError: null, planExpired: false });
 
       try {
         // Check if we have valid cached data
         const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
         if (cachedData) {
-          set({ schedule: cachedData, isLoading: false });
+          set({ schedule: cachedData, isLoadingSchedule: false });
           return;
         }
 
@@ -489,7 +491,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
         // Cache the response
         CacheUtil.setItem(CACHE_KEYS.TRAINING_SCHEDULE, response.data);
 
-        set({ schedule: response.data, isLoading: false });
+        set({ schedule: response.data, isLoadingSchedule: false });
       } catch (error: any) {
         console.error("Error fetching training schedule:", error);
 
@@ -509,19 +511,19 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
           set({
             planExpired: true,
             schedule: null,
-            isLoading: false,
-            error:
+            isLoadingSchedule: false,
+            scheduleError:
               responseData?.message ||
               "Your training plan has expired. Please create a new one.",
           });
         } else {
           // For other errors, handle normally
           set({
-            error:
+            scheduleError:
               error instanceof Error
                 ? error.message
                 : "Failed to fetch training schedule",
-            isLoading: false,
+            isLoadingSchedule: false,
           });
         }
       } finally {
@@ -540,11 +542,86 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   },
 
   resetExpiredStatus: () => {
-    set({ planExpired: false, error: null });
+    set({ planExpired: false, scheduleError: null });
   },
 }));
 
-// ========== PROGRESS STORE ==========
+// ========== USER PROFILE STORE with Independent Loading ==========
+interface UserState {
+  profile: UserProfile | null;
+  isLoadingUserProfile: boolean;
+  userProfileError: string | null;
+  _fetchPromises: Map<string, Promise<any>>;
+  fetchUserProfile: (sessionId: string) => Promise<void>;
+}
+
+export const useUserStore = create<UserState>((set, get) => ({
+  profile: null,
+  isLoadingUserProfile: false,
+  userProfileError: null,
+  _fetchPromises: new Map(),
+
+  fetchUserProfile: async (sessionId: string) => {
+    if (!sessionId) return;
+
+    const state = get();
+    const cacheKey = `fetchUserProfile_${sessionId}`;
+
+    // Check if we already have an ongoing request
+    if (state._fetchPromises.has(cacheKey)) {
+      return state._fetchPromises.get(cacheKey);
+    }
+
+    const fetchPromise = (async () => {
+      set({ isLoadingUserProfile: true, userProfileError: null });
+
+      try {
+        const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
+        if (cachedData) {
+          set({ profile: cachedData, isLoadingUserProfile: false });
+          return;
+        }
+
+        const response = await apiService.get(
+          endpoints.trainingPlan.getTopics,
+          sessionId
+        );
+
+        if (response.data?.userProfile) {
+          CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
+
+          set({
+            profile: response.data.userProfile,
+            isLoadingUserProfile: false,
+          });
+        } else {
+          throw new Error("User profile not found in the response");
+        }
+      } catch (error) {
+        set({
+          userProfileError:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch user profile",
+          isLoadingUserProfile: false,
+        });
+      } finally {
+        // Remove the promise from tracking
+        const currentState = get();
+        currentState._fetchPromises.delete(cacheKey);
+      }
+    })();
+
+    // Track the promise
+    set((state) => ({
+      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+    }));
+
+    return fetchPromise;
+  },
+}));
+
+// ========== PROGRESS STORE (keeping original for compatibility) ==========
 export interface ProgressRatingData {
   week: number;
   rating: number;
@@ -602,8 +679,8 @@ export interface ProgressData {
 
 interface ProgressState {
   progressData: ProgressData | null;
-  isLoading: boolean;
-  error: string | null;
+  isLoadingProgress: boolean;
+  progressError: string | null;
   currentMonth: string;
   _fetchPromises: Map<string, Promise<any>>;
   setCurrentMonth: (month: string) => void;
@@ -612,8 +689,8 @@ interface ProgressState {
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
   progressData: null,
-  isLoading: false,
-  error: null,
+  isLoadingProgress: false,
+  progressError: null,
   currentMonth: getCurrentMonth(),
   _fetchPromises: new Map(),
 
@@ -635,12 +712,12 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     }
 
     const fetchPromise = (async () => {
-      set({ isLoading: true, error: null });
+      set({ isLoadingProgress: true, progressError: null });
 
       try {
         const cachedData = CacheUtil.getItem(CACHE_KEYS.PROGRESS_DATA);
         if (cachedData && !month) {
-          set({ progressData: cachedData, isLoading: false });
+          set({ progressData: cachedData, isLoadingProgress: false });
           return;
         }
 
@@ -653,89 +730,14 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
           CacheUtil.setItem(CACHE_KEYS.PROGRESS_DATA, response.data);
         }
 
-        set({ progressData: response.data, isLoading: false });
+        set({ progressData: response.data, isLoadingProgress: false });
       } catch (error) {
         set({
-          error:
+          progressError:
             error instanceof Error
               ? error.message
               : "Failed to fetch progress data",
-          isLoading: false,
-        });
-      } finally {
-        // Remove the promise from tracking
-        const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
-      }
-    })();
-
-    // Track the promise
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
-    }));
-
-    return fetchPromise;
-  },
-}));
-
-// ========== USER PROFILE STORE ==========
-interface UserState {
-  profile: UserProfile | null;
-  isLoading: boolean;
-  error: string | null;
-  _fetchPromises: Map<string, Promise<any>>;
-  fetchUserProfile: (sessionId: string) => Promise<void>;
-}
-
-export const useUserStore = create<UserState>((set, get) => ({
-  profile: null,
-  isLoading: false,
-  error: null,
-  _fetchPromises: new Map(),
-
-  fetchUserProfile: async (sessionId: string) => {
-    if (!sessionId) return;
-
-    const state = get();
-    const cacheKey = `fetchUserProfile_${sessionId}`;
-
-    // Check if we already have an ongoing request
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
-    }
-
-    const fetchPromise = (async () => {
-      set({ isLoading: true, error: null });
-
-      try {
-        const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
-        if (cachedData) {
-          set({ profile: cachedData, isLoading: false });
-          return;
-        }
-
-        const response = await apiService.get(
-          endpoints.trainingPlan.getTopics,
-          sessionId
-        );
-
-        if (response.data?.userProfile) {
-          CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
-
-          set({
-            profile: response.data.userProfile,
-            isLoading: false,
-          });
-        } else {
-          throw new Error("User profile not found in the response");
-        }
-      } catch (error) {
-        set({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch user profile",
-          isLoading: false,
+          isLoadingProgress: false,
         });
       } finally {
         // Remove the promise from tracking

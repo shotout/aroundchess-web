@@ -1,6 +1,5 @@
 "use client";
 
-import WoodBoard from "@/components/chessboard/wood/WoodBoard";
 import MovementTable from "@/components/table/movement";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Square } from "chess.js";
@@ -8,7 +7,6 @@ import { motion } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  InfoIcon,
   PauseIcon,
   PlayIcon,
   SkipBackIcon,
@@ -20,7 +18,6 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
-import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { usePgnStore } from "../../app/store/zustandStore";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import {
@@ -44,141 +41,116 @@ interface ParsedMove {
 const ChessContent: React.FC = () => {
   const {
     pgn: storePgn,
-    dataAnalysis,
-    hideDiv,
     capturedWhite,
     capturedBlack,
     setCapturedBlack,
     setCapturedWhite,
     playerInfo,
-    movementDetails,
     previousAnalysesDetail,
     setHistoryGame,
-  } = usePgnStore(); // Get PGN from the Zustand store
+  } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
-  const { tabFocus, setTabFocus } = useTabFocusStore();
-  const {
-    StyleChoosed,
-    setStyleChoosed,
-    BoardChoosed,
-    setBoardChoosed,
-    PieceChoosed,
-    setPieceChoosed,
-  } = useChessBoardThemeStore();
+  const { StyleChoosed, setStyleChoosed, PieceChoosed } =
+    useChessBoardThemeStore();
   const { isLoading: loading } = useApiClient();
-  const { gameInfo, summary } = dataAnalysis ?? {};
-  const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
-    ?.country
-    ? summary?.blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+
+  const blackCountry = previousAnalysesDetail?.playerInfo?.black?.country
+    ? previousAnalysesDetail.playerInfo.black.country.substr(-2)
     : "XX";
 
-  const whiteCountry = summary?.whiteSide?.profileInfo?.chessAccountInfo
-    ?.country
-    ? summary?.whiteSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
+  const whiteCountry = previousAnalysesDetail?.playerInfo?.white?.country
+    ? previousAnalysesDetail.playerInfo.white.country.substr(-2)
     : "XX";
+
   const [game, setGame] = useState(new Chess());
-  const [bestMove, setBestMove] = useState<string | null>(null);
-  const [evaluation, setEvaluation] = useState<number | null>(null);
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
-  const [showMovementContent, setShowMovementContent] = useState<boolean>(true);
-  const [orientation, setOrientation] = useState<BoardOrientation>("white"); // Default size
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
-
-    // Initial size calculation
-    handleResize();
-
-    // Add event listeners
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [mounted]);
-
-  useEffect(() => {
-    let isOpen = storePgn != "" || storePgn != null ? true : false;
-    setShowTable(isOpen);
-  }, [storePgn]);
-
+  const [orientation, setOrientation] = useState<BoardOrientation>("white");
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
-  const [currentMoveWhite, setCurrentMoveWhite] = useState<number>(0);
-  const [currentMoveBlack, setCurrentMoveBlack] = useState<number>(0);
-  const [pgn, setPgn] = useState<string>("");
+  const [currentMoveWhite, setCurrentMoveWhite] = useState<string>("0:10:00");
+  const [currentMoveBlack, setCurrentMoveBlack] = useState<string>("0:10:00");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     "white"
   );
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [startTime, setStartTime] = useState("0:10:00:0");
+  const [startTime, setStartTime] = useState("0:10:00");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    let is3D = StyleChoosed == "3d" ? true : false;
+    if (typeof window === "undefined" || !mounted) return;
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mounted]);
+
+  useEffect(() => {
+    let isOpen = storePgn != "" && storePgn != null;
+    setShowTable(isOpen);
+  }, [storePgn]);
+
+  useEffect(() => {
+    let is3D = StyleChoosed == "3d";
     setIs3DMode(is3D);
   }, [StyleChoosed]);
+
+  // Reset chess state when PGN changes
   useEffect(() => {
     if (storePgn) {
-      setPgn(storePgn);
+      // Reset all chess-related state
+      setIsPlaying(false);
+      setCurrentMoveIndex(0);
+      setCurrentMoveWhite("0:10:00");
+      setCurrentMoveBlack("0:10:00");
+      setParsedMoves([]);
+      setGame(new Chess());
+      setChessMove({});
+
+      // Clear any auto-play timer
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
+
       setIsLoading(true);
       setTimeout(() => {
         parsePgn(storePgn);
         setIsLoading(false);
-      }, 1000);
+      }, 100);
     } else {
       setIsLoading(false);
     }
   }, [storePgn]);
 
-  // Parse PGN and extract moves
   const parsePgn = (pgnText: string): boolean => {
     try {
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
-      // Check if the PGN was loaded successfully
+
       if (tempGame.pgn() === "") {
-        setErrorMessage("Invalid PGN format. Please check your input.");
+        console.error("Invalid PGN format");
         return false;
       }
-      const comments = tempGame.getComments();
-      console.log("tempGame.getComments()", comments);
 
-      // Extract history of moves
+      const comments = tempGame.getComments();
       const history = tempGame.history({ verbose: true }) as ParsedMove[];
       setHistoryGame(history);
 
       comments.forEach((c) => {
         let index = history.findIndex(({ after }) => after == c.fen);
-        // console.log( index);
-        if (index === -1) {
-          // history.push(o);
-        } else {
+        if (index !== -1) {
           history[index].clock = c.comment
             .replace("[%clk ", "")
             .replace("]", "");
         }
       });
-      let capturedPiecesBlack: {
-        captured: string | null;
-        piece: string | null;
-        color: string;
-        from: Square;
-        to: Square;
-        lan: string;
-        san: string;
-      }[] = [];
-      let capturedPiecesWhite: {
-        captured: string | null;
-        piece: string | null;
-        color: string;
-        from: Square;
-        to: Square;
-        lan: string;
-        san: string;
-      }[] = [];
-      // Replay moves and check for captures
+
+      let capturedPiecesBlack: any[] = [];
+      let capturedPiecesWhite: any[] = [];
+
       tempGame.history({ verbose: true }).forEach((move) => {
         if (move.captured) {
           if (move.color == "w") {
@@ -204,40 +176,38 @@ const ChessContent: React.FC = () => {
           }
         }
       });
+
       setCapturedBlack(capturedPiecesBlack);
       setCapturedWhite(capturedPiecesWhite);
-      console.log("capturedPiecesWhite", capturedPiecesWhite);
-      console.log("capturedPiecesBlack", capturedPiecesBlack);
 
-      getStartTime(comments[0].comment.replace("[%clk ", "").replace("]", ""));
-      // Determine board orientation based on the headers
+      if (comments.length > 0) {
+        getStartTime(
+          comments[0].comment.replace("[%clk ", "").replace("]", "")
+        );
+      }
+
       const headers = tempGame.header();
       if (headers.Black && headers.Black.toLowerCase() === "you") {
         setBoardOrientation("black");
       } else {
         setBoardOrientation("white");
       }
-      console.log("history", history);
-      // Reset the current game
+
+      // Reset game state
       const newGame = new Chess();
       setGame(newGame);
       setParsedMoves(history);
-      setCurrentMoveWhite(0);
-      setCurrentMoveBlack(0);
+      setCurrentMoveWhite("0:10:00");
+      setCurrentMoveBlack("0:10:00");
       setCurrentMoveIndex(0);
-      setErrorMessage("");
 
       return true;
     } catch (error) {
       console.error("Error parsing PGN:", error);
-      setErrorMessage(
-        `Error parsing PGN: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
       return false;
     }
   };
+
   const getStartTime = (time: string) => {
     const [hours, minutes, seconds] = time.split(":").map(Number);
     let totalMinutes = hours * 60 + minutes;
@@ -248,6 +218,7 @@ const ChessContent: React.FC = () => {
     let result = "0:" + minuteFormat + ":00";
     setStartTime(result);
   };
+
   const toggleBoardMode = () => {
     setIs3DMode((prev) => !prev);
     let style = !is3DMode ? "3d" : "2d";
@@ -272,26 +243,24 @@ const ChessContent: React.FC = () => {
       });
     }, 400);
   };
+
   const setCurrentMove = (index: number) => {
     if (index == 0) {
-      setCurrentMoveBlack(0);
-      setCurrentMoveWhite(0);
-    } else if (parsedMoves[index] && parsedMoves[index].color == "w") {
-      setCurrentMoveWhite(parsedMoves[index].clock);
-      if (parsedMoves[index + 1]) {
-        setCurrentMoveBlack(parsedMoves[index + 1].clock);
-      } else {
-        setCurrentMoveBlack(parsedMoves[index].clock);
+      setCurrentMoveBlack(startTime);
+      setCurrentMoveWhite(startTime);
+    } else if (parsedMoves[index - 1] && parsedMoves[index - 1].color == "w") {
+      setCurrentMoveWhite(parsedMoves[index - 1].clock || startTime);
+      if (parsedMoves[index]) {
+        setCurrentMoveBlack(parsedMoves[index].clock || startTime);
       }
-    } else if (parsedMoves[index] && parsedMoves[index].color == "b") {
-      setCurrentMoveBlack(parsedMoves[index].clock);
-      if (parsedMoves[index + 1]) {
-        setCurrentMoveWhite(parsedMoves[index + 1].clock);
-      } else {
-        setCurrentMoveWhite(parsedMoves[index].clock);
+    } else if (parsedMoves[index - 1] && parsedMoves[index - 1].color == "b") {
+      setCurrentMoveBlack(parsedMoves[index - 1].clock || startTime);
+      if (parsedMoves[index]) {
+        setCurrentMoveWhite(parsedMoves[index].clock || startTime);
       }
     }
   };
+
   const stopAutoPlay = () => {
     setIsPlaying(false);
     if (autoPlayTimerRef.current) {
@@ -303,18 +272,18 @@ const ChessContent: React.FC = () => {
   const jumpToPreviousMove = () => {
     stopAutoPlay();
     setCurrentMoveIndex((prevIndex) => {
-      setCurrentMove(Math.max(0, prevIndex - 1));
-      return Math.max(0, prevIndex - 1);
+      const newIndex = Math.max(0, prevIndex - 1);
+      setCurrentMove(newIndex);
+      return newIndex;
     });
   };
 
   const jumpToNextMove = () => {
     stopAutoPlay();
-
     setCurrentMoveIndex((prevIndex) => {
-      setCurrentMove(Math.max(0, prevIndex + 1));
-
-      return Math.min(parsedMoves.length, prevIndex + 1);
+      const newIndex = Math.min(parsedMoves.length, prevIndex + 1);
+      setCurrentMove(newIndex);
+      return newIndex;
     });
   };
 
@@ -327,8 +296,9 @@ const ChessContent: React.FC = () => {
 
   const jumpToLastMove = () => {
     stopAutoPlay();
-    setCurrentMoveIndex(parsedMoves.length);
-    setCurrentMove(parsedMoves.length - 1);
+    const lastIndex = parsedMoves.length;
+    setCurrentMoveIndex(lastIndex);
+    setCurrentMove(lastIndex);
   };
 
   const togglePlayPause = () => {
@@ -343,57 +313,42 @@ const ChessContent: React.FC = () => {
     if (chessMove.index != null) {
       const colorIndex = chessMove.type == "black" ? 1 : 0;
       let indexOf = chessMove.index * 2 + colorIndex;
-      console.log("indexOf", indexOf);
       const data = parsedMoves[indexOf];
-      console.log("parsedMoves", parsedMoves);
-      console.log("data move", data);
       if (data != null) {
-        setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
-        setCurrentMove(parsedMoves.indexOf(data) + 1);
+        const moveIndex = parsedMoves.indexOf(data) + 1;
+        setCurrentMoveIndex(moveIndex);
+        setCurrentMove(moveIndex);
       }
-    } else {
+    } else if (chessMove.move) {
       const color = chessMove.type == "black" ? "b" : "w";
-      const data = parsedMoves.filter(
+      const data = parsedMoves.find(
         (i) => i.san == chessMove.move && i.color == color
       );
-      console.log("parsedMoves", parsedMoves);
-      console.log("data move", data);
-      if (data.length > 0) {
-        setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
-        setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
+      if (data) {
+        const moveIndex = parsedMoves.indexOf(data) + 1;
+        setCurrentMoveIndex(moveIndex);
+        setCurrentMove(moveIndex);
       }
     }
   }, [chessMove, parsedMoves]);
 
   useEffect(() => {
     const newGame = new Chess();
-
     for (let i = 0; i < currentMoveIndex; i++) {
       if (i < parsedMoves.length) {
         newGame.move(parsedMoves[i]);
       }
     }
-
     setGame(newGame);
   }, [currentMoveIndex, parsedMoves]);
 
   useEffect(() => {
-    console.log("movementDetails", movementDetails);
     return () => {
       if (autoPlayTimerRef.current) {
         clearInterval(autoPlayTimerRef.current);
       }
     };
   }, []);
-
-  const getBoardProps = () => {
-    const baseProps = {
-      position: game.fen(),
-      boardOrientation,
-      animationDuration: 1000,
-    };
-    return baseProps;
-  };
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -419,6 +374,7 @@ const ChessContent: React.FC = () => {
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -437,32 +393,26 @@ const ChessContent: React.FC = () => {
         return "text-[#364152]";
     }
   };
+
   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    // const maxSize = window?.innerWidth *0.25;
     let desktopSize =
       window.innerWidth - (window.innerWidth * 0.58 + window.innerWidth / 6);
     const maxSize = window.innerWidth > 1280 ? desktopSize : 453;
-    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
   };
+
   const renderBlackAvatar = () => {
     return (
       <div
@@ -480,7 +430,6 @@ const ChessContent: React.FC = () => {
             width={1000}
             height={1000}
           />
-          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
@@ -490,7 +439,6 @@ const ChessContent: React.FC = () => {
               >
                 {playerInfo?.black?.username}
               </span>
-
               <ReactCountryFlag
                 countryCode={blackCountry}
                 svg
@@ -498,7 +446,6 @@ const ChessContent: React.FC = () => {
                 title={blackCountry}
               />
             </div>
-
             <div className="flex flex-row gap-1">
               {capturedBlack &&
                 capturedBlack.length > 0 &&
@@ -532,12 +479,13 @@ const ChessContent: React.FC = () => {
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
           <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-            {currentMoveBlack == 0 ? startTime : currentMoveBlack}
+            {currentMoveBlack}
           </span>
         </div>
       </div>
     );
   };
+
   const renderWhiteAvatar = () => {
     return (
       <div
@@ -555,7 +503,6 @@ const ChessContent: React.FC = () => {
             width={1000}
             height={1000}
           />
-          {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
@@ -565,7 +512,6 @@ const ChessContent: React.FC = () => {
               >
                 {playerInfo?.white?.username}
               </span>
-
               <ReactCountryFlag
                 countryCode={whiteCountry}
                 svg
@@ -573,7 +519,6 @@ const ChessContent: React.FC = () => {
                 title={whiteCountry}
               />
             </div>
-
             <div className="flex flex-row gap-1">
               {capturedWhite &&
                 capturedWhite.length > 0 &&
@@ -607,20 +552,13 @@ const ChessContent: React.FC = () => {
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
           <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
-            {currentMoveWhite == 0 ? startTime : currentMoveWhite}
+            {currentMoveWhite}
           </span>
         </div>
       </div>
     );
   };
-  useEffect(() => {
-    handleResize();
-  }, [hideDiv, is3DMode]);
 
-  useEffect(() => {
-    // console.log("Best move:", bestMove);
-    // console.log("Evaluation:", evaluation);
-  }, [bestMove, evaluation]);
   const handleSwitch = () => {
     setOrientation((prev) => {
       if (prev == "white") {
@@ -630,6 +568,7 @@ const ChessContent: React.FC = () => {
       }
     });
   };
+
   const buttonBoard = () => {
     return (
       <div
@@ -658,41 +597,22 @@ const ChessContent: React.FC = () => {
       </div>
     );
   };
+
   return (
-    <div
-    
-      className={`flex justify-center gap-4 bg-white pb-4 `}
-      // className={`${
-      //   hideDiv &&
-      //   "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
-      // } flex justify-center gap-4 bg-white pb-4 `}
-    >
+    <div className="flex justify-center gap-4 bg-white pb-4">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } :
-               { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: 
-              // !hideDiv ? "block" : 
-              "none" }}
           >
             {orientation != "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>
+
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } : 
-              { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{
-              display: 
-              // !hideDiv ? "flex" :
-               "none",
-              justifyContent: "end",
-            }}
+            style={{ display: "flex", justifyContent: "end" }}
           >
             {buttonBoard()}
           </motion.div>
@@ -722,10 +642,7 @@ const ChessContent: React.FC = () => {
               <ThreeDBoard
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
-                boardWidth={
-                  // hideDiv ? boardSize - 80 :
-                   is3DMode ? boardSize : boardSize
-                }
+                boardWidth={boardSize}
                 orientation={orientation}
                 position={game.fen()}
                 onSquareClick={function (square: Square): void {
@@ -749,6 +666,7 @@ const ChessContent: React.FC = () => {
               />
             )}
           </motion.div>
+
           <motion.div
             initial={{ rotateX: 180 }}
             animate={
@@ -773,10 +691,7 @@ const ChessContent: React.FC = () => {
               <TwoDChessboard
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
-                boardWidth={
-                  // hideDiv ? boardSize - 80 :
-                   is3DMode ? boardSize : boardSize
-                }
+                boardWidth={boardSize}
                 orientation={orientation}
                 position={game.fen()}
                 onSquareClick={function (square: Square): void {
@@ -800,7 +715,7 @@ const ChessContent: React.FC = () => {
               />
             )}
           </motion.div>
-          {/* Group Button */}
+
           <div className="flex flex-row justify-around gap-2 ">
             <button
               onClick={jumpToFirstMove}
@@ -819,6 +734,7 @@ const ChessContent: React.FC = () => {
             >
               <ChevronLeft size={boardSize / 22} color="black" />
             </button>
+
             <button
               onClick={togglePlayPause}
               style={{ height: boardSize / 15, borderRadius: boardSize / 120 }}
@@ -839,6 +755,7 @@ const ChessContent: React.FC = () => {
             >
               <ChevronRight size={boardSize / 22} color="black" />
             </button>
+
             <button
               onClick={jumpToLastMove}
               disabled={currentMoveIndex >= parsedMoves.length}
@@ -852,15 +769,10 @@ const ChessContent: React.FC = () => {
               />
             </button>
           </div>
+
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } : 
-              { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display: 
-              // !hideDiv ? "block" : 
-              "none" }}
           >
             {orientation == "black" ? renderBlackAvatar() : renderWhiteAvatar()}
           </motion.div>

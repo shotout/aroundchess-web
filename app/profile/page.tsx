@@ -76,7 +76,7 @@ export default function Profile() {
   return (
     <Suspense>
       {isLoggingOut && (
-        <div className="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+        <div className="fixed top-0 left-0 w-screen h-screen bg-white z-[9999] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <DotSpinner size={8} />
             <span className="text-lg font-medium text-gray-600">

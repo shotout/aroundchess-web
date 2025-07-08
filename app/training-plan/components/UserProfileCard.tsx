@@ -14,8 +14,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 }) => {
   const [isMobile, setIsMobile] = useState(false);
 
-  // Only get profile data from store, don't trigger fetches
-  const { profile, isLoading, error } = useUserStore();
+  const {
+    profile,
+    isLoadingUserProfile: isLoading,
+    userProfileError: error,
+  } = useUserStore();
 
   useEffect(() => {
     const checkIsMobile = () => {

@@ -8,6 +8,10 @@ import { ChessboardWrapperProps } from "../types/ChessboardWrapperType";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 
+interface ChessboardWrapperPropsWithSound extends ChessboardWrapperProps {
+  onMovePlay?: (move: any) => void;
+}
+
 export default function ChessboardWrapper({
   game,
   position,
@@ -31,7 +35,8 @@ export default function ChessboardWrapper({
   bestMove,
   showHint,
   is3DMode,
-}: ChessboardWrapperProps) {
+  onMovePlay,
+}: ChessboardWrapperPropsWithSound) {
   const [boardSize, setBoardSize] = useState<number | undefined>(1000);
   const [mounted, _] = useState<boolean>(true);
   const [rightClickedSquares, setRightClickedSquares] = useState<
@@ -186,6 +191,10 @@ export default function ChessboardWrapper({
           return;
         }
 
+        if (onMovePlay) {
+          onMovePlay(move);
+        }
+
         setMoveHistory(game.history({ verbose: true }));
         setPosition(game.fen());
 
@@ -220,6 +229,7 @@ export default function ChessboardWrapper({
       setOptionSquares,
       checkGameStatus,
       setShowPromotionDialog,
+      onMovePlay,
     ]
   );
 
@@ -236,6 +246,10 @@ export default function ChessboardWrapper({
       });
 
       if (move) {
+        if (onMovePlay) {
+          onMovePlay(move);
+        }
+
         setMoveHistory(game.history({ verbose: true }));
         setPosition(game.fen());
         checkGameStatus();
@@ -262,6 +276,7 @@ export default function ChessboardWrapper({
       setMoveTo,
       setShowPromotionDialog,
       setOptionSquares,
+      onMovePlay,
     ]
   );
 
@@ -319,6 +334,10 @@ export default function ChessboardWrapper({
         return false;
       }
 
+      if (onMovePlay) {
+        onMovePlay(move);
+      }
+
       setMoveHistory(game.history({ verbose: true }));
       setPosition(game.fen());
 
@@ -347,6 +366,7 @@ export default function ChessboardWrapper({
       setOptionSquares,
       setShowPromotionDialog,
       checkGameStatus,
+      onMovePlay,
     ]
   );
 
@@ -398,19 +418,6 @@ export default function ChessboardWrapper({
       </motion.div>
 
       <motion.div
-        // initial={{ rotateX: 180 }}
-        // animate={
-        //   is3DMode
-        //     ? { opacity: 0, display: "none" }
-        //     : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-        // }
-        // transition={{
-        //   duration: 0.5,
-        //   stiffness: 500,
-        //   damping: 35,
-        //   ease: [0.4, 0.0, 0.2, 1],
-        //   type: "tween",
-        // }}
         style={{
           width: boardSize,
           display: !is3DMode ? "flex" : "none",

@@ -17,7 +17,6 @@ import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import {
@@ -32,10 +31,10 @@ import {
 import { GrandmastersSection } from "@/components/GrandmasterSection";
 
 export default function Home() {
-  const { isLoading, dataAnalysis } = usePgnStore();
+  const { isLoading, dataAnalysis, username } = usePgnStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setTokenId] = useLocalStorage<string>("token", "");
-  const { setCallFetch } = useProfileFetch();
+  // const { setCallFetch } = useProfileFetch();
   const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -123,9 +122,7 @@ export default function Home() {
                 "Content-Type": "application/json",
               },
             });
-          } catch (logoutError) {
-            console.error("Error during SSO logout:", logoutError);
-          }
+          } catch (logoutError) {}
 
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
@@ -143,7 +140,31 @@ export default function Home() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        router.push("/analysis");
+
+        try {
+          const profileResponse = await fetch(`${baseUrl}/profile`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            const userUsername =
+              profileData.data?.username || profileData.username;
+
+            if (userUsername && userUsername.trim() !== "") {
+              router.push("/my-game-history");
+            } else {
+              router.push("/analysis");
+            }
+          } else {
+            router.push("/analysis");
+          }
+        } catch (profileError) {
+          router.push("/analysis");
+        }
       } else {
         showAlert(
           "Verification Failed",

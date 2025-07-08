@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useAnalyticsData } from "../../hooks/useAnalyticsData";
-import DotSpinner from "../../Spinner";
 import PerformanceInsightsSection from "./Analytics/PerformanceInsights";
 import RatingProgressChart from "./Analytics/RatingProgressChart";
 import ResultDistributionChart from "./Analytics/ResultDistributionChart";
@@ -10,14 +9,29 @@ import KeyStatisticsSection from "./Analytics/KeyStatistics";
 import TimeControlPerformance from "./Analytics/TimeControlPerformance";
 import RecentAchievements from "./Analytics/RecentAchievement";
 
+// Skeleton components for partial loading
+const ChartSkeleton: React.FC = () => (
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-32 mb-4"></div>
+    <div className="h-64 bg-gray-200 rounded"></div>
+  </div>
+);
+
+const CardSkeleton: React.FC = () => (
+  <div className="animate-pulse p-4 border rounded-lg">
+    <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+    <div className="space-y-2">
+      <div className="h-3 bg-gray-200 rounded"></div>
+      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+    </div>
+  </div>
+);
+
 const Analytics: React.FC = () => {
   const { loading, error, data, isCacheValid, handleForceRefresh } =
     useAnalyticsData();
 
-  if (loading) {
-    return <DotSpinner />;
-  }
-
+  // Show error state
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
@@ -32,51 +46,123 @@ const Analytics: React.FC = () => {
     );
   }
 
-  if (!data) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <div className="text-xl font-semibold mb-4">
-          No Chess.com Username Set
-        </div>
-        <p className="mb-4 text-gray-600">
-          Please connect your Chess.com account to view your analytics.
-        </p>
-      </div>
-    );
-  }
-
-  const performanceInsightsSection = (
-    <PerformanceInsightsSection insights={data.performanceInsights} />
-  );
-
+  // Show layout immediately, with loading skeletons where needed
   return (
     <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
       <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
-          <RatingProgressChart
-            ratingData={data.ratingData}
-            isCacheValid={isCacheValid}
-            handleForceRefresh={handleForceRefresh}
-          />
+          {/* Rating Progress Chart - show skeleton if loading, data if available */}
+          {loading ? (
+            <ChartSkeleton />
+          ) : data ? (
+            <RatingProgressChart
+              ratingData={data.ratingData}
+              isCacheValid={isCacheValid}
+              handleForceRefresh={handleForceRefresh}
+            />
+          ) : (
+            <div className="text-center p-8">
+              <div className="text-xl font-semibold mb-4">
+                No Chess.com Username Set
+              </div>
+              <p className="mb-4 text-gray-600">
+                Please connect your Chess.com account to view your analytics.
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ResultDistributionChart distributionData={data.distributionData} />
-            <OpeningStatistics openingData={data.openingData} />
+            {/* Result Distribution Chart */}
+            {loading ? (
+              <ChartSkeleton />
+            ) : data ? (
+              <ResultDistributionChart
+                distributionData={data.distributionData}
+              />
+            ) : (
+              <CardSkeleton />
+            )}
+
+            {/* Opening Statistics */}
+            {loading ? (
+              <CardSkeleton />
+            ) : data ? (
+              <OpeningStatistics openingData={data.openingData} />
+            ) : (
+              <CardSkeleton />
+            )}
           </div>
 
-          <div className="lg:block md:hidden">{performanceInsightsSection}</div>
+          {/* Performance Insights - Desktop */}
+          <div className="lg:block md:hidden">
+            {loading ? (
+              <div className="grid grid-cols-2 gap-3">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </div>
+            ) : data ? (
+              <PerformanceInsightsSection insights={data.performanceInsights} />
+            ) : (
+              <CardSkeleton />
+            )}
+          </div>
         </div>
       </div>
 
       <div className="md:border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col gap-4">
+          {/* Performance Insights - Tablet */}
           <div className="hidden md:block lg:hidden">
-            {performanceInsightsSection}
+            {loading ? (
+              <div className="grid grid-cols-2 gap-3">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </div>
+            ) : data ? (
+              <PerformanceInsightsSection insights={data.performanceInsights} />
+            ) : (
+              <CardSkeleton />
+            )}
           </div>
 
-          <KeyStatisticsSection stats={data.keyStats} />
-          <TimeControlPerformance performanceData={data.performanceData} />
-          <RecentAchievements achievements={data.achievements} />
+          {/* Key Statistics */}
+          {loading ? (
+            <div className="grid grid-cols-2 gap-3">
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+          ) : data ? (
+            <KeyStatisticsSection stats={data.keyStats} />
+          ) : (
+            <CardSkeleton />
+          )}
+
+          {/* Time Control Performance */}
+          {loading ? (
+            <CardSkeleton />
+          ) : data ? (
+            <TimeControlPerformance performanceData={data.performanceData} />
+          ) : (
+            <CardSkeleton />
+          )}
+
+          {/* Recent Achievements */}
+          {loading ? (
+            <div className="space-y-3">
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+          ) : data ? (
+            <RecentAchievements achievements={data.achievements} />
+          ) : (
+            <CardSkeleton />
+          )}
         </div>
       </div>
     </div>

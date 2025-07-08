@@ -1,4 +1,3 @@
-// Common Game Types
 export interface Game {
   playerColor: any;
   id: number | string;
@@ -19,7 +18,6 @@ export interface Game {
   timeClass: string;
 }
 
-// Filter Types
 export interface FilterState {
   timeRange: string;
   gameType: string;
@@ -36,7 +34,15 @@ export interface DefaultFilters {
   results: string;
 }
 
-// Statistics Types
+export interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+}
+
 export interface GameStatistics {
   bestWin: {
     opponent: string;
@@ -57,7 +63,6 @@ export interface GameStatistics {
   };
 }
 
-// Performance Types
 export interface BarDataItem {
   name: string;
   performance: number;
@@ -90,7 +95,6 @@ export interface PerformanceData {
   trainingFocus?: string[];
 }
 
-// Analytics Types
 export interface RatingProgressItem {
   month: string;
   rating: number;
@@ -168,7 +172,6 @@ export interface ProcessedAnalyticsData {
   achievements: string[];
 }
 
-// Cache Utilities
 export interface CacheItem<T> {
   data: T;
   timestamp: number;
@@ -188,4 +191,6 @@ export interface CachedGamesState {
   isLoading: boolean;
   dataAnalysis: any | null;
   pgn: string | null;
+  gamesPagination: PaginationState;
+  otherGamesPagination: PaginationState;
 }

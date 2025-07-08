@@ -81,7 +81,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     selectedBlackOpenings,
     selectedMiddlegames,
     selectedEndgames,
-    isLoading,
+    isLoadingTopics: isLoading,
     error,
     fetchTopics,
     fetchExistingTopics,

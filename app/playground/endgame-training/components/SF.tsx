@@ -26,6 +26,7 @@ interface StockfishEngineProps {
   depth?: number;
   isAutoSolution: boolean;
   onSolutionComplete?: () => void;
+  onMovePlay?: (move: any) => void;
 }
 
 export default function StockfishEngine({
@@ -42,6 +43,7 @@ export default function StockfishEngine({
   depth = 10,
   isAutoSolution,
   onSolutionComplete,
+  onMovePlay, // ADDED: Sound callback prop
 }: StockfishEngineProps) {
   const engine = useMemo(() => new Engine(), []);
   const [_, setPositionEvaluation] = useState<number>(0);
@@ -72,6 +74,11 @@ export default function StockfishEngine({
               });
 
               if (move) {
+                // ADDED: Play sound for the engine move
+                if (onMovePlay) {
+                  onMovePlay(move);
+                }
+
                 setMoveHistory(game.history({ verbose: true }));
                 setPosition(game.fen());
 
@@ -119,6 +126,7 @@ export default function StockfishEngine({
       depth,
       isAutoSolution,
       onSolutionComplete,
+      onMovePlay, // ADDED: Include in dependencies
     ]
   );
 

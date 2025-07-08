@@ -11,8 +11,7 @@ import {
 import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
 
-
-export const CACHE_EXPIRATION = 5 * 60 * 1000; 
+export const CACHE_EXPIRATION = 60 * 60 * 1000;
 export const MONTHS: string[] = [
   "Jan",
   "Feb",
@@ -61,21 +60,18 @@ export const processApiData = (
     },
   ];
 
-  
   const openingStats = apiData.openingStatistics.map((opening) => ({
     name: opening.name,
     games: opening.games,
     winrate: `${opening.winRate}%`,
   }));
 
-  
   const timeControlData = apiData.timeControlPerformance.map((item) => ({
     category: item.type,
     games: item.games,
     winRate: item.winRate,
   }));
 
-  
   const insights = {
     averageGameLength: apiData.performanceInsights.averageGameLength,
     accuracy: apiData.performanceInsights.accuracy,
@@ -83,7 +79,6 @@ export const processApiData = (
     blunderRate: apiData.blunderRate,
   };
 
-  
   interface KeyStatistics {
     totalGames: number;
     averageRating: number;
@@ -98,7 +93,6 @@ export const processApiData = (
     longestStreak: apiData.keyStatistics.longestStreak,
   };
 
-  
   const achievementsData = apiData.recentAchievements || [];
 
   return {
@@ -113,103 +107,97 @@ export const processApiData = (
 };
 
 export const getAchievementDetails = (achievement: string) => {
-  if (achievement.includes("win streak") || achievement.includes("consecutive wins")) {
+  if (
+    achievement.includes("win streak") ||
+    achievement.includes("consecutive wins")
+  ) {
     return {
       icon: "swords",
       title: "Winning Streak",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Rating improved") || achievement.includes("points recently")) {
+  } else if (
+    achievement.includes("Rating improved") ||
+    achievement.includes("points recently")
+  ) {
     return {
       icon: "trophy",
       title: "Rating Progress",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Reached") && achievement.includes("rating")) {
+  } else if (
+    achievement.includes("Reached") &&
+    achievement.includes("rating")
+  ) {
     return {
       icon: "trophy",
       title: "Rating Milestone",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("this week") || achievement.includes("this month")) {
+  } else if (
+    achievement.includes("this week") ||
+    achievement.includes("this month")
+  ) {
     return {
       icon: "swords",
       title: "Recent Success",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("high accuracy") || achievement.includes("accuracy games")) {
+  } else if (
+    achievement.includes("high accuracy") ||
+    achievement.includes("accuracy games")
+  ) {
     return {
       icon: "trophy",
       title: "Precision Play",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Quick victory") || achievement.includes("moves!")) {
+  } else if (
+    achievement.includes("Quick victory") ||
+    achievement.includes("moves!")
+  ) {
     return {
       icon: "swords",
       title: "Lightning Victory",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("bullet") || achievement.includes("Bullet")) {
+  } else if (achievement.includes("bullet") || achievement.includes("Bullet")) {
     return {
       icon: "timer",
       title: "Speed Chess Master",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("blitz") || achievement.includes("Blitz")) {
+  } else if (achievement.includes("blitz") || achievement.includes("Blitz")) {
     return {
       icon: "timer",
       title: "Blitz Warrior",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("win rate") || achievement.includes("%")) {
+  } else if (achievement.includes("win rate") || achievement.includes("%")) {
     return {
       icon: "trophy",
-      title: "Consistent Performance", 
+      title: "Consistent Performance",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Played") && achievement.includes("games")) {
+  } else if (achievement.includes("Played") && achievement.includes("games")) {
     return {
       icon: "swords",
       title: "Active Player",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Current rating")) {
+  } else if (achievement.includes("Current rating")) {
     return {
       icon: "trophy",
       title: "Chess Rating",
       description: achievement,
     };
-  }
-  
-  else if (achievement.includes("Classical Win")) {
+  } else if (achievement.includes("Classical Win")) {
     return {
       icon: "trophy",
       title: "First Classical Win",
       description: "Won against 2,000+ rated player",
     };
-  }
-  
-  else {
+  } else {
     return {
       icon: "timer",
       title: "Achievement",

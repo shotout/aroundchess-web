@@ -3,7 +3,6 @@ import TrainingPlanCard from "./components/TrainingCard";
 import UserProfileCard from "./components/UserProfileCard";
 import TrainingPlanDisplay from "./components/TrainingDisplay";
 import ProgressDisplay from "./components/ProgressDisplay";
-import DotSpinner from "@/components/game-history/Spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
@@ -16,36 +15,39 @@ import { useApiClient } from "@/functions/api-client";
 import { usePgnStore } from "../store/zustandStore";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 
+import {
+  UserProfileCardSkeleton,
+  TrainingPlanDisplaySkeleton,
+  PlanCheckSkeleton,
+} from "./components/SkeletonLoading";
+
 const ChessProgressionUI: React.FC = () => {
   const { sessionId } = useProfileStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "adjust">("create");
   const [hasPlan, setHasPlan] = useState(false);
-  const [isCheckingPlan, setIsCheckingPlan] = useState(true);
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
   const { GameHistoryOpenings } = useApiClient();
   const { setOpeningPlayed, isLoading: pgnLoading } = usePgnStore();
 
   const fetchingRefs = useRef({
-    topics: false,
-    schedule: false,
-    profile: false,
     openings: false,
   });
 
   const {
     userProfile: storeUserProfile,
     fetchTopics,
+    isLoadingTopics,
     error: topicsError,
     setAdjustMode,
   } = useTrainingPlanStore();
 
   const {
     schedule,
-    isLoading: isScheduleLoading,
-    error: scheduleError,
+    isLoadingSchedule,
+    scheduleError,
     planExpired,
     fetchSchedule,
     resetExpiredStatus,
@@ -53,36 +55,24 @@ const ChessProgressionUI: React.FC = () => {
 
   const {
     profile: userProfile,
-    isLoading: isProfileLoading,
-    error: profileError,
+    isLoadingUserProfile,
+    userProfileError,
     fetchUserProfile,
   } = useUserStore();
 
-  const fetchAllData = useCallback(
+  // Start all API calls concurrently
+  const initializeConcurrentFetches = useCallback(
     async (sessionId: string) => {
-      if (!sessionId || initialLoadComplete) return;
+      if (!sessionId || initialDataLoaded) return;
 
-      const promises = [];
+      // Start all fetches concurrently - don't wait for each other
+      const promises = [
+        fetchUserProfile(sessionId).catch(console.error),
+        fetchTopics(sessionId).catch(console.error),
+        fetchSchedule(sessionId).catch(console.error),
+      ];
 
-      if (!fetchingRefs.current.profile) {
-        fetchingRefs.current.profile = true;
-        promises.push(
-          fetchUserProfile(sessionId).finally(() => {
-            fetchingRefs.current.profile = false;
-          })
-        );
-      }
-
-      // Fetch topics if not already fetching
-      if (!fetchingRefs.current.topics) {
-        fetchingRefs.current.topics = true;
-        promises.push(
-          fetchTopics(sessionId).finally(() => {
-            fetchingRefs.current.topics = false;
-          })
-        );
-      }
-
+      // Also fetch game history openings if not already fetching
       if (!fetchingRefs.current.openings) {
         fetchingRefs.current.openings = true;
         promises.push(
@@ -92,30 +82,11 @@ const ChessProgressionUI: React.FC = () => {
         );
       }
 
-      await Promise.allSettled(promises);
-      setInitialLoadComplete(true);
+      Promise.allSettled(promises);
+      setInitialDataLoaded(true);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fetchUserProfile, fetchTopics, initialLoadComplete]
-  );
-
-  const fetchScheduleData = useCallback(
-    async (sessionId: string) => {
-      if (!sessionId || fetchingRefs.current.schedule) return;
-
-      fetchingRefs.current.schedule = true;
-      setIsCheckingPlan(true);
-
-      try {
-        await fetchSchedule(sessionId);
-      } catch (error) {
-        console.error("Error fetching schedule:", error);
-      } finally {
-        setIsCheckingPlan(false);
-        fetchingRefs.current.schedule = false;
-      }
-    },
-    [fetchSchedule]
+    [fetchUserProfile, fetchTopics, fetchSchedule, initialDataLoaded]
   );
 
   const fetchGameHistoryOpenings = useCallback(async () => {
@@ -128,16 +99,10 @@ const ChessProgressionUI: React.FC = () => {
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
   useEffect(() => {
-    if (sessionId && !initialLoadComplete) {
-      fetchAllData(sessionId);
+    if (sessionId && !initialDataLoaded) {
+      initializeConcurrentFetches(sessionId);
     }
-  }, [sessionId, fetchAllData, initialLoadComplete]);
-
-  useEffect(() => {
-    if (sessionId && initialLoadComplete) {
-      fetchScheduleData(sessionId);
-    }
-  }, [sessionId, fetchScheduleData, initialLoadComplete]);
+  }, [sessionId, initializeConcurrentFetches, initialDataLoaded]);
 
   useEffect(() => {
     if (schedule && Object.keys(schedule).length > 0) {
@@ -148,10 +113,10 @@ const ChessProgressionUI: React.FC = () => {
           schedule.topics.endgames?.length > 0);
 
       setHasPlan(hasContent);
-    } else {
+    } else if (!isLoadingSchedule && schedule === null) {
       setHasPlan(false);
     }
-  }, [schedule]);
+  }, [schedule, isLoadingSchedule]);
 
   useEffect(() => {
     if (dialogOpen) {
@@ -173,32 +138,36 @@ const ChessProgressionUI: React.FC = () => {
 
   const handlePlanCreated = useCallback(() => {
     if (sessionId) {
-      setIsCheckingPlan(true);
       resetExpiredStatus();
       CacheUtil.clearAll();
-
-      // Reset the initial load to allow refetching
-      setInitialLoadComplete(false);
+      setInitialDataLoaded(false);
 
       // Reset fetching refs
       Object.keys(fetchingRefs.current).forEach((key) => {
         fetchingRefs.current[key as keyof typeof fetchingRefs.current] = false;
       });
 
-      fetchScheduleData(sessionId).then(() => {
-        setHasPlan(true);
-      });
+      // Restart concurrent fetches
+      initializeConcurrentFetches(sessionId);
     }
-  }, [sessionId, resetExpiredStatus, fetchScheduleData]);
+  }, [sessionId, resetExpiredStatus, initializeConcurrentFetches]);
 
   const isPlanExpired =
     planExpired || (scheduleError && scheduleError.includes("expired"));
-  const isLoading = isProfileLoading || isCheckingPlan || !initialLoadComplete;
+
   const shouldShowCreatePlan = !hasPlan || isPlanExpired;
+
+  const showExpiredAlert = isPlanExpired;
+
+  const showUserProfileSection = true;
+
+  const showTrainingPlanSection =
+    !isLoadingSchedule && (hasPlan || (!hasPlan && !shouldShowCreatePlan));
 
   return (
     <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
       <ChessAccountSetup isLoading={pgnLoading} />
+
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
           My Training Plan
@@ -209,17 +178,26 @@ const ChessProgressionUI: React.FC = () => {
       </div>
 
       <div className="xl:border xl:p-4 xl:rounded-md flex flex-col gap-y-2 xl:gap-y-4">
-        <UserProfileCard
-          schedule={schedule}
-          userProfile={{
-            username: userProfile?.username || storeUserProfile?.username || "",
-            currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
-            avatar: userProfile?.avatar || storeUserProfile?.avatar || "",
-          }}
-          avatar={userProfile?.avatar || storeUserProfile?.avatar || ""}
-        />
+        {showUserProfileSection && (
+          <>
+            {isLoadingUserProfile ? (
+              <UserProfileCardSkeleton />
+            ) : (
+              <UserProfileCard
+                schedule={schedule}
+                userProfile={{
+                  username:
+                    userProfile?.username || storeUserProfile?.username || "",
+                  currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
+                  avatar: userProfile?.avatar || storeUserProfile?.avatar || "",
+                }}
+                avatar={userProfile?.avatar || storeUserProfile?.avatar || ""}
+              />
+            )}
+          </>
+        )}
 
-        {isPlanExpired && (
+        {showExpiredAlert && (
           <Alert variant="destructive" className="mb-4">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
@@ -228,13 +206,8 @@ const ChessProgressionUI: React.FC = () => {
           </Alert>
         )}
 
-        {isLoading ? (
-          <div className="flex items-center justify-center p-12 border border-gray-200 rounded-lg">
-            <div className="flex flex-col items-center gap-4">
-              <DotSpinner />
-              <p className="text-gray-600">Checking your training plan...</p>
-            </div>
-          </div>
+        {isLoadingSchedule ? (
+          <PlanCheckSkeleton />
         ) : shouldShowCreatePlan ? (
           <TrainingPlanCard onCreatePlan={handleCreatePlan} hasPlan={false} />
         ) : (
@@ -266,12 +239,16 @@ const ChessProgressionUI: React.FC = () => {
             </div>
 
             {activeState === "My Training Plan" ? (
-              <TrainingPlanDisplay
-                onAdjustPlan={handleAdjustPlan}
-                schedule={schedule}
-                isLoading={isScheduleLoading}
-                error={scheduleError}
-              />
+              isLoadingSchedule ? (
+                <TrainingPlanDisplaySkeleton />
+              ) : (
+                <TrainingPlanDisplay
+                  onAdjustPlan={handleAdjustPlan}
+                  schedule={schedule}
+                  isLoading={isLoadingSchedule}
+                  error={scheduleError}
+                />
+              )
             ) : (
               <ProgressDisplay />
             )}

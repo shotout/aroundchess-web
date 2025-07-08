@@ -15,15 +15,53 @@ export interface Game {
   source: string;
   gameType: string;
   color: string;
-  playerColor?: string; // Add optional playerColor for compatibility
+  playerColor?: string;
   gameFormat: string;
   pgn: string;
-  timeClass?: string; // Add optional timeClass
+  timeClass?: string;
 }
 
 export interface AnalysisResult {
   [key: string]: any;
 }
+
+export interface GameStatistics {
+  bestWin: {
+    opponent: string;
+    rating: number;
+    date: string;
+  };
+  winRate: {
+    percentage: number;
+    monthlyChange: number;
+  };
+  averageEloRating: {
+    rating: number;
+    monthlyChange: number;
+  };
+  totalGames: {
+    count: number;
+    monthlyChange: number;
+  };
+}
+
+export interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+}
+
+const defaultPaginationState: PaginationState = {
+  page: 1,
+  limit: 5,
+  total: 0,
+  totalPages: 0,
+  hasMore: false,
+  isLoadingMore: false,
+};
 
 interface PgnState {
   pgn: string;
@@ -36,15 +74,20 @@ interface PgnState {
 
   gamesData: Game[];
   gamesLastFetched: number | null;
+  gamesPagination: PaginationState;
 
   otherGamesData: Game[];
   otherGamesLastFetched: number | null;
+  otherGamesPagination: PaginationState;
 
   analyticsData: any | null;
   analyticsLastFetched: number | null;
 
   performanceData: any | null;
   performanceLastFetched: number | null;
+
+  statisticsData: GameStatistics | null;
+  statisticsLastFetched: number | null;
 
   error: Error | null;
   dataGamesImport: any;
@@ -60,10 +103,8 @@ interface PgnState {
   previousAnalysesDetail: any;
   savedMistakes: any[];
 
-  // Track newly imported games
   importedGames: Game[];
 
-  // openings played
   openingPlayed: any[];
   setOpeningPlayed: (openingPlayed: any[]) => void;
 
@@ -91,8 +132,13 @@ interface PgnState {
 
   setGamesData: (games: Game[]) => void;
   setOtherGamesData: (games: Game[]) => void;
+  appendGamesData: (games: Game[]) => void;
+  appendOtherGamesData: (games: Game[]) => void;
   clearGamesData: () => void;
   clearOtherGamesData: () => void;
+
+  setGamesPagination: (pagination: PaginationState) => void;
+  setOtherGamesPagination: (pagination: PaginationState) => void;
 
   setAnalyticsData: (data: any) => void;
   clearAnalyticsData: () => void;
@@ -102,11 +148,13 @@ interface PgnState {
   clearPerformanceData: () => void;
   resetPerformanceState: () => void;
 
+  setStatisticsData: (data: GameStatistics) => void;
+  clearStatisticsData: () => void;
+
   clearAll: () => void;
 
-  // Functions to add imported games
   addImportedGame: (game: Omit<Game, "id">) => Game;
-  addOtherImportedGame: (game: Omit<Game, "id">) => Game; // New function for other games
+  addOtherImportedGame: (game: Omit<Game, "id">) => Game;
   hydrated: boolean;
   setHydrated: () => void;
 }
@@ -114,7 +162,7 @@ interface PgnState {
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
-      hydrated: false, // manually track hydration
+      hydrated: false,
       setHydrated: () => set({ hydrated: true }),
 
       pgn: "",
@@ -127,15 +175,20 @@ export const usePgnStore = create<PgnState>()(
 
       gamesData: [],
       gamesLastFetched: null,
+      gamesPagination: defaultPaginationState,
 
       otherGamesData: [],
       otherGamesLastFetched: null,
+      otherGamesPagination: defaultPaginationState,
 
       analyticsData: null,
       analyticsLastFetched: null,
 
       performanceData: null,
       performanceLastFetched: null,
+
+      statisticsData: null,
+      statisticsLastFetched: null,
 
       error: null,
       dataGamesImport: null,
@@ -151,7 +204,6 @@ export const usePgnStore = create<PgnState>()(
       previousAnalysesDetail: [],
       savedMistakes: [],
 
-      // Initialize imported games array
       importedGames: [],
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
@@ -179,7 +231,19 @@ export const usePgnStore = create<PgnState>()(
 
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
-      resetFetchState: () => set({ lastFetchTimestamp: Date.now() }),
+      resetFetchState: () =>
+        set({
+          lastFetchTimestamp: Date.now(),
+          gamesLastFetched: null,
+          otherGamesLastFetched: null,
+          analyticsLastFetched: null,
+          performanceLastFetched: null,
+          statisticsLastFetched: null,
+          gamesData: [],
+          otherGamesData: [],
+          gamesPagination: defaultPaginationState,
+          otherGamesPagination: defaultPaginationState,
+        }),
 
       setError: (error: Error | null) => set({ error }),
 
@@ -202,6 +266,7 @@ export const usePgnStore = create<PgnState>()(
       setPreviousAnalysesDetail(previousAnalysesDetail) {
         set({ previousAnalysesDetail });
       },
+
       setGamesData: (games: Game[]) =>
         set({
           gamesData: games,
@@ -214,17 +279,37 @@ export const usePgnStore = create<PgnState>()(
           otherGamesLastFetched: Date.now(),
         }),
 
+      appendGamesData: (games: Game[]) =>
+        set((state) => ({
+          gamesData: [...state.gamesData, ...games],
+          gamesLastFetched: Date.now(),
+        })),
+
+      appendOtherGamesData: (games: Game[]) =>
+        set((state) => ({
+          otherGamesData: [...state.otherGamesData, ...games],
+          otherGamesLastFetched: Date.now(),
+        })),
+
       clearGamesData: () =>
         set({
           gamesData: [],
           gamesLastFetched: null,
+          gamesPagination: defaultPaginationState,
         }),
 
       clearOtherGamesData: () =>
         set({
           otherGamesData: [],
           otherGamesLastFetched: null,
+          otherGamesPagination: defaultPaginationState,
         }),
+
+      setGamesPagination: (pagination: PaginationState) =>
+        set({ gamesPagination: pagination }),
+
+      setOtherGamesPagination: (pagination: PaginationState) =>
+        set({ otherGamesPagination: pagination }),
 
       setAnalyticsData: (data: any) =>
         set({
@@ -260,6 +345,18 @@ export const usePgnStore = create<PgnState>()(
           performanceLastFetched: Date.now(),
         }),
 
+      setStatisticsData: (data: GameStatistics) =>
+        set({
+          statisticsData: data,
+          statisticsLastFetched: Date.now(),
+        }),
+
+      clearStatisticsData: () =>
+        set({
+          statisticsData: null,
+          statisticsLastFetched: null,
+        }),
+
       clearAll: () =>
         set({
           pgn: "",
@@ -270,10 +367,13 @@ export const usePgnStore = create<PgnState>()(
           lastFetchTimestamp: 0,
           gamesData: [],
           gamesLastFetched: null,
+          gamesPagination: defaultPaginationState,
           analyticsData: null,
           analyticsLastFetched: null,
           performanceData: null,
           performanceLastFetched: null,
+          statisticsData: null,
+          statisticsLastFetched: null,
           error: null,
           dataGamesImport: null,
           dataGames: null,
@@ -282,73 +382,54 @@ export const usePgnStore = create<PgnState>()(
           hideDiv: false,
           otherGamesData: [],
           otherGamesLastFetched: null,
+          otherGamesPagination: defaultPaginationState,
           openingPlayed: [],
           importedGames: [],
         }),
 
-      // Add a new imported game to the USER games (Chess.com games)
       addImportedGame: (gameData) => {
-        // Generate a unique ID for the new game
         const newId = `imported_user_${Date.now()}_${Math.random()}`;
 
-        // Create the new game with the generated ID
         const newGame: Game = {
           ...gameData,
           id: newId,
         };
 
-        // Update the store with the new game
         set((state) => ({
-          // Add to imported games array
           importedGames: [newGame, ...state.importedGames],
-
-          // Add to USER games array (Chess.com games)
-          gamesData: [newGame, ...state.gamesData],
-
-          // Update the timestamp
+          gamesData: [newGame, ...state.gamesData.slice(0, 4)],
           gamesLastFetched: Date.now(),
+          gamesPagination: {
+            ...state.gamesPagination,
+            total: state.gamesPagination.total + 1,
+          },
         }));
 
-        // Return the new game so it can be used
         return newGame;
       },
 
-      // Add a new imported game to the OTHER games (PGN uploads, etc.)
       addOtherImportedGame: (gameData) => {
-        // Generate a unique ID for the new game
         const newId = `imported_other_${Date.now()}_${Math.random()}`;
 
-        // Create the new game with the generated ID and ensure proper categorization
         const newGame: Game = {
           ...gameData,
           id: newId,
           source: gameData.source || "PGN Upload",
           gameFormat: gameData.gameFormat || "PGN Upload",
-          playerColor: gameData.color || gameData.playerColor || "White", // Ensure playerColor is set
+          playerColor: gameData.color || gameData.playerColor || "White",
           timeClass: gameData.timeClass || "Unknown",
         };
 
-        console.log("🎮 Adding game to OTHER games store:", {
-          id: newGame.id,
-          opponent: newGame.opponent,
-          color: newGame.color,
-          playerColor: newGame.playerColor,
-          result: newGame.result,
-        });
-
-        // Update the store with the new game
         set((state) => ({
-          // Add to imported games array for tracking
           importedGames: [newGame, ...state.importedGames],
-
-          // Add to OTHER games array (NOT user games)
-          otherGamesData: [newGame, ...state.otherGamesData],
-
-          // Update the timestamp for other games
+          otherGamesData: [newGame, ...state.otherGamesData.slice(0, 4)],
           otherGamesLastFetched: Date.now(),
+          otherGamesPagination: {
+            ...state.otherGamesPagination,
+            total: state.otherGamesPagination.total + 1,
+          },
         }));
 
-        // Return the new game so it can be used
         return newGame;
       },
     }),
@@ -368,12 +449,16 @@ export const usePgnStore = create<PgnState>()(
         openingPlayed: state.openingPlayed,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,
+        gamesPagination: state.gamesPagination,
         otherGamesData: state.otherGamesData,
         otherGamesLastFetched: state.otherGamesLastFetched,
+        otherGamesPagination: state.otherGamesPagination,
         analyticsData: state.analyticsData,
         analyticsLastFetched: state.analyticsLastFetched,
         performanceData: state.performanceData,
         performanceLastFetched: state.performanceLastFetched,
+        statisticsData: state.statisticsData,
+        statisticsLastFetched: state.statisticsLastFetched,
         importedGames: state.importedGames,
       }),
     }

@@ -16,29 +16,32 @@ const GameHistoryPage: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
 
-  useEffect(() => {
-    if (!sessionId) return;
-    setIsSignedIn(true);
-  }, [sessionId]);
-
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isUsernameFetching, setIsUsernameFetching] = useState(false);
 
   useEffect(() => {
+    if (!sessionId) {
+      setIsInitialLoading(false);
+      return;
+    }
+    setIsSignedIn(true);
+  }, [sessionId]);
+
+  useEffect(() => {
     if (!isSignedIn) {
-      setIsLoading(false);
+      setIsInitialLoading(false);
       return;
     }
 
-    setIsUsernameFetching(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
       setIsUsernameFetching(false);
-    }, 500);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isSignedIn]);
 
-  if (isLoading) {
+  if (isInitialLoading && isSignedIn) {
     return (
       <div className="flex items-center justify-center h-screen">
         <DotSpinner />
@@ -48,8 +51,9 @@ const GameHistoryPage: React.FC = () => {
 
   return (
     <>
-      <main className="w-full  bg-primary-white relative">
-        <ChessAccountSetup isLoading={isLoading} />
+      <main className="w-full bg-primary-white relative">
+        <ChessAccountSetup isLoading={false} />
+
         <div className="p-4">
           <div className="flex justify-between items-center xl:mb-4">
             <div className="flex flex-row items-center gap-1 md:gap-2">

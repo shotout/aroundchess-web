@@ -10,19 +10,17 @@ import {
 import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
 
-const CACHE_EXPIRATION = 5 * 60 * 1000;
+const CACHE_EXPIRATION = 60 * 60 * 1000;
 
 export const processPerformanceData = (
   apiData: any
 ): PerformanceData | null => {
   if (!apiData) return null;
 
-  
   const barData: BarDataItem[] = apiData.barData || [];
-  
-  console.log('[FE] Using barData from backend:', barData);
 
-  
+  console.log("[FE] Using barData from backend:", barData);
+
   const radarData: RadarDataItem[] = [
     {
       subject: "Calculation",
@@ -56,7 +54,6 @@ export const processPerformanceData = (
     },
   ];
 
-  
   const strengthsData =
     apiData.strengthsAndWeaknesses?.strengths.map((item: any) => ({
       name: item.name,
@@ -64,21 +61,18 @@ export const processPerformanceData = (
       iconType: getSkillIconType(item.name),
     })) || [];
 
-  
   const weaknessesData =
     apiData.strengthsAndWeaknesses?.areasForImprovement.map((item: any) => ({
       name: item.name,
       value: item.score,
     })) || [];
 
-  
   const shortTermGoals = apiData.improvementRecommendations?.shortTermGoals || [
     "Work on defensive techniques",
     "Analyze your losses for patterns",
     "Practice endgames against an engine",
   ];
 
-  
   const trainingFocus = Object.entries(
     apiData.improvementRecommendations?.trainingFocus || {}
   ).map(([key, value]) => `${formatTrainingKey(key)} (${value}%)`);
@@ -93,15 +87,12 @@ export const processPerformanceData = (
   };
 };
 
-
 const formatTrainingKey = (key: string): string => {
-  
   const formatted = key.replace(/([A-Z])/g, " $1").trim();
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };
 
 const getSkillIconType = (skillName: string): string => {
-  
   if (skillName.includes("Calculation") || skillName.includes("Tactical")) {
     return "Calculation";
   } else if (skillName.includes("Opening")) {
@@ -164,18 +155,12 @@ export function usePerformanceData() {
       );
 
       if (response?.success) {
-        
-        console.log('[FE] Backend response:', response.data);
-        console.log('[FE] Has barData:', !!response.data.barData);
-        console.log('[FE] Has userRating:', !!response.data.userRating);
-        
         setPerformanceData(response.data);
         setProcessedData(processPerformanceData(response.data));
       } else {
         setError(new Error("Invalid data format received from server"));
       }
     } catch (err) {
-      console.error("Error fetching performance data:", err);
       setError(
         err instanceof Error
           ? err

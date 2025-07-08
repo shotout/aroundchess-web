@@ -35,6 +35,8 @@ import ChessboardWrapper from "../ChessboardWrapper";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useShareGame } from "@/app/store/shareGame";
 import GameAlertDialogMobile from "../GameAlertDialogMobile";
+// ADD THIS IMPORT
+import { playSound } from "@/utils/play-audio";
 
 interface StageDetailViewProps {
   categorySlug: string;
@@ -113,33 +115,6 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
 
   const movesToShow = Math.max(maxMoves, 1);
 
-  // const getPieceType = (move: any) => {
-  //   if (!move || !move.san) return "P";
-
-  //   const san = move.san;
-
-  //   if (san.startsWith("O-O")) return "K";
-
-  //   const firstChar = san.charAt(0);
-
-  //   if (firstChar === firstChar.toUpperCase() && firstChar.match(/[KQRBN]/)) {
-  //     switch (firstChar) {
-  //       case "K":
-  //         return "K";
-  //       case "Q":
-  //         return "Q";
-  //       case "R":
-  //         return "R";
-  //       case "B":
-  //         return "B";
-  //       case "N":
-  //         return "N";
-  //     }
-  //   }
-
-  //   return "P";
-  // };
-
   return (
     <div className="sm:hidden w-full">
       <div className="relative">
@@ -194,13 +169,6 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {whiteMove ? (
                       <div className="flex items-center justify-center">
-                        {/* <Image
-                          src={`/pieces/wood/w${getPieceType(whiteMove)}.png`}
-                          width={16}
-                          height={16}
-                          alt={whiteMove?.san || ""}
-                          className="mr-1"
-                        /> */}
                         <span className="text-xs font-medium truncate">
                           {whiteMove.san}
                         </span>
@@ -213,13 +181,6 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {blackMove ? (
                       <div className="flex items-center justify-center">
-                        {/* <Image
-                          src={`/pieces/wood/b${getPieceType(blackMove)}.png`}
-                          width={16}
-                          height={16}
-                          alt={blackMove?.san || ""}
-                          className="mr-1"
-                        /> */}
                         <span className="text-xs font-medium truncate">
                           {blackMove.san}
                         </span>
@@ -386,6 +347,26 @@ export default function StageDetailView({
       setIsSyzygyLoading(false);
     }
   }, [position, game, isSolved]);
+
+  // ADD THIS FUNCTION TO HANDLE MOVES WITH SOUND
+  const handleMoveWithSound = useCallback(
+    (move: any) => {
+      if (move) {
+        // Play sound for the move
+        playSound(game, move);
+
+        // Update move history
+        setMoveHistory((prev) => [...prev, move]);
+
+        // Update current move index
+        setCurrentMoveIndex((prev) => prev + 1);
+
+        // Update position
+        setPosition(game.fen());
+      }
+    },
+    [game]
+  );
 
   // Move navigation functions
   const handlePreviousMove = useCallback(() => {
@@ -774,7 +755,6 @@ export default function StageDetailView({
                 Hint
               </button>
 
-              {/* {!isCheckmateMode && ( */}
               <button
                 className={`flex gap-x-2 text-xs items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
                   isAutoSolution
@@ -792,7 +772,6 @@ export default function StageDetailView({
                 />
                 {isAutoSolution ? "Solving..." : "Show Solution"}
               </button>
-              {/* )} */}
 
               <button
                 onClick={resetPosition}
@@ -1025,10 +1004,11 @@ export default function StageDetailView({
                     is3DMode={is3DMode}
                     showHint={showHint}
                     handleShare={handleShare}
+                    onMovePlay={handleMoveWithSound}
                   />
                 </div>
                 {isSolved && (
-                  <div className="w-full overflow-hidden px-4">
+                  <div className="w-full block sm:hidden overflow-hidden px-4">
                     <GameOutcomeDisplay
                       game={game}
                       playerColor={playerColor}
@@ -1159,6 +1139,7 @@ export default function StageDetailView({
                 depth={15}
                 isAutoSolution={isAutoSolution}
                 onSolutionComplete={handleSolutionComplete}
+                onMovePlay={handleMoveWithSound}
               />
 
               <GameControls
