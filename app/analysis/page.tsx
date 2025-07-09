@@ -15,7 +15,6 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
-  const { setCallFetch } = useProfileFetch();
 
   useEffect(() => {
     const checkSession = () => {

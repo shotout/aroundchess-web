@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { toast } from "sonner";
 
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
-import { gameHistoryApi } from "@/components/game-history/services/api";
-import { useProfileStore } from "@/app/store/profile";
 import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
+import { useChessProfile } from "./useChessProfile";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -18,27 +17,24 @@ interface ChessAccountSetupProps {
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
 }) => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const { sessionId } = useProfileStore();
-
-  useEffect(() => {
-    const checkSession = () => {
-      if (sessionId != "") {
-        setIsSignedIn(true);
-      } else {
-        setIsSignedIn(false);
-      }
-    };
-
-    checkSession();
-  }, [sessionId, isSignedIn]);
-
-  const { setUsername, username } = usePgnStore();
+  const { setUsername } = usePgnStore();
+  const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
 
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
-  const [checkComplete, setCheckComplete] = useState(false);
+
+  useEffect(() => {
+    if (!checkComplete || isLoading) return;
+
+    if (isSignedIn && !hasUsername) {
+      setShowConnectDialog(true);
+      setShowPremiumDialog(false);
+      setShowAnalyzeDialog(false);
+    } else {
+      setShowConnectDialog(false);
+    }
+  }, [isSignedIn, hasUsername, checkComplete, isLoading]);
 
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
@@ -62,72 +58,33 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     toast.success("Thank you for subscribing to Premium!");
   };
 
-  useEffect(() => {
-    if (username) {
-      setCheckComplete(true);
-      return;
-    }
-
-    const fetchProfileData = async () => {
-      if (!isSignedIn || !sessionId) {
-        setCheckComplete(true);
-        return;
-      }
-
-      // Show toast with spinning indicator
-      const toastId = toast.loading("Verifying username...");
-
-      setShowConnectDialog(false);
-      setShowPremiumDialog(false);
-      setShowAnalyzeDialog(false);
-
-      try {
-        const response = await gameHistoryApi.getProfile(sessionId);
-
-        if (response?.success && response?.data?.username) {
-          setUsername(response.data.username);
-        } else {
-          setShowConnectDialog(true);
-        }
-      } catch (error) {
-        setShowConnectDialog(true);
-      } finally {
-        // Dismiss the toast when check completes
-        toast.dismiss(toastId);
-        setCheckComplete(true);
-      }
-    };
-
-    fetchProfileData();
-  }, [isSignedIn, sessionId, setUsername, username]);
+  if (!checkComplete) {
+    return null;
+  }
 
   return (
     <>
-      {checkComplete && (
-        <>
-          <ChessConnectDialog
-            open={showConnectDialog && !isLoading}
-            onOpenChange={(open) => {
-              setShowConnectDialog(open);
-              if (!open) {
-                handleConnectClose();
-              }
-            }}
-            onSuccess={handleConnectSuccess}
-          />
+      <ChessConnectDialog
+        open={showConnectDialog && !isLoading}
+        onOpenChange={(open) => {
+          setShowConnectDialog(open);
+          if (!open) {
+            handleConnectClose();
+          }
+        }}
+        onSuccess={handleConnectSuccess}
+      />
 
-          <PremiumSubscription
-            visible={showPremiumDialog && !isLoading}
-            onClose={handleClosePremium}
-            onGetPremium={handleGetPremium}
-          />
+      <PremiumSubscription
+        visible={showPremiumDialog && !isLoading}
+        onClose={handleClosePremium}
+        onGetPremium={handleGetPremium}
+      />
 
-          <AnalyzeGameDialog
-            open={showAnalyzeDialog && !isLoading}
-            onOpenChange={setShowAnalyzeDialog}
-          />
-        </>
-      )}
+      <AnalyzeGameDialog
+        open={showAnalyzeDialog && !isLoading}
+        onOpenChange={setShowAnalyzeDialog}
+      />
     </>
   );
 };

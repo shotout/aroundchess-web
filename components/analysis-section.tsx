@@ -5,7 +5,6 @@ import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 import Image from "next/image";
 import DotSpinner from "./game-history/Spinner";
@@ -41,7 +40,7 @@ const analysis = [
       "Utilize an AI-powered analysis tool of AroundChess that continuously evaluates the board and highlights threats, suggesting defensive moves to counter these dangers and enhance strategic awareness.",
   },
   {
-    image: "/images/homepage/threats.png",
+    image: "/images/homepage/move-quality.png",
     title: "MOVE QUALITY",
     description:
       "Discover an in-depth <b>analysis of each of your and your Opponent's moves</b> and find suggestions for improvements. ",

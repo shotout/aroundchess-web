@@ -97,7 +97,6 @@ export default function LoginPage() {
 
         setPersistedCookie("token", accessToken, 365);
         setSessionId(accessToken);
-        // toast.success("Logged in successfully!");
         router.push("/analysis");
       } else {
         alert("Failed to verify account status. Please try again.");

@@ -10,7 +10,6 @@ import { useTrainingPlanStore, useScheduleStore, useUserStore } from "./store";
 import { Button } from "@/components/ui/button";
 import ChessTrainingPlanDialog from "./components/TrainingDialog";
 import CacheUtil from "./api/cacheUtils";
-import { useProfileStore } from "../store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { usePgnStore } from "../store/zustandStore";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
@@ -20,9 +19,18 @@ import {
   TrainingPlanDisplaySkeleton,
   PlanCheckSkeleton,
 } from "./components/SkeletonLoading";
+import { useChessProfile } from "@/components/analysis/onboarding/useChessProfile";
+import { useProfileStore } from "../store/profile";
 
 const ChessProgressionUI: React.FC = () => {
-  const { sessionId } = useProfileStore();
+  const {
+    username,
+    isSignedIn,
+    isLoading: profileLoading,
+    checkComplete,
+    refetch: refetchProfile,
+  } = useChessProfile();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "adjust">("create");
   const [hasPlan, setHasPlan] = useState(false);
@@ -30,6 +38,7 @@ const ChessProgressionUI: React.FC = () => {
   const states = ["My Training Plan", "My Progress"];
   const [activeState, setActiveState] = useState(states[0]);
   const { GameHistoryOpenings } = useApiClient();
+  const { sessionId } = useProfileStore();
   const { setOpeningPlayed, isLoading: pgnLoading } = usePgnStore();
 
   const fetchingRefs = useRef({
@@ -60,34 +69,37 @@ const ChessProgressionUI: React.FC = () => {
     fetchUserProfile,
   } = useUserStore();
 
-  // Start all API calls concurrently
-  const initializeConcurrentFetches = useCallback(
-    async (sessionId: string) => {
-      if (!sessionId || initialDataLoaded) return;
+  // Simplified concurrent fetches - only call when we have a verified session
+  const initializeConcurrentFetches = useCallback(async () => {
+    if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
-      // Start all fetches concurrently - don't wait for each other
-      const promises = [
-        fetchUserProfile(sessionId).catch(console.error),
-        fetchTopics(sessionId).catch(console.error),
-        fetchSchedule(sessionId).catch(console.error),
-      ];
+    // Start all fetches concurrently
+    const promises = [
+      fetchUserProfile(sessionId).catch(console.error),
+      fetchTopics(sessionId).catch(console.error),
+      fetchSchedule(sessionId).catch(console.error),
+    ];
 
-      // Also fetch game history openings if not already fetching
-      if (!fetchingRefs.current.openings) {
-        fetchingRefs.current.openings = true;
-        promises.push(
-          fetchGameHistoryOpenings().finally(() => {
-            fetchingRefs.current.openings = false;
-          })
-        );
-      }
+    if (!fetchingRefs.current.openings) {
+      fetchingRefs.current.openings = true;
+      promises.push(
+        fetchGameHistoryOpenings().finally(() => {
+          fetchingRefs.current.openings = false;
+        })
+      );
+    }
 
-      Promise.allSettled(promises);
-      setInitialDataLoaded(true);
-    },
+    Promise.allSettled(promises);
+    setInitialDataLoaded(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fetchUserProfile, fetchTopics, fetchSchedule, initialDataLoaded]
-  );
+  }, [
+    isSignedIn,
+    checkComplete,
+    initialDataLoaded,
+    fetchUserProfile,
+    fetchTopics,
+    fetchSchedule,
+  ]);
 
   const fetchGameHistoryOpenings = useCallback(async () => {
     try {
@@ -98,11 +110,17 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
+  // Only initialize fetches when profile check is complete and user is signed in
   useEffect(() => {
-    if (sessionId && !initialDataLoaded) {
-      initializeConcurrentFetches(sessionId);
+    if (checkComplete && isSignedIn && !initialDataLoaded) {
+      initializeConcurrentFetches();
     }
-  }, [sessionId, initializeConcurrentFetches, initialDataLoaded]);
+  }, [
+    checkComplete,
+    isSignedIn,
+    initializeConcurrentFetches,
+    initialDataLoaded,
+  ]);
 
   useEffect(() => {
     if (schedule && Object.keys(schedule).length > 0) {
@@ -137,61 +155,75 @@ const ChessProgressionUI: React.FC = () => {
   }, [setAdjustMode]);
 
   const handlePlanCreated = useCallback(() => {
-    if (sessionId) {
+    if (isSignedIn) {
       resetExpiredStatus();
       CacheUtil.clearAll();
       setInitialDataLoaded(false);
 
-      // Reset fetching refs
       Object.keys(fetchingRefs.current).forEach((key) => {
         fetchingRefs.current[key as keyof typeof fetchingRefs.current] = false;
       });
 
-      // Restart concurrent fetches
-      initializeConcurrentFetches(sessionId);
+      refetchProfile();
+      initializeConcurrentFetches();
     }
-  }, [sessionId, resetExpiredStatus, initializeConcurrentFetches]);
+  }, [
+    isSignedIn,
+    resetExpiredStatus,
+    refetchProfile,
+    initializeConcurrentFetches,
+  ]);
 
   const isPlanExpired =
     planExpired || (scheduleError && scheduleError.includes("expired"));
 
   const shouldShowCreatePlan = !hasPlan || isPlanExpired;
-
   const showExpiredAlert = isPlanExpired;
-
   const showUserProfileSection = true;
-
   const showTrainingPlanSection =
     !isLoadingSchedule && (hasPlan || (!hasPlan && !shouldShowCreatePlan));
 
+  if (!checkComplete) {
+    return (
+      <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
+        <div className="xl:border xl:p-4 xl:rounded-md flex flex-col gap-y-2 xl:gap-y-4">
+          <UserProfileCardSkeleton />
+          <PlanCheckSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  const displayUsername =
+    username || userProfile?.username || storeUserProfile?.username || "";
+  const displayElo = userProfile?.elo || storeUserProfile?.elo || 0;
+  const displayAvatar = userProfile?.avatar || storeUserProfile?.avatar || "";
+
   return (
     <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
-      <ChessAccountSetup isLoading={pgnLoading} />
+      <ChessAccountSetup isLoading={profileLoading || pgnLoading} />
 
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
           My Training Plan
         </h1>
-        <p className="xl:hidden">
-          ({userProfile?.username || storeUserProfile?.username || "User"})
-        </p>
+        <p className="xl:hidden">({displayUsername || "User"})</p>
       </div>
 
       <div className="xl:border xl:p-4 xl:rounded-md flex flex-col gap-y-2 xl:gap-y-4">
         {showUserProfileSection && (
           <>
-            {isLoadingUserProfile ? (
+            {isLoadingUserProfile || profileLoading ? (
               <UserProfileCardSkeleton />
             ) : (
               <UserProfileCard
                 schedule={schedule}
                 userProfile={{
-                  username:
-                    userProfile?.username || storeUserProfile?.username || "",
-                  currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
-                  avatar: userProfile?.avatar || storeUserProfile?.avatar || "",
+                  username: displayUsername,
+                  currentElo: displayElo,
+                  avatar: displayAvatar,
                 }}
-                avatar={userProfile?.avatar || storeUserProfile?.avatar || ""}
+                avatar={displayAvatar}
               />
             )}
           </>
@@ -261,9 +293,9 @@ const ChessProgressionUI: React.FC = () => {
         onOpenChange={setDialogOpen}
         mode={dialogMode}
         userProfile={{
-          username: userProfile?.username || storeUserProfile?.username || "",
-          currentElo: userProfile?.elo || storeUserProfile?.elo || 0,
-          avatar: userProfile?.avatar || storeUserProfile?.avatar || "",
+          username: displayUsername,
+          currentElo: displayElo,
+          avatar: displayAvatar,
         }}
         onPlanCreated={handlePlanCreated}
       />
