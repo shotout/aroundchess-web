@@ -146,76 +146,79 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
 
           {/* Center: Desktop Navigation */}
           <div className="hidden xl:flex justify-center items-center gap-6 flex-1">
-            <NavigationMenu>
-              <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
-                <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
-                  <Button
-                    onClick={fetchPgnFamousGame}
-                    color="primary"
-                    variant="outlineprimary"
-                    className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
-                  >
-                    <BarChart2
-                      className="mr-2 h-[20px] w-[20px]"
-                      color={sessionId.length == 0 ? "#221AE9" : "#000"}
-                    />
-                    <span
-                      className={`font-normal text-[18px] ${
-                        sessionId.length == 0 && `text-[#221AE9]`
-                      }`}
-                    >
-                      Analyze Now
-                    </span>
-                  </Button>
-                </div>
-                <div className="border border-input rounded-[8px] p-[16px]">
-                  <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
-                    <NavigationMenuItem>
-                      <Link href="/about-us">
-                        <NavigationMenuLink
-                          className={`flex items-center text-[18px] font-medium ${
-                            pathname == "/about-us"
-                              ? "text-[#221AE9]"
-                              : "text-black"
-                          } hover:text-[#221AE9]`}
-                        >
-                          <Info className="mr-2 h-4 w-4" />
-                          About
-                        </NavigationMenuLink>
-                      </Link>
-                    </NavigationMenuItem>
+            {/* Analyze Button - Outside of NavigationMenu */}
+            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+              <Button
+                onClick={fetchPgnFamousGame}
+                color="primary"
+                variant="outlineprimary"
+                className="rounded-[8px] h-[57px] p-[16px] bg-[#221AE910]"
+              >
+                <BarChart2
+                  className="mr-2 h-[20px] w-[20px]"
+                  color={sessionId.length == 0 ? "#221AE9" : "#000"}
+                />
+                <span
+                  className={`font-normal text-[18px] ${
+                    sessionId.length == 0 && `text-[#221AE9]`
+                  }`}
+                >
+                  Analyze Now
+                </span>
+              </Button>
+            </div>
 
-                    <NavigationMenuItem>
-                      <Link href="/faq">
-                        <NavigationMenuLink
-                          className={`flex items-center text-[18px] font-medium ${
-                            pathname == "/faq" ? "text-[#221AE9]" : "text-black"
-                          } hover:text-[#221AE9]`}
-                        >
-                          <HelpCircle className="mr-2 h-4 w-4" />
-                          FAQ
-                        </NavigationMenuLink>
-                      </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <div
-                        className="cursor-pointer"
-                        onClick={() => setOpenPricing(true)}
+            {/* Navigation Menu - Properly structured */}
+            <div className="border border-input rounded-[8px] p-[16px]">
+              <NavigationMenu>
+                <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/about-us"
+                        className={`flex items-center text-[18px] font-medium ${
+                          pathname == "/about-us"
+                            ? "text-[#221AE9]"
+                            : "text-black"
+                        } hover:text-[#221AE9]`}
                       >
-                        <NavigationMenuLink
-                          className={`flex items-center text-[18px] font-medium text-black hover:text-[#221AE9] ${
-                            open && `text-[#221AE9]`
-                          }`}
-                        >
-                          <DollarSign className="mr-2 h-4 w-4" />
-                          Pricing
-                        </NavigationMenuLink>
-                      </div>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </div>
-              </NavigationMenuList>
-            </NavigationMenu>
+                        <Info className="mr-2 h-4 w-4" />
+                        About
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/faq"
+                        className={`flex items-center text-[18px] font-medium ${
+                          pathname == "/faq" ? "text-[#221AE9]" : "text-black"
+                        } hover:text-[#221AE9]`}
+                      >
+                        <HelpCircle className="mr-2 h-4 w-4" />
+                        FAQ
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <button
+                        type="button"
+                        onClick={() => setOpenPricing(true)}
+                        className={`flex items-center text-[18px] font-medium text-black hover:text-[#221AE9] cursor-pointer ${
+                          open && `text-[#221AE9]`
+                        }`}
+                      >
+                        <DollarSign className="mr-2 h-4 w-4" />
+                        Pricing
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
           </div>
 
           {/* Right: Mobile Analyze Button + Menu / Desktop Auth Buttons */}

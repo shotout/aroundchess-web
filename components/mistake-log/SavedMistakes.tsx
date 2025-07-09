@@ -257,7 +257,7 @@ const SavedMistakes: React.FC<savedProps> = ({
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+                  {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                     {item?.mistakeLog.resources.map(
                       (resource: any, index: number) => {
                         return (
@@ -288,7 +288,7 @@ const SavedMistakes: React.FC<savedProps> = ({
                         );
                       }
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             );

@@ -280,7 +280,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                  {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
                     {item?.resources.map((resource: any, index: number) => {
                       return (
                         <div
@@ -309,7 +309,7 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                         </div>
                       );
                     })}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             );

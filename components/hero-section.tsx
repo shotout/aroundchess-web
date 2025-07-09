@@ -48,10 +48,10 @@ export function HeroSection() {
           Continue your chess journey with our advanced analysis tools
         </p>
 
-        <div className="flex flex-row items-center">
+        <div className="flex flex-row items-center mb-2">
           <p className="block text-sm sm:text-base text-black">
             review your analyzed game, track your progress, and discover new
-            insights to improve your play
+            insights to improve your play.
           </p>
         </div>
 

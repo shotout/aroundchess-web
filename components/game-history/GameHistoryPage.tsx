@@ -16,6 +16,8 @@ const GameHistoryPage: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
 
+  console.log(sessionId);
+
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isUsernameFetching, setIsUsernameFetching] = useState(false);
 
