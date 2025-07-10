@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { usePgnStore } from "../store/zustandStore";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -34,86 +35,21 @@ export default function LoginPage() {
   const [deactivatedAlert, setDeactivatedAlert] = useState(false);
   const baseUrl = process.env.BASE_URL;
   const { sessionId, setSessionId } = useProfileStore();
+  const { setProviderType } = usePgnStore();
   const router = useRouter();
 
   useEffect(() => {
     if (sessionId != null && sessionId.length > 0) {
       setPersistedCookie("token", sessionId, 365);
     }
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash) {
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get("access_token");
-        if (accessToken) {
-          handleSSOSuccess(accessToken);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
-
-  const handleSSOSuccess = async (accessToken: string) => {
-    try {
-      const response = await fetch(`${baseUrl}/profile/status`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        alert("Authentication failed. Please try again.");
-        router.push("/login");
-        return;
-      }
-
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        const { isActive, canLogin } = data.data;
-
-        if (!isActive && !canLogin) {
-          try {
-            await fetch(`${baseUrl}/auth/logout`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            });
-          } catch (logoutError) {
-            console.error("Error during SSO logout:", logoutError);
-          }
-
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          setPersistedCookie("token", "", 0);
-          setSessionId("");
-
-          router.push("/login");
-          return;
-        }
-
-        setPersistedCookie("token", accessToken, 365);
-        setSessionId(accessToken);
-        router.push("/analysis");
-      } else {
-        alert("Failed to verify account status. Please try again.");
-        router.push("/login");
-      }
-    } catch (error) {
-      console.error("Error processing SSO login:", error);
-      alert("Failed to process login. Please try again.");
-      router.push("/login");
-    }
-  };
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      setProviderType("email");
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: {
@@ -193,6 +129,7 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
     try {
+      setProviderType("google");
       setLoadingStates((prev) => ({ ...prev, google: true }));
       const response = await fetch(`${baseUrl}/auth/sso/google`, {
         method: "POST",
@@ -220,6 +157,7 @@ export default function LoginPage() {
 
   const handleFacebook = async () => {
     try {
+      setProviderType("facebook");
       setLoadingStates((prev) => ({ ...prev, facebook: true }));
       const response = await fetch(`${baseUrl}/auth/sso/facebook`, {
         method: "POST",
@@ -247,6 +185,7 @@ export default function LoginPage() {
 
   const handleApple = async () => {
     try {
+      setProviderType("apple");
       setLoadingStates((prev) => ({ ...prev, apple: true }));
       const response = await fetch(`${baseUrl}/auth/sso/apple`, {
         method: "POST",
@@ -282,7 +221,6 @@ export default function LoginPage() {
                      h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
                      min-h-[580px] overflow-y-auto"
         >
-          {/* Background image */}
           <div className="absolute inset-0 -z-10">
             <Image
               src="/images/auth-background.png"
@@ -300,7 +238,6 @@ export default function LoginPage() {
             <div className="absolute inset-0 bg-black/5"></div>
           </div>
 
-          {/* Login form container */}
           <div
             className={`
               w-full

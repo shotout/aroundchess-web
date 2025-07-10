@@ -4,15 +4,12 @@ import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { useEffect, useState } from "react";
-import { useProfileFetch } from "./hook/useProfileFetch";
 import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import DotSpinner from "../game-history/Spinner";
-import { usePgnStore } from "@/app/store/zustandStore";
-
-// In navigation.tsx - Always render header, but conditionally render sidebar content
+import { useProfileFetch } from "./hook/useProfileFetch";
 
 export default function Navigation({
   children,
@@ -22,14 +19,14 @@ export default function Navigation({
   isDialogOpen?: boolean;
 }) {
   const pathname = usePathname();
-  const { hydrated: pgnReady } = usePgnStore();
   const { sessionId, hydrated } = useProfileStore();
+  useProfileFetch();
+
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [widthSidebar, setWidthSidebar] = useState(0);
   const [widthContent, setWidthContent] = useState(0);
   const [mounted, setMounted] = useState(true);
-  const { setCallFetch } = useProfileFetch();
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;

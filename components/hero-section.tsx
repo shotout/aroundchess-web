@@ -48,7 +48,7 @@ export function HeroSection() {
           Continue your chess journey with our advanced analysis tools
         </p>
 
-        <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-row text-start sm:items-center mb-2">
           <p className="block text-sm sm:text-base text-black">
             review your analyzed game, track your progress, and discover new
             insights to improve your play.
@@ -76,7 +76,7 @@ export function HeroSection() {
           animate="animate"
         >
           <motion.div
-            className="sm:w-2/3 lg:pr-12 mb-4 lg:mb-0 text-center sm:text-left"
+            className="sm:w-2/3 lg:pr-12 mb-4 lg:mb-0 text-center sm:text-left flex sm:block flex-col gap-y-4"
             variants={fadeInUp}
           >
             <div className="bg-[black] sm:bg-transparent rounded-lg p-4 sm:p-8">

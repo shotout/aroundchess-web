@@ -3,7 +3,7 @@ import React from "react";
 
 export const GrandmastersSection: React.FC = () => {
   return (
-    <section className="py-4 px-8 sm:py-16 lg:py-12 xl:py-16 bg-white">
+    <section className="py-4 px-0 sm:py-16 lg:py-12 xl:py-16 bg-white">
       <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
         <div className="border-2 border-cyan-200 rounded-2xl p-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
@@ -11,37 +11,37 @@ export const GrandmastersSection: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Header with Badge */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-lg">
+                <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-sm lg:text-lg">
                   <Image
                     src="/images/homepage/piece.png"
                     width={50}
                     height={50}
-                    className="max-w-3"
+                    className="w-3 h-3 lg:w-6 lg:h-6"
                     alt={""}
                   />
-                  <h1>GM</h1>
+                  <h1 className="text-sm lg:text-base">GM</h1>
                 </div>
-                <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                <h2 className="text-[14px]  lg:text-[32px] font-semibold text-gray-800">
                   Developed with European Grandmasters
                 </h2>
               </div>
 
               {/* Description Paragraphs */}
               <div className="space-y-4 text-gray-700 leading-relaxed">
-                <p className="text-lg">
+                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                   AroundChess was built with the insight and experience of
                   European chess Grandmasters. Their deep understanding of
                   strategy, training methods, and practical play helped shape
                   some of the platform's core features.
                 </p>
 
-                <p className="text-lg">
+                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                   From analyzing real game patterns to refining analysis tools,
                   their input has been invaluable and helped us to provide the
                   best results possible.
                 </p>
 
-                <p className="text-lg font-medium">
+                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                   Thanks to their guidance, AroundChess offers not just data -
                   but real, instructive chess understanding.
                 </p>

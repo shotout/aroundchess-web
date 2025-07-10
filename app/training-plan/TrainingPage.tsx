@@ -69,11 +69,9 @@ const ChessProgressionUI: React.FC = () => {
     fetchUserProfile,
   } = useUserStore();
 
-  // Simplified concurrent fetches - only call when we have a verified session
   const initializeConcurrentFetches = useCallback(async () => {
     if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
-    // Start all fetches concurrently
     const promises = [
       fetchUserProfile(sessionId).catch(console.error),
       fetchTopics(sessionId).catch(console.error),

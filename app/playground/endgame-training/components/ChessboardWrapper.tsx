@@ -371,7 +371,7 @@ export default function ChessboardWrapper({
   );
 
   return (
-    <div className="flex flex-col justify-center items-center gap-3">
+    <div className="flex flex-col justify-center items-center gap-3 mt-6 sm:mt-0">
       <motion.div
         initial={{ rotateX: 180 }}
         animate={

@@ -26,8 +26,8 @@ export const useChessBoardThemeStore = create<ChessBoardThemeState>()(
       setPieceChoosed: (PieceChoosed) => set({ PieceChoosed }),
     }),
     {
-      name: "chess-theme-storage", // unique name for the storage
-      storage: createJSONStorage(() => sessionStorage), // use localStorage by default
+      name: "chess-theme-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         StyleChoosed: state.StyleChoosed,
         PieceChoosed: state.PieceChoosed,

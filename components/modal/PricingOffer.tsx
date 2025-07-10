@@ -222,8 +222,6 @@ export const PricingOffer: React.FC = () => {
       );
       const perToken = dataPrice.pricePerToken;
       const totalPrice = dataPrice.totalPrice;
-      // console.log("token package", tokenPackage);
-      // console.log("dataPrice package", dataPrice);
       setPricePerToken(perToken);
       setTotalPrice(totalPrice);
     } else {
@@ -244,7 +242,7 @@ export const PricingOffer: React.FC = () => {
 
             backgroundSize: "cover",
             backgroundPosition: "center",
-            height: activeTab == "tokens" ? "80vh" : "100vh",
+            height: activeTab == "tokens" ? "100vh" : "100vh",
             width: "100%",
           }}
           className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
@@ -278,43 +276,47 @@ export const PricingOffer: React.FC = () => {
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
+                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
                     activeTab == "token"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
                     <Image
                       src={`/images/pricing/token-icon.png`}
                       alt="Logo"
                       width={1000}
                       height={1000}
-                      className="w-[20px] h-[20px] "
+                      className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
                       priority
                     />
-                    <span className=" ">Unlock More Analyses</span>
+                    <span className="block leading-tight text-center">
+                      <span className="block sm:inline">Unlock More</span>
+                      <span className="block sm:inline sm:ml-1">Analyses</span>
+                    </span>
                   </div>
                 </TabsTrigger>
                 <TabsTrigger
                   value="subscription"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[11px] lg:text-[16px] rounded-[6px] ${
+                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
                     activeTab == "subscription"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2 break-words w-full">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
                     <Image
                       src={`/images/pricing/unlimited-icon.png`}
                       alt="Logo"
                       width={1000}
                       height={1000}
-                      className="w-[20px] h-[20px] "
+                      className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
                       priority
                     />
-                    <span className="block line-clamp-2">
-                      Go Unlimited with a Subscription
+                    <span className="block leading-tight text-center">
+                      <span className="block">Go Unlimited</span>
+                      <span className="block">with a Subscription</span>
                     </span>
                   </div>
                 </TabsTrigger>

@@ -151,6 +151,9 @@ interface PgnState {
   setStatisticsData: (data: GameStatistics) => void;
   clearStatisticsData: () => void;
 
+  providerType: string;
+  setProviderType: (arg0: string) => void;
+
   clearAll: () => void;
 
   addImportedGame: (game: Omit<Game, "id">) => Game;
@@ -207,6 +210,9 @@ export const usePgnStore = create<PgnState>()(
       importedGames: [],
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
+
+      providerType: "",
+      setProviderType: (providerType: string) => set({ providerType }),
 
       setPgn: (pgn: string) => set({ pgn }),
 
@@ -385,6 +391,7 @@ export const usePgnStore = create<PgnState>()(
           otherGamesPagination: defaultPaginationState,
           openingPlayed: [],
           importedGames: [],
+          providerType: "",
         }),
 
       addImportedGame: (gameData) => {
@@ -434,12 +441,12 @@ export const usePgnStore = create<PgnState>()(
       },
     }),
     {
-      name: "pgn-session-storage",
+      name: "pgn-local-storage",
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },
 
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         dataAnalysis: state.dataAnalysis,
         isLoading: state.isLoading,
@@ -460,6 +467,7 @@ export const usePgnStore = create<PgnState>()(
         statisticsData: state.statisticsData,
         statisticsLastFetched: state.statisticsLastFetched,
         importedGames: state.importedGames,
+        providerType: state.providerType,
       }),
     }
   )

@@ -29,31 +29,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     setEmail(emailParam);
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash) {
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get("access_token");
-        if (accessToken) {
-          handleSSOSuccess(accessToken);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSSOSuccess = (accessToken: string) => {
-    try {
-      setPersistedCookie("token", accessToken, 365);
-
-      setSessionId(accessToken);
-
-      // toast.success("Logged in successfully with Google!");
-      window.location.href = "/analysis";
-    } catch (error) {
-      toast.error("Failed to process Google login");
-    }
-  };
+  }, [emailParam]);
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
@@ -152,7 +128,6 @@ export default function RegisterPage() {
     try {
       setIsLoading(true);
 
-      // Resend the OTP
       const response = await fetch(`${baseUrl}/auth/resend-otp`, {
         method: "POST",
         headers: {
@@ -225,10 +200,10 @@ export default function RegisterPage() {
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Google signup");
+        toast.error("Failed to initiate Facebook signup");
       }
     } catch (error) {
-      toast.error("Failed to sign up with Google");
+      toast.error("Failed to sign up with Facebook");
     }
   };
 
@@ -249,27 +224,23 @@ export default function RegisterPage() {
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
-        toast.error("Failed to initiate Google signup");
+        toast.error("Failed to initiate Apple signup");
       }
     } catch (error) {
-      toast.error("Failed to sign up with Google");
+      toast.error("Failed to sign up with Apple");
     }
   };
 
   return (
     <>
-      {/* Main container with full viewport height */}
       <div className="h-screen flex flex-col">
-        {/* Header with fixed height */}
         <SiteHeaderNew />
 
-        {/* Main content taking remaining space after header */}
         <main
           className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
                      h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
                      min-h-[600px] overflow-y-auto"
         >
-          {/* Background image */}
           <div className="absolute inset-0 -z-10">
             <Image
               src="/images/auth-background.png"
@@ -287,7 +258,6 @@ export default function RegisterPage() {
             <div className="absolute inset-0 bg-black/5"></div>
           </div>
 
-          {/* Register form container */}
           <div
             className={`
               w-full
@@ -519,7 +489,6 @@ export default function RegisterPage() {
                               newCode[index] = value;
                               setVerificationCode(newCode.join(""));
 
-                              // Auto-focus next input when a digit is entered
                               if (value && index < 5) {
                                 const nextInput = document.getElementById(
                                   `verificationCode-${index + 1}`
@@ -528,7 +497,6 @@ export default function RegisterPage() {
                               }
                             }}
                             onKeyDown={(e) => {
-                              // Handle backspace to move to previous input
                               if (
                                 e.key === "Backspace" &&
                                 !verificationCode[index] &&
@@ -546,7 +514,6 @@ export default function RegisterPage() {
                                 .getData("text")
                                 .trim();
                               if (/^\d+$/.test(pastedData)) {
-                                // Get only up to 6 digits
                                 const digits = pastedData
                                   .substring(0, 6)
                                   .split("");
@@ -557,7 +524,6 @@ export default function RegisterPage() {
                                       .substring(0, 6)
                                 );
 
-                                // Focus the next empty input or the last input if all filled
                                 if (digits.length < 6) {
                                   const nextInput = document.getElementById(
                                     `verificationCode-${Math.min(
@@ -635,7 +601,6 @@ export default function RegisterPage() {
         </main>
       </div>
 
-      {/* Footer positioned below the main content, only visible when scrolling */}
       <div className="w-full">
         <SiteFooterNew />
       </div>

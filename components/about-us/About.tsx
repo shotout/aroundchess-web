@@ -1,7 +1,6 @@
 "use client";
 import { useContactUs } from "@/app/store/contactUs";
 import Image from "next/image";
-import { GrandmastersSection } from "../GrandmasterSection";
 export default function About() {
   const { setOpen, open } = useContactUs();
   const handleContactUs = () => {
@@ -9,7 +8,6 @@ export default function About() {
   };
   const handleDiscord = () => {
     const discordUrl = `https://discord.gg/PZWcXsxGM7`;
-    // const discordUrl = `https://discordapp.com/channels/SERVERID/CHANNELID`;
     window.open(discordUrl, "_blank");
   };
   const ourValues = [
@@ -69,44 +67,44 @@ export default function About() {
         potential. Let's explore the world of chess, one move at a time!
       </p>
       <section>
-        <div className="container">
+        <div className="w-full">
           <div className="border-2 border-cyan-200 rounded-2xl p-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
               {/* Content Section */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Header with Badge */}
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-lg">
+                  <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-sm lg:text-lg">
                     <Image
                       src="/images/homepage/piece.png"
                       width={50}
                       height={50}
-                      className="max-w-3"
+                      className="w-3 h-3 lg:w-6 lg:h-6"
                       alt={""}
                     />
-                    <h1>GM</h1>
+                    <h1 className="text-sm lg:text-base">GM</h1>
                   </div>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                  <h2 className="text-[14px] text-nowrap lg:text-[32px] font-semibold text-gray-800">
                     Developed with European Grandmasters
                   </h2>
                 </div>
 
                 {/* Description Paragraphs */}
                 <div className="space-y-4 text-gray-700 leading-relaxed">
-                  <p className="text-lg">
+                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                     AroundChess was built with the insight and experience of
                     European chess Grandmasters. Their deep understanding of
                     strategy, training methods, and practical play helped shape
                     some of the platform's core features.
                   </p>
 
-                  <p className="text-lg">
+                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                     From analyzing real game patterns to refining analysis
                     tools, their input has been invaluable and helped us to
                     provide the best results possible.
                   </p>
 
-                  <p className="text-lg ">
+                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
                     Thanks to their guidance, AroundChess offers not just data -
                     but real, instructive chess understanding.
                   </p>
@@ -115,11 +113,11 @@ export default function About() {
 
               {/* Image Section */}
               <div className="lg:col-span-1">
-                <div className="relative rounded-xl overflow-hidden ">
+                <div className="relative rounded-xl overflow-hidden">
                   <Image
                     src="/images/homepage/gm.png"
                     alt="Chess Grandmaster moving pieces on a chessboard"
-                    className="w-full  h-64 lg:h-80 object-scale-down"
+                    className="w-full h-[200px] sm:h-[250px] lg:h-80 object-cover"
                     quality={100}
                     width={10000}
                     height={10000}
@@ -143,20 +141,20 @@ export default function About() {
         worldwide who share their knowledge, feedback, and love for the game.
       </p>
       <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mt-4 leading-[1.2]">
-        Together, we’re building a vibrant space where every player can learn,
+        Together, we're building a vibrant space where every player can learn,
         share, and grow.
       </p>
       <div className="border border-input my-4" />
-      <div className="flex flex-col mt-6 sm:mt-0">
+      <div className="flex flex-col">
         <h2 className="text-[18px] lg:text-[32px] font-semibold text-black my-[20px] mb-[8px]">
           Our Values
         </h2>
-        <div className="grid sm:grid-cols-2 gap-6 sm:gap-2 sm:gap-4">
+        <div className="grid sm:grid-cols-2 gap-6 sm:gap-2 ">
           {ourValues.map((value: any, index: number) => {
             return (
               <div
                 key={index}
-                className="flex flex-col gap-2 sm:rounded-md sm:border sm:border-input px-4 sm:py-4"
+                className="flex flex-col gap-2 sm:rounded-md sm:border sm:border-input px-0 sm:py-4"
               >
                 <Image
                   src={value.icon}

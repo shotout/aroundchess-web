@@ -741,22 +741,22 @@ export default function StageDetailView({
         {/* Game control buttons */}
         <div className="space-y-2">
           {!isSolved && (
-            <div className="flex gap-x-1 w-full justify-between">
+            <div className="flex gap-x-[2px] w-full justify-between sm:justify-center">
               <button
-                className="flex gap-x-1 text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-1 text-[10px] items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                 onClick={() => setShowHint(true)}
               >
                 <Image
                   src={"/endgame-training/hint.png"}
                   alt="hint icon"
-                  width={12}
-                  height={12}
+                  width={10}
+                  height={10}
                 />
                 Hint
               </button>
 
               <button
-                className={`flex gap-x-2 text-xs items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
+                className={`flex gap-x-[2px]  items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
                   isAutoSolution
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-primary-gray text-black"
@@ -767,35 +767,37 @@ export default function StageDetailView({
                 <Image
                   src={"/endgame-training/show-solution.png"}
                   alt="solution icon"
-                  width={12}
-                  height={12}
+                  width={10}
+                  height={10}
                 />
-                {isAutoSolution ? "Solving..." : "Show Solution"}
+                <span className="text-[10px]">
+                  {isAutoSolution ? "Solving..." : "Show Solution"}
+                </span>
               </button>
 
               <button
                 onClick={resetPosition}
-                className="flex gap-x-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-[2px] items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
               >
                 <Image
                   src={"/endgame-training/rematch.png"}
                   alt="restart icon"
-                  width={12}
-                  height={12}
+                  width={10}
+                  height={10}
                 />
-                <span className="text-[11px]">Restart</span>
+                <span className="text-[10px]">Restart</span>
               </button>
 
               <button
                 onClick={navigateNext}
-                className="flex gap-x-1 items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-[2px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
               >
-                <span className="text-[11px]">Next Stage</span>
+                <span className="text-[10px]">Next Stage</span>
                 <Image
                   src={"/endgame-training/Union.png"}
                   alt="arrow right icon"
-                  width={12}
-                  height={12}
+                  width={10}
+                  height={10}
                 />
               </button>
             </div>

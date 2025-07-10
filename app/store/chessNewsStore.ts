@@ -34,8 +34,8 @@ export const useChessNewsStore = create<ChessNewsState>()(
       setMostReadsArticle: (mostReadsArticle) => set({ mostReadsArticle }),
     }),
     {
-      name: "chess-news-storage", // unique name for the storage
-      storage: createJSONStorage(() => sessionStorage), // use localStorage by default
+      name: "chess-news-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         chessNews: state.chessNews,
         detailNews: state.detailNews,

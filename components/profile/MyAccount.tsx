@@ -34,7 +34,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     sessionId,
   } = useProfileStore();
   const router = useRouter();
-  const { username, setUsername, clearAll } = usePgnStore();
+  const { username, setUsername, clearAll, providerType } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isUpdatingGameType, setIsUpdatingGameType] = useState(false);
   const [form, setForm] = useState<any>({
@@ -53,8 +53,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     clearPlayerStats,
   } = usePlayerStatsStore();
 
-  // Check if user is using email provider
-  const isEmailProvider = profile.provider === "email";
+  const isEmailProvider = providerType === "email";
 
   useEffect(() => {
     setForm({

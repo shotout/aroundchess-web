@@ -80,15 +80,9 @@ const GamesList: React.FC<GamesListProps> = ({
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md justify-center flex items-center mb-4">
         <AlertCircle className="h-5 w-5 mr-2" />
         <span>{error.message}</span>
-        <a
-          href={"/login"}
-          className="ml-4 bg-red-600 text-white px-3 py-1 rounded"
-        >
-          Login Again
-        </a>
       </div>
     );
   }

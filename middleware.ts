@@ -19,10 +19,13 @@ const publicRoutes = [
   "/login",
   "/register",
   "/forgot-password",
+  "/auth/callback",
 ];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
+
   if (
     (pathname.startsWith("/login") || pathname.startsWith("/register")) &&
     token != undefined &&
@@ -30,7 +33,11 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.redirect(new URL("/analysis", req.url));
   }
-  //old file hide
+
+  if (pathname === "/auth/callback") {
+    return NextResponse.next();
+  }
+
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/analyzer") ||
@@ -43,6 +50,7 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.redirect(new URL("/analysis", req.url));
   }
+
   if (
     req.url.includes("/stockfish.js") ||
     req.url.includes("/Stockfish.wasm")
@@ -50,10 +58,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const isPublicRoute = publicRoutes.some((route) => pathname == route);
+  const isPublicRoute = publicRoutes.some((route) => pathname === route);
   if (isPublicRoute || (token != undefined && token != "")) {
     return NextResponse.next();
   }
+
   return NextResponse.redirect(new URL("/login", req.url));
 }
 

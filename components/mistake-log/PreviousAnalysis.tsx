@@ -272,10 +272,10 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                         height={1000}
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
-                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
-                        Recommended Training Exercise:{" "}
+                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md  text-[#221AE9]">
+                        {/* Recommended Training Exercise:{" "} */}
                         <span className="font-bold">
-                          {" " + item?.recommendation}
+                          {item?.recommendation}
                         </span>
                       </span>
                     </div>
