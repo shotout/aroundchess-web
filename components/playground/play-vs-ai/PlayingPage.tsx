@@ -23,7 +23,6 @@ import { Chess, Square } from "chess.js";
 import {
   ArrowLeft,
   ArrowRight,
-  RefreshCcw,
   ChevronLeft,
   ChevronRight,
   RotateCw,
@@ -390,11 +389,109 @@ export default function PlayingPage() {
   const classificationTimeoutRef = useRef<NodeJS.Timeout>();
   const [isMobile, setIsMobile] = useState(false);
 
-  // Simple navigation state like PuzzleGame
+  const [shouldTriggerAI, setShouldTriggerAI] = useState(false);
+
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
+
+  const updateFenHistory = useCallback((newFen: string) => {
+    setFenHistory((prev) => {
+      const newHistory = [...prev, newFen];
+      setCurrentMoveIndex(newHistory.length - 1);
+      return newHistory;
+    });
+  }, []);
+
+  const navigateToMove = (index: number) => {
+    if (index < 0 || index >= fenHistory.length) {
+      return;
+    }
+
+    setCurrentMoveIndex(index);
+    const targetFen = fenHistory[index];
+    setGamePosition(targetFen);
+
+    const tempGame = new Chess();
+    tempGame.load(targetFen);
+    setCurrentTurn(tempGame.turn() === "w" ? "White" : "Black");
+  };
+
+  const handlePreviousMove = () => {
+    const newIndex = Math.max(currentMoveIndex - 1, 0);
+    navigateToMove(newIndex);
+  };
+
+  const handleNextMove = () => {
+    const newIndex = Math.min(currentMoveIndex + 1, fenHistory.length - 1);
+    navigateToMove(newIndex);
+
+    if (
+      newIndex === fenHistory.length - 1 &&
+      !game.isGameOver() &&
+      statusGame === "Ongoing"
+    ) {
+      const tempGame = new Chess();
+      tempGame.load(fenHistory[newIndex]);
+      const isMyTurn =
+        (myColor === "white" && tempGame.turn() === "w") ||
+        (myColor === "black" && tempGame.turn() === "b");
+
+      if (!isMyTurn) {
+        setTimeout(() => {
+          findEnemyMove(newIndex);
+        }, 500);
+      }
+    }
+  };
+
+  const resetToBeginning = () => {
+    navigateToMove(0);
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const goToLatestMove = () => {
+    const latestIndex = fenHistory.length - 1;
+    navigateToMove(latestIndex);
+
+    if (!game.isGameOver() && statusGame === "Ongoing") {
+      const tempGame = new Chess();
+      tempGame.load(fenHistory[latestIndex]);
+      const isMyTurn =
+        (myColor === "white" && tempGame.turn() === "w") ||
+        (myColor === "black" && tempGame.turn() === "b");
+
+      if (!isMyTurn) {
+        setTimeout(() => {
+          findEnemyMove(latestIndex);
+        }, 500);
+      }
+    }
+  };
+
+  const isAtCurrentMove = useMemo(
+    () => currentMoveIndex === fenHistory.length - 1,
+    [currentMoveIndex, fenHistory.length]
+  );
+
+  useEffect(() => {
+    if (shouldTriggerAI && isAtCurrentMove && statusGame === "Ongoing") {
+      const isMyTurn =
+        (myColor === "white" && game.turn() === "w") ||
+        (myColor === "black" && game.turn() === "b");
+      if (!isMyTurn) {
+        setTimeout(
+          () => {
+            findEnemyMove();
+          },
+          isMobile ? 1000 : 100
+        );
+      }
+      setShouldTriggerAI(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldTriggerAI, isAtCurrentMove, statusGame, myColor, game.turn()]);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -407,64 +504,17 @@ export default function PlayingPage() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  // Simple navigation functions like PuzzleGame
-  const navigateToMove = (index: number) => {
-    if (index >= 0 && index < fenHistory.length) {
-      setCurrentMoveIndex(index);
-      const fen = fenHistory[index];
-      setGamePosition(fen);
-
-      // Create a temporary game to load the position
-      const tempGame = new Chess();
-      const moves = game.history();
-      tempGame.reset();
-
-      // Replay moves to get to this position
-      for (let i = 0; i < index; i++) {
-        if (moves[i]) {
-          tempGame.move(moves[i]);
-        }
-      }
-
-      setGamePosition(tempGame.fen());
-    }
-  };
-
-  const handlePreviousMove = () => {
-    const newIndex = Math.max(currentMoveIndex - 1, 0);
-    navigateToMove(newIndex);
-  };
-
-  const handleNextMove = () => {
-    const newIndex = Math.min(currentMoveIndex + 1, fenHistory.length - 1);
-    navigateToMove(newIndex);
-  };
-
-  const resetToBeginning = () => {
-    navigateToMove(0);
-  };
-
-  // Update fenHistory when moves are made
   useEffect(() => {
     const moves = game.history();
-    const newFenHistory = [game.fen()]; // Start with initial position
 
-    const tempGame = new Chess();
-    moves.forEach((move) => {
-      tempGame.move(move);
-      newFenHistory.push(tempGame.fen());
-    });
-
-    setFenHistory(newFenHistory);
-    if (currentMoveIndex >= newFenHistory.length) {
-      setCurrentMoveIndex(newFenHistory.length - 1);
+    if (moves.length === 0) {
+      const initialFen = game.fen();
+      setFenHistory([initialFen]);
+      setCurrentMoveIndex(0);
+      setGamePosition(initialFen);
     }
-  }, [gamePosition]);
-
-  const isAtCurrentMove = useMemo(
-    () => currentMoveIndex === fenHistory.length - 1,
-    [currentMoveIndex, fenHistory]
-  );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.history().length === 0]);
 
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({ square, verbose: true });
@@ -492,10 +542,8 @@ export default function PlayingPage() {
   };
 
   const onSquareClick = (square: Square) => {
-    // Don't allow moves when viewing history
     if (!isAtCurrentMove) {
-      // If viewing history, return to current position
-      navigateToMove(fenHistory.length - 1);
+      goToLatestMove();
       return;
     }
 
@@ -548,16 +596,29 @@ export default function PlayingPage() {
       }
 
       const move = game.move({ from: moveFrom, to: square, promotion: "q" });
-      setMoveData(move);
-      playSound(game, move);
-      setMoveClassification("");
 
-      if (!isMobile) {
-        getClassificationMove(move);
-      } else {
-        setTimeout(() => {
-          findEnemyMove();
-        }, 500);
+      if (move) {
+        setMoveData(move);
+        playSound(game, move);
+        setMoveClassification("");
+
+        const newFen = game.fen();
+        setGamePosition(newFen);
+        updateFenHistory(newFen);
+        setAfterFen(newFen);
+
+        if (!isMobile) {
+          getClassificationMove(move);
+        } else {
+          setShouldTriggerAI(true);
+        }
+
+        setCurrentTurn((turnColor) =>
+          turnColor !== "White" ? "White" : "Black"
+        );
+        setMoveFrom("");
+        setMoveTo(null);
+        setOptionSquares({});
       }
 
       if (move === null) {
@@ -565,16 +626,6 @@ export default function PlayingPage() {
         if (hasMoveOptions) setMoveFrom(square);
         return;
       }
-
-      setGamePosition(game.fen());
-      setAfterFen(game.fen());
-      setCurrentTurn((turnColor) =>
-        turnColor !== "White" ? "White" : "Black"
-      );
-      setMoveFrom("");
-      setMoveTo(null);
-      setOptionSquares({});
-      return;
     }
   };
 
@@ -596,9 +647,7 @@ export default function PlayingPage() {
   const getClassificationMove = useCallback(
     async (move: any) => {
       if (isMobile) {
-        setTimeout(() => {
-          findEnemyMove();
-        }, 500);
+        setShouldTriggerAI(true);
         return;
       }
 
@@ -610,12 +659,9 @@ export default function PlayingPage() {
         try {
           const moveUserClassification = await handleClassify(move);
           setMoveClassification(moveUserClassification);
-
-          setTimeout(() => {
-            findEnemyMove();
-          }, 500);
+          setShouldTriggerAI(true);
         } catch (error) {
-          findEnemyMove();
+          setShouldTriggerAI(true);
         }
       }, 300);
     },
@@ -639,8 +685,12 @@ export default function PlayingPage() {
 
       if (move) {
         setMoveData(move);
-        setGamePosition(game.fen());
-        setAfterFen(game.fen());
+
+        const newFen = game.fen();
+        setGamePosition(newFen);
+        updateFenHistory(newFen);
+        setAfterFen(newFen);
+
         playSound(game, move);
 
         setPreviousSquare((promoteFromSquare || moveFrom) as Square);
@@ -655,9 +705,7 @@ export default function PlayingPage() {
         if (!isMobile) {
           getClassificationMove(move);
         } else {
-          setTimeout(() => {
-            findEnemyMove();
-          }, 500);
+          setShouldTriggerAI(true);
         }
       }
     }
@@ -689,9 +737,23 @@ export default function PlayingPage() {
     }),
   };
 
-  const findEnemyMove = () => {
+  const findEnemyMove = (moveIndex?: number) => {
     const isYourTurnLocal = myColor === "white" ? "w" : "b";
-    if (game.turn() === isYourTurnLocal) return false;
+    const currentTurn = game.turn();
+    const checkIndex = moveIndex !== undefined ? moveIndex : currentMoveIndex;
+    const atCurrentMove = checkIndex === fenHistory.length - 1;
+
+    if (currentTurn === isYourTurnLocal) {
+      return false;
+    }
+
+    if (!atCurrentMove) {
+      return false;
+    }
+
+    if (statusGame !== "Ongoing") {
+      return false;
+    }
 
     engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
       const move = game.move({
@@ -699,17 +761,24 @@ export default function PlayingPage() {
         to: pv.substring(2, 4),
         promotion: pv.substring(4, 5),
       });
-      setMoveData(move);
-      playSound(game, move);
-      setBeforeFen(game.fen());
-      setPreviousSquare(pv.substring(0, 2) as Square);
-      setCurrentSquare(pv.substring(2, 4) as Square);
-      setBestline("");
-      setHintClicked(false);
-      setGamePosition(game.fen());
-      setCurrentTurn((turnColor) =>
-        turnColor !== "White" ? "White" : "Black"
-      );
+
+      if (move) {
+        setMoveData(move);
+        playSound(game, move);
+        setBeforeFen(game.fen());
+        setPreviousSquare(pv.substring(0, 2) as Square);
+        setCurrentSquare(pv.substring(2, 4) as Square);
+        setBestline("");
+        setHintClicked(false);
+
+        const newFen = game.fen();
+        setGamePosition(newFen);
+        updateFenHistory(newFen);
+
+        setCurrentTurn((turnColor) =>
+          turnColor !== "White" ? "White" : "Black"
+        );
+      }
     });
   };
 
@@ -968,14 +1037,15 @@ export default function PlayingPage() {
   const handleRematch = () => {
     setStatusGame("Ongoing");
     game.reset();
-    setGamePosition(game.fen());
+    const initialFen = game.fen();
+    setGamePosition(initialFen);
+    setFenHistory([initialFen]);
+    setCurrentMoveIndex(0);
     setHeaderGameStart();
     setLoserColor("");
     setWinnerColor("");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
-    setCurrentMoveIndex(0);
-    setFenHistory([game.fen()]);
   };
 
   const handleNewGame = () => {
@@ -1042,10 +1112,8 @@ export default function PlayingPage() {
 
   const onPieceDrop = useCallback(
     (sourceSquare: Square, targetSquare: Square, piece: string) => {
-      // Don't allow moves when viewing history
       if (!isAtCurrentMove) {
-        // If viewing history, return to current position
-        navigateToMove(fenHistory.length - 1);
+        goToLatestMove();
         return false;
       }
 
@@ -1104,16 +1172,17 @@ export default function PlayingPage() {
       playSound(game, move);
       setMoveClassification("");
 
+      const newFen = game.fen();
+      setGamePosition(newFen);
+      updateFenHistory(newFen);
+      setAfterFen(newFen);
+
       if (!isMobile) {
         getClassificationMove(move);
       } else {
-        setTimeout(() => {
-          findEnemyMove();
-        }, 500);
+        setShouldTriggerAI(true);
       }
 
-      setGamePosition(game.fen());
-      setAfterFen(game.fen());
       setPreviousSquare(sourceSquare);
       setCurrentSquare(targetSquare);
       setCurrentTurn((turnColor) =>
@@ -1146,8 +1215,8 @@ export default function PlayingPage() {
       setRightClickedSquares,
       isMobile,
       isAtCurrentMove,
-      navigateToMove,
-      fenHistory,
+      goToLatestMove,
+      updateFenHistory,
     ]
   );
 
@@ -1217,7 +1286,6 @@ export default function PlayingPage() {
           <div className="flex " />
         </div>
 
-        {/* Hide current turn on mobile, show on tablet and desktop */}
         <div className="hidden sm:block rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
           <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
             <span className="text-xs font-normal">
@@ -1262,7 +1330,6 @@ export default function PlayingPage() {
           )}
 
           <div className="flex items-center justify-between mb-2 px-5 sm:px-0">
-            {/* Hide CommentaryMove on mobile */}
             {(orientation as string) !== myColor &&
             moveClassification !== "" &&
             moveClassification !== "excellent-move" &&
@@ -1281,7 +1348,7 @@ export default function PlayingPage() {
               boardSize={boardSize}
             />
           </div>
-          {/* Mobile Captured Pieces - Only show on mobile */}
+
           <MobileCapturedPieces
             capturedWhite={capturedWhite}
             capturedBlack={capturedBlack}
@@ -1450,7 +1517,6 @@ export default function PlayingPage() {
               />
             )}
 
-            {/* Mobile tabs */}
             <div className="flex bg-[#F7FCFF] border-b border-gray-200">
               <button
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 relative ${
@@ -1550,7 +1616,6 @@ export default function PlayingPage() {
                 )}
               </>
             ) : (
-              /* Past games content */
               <div className="bg-white border border-[#DEDEDE] rounded-[16px] p-4">
                 {isLoading && <DotSpinner />}
                 <div className="max-h-[400px] overflow-y-auto">
@@ -1575,7 +1640,6 @@ export default function PlayingPage() {
           </div>
 
           <div className="flex items-center justify-between mb-2">
-            {/* Hide CommentaryMove on mobile */}
             {(orientation as string) === myColor &&
             moveClassification !== "" &&
             moveClassification !== "excellent-move" &&
@@ -1620,7 +1684,6 @@ export default function PlayingPage() {
         </div>
       </div>
 
-      {/* Desktop/tablet tabs - hidden on mobile */}
       <div className="hidden sm:block w-full">
         <Tabs defaultValue="current" className="w-full">
           <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
@@ -1695,7 +1758,6 @@ export default function PlayingPage() {
                 />
               </div>
               <div className="flex flex-col items-center w-full gap-2">
-                {/* Desktop navigation buttons */}
                 {!game.isGameOver() && (
                   <div className="flex flex-row justify-center items-center gap-2 my-2">
                     <button

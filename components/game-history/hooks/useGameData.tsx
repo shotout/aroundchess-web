@@ -23,10 +23,10 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         date: formatDate(item.date),
         timeControl: item.time_control,
         result: item.result,
-        opponent: item.opponent || "Unknown Player",
+        opponent: item.opponent,
         rating: item.rating,
         eloChange: item.elo_change,
-        moves: item.moves || 0,
+        moves: item.moves,
         opening: transformedOpening,
         source: item.source,
         color: item.color,
@@ -34,9 +34,10 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         gameFormat: item.game_format,
         pgn: item.pgn,
         resultColor: item.result_color || getResultColor(item.result),
-        gameType: item.game_type || "standard",
+        gameType: item.game_type,
         username: item.username,
-        timeClass: item.time_class || "Unknown",
+        timeClass: item.time_class,
+        isAnalysis: item.is_analysis,
       };
     })
     .filter(Boolean) as Game[];

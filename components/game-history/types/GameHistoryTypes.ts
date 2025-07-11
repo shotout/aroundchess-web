@@ -16,6 +16,7 @@ export interface Game {
   gameFormat: string;
   pgn: string;
   timeClass: string;
+  isAnalysis: boolean;
 }
 
 export interface FilterState {

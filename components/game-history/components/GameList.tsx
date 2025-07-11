@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChartNoAxesColumn, AlertCircle, Clock, BookOpen } from "lucide-react";
+import {
+  ChartNoAxesColumn,
+  AlertCircle,
+  Clock,
+  BookOpen,
+  CheckCircle,
+} from "lucide-react";
 import GameCard from "./GameCard";
 import PaginationControls from "./PaginationControls";
 import DotSpinner from "../Spinner";
@@ -182,17 +188,6 @@ const GamesList: React.FC<GamesListProps> = ({
                   {game.rating || "N/A"}
                 </div>
 
-                {/* <div className="col-span-1 px-4 py-3 flex items-center">
-                  <span
-                    className={
-                      Number(game.eloChange) >= 0
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {game.eloChange}
-                  </span>
-                </div> */}
                 <div className="col-span-1 px-4 py-3 flex items-center truncate">
                   {game.timeClass || "Unknown Game Type"}
                 </div>
@@ -214,14 +209,24 @@ const GamesList: React.FC<GamesListProps> = ({
                   )}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
-                  <button
-                    className="btn-primary text-white h-8 w-full max-w-24 rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
-                    onClick={() => setOpenGameId(game.id)}
-                  >
-                    <ChartNoAxesColumn className="h-4 w-4 mr-1" />
-                    Analyze
-                  </button>
+                <div className="col-span-1 py-3 flex items-center">
+                  {game.isAnalysis ? (
+                    <button
+                      className="bg-green-500 gap-x-1 text-white h-8 w-full max-w-[120px] rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
+                      onClick={() => setOpenGameId(game.id)}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      View Results
+                    </button>
+                  ) : (
+                    <button
+                      className="btn-primary gap-x-1 text-white h-8 w-full max-w-[120px] rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
+                      onClick={() => setOpenGameId(game.id)}
+                    >
+                      <ChartNoAxesColumn className="h-4 w-4" />
+                      Analyze
+                    </button>
+                  )}
                 </div>
               </div>
             );

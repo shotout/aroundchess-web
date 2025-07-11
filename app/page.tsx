@@ -14,6 +14,7 @@ import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { GrandmastersSection } from "@/components/GrandmasterSection";
+import DotSpinner from "@/components/game-history/Spinner";
 
 const checkForAccessToken = () => {
   if (typeof window !== "undefined") {
@@ -68,7 +69,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <DotSpinner size={8} />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Redirecting...
           </h2>
@@ -81,18 +82,34 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-[#e6f7fe]">
-      <PricingOffer />
-      <SiteHeaderNew />
-      <HeroSection />
-      <FeaturesSection />
-      <AnalysisSection />
-      <ImproveSection />
-      <BenefitsOf />
-      <BasedOnAI />
-      <GrandmastersSection />
-      <CTASection />
-      <SiteFooterNew />
-    </div>
+    <>
+      {isRedirecting ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <DotSpinner size={8} />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Redirecting...
+            </h2>
+            <p className="text-gray-600">
+              Please wait while we complete your sign-in.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-[#e6f7fe]">
+          <PricingOffer />
+          <SiteHeaderNew />
+          <HeroSection />
+          <FeaturesSection />
+          <AnalysisSection />
+          <ImproveSection />
+          <BenefitsOf />
+          <BasedOnAI />
+          <GrandmastersSection />
+          <CTASection />
+          <SiteFooterNew />
+        </div>
+      )}
+    </>
   );
 }

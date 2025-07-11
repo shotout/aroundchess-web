@@ -84,7 +84,7 @@ export default function About() {
                     />
                     <h1 className="text-sm lg:text-base">GM</h1>
                   </div>
-                  <h2 className="text-[14px] text-nowrap lg:text-[32px] font-semibold text-gray-800">
+                  <h2 className="text-[14px]  lg:text-[32px] font-semibold text-gray-800">
                     Developed with European Grandmasters
                   </h2>
                 </div>
