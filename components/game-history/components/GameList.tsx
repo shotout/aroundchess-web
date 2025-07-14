@@ -43,6 +43,7 @@ const GamesList: React.FC<GamesListProps> = ({
   paginationProps,
   recentlyImportedIds = [],
 }) => {
+  
   const isNewlyImported = (gameId: string | number) => {
     return recentlyImportedIds.includes(gameId);
   };
@@ -120,7 +121,6 @@ const GamesList: React.FC<GamesListProps> = ({
           <div className="col-span-1 px-4 text-left">Opponent</div>
           <div className="col-span-1 px-4 text-left">Rating</div>
           <div className="col-span-1 px-4 text-left">Game Type</div>
-          {/* <div className="col-span-1 px-4 text-left">ELO Change</div> */}
           <div className="col-span-1 px-4 text-left">Moves</div>
           <div className="col-span-1 px-4 text-left">Opening</div>
           <div className="col-span-1 px-4 text-left">Source</div>

@@ -1,7 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { AlertCircle, BookOpen } from "lucide-react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Tooltip,
@@ -33,9 +32,13 @@ interface ChessLessonCardProps {
 }
 
 const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
+  // Always maintain the same container size to prevent layout shifts
+  const containerClass =
+    "absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 rounded-full flex items-center justify-center";
+
   if (readStatus === undefined) {
     return (
-      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-gray-200 md:p-3 rounded-full flex items-center justify-center">
+      <div className={`${containerClass} bg-gray-200 md:p-3`}>
         <DotSpinner />
       </div>
     );
@@ -44,7 +47,7 @@ const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
   // If not read
   if (!readStatus) {
     return (
-      <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#FFC000] p-1 rounded-full flex items-center justify-center">
+      <div className={`${containerClass} bg-[#FFC000] p-1`}>
         <Image
           src={"/handbooks/not-finished.png"}
           alt="finish lesson icon"
@@ -57,7 +60,7 @@ const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
 
   // If read
   return (
-    <div className="absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 bg-[#00858E] p-1 rounded-full flex items-center justify-center">
+    <div className={`${containerClass} bg-[#00858E] p-1`}>
       <Image
         src={"/handbooks/finished.png"}
         alt="finish lesson icon"
@@ -80,13 +83,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
 
     return (
       <Link href={`${basePath}/${slug}`}>
-        <motion.div
-          layout
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-        >
+        <div className="opacity-100 scale-100 transition-all duration-200 hover:shadow-md">
           <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col p-4">
             <div className="relative">
               <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
@@ -117,15 +114,10 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                 </div>
 
                 {/* Desktop layout */}
-                <div className="hidden  lg:flex justify-between">
+                <div className="hidden lg:flex justify-between">
                   <h1 className="font-semibold h-10 line-clamp-2">
                     {lesson.title}
                   </h1>
-                  {/* <div>
-                    <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 flex-shrink-0">
-                      {lesson.difficulty}
-                    </h1>
-                  </div> */}
                 </div>
               </div>
 
@@ -136,7 +128,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               </div>
             </div>
           </Card>
-        </motion.div>
+        </div>
       </Link>
     );
   }

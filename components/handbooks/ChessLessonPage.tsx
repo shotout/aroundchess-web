@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
 import ChessLessonCard from "./ChessLessonCard";
 import ChessLessonFilter from "./ChessLessonFilter";
 import {
@@ -7,12 +6,10 @@ import {
   ErrorState,
   FilteringState,
   NoResultsState,
-  LoadMoreState,
-} from "./LoadingState";
+} from "./LoadingState"; 
 import {
-  useChessLessonPagination,
   useChessLessonFilters,
-} from "./ChessLessonHooks";
+} from "./ChessLessonHooks"; 
 import { ChessLesson, ChessLessonState, LessonType } from "./ChessLessonTypes";
 import { getFenFromMoves, getSlugFromId } from "./ChessLessonUtils";
 import { useProfileStore } from "@/app/store/profile";
@@ -51,14 +48,6 @@ function ChessLessonPage<T extends ChessLesson>({
   } = lessonStore;
 
   const {
-    paginatedLessons,
-    hasMoreResults,
-    isLoadingMore,
-    loadMoreItems,
-    ref,
-  } = useChessLessonPagination<T>(filteredLessons);
-
-  const {
     localSearchTerm,
     isFiltering,
     showNoResults,
@@ -81,11 +70,9 @@ function ChessLessonPage<T extends ChessLesson>({
   };
 
   useEffect(() => {
-    // Only fetch if not initialized
     if (!initialized) {
       fetchWithAuth();
     } else {
-      // Just apply filters when already initialized
       applyFilters();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,32 +96,21 @@ function ChessLessonPage<T extends ChessLesson>({
     }
 
     return (
-      <>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
-          <AnimatePresence>
-            {paginatedLessons.map((lesson) => {
-              const slug = getSlugFromId(lesson.id, lessonType);
-              return (
-                <ChessLessonCard
-                  key={lesson.id}
-                  lesson={lesson}
-                  slug={slug}
-                  lessonType={lessonType}
-                  getFenFromMoves={getFenFromMoves}
-                  fetchDetails={fetchLessonDetails}
-                />
-              );
-            })}
-          </AnimatePresence>
-        </div>
-
-        <LoadMoreState
-          hasMoreResults={hasMoreResults}
-          isLoadingMore={isLoadingMore}
-          onLoadMore={loadMoreItems}
-          setRef={ref}
-        />
-      </>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
+        {filteredLessons.map((lesson) => {
+          const slug = getSlugFromId(lesson.id, lessonType);
+          return (
+            <ChessLessonCard
+              key={lesson.id}
+              lesson={lesson}
+              slug={slug}
+              lessonType={lessonType}
+              getFenFromMoves={getFenFromMoves}
+              fetchDetails={fetchLessonDetails}
+            />
+          );
+        })}
+      </div>
     );
   };
 
@@ -160,7 +136,7 @@ function ChessLessonPage<T extends ChessLesson>({
 
         {pagination && filteredLessons.length > 0 && !isFiltering && (
           <div className="text-center text-sm text-gray-500">
-            Showing {paginatedLessons.length} of {filteredLessons.length}{" "}
+            Showing {filteredLessons.length} of {pagination?.total}{" "}
             {lessonType === "opening"
               ? "openings"
               : lessonType === "middlegame"

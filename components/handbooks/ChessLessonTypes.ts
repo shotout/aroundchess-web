@@ -7,12 +7,13 @@ export type DifficultyLevel =
 export type DifficultyFilter = DifficultyLevel | null;
 
 export interface Pagination {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+  currentPage?: number;
 }
 
 export interface Resource {

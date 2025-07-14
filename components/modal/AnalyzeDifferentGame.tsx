@@ -64,7 +64,7 @@ export function AnalyzeDifferentGame({
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
-      value: 14,
+      value: 12,
       title: "Basic Analysis",
       description:
         "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
@@ -72,7 +72,7 @@ export function AnalyzeDifferentGame({
     },
     {
       image: "/icons/board-medium-analysis.png",
-      value: 17,
+      value: 16,
       title: "Standard Analysis",
       description:
         "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
@@ -80,7 +80,7 @@ export function AnalyzeDifferentGame({
     },
     {
       image: "/icons/board-large-analysis.png",
-      value: 20,
+      value: 18,
       title: "Deep Analysis",
       description:
         "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
@@ -88,7 +88,6 @@ export function AnalyzeDifferentGame({
     },
   ];
 
-  // Initialize username with globalUsername if available
   const [username, setUsername] = useState(globalUsername || "");
   const [pgnText, setPgnText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);

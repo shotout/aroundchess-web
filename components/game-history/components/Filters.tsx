@@ -30,7 +30,7 @@ interface FiltersProps {
   sourceOptions?: { value: string; label: string }[];
 }
 
-export const Filters: React.FC<FiltersProps> = ({
+const Filters: React.FC<FiltersProps> = ({
   filters,
   setFilters,
   showFilters,
@@ -39,10 +39,10 @@ export const Filters: React.FC<FiltersProps> = ({
   filtersApplied,
   handleApplyFilters,
   handleClearFilters,
+  handleForceRefresh,
 }) => {
   const mobileFilterRef = useRef<HTMLDivElement>(null);
 
-  // Handle click outside to close mobile filters
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -53,13 +53,9 @@ export const Filters: React.FC<FiltersProps> = ({
         setShowFilters(false);
       }
     };
-
-    // Add event listener when mobile filters are shown
     if (showFilters) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
-    // Cleanup function to remove event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -68,46 +64,62 @@ export const Filters: React.FC<FiltersProps> = ({
   return (
     <div className="p-0 md:p-4 xl:p-0">
       {/* Desktop Filters */}
-      <div className="hidden md:flex items-center justify-between gap-2 xl:gap-6 xl:mb-4 rounded-lg p-3 xl:p-4 xl:h-[80px] border shadow-card">
-        <div className="flex items-center space-x-1 2xl:space-x-4 w-[70%] 2xl:w-[75%]">
-          {/* Color Filter */}
-          <Select
-            value={filters.color}
-            onValueChange={(value) => setFilters.setColor(value)}
-            defaultValue="All Colors"
-          >
-            <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
-              <SelectValue placeholder="Both Colors" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-placeholder">
-              <SelectItem value="All Colors">Both Colors</SelectItem>
-              <SelectItem value="White">White</SelectItem>
-              <SelectItem value="Black">Black</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Results Filter */}
-          <Select
-            value={filters.results}
-            onValueChange={(value) => setFilters.setResults(value)}
-            defaultValue="All Results"
-          >
-            <SelectTrigger className="bg-gray-placeholder border border-gray-200 rounded-lg min-w-[150px] h-12 text-gray-placeholder-text">
-              <SelectValue placeholder="All Results" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="All Results">All Results</SelectItem>
-              <SelectItem value="Wins">Wins</SelectItem>
-              <SelectItem value="Losses">Losses</SelectItem>
-              <SelectItem value="Draws">Draws</SelectItem>
-            </SelectContent>
-          </Select>
+      <div
+        className="
+          hidden md:flex
+          items-center justify-between
+          gap-2 xl:gap-6 xl:mb-4
+          p-3 xl:p-4 xl:h-[80px]
+          border shadow-card
+        "
+      >
+        {/* selects = 60% of the row */}
+        <div className="flex items-center space-x-2 w-[60%]">
+          <div className="flex-1">
+            <Select
+              value={filters.color}
+              onValueChange={setFilters.setColor}
+              defaultValue="All Colors"
+            >
+              <SelectTrigger className="w-full h-12 bg-gray-placeholder border border-gray-200 rounded-lg text-gray-placeholder-text">
+                <SelectValue placeholder="Both Colors" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-placeholder">
+                <SelectItem value="All Colors">Both Colors</SelectItem>
+                <SelectItem value="White">White</SelectItem>
+                <SelectItem value="Black">Black</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Select
+              value={filters.results}
+              onValueChange={setFilters.setResults}
+              defaultValue="All Results"
+            >
+              <SelectTrigger className="w-full h-12 bg-gray-placeholder border border-gray-200 rounded-lg text-gray-placeholder-text">
+                <SelectValue placeholder="All Results" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem value="All Results">All Results</SelectItem>
+                <SelectItem value="Wins">Wins</SelectItem>
+                <SelectItem value="Losses">Losses</SelectItem>
+                <SelectItem value="Draws">Draws</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-2 xl:space-x-4 w-[40%] xl:w-[30%] 2xl:w-[25%]">
+        {/* buttons = 40% of the row */}
+        <div className="flex items-center space-x-2 xl:space-x-4 w-[40%]">
           <Button
             onClick={handleApplyFilters}
-            className="btn-primary text-white flex-1 rounded-full h-12 text-nowrap flex items-center justify-center gap-2 text-[11px] 2xl:text-base"
+            className="
+              btn-primary text-white
+              flex-1 h-12 rounded-full
+              text-[11px] 2xl:text-base
+              flex items-center justify-center gap-2
+            "
           >
             <Filter className="h-4 w-4" />
             Apply Filters
@@ -115,14 +127,32 @@ export const Filters: React.FC<FiltersProps> = ({
 
           <Button
             onClick={handleClearFilters}
-            className="bg-blue-50 text-blue-600 flex-1 border border-blue-100 btn-tertiary rounded-full h-12 flex items-center justify-center text-[11px] 2xl:text-base"
+            className="
+              btn-tertiary bg-blue-50 text-blue-600
+              border border-blue-100
+              flex-1 h-12 rounded-full
+              text-[11px] 2xl:text-base
+              flex items-center justify-center
+            "
           >
             Clear Filters
+          </Button>
+
+          <Button
+            onClick={handleForceRefresh}
+            className="
+              btn-secondary text-white
+              flex-1 h-12 rounded-full
+              text-[11px] 2xl:text-base
+              flex items-center justify-center gap-2
+            "
+          >
+            Update Games
           </Button>
         </div>
       </div>
 
-      {/* Mobile Filters */}
+       {/* Mobile Filters */}
       <div className="md:hidden relative w-full" ref={mobileFilterRef}>
         <div className="flex w-full items-center justify-between gap-2 mb-4 p-4 border">
           <Button
@@ -137,7 +167,12 @@ export const Filters: React.FC<FiltersProps> = ({
               <>
                 Filters Applied
                 {activeFiltersCount > 0 && (
-                  <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
+                  <span
+                    className="
+                      inline-flex items-center justify-center
+                      w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full
+                    "
+                  >
                     {activeFiltersCount}
                   </span>
                 )}
@@ -151,10 +186,9 @@ export const Filters: React.FC<FiltersProps> = ({
         {showFilters && (
           <Card className="md:hidden p-4 border rounded-lg mb-4 absolute top-full left-0 right-0 z-20 bg-white shadow-lg">
             <div className="flex flex-wrap gap-2 mb-4">
-              {/* Color Filter */}
               <Select
                 value={filters.color}
-                onValueChange={(value) => setFilters.setColor(value)}
+                onValueChange={setFilters.setColor}
               >
                 <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
                   <SelectValue className="text-xs" placeholder="Both Colors" />
@@ -165,11 +199,9 @@ export const Filters: React.FC<FiltersProps> = ({
                   <SelectItem value="Black">Black</SelectItem>
                 </SelectContent>
               </Select>
-
-              {/* Results Filter */}
               <Select
                 value={filters.results}
-                onValueChange={(value) => setFilters.setResults(value)}
+                onValueChange={setFilters.setResults}
               >
                 <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
                   <SelectValue className="text-xs" placeholder="All Results" />
@@ -182,25 +214,24 @@ export const Filters: React.FC<FiltersProps> = ({
                 </SelectContent>
               </Select>
             </div>
-
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={handleApplyFilters}
-                className="btn-secondary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
+                className="btn-secondary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
                 <Filter className="h-4 w-4" />
                 <span className="text-xs sm:text-[10px]">Apply Filters</span>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleClearFilters}
-                className="btn-tertiary flex items-center justify-center gap-2 h-10 rounded-3xl flex-1"
+                className="btn-tertiary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
                 <span className="text-xs sm:text-[10px]">Clear Filters</span>
-              </button>
+              </Button>
             </div>
           </Card>
         )}
-      </div>
+        </div>
     </div>
   );
 };

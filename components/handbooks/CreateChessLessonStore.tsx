@@ -118,75 +118,27 @@ export function createChessLessonStore<T extends ChessLesson>({
             set({ isLoading: true, error: null });
 
             const apiBaseUrl = process.env.BASE_URL;
-            const initialUrl = `${apiBaseUrl}/${apiEndpoint}?page=1&limit=250&category=${lessonType}`;
+            // Use a high limit to fetch all in one go (adjust if your API has a max limit)
+            const url = `${apiBaseUrl}/${apiEndpoint}?limit=1000&category=${lessonType}`;
 
             const headers: HeadersInit = {};
             if (sessionId != "") {
               headers["Authorization"] = `Bearer ${sessionId}`;
             }
 
-            const initialResponse = await fetch(initialUrl, { headers });
+            const response = await fetch(url, { headers });
 
-            if (initialResponse.status === 401) {
+            if (response.status === 401) {
               handleSessionExpiration();
               return;
             }
 
-            if (!initialResponse.ok) {
-              throw new Error(`API Error: ${initialResponse.status}`);
+            if (!response.ok) {
+              throw new Error(`API Error: ${response.status}`);
             }
 
-            const initialData = await initialResponse.json();
-            let allData: T[] = [...initialData.data];
-
-            const totalPages = initialData.pagination.totalPages;
-
-            if (
-              totalPages > 1 &&
-              initialData.pagination.total > initialData.data.length
-            ) {
-              set({ isLoadingMore: true });
-
-              const remainingPages = Array.from(
-                { length: totalPages - 1 },
-                (_, i) => i + 2
-              );
-              const batchSize = 3; // Batch size of 3 as requested
-
-              for (let i = 0; i < remainingPages.length; i += batchSize) {
-                const currentBatch = remainingPages.slice(i, i + batchSize);
-
-                try {
-                  const batchPromises = currentBatch.map(async (page) => {
-                    const url = `${apiBaseUrl}/${apiEndpoint}?page=${page}&limit=250&category=${lessonType}`;
-                    const response = await fetch(url, { headers });
-
-                    if (!response.ok) {
-                      throw new Error(
-                        `API Error on page ${page}: ${response.status}`
-                      );
-                    }
-
-                    const data = await response.json();
-                    return data.data;
-                  });
-
-                  const batchResults = await Promise.all(batchPromises);
-
-                  for (const pageData of batchResults) {
-                    allData = [...allData, ...pageData];
-                  }
-
-                  // Update progress indicator
-                  // const progress = Math.min(
-                  //   100,
-                  //   Math.round(((i + batchSize) / remainingPages.length) * 100)
-                  // );
-                } catch (batchError) {}
-              }
-
-              set({ isLoadingMore: false });
-            }
+            const data = await response.json();
+            let allData: T[] = [...data.data];
 
             allData.sort((a, b) => {
               const difficultyOrder = [
@@ -202,7 +154,7 @@ export function createChessLessonStore<T extends ChessLesson>({
             });
 
             const pagination: Pagination = {
-              ...initialData.pagination,
+              ...data.pagination,
               total: allData.length,
             };
 
@@ -233,7 +185,6 @@ export function createChessLessonStore<T extends ChessLesson>({
                   ? error.message
                   : `Failed to fetch all ${lessonType}s`,
               isLoading: false,
-              isLoadingMore: false,
             });
           }
         },
@@ -246,41 +197,34 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             const { allLessons } = get();
 
-            const batchSize = 5;
+            const readStatusPromises = allLessons.map((lesson) =>
+              get().checkReadStatus(lesson.id, sessionId)
+            );
+
+            const readStatusResults = await Promise.all(readStatusPromises);
+
             const readStatusMap: Record<string, boolean> = {};
+            allLessons.forEach((lesson, index) => {
+              readStatusMap[lesson.id] = readStatusResults[index] || false;
+            });
 
-            for (let i = 0; i < allLessons.length; i += batchSize) {
-              const currentBatch = allLessons.slice(i, i + batchSize);
-              const batchPromises = currentBatch.map((lesson) =>
-                get().checkReadStatus(lesson.id, sessionId)
-              );
-
-              const batchResults = await Promise.all(batchPromises);
-
-              currentBatch.forEach((lesson, index) => {
-                readStatusMap[lesson.id] = batchResults[index] || false;
-              });
-
-              set((state) => ({
-                allLessons: state.allLessons.map((lesson) =>
-                  readStatusMap[lesson.id] !== undefined
-                    ? { ...lesson, readStatus: readStatusMap[lesson.id] }
-                    : lesson
-                ),
-                filteredLessons: state.filteredLessons.map((lesson) =>
-                  readStatusMap[lesson.id] !== undefined
-                    ? { ...lesson, readStatus: readStatusMap[lesson.id] }
-                    : lesson
-                ),
-                readStatusMap: {
-                  ...state.readStatusMap,
-                  ...readStatusMap,
-                },
-              }));
-            }
-
-            set({ isCheckingReadStatus: false });
+            set((state) => ({
+              allLessons: state.allLessons.map((lesson) => ({
+                ...lesson,
+                readStatus: readStatusMap[lesson.id],
+              })),
+              filteredLessons: state.filteredLessons.map((lesson) => ({
+                ...lesson,
+                readStatus: readStatusMap[lesson.id],
+              })),
+              readStatusMap: {
+                ...state.readStatusMap,
+                ...readStatusMap,
+              },
+              isCheckingReadStatus: false,
+            }));
           } catch (error) {
+            console.error("Error fetching read statuses:", error);
             set({ isCheckingReadStatus: false });
           }
         },

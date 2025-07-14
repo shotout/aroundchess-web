@@ -1,10 +1,8 @@
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
-import { BarChart2, Plus } from "lucide-react";
+import {  Plus } from "lucide-react";
 
 import Image from "next/image";
-import { FaClipboard } from "react-icons/fa";
-import { GrClipboard } from "react-icons/gr";
 interface ButtonFinishProps {
   handleAnalyzeGame: () => void;
   handleNewGame: () => void;

@@ -28,29 +28,23 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   goToNextPage,
   goToPreviousPage,
 }) => {
-  // Generate page numbers to display
   const getPageNumbers = () => {
     const pageNumbers = [];
 
     if (totalPages <= 5) {
-      // If total pages is 5 or less, show all pages
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Show 5 pages with current page in the middle when possible
       if (currentPage <= 3) {
-        // At the beginning, show pages 1-5
         for (let i = 1; i <= 5; i++) {
           pageNumbers.push(i);
         }
       } else if (currentPage >= totalPages - 2) {
-        // At the end, show the last 5 pages
         for (let i = totalPages - 4; i <= totalPages; i++) {
           pageNumbers.push(i);
         }
       } else {
-        // In the middle, show current page and 2 pages on each side
         for (let i = currentPage - 2; i <= currentPage + 2; i++) {
           pageNumbers.push(i);
         }
@@ -60,14 +54,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     return pageNumbers;
   };
 
-  // Only show pagination controls if there are pages to navigate
   if (totalPages === 0) {
     return null;
   }
 
   return (
     <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
-      {/* Items per page selector */}
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
         <span>Games per Page</span>
         <Select
@@ -88,9 +80,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
         <ChevronRight className="h-4 w-4 text-gray-400" />
       </div>
 
-      {/* Page navigation */}
       <div className="flex items-center justify-center">
-        {/* Previous page button */}
         <Button
           variant="ghost"
           size="sm"
@@ -102,7 +92,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        {/* Page number buttons */}
         {getPageNumbers().map((pageNum) => (
           <Button
             key={pageNum}
@@ -121,7 +110,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           </Button>
         ))}
 
-        {/* Next page button */}
         <Button
           variant="ghost"
           size="sm"

@@ -200,7 +200,6 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const fetchRef = useRef(false);
   const lastExecutedRef = useRef<string>("");
 
-  // Get appropriate cached data and timestamps based on type
   const cachedGames =
     type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
   const gamesLastFetchedTimestamp =
@@ -208,31 +207,23 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const setGamesInStore =
     type === "chessdotcom" ? setGamesData : setOtherGamesData;
 
-  // Enhanced cache validation with logging
   const isCacheValid = useMemo(() => {
-    console.log(`[${type.toUpperCase()}] Checking cache validity:`);
-    console.log(`- Timestamp: ${gamesLastFetchedTimestamp}`);
-    console.log(`- Data length: ${cachedGames?.length || 0}`);
 
     const isValid = isValidCache(
       gamesLastFetchedTimestamp,
       cachedGames,
       CACHE_EXPIRATION
     );
-    console.log(`- Cache valid: ${isValid}`);
 
     return isValid;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamesLastFetchedTimestamp, cachedGames, type]);
 
   const updateStateWithProcessedData = useCallback(
     (processedGames: Game[]) => {
-      console.log(
-        `[${type.toUpperCase()}] Updating state with ${
-          processedGames.length
-        } games`
-      );
       setGames(processedGames);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [type]
   );
 
@@ -241,14 +232,10 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
     // Prevent duplicate executions
     if (fetchRef.current || lastExecutedRef.current === executionKey) {
-      console.log(
-        `[${type.toUpperCase()}] Fetch already in progress or completed`
-      );
       return;
     }
 
     if (!username && type === "chessdotcom") {
-      console.log(`[${type.toUpperCase()}] No username for Chess.com games`);
       setIsLoading(false);
       return;
     }
@@ -358,15 +345,13 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   ]);
 
   const handleRetryFetch = useCallback(() => {
-    console.log(`[${type.toUpperCase()}] Manual retry fetch`);
     fetchRef.current = false;
     lastExecutedRef.current = "";
     resetFetchState();
     fetchGames();
-  }, [resetFetchState, fetchGames, type]);
+  }, [resetFetchState, fetchGames]);
 
   const handleForceRefresh = useCallback(() => {
-    console.log(`[${type.toUpperCase()}] Force refresh - clearing cache`);
     fetchRef.current = false;
     lastExecutedRef.current = "";
 
