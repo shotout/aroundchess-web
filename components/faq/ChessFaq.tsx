@@ -97,6 +97,7 @@ export default function ChessFAQ() {
           alt="background"
           width={1000}
           height={1000}
+          quality={100}
           className="w-full absolute inset-0 object-contain"
         />
         <div className="flex items-center">
