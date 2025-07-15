@@ -154,7 +154,7 @@ export default function About() {
             return (
               <div
                 key={index}
-                className="flex flex-col gap-2 sm:rounded-md sm:border sm:border-input px-0 sm:py-4"
+                className="flex flex-col gap-2 sm:rounded-md sm:border sm:border-input px-0 sm:px-4 sm:py-4"
               >
                 <Image
                   src={value.icon}

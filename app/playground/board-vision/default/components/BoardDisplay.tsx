@@ -73,7 +73,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
       variants={leftPanelVariants}
     >
       <div className="relative w-full flex justify-center items-center">
-        <div className="aspect-square bg-white flex items-center justify-center xl:p-12 overflow-hidden max-w-[750px] max-h-[700px]">
+        <div className="bg-white flex items-center justify-center overflow-hidden xl:max-w-[600px] 2xl:min-w-[600px] 2xl:max-w-[1000px]">
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}

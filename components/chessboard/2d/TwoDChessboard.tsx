@@ -237,9 +237,8 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
       <Image
         src={boardImageSrc}
         alt="chessboard"
-        width={1000}
-        height={1000}
-        className={`absolute z-2 w-[${boardWidth}] h-[${boardWidth}]`}
+        fill
+        className={`absolute z-2`}
       />
 
       <div

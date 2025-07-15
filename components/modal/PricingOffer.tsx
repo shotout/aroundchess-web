@@ -233,7 +233,6 @@ export const PricingOffer: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
-        {/* <DialogOverlay className="fixed inset-0 bg-black/50" /> */}
         <DialogContent
           style={{
             backgroundImage: `url(/images/pricing/${
@@ -242,7 +241,7 @@ export const PricingOffer: React.FC = () => {
 
             backgroundSize: "cover",
             backgroundPosition: "center",
-            height: activeTab == "tokens" ? "100vh" : "100vh",
+            height: activeTab == "tokens" ? "auto" : "auto",
             width: "100%",
           }}
           className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
@@ -263,21 +262,13 @@ export const PricingOffer: React.FC = () => {
           )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div
-            // className={`${
-            //   activeTab == "tokens"
-            //     ? isPassToken > 0
-            //       ? `h-[82%] sm:h-[100%] lg:h-[98%] xl:h-[90%] overflow-y-auto`
-            //       : ``
-            //     : isPassDiscount > 0
-            //     ? `h-[36%] sm:h-[62%] lg:h-[58%] xl:h-[77%] overflow-y-auto`
-            //     : `h-[48%] sm:h-[75%] lg:h-[71%] xl:h-[90%] overflow-y-auto`
-            // } }`}
+            
             >
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
                   className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
-                    activeTab == "token"
+                    activeTab == "tokens"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"
                   }`}
@@ -314,9 +305,12 @@ export const PricingOffer: React.FC = () => {
                       className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
                       priority
                     />
-                    <span className="block leading-tight text-center">
+                    <span className="block leading-tight text-center sm:hidden">
                       <span className="block">Go Unlimited</span>
                       <span className="block">with a Subscription</span>
+                    </span>
+                     <span className="sm:block leading-tight text-center hidden">
+                      <span className="block">Go Unlimited with a Subscription</span>
                     </span>
                   </div>
                 </TabsTrigger>
@@ -352,7 +346,7 @@ export const PricingOffer: React.FC = () => {
                       >
                         {selectedToken != index && (
                           <div
-                            className={`h-[96%] w-[99%] mx-[8px] fixed absolute rounded-[10px] inset-0`}
+                            className={`h-[96%] w-[99%] mx-[8px]  absolute rounded-[10px] inset-0`}
                             style={{
                               boxShadow:
                                 "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
@@ -370,7 +364,7 @@ export const PricingOffer: React.FC = () => {
                           width={1000}
                           height={1000}
                           priority
-                          className="w-full h-full fixed absolute inset-0 object-cover rounded-[14px] -z-10 "
+                          className="w-full h-full absolute inset-0 object-cover rounded-[14px] -z-10 "
                           style={
                             selectedToken != index
                               ? {
@@ -476,7 +470,7 @@ export const PricingOffer: React.FC = () => {
                           <input
                             type="number"
                             max={100}
-                            className={`font-medium text-center w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none ${
+                            className={`font-medium  w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none ${
                               selectedToken == 5
                                 ? `text-black`
                                 : `text-[#ABABAB]`
@@ -539,11 +533,4 @@ export const PricingOffer: React.FC = () => {
   );
 };
 
-// Example usage in a Next.js page
-export default function TokenPurchasePage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <PricingOffer />
-    </div>
-  );
-}
+

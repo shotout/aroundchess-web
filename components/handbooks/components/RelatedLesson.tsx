@@ -34,7 +34,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
   };
 
   return (
-    <div className="xl:col-span-3 2xl:col-span-3 xl:border xl:rounded-md xl:mb-6">
+    <div className="xl:col-span-3 2xl:col-span-3 3xl:col-span-2 xl:border xl:rounded-md xl:mb-6">
       <div className="xl:hidden -mx-4 md:-mx-6 w-screen">
         <div className="border-t w-full"></div>
       </div>

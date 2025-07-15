@@ -38,14 +38,14 @@ export default function ChessFAQ() {
   }, [mounted]);
 
   const handleResize = () => {
-    let widthC = window?.innerWidth;
+    const widthC = window?.innerWidth;
     setWidthContainer(widthC);
   };
 
   const fetchFAQ = () => {
     getFAQ({})
       .then((response) => {
-        let data = response.data;
+        const data = response.data;
         data.sort((a: { label: string }, b: { label: any }) =>
           a.label.localeCompare(b.label)
         );
@@ -125,11 +125,11 @@ export default function ChessFAQ() {
         />
       </div>
 
-      <div className="hidden md:flex w-[95%] self-center flex-row items-center justify-center xl:justify-around gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
+      <div className="hidden md:flex w-[95%] z-[2] self-center flex-row items-center justify-center xl:justify-around gap-8 mx-[16px] z-1 mt-[100px] rounded-[8px]">
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-            className="relative flex flex flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            className="relative flex  flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
               src={
@@ -140,7 +140,7 @@ export default function ChessFAQ() {
               alt="background"
               width={1000}
               height={1000}
-              className="sm:w-2/3 lg:w-[116px] h-full absolute left- inset-0 object-cover z-0"
+              className="sm:w-2/3 lg:w-[116px] h-full absolute  inset-0 object-cover"
             />
             <button
               className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${
@@ -159,7 +159,7 @@ export default function ChessFAQ() {
         ))}
       </div>
 
-      <div className="md:hidden flex flex-row mx-[16px]">
+      <div className="md:hidden flex flex-row mx-[16px] ">
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
@@ -188,7 +188,7 @@ export default function ChessFAQ() {
         {activeTab}
       </h2>
 
-      <div className="space-y-3 mx-4 mb-[32px]">
+      <div className="space-y-3 mx-4 mb-[32px] z-[2]">
         {question != null &&
           question.length > 0 &&
           question.map((faq: any, index: number) => (

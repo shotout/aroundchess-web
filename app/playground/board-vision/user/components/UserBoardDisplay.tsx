@@ -23,7 +23,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     typeof currentPosition.fen === "string" &&
     currentPosition.fen.includes(" ");
 
-  const [boardSize, setBoardSize] = useState<number | undefined>(1000);
+  const [boardSize, setBoardSize] = useState<number | undefined>(600);
   const [mounted, _] = useState<boolean>(true);
 
   const isUserPlayingWhite =
@@ -78,7 +78,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
 
       <div className="relative w-full flex justify-center items-center my-4">
-        <div className="aspect-square bg-white flex items-center justify-center overflow-hidden max-w-[500px] 2xl:max-w-[750px] 2xl:max-h-[700px]">
+        <div className="bg-white flex items-center justify-center overflow-hidden xl:max-w-[600px] 2xl:min-w-[600px] 2xl:max-w-[1000px]">
           <div className="w-full h-full flex justify-center items-center">
             <TwoDChessboard
               boardWidth={boardSize ?? 0}

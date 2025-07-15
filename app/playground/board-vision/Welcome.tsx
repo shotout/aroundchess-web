@@ -44,7 +44,7 @@ const Welcome: React.FC = () => {
               src="/board-vision/board.png"
               alt="Background"
               priority
-              width={3000}
+              width={6000}
               height={1000}
               className="object-cover"
               quality={100}

@@ -355,7 +355,6 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     fetchRef.current = false;
     lastExecutedRef.current = "";
 
-    // Clear the appropriate cache
     if (type === "chessdotcom") {
       usePgnStore.getState().clearGamesData();
     } else {
@@ -363,7 +362,6 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     }
 
     resetFetchState();
-    toast.info(`Refreshing ${type} games data...`);
     fetchGames();
   }, [type, resetFetchState, fetchGames]);
 

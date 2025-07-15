@@ -348,7 +348,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-1 xl:grid-cols-10 2xl:grid-cols-10 gap-6">
-            <div className="xl:col-span-7 2xl:col-span-7 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
+            <div className="xl:col-span-7 2xl:col-span-7 3xl:col-span-8 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
               <div className="flex justify-center">
                 <Button
                   onClick={handleResetPosition}

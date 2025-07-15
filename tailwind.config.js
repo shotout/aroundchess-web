@@ -9,6 +9,9 @@ export const content = [
 ]
 export const theme = {
   extend: {
+    screens : {
+      '3xl': '1920px',
+    },
     fontFamily: {
       "black": ["AloeveraDisplay-Black", ...fontFamily.sans],
       "bold": ["AloeveraDisplay-Bold", ...fontFamily.sans],
