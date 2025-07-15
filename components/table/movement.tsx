@@ -19,26 +19,32 @@ export default function MovementTable() {
   const { isLoading } = useApiClient();
   const {
     dataAnalysis,
-    movementDetails: logMovement,
     historyGame = [],
-    playerInfo,
   } = usePgnStore();
 
   const { chessMove, setChessMove } = useChessMoveStore();
   const { tabFocus } = useTabFocusStore();
   const { PieceChoosed } = useChessBoardThemeStore();
-  const { summary } = dataAnalysis ?? {};
 
-  const blackPlayer = playerInfo?.black;
-  const whitePlayer = playerInfo?.white;
+  // Use the same data access as MovementDetail
+  const {
+    summary,
+    movementDetails: movementDetailsData,
+  } = dataAnalysis ?? {};
 
-  const dataMovement = logMovement || { white: [], black: [] };
-  const whiteMoves = Array.isArray(dataMovement.white)
-    ? dataMovement.white
+  const movementDetails = movementDetailsData || { white: [], black: [] };
+  const whiteMoves = Array.isArray(movementDetails.white)
+    ? movementDetails.white
     : [];
-  const blackMoves = Array.isArray(dataMovement.black)
-    ? dataMovement.black
+  const blackMoves = Array.isArray(movementDetails.black)
+    ? movementDetails.black
     : [];
+
+  // Use the same player info access as MovementDetail
+  const whitePlayer =
+    summary?.whiteSide?.profileInfo?.username || "Player 1";
+  const blackPlayer =
+    summary?.blackSide?.profileInfo?.username || "Player 2";
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -92,30 +98,18 @@ export default function MovementTable() {
 
   const handleOnClickMovement = (move: any, index: number, type: string) => {
     if (!move) return;
-
     move.index = index;
     move.type = type;
-    console.log(move);
     setChessMove(move);
   };
 
   if (
     isLoading ||
-    !dataMovement ||
-    whiteMoves.length === 0 ||
-    !blackPlayer ||
-    !whitePlayer
+    !movementDetails ||
+    (whiteMoves.length === 0 && blackMoves.length === 0)
   ) {
     return null;
   }
-
-  const getHistoryGameItem = (index: number) => {
-    return historyGame && historyGame[index] ? historyGame[index] : null;
-  };
-
-  const getBlackMove = (index: number) => {
-    return blackMoves && blackMoves[index] ? blackMoves[index] : null;
-  };
 
   return (
     <div className="hidden xl:block bg-white border border-[#749BBF] pb-2 rounded-sm">
@@ -125,13 +119,13 @@ export default function MovementTable() {
           <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
             White{" "}
             <span className="block text-xs font-light">
-              ({whitePlayer?.username || "Player"})
+              ({whitePlayer})
             </span>
           </span>
           <span className="block text-xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
             Black{" "}
             <span className="block text-xs font-light">
-              ({blackPlayer?.username || "Player"})
+              ({blackPlayer})
             </span>
           </span>
         </div>
@@ -159,35 +153,28 @@ export default function MovementTable() {
           </div>
         </div>
         {whiteMoves.map((move: any, index: number) => {
-          const blackMove = getBlackMove(index);
-          const whiteHistoryItem = getHistoryGameItem(index * 2);
-          const blackHistoryItem = getHistoryGameItem(index * 2 + 1);
-
-          const moveGamePhase = move?.gamePhase
-            ? move.gamePhase.toLowerCase().replace(/ /g, "")
-            : "";
-          const blackMoveGamePhase = blackMove?.gamePhase
-            ? blackMove.gamePhase.toLowerCase().replace(/ /g, "")
-            : "";
+          const blackMove = blackMoves[index];
+          const whiteHistoryItem = historyGame[index * 2];
+          const blackHistoryItem = historyGame[index * 2 + 1];
 
           return (
             <div
               key={index}
               className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-                index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
+                index % 2 !== 0 ? "bg-[#EEFAFE]" : "bg-white"
               }`}
             >
               <span className="hidden sm:block text-sm text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
 
+              {/* White move */}
               <div
                 className={`grid grid-cols-[30%_30%_40%]  items-center h-10 border-b border-b-[#749BBF] ${
-                  tabFocus === moveGamePhase ||
-                  (chessMove.move === move?.move &&
-                    chessMove.moveNumber === move?.moveNumber)
+                  chessMove.move === move?.move &&
+                  chessMove.moveNumber === move?.moveNumber
                     ? "bg-[#81CFF3]"
-                    : index % 2 != 0
+                    : index % 2 !== 0
                     ? "bg-[#EEFAFE]"
                     : "bg-white"
                 }`}
@@ -272,13 +259,9 @@ export default function MovementTable() {
                 </Popover>
 
                 <span
-                  className={`text-xs text-center ${
-                    tabFocus === moveGamePhase ||
-                    (chessMove.move === move?.move &&
-                      chessMove.moveNumber === move?.moveNumber)
-                      ? "font-bold"
-                      : "font-normal"
-                  } py-2 ${getScoreClass(move?.classification || "")}`}
+                  className={`text-xs text-center py-2 ${getScoreClass(
+                    move?.classification || ""
+                  )}`}
                 >
                   {move?.evaluation || ""}
                 </span>
@@ -291,13 +274,14 @@ export default function MovementTable() {
                 </span>
               </div>
 
+              {/* Black move */}
               <div
                 className={`grid grid-cols-[30%_30%_40%]  items-center h-10 border-b border-b-[#749BBF] ${
-                  tabFocus === blackMoveGamePhase ||
-                  (chessMove.move === blackMove?.move &&
-                    chessMove.moveNumber === blackMove?.moveNumber)
+                  blackMove &&
+                  chessMove.move === blackMove?.move &&
+                  chessMove.moveNumber === blackMove?.moveNumber
                     ? "bg-[#81CFF3]"
-                    : index % 2 != 0
+                    : index % 2 !== 0
                     ? "bg-[#EEFAFE]"
                     : "bg-white"
                 }`}
@@ -312,7 +296,7 @@ export default function MovementTable() {
                         <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                           <div className="flex flex-row items-center justify-between gap-2">
                             <div className="flex flex-row items-center gap-2">
-                              <span className="text-[8px] lg:text-[12px] font-semibold">
+                              <span className="text-sm font-semibold">
                                 {blackMove.move || ""}
                               </span>
                               <span
@@ -384,13 +368,9 @@ export default function MovementTable() {
                     </Popover>
 
                     <span
-                      className={`text-[11px] text-center  ${
-                        tabFocus === blackMoveGamePhase ||
-                        (chessMove.move === blackMove.move &&
-                          chessMove.moveNumber === blackMove.moveNumber)
-                          ? "font-bold"
-                          : "font-normal"
-                      } py-2 ${getScoreClass(blackMove.classification || "")}`}
+                      className={`text-[11px] text-center py-2 ${getScoreClass(
+                        blackMove.classification || ""
+                      )}`}
                     >
                       {blackMove.evaluation || ""}
                     </span>
@@ -403,7 +383,6 @@ export default function MovementTable() {
                     </span>
                   </>
                 ) : (
-                  // Empty cells for when there's no black move
                   <>
                     <span></span>
                     <span></span>
