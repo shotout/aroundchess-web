@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
@@ -25,6 +25,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
 
   const [boardSize, setBoardSize] = useState<number | undefined>(600);
   const [mounted, _] = useState<boolean>(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const isUserPlayingWhite =
     currentPosition?.white?.toLowerCase() === username?.toLowerCase();
@@ -46,13 +47,17 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
+    // Get the actual container width
+    const containerWidth = containerRef.current?.offsetWidth || width;
+    const maxBoardWidth = Math.min(containerWidth - 40, 700); // 40px for padding, max 600px
+
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
     }
   };
 
@@ -77,30 +82,33 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     >
       <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
 
-      <div className="relative w-full flex justify-center items-center my-4">
-        <div className="bg-white flex items-center justify-center overflow-hidden xl:max-w-[600px] 2xl:min-w-[600px] 2xl:max-w-[1000px]">
+      <div className="relative w-full flex justify-center items-center my-4" ref={containerRef}>
+        <div className="bg-white flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex justify-center items-center">
-            <TwoDChessboard
-              boardWidth={boardSize ?? 0}
-              arePiecesDraggable={false}
-              position={currentPosition.fen}
-              orientation={isUserPlayingWhite ? "white" : "black"}
-              areArrowsAllowed={true}
-              customSquareStyles={highlightedSquares}
-              customArrowColor="#221AE980"
-              customArrows={
-                gameQuestion && gameQuestion.text.includes("legal moves")
-                  ? []
-                  : arrows
-              }
-              onPromotionPieceSelect={function (
-                piece?: PromotionPieceOption,
-                promoteFromSquare?: Square,
-                promoteToSquare?: Square
-              ): boolean {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            {/* Add max-width constraint and ensure the board fits within parent */}
+            <div className="max-w-full" style={{ maxWidth: '100%' }}>
+              <TwoDChessboard
+                boardWidth={boardSize ?? 0}
+                arePiecesDraggable={false}
+                position={currentPosition.fen}
+                orientation={isUserPlayingWhite ? "white" : "black"}
+                areArrowsAllowed={true}
+                customSquareStyles={highlightedSquares}
+                customArrowColor="#221AE980"
+                customArrows={
+                  gameQuestion && gameQuestion.text.includes("legal moves")
+                    ? []
+                    : arrows
+                }
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

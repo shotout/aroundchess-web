@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BoardDisplayProps } from "../../types/default-pgn";
 import { motion } from "framer-motion";
 import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
@@ -26,6 +26,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
 
   const [boardSize, setBoardSize] = useState<number | undefined>(1000);
   const [mounted, _] = useState<boolean>(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -43,13 +44,17 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
+    // Get the actual container width
+    const containerWidth = containerRef.current?.offsetWidth || width;
+    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
+
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
     }
   };
 
@@ -72,30 +77,32 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
       className={`xl:border border-gray-200 xl:p-4 space-y-2 rounded-md flex flex-col md:col-span-6 ${className}`}
       variants={leftPanelVariants}
     >
-      <div className="relative w-full flex justify-center items-center">
-        <div className="bg-white flex items-center justify-center overflow-hidden xl:max-w-[600px] 2xl:min-w-[600px] 2xl:max-w-[1000px]">
+      <div className="relative w-full flex justify-center items-center" ref={containerRef}>
+        <div className="bg-white flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex justify-center items-center">
-            <TwoDChessboard
-              boardWidth={boardSize ?? 0}
-              arePiecesClickable={false}
-              arePiecesDraggable={false}
-              position={currentPosition.fen}
-              areArrowsAllowed={true}
-              customSquareStyles={highlightedSquares}
-              customArrowColor="#221AE980"
-              customArrows={
-                gameQuestion && gameQuestion.text.includes("legal moves")
-                  ? []
-                  : arrows
-              }
-              onPromotionPieceSelect={function (
-                piece?: PromotionPieceOption,
-                promoteFromSquare?: Square,
-                promoteToSquare?: Square
-              ): boolean {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            <div className="max-w-full" style={{ maxWidth: '100%' }}>
+              <TwoDChessboard
+                boardWidth={boardSize ?? 0}
+                arePiecesClickable={false}
+                arePiecesDraggable={false}
+                position={currentPosition.fen}
+                areArrowsAllowed={true}
+                customSquareStyles={highlightedSquares}
+                customArrowColor="#221AE980"
+                customArrows={
+                  gameQuestion && gameQuestion.text.includes("legal moves")
+                    ? []
+                    : arrows
+                }
+                onPromotionPieceSelect={function (
+                  piece?: PromotionPieceOption,
+                  promoteFromSquare?: Square,
+                  promoteToSquare?: Square
+                ): boolean {
+                  throw new Error("Function not implemented.");
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

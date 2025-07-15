@@ -47,6 +47,7 @@ const benefits = [
       "Set and monitor your chess improvement goals with detailed progress reports.",
   },
 ];
+
 export function BenefitsOf() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -63,9 +64,11 @@ export function BenefitsOf() {
 
     checkSession();
   }, [sessionId, isSignedIn]);
+  
   const handleAnalyze = () => {
     router.push("/analysis");
   };
+  
   return (
     <section className="py-2 sm:py-2 lg:py-2 xl:py-4 bg-white rounded-b-[32px]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,12 +95,13 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <div className="flex w-full overflow-x-auto sm:flex-row sm:overflow-hidden sm:flex-wrap sm:justify-around md:gap-4 lg:gap-10">
+          {/* Grid Layout: 1 column on mobile, 3 columns on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
             {benefits.map((item, index) => {
               return (
                 <div
                   key={index}
-                  className="min-w-[224px] h-[150px] mr-4 sm:mr-0 xl:max-w-[372px] md:max-w-[216px] sm:h-auto md:items-start flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-8 md:p-4"
+                  className="flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-6 md:p-4 lg:p-6 h-full"
                 >
                   <Image
                     className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
@@ -107,10 +111,10 @@ export function BenefitsOf() {
                     alt=""
                     priority
                   />
-                  <span className="text-black text-sm md:text-md text-center sm:text-left lg:text-[20px] font-medium">
+                  <span className="text-black text-sm md:text-md text-center sm:text-left lg:text-[20px] font-medium mb-2">
                     {item.title}
                   </span>
-                  <span className="text-[#364152] text-xs md:mt-1 lg:mt-2 md:text-sm lg:text-[18px] font-normal">
+                  <span className="text-[#364152] text-xs md:text-sm lg:text-[18px] font-normal">
                     {item.description}
                   </span>
                 </div>
@@ -125,9 +129,6 @@ export function BenefitsOf() {
           >
             Analyze your most recent Game now
           </Button>
-          {/* <span className="w-fill px-16 font-normal text-[#364152] text-sm sm:text-[14px] my-3">
-            No Sign-Up required
-          </span> */}
         </div>
       </div>
     </section>
