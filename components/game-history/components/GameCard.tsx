@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { ChartNoAxesColumn } from "lucide-react";
+import { ChartNoAxesColumn, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
+import { useRouter } from "next/navigation";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 
 interface GameCardProps {
   gameData: Game;
@@ -16,6 +19,75 @@ const GameCard: React.FC<GameCardProps> = ({
   isNewlyImported = false,
 }) => {
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const router = useRouter();
+  const { getJobByGameId } = useBackgroundAnalysisStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  
+  const getButtonContent = () => {
+    const job = getJobByGameId(gameData.id);
+    
+    if (!job) {
+      return {
+        text: "Analyze",
+        icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+        className: "btn-primary",
+        onClick: () => setIsAnalyzeOpen(true),
+        disabled: false,
+      };
+    }
+    
+    switch (job.status) {
+      case 'pending':
+      case 'processing':
+        const progressText = job.progress > 0 ? `In Progress ${job.progress}%` : 'In Progress';
+        return {
+          text: progressText,
+          icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+          className: "bg-yellow-500 hover:bg-yellow-600",
+          onClick: () => {},
+          disabled: true,
+        };
+      case 'finalizing':
+        return {
+          text: "Finalizing...",
+          icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+          className: "bg-blue-500 hover:bg-blue-600",
+          onClick: () => {},
+          disabled: true,
+        };
+      case 'completed':
+        return {
+          text: "View Results",
+          icon: <CheckCircle className="h-4 w-4 mr-2" />,
+          className: "bg-green-600 hover:bg-green-700",
+          onClick: () => {
+            if (job.result) {
+              setPgn(gameData.pgn);
+              setDataGamesImport(gameData);
+              setDataAnalysis(job.result);
+              router.push("/analysis");
+            }
+          },
+          disabled: false,
+        };
+      case 'failed':
+        return {
+          text: "Retry",
+          icon: <AlertCircle className="h-4 w-4 mr-2" />,
+          className: "bg-red-600 hover:bg-red-700",
+          onClick: () => setIsAnalyzeOpen(true),
+          disabled: false,
+        };
+      default:
+        return {
+          text: "Analyze",
+          icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+          className: "btn-primary",
+          onClick: () => setIsAnalyzeOpen(true),
+          disabled: false,
+        };
+    }
+  };
 
   const infoRows = [
     [
@@ -73,13 +145,19 @@ const GameCard: React.FC<GameCardProps> = ({
           ))}
         </div>
 
-        <Button
-          className="w-full p-[10px] rounded-3xl btn-primary h-[36px]"
-          onClick={() => setIsAnalyzeOpen(true)}
-        >
-          <ChartNoAxesColumn className="h-4 w-4 mr-2" />
-          <h1 className="text-xs">Analyze</h1>
-        </Button>
+        {(() => {
+          const buttonContent = getButtonContent();
+          return (
+            <Button
+              className={`w-full p-[10px] rounded-3xl ${buttonContent.className} h-[36px] text-white`}
+              onClick={buttonContent.onClick}
+              disabled={buttonContent.disabled}
+            >
+              {buttonContent.icon}
+              <h1 className="text-xs">{buttonContent.text}</h1>
+            </Button>
+          );
+        })()}
 
         {isNewlyImported && (
           <span className="absolute top-2 right-2 px-2 py-0.5 bg-green-500 text-white text-xs rounded-full">

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChartNoAxesColumn,
   AlertCircle,
   Clock,
   BookOpen,
+  Loader2,
   CheckCircle,
 } from "lucide-react";
 import GameCard from "./GameCard";
@@ -13,6 +14,9 @@ import DotSpinner from "../Spinner";
 import { getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
+import { useRouter } from "next/navigation";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 
 interface GamesListProps {
   games: Game[];
@@ -33,6 +37,12 @@ interface GamesListProps {
   recentlyImportedIds?: (string | number)[];
 }
 
+// 11-column template: # (auto), Date (2fr), Time Ctrl (1fr), Result (1fr),
+// Opponent (2fr), Rating (1fr), GameType (1fr), Moves (1fr),
+// Opening (2fr), Source (1fr), Actions (2fr)
+const DESKTOP_GRID_TEMPLATE =
+  "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
+
 const GamesList: React.FC<GamesListProps> = ({
   games,
   currentGames,
@@ -43,35 +53,113 @@ const GamesList: React.FC<GamesListProps> = ({
   paginationProps,
   recentlyImportedIds = [],
 }) => {
-  
-  const isNewlyImported = (gameId: string | number) => {
-    return recentlyImportedIds.includes(gameId);
+  const router = useRouter();
+  const { getJobByGameId, clearOldJobs } =
+    useBackgroundAnalysisStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport } =
+    usePgnStore();
+
+  const isNewlyImported = (id: string | number) =>
+    recentlyImportedIds.includes(id);
+
+  const [openGameId, setOpenGameId] = useState<
+    string | number | null
+  >(null);
+
+  useEffect(() => {
+    clearOldJobs();
+  }, [clearOldJobs]);
+
+  const getAnalysisButtonContent = (
+    gameId: string | number,
+    game: Game
+  ) => {
+    const job = getJobByGameId(gameId);
+    if (!job) {
+      return {
+        text: "Analyze",
+        icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+        className: "btn-primary text-white",
+        onClick: () => setOpenGameId(gameId),
+      };
+    }
+    switch (job.status) {
+      case "pending":
+      case "processing": {
+        const pct =
+          job.progress > 0
+            ? `In Progress ${job.progress}%`
+            : "In Progress";
+        return {
+          text: pct,
+          icon: (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ),
+          className:
+            "bg-yellow-500 hover:bg-yellow-600 text-white",
+          onClick: () => {},
+        };
+      }
+      case "finalizing":
+        return {
+          text: "Finalizing...",
+          icon: (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ),
+          className: "bg-blue-500 hover:bg-blue-600 text-white",
+          onClick: () => {},
+        };
+      case "completed":
+        return {
+          text: "View Results",
+          icon: <CheckCircle className="h-4 w-4 mr-1" />,
+          className: "bg-green-600 hover:bg-green-700 text-white",
+          onClick: () => {
+            if (job.result) {
+              setPgn(game.pgn);
+              setDataGamesImport(game);
+              setDataAnalysis(job.result);
+              router.push("/analysis");
+            }
+          },
+        };
+      case "failed":
+        return {
+          text: "Retry",
+          icon: <AlertCircle className="h-4 w-4 mr-1" />,
+          className: "bg-red-600 hover:bg-red-700 text-white",
+          onClick: () => setOpenGameId(gameId),
+        };
+      default:
+        return {
+          text: "Analyze",
+          icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+          className: "btn-primary text-white",
+          onClick: () => setOpenGameId(gameId),
+        };
+    }
   };
 
-  const [openGameId, setOpenGameId] = useState<string | number | null>(null);
-
-  const displayTimeControl = (timeControl: string) => {
-    if (!timeControl || timeControl.trim() === "") {
+  const displayTimeControl = (tc: string) => {
+    if (!tc.trim()) {
       return (
         <span className="text-gray-400 italic flex items-center">
-          <Clock className="h-3 w-3 mr-1" />
-          N/A
+          <Clock className="h-3 w-3 mr-1" /> N/A
         </span>
       );
     }
-    return timeControl;
+    return tc;
   };
 
-  const displayOpening = (opening: string) => {
-    if (!opening || opening.toLowerCase().includes("unknown")) {
+  const displayOpening = (op: string) => {
+    if (!op || op.toLowerCase().includes("unknown")) {
       return (
         <span className="text-gray-400 italic flex items-center">
-          <BookOpen className="h-3 w-3 mr-1" />
-          Not Available
+          <BookOpen className="h-3 w-3 mr-1" /> Not Available
         </span>
       );
     }
-    return opening;
+    return op;
   };
 
   if (isLoading) {
@@ -87,9 +175,15 @@ const GamesList: React.FC<GamesListProps> = ({
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md justify-center flex items-center mb-4">
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
         <AlertCircle className="h-5 w-5 mr-2" />
         <span>{error.message}</span>
+        <a
+          href="/login"
+          className="ml-4 bg-red-600 text-white px-3 py-1 rounded"
+        >
+          Login Again
+        </a>
       </div>
     );
   }
@@ -113,120 +207,133 @@ const GamesList: React.FC<GamesListProps> = ({
   return (
     <div className="p-0 md:p-4 xl:p-0">
       {/* Desktop table view */}
-      <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200 ">
-        <div className="grid grid-cols-10 bg-blue-100 py-3 text-xs font-medium text-gray-700">
-          <div className="col-span-1 pl-16 text-left">Date</div>
-          <div className="col-span-1 px-4 text-left">Time Control</div>
-          <div className="col-span-1 px-4 text-left">Result</div>
-          <div className="col-span-1 px-4 text-left">Opponent</div>
-          <div className="col-span-1 px-4 text-left">Rating</div>
-          <div className="col-span-1 px-4 text-left">Game Type</div>
-          <div className="col-span-1 px-4 text-left">Moves</div>
-          <div className="col-span-1 px-4 text-left">Opening</div>
-          <div className="col-span-1 px-4 text-left">Source</div>
-          <div className="col-span-1 px-4 text-left">Actions</div>
+      <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
+        {/* Header Row */}
+        <div
+          className="grid bg-blue-100 py-3 text-xs font-medium text-gray-700"
+          style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+        >
+          <div className="px-2 text-left invisible">#</div>
+          <div className="px-4 text-left">Date</div>
+          <div className="px-2 text-left">Time Control</div>
+          <div className="px-2 text-left">Result</div>
+          <div className="px-4 text-left">Opponent</div>
+          <div className="px-2 text-left">Rating</div>
+          <div className="px-2 text-left">Game Type</div>
+          <div className="px-2 text-left">Moves</div>
+          <div className="px-4 text-left">Opening</div>
+          <div className="px-2 text-left">Source</div>
+          <div className="px-4 text-center">Actions</div>
         </div>
 
+        {/* Data Rows */}
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
-          {currentGames.map((game, index) => {
-            const isNewGame = isNewlyImported(game.id);
+          {currentGames.map((game, idx) => {
+            const isNew = isNewlyImported(game.id);
             const indexInPage =
-              (paginationProps.currentPage - 1) * paginationProps.itemsPerPage +
-              index +
+              (paginationProps.currentPage - 1) *
+                paginationProps.itemsPerPage +
+              idx +
               1;
-
             return (
               <div
                 key={game.id}
-                className={`grid text-xs grid-cols-10 relative ${
-                  isNewGame ? "bg-green-50" : "even:bg-blue-50 odd:bg-white"
-                } hover:bg-blue-50 transition-colors duration-150`}
+                className={`grid relative transition-colors duration-150 ${
+                  isNew
+                    ? "bg-green-50"
+                    : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
+                }`}
+                style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
               >
-                <div
-                  className="absolute h-full w-px bg-gray-200"
-                  style={{ left: "3rem" }}
-                ></div>
-
                 <AnalyzeGameHistory
                   open={openGameId === game.id}
-                  onOpenChange={(isOpen) =>
-                    setOpenGameId(isOpen ? game.id : null)
+                  onOpenChange={(o) =>
+                    setOpenGameId(o ? game.id : null)
                   }
                   game={game}
                 />
 
-                <div className="col-span-1 py-3 pl-4 flex items-center">
-                  <span className="inline-block w-6 text-center text-gray-500 mr-4">
+                {/* # */}
+                <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                  {isNew && (
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+                  )}
+                  <span className="w-6 text-center text-gray-500">
                     {indexInPage}
                   </span>
-                  {isNewGame && (
-                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  )}
-                  <span className="ml-2">{game.date}</span>
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Date */}
+                <div className="flex items-center px-4 py-3">
+                  {game.date}
+                </div>
+
+                {/* Time Control */}
+                <div className="flex items-center px-2 py-3">
                   {displayTimeControl(game.timeControl)}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Result */}
+                <div className="flex items-center px-2 py-3">
                   {(() => {
-                    const resultData = getResultData(game.result);
+                    const r = getResultData(game.result);
                     return (
-                      <span className={resultData.className}>
-                        {resultData.text}
-                      </span>
+                      <span className={r.className}>{r.text}</span>
                     );
                   })()}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center truncate">
+                {/* Opponent */}
+                <div className="flex items-center px-4 py-3 truncate">
                   {game.opponent || "Unknown Player"}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Rating */}
+                <div className="flex items-center px-2 py-3">
                   {game.rating || "N/A"}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center truncate">
+                {/* Game Type */}
+                <div className="flex items-center px-2 py-3 truncate">
                   {game.timeClass || "Unknown Game Type"}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Moves */}
+                <div className="flex items-center px-2 py-3">
                   {game.moves || "N/A"}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Opening */}
+                <div className="flex items-center px-4 py-3">
                   {displayOpening(game.opening)}
                 </div>
 
-                <div className="col-span-1 px-4 py-3 flex items-center">
+                {/* Source */}
+                <div className="flex items-center px-2 py-3">
                   {game.source || "Unknown"}
-                  {isNewGame && (
-                    <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
-                      New
-                    </span>
-                  )}
                 </div>
 
-                <div className="col-span-1 py-3 flex items-center">
-                  {game.isAnalysis ? (
-                    <button
-                      className="bg-green-500 gap-x-1 text-white h-8 w-full max-w-[120px] rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
-                      onClick={() => setOpenGameId(game.id)}
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      View Results
-                    </button>
-                  ) : (
-                    <button
-                      className="btn-primary gap-x-1 text-white h-8 w-full max-w-[120px] rounded-3xl text-xs flex justify-center items-center transition-colors duration-150"
-                      onClick={() => setOpenGameId(game.id)}
-                    >
-                      <ChartNoAxesColumn className="h-4 w-4" />
-                      Analyze
-                    </button>
-                  )}
+                {/* Actions */}
+                <div className="px-4 py-3">
+                  {(() => {
+                    const btn = getAnalysisButtonContent(
+                      game.id,
+                      game
+                    );
+                    return (
+                      <button
+                        className={`${btn.className} h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
+                        onClick={btn.onClick}
+                        disabled={
+                          btn.text.startsWith("In Progress") ||
+                          btn.text === "Finalizing..."
+                        }
+                      >
+                        {btn.icon}
+                        {btn.text}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             );
@@ -248,7 +355,9 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       </div>
 
-      {currentGames.length > 0 && <PaginationControls {...paginationProps} />}
+      {currentGames.length > 0 && (
+        <PaginationControls {...paginationProps} />
+      )}
     </div>
   );
 };

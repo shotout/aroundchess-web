@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 import DotSpinner from "./Spinner";
 import HistoryTabs from "./components/HistoryTabs";
@@ -8,12 +9,36 @@ import StatisticsSection from "./components/StatisticsSection";
 import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
 import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
-import { useChessProfile } from "../analysis/onboarding/useChessProfile";
+import { useProfileStore } from "@/app/store/profile";
 
 const GameHistoryPage: React.FC = () => {
-  const { username, isLoading, isSignedIn, checkComplete } = useChessProfile();
+  const { username } = usePgnStore();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { sessionId } = useProfileStore();
 
-  if (!checkComplete && isSignedIn) {
+  useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUsernameFetching, setIsUsernameFetching] = useState(false);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsUsernameFetching(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsUsernameFetching(false);
+    }, 500);
+  }, [isSignedIn]);
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <DotSpinner />
@@ -23,9 +48,8 @@ const GameHistoryPage: React.FC = () => {
 
   return (
     <>
-      <main className="w-full bg-primary-white relative">
+      <main className="w-full  bg-primary-white relative">
         <ChessAccountSetup isLoading={isLoading} />
-
         <div className="p-4">
           <div className="flex justify-between items-center xl:mb-4">
             <div className="flex flex-row items-center gap-1 md:gap-2">
@@ -33,7 +57,7 @@ const GameHistoryPage: React.FC = () => {
                 My Game History
               </h1>
               <div className="flex items-center h-full">
-                {isLoading ? (
+                {isUsernameFetching ? (
                   <LoadingDot />
                 ) : (
                   <p className="text-xs text-gray-500 lg:text-[18px]">

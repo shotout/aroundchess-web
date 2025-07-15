@@ -134,18 +134,6 @@ function ChessLessonPage<T extends ChessLesson>({
           {renderContent()}
         </div>
 
-        {pagination && filteredLessons.length > 0 && !isFiltering && (
-          <div className="text-center text-sm text-gray-500">
-            Showing {filteredLessons.length} of {pagination?.total}{" "}
-            {lessonType === "opening"
-              ? "openings"
-              : lessonType === "middlegame"
-              ? "strategies"
-              : "endgames"}
-            {filteredLessons.length < (pagination?.total || 0) &&
-              ` (${filteredLessons.length} matching your filters out of ${pagination?.total} total)`}
-          </div>
-        )}
       </div>
     </main>
   );
