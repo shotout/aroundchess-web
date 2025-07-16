@@ -35,7 +35,6 @@ import ChessboardWrapper from "../ChessboardWrapper";
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useShareGame } from "@/app/store/shareGame";
 import GameAlertDialogMobile from "../GameAlertDialogMobile";
-// ADD THIS IMPORT
 import { playSound } from "@/utils/play-audio";
 
 interface StageDetailViewProps {
@@ -955,7 +954,7 @@ export default function StageDetailView({
           goBackToSelection={goBackToSelection}
         />
 
-        <div className="grid grid-cols-1 xl:grid-cols-10 bg-white xl:gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-10  xl:gap-5">
           <div className="xl:col-span-6 flex flex-col">
             <div className="flex flex-row self-end justify-end items-center px-4 sm:p-0 gap-x-2 sm:mb-2">
               <button onClick={handleSwitch}>
@@ -979,9 +978,9 @@ export default function StageDetailView({
                 />
               </button>
             </div>
-            <div className="xl:border border-gray-200 p-0 sm:mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
+            <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
-                <div className=" bg-white flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden xl:max-w-[600px] 2xl:min-w-[600px] 2xl:max-w-[1000px]">
+                <div className=" flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden">
                   <ChessboardWrapper
                     game={game}
                     position={position}
@@ -1070,7 +1069,7 @@ export default function StageDetailView({
           </div>
 
           {/* Desktop sidebar */}
-          <div className="hidden sm:flex border border-gray-200 rounded-md flex-col xl:col-span-4">
+          <div className="hidden bg-white sm:flex border border-gray-200 rounded-md flex-col xl:col-span-4">
             <div className="flex flex-col h-full">
               <div className="w-full p-4 h-auto">
                 <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">

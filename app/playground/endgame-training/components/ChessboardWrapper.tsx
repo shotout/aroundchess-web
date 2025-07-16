@@ -37,12 +37,14 @@ export default function ChessboardWrapper({
   is3DMode,
   onMovePlay,
 }: ChessboardWrapperPropsWithSound) {
-  const [boardSize, setBoardSize] = useState<number | undefined>(1000);
+  const [boardSize, setBoardSize] = useState<number | undefined>(800);
   const [mounted, _] = useState<boolean>(true);
   const [rightClickedSquares, setRightClickedSquares] = useState<
     Record<string, { backgroundColor: string }>
   >({});
   const [hintClicked, setHintClicked] = useState<boolean>(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -57,20 +59,24 @@ export default function ChessboardWrapper({
     setHintClicked(showHint ?? false);
   }, [showHint]);
 
-  const handleResize = () => {
+   const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
+
+    // Get the actual container width
+    const containerWidth = containerRef.current?.offsetWidth || width;
+    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
     }
   };
 
@@ -371,7 +377,7 @@ export default function ChessboardWrapper({
   );
 
   return (
-    <div className="flex flex-col justify-center items-center gap-3 mt-6 sm:mt-0">
+    <div ref={containerRef} className="flex flex-col justify-center items-center gap-3 mt-6 sm:mt-0">
       <motion.div
         initial={{ rotateX: 180 }}
         animate={
@@ -386,8 +392,9 @@ export default function ChessboardWrapper({
           ease: [0.4, 0.0, 0.2, 1],
           type: "tween",
         }}
+        className="max-w-full"
         style={{
-          width: boardSize,
+          maxWidth: '100%',
           display: is3DMode ? "flex" : "none",
           backfaceVisibility: "hidden",
           transformStyle: "preserve-3d",
@@ -418,8 +425,9 @@ export default function ChessboardWrapper({
       </motion.div>
 
       <motion.div
+       className="max-w-full"
         style={{
-          width: boardSize,
+          maxWidth: '100%',
           display: !is3DMode ? "flex" : "none",
           backfaceVisibility: "hidden",
         }}

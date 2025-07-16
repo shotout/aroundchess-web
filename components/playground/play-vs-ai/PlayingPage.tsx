@@ -393,6 +393,7 @@ export default function PlayingPage() {
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
@@ -939,20 +940,24 @@ export default function PlayingPage() {
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
 
-  const handleResize = () => {
+const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.9 : 480;
+    const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
+
+    // Get the actual container width
+    const containerWidth = refBoard.current?.offsetWidth || width;
+    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
+      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
+      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
     }
   };
 

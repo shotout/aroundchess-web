@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import GameCard from "./GameCard";
 import PaginationControls from "./PaginationControls";
-import DotSpinner from "../Spinner";
 import { getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
 import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import GamesListSkeleton from "./GameListSkeleton";
 
 interface GamesListProps {
   games: Game[];
@@ -162,16 +162,9 @@ const GamesList: React.FC<GamesListProps> = ({
     return op;
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <DotSpinner />
-        <p className="mt-4 text-gray-500 text-sm">
-          Loading and processing games data...
-        </p>
-      </div>
-    );
-  }
+ if (isLoading) {
+  return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
+}
 
   if (error) {
     return (

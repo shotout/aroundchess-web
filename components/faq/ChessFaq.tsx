@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
-import DotSpinner from "../game-history/Spinner";
 import { searchFAQs } from "./search";
+import ChessFAQSkeleton from "./ChessFaqSkeleton";
 
 interface Question {
   question: string;
@@ -85,7 +85,8 @@ export default function ChessFAQ() {
     setQuery(e.target.value);
   };
 
-  if (isLoading) return <DotSpinner />;
+  // Replace the DotSpinner with the skeleton loading component
+  if (isLoading) return <ChessFAQSkeleton />;
 
   return (
     <div className="flex flex-col w-full bg-gradient-to-b from-[#BDD5FF] via-[#FCFCFD] to-[#FCFCFD] gap-3">
@@ -139,9 +140,10 @@ export default function ChessFAQ() {
                   : "/images/faq/analysis-mark.png"
               }
               alt="background"
-              width={1000}
-              height={1000}
-              className="sm:w-2/3 lg:w-[116px] h-full absolute  inset-0 object-cover"
+              width={120}
+              height={92}
+              quality={100}
+              className="sm:w-2/3 lg:w-[120px] h-full absolute  inset-0 object-cover"
             />
             <button
               className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${

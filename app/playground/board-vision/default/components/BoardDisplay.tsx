@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { BoardDisplayProps } from "../../types/default-pgn";
 import { motion } from "framer-motion";
-import Simple2DChess from "@/components/handbooks/components/Simple2DChess";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Square } from "chess.js";
 import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
