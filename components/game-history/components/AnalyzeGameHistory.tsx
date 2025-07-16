@@ -65,7 +65,7 @@ export function AnalyzeGameHistory({
 
   const [activeTab] = useState("auto");
   const [pgnText] = useState("");
-  const [depthChoosed, setDepthChoosed] = useState(14);
+  const [depthChoosed, setDepthChoosed] = useState(12);
   const [estimateBasic, setEstimateBasic] = useState("");
   const [estimateStandard, setEstimateStandard] = useState("");
   const [estimateDeep, setEstimateDeep] = useState("");
@@ -137,14 +137,16 @@ export function AnalyzeGameHistory({
     }
 
     setIsSubmitting(true);
+    
     try {
       const { default: axios } = await import("axios");
       const baseUrl =
         process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       let endpoint = "";
-      if (depthChoosed <= 15) {
+
+      if (depthChoosed === 12) {
         endpoint = `${baseUrl}/v2/analyze/basic-analyze`;
-      } else if (depthChoosed <= 18) {
+      } else if (depthChoosed === 16) {
         endpoint = `${baseUrl}/v2/analyze/standard-analyze`;
       } else {
         endpoint = `${baseUrl}/v2/analyze/deep-analyze`;
