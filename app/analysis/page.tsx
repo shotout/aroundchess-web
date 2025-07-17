@@ -4,13 +4,13 @@ import AnalysisLatestGame from "../../components/analysis/AnalysisLatestGame";
 import AnalysisResult from "../../components/analysis/AnalysisResult";
 import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
-import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import Link from "next/link";
 
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -50,7 +50,6 @@ export default function AnalysisPage() {
   const [lastPgn, setLastPgn] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
   const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
   const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
@@ -61,16 +60,15 @@ export default function AnalysisPage() {
       if (response.data != null) {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
-        setOpenAnalyze(false); // User has existing analysis
+        setLoading(false);
       } else {
-        // User has no previous analysis - show analyze modal
-        setOpenAnalyze(true);
+        // User has no previous analysis - load example game
+        fetchPgnFamousGame();
       }
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching analysis:", error);
-      setLoading(false);
-      setOpenAnalyze(true); // Show analyze modal on error
+      // On error, load example game
+      fetchPgnFamousGame();
     }
   };
 
@@ -79,7 +77,9 @@ export default function AnalysisPage() {
       if (sessionId.length > 0 && !isLoading && username) {
         setLoading(true);
         fetchExistAnalyze();
-      } else if (dataAnalysis == null && !isLoading) {
+      } else if (sessionId.length === 0 && !isLoading) {
+        // Non-authenticated user - always show example game
+        setLoading(true);
         fetchPgnFamousGame();
       } else if (dataAnalysis != null) {
         setLoading(false);
@@ -87,7 +87,7 @@ export default function AnalysisPage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydratedProfile, username]);
+  }, [hydratedProfile, username, sessionId]);
 
   const fetchPgnFamousGame = async () => {
     let arr = null;
@@ -100,7 +100,6 @@ export default function AnalysisPage() {
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setLoading(false);
-      setOpenAnalyze(true);
     } catch (err) {
       setIsLoading(false);
       setLoading(false);
@@ -166,7 +165,12 @@ export default function AnalysisPage() {
 
                       {isSignedIn && widthC <= 1024 && !loading && username && (
                         <div className="lg:hidden flex items-center justify-center my-2">
-                          <AnalyzeDifferentGame openPopup={openAnalyze} />
+                          <Link
+                            href="/my-game-history"
+                            className="w-fill px-5 py-2 btn-primary rounded-full"
+                          >
+                            Analyze a different game
+                          </Link>
                         </div>
                       )}
 
@@ -189,7 +193,12 @@ export default function AnalysisPage() {
                       </div>
 
                       {isSignedIn && widthC > 1024 && !loading && username && (
-                        <AnalyzeDifferentGame openPopup={openAnalyze} />
+                        <Link
+                          href="/my-game-history"
+                          className="w-fill px-5 py-2 btn-primary rounded-full"
+                        >
+                          Analyze a different game
+                        </Link>
                       )}
                     </div>
                   </div>

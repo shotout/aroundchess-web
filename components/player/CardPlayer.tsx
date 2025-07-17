@@ -25,14 +25,21 @@ export const CardPlayer = ({
       } p-2 rounded-md flex flex-row justify-between items-center gap-2`}
     >
       <div className="flex flex-row items-center gap-2">
-        <Image
-          alt="avatar"
-          src={profilePhoto}
-          className="w-10 h-10 rounded-full"
-          width={1000}
-          height={1000}
-        />
-        {/* <div className="w-10 h-10 rounded-full bg-gray-300"></div> */}
+        {profilePhoto ? (
+          <Image
+            alt="avatar"
+            src={profilePhoto}
+            className="w-10 h-10 rounded-full object-cover"
+            width={40}
+            height={40}
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+            <span className="text-gray-600 text-sm font-semibold">
+              {username?.charAt(0) || "?"}
+            </span>
+          </div>
+        )}
         <div className="flex flex-col line-clamp-1 ">
           <div className="flex flex-row items-center gap-2 line-clamp-1">
             <span
@@ -75,12 +82,14 @@ export const CardPlayer = ({
         </div>
       </div>
 
-      <ReactCountryFlag
-        countryCode={country}
-        svg
-        className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-        title={country}
-      />
+      {country && country !== "XX" && (
+        <ReactCountryFlag
+          countryCode={country}
+          svg
+          className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+          title={country}
+        />
+      )}
     </div>
   );
 };

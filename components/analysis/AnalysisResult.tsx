@@ -452,13 +452,21 @@ const AnalysisResult: React.FC = () => {
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          <Image
-            alt="avatar"
-            src={summary?.blackSide?.profileInfo.photo || ""}
-            className="w-10 h-10 rounded-full"
-            width={1000}
-            height={1000}
-          />
+          {summary?.blackSide?.profileInfo.photo ? (
+            <Image
+              alt="avatar"
+              src={summary.blackSide.profileInfo.photo}
+              className="w-10 h-10 rounded-full object-cover"
+              width={40}
+              height={40}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-600 text-sm font-semibold">
+                {summary?.blackSide?.profileInfo.username?.charAt(0) || "?"}
+              </span>
+            </div>
+          )}
           <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
@@ -469,12 +477,14 @@ const AnalysisResult: React.FC = () => {
                 {summary?.blackSide?.profileInfo.username}
               </span>
 
-              <ReactCountryFlag
-                countryCode={blackCountry}
-                svg
-                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                title={blackCountry}
-              />
+              {blackCountry && blackCountry !== "XX" && (
+                <ReactCountryFlag
+                  countryCode={blackCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                  title={blackCountry}
+                />
+              )}
             </div>
 
             <div className="flex flex-row gap-1">
@@ -529,13 +539,21 @@ const AnalysisResult: React.FC = () => {
         } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          <Image
-            alt="avatar"
-            src={summary?.whiteSide?.profileInfo.photo || ""}
-            className="w-10 h-10 rounded-full"
-            width={1000}
-            height={1000}
-          />
+          {summary?.whiteSide?.profileInfo.photo ? (
+            <Image
+              alt="avatar"
+              src={summary.whiteSide.profileInfo.photo}
+              className="w-10 h-10 rounded-full object-cover"
+              width={40}
+              height={40}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-600 text-sm font-semibold">
+                {summary?.whiteSide?.profileInfo.username?.charAt(0) || "?"}
+              </span>
+            </div>
+          )}
           <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
@@ -546,12 +564,14 @@ const AnalysisResult: React.FC = () => {
                 {summary?.whiteSide?.profileInfo.username}
               </span>
 
-              <ReactCountryFlag
-                countryCode={whiteCountry}
-                svg
-                className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
-                title={whiteCountry}
-              />
+              {whiteCountry && whiteCountry !== "XX" && (
+                <ReactCountryFlag
+                  countryCode={whiteCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                  title={whiteCountry}
+                />
+              )}
             </div>
 
             <div className="flex flex-row gap-1">
@@ -656,31 +676,16 @@ const AnalysisResult: React.FC = () => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } :
-              { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{
-              display:
-                //  !hideDiv ? "block" :
-                "none",
-            }}
+            style={{ display: "block" }}
           >
             {renderTopAvatar()}
           </motion.div>
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } : 
-              { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{
-              display: 
-              // !hideDiv ? "flex" :
-               "none",
-              justifyContent: "end",
-            }}
+            style={{ display: "flex", justifyContent: "end" }}
           >
             {buttonBoard()}
           </motion.div>
@@ -839,14 +844,9 @@ const AnalysisResult: React.FC = () => {
             </button>
           </div>
           <motion.div
-            animate={
-              // hideDiv ? { opacity: 0, display: "hidden" } :
-               { opacity: 1 }
-            }
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            style={{ display:
-              //  !hideDiv ? "block" : 
-               "none" }}
+            style={{ display: "block" }}
           >
             {renderBottomAvatar()}
           </motion.div>
