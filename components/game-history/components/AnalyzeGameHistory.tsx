@@ -8,7 +8,6 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
-import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { Input } from "@/components/ui/input";
 
@@ -27,7 +26,6 @@ export function AnalyzeGameHistory({
   const { pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, sessionId } = useProfileStore();
-  const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const { addJob, updateJob, getJobByGameId, startPolling, forceStopPolling } =
     useBackgroundAnalysisStore();
   const { setPgn, setError, setDataAnalysis, setDataGamesImport } =
@@ -66,46 +64,7 @@ export function AnalyzeGameHistory({
   const [activeTab] = useState("auto");
   const [pgnText] = useState("");
   const [depthChoosed, setDepthChoosed] = useState(12);
-  const [estimateBasic, setEstimateBasic] = useState("");
-  const [estimateStandard, setEstimateStandard] = useState("");
-  const [estimateDeep, setEstimateDeep] = useState("");
-  const [timeBasic, setTimeBasic] = useState({ minute: 0, second: 0 });
-  const [timeStandard, setTimeStandard] = useState({
-    minute: 0,
-    second: 0,
-  });
-  const [timeDeep, setTimeDeep] = useState({ minute: 0, second: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const pgn = pgnToFenList(game.pgn);
-    const durations = [5, 23, 51];
-    const estimates = durations.map((d) => {
-      const total = pgn ? pgn.length * d : 0;
-      return { estimate: formatTime(total), time: getTime(total) };
-    });
-    setEstimateBasic(estimates[0].estimate);
-    setEstimateStandard(estimates[1].estimate);
-    setEstimateDeep(estimates[2].estimate);
-    setTimeBasic(estimates[0].time);
-    setTimeStandard(estimates[1].time);
-    setTimeDeep(estimates[2].time);
-  }, [game.pgn, pgnToFenList]);
-
-  const formatTime = (seconds: number): string => {
-    const rounded = Math.round(seconds / 5) * 5;
-    const m = Math.floor(rounded / 60);
-    const s = rounded % 60;
-    if (m > 0) {
-      return `${m} minute${m !== 1 ? "s" : ""} ${s} second${s !== 1 ? "s" : ""}`;
-    }
-    return `${s} second${s !== 1 ? "s" : ""}`;
-  };
-
-  const getTime = (seconds: number) => {
-    const s = Math.round(seconds / 5) * 5;
-    return { minute: Math.floor(s / 60), second: s % 60 };
-  };
 
   const handleAnalyzeGame = async () => {
     if (token.balance < 1) {
@@ -429,24 +388,10 @@ export function AnalyzeGameHistory({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
                 {depths.map((depth, idx) => {
-                  const estimate =
-                    idx === 0
-                      ? estimateBasic
-                      : idx === 1
-                      ? estimateStandard
-                      : estimateDeep;
-                  const time =
-                    idx === 0
-                      ? timeBasic
-                      : idx === 1
-                      ? timeStandard
-                      : timeDeep;
                   return (
                     <button
                       key={idx}
                       onClick={() => {
-                        setEstimateMinute(time.minute);
-                        setEstimateSecond(time.second);
                         setDepthChoosed(depth.value);
                       }}
                       disabled={depth.mustMember && !isMember}
@@ -493,12 +438,6 @@ export function AnalyzeGameHistory({
                       <span className="font-light text-[#364152] text-center text-[11px]">
                         {depth.description}
                       </span>
-                      <div className="flex flex-col gap-1 items-center">
-                        <span className="font-medium text-[11px]">
-                          Analysis can take up to:
-                        </span>
-                        <span className="font-medium text-[11px]">{estimate}</span>
-                      </div>
                     </button>
                   );
                 })}
