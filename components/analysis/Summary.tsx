@@ -56,7 +56,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(true);
   const handleOnClickMovement = (move: any) => {
-    console.log(move);
+    // console.log(move);
     setChessMove(move);
   };
   return (

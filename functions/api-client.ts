@@ -59,10 +59,10 @@ export function useApiClient() {
             url += `?${query}`;
           }
 
-          console.log("url", url);
+          // console.log("url", url);
           // console.log("method", method);
           // console.log("token", sessionId);
-          console.log("body", body);
+          // console.log("body", body);
 
           const response = await fetch(url, {
             method,
@@ -87,7 +87,7 @@ export function useApiClient() {
             const errorData = await response.json();
             if (errorData.statusCode != 401 && errorData.statusCode != 404) {
               toast.error(errorData.message || "API request failed");
-              console.log("errorData", url, errorData, response);
+              // console.log("errorData", url, errorData, response);
               throw new Error(errorData.message || "API request failed");
             }
             if (errorData.statusCode == 401) {

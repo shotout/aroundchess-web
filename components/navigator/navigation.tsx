@@ -41,7 +41,7 @@ export default function Navigation({
     const sidebarW = window.innerWidth / 6;
     const contentW = window.innerWidth - sidebarW;
     setIsDesktop(window.innerWidth >= 1280);
-    console.log("sidebarW", sidebarW);
+    // console.log("sidebarW", sidebarW);
     if (window.innerWidth >= 1280) {
       setWidthSidebar(sidebarW);
       setWidthContent(contentW);

@@ -152,13 +152,13 @@ const isValidCache = (
 ): boolean => {
   // Check if timestamp exists and is valid
   if (!timestamp || timestamp <= 0) {
-    console.log("Cache invalid: No timestamp");
+    // console.log("Cache invalid: No timestamp");
     return false;
   }
 
   // Check if data exists and is array with content
   if (!data || !Array.isArray(data)) {
-    console.log("Cache invalid: No data or not array");
+    // console.log("Cache invalid: No data or not array");
     return false;
   }
 
@@ -167,11 +167,11 @@ const isValidCache = (
   const cacheAge = now - timestamp;
 
   if (cacheAge >= expiration) {
-    console.log(
-      `Cache expired: Age ${Math.round(cacheAge / 1000)}s, Max ${Math.round(
-        expiration / 1000
-      )}s`
-    );
+    // console.log(
+    //   `Cache expired: Age ${Math.round(cacheAge / 1000)}s, Max ${Math.round(
+    //     expiration / 1000
+    //   )}s`
+    // );
     return false;
   }
 
@@ -242,7 +242,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
     // Use cache if valid
     if (isCacheValid && cachedGames) {
-      console.log(`[${type.toUpperCase()}] Using cached data`);
+      // console.log(`[${type.toUpperCase()}] Using cached data`);
       try {
         const transformedGames = transformApiDataToComponentFormat(cachedGames);
         updateStateWithProcessedData(transformedGames);
@@ -275,9 +275,9 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
       if (response && response.data) {
         const apiData = response.data;
-        console.log(
-          `[${type.toUpperCase()}] Received ${apiData.length} games from API`
-        );
+        // console.log(
+        //   `[${type.toUpperCase()}] Received ${apiData.length} games from API`
+        // );
 
         // Store in cache
         setGamesInStore(apiData);
@@ -285,11 +285,11 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         const transformedGames = transformApiDataToComponentFormat(apiData);
         updateStateWithProcessedData(transformedGames);
 
-        console.log(
-          `[${type.toUpperCase()}] Successfully processed and cached ${
-            transformedGames.length
-          } games`
-        );
+        // console.log(
+        //   `[${type.toUpperCase()}] Successfully processed and cached ${
+        //     transformedGames.length
+        //   } games`
+        // );
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -323,13 +323,13 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
     // Only fetch if we haven't executed for this combination and not currently fetching
     if (lastExecutedRef.current !== executionKey && !fetchRef.current) {
-      console.log(
-        `[${type.toUpperCase()}] Triggering fetch for new combination`
-      );
+      // console.log(
+      //   `[${type.toUpperCase()}] Triggering fetch for new combination`
+      // );
       fetchGames();
     } else if (isCacheValid && cachedGames) {
       // If we have valid cache, use it immediately
-      console.log(`[${type.toUpperCase()}] Using existing valid cache`);
+      // console.log(`[${type.toUpperCase()}] Using existing valid cache`);
       const transformedGames = transformApiDataToComponentFormat(cachedGames);
       updateStateWithProcessedData(transformedGames);
       setIsLoading(false);

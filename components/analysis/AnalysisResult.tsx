@@ -141,7 +141,7 @@ const AnalysisResult: React.FC = () => {
 
   const parsePgn = (pgnText: string): boolean => {
     try {
-      console.log("parsePgn", pgnText);
+      // console.log("parsePgn", pgnText);
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
 
@@ -339,10 +339,10 @@ const AnalysisResult: React.FC = () => {
     if (chessMove.index != null) {
       const colorIndex = chessMove.type == "black" ? 1 : 0;
       let indexOf = chessMove.index * 2 + colorIndex;
-      console.log("indexOf", indexOf);
+      // console.log("indexOf", indexOf);
       const data = parsedMoves[indexOf];
-      console.log("parsedMoves", parsedMoves);
-      console.log("data move", data);
+      // console.log("parsedMoves", parsedMoves);
+      // console.log("data move", data);
       if (data != null) {
         setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
         setCurrentMove(parsedMoves.indexOf(data) + 1);
@@ -352,8 +352,8 @@ const AnalysisResult: React.FC = () => {
       const data = parsedMoves.filter(
         (i) => i.san == chessMove.move && i.color == color
       );
-      console.log("parsedMoves", parsedMoves);
-      console.log("data move", data);
+      // console.log("parsedMoves", parsedMoves);
+      // console.log("data move", data);
       if (data.length > 0) {
         setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
         setCurrentMove(parsedMoves.indexOf(data[0]) + 1);

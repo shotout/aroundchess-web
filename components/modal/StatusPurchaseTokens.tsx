@@ -17,7 +17,7 @@ export function StatusPurchaseTokens() {
   const [dots, setDots] = useState<string>("");
 
   useEffect(() => {
-    console.log("status", status);
+    // console.log("status", status);
     if (status == "failed") {
       setContent(`Your Purchase for ${quantity} Tokens was failed!`);
       setDescription(
