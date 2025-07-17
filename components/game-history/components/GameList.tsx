@@ -74,6 +74,17 @@ const GamesList: React.FC<GamesListProps> = ({
     gameId: string | number,
     game: Game
   ) => {
+    if (game.isAnalysis) {
+      return {
+        text: "View Results",
+        icon: <CheckCircle className="h-4 w-4 mr-1" />,
+        className: "bg-green-600 hover:bg-green-700 text-white",
+        onClick: () => {
+          router.push("/analysis");
+        },
+      };
+    }
+
     const job = getJobByGameId(gameId);
     if (!job) {
       return {
@@ -222,6 +233,7 @@ const GamesList: React.FC<GamesListProps> = ({
         {/* Data Rows */}
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
           {currentGames.map((game, idx) => {
+            
             const isNew = isNewlyImported(game.id);
             const indexInPage =
               (paginationProps.currentPage - 1) *
