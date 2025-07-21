@@ -19,23 +19,11 @@ import ChessContent from "./ChessContent";
 import PreviousAnalysis from "./PreviousAnalysis";
 import SavedMistakes from "./SavedMistakes";
 
-const history = [
-  { value: "1", data: "", label: "VS Hikaru (03/03/25)" },
-  { value: "2", data: "", label: "VS Hikaru (03/03/25)" },
-  { value: "3", data: "", label: "VS Hikaru (03/03/25)" },
-  { value: "4", data: "", label: "VS Hikaru (03/03/25)" },
-];
-
 const MistakeLog = () => {
-  const [loading, setLoading] = useState<boolean>(false);
   const {
     getMistakeSaved,
     getMistakePrevious,
     getMistakePreviousDetail,
-    saveMistakeLog,
-    unsaveMistakeLog,
-    isLoading,
-    error,
   } = useApiClient();
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -89,24 +77,22 @@ const MistakeLog = () => {
   const hasRun = useRef(false);
 
   const loadData = () => {
-    // setLoading(true);
     fetchMistakeSaved();
   };
   useEffect(() => {
     if (hydrated) {
-      console.log("TEST loadData", hydrated);
       if (hasRun.current) return;
       hasRun.current = true;
 
       loadData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
   const fetchMistakePrevious = async () => {
     try {
       setLoadingPrevious(true);
       const prevData = await getMistakePrevious();
-      console.log("prevData", prevData.data);
       if (prevData.data.length > 0) {
         setPreviousAnalyses(prevData.data);
         setMistakePreviousDetail(prevData.data[0]);
@@ -123,7 +109,6 @@ const MistakeLog = () => {
         ? {}
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
-      console.log("prevDataDetail", prevDataDetail);
       const dataDetail = prevDataDetail.data;
       setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
@@ -141,7 +126,6 @@ const MistakeLog = () => {
       setLoadingSaved(true);
       const params = { page: 1, limit: 10 };
       const savedData = await getMistakeSaved(params);
-      console.log("savedData", savedData.data);
       setSavedMistakes(savedData.data);
       setPreviousAnalysesDetail(savedData.data[0]);
       fetchMistakePrevious();
@@ -401,7 +385,7 @@ const MistakeLog = () => {
                 setTitleGame(savedMistakes[0].title);
                 setMovementDetails(savedMistakes[0].movementDetail);
                 setPreviousAnalysesDetail(savedMistakes[0]);
-              } // Set the first saved mistake as the default detail
+              } 
             }}
             value="saved"
             className={`${

@@ -4,7 +4,6 @@ import { Bookmark, ChevronDown, ChevronUp, InfoIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
-import Link from "next/link";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import EmptyLog from "./EmptyLog";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";

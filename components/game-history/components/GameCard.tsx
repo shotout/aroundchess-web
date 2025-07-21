@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { ChartNoAxesColumn, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  ChartNoAxesColumn,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
@@ -22,10 +27,24 @@ const GameCard: React.FC<GameCardProps> = ({
   const router = useRouter();
   const { getJobByGameId } = useBackgroundAnalysisStore();
   const { setPgn, setDataAnalysis, setDataGamesImport } = usePgnStore();
-  
+
+  // --- Unified button logic with desktop ---
   const getButtonContent = () => {
+    // If already analyzed (from server), show "View Results"
+    if (gameData.isAnalysis) {
+      return {
+        text: "View Results",
+        icon: <CheckCircle className="h-4 w-4 mr-2" />,
+        className: "bg-green-600 hover:bg-green-700",
+        onClick: () => {
+          router.push("/analysis");
+        },
+        disabled: false,
+      };
+    }
+
     const job = getJobByGameId(gameData.id);
-    
+
     if (!job) {
       return {
         text: "Analyze",
@@ -35,11 +54,14 @@ const GameCard: React.FC<GameCardProps> = ({
         disabled: false,
       };
     }
-    
+
     switch (job.status) {
-      case 'pending':
-      case 'processing':
-        const progressText = job.progress > 0 ? `In Progress ${job.progress}%` : 'In Progress';
+      case "pending":
+      case "processing": {
+        const progressText =
+          job.progress > 0
+            ? `In Progress ${job.progress}%`
+            : "In Progress";
         return {
           text: progressText,
           icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -47,7 +69,8 @@ const GameCard: React.FC<GameCardProps> = ({
           onClick: () => {},
           disabled: true,
         };
-      case 'finalizing':
+      }
+      case "finalizing":
         return {
           text: "Finalizing...",
           icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -55,7 +78,7 @@ const GameCard: React.FC<GameCardProps> = ({
           onClick: () => {},
           disabled: true,
         };
-      case 'completed':
+      case "completed":
         return {
           text: "View Results",
           icon: <CheckCircle className="h-4 w-4 mr-2" />,
@@ -70,7 +93,7 @@ const GameCard: React.FC<GameCardProps> = ({
           },
           disabled: false,
         };
-      case 'failed':
+      case "failed":
         return {
           text: "Retry",
           icon: <AlertCircle className="h-4 w-4 mr-2" />,

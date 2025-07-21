@@ -38,9 +38,9 @@ export function StartPlayVSAI({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4"
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 4,
         paddingTop: headerHeight + 16,
         paddingBottom: 16,
         paddingRight: 16,
@@ -51,17 +51,9 @@ export function StartPlayVSAI({
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-7xl mx-auto z-10 h-full flex flex-col">
-        <div className="relative bg-white rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col overflow-hidden">
-          <button
-            onClick={onClose}
-            className="absolute right-6 top-6 p-2 rounded-full hover:bg-gray-100 transition-colors z-20"
-            aria-label="Close dialog"
-          >
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
-
-          <div className="relative z-10 p-4 overflow-y-auto flex-1 min-h-0">
+      <div className="relative w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto z-10 h-full flex flex-col">
+        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="relative z-10 p-2 sm:p-4 overflow-y-auto flex-1 min-h-0">
             <StartPlayVSAIContent onClose={onClose} />
           </div>
         </div>
@@ -73,8 +65,8 @@ export function StartPlayVSAI({
 export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
-  const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
-  const { getVSAILogs, isLoading } = useApiClient();
+  const { setAIChoosed } = usePlayVSAIStore();
+  const { isLoading } = useApiClient();
   const router = useRouter();
 
   const [selectedColor, setSelectedColor] = useState<string>("white");
@@ -150,34 +142,32 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
     const ELO =
       opponents[index].elo +
       difficulties.findIndex((d) => d.key == difficulty) * 650;
-    const opponentData = opponents[index];
-    opponentData.elo = ELO;
+    const opponentData = { ...opponents[index], elo: ELO };
     const body = {
       color: selectedColor,
       difficulty: difficulty,
       opponent: opponentData,
     };
-    console.log("body", body);
     setAIChoosed(body);
     router.push("/playground/play-vs-ai/playing");
     onClose();
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1 sm:space-y-3">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-gray-900">
           Choose Your Color
         </h1>
-        <p className="text-gray-600">
+        <p className="text-xs sm:text-sm lg:text-base text-gray-600">
           Select which color you want to play as. The computer will play as the
           opposite color.
         </p>
       </div>
 
       {/* Color Selection */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-4">
         {[
           {
             color: "white",
@@ -193,14 +183,14 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
           <button
             key={color}
             onClick={() => setSelectedColor(color)}
-            className={`relative p-3 border-2 rounded-xl transition-all hover:shadow-md ${
+            className={`relative p-1 sm:p-2 md:p-2 lg:p-3 border-2 rounded-md sm:rounded-lg md:rounded-lg lg:rounded-xl transition-all hover:shadow-md ${
               selectedColor === color
-                ? "border-blue-base "
+                ? "border-blue-base"
                 : "border-gray-200 bg-white hover:border-gray-300"
             }`}
           >
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-20 h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center space-y-1 sm:space-y-2 lg:space-y-4">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 lg:w-20 lg:h-20 flex items-center justify-center">
                 <Image
                   src={icon}
                   alt={color}
@@ -210,27 +200,27 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                 />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-lg font-medium text-gray-900">
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-gray-900">
                   {label}
                 </span>
               </div>
             </div>
             {selectedColor === color && (
-              <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-blue-base"></div>
+              <div className="absolute top-1 right-1 sm:top-2 sm:right-2 lg:top-4 lg:right-4 w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-4 lg:h-4 rounded-full bg-blue-base"></div>
             )}
           </button>
         ))}
       </div>
       <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
 
-      {/* Opponent Selection */}
-      <div className="space-y-3">
+      {/* Opponent Selection - Desktop only header */}
+      <div className="hidden lg:block space-y-3">
         <h2 className="text-2xl font-semibold text-gray-900 text-center">
           Choose your Opponent
         </h2>
 
-        {/* Difficulty Selection */}
-        <div className="md:grid md:grid-cols-4 md:gap-3 hidden">
+        {/* Desktop Difficulty Selection */}
+        <div className="grid grid-cols-4 gap-3">
           {difficulties.map((diff) => (
             <button
               key={diff.key}
@@ -238,7 +228,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
               className={`p-2 rounded-lg border transition-all text-center ${
                 difficulty === diff.key
                   ? "shadow-lg text-blue-base"
-                  : "bg-white border-none  text-gray-700"
+                  : "bg-white border-none text-gray-700"
               }`}
             >
               <div className="flex flex-col items-center space-y-2">
@@ -269,105 +259,112 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Mobile Difficulty Selection - Horizontal Scroll */}
-        <div className="md:hidden">
-          <div
-            className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {difficulties.map((diff) => (
-              <button
-                key={diff.key}
-                onClick={() => setDifficulty(diff.key)}
-                className={`flex-shrink-0 p-1 rounded-sm border transition-all text-center min-w-[140px] ${
-                  difficulty === diff.key
-                    ? "shadow-lg text-blue-base"
-                    : "bg-white border-none  text-gray-700"
-                }`}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-4 flex items-center justify-center">
-                      <Image
-                        src={
-                          difficulty === diff.key ? diff.iconActive : diff.icon
-                        }
-                        alt={diff.label}
-                        width={24}
-                        height={16}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <div
-                      className={`text-sm font-semibold ${
-                        difficulty === diff.key
-                          ? "text-blue-700"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      {diff.label}
-                    </div>
+      {/* Mobile/Tablet Difficulty Selection */}
+      <div className="lg:hidden">
+        <div
+          className="flex overflow-x-auto gap-2 sm:gap-3 pb-2 scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {difficulties.map((diff) => (
+            <button
+              key={diff.key}
+              onClick={() => setDifficulty(diff.key)}
+              className={`flex-shrink-0 p-1 rounded-sm border transition-all text-center min-w-[120px] sm:min-w-[140px] ${
+                difficulty === diff.key
+                  ? "shadow-lg text-blue-base"
+                  : "bg-white border-none text-gray-700"
+              }`}
+            >
+              <div className="flex flex-col items-center space-y-1 sm:space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-3 sm:w-6 sm:h-4 flex items-center justify-center">
+                    <Image
+                      src={
+                        difficulty === diff.key ? diff.iconActive : diff.icon
+                      }
+                      alt={diff.label}
+                      width={24}
+                      height={16}
+                      className="max-w-full max-h-full object-contain"
+                    />
                   </div>
-                  <div className="text-xs text-gray-500">{diff.range}</div>
+                  <div
+                    className={`text-xs sm:text-sm font-semibold ${
+                      difficulty === diff.key
+                        ? "text-blue-700"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {diff.label}
+                  </div>
                 </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Opponents Grid */}
-        <div className="border border-gray-200 rounded-xl p-4">
-          <div
-            className="grid gap-3 max-h-80 overflow-y-auto justify-center"
-            style={{ gridTemplateColumns: "repeat(auto-fit, 120px)" }}
-          >
-            {opponents.map((opponent) => {
-              const ELO =
-                opponent.elo +
-                difficulties.findIndex((d) => d.key == difficulty) * 650;
-              return (
-                <button
-                  key={opponent.id}
-                  onClick={() => setSelectedOpponent(opponent.id)}
-                  className={`p-1 rounded-lg border transition-all w-24 ${
-                    selectedOpponent === opponent.id
-                      ? "border-blue-base bg-blue-base/5 text-blue-base"
-                      : "border-transparent hover:border-gray-200 text-gray-700"
-                  }`}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-12 h-12 flex items-center justify-center">
-                      <Image
-                        src={opponent.img}
-                        alt={opponent.name}
-                        width={48}
-                        height={48}
-                        className="max-w-full max-h-full object-cover rounded-full"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <div
-                        className={`text-xs font-medium ${
-                          selectedOpponent === opponent.id
-                            ? "text-blue-base"
-                            : "text-gray-900"
-                        }`}
-                      >
-                        {opponent.name}
-                      </div>
-                      <div className="text-xs text-gray-500">ELO {ELO}</div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                <div className="text-[10px] sm:text-xs text-gray-500">{diff.range}</div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Opponents Grid */}
+      <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
+        <div
+          className="grid gap-2 sm:gap-3 lg:gap-3 max-h-48 sm:max-h-80 lg:max-h-80 overflow-y-auto justify-center"
+          style={{ 
+            gridTemplateColumns: window.innerWidth >= 1024 
+              ? "repeat(auto-fit, 120px)" 
+              : "repeat(auto-fit, 64px)" 
+          }}
+        >
+          {opponents.map((opponent) => {
+            const ELO =
+              opponent.elo +
+              difficulties.findIndex((d) => d.key == difficulty) * 650;
+            return (
+              <button
+                key={opponent.id}
+                onClick={() => setSelectedOpponent(opponent.id)}
+                className={`p-1 rounded-md lg:rounded-lg border transition-all w-12 sm:w-16 md:w-16 lg:w-24 lg:h-auto ${
+                  selectedOpponent === opponent.id
+                    ? "border-blue-base bg-blue-base/5 text-blue-base"
+                    : "border-transparent hover:border-gray-200 text-gray-700"
+                }`}
+              >
+                <div className="flex flex-col items-center space-y-1 sm:space-y-2 lg:space-y-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 lg:w-12 lg:h-12 flex items-center justify-center">
+                    <Image
+                      src={opponent.img}
+                      alt={opponent.name}
+                      width={48}
+                      height={48}
+                      className="max-w-full max-h-full object-cover rounded-full"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <div
+                      className={`text-[10px] sm:text-xs lg:text-xs font-medium ${
+                        selectedOpponent === opponent.id
+                          ? "text-blue-base"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {opponent.name}
+                    </div>
+                    <div className="text-[9px] sm:text-xs lg:text-xs text-gray-500">
+                      ELO {ELO}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
+
       {/* Play Button */}
-      <div className="pt-4">
+      <div className="pt-2 sm:pt-4 lg:pt-4">
         {isLoading ? (
           <div className="flex justify-center">
             <DotSpinner />
@@ -375,7 +372,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         ) : (
           <button
             onClick={handlePlayNow}
-            className="w-full py-3 btn-primary text-white font-semibold rounded-full transition-colors"
+            className="w-full py-2 sm:py-3 lg:py-3 btn-primary text-xs sm:text-base lg:text-base text-white font-semibold rounded-full transition-colors"
           >
             Play Now
           </button>

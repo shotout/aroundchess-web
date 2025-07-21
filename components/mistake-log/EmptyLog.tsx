@@ -1,22 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Bookmark,
-  ChevronDown,
-  ChevronUp,
-  InfoIcon,
-} from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { usePgnStore } from "../../app/store/zustandStore";
-import Link from "next/link";
-import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { TabsTrigger } from "../ui/tabs";
-import { AnalyzeDifferentGame } from "../modal/AnalyzeDifferentGame";
 interface emptyLogProps {
   title?: string;
   content?: string;
@@ -29,11 +14,10 @@ const EmptyLog: React.FC<emptyLogProps> = ({
   noButton,
   onClickSeePrevious,
 }) => {
-  const [openAnalyze, setOpenAnalyze] = useState<boolean>(false);
 
   const router = useRouter();
   const handleAnalyze = () => {
-    router.push("/analysis");
+    router.push("/my-game-history");
   };
   return (
     <div className="flex flex-col w-[95%] justify-center gap-[24px] bg-white rounded-[16px] items-center p-2">
@@ -55,11 +39,16 @@ const EmptyLog: React.FC<emptyLogProps> = ({
         </span>
       </div>
 
-      <AnalyzeDifferentGame
-        style="w-full"
-        openPopup={openAnalyze}
-        label="Analyze Games"
-      />
+    
+
+      <div className="w-full">
+              <button
+              onClick={handleAnalyze}
+                className="w-full px-5 py-2 btn-primary rounded-full"
+              >
+                Analyze a different game
+              </button>
+            </div>
 
       {!noButton && (
         <button

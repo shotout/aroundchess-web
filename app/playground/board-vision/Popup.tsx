@@ -59,40 +59,33 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     ((i + 1) * 10).toString()
   );
 
-  // Debounce the username input
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
     return () => clearTimeout(timer);
   }, [usernameInput]);
 
-  // Fetch games when debounced query changes (and other dependencies)
   useEffect(() => {
     if (debouncedQuery && debouncedQuery.trim() !== "" && sessionId) {
       setUsernameStatus("loading");
       fetchUserGames();
     } else if (!debouncedQuery || debouncedQuery.trim() === "") {
-      // Reset state when query is empty
       setUsernameStatus("idle");
       setAvailableGames([]);
       setSelectedGames([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, sessionId, gameCount]);
 
-  // Reset form when popup opens and set default username
   useEffect(() => {
     if (isOpen) {
       setShowErrorModal(false);
 
-      // Priority: globalUsername > username > empty
       if (globalUsername && globalUsername.trim() !== "") {
         setUsernameInput(globalUsername);
-        setDebouncedQuery(""); // Reset to trigger fresh fetch
+        setDebouncedQuery("");
       } else if (username && username.trim() !== "") {
         setUsernameInput(username);
-        setDebouncedQuery(""); // Reset to trigger fresh fetch
+        setDebouncedQuery("");
       } else {
-        // Start fresh
         setUsernameInput("");
         setDebouncedQuery("");
         setUsernameStatus("idle");
@@ -162,7 +155,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     const newValue = e.target.value;
     setUsernameInput(newValue);
 
-    // Reset status when user starts typing
     if (newValue.trim() === "") {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -188,14 +180,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
 
     try {
       if (usernameStatus === "found" && selectedGames.length > 0) {
-        // Set the username first
         setUsername(usernameInput);
 
         try {
-          // This will clear existing data and load new games
           await loadUserPositions(selectedGames, usernameInput);
 
-          // Success - navigate to user page and close popup
           router.push("/playground/board-vision/user");
           onClose();
         } catch (error) {
@@ -213,10 +202,26 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
+  const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+  const headerHeight = 72;
+  const headerHeightLg = 96;
+
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{
+        top:
+          typeof window !== "undefined" && window.innerWidth >= 1024
+            ? headerHeightLg
+            : headerHeight,
+        left: sidebarWidth,
+        right: 0,
+        bottom: 0,
+      }}
+    >
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
         <div className="flex items-center justify-between mb-4">
@@ -256,7 +261,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="space-y-3">
-          {/* Updated layout - Labels in same line */}
           <div className="flex justify-between space-x-4">
             <div className="flex items-center space-x-2 w-1/2">
               <span className="text-blue-700">♞</span>
@@ -269,7 +273,6 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Updated layout - Input fields in same line and equal sizes */}
           <div className="flex justify-between space-x-4">
             <div className="w-1/2">
               <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm ">

@@ -1275,7 +1275,7 @@ const handleResize = () => {
       <GameEndStatus gameStatus={statusGame.toLowerCase()} />
       <div className="flex flex-col w-full gap-y-2 ">
         <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
-          <button>
+          <button onClick={  () =>  router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
           <div className="flex flex-1 flex-row justify-center items-center gap-2">

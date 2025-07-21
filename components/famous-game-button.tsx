@@ -10,15 +10,10 @@ export const FamousGameButton = () => {
   const router = useRouter();
   const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const {
-    setUsername: setUsernamePlayer,
     setPgn,
     setIsLoading,
     setError,
-    isLoading,
-    dataAnalysis,
     setDataAnalysis,
-    setDataGames,
-    dataGames,
   } = usePgnStore();
   const fetchPgnFamousGame = async () => {
     let arr = null;
@@ -31,15 +26,10 @@ export const FamousGameButton = () => {
       setPgn(pgnLocal);
       const resAnalysis = await fetch("/local-data/analysis.json");
       const responseAnalysis = await resAnalysis.json();
-      console.log("pgnLocal", pgnLocal);
-      console.log("responseAnalysis", responseAnalysis);
-
       setDataAnalysis(responseAnalysis);
       arr = responseAnalysis;
       setError(null);
-      // router.push("/analysis");
     } catch (err) {
-      console.log("error", err);
       toast.error(err + "");
       router.push("/");
       setIsLoading(false);
