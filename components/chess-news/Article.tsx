@@ -74,7 +74,16 @@ export default function Article() {
     hasRun.current = true;
     getNewsCategories({}).then((response) => {
       if (response.data.length > 0) {
-        setCategories(response.data);
+        // Move "AroundChess Guides" to the front if it exists
+        const guidesIndex = response.data.findIndex(
+          (cat: { name: string; }) => cat.name === "AroundChess Guides"
+        );
+        const newCategories = [...response.data];
+        if (guidesIndex > -1) {
+          const [guidesCategory] = newCategories.splice(guidesIndex, 1);
+          newCategories.unshift(guidesCategory);
+        }
+        setCategories(newCategories);
       }
       if (sessionId !== "") {
         getNewsSaved({}).then((res) => setSavedArticles(res.data));
@@ -140,7 +149,8 @@ export default function Article() {
     setQuery(e.target.value);
   };
 
-  const articles = selectedTab !== null ? chessNews[String(selectedTab)]?.data || [] : [];
+  const articles =
+    selectedTab !== null ? chessNews[String(selectedTab)]?.data || [] : [];
   const { currentData } = usePagination(articles);
 
   return (

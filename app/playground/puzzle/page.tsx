@@ -126,12 +126,12 @@ export default function Puzzle() {
         />
       ) : (
         <PuzzleGame
-          fenHistory={fenHistory} // FEN of the current puzzle
-          puzzleMoves={solutionHistory} // Solution moves
+          fenHistory={fenHistory} 
+          puzzleMoves={solutionHistory} 
           currentMoveIndex={currentSolutionIndex}
           setCurrentMoveIndex={setCurrentSolutionIndex}
-          isGameOver={isSolved} // Treat "solved" as game over for puzzles
-          onGameOver={() => {}} // Optional callback for when the puzzle is solved
+          isGameOver={isSolved} 
+          onGameOver={() => {}} 
           setFenHistory={setFenHistory}
           setActivePlayer={setActivePlayer}
           activePlayer={activePlayer}

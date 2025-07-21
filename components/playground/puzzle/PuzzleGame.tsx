@@ -155,7 +155,7 @@ const MobileMoveBoxes = ({
   const movesToShow = Math.max(maxMoves, 1);
 
   return (
-    <div className="sm:hidden w-full">
+    <div className="lg:hidden w-full">
       <div className="relative">
         <div className="absolute left-0 top-0 z-20">
           <div className="flex flex-col gap-1 min-w-[60px]">
@@ -315,6 +315,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setGameEnded(true);
       onGameOver();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [position, gameEnded, onGameOver]);
 
   useEffect(() => {
@@ -761,7 +762,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const cardPlayer = () => {
     return (
       <div
-        className={`flex flex-row h-[60px] md:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
+        className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
           <InitialAvatar
@@ -799,7 +800,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       <div className="flex flex-col gap-y-3">
         <motion.div
           variants={fadeInUp}
-          className="sm:hidden relative flex w-full  gap-2 px-5 py-2 border-b"
+          className="lg:hidden relative flex w-full  gap-2 px-5 py-2 border-b"
         >
           {showTooltip && (
             <RelativeTooltip onClose={() => setShowTooltip(false)} />
@@ -995,12 +996,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     );
   };
 
-  // New function to render mobile game completion section
   const renderMobileGameCompletion = () => {
     return (
       <motion.div
         variants={fadeInUp}
-        className="flex flex-col w-full gap-3 sm:hidden px-5"
+        className="flex flex-col w-full gap-3 lg:hidden px-5"
       >
         {renderCommentaryGame()}
         <div className="flex flex-row w-full items-center gap-2">
@@ -1030,7 +1030,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const firstTurn = boardOrientation == "white" ? capturedBlack : capturedWhite;
 
   return (
-    <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
+    <div className="flex flex-col xl:flex-row w-full bg-white p-0 lg:p-4 gap-2 xl:gap-4 lg:mt-8 xl:mt-0">
       <div
         className="flex flex-col w-full"
         style={{
@@ -1038,7 +1038,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             widthScreen > 1024 ? heightScreen * 0.86 : heightScreen * 0.6,
         }}
       >
-        <div className="xl:hidden flex flex-row items-center justify-between mb-2 p-4 sm:p-0 border-b">
+        <div className="xl:hidden flex flex-row items-center justify-between mb-2 p-4 lg:p-0 border-b">
           <button onClick={onBackToPuzzleInitialize}>
             <ArrowLeft color="black" size={24} />
           </button>
@@ -1059,8 +1059,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          <div className="hidden sm:block">{cardPlayer()}</div>
-          <div className="flex items-center justify-end px-5 sm:px-0 mb-2">
+          <div className="hidden lg:block">{cardPlayer()}</div>
+          <div className="flex items-center justify-end px-5 lg:px-0 mb-2">
             <ButtonBoard
               handleSwitch={handleSwitch}
               handleThreeD={handleThreeD}
@@ -1191,14 +1191,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             </div>
           </div>
 
-          {/* Mobile buttons below board (only show when game is not over) */}
           {!isGameOver && renderMobileButtons()}
           {isGameOver && (
-            <div className="sm:hidden">{renderMobileGameCompletion()}</div>
+            <div className="lg:hidden">{renderMobileGameCompletion()}</div>
           )}
 
           {/* Mobile moves section */}
-          <div className="sm:hidden px-5 py-4">
+          <div className="lg:hidden px-5 py-4">
             <MobileMoveBoxes
               capturedWhite={capturedWhite}
               capturedBlack={capturedBlack}
@@ -1207,7 +1206,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </div>
 
           {/* Mobile navigation buttons */}
-          <div className="sm:hidden px-5 flex flex-row justify-center items-center gap-2">
+          <div className="lg:hidden px-5 flex flex-row justify-center items-center gap-2 mb-4">
             <button
               disabled={currentMoveIndex === 0}
               onClick={handlePreviousMove}
@@ -1235,16 +1234,11 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               <RotateCw size={20} color="#000" />
             </button>
           </div>
-
-          {/* Mobile game completion section - banner + buttons grouped together */}
         </div>
       </div>
 
-      <div
-        style={{ maxHeight: heightBoard }}
-        className="hidden sm:flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3"
-      >
-        <div className="flex flex-row p-[16px] w-full items-center gap-2 hidden xl:flex">
+      <div className="hidden lg:flex flex-col w-full relative items-center rounded-[16px] bg-white border border-[#DEDEDE] gap-3">
+        <div className=" flex-row px-4 pt-4 w-full items-center gap-2 hidden xl:flex">
           <button onClick={onBackToPuzzleInitialize}>
             <ArrowLeft color="black" size={24} />
           </button>
@@ -1257,6 +1251,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           />
           <span className="font-semibold text-[20px]">Puzzle</span>
         </div>
+        <div className="w-full bg-[#DEDEDE] h-0.5"></div>
 
         <div className="w-[94%] mx-[16px] xl:mt-0 mt-[16px] flex flex-col gap-3">
           <div className="p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
