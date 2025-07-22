@@ -39,7 +39,6 @@ export default function Profile() {
 
     switch (status) {
       case "successSubscribe":
-        // setCallFetch(Date.now().toString());
         setOpenSuccess(true);
         break;
 
@@ -49,7 +48,6 @@ export default function Profile() {
         break;
 
       case "successToken":
-        // setCallFetch(Date.now().toString());
         setOpenPurchaseStatus(true);
         setQuantity(amount);
         setStatus("success");
