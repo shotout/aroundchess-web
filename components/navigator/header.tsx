@@ -314,8 +314,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </div>
       )}
 
-      {isDesktop &&
-        !isLoading &&
+      {isDesktop && 
         (isMember !== null || isSignedIn !== null) && (
           <div
             className={`flex ${

@@ -18,6 +18,8 @@ interface ProfileState {
   setPuzzleLog: (puzzleLog: any) => void;
   alreadyFetch: boolean;
   setAlreadyFetch: (alreadyFetch: any) => void;
+  alreadyFetchProfile: boolean;
+  setAlreadyFetchProfile: (alreadyFetch: any) => void;
   isMember: any;
   setIsMember: (isMember: any) => void;
   clearAll: () => void;
@@ -38,6 +40,8 @@ export const useProfileStore = create<ProfileState>()(
       setToken: (token) => set({ token }),
       alreadyFetch: false,
       setAlreadyFetch: (alreadyFetch) => set({ alreadyFetch }),
+      alreadyFetchProfile: false,
+      setAlreadyFetchProfile: (alreadyFetchProfile) => set({ alreadyFetchProfile }),
       sessionId: "",
       setSessionId: (sessionId) => set({ sessionId }),
       activeMembership: {},
@@ -69,6 +73,8 @@ export const useProfileStore = create<ProfileState>()(
         state?.setHydrated();
       },
       partialize: (state) => ({
+        alreadyFetch: state.alreadyFetch,
+        alreadyFetchProfile: state.alreadyFetchProfile,
         profile: state.profile,
         token: state.token,
         sessionId: state.sessionId,

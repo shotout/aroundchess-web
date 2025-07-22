@@ -14,7 +14,13 @@ export type User = {
 };
 
 export const useProfileFetch = () => {
-  const { sessionId, alreadyFetch, setAlreadyFetch } = useProfileStore();
+  const {
+    sessionId,
+    alreadyFetch,
+    setAlreadyFetch,
+    alreadyFetchProfile,
+    setAlreadyFetchProfile,
+  } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -42,16 +48,19 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
-    console.log("check hitted", alreadyFetch, sessionId);
     if (sessionId.length > 0 && alreadyFetch == false) {
+      console.log("check hitted call profile fetch", alreadyFetchProfile);
       setAlreadyFetch(true);
-      getProfile({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setProfile(data);
-          setUsername(data.username);
-        }
-      });
+      setAlreadyFetchProfile(true);
+      if (alreadyFetchProfile == false) {
+        getProfile({}).then((response) => {
+          if (response.data != null) {
+            const data = response.data;
+            setProfile(data);
+            setUsername(data.username);
+          }
+        });
+      }
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;

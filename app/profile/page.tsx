@@ -15,10 +15,12 @@ import DeleteAccount from "@/components/profile/DeleteAccount";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { usePgnStore } from "../store/zustandStore";
+import { useProfileStore } from "../store/profile";
 
 export default function Profile() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { setAlreadyFetchProfile, setAlreadyFetch } = useProfileStore();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const {
     setOpen: setOpenPurchaseStatus,
@@ -30,6 +32,8 @@ export default function Profile() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    setAlreadyFetchProfile(false);
+    setAlreadyFetch(false);
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
 
