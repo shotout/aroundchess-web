@@ -9,7 +9,6 @@ import MyAccount from "@/components/profile/MyAccount";
 import MyRemainingAnalysisTokens from "@/components/profile/MyRemainingAnalysisTokens";
 import MyRemainingPuzzle from "@/components/profile/MyRemainingPuzzle";
 import MySubscription from "@/components/profile/MySubscription";
-import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import DeleteAccount from "@/components/profile/DeleteAccount";
@@ -20,7 +19,6 @@ import { usePgnStore } from "../store/zustandStore";
 export default function Profile() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { setCallFetch } = useProfileFetch();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const {
     setOpen: setOpenPurchaseStatus,
@@ -41,7 +39,7 @@ export default function Profile() {
 
     switch (status) {
       case "successSubscribe":
-        setCallFetch(Date.now().toString());
+        // setCallFetch(Date.now().toString());
         setOpenSuccess(true);
         break;
 
@@ -51,7 +49,7 @@ export default function Profile() {
         break;
 
       case "successToken":
-        setCallFetch(Date.now().toString());
+        // setCallFetch(Date.now().toString());
         setOpenPurchaseStatus(true);
         setQuantity(amount);
         setStatus("success");
@@ -66,7 +64,6 @@ export default function Profile() {
   }, [
     searchParams,
     router,
-    setCallFetch,
     setOpenSuccess,
     setOpenPurchaseStatus,
     setQuantity,

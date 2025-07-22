@@ -42,6 +42,7 @@ export const useProfileFetch = () => {
     setIsMember,
   } = useProfileStore();
   useEffect(() => {
+    console.log("check hitted", alreadyFetch, sessionId);
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
       getProfile({}).then((response) => {

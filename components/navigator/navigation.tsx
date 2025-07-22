@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import DotSpinner from "../game-history/Spinner";
 import { useProfileFetch } from "./hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 export default function Navigation({
   children,
@@ -19,14 +20,19 @@ export default function Navigation({
   isDialogOpen?: boolean;
 }) {
   const pathname = usePathname();
-  const { sessionId, hydrated } = useProfileStore();
-  useProfileFetch();
+  const { sessionId, hydrated, setAlreadyFetch } = useProfileStore();
+  const { setCallFetch } = useProfileFetch();
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [widthSidebar, setWidthSidebar] = useState(0);
   const [widthContent, setWidthContent] = useState(0);
   const [mounted, setMounted] = useState(true);
+
+  useEffect(() => {
+    setAlreadyFetch(false);
+    setCallFetch(formatTimePgn());
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
