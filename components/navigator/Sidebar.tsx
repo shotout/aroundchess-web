@@ -130,21 +130,7 @@ const sidebarLinks: SidebarLink[] = [
       },
     ],
   },
-  // {
-  //   name: "Tournaments : (Coming Soon)",
-  //   icon: "/icons/sidebar-tournaments-icon.png",
-  //   iconActive: "/icons/sidebar-tournaments-icon-active.png",
-  //   disabled: true,
-  //   children: [
-  //     {
-  //       name: "My Teams (Coming Soon)",
-  //       href: "#",
-  //       icon: "/icons/sidebar-teams-icon.png",
-  //       iconActive: "/icons/sidebar-teams-icon-active.png",
-  //       disabled: true,
-  //     },
-  //   ],
-  // },
+ 
 ];
 
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {

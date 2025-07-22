@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 import Navigation from "@/components/navigator/navigation";
 import AnalysisLatestGame from "../../components/analysis/AnalysisLatestGame";
@@ -9,113 +11,92 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
-import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import Link from "next/link";
 
 export default function AnalysisPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
-
-  useEffect(() => {
-    const checkSession = () => {
-      if (sessionId.length > 0) {
-        setIsSignedIn(true);
-      } else {
-        setIsSignedIn(false);
-      }
-    };
-    checkSession();
-  }, [sessionId, isSignedIn]);
 
   const {
     setHideDiv,
-    hideDiv,
     isLoading,
-    setIsLoading,
     pgn,
     setPgn,
-    dataAnalysis,
     setDataAnalysis,
     hydrated,
     username,
   } = usePgnStore();
 
-  const {
-    getMistakePrevious,
-    getLastAnalysis,
-    getMistakePreviousDetail,
-    isLoading: fetchLoading,
-  } = useApiClient();
+  const { getLastAnalysis, isLoading: fetchLoading } = useApiClient();
 
-  const [lastPgn, setLastPgn] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [previousAnalyse, setPreviousAnalyse] = useState<any[]>([]);
+  const [, setIsVisible] = useState<boolean>(true);
   const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
 
-  const fetchExistAnalyze = async () => {
+  // Check authentication status
+  useEffect(() => {
+    if (hydratedProfile) {
+      setIsSignedIn(sessionId.length > 0);
+    }
+  }, [sessionId, hydratedProfile]);
+
+  // Fetch existing analysis for authenticated users
+  const fetchExistAnalysis = async () => {
     try {
       const response = await getLastAnalysis({});
       if (response.data != null) {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
-        setLoading(false);
       } else {
-        // User has no previous analysis - load example game
-        fetchPgnFamousGame();
+        // Load famous game if no existing analysis
+        await loadFamousGame();
       }
     } catch (error) {
       console.error("Error fetching analysis:", error);
-      // On error, load example game
-      fetchPgnFamousGame();
+      await loadFamousGame();
     }
   };
 
+  // Load famous game data
+  const loadFamousGame = async () => {
+    try {
+      const [resFamousGame, resAnalysis] = await Promise.all([
+        fetch("/local-data/famous-game.txt"),
+        fetch("/local-data/analysis.json")
+      ]);
+      
+      const pgnLocal = await resFamousGame.text();
+      const responseAnalysis = await resAnalysis.json();
+      
+      setPgn(pgnLocal);
+      setDataAnalysis(responseAnalysis);
+    } catch (err) {
+      console.error("Error loading famous game:", err);
+    }
+  };
+
+  // Initialize data on component mount
   useEffect(() => {
     if (hydrated && hydratedProfile) {
-      if (sessionId.length > 0 && !isLoading && username) {
-        setLoading(true);
-        fetchExistAnalyze();
-      } else if (sessionId.length === 0 && !isLoading) {
-        // Non-authenticated user - always show example game
-        setLoading(true);
-        fetchPgnFamousGame();
-      } else if (dataAnalysis != null) {
-        setLoading(false);
-        setIsLoading(false);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydratedProfile, username, sessionId]);
-
-  const fetchPgnFamousGame = async () => {
-    let arr = null;
-    try {
-      const resFamousGame = await fetch("/local-data/famous-game.txt");
-      const pgnLocal = await resFamousGame.text();
-      setPgn(pgnLocal);
-      const resAnalysis = await fetch("/local-data/analysis.json");
-      const responseAnalysis = await resAnalysis.json();
-      setDataAnalysis(responseAnalysis);
-      arr = responseAnalysis;
-      setLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      setLoading(false);
-    } finally {
-      if (arr != null) {
-        // Do nothing
+      if (isLoading) {
+        // If already loading (from button click), don't interfere
+        setInitialLoading(false);
+      } else if (isSignedIn && username) {
+        // Authenticated user - try to fetch their latest analysis
+        fetchExistAnalysis().finally(() => setInitialLoading(false));
       } else {
-        setIsLoading(false);
-        setLoading(false);
+        // Non-authenticated user or no username - show famous game
+        loadFamousGame().finally(() => setInitialLoading(false));
       }
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydratedProfile, hydrated, isSignedIn, username, isLoading]);
 
+  // Handle scroll behavior
   useEffect(() => {
     setWidthC(window?.innerWidth);
-    setIsLoading(false);
+    
     const handleScroll = () => {
       if (window?.innerWidth <= 1024) {
         if (window?.scrollY > lastScrollY) {
@@ -132,93 +113,91 @@ export default function AnalysisPage() {
           setIsVisible(true);
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       lastScrollY = window.scrollY;
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY, setHideDiv]);
+  }, [setHideDiv]);
+
+  // Show loading page if actively loading or initial loading
+  if (isLoading || initialLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="min-h-screen">
-      {isLoading ? (
-        <LoadingPage />
-      ) : (
-        <div className="flex overflow-hidden bg-primary-white">
-          <div className="flex flex-col overflow-y-auto w-full">
-            <Navigation>
-              <div className="w-full space-y-4">
-                <ChessAccountSetup isLoading={isLoading} />
+      <div className="flex overflow-hidden bg-primary-white">
+        <div className="flex flex-col overflow-y-auto w-full">
+          <Navigation>
+            <div className="w-full space-y-4">
+              <ChessAccountSetup isLoading={false} />
 
-                <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
-                  <div
-                    className={`flex flex-col space-y-4`}
-                  >
-                    <div className="space-y-2 pt-4">
-                      <h2 className="text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
-                        Analysis Result from{" "}
-                        <span className="text-[#4E7838] font-medium">
-                          Chess.com
-                        </span>
-                      </h2>
-
-                      {isSignedIn && widthC <= 1024 && !loading && username && (
-                        <div className="lg:hidden flex items-center justify-center my-2">
-                          <Link
-                            href="/my-game-history"
-                            className="w-fill px-5 py-2 btn-primary rounded-full"
-                          >
-                            Analyze a different game
-                          </Link>
-                        </div>
-                      )}
-
-                      <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
-                        Discover a Chess.com Game Analysis.
+              <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
+                <div className={`flex flex-col space-y-4`}>
+                  <div className="space-y-2 pt-4">
+                    <h2 className="text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
+                      Analysis Result from{" "}
+                      <span className="text-[#4E7838] font-medium">
+                        Chess.com
                       </span>
-                    </div>
+                    </h2>
 
-                    <div className="hidden xl:flex flex-row items-center justify-between space-x-4">
-                      <div
-                        className={`hidden lg:block ${
-                          !isSignedIn ? `w-4/5` : `w-3/5`
-                        } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
-                      >
-                        Our AI-powered chess analysis provides deep insights
-                        into positional and tactical aspects of a game. It
-                        evaluates piece coordination, pawn structure, king
-                        safety, and overall positional advantages, helping
-                        players understand strategic strengths and weaknesses.
-                      </div>
-
-                      {isSignedIn && widthC > 1024 && !loading && username && (
+                    {isSignedIn && widthC <= 1024 && username && (
+                      <div className="lg:hidden flex items-center justify-center my-2">
                         <Link
                           href="/my-game-history"
                           className="w-fill px-5 py-2 btn-primary rounded-full"
                         >
                           Analyze a different game
                         </Link>
-                      )}
-                    </div>
+                      </div>
+                    )}
+
+                    <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
+                      Discover a Chess.com Game Analysis.
+                    </span>
                   </div>
 
-                  {(fetchLoading && pgn.length == 0) || loading ? (
-                    <div className="py-4">
-                      <DotSpinner />
+                  <div className="hidden xl:flex flex-row items-center justify-between space-x-4">
+                    <div
+                      className={`hidden lg:block ${
+                        !isSignedIn ? `w-4/5` : `w-3/5`
+                      } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
+                    >
+                      Our AI-powered chess analysis provides deep insights
+                      into positional and tactical aspects of a game. It
+                      evaluates piece coordination, pawn structure, king
+                      safety, and overall positional advantages, helping
+                      players understand strategic strengths and weaknesses.
                     </div>
-                  ) : (
-                    <div className="flex flex-col xl:flex-row-reverse gap-4 justify-center py-4">
-                      <AnalysisResult />
-                      <AnalysisLatestGame />
-                    </div>
-                  )}
+
+                    {isSignedIn && widthC > 1024 && username && (
+                      <Link
+                        href="/my-game-history"
+                        className="w-fill px-5 py-2 btn-primary rounded-full"
+                      >
+                        Analyze a different game
+                      </Link>
+                    )}
+                  </div>
                 </div>
+
+                {fetchLoading && pgn.length === 0 ? (
+                  <div className="py-4">
+                    <DotSpinner />
+                  </div>
+                ) : (
+                  <div className="flex flex-col xl:flex-row-reverse gap-4 justify-center py-4">
+                    <AnalysisResult />
+                    <AnalysisLatestGame />
+                  </div>
+                )}
               </div>
-            </Navigation>
-          </div>
+            </div>
+          </Navigation>
         </div>
-      )}
+      </div>
     </div>
   );
 }

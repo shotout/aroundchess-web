@@ -163,7 +163,7 @@ export default function Navigation({
         </div>
 
         <AnimatePresence mode="wait">
-          {!isDesktop && isSidebarOpen && sessionId.length > 0 && (
+          {!isDesktop && isSidebarOpen && (
             <>
               <motion.div
                 className="fixed inset-0 bg-black/50 z-50"
