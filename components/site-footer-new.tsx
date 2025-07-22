@@ -234,7 +234,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <Image
                   src="/images/footer/discord.png"
                   alt="discord"
-                  className="w-7 h-7"
+                  className="w-7 h-7 cursor-pointer"
                   width={600}
                   height={600}
                 />
@@ -247,7 +247,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <Image
                   src="/images/footer/facebook.png"
                   alt="facebook"
-                  className="w-7 h-7"
+                  className="w-7 h-7 cursor-pointer"
                   width={600}
                   height={600}
                 />
@@ -260,7 +260,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <Image
                   src="/images/footer/instagram.png"
                   alt="instagram"
-                  className="w-7 h-7"
+                  className="w-7 h-7 cursor-pointer"
                   width={600}
                   height={600}
                 />
@@ -273,7 +273,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 <Image
                   src="/images/footer/twitter.png"
                   alt="twitter"
-                  className="w-7 h-7"
+                  className="w-7 h-7 cursor-pointer"
                   width={600}
                   height={600}
                 />

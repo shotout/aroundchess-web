@@ -2,7 +2,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
 import { useSuccessSubscription } from "@/app/store/successSubscription";
-import { useApiClient } from "@/functions/api-client";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
@@ -12,16 +12,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogOverlay,
   DialogPortal,
   DialogTitle,
 } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
 import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
-import { useRouter } from "next/navigation";
-import { useConfirmLogin } from "@/app/store/confirmLogin";
+import { useApiClient } from "@/functions/api-client";
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 interface TokenOption {
@@ -32,8 +30,6 @@ interface TokenOption {
 
 export const PricingOffer: React.FC = () => {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
-
-  const router = useRouter();
   const arrNumber = [12, 78, 50, 99, 15];
 
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
@@ -41,13 +37,15 @@ export const PricingOffer: React.FC = () => {
   const [index, setIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-
   const [pricePerToken, setPricePerToken] = useState<string>("0.99");
   const [totalPrice, setTotalPrice] = useState<string>("0.99");
   const [activeTab, setActiveTab] = useState("tokens");
-  const { open, setOpen, tabType } = usePricingOffer();
-  const { postPurchaseToken, isLoading } = useApiClient();
   const [loading, setLoading] = useState<boolean>(false);
+  const [widthC, setWidthC] = useState<number>(0);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  const { open, setOpen, tabType } = usePricingOffer();
+  const { isLoading } = useApiClient();
   const {
     tokenPackage,
     profile,
@@ -55,65 +53,59 @@ export const PricingOffer: React.FC = () => {
     token,
     activeMembership,
     setTokenPackage,
+    sessionId,
   } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
     useSuccessSubscription();
+  const {
+    setOpen: setOpenStatusPurchase,
+    setStatus,
+    setQuantity,
+  } = useStatusPurchaseTokens();
+
   const deadlineToken =
     activeMembership?.lastAnalysisDate != null
       ? new Date(activeMembership?.lastAnalysisDate).getTime() +
         3 * 24 * 60 * 60 * 1000
       : Date.now() + 24 * 60 * 60 * 1000;
-  const deadlineDiscount =
-    new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
-  const isPassToken = deadlineToken - Date.now();
-  const isPassDiscount = deadlineDiscount - Date.now();
-  const {
-    setOpen: setOpenStatusPurchase,
-    status,
-    setStatus,
-    setQuantity,
-  } = useStatusPurchaseTokens();
-  const { sessionId } = useProfileStore();
-  const [widthC, setWidthC] = useState<number>(0);
-  const [mounted, setMounted] = useState<boolean>(false);
 
   const tokenOptions: TokenOption[] = [
     { amount: 1, price: 0.99, pricePerToken: 0.99 },
     { amount: 5, price: 4.45, pricePerToken: 0.89 },
-    { amount: 10, price: 7.9, pricePerToken: 0.79 },
+    { amount: 10, price: 7.90, pricePerToken: 0.79 },
     { amount: 25, price: 16.25, pricePerToken: 0.65 },
-    { amount: 50, price: 30.0, pricePerToken: 0.6 },
+    { amount: 50, price: 30.00, pricePerToken: 0.60 },
   ];
+
   const fetchTokenPackageLocal = async () => {
     const resTokenPackage = await fetch("/local-data/token-package.json");
     const response = await resTokenPackage.json();
-
     setTokenPackage(response);
   };
+
   useEffect(() => {
+    setMounted(true);
     setWidthC(window?.innerWidth);
     fetchTokenPackageLocal();
-
     setOpen(open);
   }, [open]);
+
   useEffect(() => {
     setActiveTab(tabType);
   }, [tabType]);
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
-
-    // Initial size calculation
     handleResize();
-
-    // Add event listeners
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
+
   const handleResize = () => {
     const width = window?.innerWidth;
-    console.log("width", width);
     setWidthC(width);
   };
+
   const handleGetPremium = () => {
     if (sessionId.length == 0) {
       setOpenConfirmLogin(true);
@@ -124,6 +116,7 @@ export const PricingOffer: React.FC = () => {
       setOpenSuccessSubscription(true);
     }
   };
+
   const handlePurchaseToken = async () => {
     if (sessionId.length == 0) {
       setOpenConfirmLogin(true);
@@ -137,14 +130,7 @@ export const PricingOffer: React.FC = () => {
         selectedToken != null && selectedToken != 5
           ? tokenOptions[selectedToken].pricePerToken * 100
           : parseFloat(pricePerToken) * 100;
-      console.log("totalPrice", parseFloat(totalPrice));
-      console.log("body", selectedToken, {
-        productName: tokenAmount + " tokens",
-        price: parseFloat(price.toFixed(2)),
-        quantity: parseInt(tokenAmount.toString()),
-        type: "token",
-        idUser: profile.id,
-      });
+
       const res = await fetch("/api/stripe/checkout_sessions", {
         method: "POST",
         body: JSON.stringify({
@@ -157,13 +143,9 @@ export const PricingOffer: React.FC = () => {
       });
 
       const data = await res.json();
-
-      // if (data.url) {
-      //   window.open(data.url, "_blank"); // Opens in a new tab
-      // }
       const stripe = await stripePromise;
       await stripe?.redirectToCheckout({ sessionId: data.id });
-      // send to backend
+
       setLoading(false);
       setQuantity(parseInt(tokenAmount.toString()));
       setStatus("waiting");
@@ -172,6 +154,7 @@ export const PricingOffer: React.FC = () => {
       handleStop();
     }
   };
+
   const startInterval = (): void => {
     if (tokenPackage.length > 0 && intervalRef.current == null) {
       intervalRef.current = setInterval(() => {
@@ -182,8 +165,8 @@ export const PricingOffer: React.FC = () => {
       }, 1000);
     }
     setIsRunning(true);
-    // Cleanup function is not needed here, so just return void
   };
+
   const handleStop = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -191,7 +174,7 @@ export const PricingOffer: React.FC = () => {
       setIsRunning(false);
     }
   };
-  // Store index in a ref so setInterval always gets the latest value
+
   const indexRef = useRef(index);
   useEffect(() => {
     indexRef.current = index;
@@ -202,16 +185,17 @@ export const PricingOffer: React.FC = () => {
     }
   }, [tokenPackage, index]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
+
   const handleOnChange = (e: any) => {
     const value = parseInt(e.target.value);
     handleOnChangePrice(value);
   };
+
   const handleOnChangePrice = (value: number) => {
     const conditionedValue =
       value > 100 ? 100 : isNaN(value) ? 0 : value < 0 ? 0 : value;
@@ -220,10 +204,10 @@ export const PricingOffer: React.FC = () => {
       const dataPrice = tokenPackage.find(
         (price: any) => price.quantity == conditionedValue
       );
-      const perToken = dataPrice.pricePerToken;
-      const totalPrice = dataPrice.totalPrice;
-      setPricePerToken(perToken);
-      setTotalPrice(totalPrice);
+      const perToken = parseFloat(dataPrice.pricePerToken);
+      const totalPriceValue = parseFloat(dataPrice.totalPrice);
+      setPricePerToken(perToken.toFixed(2));
+      setTotalPrice(totalPriceValue.toFixed(2));
     } else {
       setPricePerToken("0.00");
       setTotalPrice("0.00");
@@ -238,7 +222,6 @@ export const PricingOffer: React.FC = () => {
             backgroundImage: `url(/images/pricing/${
               widthC < 768 ? `bg-mobile` : `bg-laptop`
             }.png)`,
-
             backgroundSize: "cover",
             backgroundPosition: "center",
             height: activeTab == "tokens" ? "auto" : "auto",
@@ -261,9 +244,7 @@ export const PricingOffer: React.FC = () => {
             <CountdownTimerToken />
           )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div
-            
-            >
+            <div>
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
@@ -309,7 +290,7 @@ export const PricingOffer: React.FC = () => {
                       <span className="block">Go Unlimited</span>
                       <span className="block">with a Subscription</span>
                     </span>
-                     <span className="sm:block leading-tight text-center hidden">
+                    <span className="sm:block leading-tight text-center hidden">
                       <span className="block">Go Unlimited with a Subscription</span>
                     </span>
                   </div>
@@ -412,7 +393,6 @@ export const PricingOffer: React.FC = () => {
                       </div>
                     ))}
 
-                    {/* Custom Amount Input */}
                     <div
                       className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
                         selectedToken === 5 ? "border-4 border-[#221AE9]" : " "
@@ -532,5 +512,3 @@ export const PricingOffer: React.FC = () => {
     </Dialog>
   );
 };
-
-

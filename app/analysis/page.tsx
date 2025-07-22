@@ -15,11 +15,10 @@ import Link from "next/link";
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [_, setInitialLoading] = useState(true);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
 
   const {
-    setHideDiv,
     isLoading,
     pgn,
     setPgn,
@@ -30,25 +29,20 @@ export default function AnalysisPage() {
 
   const { getLastAnalysis, isLoading: fetchLoading } = useApiClient();
 
-  const [, setIsVisible] = useState<boolean>(true);
   const [widthC, setWidthC] = useState<number>(0);
-  let lastScrollY = 0;
 
-  // Set mounted to true on client side
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Check authentication status
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (hydratedProfile) {
       setIsSignedIn(sessionId.length > 0);
     }
   }, [mounted, sessionId, hydratedProfile]);
 
-  // Fetch existing analysis for authenticated users
   const fetchExistAnalysis = async () => {
     try {
       const response = await getLastAnalysis({});
@@ -64,17 +58,16 @@ export default function AnalysisPage() {
     }
   };
 
-  // Load famous game data
   const loadFamousGame = async () => {
     try {
       const [resFamousGame, resAnalysis] = await Promise.all([
         fetch("/local-data/famous-game.txt"),
-        fetch("/local-data/analysis.json")
+        fetch("/local-data/analysis.json"),
       ]);
-      
+
       const pgnLocal = await resFamousGame.text();
       const responseAnalysis = await resAnalysis.json();
-      
+
       setPgn(pgnLocal);
       setDataAnalysis(responseAnalysis);
     } catch (err) {
@@ -82,10 +75,9 @@ export default function AnalysisPage() {
     }
   };
 
-  // Initialize data on component mount
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (hydrated && hydratedProfile) {
       if (isLoading) {
         setInitialLoading(false);
@@ -95,45 +87,15 @@ export default function AnalysisPage() {
         loadFamousGame().finally(() => setInitialLoading(false));
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, hydratedProfile, hydrated, isSignedIn, username, isLoading]);
 
-  // Window-dependent effects
   useEffect(() => {
     if (!mounted) return;
-    
     setWidthC(window.innerWidth);
-    
-    const handleScroll = () => {
-      if (window.innerWidth <= 1024) {
-        if (window.scrollY > lastScrollY) {
-          setHideDiv(true);
-          setIsVisible(false);
-        } else if (window.scrollY === 0) {
-          setHideDiv(false);
-          setIsVisible(true);
-        }
-      } else {
-        if (window.scrollY > lastScrollY) {
-          setIsVisible(false);
-        } else if (window.scrollY === 0) {
-          setIsVisible(true);
-        }
-      }
-      lastScrollY = window.scrollY;
-    };
+  }, [mounted]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [mounted, setHideDiv]);
-
-  // Show loading or empty div until mounted
-  if (!mounted) {
-    return <div className="min-h-screen bg-primary-white" />;
-  }
-
-  // Show loading page if actively loading or initial loading
-  if (isLoading || initialLoading) {
+  if (isLoading) {
     return <LoadingPage />;
   }
 
@@ -177,11 +139,11 @@ export default function AnalysisPage() {
                         !isSignedIn ? `w-4/5` : `w-3/5`
                       } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
                     >
-                      Our AI-powered chess analysis provides deep insights
-                      into positional and tactical aspects of a game. It
-                      evaluates piece coordination, pawn structure, king
-                      safety, and overall positional advantages, helping
-                      players understand strategic strengths and weaknesses.
+                      Our AI-powered chess analysis provides deep insights into
+                      positional and tactical aspects of a game. It evaluates
+                      piece coordination, pawn structure, king safety, and
+                      overall positional advantages, helping players understand
+                      strategic strengths and weaknesses.
                     </div>
 
                     {isSignedIn && widthC > 1024 && username && (
@@ -200,9 +162,13 @@ export default function AnalysisPage() {
                     <DotSpinner />
                   </div>
                 ) : (
-                  <div className="flex flex-col xl:flex-row-reverse gap-4 justify-center py-4">
-                    <AnalysisResult />
-                    <AnalysisLatestGame />
+                  <div className="flex flex-col xl:flex-row-reverse gap-4 xl:gap-x-6 justify-center py-4 max-w-full overflow-hidden">
+                    <div className="flex-shrink-0">
+                      <AnalysisResult />
+                    </div>
+                    <div className="flex-shrink-1 min-w-0">
+                      <AnalysisLatestGame />
+                    </div>
                   </div>
                 )}
               </div>
