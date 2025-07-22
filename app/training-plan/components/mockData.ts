@@ -40,8 +40,6 @@ export interface WeekDay {
   name: string;
 }
 
-
-
 export const skillLevelsData: SkillLevel[] = [
   {
     id: "novice",
@@ -117,7 +115,6 @@ export const trainingPlanKeyInfo = {
   approximateDuration: "6-9 Months"
 };
 
-// Topic Category Info
 export const topicCategoryInfo = [
   {
     id: "opening",
@@ -152,15 +149,3 @@ export const topicCategoryInfo = [
     subcategories: []
   }
 ];
-
-
-
-
-
-// Fallback progress data (now coming from API, but kept for compatibility)
-export const progressData = {
-  currentLevel: "Beginner",
-  currentElo: 1000,
-  accuracyPercentage: 85,
-  accuracyImprovement: 5
-};

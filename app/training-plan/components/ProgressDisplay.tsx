@@ -28,11 +28,105 @@ import {
   TriangleAlert,
   TriangleAlertIcon,
   Trophy,
+  Info,
 } from "lucide-react";
 import { useProgressStore } from "../store";
 import Image from "next/image";
-import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
 import { useProfileStore } from "@/app/store/profile";
+
+// Reusable Tooltip Component
+const Tooltip = ({
+  children,
+  content,
+}: {
+  children: React.ReactNode;
+  content: string;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setIsVisible(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setIsVisible(false);
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isMobile) {
+      e.stopPropagation();
+      setIsVisible(!isVisible);
+    }
+  };
+
+  // Close tooltip when clicking outside on mobile
+  useEffect(() => {
+    if (isMobile && isVisible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element;
+        if (!target.closest("[data-tooltip-container]")) {
+          setIsVisible(false);
+        }
+      };
+
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [isMobile, isVisible]);
+
+  return (
+    <div
+      className="relative inline-block"
+      data-tooltip-container
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
+      {children}
+      {isVisible && (
+        <div
+          className={`
+            absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg
+            ${
+              isMobile
+                ? "bottom-8 left-1/2 transform -translate-x-1/2 w-72 max-w-[90vw]"
+                : "-top-12 left-1/2 transform -translate-x-1/2 w-64 md:w-80"
+            }
+          `}
+        >
+          <div className="text-center leading-relaxed">{content}</div>
+          {/* Arrow */}
+          <div
+            className={`
+              absolute left-1/2 transform -translate-x-1/2 border-4 border-transparent
+              ${
+                isMobile
+                  ? "top-full border-t-gray-800"
+                  : "top-full border-t-gray-800"
+              }
+            `}
+          ></div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Skeleton Components for Progress Display
 const OverallImprovementSkeleton = () => (
@@ -324,7 +418,15 @@ const ProgressDisplay = () => {
       ) : (
         <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <CardContent className="p-4 flex flex-col gap-y-4">
-            <h2 className="text-2xl font-bold">Overall Improvement</h2>
+            <div className="flex items-center gap-x-2">
+              <h2 className="text-2xl font-bold">Overall Improvement</h2>
+              <Tooltip content="Track your chess improvement over time. This section shows your current skill level, rating, and accuracy improvements to help you understand your progress.">
+                <Info
+                  className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
+                  strokeWidth={1.5}
+                />
+              </Tooltip>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-3 lg:p-6 relative overflow-hidden">
@@ -387,9 +489,17 @@ const ProgressDisplay = () => {
           ) : (
             <div className="border-none rounded-lg overflow-hidden">
               <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold">Your Progress</h3>
-                  <p className="text-base">Your ELO Rating Progress</p>
+                <div className="flex items-center gap-x-2">
+                  <div>
+                    <h3 className="text-xl font-bold">Your Progress</h3>
+                    <p className="text-base">Your ELO Rating Progress</p>
+                  </div>
+                  <Tooltip content="This chart shows your ELO rating progression throughout the selected month. Track how your rating changes week by week to see your improvement patterns.">
+                    <Info
+                      className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
+                      strokeWidth={1.5}
+                    />
+                  </Tooltip>
                 </div>
                 <Select value={displayMonth} onValueChange={handleMonthChange}>
                   <SelectTrigger className="w-[180px]">
@@ -475,9 +585,17 @@ const ProgressDisplay = () => {
             <ChartSkeleton title="Weekly Training Distribution" />
           ) : (
             <div className="overflow-hidden">
-              <h3 className="text-xl font-bold mb-1">
-                Weekly Training Distribution
-              </h3>
+              <div className="flex items-center gap-x-2 mb-1">
+                <h3 className="text-xl font-bold">
+                  Weekly Training Distribution
+                </h3>
+                <Tooltip content="See how your training time is distributed across different chess areas: Openings, Middlegame, Endgame, and Tactics. This helps you understand where you're focusing your study efforts.">
+                  <Info
+                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
+                    strokeWidth={1.5}
+                  />
+                </Tooltip>
+              </div>
               <p className="text-base mb-4">Minutes to invest per Topic</p>
               {trainingData.length === 0 ? (
                 <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
@@ -551,14 +669,22 @@ const ProgressDisplay = () => {
             <RecentGamesSkeleton />
           ) : (
             <div className="rounded-lg">
-              <h1 className="text-lg font-bold mb-2">
-                Recent Games{" "}
-                <span className="text-sm font-normal text-gray-500">
-                  {formattedRecentGames.length > 0
-                    ? `(Last ${formattedRecentGames.length} games)`
-                    : ""}
-                </span>
-              </h1>
+              <div className="flex items-center gap-x-2 mb-2">
+                <h1 className="text-lg font-bold">
+                  Recent Games{" "}
+                  <span className="text-sm font-normal text-gray-500">
+                    {formattedRecentGames.length > 0
+                      ? `(Last ${formattedRecentGames.length} games)`
+                      : ""}
+                  </span>
+                </h1>
+                <Tooltip content="Your most recent chess games with detailed analysis including accuracy, moves quality, and performance metrics. Review these to identify improvement areas.">
+                  <Info
+                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
+                    strokeWidth={1.5}
+                  />
+                </Tooltip>
+              </div>
 
               {formattedRecentGames.length === 0 ? (
                 <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
@@ -673,7 +799,15 @@ const ProgressDisplay = () => {
           ) : (
             <div>
               <div className="flex flex-col lg:flex-row lg:items-center gap-x-2 mb-2">
-                <h1 className="text-lg font-bold">Performance Trends</h1>
+                <div className="flex items-center gap-x-2">
+                  <h1 className="text-lg font-bold">Performance Trends</h1>
+                  <Tooltip content="Performance metrics show your improvement over the last 7 days. Green indicates positive trends, while other colors show areas that need attention. Games Won and ELO Rating increases are good, while fewer Mistakes and Blunders indicate better play.">
+                    <Info
+                      className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
+                      strokeWidth={1.5}
+                    />
+                  </Tooltip>
+                </div>
                 <h1 className="text-sm text-gray-500">
                   (Last 7 days improvement)
                 </h1>

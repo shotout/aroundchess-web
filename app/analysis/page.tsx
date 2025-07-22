@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 "use client";
+
 import Navigation from "@/components/navigator/navigation";
 import AnalysisLatestGame from "../../components/analysis/AnalysisLatestGame";
 import AnalysisResult from "../../components/analysis/AnalysisResult";
@@ -14,6 +13,7 @@ import { useProfileStore } from "../store/profile";
 import Link from "next/link";
 
 export default function AnalysisPage() {
+  const [mounted, setMounted] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
@@ -34,12 +34,19 @@ export default function AnalysisPage() {
   const [widthC, setWidthC] = useState<number>(0);
   let lastScrollY = 0;
 
+  // Set mounted to true on client side
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Check authentication status
   useEffect(() => {
+    if (!mounted) return;
+    
     if (hydratedProfile) {
       setIsSignedIn(sessionId.length > 0);
     }
-  }, [sessionId, hydratedProfile]);
+  }, [mounted, sessionId, hydratedProfile]);
 
   // Fetch existing analysis for authenticated users
   const fetchExistAnalysis = async () => {
@@ -49,7 +56,6 @@ export default function AnalysisPage() {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
       } else {
-        // Load famous game if no existing analysis
         await loadFamousGame();
       }
     } catch (error) {
@@ -78,28 +84,29 @@ export default function AnalysisPage() {
 
   // Initialize data on component mount
   useEffect(() => {
+    if (!mounted) return;
+    
     if (hydrated && hydratedProfile) {
       if (isLoading) {
-        // If already loading (from button click), don't interfere
         setInitialLoading(false);
       } else if (isSignedIn && username) {
-        // Authenticated user - try to fetch their latest analysis
         fetchExistAnalysis().finally(() => setInitialLoading(false));
       } else {
-        // Non-authenticated user or no username - show famous game
         loadFamousGame().finally(() => setInitialLoading(false));
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydratedProfile, hydrated, isSignedIn, username, isLoading]);
+  }, [mounted, hydratedProfile, hydrated, isSignedIn, username, isLoading]);
 
-  // Handle scroll behavior
+  // Window-dependent effects
   useEffect(() => {
-    setWidthC(window?.innerWidth);
+    if (!mounted) return;
+    
+    setWidthC(window.innerWidth);
     
     const handleScroll = () => {
-      if (window?.innerWidth <= 1024) {
-        if (window?.scrollY > lastScrollY) {
+      if (window.innerWidth <= 1024) {
+        if (window.scrollY > lastScrollY) {
           setHideDiv(true);
           setIsVisible(false);
         } else if (window.scrollY === 0) {
@@ -109,7 +116,7 @@ export default function AnalysisPage() {
       } else {
         if (window.scrollY > lastScrollY) {
           setIsVisible(false);
-        } else if (window.scrollY == 0) {
+        } else if (window.scrollY === 0) {
           setIsVisible(true);
         }
       }
@@ -118,7 +125,12 @@ export default function AnalysisPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [setHideDiv]);
+  }, [mounted, setHideDiv]);
+
+  // Show loading or empty div until mounted
+  if (!mounted) {
+    return <div className="min-h-screen bg-primary-white" />;
+  }
 
   // Show loading page if actively loading or initial loading
   if (isLoading || initialLoading) {
