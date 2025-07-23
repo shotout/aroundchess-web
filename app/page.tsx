@@ -27,9 +27,8 @@ export default function Home() {
   const [isRedirecting, setIsRedirecting] = useState(() =>
     checkForAccessToken()
   );
-  const { getActiveMembership, getTokenPackage } = useApiClient();
-  const { sessionId, setActiveMembership, setIsMember, setTokenPackage } =
-    useProfileStore();
+
+  const { sessionId, setAlreadyFetch } = useProfileStore();
   const hasRun = useRef(false);
 
   useLayoutEffect(() => {
@@ -47,19 +46,7 @@ export default function Home() {
     if (sessionId && sessionId !== "") {
       if (hasRun.current) return;
       hasRun.current = true;
-
-      getTokenPackage({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setTokenPackage(data);
-        }
-      });
-
-      getActiveMembership({}).then((response) => {
-        const data = response.data;
-        setIsMember(data.status === "ACTIVE");
-        setActiveMembership(data);
-      });
+      setAlreadyFetch(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
