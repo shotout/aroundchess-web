@@ -89,16 +89,9 @@ const GamesList: React.FC<GamesListProps> = ({
 }) => {
   const router = useRouter();
   const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport, dataAnalysis } =
+  const { setPgn, setDataAnalysis, setDataGamesImport } =
     usePgnStore();
   const { sessionId } = useProfileStore();
-
-  const [gamesWithAnalysis, setGamesWithAnalysis] = useState<
-    Map<string | number, any>
-  >(new Map());
-  const [checkingAnalysis, setCheckingAnalysis] = useState<
-    Set<string | number>
-  >(new Set());
 
   const isNewlyImported = (id: string | number) =>
     recentlyImportedIds.includes(id);
@@ -109,100 +102,52 @@ const GamesList: React.FC<GamesListProps> = ({
     clearOldJobs();
   }, [clearOldJobs]);
 
-  useEffect(() => {
-    const checkExistingAnalysis = async () => {
-      for (const game of currentGames) {
-        if (game.isAnalysis || gamesWithAnalysis.has(game.id)) {
-          continue;
-        }
 
+ const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
+  const job = getJobByGameId(gameId);
+
+  if (game.isAnalysis || (job && job.status === "completed")) {
+    return {
+      text: "View Results",
+      icon: <CheckCircle className="h-4 w-4 mr-1" />,
+      className: "bg-green-600 hover:bg-green-700 text-white",
+      onClick: async () => {
         try {
-          setCheckingAnalysis((prev) => new Set(prev).add(game.id));
-
-          const pgnHash = await createPgnHash(game.pgn);
+          const pgnHash = createPgnHash(game.pgn);
           const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-
-          // Updated condition to match new API structure
+          
           if (lastAnalysis?.success && lastAnalysis.data) {
-            setGamesWithAnalysis((prev) =>
-              new Map(prev).set(game.id, lastAnalysis.data)
-            );
-          }
-        } catch (error) {
-          console.error(`Error checking analysis for game ${game.id}:`, error);
-        } finally {
-          setCheckingAnalysis((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(game.id);
-            return newSet;
-          });
-        }
-      }
-    };
-
-    if (currentGames.length > 0) {
-      checkExistingAnalysis();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentGames, gamesWithAnalysis]);
-
-  const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
-    const existingAnalysis = gamesWithAnalysis.get(gameId);
-    const isCheckingForAnalysis = checkingAnalysis.has(gameId);
-
-    if (game.isAnalysis || existingAnalysis) {
-      return {
-        text: "View Results",
-        icon: <CheckCircle className="h-4 w-4 mr-1" />,
-        className: "bg-green-600 hover:bg-green-700 text-white",
-        onClick: async () => {
-          if (existingAnalysis) {
-            setPgn(game.pgn);
+            setPgn(game.pgn); 
             setDataGamesImport(game);
-            setDataAnalysis(existingAnalysis);
+            setDataAnalysis(lastAnalysis.data);
             router.push("/analysis");
           } else {
-            try {
-              const pgnHash = createPgnHash(game.pgn);
-              const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-
-              // Updated condition to match new API structure
-              if (lastAnalysis?.success && lastAnalysis.data) {
-                setPgn(dataAnalysis?.gameInfo.pgn);
-                setDataGamesImport(game);
-                setDataAnalysis(lastAnalysis.data); 
-                router.push("/analysis");
-              } else {
-                console.error("No analysis found for this game");
-                setOpenGameId(gameId);
-              }
-            } catch (error) {
-              console.error("Error fetching analysis:", error);
+            if (job && job.result) {
+              setPgn(game.pgn);
+              setDataGamesImport(game);
+              setDataAnalysis(job.result);
+              router.push("/analysis");
+            } else {
+              console.error("No analysis found for this game");
+              setOpenGameId(gameId);
             }
           }
-        },
-      };
-    }
+        } catch (error) {
+          console.error("Error fetching analysis:", error);
+          if (job && job.result) {
+            setPgn(game.pgn);
+            setDataGamesImport(game);
+            setDataAnalysis(job.result);
+            router.push("/analysis");
+          } else {
+            setOpenGameId(gameId);
+          }
+        }
+      },
+    };
+  }
 
-    if (isCheckingForAnalysis) {
-      return {
-        text: "Checking...",
-        icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-        className: "bg-gray-400 text-white",
-        onClick: () => {},
-      };
-    }
-
-    const job = getJobByGameId(gameId);
-    if (!job) {
-      return {
-        text: "Analyze",
-        icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
-        className: "btn-primary text-white",
-        onClick: () => setOpenGameId(gameId),
-      };
-    }
-
+  if (job) {
     switch (job.status) {
       case "pending":
       case "processing": {
@@ -222,20 +167,6 @@ const GamesList: React.FC<GamesListProps> = ({
           className: "bg-blue-500 hover:bg-blue-600 text-white",
           onClick: () => {},
         };
-      case "completed":
-        return {
-          text: "View Results",
-          icon: <CheckCircle className="h-4 w-4 mr-1" />,
-          className: "bg-green-600 hover:bg-green-700 text-white",
-          onClick: () => {
-            if (job.result) {
-              setPgn(game.pgn);
-              setDataGamesImport(game);
-              setDataAnalysis(job.result);
-              router.push("/analysis");
-            }
-          },
-        };
       case "failed":
         return {
           text: "Retry",
@@ -243,15 +174,16 @@ const GamesList: React.FC<GamesListProps> = ({
           className: "bg-red-600 hover:bg-red-700 text-white",
           onClick: () => setOpenGameId(gameId),
         };
-      default:
-        return {
-          text: "Analyze",
-          icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
-          className: "btn-primary text-white",
-          onClick: () => setOpenGameId(gameId),
-        };
     }
+  }
+
+  return {
+    text: "Analyze",
+    icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+    className: "btn-primary text-white",
+    onClick: () => setOpenGameId(gameId),
   };
+};
 
   const displayTimeControl = (tc: string) => {
     if (!tc.trim()) {
