@@ -1,5 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAnalyticsData } from "../../hooks/useAnalyticsData";
 import PerformanceInsightsSection from "./Analytics/PerformanceInsights";
 import RatingProgressChart from "./Analytics/RatingProgressChart";
@@ -9,7 +15,112 @@ import KeyStatisticsSection from "./Analytics/KeyStatistics";
 import TimeControlPerformance from "./Analytics/TimeControlPerformance";
 import RecentAchievements from "./Analytics/RecentAchievement";
 
-// Skeleton components for partial loading
+const MobileTooltip = ({
+  children,
+  content,
+  side = "left",
+}: {
+  children: React.ReactNode;
+  content: string;
+  side?: "left" | "right" | "top" | "bottom";
+}) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  React.useEffect(() => {
+    if (isMobile && isVisible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element;
+        if (!target.closest("[data-mobile-tooltip]")) {
+          setIsVisible(false);
+        }
+      };
+
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener("click", handleClickOutside);
+      };
+    }
+  }, [isMobile, isVisible]);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isMobile) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsVisible(!isVisible);
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <div className="relative inline-block" data-mobile-tooltip>
+        <button
+          onClick={handleClick}
+          className="p-1 -m-1 touch-manipulation"
+          type="button"
+        >
+          {children}
+        </button>
+        {isVisible && (
+          <div
+            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg w-72 max-w-[90vw] ${
+              side === "left"
+                ? "right-0 top-8"
+                : side === "right"
+                ? "left-0 top-8"
+                : side === "top"
+                ? "bottom-8 left-1/2 transform -translate-x-1/2"
+                : "top-8 left-1/2 transform -translate-x-1/2"
+            }`}
+          >
+            <div className="text-center leading-relaxed">{content}</div>
+            {/* Arrow */}
+            <div
+              className={`absolute border-4 border-transparent ${
+                side === "left"
+                  ? "bottom-full right-4 border-b-gray-800"
+                  : side === "right"
+                  ? "bottom-full left-4 border-b-gray-800"
+                  : side === "top"
+                  ? "top-full left-1/2 transform -translate-x-1/2 border-t-gray-800"
+                  : "bottom-full left-1/2 transform -translate-x-1/2 border-b-gray-800"
+              }`}
+            ></div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop version uses shadcn tooltip
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button className="p-1 -m-1 touch-manipulation" type="button">
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side={side} className="max-w-xs">
+        <p>{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
 const ChartSkeleton: React.FC = () => (
   <div className="animate-pulse">
     <div className="h-4 bg-gray-200 rounded w-32 mb-4"></div>
@@ -31,7 +142,6 @@ const Analytics: React.FC = () => {
   const { loading, error, data, isCacheValid, handleForceRefresh } =
     useAnalyticsData();
 
-  // Show error state
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
@@ -46,55 +156,90 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Show layout immediately, with loading skeletons where needed
   return (
-    <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
-      <div className="md:border border-gray-200 rounded-lg p-4">
-        <div className="flex flex-col gap-4">
-          {/* Rating Progress Chart - show skeleton if loading, data if available */}
-          {loading ? (
-            <ChartSkeleton />
-          ) : data ? (
-            <RatingProgressChart
-              ratingData={data.ratingData}
-              isCacheValid={isCacheValid}
-              handleForceRefresh={handleForceRefresh}
-            />
-          ) : (
-            <div className="text-center p-8">
-              <div className="text-xl font-semibold mb-4">
-                No Chess.com Username Set
-              </div>
-              <p className="mb-4 text-gray-600">
-                Please connect your Chess.com account to view your analytics.
-              </p>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Result Distribution Chart */}
+    <TooltipProvider>
+      <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
+        <div className="md:border border-gray-200 rounded-lg p-4">
+          <div className="flex flex-col gap-4">
+            {/* Rating Progress Chart - show skeleton if loading, data if available */}
             {loading ? (
               <ChartSkeleton />
             ) : data ? (
-              <ResultDistributionChart
-                distributionData={data.distributionData}
+              <RatingProgressChart
+                ratingData={data.ratingData}
+                isCacheValid={isCacheValid}
+                handleForceRefresh={handleForceRefresh}
               />
             ) : (
-              <CardSkeleton />
+              <div className="text-center p-8">
+                <div className="text-xl font-semibold mb-4">
+                  No Chess.com Username Set
+                </div>
+                <p className="mb-4 text-gray-600">
+                  Please connect your Chess.com account to view your analytics.
+                </p>
+              </div>
             )}
 
-            {/* Opening Statistics */}
-            {loading ? (
-              <CardSkeleton />
-            ) : data ? (
-              <OpeningStatistics openingData={data.openingData} />
-            ) : (
-              <CardSkeleton />
-            )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Result Distribution Chart */}
+              {loading ? (
+                <ChartSkeleton />
+              ) : data ? (
+                <ResultDistributionChart
+                  distributionData={data.distributionData}
+                />
+              ) : (
+                <CardSkeleton />
+              )}
+
+              {/* Opening Statistics */}
+              {loading ? (
+                <CardSkeleton />
+              ) : data ? (
+                <OpeningStatistics openingData={data.openingData} />
+              ) : (
+                <CardSkeleton />
+              )}
+            </div>
+
+            {/* Performance Insights - Desktop */}
+            <div className="lg:block md:hidden">
+              {loading ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                </div>
+              ) : data ? (
+                <PerformanceInsightsSection insights={data.performanceInsights} />
+              ) : (
+                <CardSkeleton />
+              )}
+            </div>
           </div>
+        </div>
 
-          {/* Performance Insights - Desktop */}
-          <div className="lg:block md:hidden">
+        <div className="md:border border-gray-200 rounded-lg p-4">
+          <div className="flex flex-col gap-4">
+            {/* Performance Insights - Tablet */}
+            <div className="hidden md:block lg:hidden">
+              {loading ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                </div>
+              ) : data ? (
+                <PerformanceInsightsSection insights={data.performanceInsights} />
+              ) : (
+                <CardSkeleton />
+              )}
+            </div>
+
+            {/* Key Statistics */}
             {loading ? (
               <div className="grid grid-cols-2 gap-3">
                 <CardSkeleton />
@@ -103,70 +248,37 @@ const Analytics: React.FC = () => {
                 <CardSkeleton />
               </div>
             ) : data ? (
-              <PerformanceInsightsSection insights={data.performanceInsights} />
+              <KeyStatisticsSection stats={data.keyStats} />
             ) : (
               <CardSkeleton />
             )}
-          </div>
-        </div>
-      </div>
 
-      <div className="md:border border-gray-200 rounded-lg p-4">
-        <div className="flex flex-col gap-4">
-          {/* Performance Insights - Tablet */}
-          <div className="hidden md:block lg:hidden">
+            {/* Time Control Performance */}
             {loading ? (
-              <div className="grid grid-cols-2 gap-3">
-                <CardSkeleton />
-                <CardSkeleton />
+              <CardSkeleton />
+            ) : data ? (
+              <TimeControlPerformance performanceData={data.performanceData} />
+            ) : (
+              <CardSkeleton />
+            )}
+
+            {/* Recent Achievements */}
+            {loading ? (
+              <div className="space-y-3">
                 <CardSkeleton />
                 <CardSkeleton />
               </div>
             ) : data ? (
-              <PerformanceInsightsSection insights={data.performanceInsights} />
+              <RecentAchievements achievements={data.achievements} />
             ) : (
               <CardSkeleton />
             )}
           </div>
-
-          {/* Key Statistics */}
-          {loading ? (
-            <div className="grid grid-cols-2 gap-3">
-              <CardSkeleton />
-              <CardSkeleton />
-              <CardSkeleton />
-              <CardSkeleton />
-            </div>
-          ) : data ? (
-            <KeyStatisticsSection stats={data.keyStats} />
-          ) : (
-            <CardSkeleton />
-          )}
-
-          {/* Time Control Performance */}
-          {loading ? (
-            <CardSkeleton />
-          ) : data ? (
-            <TimeControlPerformance performanceData={data.performanceData} />
-          ) : (
-            <CardSkeleton />
-          )}
-
-          {/* Recent Achievements */}
-          {loading ? (
-            <div className="space-y-3">
-              <CardSkeleton />
-              <CardSkeleton />
-            </div>
-          ) : data ? (
-            <RecentAchievements achievements={data.achievements} />
-          ) : (
-            <CardSkeleton />
-          )}
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
+export { MobileTooltip };
 export default Analytics;

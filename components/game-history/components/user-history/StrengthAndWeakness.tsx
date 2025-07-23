@@ -1,6 +1,7 @@
 import React from "react";
-import { Target, BookOpen, Clock, Swords } from "lucide-react";
+import { Target, BookOpen, Clock, Swords, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { MobileTooltip } from "./Analytics";
 
 type SkillStrengthItem = {
   name: string;
@@ -90,8 +91,15 @@ const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({
 }) => {
   return (
     <div className="lg:p-4 rounded-lg">
-      <h1 className="mb-2 font-bold text-base">Strength and weakness</h1>
-
+      <div className="flex items-center justify-between">
+        <h1 className="mb-2 font-bold text-base">Strength and weakness</h1>
+        <MobileTooltip
+          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          side="left"
+        >
+          <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+        </MobileTooltip>
+      </div>
       <div className="mb-4">
         <h1 className="text-sm font-medium mb-3">Strengths</h1>
         <div className="space-y-3">

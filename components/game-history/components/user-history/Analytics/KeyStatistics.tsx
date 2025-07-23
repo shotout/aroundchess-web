@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { LucideTrophy, TargetIcon, BrainIcon, TrendingUp } from "lucide-react";
+import { LucideTrophy, TargetIcon, BrainIcon, TrendingUp, Info } from "lucide-react";
+import { MobileTooltip } from "../Analytics";
 
 interface KeyStatisticsProps {
   stats: {
@@ -14,7 +15,17 @@ interface KeyStatisticsProps {
 const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
   return (
     <div className="md:p-4 rounded-lg">
-      <h1 className="text-base font-medium mb-3">Key Statistics</h1>
+       <div className="flex items-center justify-between">
+         <h1 className="text-base font-medium mb-3">Key Statistics</h1>
+
+
+        <MobileTooltip
+          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          side="left"
+          >
+          <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+        </MobileTooltip>
+          </div>
       <div className="grid grid-cols-2 gap-3">
         {/* Total Games Card */}
         <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">

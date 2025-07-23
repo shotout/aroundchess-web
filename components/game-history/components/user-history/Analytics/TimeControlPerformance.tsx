@@ -1,5 +1,7 @@
 import React from "react";
 import { TimeControlPerformance as TimeControlPerformanceType } from "@/components/game-history/types/GameHistoryTypes";
+import { MobileTooltip } from "../Analytics";
+import { Info } from "lucide-react";
 
 interface TimeControlPerformanceProps {
   performanceData: TimeControlPerformanceType[];
@@ -10,7 +12,16 @@ const TimeControlPerformance: React.FC<TimeControlPerformanceProps> = ({
 }) => {
   return (
     <div className="md:p-4 rounded-lg">
-      <h1 className="text-base font-medium mb-3">Time Control Performance</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-base font-medium mb-3">Time Control Performance</h1>
+        <MobileTooltip
+          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          side="left"
+        >
+          <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+        </MobileTooltip>
+      </div>
+
       {performanceData.length > 0 ? (
         <div className="space-y-4">
           {performanceData.map((item) => (

@@ -1,6 +1,8 @@
 import { ResultDistributionItem } from "@/components/game-history/types/GameHistoryTypes";
 import React, { useState, useCallback } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { MobileTooltip } from "../Analytics";
+import { Info } from "lucide-react";
 
 interface ResultDistributionChartProps {
   distributionData: ResultDistributionItem[];
@@ -70,7 +72,15 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
 
   return (
     <div className="md:p-4 rounded-lg">
-      <h1 className="text-base font-medium mb-2">Result Distribution</h1>
+      <div className="flex items-center justify-between">
+      <h1 className="text-base font-medium">Result Distribution</h1>
+        <MobileTooltip
+          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          side="left"
+          >
+          <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+        </MobileTooltip>
+          </div>
       <div className="flex items-center justify-center h-64">
         <div
           className="w-48 h-48"

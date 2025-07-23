@@ -8,8 +8,9 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { RefreshCw } from "lucide-react";
+import {  Info } from "lucide-react";
 import { RatingProgressItem } from "@/components/game-history/types/GameHistoryTypes";
+import { MobileTooltip } from "../Analytics";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -39,14 +40,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 
 interface RatingProgressChartProps {
   ratingData: RatingProgressItem[];
-  isCacheValid: boolean;
-  handleForceRefresh: () => void;
+  isCacheValid?: boolean;
+  handleForceRefresh?: () => void;
 }
 
 const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
   ratingData,
-  isCacheValid,
-  handleForceRefresh,
 }) => {
   
   const cleanData = React.useMemo(() => {
@@ -55,8 +54,6 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
     }
     
     return ratingData.map((item, index) => {
-      console.log(`Processing item ${index}:`, item);
-      
       let cleanMonth = item.month;
       let cleanRating = item.rating;
       
@@ -65,7 +62,6 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
         item.rating !== null &&
         'month' in item.rating
       ) {
-        console.log('Rating is object:', item.rating);
 
         cleanMonth = (item.rating as { month?: string }).month || item.month || `Month ${index + 1}`;
         cleanRating = (item.rating as { rating?: number; value?: number }).rating || (item.rating as { value?: number }).value || 0;
@@ -75,7 +71,6 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
         cleanRating : 
         (parseInt(String(cleanRating)) || 0);
       
-      console.log(`Cleaned: month=${cleanMonth}, rating=${numericRating}`);
       
       return {
         month: cleanMonth,
@@ -124,7 +119,15 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
   if (!cleanData || cleanData.length === 0) {
     return (
       <div className="md:p-4 rounded-lg">
-        <h1 className="text-base font-bold mb-2">Rating Progress</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-base font-bold">Rating Progress</h1>
+          <MobileTooltip
+            content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+            side="left"
+          >
+            <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+          </MobileTooltip>
+        </div>
         <div className="h-64 flex items-center justify-center text-gray-500">
           No rating data available
         </div>
@@ -134,18 +137,14 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
 
   return (
     <div className="md:p-4 rounded-lg">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex items-center justify-between mb-2">
         <h1 className="text-base font-bold">Rating Progress</h1>
-        {!isCacheValid && (
-          <button
-            onClick={handleForceRefresh}
-            className="text-blue-500 hover:text-blue-700 flex items-center text-xs"
-            title="Refresh data"
-          >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Refresh
-          </button>
-        )}
+        <MobileTooltip
+          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          side="left"
+        >
+          <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+        </MobileTooltip>
       </div>
       
       <div className="h-64">
@@ -165,8 +164,8 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
               tickLine={true} 
             />
             <YAxis
-              domain={[chartRange.min, chartRange.max]}
-              ticks={chartRange.ticks}
+              // domain={[chartRange.min, chartRange.max]}
+              // ticks={chartRange.ticks}
               axisLine={true}
               tickLine={true}
             />

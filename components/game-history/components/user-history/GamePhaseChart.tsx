@@ -8,16 +8,17 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { RefreshCw } from "lucide-react";
+import { Info } from "lucide-react";
+import { MobileTooltip } from "./Analytics";
 
 interface GamePhaseData {
-  name: string;
-  performance: number;
-  average: number;
+  name?: string;
+  performance?: number;
+  average?: number;
 }
 
 interface GamePhaseChartProps {
-  barData: GamePhaseData[];
+  barData?: GamePhaseData[];
   isCacheValid: boolean;
   onRefresh: () => void;
 }
@@ -156,19 +157,15 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
 
   return (
     <div className="lg:p-4 rounded-lg w-full">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-base font-bold">Performance by Game Phase</h1>
-        {!isCacheValid && (
-          <button
-            onClick={onRefresh}
-            className="text-blue-500 hover:text-blue-700 flex items-center text-xs"
-            title="Refresh data"
+        <div className="flex items-center justify-between">
+          <h1 className="text-base font-bold">Performance by Game Phase</h1>
+          <MobileTooltip
+            content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+            side="left"
           >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Refresh
-          </button>
-        )}
-      </div>
+            <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+          </MobileTooltip>
+        </div>
       <div
         className="h-72"
         onTouchStart={isMobileDevice ? handleTouchStart : undefined}

@@ -6,10 +6,6 @@ import { useApiClient } from "@/functions/api-client";
 import { searchFAQs } from "./search";
 import ChessFAQSkeleton from "./ChessFaqSkeleton";
 
-interface Question {
-  question: string;
-  answer: string[];
-}
 
 export default function ChessFAQ() {
   const { getFAQ, isLoading } = useApiClient();
@@ -27,6 +23,7 @@ export default function ChessFAQ() {
     if (hasRun.current) return;
     hasRun.current = true;
     fetchFAQ();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -85,7 +82,6 @@ export default function ChessFAQ() {
     setQuery(e.target.value);
   };
 
-  // Replace the DotSpinner with the skeleton loading component
   if (isLoading) return <ChessFAQSkeleton />;
 
   return (
@@ -131,6 +127,10 @@ export default function ChessFAQ() {
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
+             onClick={() => {
+                setQuestion(tab.questions);
+                setActiveTab(tab.label);
+              }}
             className="relative flex  flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
           >
             <Image
@@ -148,11 +148,7 @@ export default function ChessFAQ() {
             <button
               className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${
                 activeTab === tab.label ? "text-[#221AE9]  font-bold" : ""
-              }`}
-              onClick={() => {
-                setQuestion(tab.questions);
-                setActiveTab(tab.label);
-              }}
+              }`}        
             >
               <span className="sm:text-[12px] lg:text-[20px] font-medium text-center">
                 {tab.label}

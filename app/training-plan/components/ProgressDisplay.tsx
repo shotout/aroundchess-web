@@ -8,6 +8,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   CartesianGrid,
   Line,
   LineChart,
@@ -34,97 +40,110 @@ import { useProgressStore } from "../store";
 import Image from "next/image";
 import { useProfileStore } from "@/app/store/profile";
 
-// Reusable Tooltip Component
-const Tooltip = ({
+// Custom Mobile Tooltip Component
+const MobileTooltip = ({
   children,
   content,
+  side = "left",
 }: {
   children: React.ReactNode;
   content: string;
+  side?: "left" | "right" | "top" | "bottom";
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+      setIsMobile(window.innerWidth < 1024);
     };
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handleMouseEnter = () => {
-    if (!isMobile) {
-      setIsVisible(true);
-    }
-  };
+  useEffect(() => {
+    if (isMobile && isVisible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element;
+        if (!target.closest("[data-mobile-tooltip]")) {
+          setIsVisible(false);
+        }
+      };
 
-  const handleMouseLeave = () => {
-    if (!isMobile) {
-      setIsVisible(false);
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener("click", handleClickOutside);
+      };
     }
-  };
+  }, [isMobile, isVisible]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (isMobile) {
+      e.preventDefault();
       e.stopPropagation();
       setIsVisible(!isVisible);
     }
   };
 
-  // Close tooltip when clicking outside on mobile
-  useEffect(() => {
-    if (isMobile && isVisible) {
-      const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as Element;
-        if (!target.closest("[data-tooltip-container]")) {
-          setIsVisible(false);
-        }
-      };
-
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
-  }, [isMobile, isVisible]);
-
-  return (
-    <div
-      className="relative inline-block"
-      data-tooltip-container
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-    >
-      {children}
-      {isVisible && (
-        <div
-          className={`
-            absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg
-            ${
-              isMobile
-                ? "bottom-8 left-1/2 transform -translate-x-1/2 w-72 max-w-[90vw]"
-                : "-top-12 left-1/2 transform -translate-x-1/2 w-64 md:w-80"
-            }
-          `}
+  if (isMobile) {
+    return (
+      <div className="relative inline-block" data-mobile-tooltip>
+        <button
+          onClick={handleClick}
+          className="p-1 -m-1 touch-manipulation"
+          type="button"
         >
-          <div className="text-center leading-relaxed">{content}</div>
-          {/* Arrow */}
+          {children}
+        </button>
+        {isVisible && (
           <div
-            className={`
-              absolute left-1/2 transform -translate-x-1/2 border-4 border-transparent
-              ${
-                isMobile
-                  ? "top-full border-t-gray-800"
-                  : "top-full border-t-gray-800"
-              }
-            `}
-          ></div>
-        </div>
-      )}
-    </div>
+            className={`absolute z-50 px-3 py-2 text-sm text-black bg-white rounded-lg shadow-lg w-72 max-w-[90vw] ${
+              side === "left"
+                ? "right-0 top-8"
+                : side === "right"
+                ? "left-0 top-8"
+                : side === "top"
+                ? "bottom-8 left-1/2 transform -translate-x-1/2"
+                : "top-8 left-1/2 transform -translate-x-1/2"
+            }`}
+          >
+            <div className="text-center leading-relaxed">{content}</div>
+            {/* Arrow */}
+            <div
+              className={`absolute border-4 border-transparent ${
+                side === "left"
+                  ? "bottom-full right-4 border-b-gray-800"
+                  : side === "right"
+                  ? "bottom-full left-4 border-b-gray-800"
+                  : side === "top"
+                  ? "top-full left-1/2 transform -translate-x-1/2 border-t-gray-800"
+                  : "bottom-full left-1/2 transform -translate-x-1/2 border-b-gray-800"
+              }`}
+            ></div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop version uses shadcn tooltip
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button className="p-1 -m-1 touch-manipulation" type="button">
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side={side} className="max-w-xs">
+        <p>{content}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 
@@ -316,7 +335,6 @@ const ProgressDisplay = () => {
     getDisplayMonthFromYearMonth(currentMonth)
   );
 
-  // Start fetching immediately when component mounts
   useEffect(() => {
     if (sessionId) {
       fetchProgressData(sessionId, currentMonth);
@@ -411,491 +429,559 @@ const ProgressDisplay = () => {
     : [];
 
   return (
-    <div className="space-y-4 p-4 xl:p-0">
-      {/* Overall Improvement Section */}
-      {isLoadingProgress ? (
-        <OverallImprovementSkeleton />
-      ) : (
-        <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-          <CardContent className="p-4 flex flex-col gap-y-4">
-            <div className="flex items-center gap-x-2">
-              <h2 className="text-2xl font-bold">Overall Improvement</h2>
-              <Tooltip content="Track your chess improvement over time. This section shows your current skill level, rating, and accuracy improvements to help you understand your progress.">
-                <Info
-                  className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
-                  strokeWidth={1.5}
-                />
-              </Tooltip>
-            </div>
+    <TooltipProvider>
+      <div className="space-y-4 p-4 xl:p-0">
+        {/* Overall Improvement Section */}
+        {isLoadingProgress ? (
+          <OverallImprovementSkeleton />
+        ) : (
+          <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <CardContent className="p-4 flex flex-col gap-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Overall Improvement</h2>
+                <MobileTooltip
+                  content="Track your chess improvement over time. This section shows your current skill level, rating, and accuracy improvements to help you understand your progress."
+                  side="left"
+                >
+                  <Info
+                    className="w-5 h-5 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                    strokeWidth={1.5}
+                  />
+                </MobileTooltip>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-3 lg:p-6 relative overflow-hidden">
-                <h1 className="text-lg font-medium">my current level</h1>
-                <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
-                  <h1 className="text-base lg:text-xl font-semibold">
-                    {apiData?.currentLevel?.level || "Loading..."}
-                  </h1>
-                  <div className="flex items-center gap-x-2">
-                    <h1 className="text-xl lg:text-4xl font-bold">
-                      {apiData?.currentLevel?.rating?.toLocaleString() || "0"}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-3 lg:p-6 relative overflow-hidden">
+                  <h1 className="text-lg font-medium">my current level</h1>
+                  <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
+                    <h1 className="text-base lg:text-xl font-semibold">
+                      {apiData?.currentLevel?.level || "Loading..."}
                     </h1>
                     <div className="flex items-center gap-x-2">
-                      <h1 className="text-sm lg:text-base">elo rating</h1>
-                      <Star className="w-4 h-4 text-white" fill="#ffffff" />
+                      <h1 className="text-xl lg:text-4xl font-bold">
+                        {apiData?.currentLevel?.rating?.toLocaleString() || "0"}
+                      </h1>
+                      <div className="flex items-center gap-x-2">
+                        <h1 className="text-sm lg:text-base">elo rating</h1>
+                        <Star className="w-4 h-4 text-white" fill="#ffffff" />
+                      </div>
                     </div>
                   </div>
+                  <Image
+                    alt=""
+                    className="absolute top-2 right-2 w-[200px] md:top-0 md:right-0 md:w-[300px]"
+                    width={300}
+                    height={300}
+                    src="/my-game-history/rook-a.png"
+                  />
                 </div>
-                <Image
-                  alt=""
-                  className="absolute top-2 right-2 w-[200px] md:top-0 md:right-0 md:w-[300px]"
-                  width={300}
-                  height={300}
-                  src="/my-game-history/rook-a.png"
-                />
-              </div>
 
-              <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-1 lg:gap-y-2 justify-center flex-col rounded-lg p-3 lg:p-6 max-h-[150px] text-black relative overflow-hidden">
-                <div className="flex items-center gap-x-1 lg:gap-x-2">
-                  <TargetIcon className="w-5 h-5 text-[#FAC933]" />
-                  <h1 className="text-sm lg:text-lg font-medium text-black">
-                    Accuracy
+                <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-1 lg:gap-y-2 justify-center flex-col rounded-lg p-3 lg:p-6 max-h-[150px] text-black relative overflow-hidden">
+                  <div className="flex items-center gap-x-1 lg:gap-x-2">
+                    <TargetIcon className="w-5 h-5 text-[#FAC933]" />
+                    <h1 className="text-sm lg:text-lg font-medium text-black">
+                      Accuracy
+                    </h1>
+                  </div>
+
+                  <h1 className="text-xl lg:text-4xl font-bold text-[#FAC933]">
+                    {apiData?.accuracy?.percentage || 0}%
                   </h1>
+                  <div className="text-sm lg:text-base font-medium">
+                    +{apiData?.accuracy?.improvement || 0}% improvement
+                  </div>
+                  <Image
+                    alt=""
+                    className="absolute top-2 right-0 w-[150px] md:top-0 md:w-[300px]"
+                    width={300}
+                    height={300}
+                    src="/my-game-history/knight-a.png"
+                  />
                 </div>
-
-                <h1 className="text-xl lg:text-4xl font-bold text-[#FAC933]">
-                  {apiData?.accuracy?.percentage || 0}%
-                </h1>
-                <div className="text-sm lg:text-base font-medium">
-                  +{apiData?.accuracy?.improvement || 0}% improvement
-                </div>
-                <Image
-                  alt=""
-                  className="absolute top-2 right-0 w-[150px] md:top-0 md:w-[300px]"
-                  width={300}
-                  height={300}
-                  src="/my-game-history/knight-a.png"
-                />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            </CardContent>
+          </Card>
+        )}
 
-      <div className="md:grid md:grid-cols-5 gap-6">
-        <div className="md:col-span-3 flex flex-col gap-6 border rounded-md p-4">
-          {/* Rating Progress Chart */}
-          {isLoadingProgress ? (
-            <ChartSkeleton title="Your Progress" />
-          ) : (
-            <div className="border-none rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-x-2">
+        <div className="md:grid md:grid-cols-5 gap-6">
+          <div className="md:col-span-3 flex flex-col gap-6 border rounded-md p-4">
+            {/* Rating Progress Chart */}
+            {isLoadingProgress ? (
+              <ChartSkeleton title="Your Progress" />
+            ) : (
+              <div className="border-none rounded-lg overflow-hidden">
+                {/* Mobile Layout */}
+                <div className="block lg:hidden mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="text-xl font-bold">Your Progress</h3>
+                      <p className="text-base">Your ELO Rating Progress</p>
+                    </div>
+                    <MobileTooltip
+                      content="This chart shows your ELO rating progression throughout the selected month. Track how your rating changes week by week to see your improvement patterns."
+                      side="left"
+                    >
+                      <Info
+                        className="w-4 h-4 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                        strokeWidth={1.5}
+                      />
+                    </MobileTooltip>
+                  </div>
+                  <Select value={displayMonth} onValueChange={handleMonthChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map((month) => (
+                        <SelectItem key={month} value={month}>
+                          {month}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden lg:flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold">Your Progress</h3>
                     <p className="text-base">Your ELO Rating Progress</p>
                   </div>
-                  <Tooltip content="This chart shows your ELO rating progression throughout the selected month. Track how your rating changes week by week to see your improvement patterns.">
-                    <Info
-                      className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
-                      strokeWidth={1.5}
-                    />
-                  </Tooltip>
-                </div>
-                <Select value={displayMonth} onValueChange={handleMonthChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map((month) => (
-                      <SelectItem key={month} value={month}>
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {getFormattedRatingData().length === 0 ? (
-                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className="mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-lg text-gray-600 font-medium">
-                    No data available
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full overflow-x-auto">
-                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
-                    <LineChart
-                      data={getFormattedRatingData()}
-                      margin={{ left: 0, right: 8 }}
+                  <div className="flex items-center gap-x-3">
+                    <MobileTooltip
+                      content="This chart shows your ELO rating progression throughout the selected month. Track how your rating changes week by week to see your improvement patterns."
+                      side="left"
                     >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#e0e0e0"
-                        vertical={true}
-                        horizontal={true}
+                      <Info
+                        className="w-4 h-4 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                        strokeWidth={1.5}
                       />
-                      <XAxis
-                        dataKey="week"
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        padding={{ left: 10, right: 10 }}
-                        tickMargin={5}
-                      />
-                      <YAxis
-                        domain={[0, 2400]}
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        width={40}
-                      />
-                      <RechartsTooltip
-                        content={
-                          <CustomTooltipContent active={false} payload={[]} />
-                        }
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="rating"
-                        stroke="#3b82f6"
-                        strokeWidth={2}
-                        dot={{
-                          stroke: "#3b82f6",
-                          strokeWidth: 2,
-                          fill: "#3b82f6",
-                          r: 5,
-                        }}
-                        activeDot={{ r: 7, fill: "#3b82f6" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Training Distribution Chart */}
-          {isLoadingProgress ? (
-            <ChartSkeleton title="Weekly Training Distribution" />
-          ) : (
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-x-2 mb-1">
-                <h3 className="text-xl font-bold">
-                  Weekly Training Distribution
-                </h3>
-                <Tooltip content="See how your training time is distributed across different chess areas: Openings, Middlegame, Endgame, and Tactics. This helps you understand where you're focusing your study efforts.">
-                  <Info
-                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
-                    strokeWidth={1.5}
-                  />
-                </Tooltip>
-              </div>
-              <p className="text-base mb-4">Minutes to invest per Topic</p>
-              {trainingData.length === 0 ? (
-                <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className="mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-lg text-gray-600 font-medium">
-                    No data available
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full overflow-x-auto">
-                  <ResponsiveContainer width="100%" height={400} minWidth={300}>
-                    <BarChart
-                      data={trainingData}
-                      barSize={60}
-                      margin={{ left: 0, right: 8 }}
+                    </MobileTooltip>
+                    <Select
+                      value={displayMonth}
+                      onValueChange={handleMonthChange}
                     >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#e0e0e0"
-                        horizontal={true}
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="category"
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        padding={{ left: 20, right: 20 }}
-                        tickMargin={5}
-                      />
-                      <YAxis
-                        domain={[0, 1400]}
-                        axisLine={true}
-                        tickLine={true}
-                        tick={{ fill: "#000", fontSize: 12 }}
-                        width={40}
-                      />
-                      <RechartsTooltip
-                        content={
-                          <CustomBarTooltipContent
-                            active={false}
-                            payload={[]}
-                          />
-                        }
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-expect-error
-                        cursor={<CustomCursor />}
-                      />
-                      <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
-                        {trainingData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map((month) => (
+                          <SelectItem key={month} value={month}>
+                            {month}
+                          </SelectItem>
                         ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
-          {/* Recent Games */}
-          {isLoadingProgress ? (
-            <RecentGamesSkeleton />
-          ) : (
-            <div className="rounded-lg">
-              <div className="flex items-center gap-x-2 mb-2">
-                <h1 className="text-lg font-bold">
-                  Recent Games{" "}
-                  <span className="text-sm font-normal text-gray-500">
-                    {formattedRecentGames.length > 0
-                      ? `(Last ${formattedRecentGames.length} games)`
-                      : ""}
-                  </span>
-                </h1>
-                <Tooltip content="Your most recent chess games with detailed analysis including accuracy, moves quality, and performance metrics. Review these to identify improvement areas.">
-                  <Info
-                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
-                    strokeWidth={1.5}
-                  />
-                </Tooltip>
-              </div>
-
-              {formattedRecentGames.length === 0 ? (
-                <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className="mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-base text-gray-600 font-medium">
-                    You have not played any Games yet.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="rounded-sm border overflow-x-auto md:overflow-visible">
-                    <table className="w-full border-collapse text-[12px]">
-                      <thead>
-                        <tr className="bg-blue-50 font-medium">
-                          <th className="p-1 text-left">Date</th>
-                          <th className="p-1 text-left">Opponent</th>
-                          <th className="p-1 text-left">Result</th>
-                          <th className="p-1 text-left">Opening</th>
-                          <th className="p-1 text-left">Analysis</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {formattedRecentGames.map((game, index) => (
-                          <tr key={index} className="border-b border-gray-100">
-                            <td className="p-1 whitespace-nowrap">
-                              {game.date}
-                            </td>
-                            <td className="p-1">
-                              <div className="font-medium text-[12px] truncate max-w-[8rem]">
-                                {game.opponent}
-                              </div>
-                              <div className="text-gray-500 text-[10px] -ml-1">
-                                Rating: {game.rating}
-                              </div>
-                            </td>
-                            <td className="p-1">
-                              <span
-                                className={`font-medium ${
-                                  game.result === "WIN"
-                                    ? "text-green-500"
-                                    : game.result === "LOSS"
-                                    ? "text-red-500"
-                                    : "text-yellow-500"
-                                }`}
-                              >
-                                {game.result}
-                              </span>
-                            </td>
-                            <td className="p-1">{game.opening}</td>
-                            <td className="p-1">
-                              <div className="flex flex-col space-y-1">
-                                <div className="flex items-center text-[11px]">
-                                  <Target className="w-4 h-4 text-blue-base mr-1" />
-                                  {game.accuracy}%
-                                </div>
-                                <div className="flex items-center text-[11px]">
-                                  <TriangleAlert className="w-4 h-4 text-yellow-500 mr-1" />
-                                  {game.brilliant}
-                                </div>
-                                <div className="flex items-center text-[11px]">
-                                  <Clock className="w-4 h-4 text-blue-base mr-1" />
-                                  {game.mistakes}
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                      </SelectContent>
+                    </Select>
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between mt-3 gap-x-2 text-sm text-nowrap text-[11px] sm:text-sm">
-                    <div className="flex items-center">
-                      <Trophy className="w-4 h-4 text-[#00B427] rounded-sm mr-1" />
-                      <h1 className="mr-1 text-xs lg:text-base">Win Rate:</h1>
-                      <span className="text-[#00B427] font-bold">
-                        {apiData?.winRate || 0}%
-                      </span>
-                    </div>
-
-                    <div className="flex items-center">
-                      <Target
-                        fill="#F1F5F9"
-                        className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1"
-                      />
-                      <h1 className="mr-1 text-xs lg:text-base">
-                        Avg Accuracy:
-                      </h1>
-                      <span className="text-blue-base font-bold">
-                        {apiData?.avgAccuracy || 0}%
-                      </span>
-                    </div>
-
-                    <div className="w-0 h-0 overflow-hidden sm:w-auto sm:h-auto sm:invisible">
-                      <span>Total Games: {formattedRecentGames.length}</span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Performance Trends */}
-          {isLoadingProgress ? (
-            <PerformanceTrendsSkeleton />
-          ) : (
-            <div>
-              <div className="flex flex-col lg:flex-row lg:items-center gap-x-2 mb-2">
-                <div className="flex items-center gap-x-2">
-                  <h1 className="text-lg font-bold">Performance Trends</h1>
-                  <Tooltip content="Performance metrics show your improvement over the last 7 days. Green indicates positive trends, while other colors show areas that need attention. Games Won and ELO Rating increases are good, while fewer Mistakes and Blunders indicate better play.">
-                    <Info
-                      className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors"
-                      strokeWidth={1.5}
+                {getFormattedRatingData().length === 0 ? (
+                  <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                    <Image
+                      src="/training-plan/no-data.png"
+                      alt="No games found"
+                      className="mb-2"
+                      width={96}
+                      height={96}
                     />
-                  </Tooltip>
-                </div>
-                <h1 className="text-sm text-gray-500">
-                  (Last 7 days improvement)
-                </h1>
-              </div>
-
-              {stats.length === 0 ? (
-                <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
-                  <Image
-                    src="/training-plan/no-data.png"
-                    alt="No games found"
-                    className="mb-2"
-                    width={96}
-                    height={96}
-                  />
-                  <p className="text-base text-gray-600 font-medium">
-                    You have not played any Games in the last 7 days
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 w-full">
-                  {stats.map((stat, index) => {
-                    const { color, value } = getChangeColorAndPrefix(
-                      stat.change,
-                      stat.title
-                    );
-
-                    return (
-                      <Card
-                        key={index}
-                        className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
+                    <p className="text-lg text-gray-600 font-medium">
+                      No data available
+                    </p>
+                  </div>
+                ) : (
+                  <div className="w-full overflow-x-auto">
+                    <ResponsiveContainer
+                      width="100%"
+                      height={400}
+                      minWidth={300}
+                    >
+                      <LineChart
+                        data={getFormattedRatingData()}
+                        margin={{ left: 0, right: 8 }}
                       >
-                        <div className="flex items-center">
-                          <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
-                            {stat.icon === "trophy" && (
-                              <LucideTrophy
-                                className="h-6 w-6 text-green-500"
-                                strokeWidth={1.5}
-                              />
-                            )}
-                            {stat.icon === "target" && (
-                              <TargetIcon
-                                className="h-6 w-6 text-blue-base"
-                                strokeWidth={1.5}
-                              />
-                            )}
-                            {stat.icon === "alert-yellow" && (
-                              <TriangleAlertIcon
-                                className="h-6 w-6 text-[#FAC933]"
-                                strokeWidth={1.5}
-                              />
-                            )}
-                            {stat.icon === "alert-red" && (
-                              <TriangleAlertIcon
-                                className="h-6 w-6 text-[#FD0000]"
-                                strokeWidth={1.5}
-                              />
-                            )}
-                          </div>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="#e0e0e0"
+                          vertical={true}
+                          horizontal={true}
+                        />
+                        <XAxis
+                          dataKey="week"
+                          axisLine={true}
+                          tickLine={true}
+                          tick={{ fill: "#000", fontSize: 12 }}
+                          padding={{ left: 10, right: 10 }}
+                          tickMargin={5}
+                        />
+                        <YAxis
+                          // domain={[0, 2400]}
+                          axisLine={true}
+                          tickLine={true}
+                          tick={{ fill: "#000", fontSize: 12 }}
+                          width={40}
+                        />
+                        <RechartsTooltip
+                          content={
+                            <CustomTooltipContent active={false} payload={[]} />
+                          }
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="rating"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                          dot={{
+                            stroke: "#3b82f6",
+                            strokeWidth: 2,
+                            fill: "#3b82f6",
+                            r: 5,
+                          }}
+                          activeDot={{ r: 7, fill: "#3b82f6" }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            )}
 
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-700 text-sm">
-                              {stat.title}
-                            </h3>
-                            <h2 className="text-2xl font-bold">{stat.value}</h2>
-                            <div className={`text-sm font-bold ${color}`}>
-                              {value}
+            {/* Training Distribution Chart */}
+            {isLoadingProgress ? (
+              <ChartSkeleton title="Weekly Training Distribution" />
+            ) : (
+              <div className="overflow-hidden">
+                <div className="flex items-center justify-between mb-1">
+                  <div>
+                    <h3 className="text-xl font-bold">
+                      Weekly Training Distribution
+                    </h3>
+                    <p className="text-base">Minutes to invest per Topic</p>
+                  </div>
+                  <MobileTooltip
+                    content="See how your training time is distributed across different chess areas: Openings, Middlegame, Endgame, and Tactics. This helps you understand where you're focusing your study efforts."
+                    side="left"
+                  >
+                    <Info
+                      className="w-4 h-4 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                      strokeWidth={1.5}
+                    />
+                  </MobileTooltip>
+                </div>
+                {trainingData.length === 0 ? (
+                  <div className="h-[400px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                    <Image
+                      src="/training-plan/no-data.png"
+                      alt="No games found"
+                      className="mb-2"
+                      width={96}
+                      height={96}
+                    />
+                    <p className="text-lg text-gray-600 font-medium">
+                      No data available
+                    </p>
+                  </div>
+                ) : (
+                  <div className="w-full overflow-x-auto">
+                    <ResponsiveContainer
+                      width="100%"
+                      height={400}
+                      minWidth={300}
+                    >
+                      <BarChart
+                        data={trainingData}
+                        barSize={60}
+                        margin={{ left: 0, right: 8 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="#e0e0e0"
+                          horizontal={true}
+                          vertical={false}
+                        />
+                        <XAxis
+                          dataKey="category"
+                          axisLine={true}
+                          tickLine={true}
+                          tick={{ fill: "#000", fontSize: 12 }}
+                          padding={{ left: 20, right: 20 }}
+                          tickMargin={5}
+                        />
+                        <YAxis
+                          // domain={[0, 1400]}
+                          axisLine={true}
+                          tickLine={true}
+                          tick={{ fill: "#000", fontSize: 12 }}
+                          width={40}
+                        />
+                        <RechartsTooltip
+                          content={
+                            <CustomBarTooltipContent
+                              active={false}
+                              payload={[]}
+                            />
+                          }
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          //@ts-expect-error
+                          cursor={<CustomCursor />}
+                        />
+                        <Bar dataKey="minutes" radius={[0, 0, 0, 0]}>
+                          {trainingData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
+            {/* Recent Games */}
+            {isLoadingProgress ? (
+              <RecentGamesSkeleton />
+            ) : (
+              <div className="rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-lg font-bold">
+                    Recent Games{" "}
+                    <span className="text-sm font-normal text-gray-500">
+                      {formattedRecentGames.length > 0
+                        ? `(Last ${formattedRecentGames.length} games)`
+                        : ""}
+                    </span>
+                  </h1>
+                  <MobileTooltip
+                    content="Your most recent chess games with detailed analysis including accuracy, moves quality, and performance metrics. Review these to identify improvement areas."
+                    side="left"
+                  >
+                    <Info
+                      className="w-4 h-4 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                      strokeWidth={1.5}
+                    />
+                  </MobileTooltip>
+                </div>
+
+                {formattedRecentGames.length === 0 ? (
+                  <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                    <Image
+                      src="/training-plan/no-data.png"
+                      alt="No games found"
+                      className="mb-2"
+                      width={96}
+                      height={96}
+                    />
+                    <p className="text-base text-gray-600 font-medium">
+                      You have not played any Games yet.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-sm border overflow-x-auto md:overflow-visible">
+                      <table className="w-full border-collapse text-[12px]">
+                        <thead>
+                          <tr className="bg-blue-50 font-medium">
+                            <th className="p-1 text-left">Date</th>
+                            <th className="p-1 text-left">Opponent</th>
+                            <th className="p-1 text-left">Result</th>
+                            <th className="p-1 text-left">Opening</th>
+                            <th className="p-1 text-left">Analysis</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {formattedRecentGames.map((game, index) => (
+                            <tr
+                              key={index}
+                              className="border-b border-gray-100"
+                            >
+                              <td className="p-1 whitespace-nowrap">
+                                {game.date}
+                              </td>
+                              <td className="p-1">
+                                <div className="font-medium text-[12px] truncate max-w-[8rem]">
+                                  {game.opponent}
+                                </div>
+                                <div className="text-gray-500 text-[10px] -ml-1">
+                                  Rating: {game.rating}
+                                </div>
+                              </td>
+                              <td className="p-1">
+                                <span
+                                  className={`font-medium ${
+                                    game.result === "WIN"
+                                      ? "text-green-500"
+                                      : game.result === "LOSS"
+                                      ? "text-red-500"
+                                      : "text-yellow-500"
+                                  }`}
+                                >
+                                  {game.result}
+                                </span>
+                              </td>
+                              <td className="p-1">{game.opening}</td>
+                              <td className="p-1">
+                                <div className="flex flex-col space-y-1">
+                                  <div className="flex items-center text-[11px]">
+                                    <Target className="w-4 h-4 text-blue-base mr-1" />
+                                    {game.accuracy}%
+                                  </div>
+                                  <div className="flex items-center text-[11px]">
+                                    <TriangleAlert className="w-4 h-4 text-yellow-500 mr-1" />
+                                    {game.brilliant}
+                                  </div>
+                                  <div className="flex items-center text-[11px]">
+                                    <Clock className="w-4 h-4 text-blue-base mr-1" />
+                                    {game.mistakes}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 gap-x-2 text-sm text-nowrap text-[11px] sm:text-sm">
+                      <div className="flex items-center">
+                        <Trophy className="w-4 h-4 text-[#00B427] rounded-sm mr-1" />
+                        <h1 className="mr-1 text-xs lg:text-base">Win Rate:</h1>
+                        <span className="text-[#00B427] font-bold">
+                          {apiData?.winRate || 0}%
+                        </span>
+                      </div>
+
+                      <div className="flex items-center">
+                        <Target
+                          fill="#F1F5F9"
+                          className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1"
+                        />
+                        <h1 className="mr-1 text-xs lg:text-base">
+                          Avg Accuracy:
+                        </h1>
+                        <span className="text-blue-base font-bold">
+                          {apiData?.avgAccuracy || 0}%
+                        </span>
+                      </div>
+
+                      <div className="w-0 h-0 overflow-hidden sm:w-auto sm:h-auto sm:invisible">
+                        <span>Total Games: {formattedRecentGames.length}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Performance Trends */}
+            {isLoadingProgress ? (
+              <PerformanceTrendsSkeleton />
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-x-2">
+                    <h1 className="text-lg font-bold">Performance Trends</h1>
+                    <h1 className="text-sm text-gray-500">
+                      (Last 7 days improvement)
+                    </h1>
+                  </div>
+                  <MobileTooltip
+                    content="Performance metrics show your improvement over the last 7 days. Green indicates positive trends, while other colors show areas that need attention. Games Won and ELO Rating increases are good, while fewer Mistakes and Blunders indicate better play."
+                    side="left"
+                  >
+                    <Info
+                      className="w-4 h-4 text-blue-base hover:text-blue-600 cursor-pointer transition-colors"
+                      strokeWidth={1.5}
+                    />
+                  </MobileTooltip>
+                </div>
+
+                {stats.length === 0 ? (
+                  <div className="h-[200px] flex flex-col items-center justify-center bg-[#C0CED440]/20 rounded-lg">
+                    <Image
+                      src="/training-plan/no-data.png"
+                      alt="No games found"
+                      className="mb-2"
+                      width={96}
+                      height={96}
+                    />
+                    <p className="text-base text-gray-600 font-medium">
+                      You have not played any Games in the last 7 days
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 w-full">
+                    {stats.map((stat, index) => {
+                      const { color, value } = getChangeColorAndPrefix(
+                        stat.change,
+                        stat.title
+                      );
+
+                      return (
+                        <Card
+                          key={index}
+                          className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
+                        >
+                          <div className="flex items-center">
+                            <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
+                              {stat.icon === "trophy" && (
+                                <LucideTrophy
+                                  className="h-6 w-6 text-green-500"
+                                  strokeWidth={1.5}
+                                />
+                              )}
+                              {stat.icon === "target" && (
+                                <TargetIcon
+                                  className="h-6 w-6 text-blue-base"
+                                  strokeWidth={1.5}
+                                />
+                              )}
+                              {stat.icon === "alert-yellow" && (
+                                <TriangleAlertIcon
+                                  className="h-6 w-6 text-[#FAC933]"
+                                  strokeWidth={1.5}
+                                />
+                              )}
+                              {stat.icon === "alert-red" && (
+                                <TriangleAlertIcon
+                                  className="h-6 w-6 text-[#FD0000]"
+                                  strokeWidth={1.5}
+                                />
+                              )}
+                            </div>
+
+                            <div className="flex-1">
+                              <h3 className="font-medium text-gray-700 text-sm">
+                                {stat.title}
+                              </h3>
+                              <h2 className="text-2xl font-bold">
+                                {stat.value}
+                              </h2>
+                              <div className={`text-sm font-bold ${color}`}>
+                                {value}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {progressError && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
-          <p className="font-semibold text-base">
-            Error loading progress data:
-          </p>
-          <p className="text-base">{progressError}</p>
-        </div>
-      )}
-    </div>
+        {progressError && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
+            <p className="font-semibold text-base">
+              Error loading progress data:
+            </p>
+            <p className="text-base">{progressError}</p>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 };
 

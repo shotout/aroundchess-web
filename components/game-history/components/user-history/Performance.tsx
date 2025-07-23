@@ -12,6 +12,7 @@ import {
   StrengthItem,
   WeaknessItem,
 } from "../../types/GameHistoryTypes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Skeleton components for partial loading
 const ChartSkeleton: React.FC = () => (
@@ -102,7 +103,10 @@ const Performance: React.FC = () => {
     trainingFocus = defaultTrainingFocus,
   } = data || {};
 
-  // Show error state
+
+  
+  
+
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
@@ -117,8 +121,8 @@ const Performance: React.FC = () => {
     );
   }
 
-  // Show layout immediately, with loading skeletons where needed
   return (
+    <TooltipProvider>
     <div className="flex flex-col lg:border lg:rounded-md p-4">
       {/* Game Phase Chart */}
       {loading ? (
@@ -173,6 +177,8 @@ const Performance: React.FC = () => {
         <RecommendationsSkeleton />
       )}
     </div>
+    </TooltipProvider>
+
   );
 };
 
