@@ -42,7 +42,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/auth/signup`, {
+      const response = await fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
