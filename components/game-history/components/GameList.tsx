@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import GamesListSkeleton from "./GameListSkeleton";
+import { createPgnHash } from "@/utils/crypto-utils";
+import { useProfileStore } from "@/app/store/profile";
 
 interface GamesListProps {
   games: Game[];
@@ -37,9 +39,37 @@ interface GamesListProps {
   recentlyImportedIds?: (string | number)[];
 }
 
-// 11-column template: # (auto), Date (2fr), Time Ctrl (1fr), Result (1fr),
-// Opponent (2fr), Rating (1fr), GameType (1fr), Moves (1fr),
-// Opening (2fr), Source (1fr), Actions (2fr)
+interface LastAnalysisResponse {
+  analysis?: any;
+  exists: boolean;
+  message?: string;
+}
+
+const endpoint = process.env.BASE_URL
+
+const fetchLastAnalysis = async (pgnHash: string, sessionId:string): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching last analysis:', error);
+    return null;
+  }
+};
+
 const DESKTOP_GRID_TEMPLATE =
   "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
 
@@ -54,34 +84,105 @@ const GamesList: React.FC<GamesListProps> = ({
   recentlyImportedIds = [],
 }) => {
   const router = useRouter();
-  const { getJobByGameId, clearOldJobs } =
-    useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport } =
-    usePgnStore();
+  const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  const { sessionId } = useProfileStore();
+
+  const [gamesWithAnalysis, setGamesWithAnalysis] = useState<
+    Map<string | number, any>
+  >(new Map());
+  const [checkingAnalysis, setCheckingAnalysis] = useState<
+    Set<string | number>
+  >(new Set());
 
   const isNewlyImported = (id: string | number) =>
     recentlyImportedIds.includes(id);
 
-  const [openGameId, setOpenGameId] = useState<
-    string | number | null
-  >(null);
+  const [openGameId, setOpenGameId] = useState<string | number | null>(null);
 
   useEffect(() => {
     clearOldJobs();
   }, [clearOldJobs]);
 
-  const getAnalysisButtonContent = (
-    gameId: string | number,
-    game: Game
-  ) => {
-    if (game.isAnalysis) {
+  useEffect(() => {
+    const checkExistingAnalysis = async () => {
+      for (const game of currentGames) {
+        if (game.isAnalysis || gamesWithAnalysis.has(game.id)) {
+          continue;
+        }
+
+        try {
+          setCheckingAnalysis(prev => new Set(prev).add(game.id));
+          
+          const pgnHash = await createPgnHash(game.pgn);
+          const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
+          
+          if (lastAnalysis?.exists && lastAnalysis.analysis) {
+            setGamesWithAnalysis(prev => 
+              new Map(prev).set(game.id, lastAnalysis.analysis)
+            );
+          }
+        } catch (error) {
+          console.error(`Error checking analysis for game ${game.id}:`, error);
+        } finally {
+          setCheckingAnalysis(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(game.id);
+            return newSet;
+          });
+        }
+      }
+    };
+
+    if (currentGames.length > 0) {
+      checkExistingAnalysis();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentGames, gamesWithAnalysis]);
+
+  const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
+    const existingAnalysis = gamesWithAnalysis.get(gameId);
+    const isCheckingForAnalysis = checkingAnalysis.has(gameId);
+
+    if (game.isAnalysis || existingAnalysis) {
       return {
         text: "View Results",
         icon: <CheckCircle className="h-4 w-4 mr-1" />,
         className: "bg-green-600 hover:bg-green-700 text-white",
-        onClick: () => {
-          router.push("/analysis");
+        onClick: async () => {
+          if (existingAnalysis) {
+            setPgn(game.pgn);
+            setDataGamesImport(game);
+            setDataAnalysis(existingAnalysis);
+            router.push("/analysis");
+          } else {
+            try {
+              const pgnHash = await createPgnHash(game.pgn);
+              const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
+              
+              if (lastAnalysis?.exists && lastAnalysis.analysis) {
+                setPgn(game.pgn);
+                setDataGamesImport(game);
+                setDataAnalysis(lastAnalysis.analysis);
+                router.push("/analysis");
+              } else {
+                console.error("No analysis found for this game");
+                setOpenGameId(gameId);
+              }
+            } catch (error) {
+              console.error("Error fetching analysis:", error);
+            }
+          }
         },
+      };
+    }
+
+    if (isCheckingForAnalysis) {
+      return {
+        text: "Checking...",
+        icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+        className: "bg-gray-400 text-white",
+        onClick: () => {},
       };
     }
 
@@ -94,29 +195,23 @@ const GamesList: React.FC<GamesListProps> = ({
         onClick: () => setOpenGameId(gameId),
       };
     }
+
     switch (job.status) {
       case "pending":
       case "processing": {
         const pct =
-          job.progress > 0
-            ? `In Progress ${job.progress}%`
-            : "In Progress";
+          job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
         return {
           text: pct,
-          icon: (
-            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-          ),
-          className:
-            "bg-yellow-500 hover:bg-yellow-600 text-white",
+          icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+          className: "bg-yellow-500 hover:bg-yellow-600 text-white",
           onClick: () => {},
         };
       }
       case "finalizing":
         return {
           text: "Finalizing...",
-          icon: (
-            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-          ),
+          icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
           className: "bg-blue-500 hover:bg-blue-600 text-white",
           onClick: () => {},
         };
@@ -173,9 +268,9 @@ const GamesList: React.FC<GamesListProps> = ({
     return op;
   };
 
- if (isLoading) {
-  return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
-}
+  if (isLoading) {
+    return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
+  }
 
   if (error) {
     return (
@@ -210,9 +305,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
   return (
     <div className="p-0 md:p-4 xl:p-0">
-      {/* Desktop table view */}
       <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
-        {/* Header Row */}
         <div
           className="grid bg-blue-100 py-3 text-xs font-medium text-gray-700"
           style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
@@ -230,10 +323,8 @@ const GamesList: React.FC<GamesListProps> = ({
           <div className="px-4 text-center">Actions</div>
         </div>
 
-        {/* Data Rows */}
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
           {currentGames.map((game, idx) => {
-            
             const isNew = isNewlyImported(game.id);
             const indexInPage =
               (paginationProps.currentPage - 1) *
@@ -252,13 +343,10 @@ const GamesList: React.FC<GamesListProps> = ({
               >
                 <AnalyzeGameHistory
                   open={openGameId === game.id}
-                  onOpenChange={(o) =>
-                    setOpenGameId(o ? game.id : null)
-                  }
+                  onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
                   game={game}
                 />
 
-                {/* # */}
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
                   {isNew && (
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
@@ -268,70 +356,54 @@ const GamesList: React.FC<GamesListProps> = ({
                   </span>
                 </div>
 
-                {/* Date */}
-                <div className="flex items-center px-4 py-3">
-                  {game.date}
-                </div>
+                <div className="flex items-center px-4 py-3">{game.date}</div>
 
-                {/* Time Control */}
                 <div className="flex items-center px-2 py-3">
                   {displayTimeControl(game.timeControl)}
                 </div>
 
-                {/* Result */}
                 <div className="flex items-center px-2 py-3">
                   {(() => {
                     const r = getResultData(game.result);
-                    return (
-                      <span className={r.className}>{r.text}</span>
-                    );
+                    return <span className={r.className}>{r.text}</span>;
                   })()}
                 </div>
 
-                {/* Opponent */}
                 <div className="flex items-center px-4 py-3 truncate">
                   {game.opponent || "Unknown Player"}
                 </div>
 
-                {/* Rating */}
                 <div className="flex items-center px-2 py-3">
                   {game.rating || "N/A"}
                 </div>
 
-                {/* Game Type */}
                 <div className="flex items-center px-2 py-3 truncate">
                   {game.timeClass || "Unknown Game Type"}
                 </div>
 
-                {/* Moves */}
                 <div className="flex items-center px-2 py-3">
                   {game.moves || "N/A"}
                 </div>
 
-                {/* Opening */}
                 <div className="flex items-center px-4 py-3">
                   {displayOpening(game.opening)}
                 </div>
 
-                {/* Source */}
                 <div className="flex items-center px-2 py-3">
                   {game.source || "Unknown"}
                 </div>
 
-                {/* Actions */}
                 <div className="px-4 py-3">
                   {(() => {
-                    const btn = getAnalysisButtonContent(
-                      game.id,
-                      game
-                    );
+                    const btn = getAnalysisButtonContent(game.id, game);
                     return (
                       <button
                         className={`${btn.className} h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
                           btn.text.startsWith("In Progress") ||
-                          btn.text === "Finalizing..."
+                          btn.text === "Finalizing..." ||
+                          btn.text === "Checking..."
                         }
                       >
                         {btn.icon}
@@ -346,7 +418,6 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       </div>
 
-      {/* Mobile card view */}
       <div className="lg:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-xs">
           {currentGames.map((game) => (
