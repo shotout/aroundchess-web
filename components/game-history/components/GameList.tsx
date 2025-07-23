@@ -40,21 +40,25 @@ interface GamesListProps {
 }
 
 interface LastAnalysisResponse {
-  analysis?: any;
-  exists: boolean;
-  message?: string;
+  success: boolean;
+  message: string;
+  data?: any;
+  statusCode: number;
 }
 
-const endpoint = process.env.BASE_URL
+const endpoint = process.env.BASE_URL;
 
-const fetchLastAnalysis = async (pgnHash: string, sessionId:string): Promise<LastAnalysisResponse | null> => {
+const fetchLastAnalysis = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
   try {
     const response = await fetch(
       `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
       {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${sessionId}`,
+          Authorization: `Bearer ${sessionId}`,
         },
       }
     );
@@ -65,7 +69,7 @@ const fetchLastAnalysis = async (pgnHash: string, sessionId:string): Promise<Las
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching last analysis:', error);
+    console.error("Error fetching last analysis:", error);
     return null;
   }
 };
@@ -85,7 +89,8 @@ const GamesList: React.FC<GamesListProps> = ({
 }) => {
   const router = useRouter();
   const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport, dataAnalysis } =
+    usePgnStore();
   const { sessionId } = useProfileStore();
 
   const [gamesWithAnalysis, setGamesWithAnalysis] = useState<
@@ -112,20 +117,21 @@ const GamesList: React.FC<GamesListProps> = ({
         }
 
         try {
-          setCheckingAnalysis(prev => new Set(prev).add(game.id));
-          
+          setCheckingAnalysis((prev) => new Set(prev).add(game.id));
+
           const pgnHash = await createPgnHash(game.pgn);
           const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-          
-          if (lastAnalysis?.exists && lastAnalysis.analysis) {
-            setGamesWithAnalysis(prev => 
-              new Map(prev).set(game.id, lastAnalysis.analysis)
+
+          // Updated condition to match new API structure
+          if (lastAnalysis?.success && lastAnalysis.data) {
+            setGamesWithAnalysis((prev) =>
+              new Map(prev).set(game.id, lastAnalysis.data)
             );
           }
         } catch (error) {
           console.error(`Error checking analysis for game ${game.id}:`, error);
         } finally {
-          setCheckingAnalysis(prev => {
+          setCheckingAnalysis((prev) => {
             const newSet = new Set(prev);
             newSet.delete(game.id);
             return newSet;
@@ -137,7 +143,7 @@ const GamesList: React.FC<GamesListProps> = ({
     if (currentGames.length > 0) {
       checkExistingAnalysis();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentGames, gamesWithAnalysis]);
 
   const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
@@ -157,13 +163,14 @@ const GamesList: React.FC<GamesListProps> = ({
             router.push("/analysis");
           } else {
             try {
-              const pgnHash = await createPgnHash(game.pgn);
+              const pgnHash = createPgnHash(game.pgn);
               const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-              
-              if (lastAnalysis?.exists && lastAnalysis.analysis) {
-                setPgn(game.pgn);
+
+              // Updated condition to match new API structure
+              if (lastAnalysis?.success && lastAnalysis.data) {
+                setPgn(dataAnalysis?.gameInfo.pgn);
                 setDataGamesImport(game);
-                setDataAnalysis(lastAnalysis.analysis);
+                setDataAnalysis(lastAnalysis.data); 
                 router.push("/analysis");
               } else {
                 console.error("No analysis found for this game");

@@ -16,6 +16,7 @@ export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [_, setInitialLoading] = useState(true);
+  const [hasExistingData, setHasExistingData] = useState(false);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
 
   const {
@@ -23,6 +24,7 @@ export default function AnalysisPage() {
     pgn,
     setPgn,
     setDataAnalysis,
+    dataAnalysis,
     hydrated,
     username,
   } = usePgnStore();
@@ -42,6 +44,12 @@ export default function AnalysisPage() {
       setIsSignedIn(sessionId.length > 0);
     }
   }, [mounted, sessionId, hydratedProfile]);
+
+  useEffect(() => {
+    if (hydrated && pgn && dataAnalysis) {
+      setHasExistingData(true);
+    }
+  }, [hydrated, pgn, dataAnalysis]);
 
   const fetchExistAnalysis = async () => {
     try {
@@ -79,16 +87,25 @@ export default function AnalysisPage() {
     if (!mounted) return;
 
     if (hydrated && hydratedProfile) {
+      if (hasExistingData) {
+        console.log("Using existing data from game-history");
+        setInitialLoading(false);
+        return;
+      }
+
       if (isLoading) {
         setInitialLoading(false);
-      } else if (isSignedIn && username) {
+        return;
+      }
+
+      if (isSignedIn && username) {
         fetchExistAnalysis().finally(() => setInitialLoading(false));
       } else {
         loadFamousGame().finally(() => setInitialLoading(false));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydratedProfile, hydrated, isSignedIn, username, isLoading]);
+  }, [mounted, hydratedProfile, hydrated, isSignedIn, username, isLoading, hasExistingData]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -157,7 +174,7 @@ export default function AnalysisPage() {
                   </div>
                 </div>
 
-                {fetchLoading && pgn.length === 0 ? (
+                {fetchLoading && pgn.length === 0 && !hasExistingData ? (
                   <div className="py-4">
                     <DotSpinner />
                   </div>

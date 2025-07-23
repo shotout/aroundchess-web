@@ -1,6 +1,5 @@
 "use client";
 
-import MovementTable from "@/components/table/movement";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { Chess, Square } from "chess.js";
 import { motion } from "framer-motion";
@@ -27,6 +26,7 @@ import {
 import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useApiClient } from "@/functions/api-client";
 import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
+import MovementTable from "../table/movementFeedback";
 
 interface ParsedMove {
   color: string;

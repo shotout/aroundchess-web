@@ -851,7 +851,7 @@ const AnalysisResult: React.FC = () => {
             {renderBottomAvatar()}
           </motion.div>
 
-          {showTable && <MovementTable />}
+         {showTable && <MovementTable />}
           {showMovementContent && !showTable && chessMove.move != null && (
             <div className="w-full p-0" style={{ maxWidth: boardSize }}>
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
