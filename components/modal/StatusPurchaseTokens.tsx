@@ -2,14 +2,14 @@
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function StatusPurchaseTokens() {
   const router = useRouter();
-  const { open, setOpen, status, setStatus, quantity } =
+  const { open, setOpen, status,  quantity } =
     useStatusPurchaseTokens();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [content, setContent] = useState<string>("");
@@ -17,17 +17,16 @@ export function StatusPurchaseTokens() {
   const [dots, setDots] = useState<string>("");
 
   useEffect(() => {
-    // console.log("status", status);
     if (status == "failed") {
       setContent(`Your Purchase for ${quantity} Tokens was failed!`);
       setDescription(
         "Your payment failed, retry payment or try to change the payment method."
       );
     } else if (status == "success") {
-      setContent(`Your Purchase for ${quantity} Tokens was successful!`);
+      setContent(`Your Purchase for ${quantity} Tokens successful!`);
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
-      setContent(`Your Purchase for Premium Package was failed!`);
+      setContent(`Your AroundChess Premium Subscription Failed!`);
       setDescription(
         "Your payment failed, retry payment or try to change the payment method."
       );
@@ -95,7 +94,7 @@ export function StatusPurchaseTokens() {
             />
           </div>
           <div className="flex flex-col items-center justify-center gap-2 mt-4 mb-4">
-            <span className="font-medium text-[18px] text-[#2e2e2e] text-center">
+            <span className="font-semibold text-[18px] text-[#2e2e2e] text-center">
               {content}
             </span>
             <span className="font-normal text-[14px] text-[#2e2e2e] text-center">

@@ -112,7 +112,33 @@ export default function LoginPage() {
         setPersistedCookie("token", data.data.access_token, 365);
         setSessionId(data.data.access_token);
         toast.success("Logged in successfully!");
-        router.push("/analysis");
+
+        // Check username and redirect accordingly - same as SSO callback
+        try {
+          const profileResponse = await fetch(`${baseUrl}/profile`, {
+            headers: {
+              Authorization: `Bearer ${data.data.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            const userUsername =
+              profileData.data?.username || profileData.username;
+
+            if (userUsername && userUsername.trim() !== "") {
+              router.push("/my-game-history");
+            } else {
+              router.push("/analysis");
+            }
+          } else {
+            router.push("/analysis");
+          }
+        } catch (profileError) {
+          console.error("Error fetching profile:", profileError);
+          router.push("/analysis");
+        }
       } else {
         toast.error("No authentication token received");
       }
@@ -211,11 +237,26 @@ export default function LoginPage() {
     }
   };
 
+  //   if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  //       <div className="text-center">
+  //         <h2 className="text-xl font-semibold text-gray-900 mb-2">
+  //           Completing your sign-in...
+  //         </h2>
+  //         <p className="text-gray-600">
+  //           Please wait while we verify your account.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+
   return (
     <>
       <div className="h-screen flex flex-col">
         <SiteHeaderNew />
-
         <main
           className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
                      h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]

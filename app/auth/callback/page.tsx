@@ -13,7 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import DotSpinner from "@/components/game-history/Spinner";
 
 export default function SSOCallbackPage() {
   const [isProcessing, setIsProcessing] = useState(true);
@@ -190,7 +189,6 @@ export default function SSOCallbackPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <DotSpinner size={8} />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Completing your sign-in...
           </h2>
