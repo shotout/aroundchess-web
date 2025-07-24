@@ -10,6 +10,7 @@ const publicRoutes = [
   "/about-us",
   "/privacy-policy",
   "/terms-of-service",
+  "/eu-compliance",
   "/contact-us",
   "/chess-news",
   "/chess-news/[slug]",
