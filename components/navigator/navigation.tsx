@@ -30,6 +30,7 @@ export default function Navigation({
   const [mounted, setMounted] = useState(true);
 
   useEffect(() => {
+    setAlreadyFetch(false);
     setCallFetch(formatTimePgn());
   }, []);
 

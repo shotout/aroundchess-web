@@ -48,8 +48,7 @@ export default function Home() {
     if (sessionId && sessionId !== "") {
       if (hasRun.current) return;
       hasRun.current = true;
-      setAlreadyFetch(false);
-      setCallFetch(formatTimePgn());
+     
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
