@@ -161,7 +161,6 @@ const Analytics: React.FC = () => {
       <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
         <div className="md:border border-gray-200 rounded-lg p-4">
           <div className="flex flex-col gap-4">
-            {/* Rating Progress Chart - show skeleton if loading, data if available */}
             {loading ? (
               <ChartSkeleton />
             ) : data ? (

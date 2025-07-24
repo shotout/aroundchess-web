@@ -14,6 +14,8 @@ import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { GrandmastersSection } from "@/components/GrandmasterSection";
+import { formatTimePgn } from "@/functions/format-date";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 const checkForAccessToken = () => {
   if (typeof window !== "undefined") {
@@ -27,9 +29,8 @@ export default function Home() {
   const [isRedirecting, setIsRedirecting] = useState(() =>
     checkForAccessToken()
   );
-  const { getActiveMembership, getTokenPackage } = useApiClient();
-  const { sessionId, setActiveMembership, setIsMember, setTokenPackage } =
-    useProfileStore();
+  const { setCallFetch } = useProfileFetch();
+  const { sessionId, setAlreadyFetch } = useProfileStore();
   const hasRun = useRef(false);
 
   useLayoutEffect(() => {
@@ -47,19 +48,7 @@ export default function Home() {
     if (sessionId && sessionId !== "") {
       if (hasRun.current) return;
       hasRun.current = true;
-
-      getTokenPackage({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setTokenPackage(data);
-        }
-      });
-
-      getActiveMembership({}).then((response) => {
-        const data = response.data;
-        setIsMember(data.status === "ACTIVE");
-        setActiveMembership(data);
-      });
+     
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);

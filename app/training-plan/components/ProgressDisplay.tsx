@@ -40,7 +40,6 @@ import { useProgressStore } from "../store";
 import Image from "next/image";
 import { useProfileStore } from "@/app/store/profile";
 
-// Custom Mobile Tooltip Component
 const MobileTooltip = ({
   children,
   content,
@@ -114,7 +113,6 @@ const MobileTooltip = ({
             }`}
           >
             <div className="text-center leading-relaxed">{content}</div>
-            {/* Arrow */}
             <div
               className={`absolute border-4 border-transparent ${
                 side === "left"
@@ -132,7 +130,6 @@ const MobileTooltip = ({
     );
   }
 
-  // Desktop version uses shadcn tooltip
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -147,7 +144,6 @@ const MobileTooltip = ({
   );
 };
 
-// Skeleton Components for Progress Display
 const OverallImprovementSkeleton = () => (
   <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
     <CardContent className="p-4 flex flex-col gap-y-4 animate-pulse">
@@ -415,6 +411,49 @@ const ProgressDisplay = () => {
     return [];
   };
 
+const chartRange = React.useMemo(() => {
+  const formattedData = getFormattedRatingData();
+  
+  if (formattedData.length === 0) {
+    const defaultValues = [800, 1000];
+    const rawMin = Math.min(...defaultValues);
+    const rawMax = Math.max(...defaultValues);
+    const adjustedMin = Math.floor(rawMin - 200);
+    const adjustedMax = Math.ceil(rawMax + 200);
+    
+    return {
+      min: adjustedMin,
+      max: adjustedMax
+    };
+  }
+
+  const data = formattedData.map(item => item.rating).filter(r => r > 0);
+  
+  if (data.length === 0) {
+    const defaultValues = [800, 1000];
+    const rawMin = Math.min(...defaultValues);
+    const rawMax = Math.max(...defaultValues);
+    const adjustedMin = Math.floor(rawMin - 200);
+    const adjustedMax = Math.ceil(rawMax + 200);
+    
+    return {
+      min: adjustedMin,
+      max: adjustedMax
+    };
+  }
+
+  const rawMin = Math.min(...data);
+  const rawMax = Math.max(...data);
+  const adjustedMin = Math.floor(rawMin - 200);
+  const adjustedMax = Math.ceil(rawMax + 200);
+  
+  return {
+    min: adjustedMin,
+    max: adjustedMax
+  };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [apiData?.ratingProgress?.data]);
+
   const formattedRecentGames = apiData?.recentGames
     ? apiData.recentGames.map((game) => ({
         date: game.date,
@@ -614,7 +653,8 @@ const ProgressDisplay = () => {
                           tickMargin={5}
                         />
                         <YAxis
-                          // domain={[0, 2400]}
+                          domain={[chartRange.min, chartRange.max]}
+                          tickFormatter={(value) => `${value}`}
                           axisLine={true}
                           tickLine={true}
                           tick={{ fill: "#000", fontSize: 12 }}
@@ -707,7 +747,6 @@ const ProgressDisplay = () => {
                           tickMargin={5}
                         />
                         <YAxis
-                          // domain={[0, 1400]}
                           axisLine={true}
                           tickLine={true}
                           tick={{ fill: "#000", fontSize: 12 }}
