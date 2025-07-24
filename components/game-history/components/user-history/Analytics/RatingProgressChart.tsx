@@ -79,42 +79,47 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
     });
   }, [ratingData]);
 
-  const chartRange = React.useMemo(() => {
-    if (cleanData.length === 0) {
-      return {
-        min: 400,
-        max: 1200,
-        ticks: [400, 600, 800, 1000, 1200]
-      };
-    }
-
-    const ratings = cleanData.map(item => item.rating).filter(r => r > 0);
-    
-    if (ratings.length === 0) {
-      return {
-        min: 400,
-        max: 1200,
-        ticks: [400, 600, 800, 1000, 1200]
-      };
-    }
-
-    const minRating = Math.min(...ratings);
-    const maxRating = Math.max(...ratings);
-    
-    const minY = Math.max(0, Math.floor(minRating / 200) * 200 - 200);
-    const maxY = Math.ceil(maxRating / 200) * 200 + 400;
-    
-    const ticks = [];
-    for (let i = minY; i <= maxY; i += 200) {
-      ticks.push(i);
-    }
+const chartRange = React.useMemo(() => {
+  if (cleanData.length === 0) {
+    // Dynamic fallback when no data
+    const defaultValues = [800, 1000];
+    const minValue = Math.min(...defaultValues);
+    const maxValue = Math.max(...defaultValues);
+    const adjustedMin = Math.max(minValue - 200, 0);
+    const adjustedMax = maxValue + 200;
     
     return {
-      min: minY,
-      max: maxY,
-      ticks: ticks
+      min: adjustedMin,
+      max: adjustedMax
     };
-  }, [cleanData]);
+  }
+
+  const values = cleanData.map(item => item.rating).filter(r => r > 0);
+  
+  if (values.length === 0) {
+    // Dynamic fallback when no valid ratings
+    const defaultValues = [800, 1000];
+    const minValue = Math.min(...defaultValues);
+    const maxValue = Math.max(...defaultValues);
+    const adjustedMin = Math.max(minValue - 200, 0);
+    const adjustedMax = maxValue + 200;
+    
+    return {
+      min: adjustedMin,
+      max: adjustedMax
+    };
+  }
+
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const adjustedMin = Math.max(minValue - 200, 0);
+  const adjustedMax = maxValue + 200;
+  
+  return {
+    min: adjustedMin,
+    max: adjustedMax
+  };
+}, [cleanData]);
 
   if (!cleanData || cleanData.length === 0) {
     return (
@@ -164,8 +169,8 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
               tickLine={true} 
             />
             <YAxis
-              // domain={[chartRange.min, chartRange.max]}
-              // ticks={chartRange.ticks}
+              domain={[chartRange.min, chartRange.max]}
+              tickFormatter={(value) => `${value}`}
               axisLine={true}
               tickLine={true}
             />
