@@ -165,8 +165,8 @@ export const PremiumSubsContent: React.FC<{
       membershipId: premium.id,
       stripeProductId: premium.stripeProductId,
     };
-    if (profile.discount) {
-      body.couponId = profile.discount;
+    if (profile.discountInfo?.discountCode) {
+      body.couponId = profile.discountInfo?.discountCode;
     }
     const res = await fetch("/api/stripe/checkout_sessions", {
       method: "POST",
@@ -281,11 +281,13 @@ export const PremiumSubsContent: React.FC<{
             </div>
           </div>
 
-          {!isMember && profile.discount && isPass > 0 && (
-            <div className="flex justify-center items-center my-2">
-              <CountdownTimerDiscount />
-            </div>
-          )}
+          {!isMember &&
+            profile?.discountInfo?.hasActiveDiscount &&
+            isPass > 0 && (
+              <div className="flex justify-center items-center my-2">
+                <CountdownTimerDiscount />
+              </div>
+            )}
 
           <div className="flex items-center gap-3 mb-3 pt-1">
             <div className="p-1 rounded-full">
@@ -300,7 +302,8 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {profile.discount == null && (isMember || isPass < 0) ? (
+              {profile?.discountInfo?.hasActiveDiscount == false &&
+              (isMember || isPass < 0) ? (
                 <div className="text-xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
