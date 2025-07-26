@@ -6,7 +6,6 @@ import { useApiClient } from "@/functions/api-client";
 import { searchFAQs } from "./search";
 import ChessFAQSkeleton from "./ChessFaqSkeleton";
 
-
 export default function ChessFAQ() {
   const { getFAQ, isLoading } = useApiClient();
   const [activeTab, setActiveTab] = useState<string>("");
@@ -23,7 +22,7 @@ export default function ChessFAQ() {
     if (hasRun.current) return;
     hasRun.current = true;
     fetchFAQ();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -127,53 +126,68 @@ export default function ChessFAQ() {
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-             onClick={() => {
-                setQuestion(tab.questions);
-                setActiveTab(tab.label);
-              }}
-            className="relative flex  flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px]"
+            onClick={() => {
+              setQuestion(tab.questions);
+              setActiveTab(tab.label);
+            }}
+            className="relative flex flex-row items-center justify-center bg-[#FFF] sm:min-w-[300px] lg:min-w-[400px] xl:min-w-[522px] py-[24px] pr-[9px] h-[92px] border border-[#DEDEDE] rounded-[8px] overflow-hidden"
           >
-            <Image
-              src={
-                tab.label.includes("General")
-                  ? "/images/faq/question-mark.png"
-                  : "/images/faq/analysis-mark.png"
-              }
-              alt="background"
-              width={120}
-              height={92}
-              quality={100}
-              className="sm:w-2/3 lg:w-[120px] h-full absolute  inset-0 object-cover"
-            />
-            <button
-              className={`z-10 flex flex-col items-center justify-center bg-[#ffffff80] w-fill p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] self-center justify-self-center ${
-                activeTab === tab.label ? "text-[#221AE9]  font-bold" : ""
-              }`}        
-            >
-              <span className="sm:text-[12px] lg:text-[20px] font-medium text-center">
-                {tab.label}
-              </span>
-            </button>
+            <div className="absolute inset-0 flex items-center justify-start">
+              <div className="relative w-[80px] sm:w-[90px] lg:w-[100px] xl:w-[120px] h-[40px] sm:h-[48px] lg:h-[52px] xl:h-[60px]">
+                <Image
+                  src={
+                    tab.label.includes("General")
+                      ? "/images/faq/question-mark.png"
+                      : "/images/faq/analysis-mark.png"
+                  }
+                  alt={
+                    tab.label.includes("General")
+                      ? "question mark"
+                      : "analysis mark"
+                  }
+                  width={120}
+                  height={88}
+                  quality={100}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center justify-center ml-[100px] sm:ml-[110px] lg:ml-[120px] xl:ml-[140px] mr-4">
+              <div className="bg-[#ffffff90] backdrop-blur-sm w-full p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] flex items-center justify-center">
+                <span
+                  className={`sm:text-[12px] lg:text-[20px] font-medium text-center ${
+                    activeTab === tab.label
+                      ? "text-[#221AE9] font-bold"
+                      : "text-gray-700"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </div>
+            </div>
           </button>
         ))}
       </div>
 
-      <div className="md:hidden flex flex-row mx-[16px] ">
+      <div className="md:hidden flex flex-row mx-[16px] gap-2">
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-            className={`flex flex-col items-center justify-center px-[12px] h-[42px] rounded-[12px] ${
+            className={`relative flex flex-col items-center justify-center px-[12px] h-[42px] rounded-[12px] overflow-hidden ${
               tab.label.includes("General") ? "w-[40%]" : "w-[60%]"
             } ${
               activeTab === tab.label
-                ? "text-[#221AE9] border border-[#221AE9]"
-                : "bg-white border border-gray-300 rounded-md"
-            } ${index < filteredData.length - 1 ? "mr-1" : ""}`}
+                ? "text-[#221AE9] border border-[#221AE9] bg-blue-50"
+                : "bg-white border border-gray-300"
+            }`}
             onClick={() => {
               setQuestion(tab.questions);
               setActiveTab(tab.label);
             }}
           >
+
+            {/* Mobile text wrapper */}
             <div className="flex flex-col items-start">
               <span className="block text-[11px] font-medium text-start">
                 {tab.label}
@@ -209,7 +223,7 @@ export default function ChessFAQ() {
               {openQuestion === index && (
                 <div className="px-[20px] py-[5px] md:py-[10px] border-t bg-[#F2FBFE]">
                   {Array.isArray(faq.answer) && faq.answer.length > 0 ? (
-                    <div className="lspace-y-1">
+                    <div className="space-y-1">
                       {faq.answer.map((line: any, i: number) => (
                         <span
                           key={i}

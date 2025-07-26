@@ -71,6 +71,10 @@ interface PgnState {
   isLoading: boolean;
   lastFetchTimestamp: number;
   hideDiv: boolean;
+  hasAnalyzedGame: boolean;
+  isFromGameHistory: boolean;
+  lastAnalysisFetched: boolean;
+  isLastAnalysisLoading: boolean;
 
   gamesData: Game[];
   gamesLastFetched: number | null;
@@ -118,6 +122,11 @@ interface PgnState {
   setDataGamesImport: (dataGamesImport: any) => void;
   setDataGames: (dataGames: any) => void;
   setHideDiv: (hideDiv: boolean) => void;
+  setHasAnalyzedGame: (hasAnalyzedGame: boolean) => void;
+  setIsFromGameHistory: (isFromGameHistory: boolean) => void;
+  clearGameHistoryData: () => void;
+  setLastAnalysisFetched: (fetched: boolean) => void;
+  setIsLastAnalysisLoading: (loading: boolean) => void;
 
   setHistoryGame: (historyGame: any[]) => void;
   setCapturedWhite: (capturedWhite: any[]) => void;
@@ -175,6 +184,10 @@ export const usePgnStore = create<PgnState>()(
       isLoading: false,
       lastFetchTimestamp: 0,
       hideDiv: false,
+      hasAnalyzedGame: false,
+      isFromGameHistory: false,
+      lastAnalysisFetched: false,
+      isLastAnalysisLoading: false,
 
       gamesData: [],
       gamesLastFetched: null,
@@ -221,6 +234,7 @@ export const usePgnStore = create<PgnState>()(
           username,
           lastFetchTimestamp:
             username !== state.username ? Date.now() : state.lastFetchTimestamp,
+          lastAnalysisFetched: username !== state.username ? false : state.lastAnalysisFetched,
         })),
       setUsernameAnalysis: (usernameAnalysis: string) =>
         set((state) => ({
@@ -233,9 +247,24 @@ export const usePgnStore = create<PgnState>()(
       setHideDiv: (hideDiv: boolean) => set({ hideDiv }),
 
       setDataAnalysis: (dataAnalysis: AnalysisResult | null) =>
-        set({ dataAnalysis }),
+        set({ dataAnalysis, hasAnalyzedGame: dataAnalysis !== null }),
 
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
+
+      setHasAnalyzedGame: (hasAnalyzedGame: boolean) => set({ hasAnalyzedGame }),
+
+      setIsFromGameHistory: (isFromGameHistory: boolean) => set({ isFromGameHistory }),
+
+      setLastAnalysisFetched: (lastAnalysisFetched: boolean) => set({ lastAnalysisFetched }),
+
+      setIsLastAnalysisLoading: (isLastAnalysisLoading: boolean) => set({ isLastAnalysisLoading }),
+
+      clearGameHistoryData: () => set({
+        pgn: "",
+        dataAnalysis: null,
+        dataGamesImport: null,
+        isFromGameHistory: false
+      }),
 
       resetFetchState: () =>
         set({
@@ -371,6 +400,10 @@ export const usePgnStore = create<PgnState>()(
           dataAnalysis: null,
           isLoading: false,
           lastFetchTimestamp: 0,
+          hasAnalyzedGame: false,
+          isFromGameHistory: false,
+          lastAnalysisFetched: false,
+          isLastAnalysisLoading: false,
           gamesData: [],
           gamesLastFetched: null,
           gamesPagination: defaultPaginationState,
@@ -453,6 +486,9 @@ export const usePgnStore = create<PgnState>()(
         username: state.username,
         usernameAnalysis: state.usernameAnalysis,
         pgn: state.pgn,
+        hasAnalyzedGame: state.hasAnalyzedGame,
+        isFromGameHistory: state.isFromGameHistory,
+        lastAnalysisFetched: state.lastAnalysisFetched,
         openingPlayed: state.openingPlayed,
         gamesData: state.gamesData,
         gamesLastFetched: state.gamesLastFetched,

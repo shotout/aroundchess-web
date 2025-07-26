@@ -89,7 +89,7 @@ const GamesList: React.FC<GamesListProps> = ({
 }) => {
   const router = useRouter();
   const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport } =
+  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
     usePgnStore();
   const { sessionId } = useProfileStore();
 
@@ -120,12 +120,14 @@ const GamesList: React.FC<GamesListProps> = ({
             setPgn(game.pgn); 
             setDataGamesImport(game);
             setDataAnalysis(lastAnalysis.data);
+            setIsFromGameHistory(true);
             router.push("/analysis");
           } else {
             if (job && job.result) {
               setPgn(game.pgn);
               setDataGamesImport(game);
               setDataAnalysis(job.result);
+              setIsFromGameHistory(true);
               router.push("/analysis");
             } else {
               console.error("No analysis found for this game");
@@ -138,6 +140,7 @@ const GamesList: React.FC<GamesListProps> = ({
             setPgn(game.pgn);
             setDataGamesImport(game);
             setDataAnalysis(job.result);
+            setIsFromGameHistory(true);
             router.push("/analysis");
           } else {
             setOpenGameId(gameId);

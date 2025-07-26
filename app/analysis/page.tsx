@@ -7,16 +7,16 @@ import { useEffect, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useApiClient } from "@/functions/api-client";
-import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "../store/profile";
 import Link from "next/link";
+import { AnalysisSkeleton } from "./skeleton";
+
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [_, setInitialLoading] = useState(true);
-  const [hasExistingData, setHasExistingData] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const { sessionId, hydrated: hydratedProfile } = useProfileStore();
 
   const {
@@ -27,10 +27,16 @@ export default function AnalysisPage() {
     dataAnalysis,
     hydrated,
     username,
+    hasAnalyzedGame,
+    isFromGameHistory,
+    clearGameHistoryData,
+    lastAnalysisFetched,
+    setLastAnalysisFetched,
+    isLastAnalysisLoading,
+    setIsLastAnalysisLoading,
   } = usePgnStore();
 
-  const { getLastAnalysis, isLoading: fetchLoading } = useApiClient();
-
+  const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
 
   useEffect(() => {
@@ -39,30 +45,41 @@ export default function AnalysisPage() {
 
   useEffect(() => {
     if (!mounted) return;
-
     if (hydratedProfile) {
       setIsSignedIn(sessionId.length > 0);
     }
   }, [mounted, sessionId, hydratedProfile]);
 
-  useEffect(() => {
-    if (hydrated && pgn && dataAnalysis) {
-      setHasExistingData(true);
-    }
-  }, [hydrated, pgn, dataAnalysis]);
+  const isFirstTimeUser = () => {
+    return isSignedIn && username && !hasAnalyzedGame;
+  };
+
+  const hasValidGameHistoryData = () => {
+    return pgn && dataAnalysis && isFromGameHistory;
+  };
 
   const fetchExistAnalysis = async () => {
+    if (lastAnalysisFetched) {
+      return pgn && dataAnalysis;
+    }
+
+    setIsLastAnalysisLoading(true);
     try {
       const response = await getLastAnalysis({});
       if (response.data != null) {
         setDataAnalysis(response.data);
         setPgn(response.data.gameInfo.pgn);
-      } else {
-        await loadFamousGame();
+        setLastAnalysisFetched(true);
+        return true;
       }
+      setLastAnalysisFetched(true);
+      return false;
     } catch (error) {
       console.error("Error fetching analysis:", error);
-      await loadFamousGame();
+      setLastAnalysisFetched(true);
+      return false;
+    } finally {
+      setIsLastAnalysisLoading(false);
     }
   };
 
@@ -84,33 +101,56 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !hydrated || !hydratedProfile) return;
 
-    if (hydrated && hydratedProfile) {
-      if (hasExistingData) {
-        console.log("Using existing data from game-history");
+    const initializeAnalysisPage = async () => {
+      try {
+        if (hasValidGameHistoryData()) {
+          console.log("Using data from game history");
+          setInitialLoading(false);
+          return;
+        }
+
+        if (isSignedIn && username) {
+          const hasExistingAnalysis = await fetchExistAnalysis();
+          
+          if (!hasExistingAnalysis) {
+            if (isFirstTimeUser()) {
+              console.log("First time user - loading famous game");
+              await loadFamousGame();
+            } else {
+              console.log("No recent analysis - loading famous game");
+              await loadFamousGame();
+            }
+          } else {
+            console.log("Using existing analysis from server");
+          }
+        } else {
+          console.log("User not signed in - loading famous game");
+          await loadFamousGame();
+        }
+      } catch (error) {
+        console.error("Error initializing analysis page:", error);
+        await loadFamousGame();
+      } finally {
         setInitialLoading(false);
-        return;
       }
+    };
 
-      if (isLoading) {
-        setInitialLoading(false);
-        return;
-      }
-
-      if (isSignedIn && username) {
-        fetchExistAnalysis().finally(() => setInitialLoading(false));
-      } else {
-        loadFamousGame().finally(() => setInitialLoading(false));
-      }
+    if (!isLoading) {
+      initializeAnalysisPage();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydratedProfile, hydrated, isSignedIn, username, isLoading, hasExistingData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, hydrated, hydratedProfile, isSignedIn, username, isLoading]);
 
   useEffect(() => {
     if (!mounted) return;
     setWidthC(window.innerWidth);
   }, [mounted]);
+
+  const handleAnalyzeDifferentGame = () => {
+    clearGameHistoryData();
+  };
 
   if (isLoading) {
     return <LoadingPage />;
@@ -139,6 +179,7 @@ export default function AnalysisPage() {
                         <Link
                           href="/my-game-history"
                           className="w-fill px-5 py-2 btn-primary rounded-full"
+                          onClick={handleAnalyzeDifferentGame}
                         >
                           Analyze a different game
                         </Link>
@@ -167,6 +208,7 @@ export default function AnalysisPage() {
                       <Link
                         href="/my-game-history"
                         className="w-fill px-5 py-2 btn-primary rounded-full"
+                        onClick={handleAnalyzeDifferentGame}
                       >
                         Analyze a different game
                       </Link>
@@ -174,10 +216,8 @@ export default function AnalysisPage() {
                   </div>
                 </div>
 
-                {fetchLoading && pgn.length === 0 && !hasExistingData ? (
-                  <div className="py-4">
-                    <DotSpinner />
-                  </div>
+                {isLastAnalysisLoading ? (
+                  <AnalysisSkeleton />
                 ) : (
                   <div className="flex flex-col xl:flex-row-reverse gap-4 xl:gap-x-6 justify-center py-4 max-w-full overflow-hidden">
                     <div className="flex-shrink-0">
