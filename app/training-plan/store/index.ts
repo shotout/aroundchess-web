@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { apiService, endpoints } from "../api/endpoints";
-import CacheUtil, { CACHE_KEYS } from "../api/cacheUtils";
+import CacheUtil, { CACHE_KEYS, getProgressCacheKey } from "../api/cacheUtils";
 
 // Common interfaces
 export interface UserProfile {
@@ -466,7 +466,6 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
     const state = get();
     const cacheKey = `fetchSchedule_${sessionId}`;
 
-    // Check if we already have an ongoing request
     if (state._fetchPromises.has(cacheKey)) {
       return state._fetchPromises.get(cacheKey);
     }
@@ -475,14 +474,12 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
       set({ isLoadingSchedule: true, scheduleError: null, planExpired: false });
 
       try {
-        // Check if we have valid cached data
         const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
         if (cachedData) {
           set({ schedule: cachedData, isLoadingSchedule: false });
           return;
         }
 
-        // If no valid cache, fetch from API
         const response = await apiService.get(
           endpoints.trainingPlan.getTodaySchedule,
           sessionId
@@ -533,7 +530,6 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
       }
     })();
 
-    // Track the promise
     set((state) => ({
       _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
     }));
@@ -546,7 +542,6 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   },
 }));
 
-// ========== USER PROFILE STORE with Independent Loading ==========
 interface UserState {
   profile: UserProfile | null;
   isLoadingUserProfile: boolean;
@@ -567,7 +562,6 @@ export const useUserStore = create<UserState>((set, get) => ({
     const state = get();
     const cacheKey = `fetchUserProfile_${sessionId}`;
 
-    // Check if we already have an ongoing request
     if (state._fetchPromises.has(cacheKey)) {
       return state._fetchPromises.get(cacheKey);
     }
@@ -621,7 +615,6 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 }));
 
-// ========== PROGRESS STORE (keeping original for compatibility) ==========
 export interface ProgressRatingData {
   week: number;
   rating: number;
@@ -685,6 +678,7 @@ interface ProgressState {
   _fetchPromises: Map<string, Promise<any>>;
   setCurrentMonth: (month: string) => void;
   fetchProgressData: (sessionId: string, month?: string) => Promise<void>;
+  forceRefresh: (sessionId: string, month?: string) => Promise<void>;
 }
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
@@ -695,8 +689,13 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
   _fetchPromises: new Map(),
 
   setCurrentMonth: (month: string) => {
-    set({ currentMonth: month });
-    CacheUtil.clearItem(CACHE_KEYS.PROGRESS_DATA);
+    const currentState = get();
+    if (currentState.currentMonth !== month) {
+      set({ 
+        currentMonth: month,
+        progressData: null, 
+      });
+    }
   },
 
   fetchProgressData: async (sessionId: string, month?: string) => {
@@ -704,34 +703,43 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
 
     const selectedMonth = month || get().currentMonth;
     const state = get();
-    const cacheKey = `fetchProgress_${sessionId}_${selectedMonth}`;
+    const cacheKey = getProgressCacheKey(selectedMonth);
+    const fetchKey = `fetchProgress_${sessionId}_${selectedMonth}`;
 
-    // Check if we already have an ongoing request
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
+    if (state._fetchPromises.has(fetchKey)) {
+      return state._fetchPromises.get(fetchKey);
     }
 
     const fetchPromise = (async () => {
       set({ isLoadingProgress: true, progressError: null });
 
       try {
-        const cachedData = CacheUtil.getItem(CACHE_KEYS.PROGRESS_DATA);
-        if (cachedData && !month) {
-          set({ progressData: cachedData, isLoadingProgress: false });
+        const cachedData = CacheUtil.getItem(cacheKey);
+        if (cachedData) {
+          console.log(`Using cached progress data for ${selectedMonth}`);
+          set({ 
+            progressData: cachedData, 
+            isLoadingProgress: false,
+          });
           return;
         }
 
+        console.log(`Fetching fresh progress data for ${selectedMonth}`);
+        
         const response = await apiService.get(
           endpoints.trainingPlan.getProgress(selectedMonth),
           sessionId
         );
 
-        if (!month) {
-          CacheUtil.setItem(CACHE_KEYS.PROGRESS_DATA, response.data);
-        }
+        CacheUtil.setItem(cacheKey, response.data);
 
-        set({ progressData: response.data, isLoadingProgress: false });
+        set({ 
+          progressData: response.data, 
+          isLoadingProgress: false,
+        });
+
       } catch (error) {
+        console.error('Error fetching progress data:', error);
         set({
           progressError:
             error instanceof Error
@@ -740,18 +748,25 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
           isLoadingProgress: false,
         });
       } finally {
-        // Remove the promise from tracking
         const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
+        currentState._fetchPromises.delete(fetchKey);
       }
     })();
 
-    // Track the promise
     set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
+      _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
     }));
 
     return fetchPromise;
+  },
+
+  forceRefresh: async (sessionId: string, month?: string) => {
+    const selectedMonth = month || get().currentMonth;
+    const cacheKey = getProgressCacheKey(selectedMonth);
+    
+    CacheUtil.clearItem(cacheKey);
+    
+    return get().fetchProgressData(sessionId, selectedMonth);
   },
 }));
 

@@ -1,7 +1,14 @@
 import axios from "axios";
-import CacheUtil, { CACHE_KEYS } from "./cacheUtils";
+import CacheUtil, { CACHE_KEYS, getProgressCacheKey } from "./cacheUtils";
 
 const BASE_URL = process.env.BASE_URL;
+
+function getCurrentMonth(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  return `${year}-${month}`;
+}
 
 export const endpoints = {
   trainingPlan: {
@@ -27,7 +34,6 @@ export const apiService = {
       });
       return response.data;
     } catch (error: any) {
-      // Clear related cache on error
       if (url.includes("existing-topics")) {
         CacheUtil.clearItem(CACHE_KEYS.EXISTING_TRAINING_TOPICS);
       } else if (url.includes("topics")) {
@@ -36,7 +42,14 @@ export const apiService = {
       } else if (url.includes("today-schedule")) {
         CacheUtil.clearItem(CACHE_KEYS.TRAINING_SCHEDULE);
       } else if (url.includes("progress")) {
-        CacheUtil.clearItem(CACHE_KEYS.PROGRESS_DATA);
+        const monthMatch = url.match(/month=([^&]+)/);
+        if (monthMatch) {
+          const month = monthMatch[1];
+          CacheUtil.clearItem(getProgressCacheKey(month));
+        } else {
+          const currentMonth = getCurrentMonth();
+          CacheUtil.clearItem(getProgressCacheKey(currentMonth));
+        }
       }
 
       if (error.response && error.response.data) {
