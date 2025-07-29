@@ -118,6 +118,13 @@ interface PgnState {
   openingPlayed: any[];
   setOpeningPlayed: (openingPlayed: any[]) => void;
 
+  lastFetchTime: number | null;
+  isFetching: boolean;
+  cacheExpiryTime: number;
+  setLastFetchTime: (time: number) => void;
+  setIsFetching: (fetching: boolean) => void;
+  shouldRefetch: () => boolean;
+
   setPgn: (pgn: string) => void;
   setUsernameAnalysis: (usernameAnalysis: string) => void;
   setUsername: (username: string) => void;
@@ -235,6 +242,18 @@ export const usePgnStore = create<PgnState>()(
       importedGames: [],
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
+
+      lastFetchTime: null,
+      isFetching: false,
+      cacheExpiryTime: 60 * 60 * 1000,
+      
+      setLastFetchTime: (time: number) => set({ lastFetchTime: time }),
+      setIsFetching: (fetching: boolean) => set({ isFetching: fetching }),
+      shouldRefetch: () => {
+        const { lastFetchTime, cacheExpiryTime } = get();
+        if (!lastFetchTime) return true;
+        return Date.now() - lastFetchTime > cacheExpiryTime;
+      },
 
       providerType: "",
       setProviderType: (providerType: string) => set({ providerType }),
@@ -406,8 +425,8 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
-                    activeState: "My Training Plan",
-                    activeUser: "user",
+          activeState: "My Training Plan",
+          activeUser: "user",
           pgn: "",
           username: "",
           usernameAnalysis: "",
@@ -439,6 +458,8 @@ export const usePgnStore = create<PgnState>()(
           openingPlayed: [],
           importedGames: [],
           providerType: "",
+          lastFetchTime: null,
+          isFetching: false,
         }),
 
       addImportedGame: (gameData) => {
@@ -518,8 +539,19 @@ export const usePgnStore = create<PgnState>()(
         statisticsLastFetched: state.statisticsLastFetched,
         importedGames: state.importedGames,
         providerType: state.providerType,
-                activeState: state.activeState,
-                activeUser:state.activeUser,
+        activeState: state.activeState,
+        activeUser: state.activeUser,
+        lastFetchTime: state.lastFetchTime,
+        savedMistakes: state.savedMistakes,
+        previousAnalyses: state.previousAnalyses,
+        previousAnalysesDetail: state.previousAnalysesDetail,
+        mistakeLogs: state.mistakeLogs,
+        movementDetails: state.movementDetails,
+        playerInfo: state.playerInfo,
+        titleGame: state.titleGame,
+        historyGame: state.historyGame,
+        capturedWhite: state.capturedWhite,
+        capturedBlack: state.capturedBlack,
       }),
     }
   )

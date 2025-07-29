@@ -21,7 +21,10 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
         <h1 className="text-base font-medium mb-3">Performance Insights</h1>
 
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          content={[
+            "**Accuracy =**The winRate value is calculated by dividing the number of wins by the total number of games (totalGames), then multiplying by 100 to convert it into a percentage.",
+            "**Blunder rate =**The lossRate value is calculated by dividing the number of losses by the total number of games (totalGames), then multiplying by 100 to convert it into a percentage.", 
+          ]}
           side="left"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
@@ -38,18 +41,6 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
             </div>
           </div>
         </Card>
-
-        {/* Time Management Card */}
-        {/* <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Time Management</h1>
-          <div className="flex flex-col">
-            <div className="flex gap-1 items-center">
-              <h1 className="text-lg font-bold">
-                {insights.timeManagement.toFixed(1)}%
-              </h1>
-            </div>
-          </div>
-        </Card> */}
 
         {/* Accuracy Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">

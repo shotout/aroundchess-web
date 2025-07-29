@@ -1,18 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Bookmark,
-  ChevronDown,
-  ChevronUp,
-  InfoIcon,
-} from "lucide-react";
+import { Bookmark, InfoIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
-import Link from "next/link";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import EmptyLog from "./EmptyLog";
 import { useApiClient } from "@/functions/api-client";
@@ -22,47 +13,33 @@ import { Pagination } from "../pagination/pagination";
 import { usePagination } from "../pagination/hook/usePagination";
 
 interface savedProps {
-  reFetch: () => void;
   onClickSeePrevious?: () => void;
 }
-const SavedMistakes: React.FC<savedProps> = ({
-  reFetch,
-  onClickSeePrevious,
-}) => {
+
+const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
   const {
-    username,
     mistakeLogs,
-    setMistakeLogs,
     movementDetails,
-    setMovementDetails,
     playerInfo,
-    setPlayerInfo,
     setPgn,
-    pgn,
     titleGame,
-    setTitleGame,
     savedMistakes,
     setSavedMistakes,
-    previousAnalyses,
-    setPreviousAnalyses,
     setPreviousAnalysesDetail,
   } = usePgnStore();
-  const {
-    saveMistakeLog,
-    getMistakeSaved,
-    getMistakePrevious,
-    unsaveMistakeLog,
-    isLoading,
-  } = useApiClient();
+  
+  const { unsaveMistakeLog } = useApiClient();
   const { currentData } = usePagination(savedMistakes);
   const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
+
   useEffect(() => {
     if (savedMistakes.length > 0) {
       setSelectedMistakes(savedMistakes[0]?.mistakeLog.id);
     }
   }, [savedMistakes]);
+
   const getBadgeClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -87,6 +64,7 @@ const SavedMistakes: React.FC<savedProps> = ({
         return "";
     }
   };
+
   const getScoreClass = (type: string) => {
     switch (type) {
       case "Brilliant":
@@ -105,31 +83,30 @@ const SavedMistakes: React.FC<savedProps> = ({
         return "text-[#E22B32]";
     }
   };
+
   const handleUnsaveLog = async (id: string) => {
-    console.log("handleUnsaveLog id", id);
     setLoadingUnsave(true);
-    unsaveMistakeLog({ mistakeLogId: id })
-      .then(async (res) => {
-        let data = savedMistakes.filter((item) => item.mistakeLog.id != id);
-        setSavedMistakes(data);
-        console.log("savedMistakes", data);
-        console.log("handleUnsaveLog", res);
-        setLoadingUnsave(false);
-      })
-      .catch((e) => {
-        setLoadingUnsave(false);
-      });
+    try {
+      await unsaveMistakeLog({ mistakeLogId: id });
+      const updatedData = savedMistakes.filter((item) => item.mistakeLog.id !== id);
+      setSavedMistakes(updatedData);
+    } catch (error) {
+      
+    } finally {
+      setLoadingUnsave(false);
+    }
   };
+
   const handleOnClickMovement = (move: any) => {
     if (move.move == chessMove.move) {
       setChessMove({});
       setSelectedMistakes({});
     } else {
-      console.log("move", move);
       setChessMove(move);
       setSelectedMistakes(move);
     }
   };
+
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
@@ -158,15 +135,7 @@ const SavedMistakes: React.FC<savedProps> = ({
                 >
                   <div className="flex flex-row justify-between items-center gap-2 mb-4">
                     <div className="flex rounded-full max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-xs lg:text-[14px]">
-                      {/* VS{" "}
-                    {item?.game_result.opponent +
-                      " " +
-                      item?.game_result.date +
-                      " - "} */}
                       {item.title}
-                      {/* <span className="text-[#221AE9] font-semibold">
-                      {item?.game_result.status}
-                    </span> */}
                     </div>
                     <div
                       onClick={() => handleUnsaveLog(item.mistakeLog.id)}
@@ -256,38 +225,6 @@ const SavedMistakes: React.FC<savedProps> = ({
                       </span>
                     </div>
                   </div>
-                  {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-                    {item?.mistakeLog.resources.map(
-                      (resource: any, index: number) => {
-                        return (
-                          <div
-                            key={index}
-                            className="rounded-[4px] flex flex-col justify-between border border-input p-[12px]"
-                          >
-                            <span className="block my-1 font-semibold text-xs sm:text-[12px] text-black">
-                              {resource.title}
-                            </span>
-                            <span className="line-clamp-2 block my-1 text-[#364152] font-light text-xs sm:text-[11px]">
-                              {resource.link}
-                            </span>
-                            <Link href={resource.link}>
-                              <div
-                                className="btn-tertiary rounded-full flex items-center justify-center"
-                                style={{
-                                  boxShadow: `inset 0px -2px 2px #C6EEFE,
-                                         inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
-                                }}
-                              >
-                                <span className="text-center text-xs sm:text-[14px] text-[#221AE9] font-medium">
-                                  Visit {resource.source}
-                                </span>
-                              </div>
-                            </Link>
-                          </div>
-                        );
-                      }
-                    )}
-                  </div> */}
                 </div>
               </div>
             );

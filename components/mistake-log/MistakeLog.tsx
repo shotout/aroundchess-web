@@ -18,13 +18,11 @@ import DotSpinner from "../game-history/Spinner";
 import ChessContent from "./ChessContent";
 import PreviousAnalysis from "./PreviousAnalysis";
 import SavedMistakes from "./SavedMistakes";
+import { useDataCache } from "@/app/hooks/useDataCache";
 
 const MistakeLog = () => {
-  const {
-    getMistakeSaved,
-    getMistakePrevious,
-    getMistakePreviousDetail,
-  } = useApiClient();
+  const { initializeData, isFetching, hasCachedData } = useDataCache();
+  const { getMistakePreviousDetail } = useApiClient();
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isDesktop, setIsDesktop] = useState(false);
   const [widthSidebar, setWidthSidebar] = useState(0);
@@ -49,17 +47,14 @@ const MistakeLog = () => {
     playerInfo,
     setPlayerInfo,
     setPgn,
-    pgn,
     titleGame,
     setTitleGame,
     savedMistakes,
-    setSavedMistakes,
     previousAnalyses,
-    setPreviousAnalyses,
     setPreviousAnalysesDetail,
     previousAnalysesDetail,
-    setDataAnalysis,
   } = usePgnStore();
+  
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
   });
@@ -69,42 +64,22 @@ const MistakeLog = () => {
   const [selectedHistory, setSelectedHistory] = useState<string>("1");
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [loadingSaved, setLoadingSaved] = useState(false);
   const [loadingPrevious, setLoadingPrevious] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const hasRun = useRef(false);
 
-  const loadData = () => {
-    fetchMistakeSaved();
-  };
   useEffect(() => {
-    if (hydrated) {
-      if (hasRun.current) return;
+    if (hydrated && !hasRun.current) {
       hasRun.current = true;
-
-      loadData();
+      initializeData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
+  }, [hydrated, initializeData]);
 
-  const fetchMistakePrevious = async () => {
+  const fetchMistakePreviousDetailForFilter = async (id: string, reset: boolean) => {
     try {
       setLoadingPrevious(true);
-      const prevData = await getMistakePrevious();
-      if (prevData.data.length > 0) {
-        setPreviousAnalyses(prevData.data);
-        setMistakePreviousDetail(prevData.data[0]);
-        setSelectedHistory(prevData.data[0].id);
-        fetchMistakePreviousDetail(prevData.data[0].id, false);
-      }
-    } catch (error) {
-      console.error("Failed to fetch mistake previous:", error);
-    }
-  };
-  const fetchMistakePreviousDetail = async (id: string, reset: boolean) => {
-    try {
       const params = reset
         ? {}
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
@@ -118,22 +93,10 @@ const MistakeLog = () => {
       setMistakeLogs(dataDetail.mistakeLogs);
       setLoadingPrevious(false);
     } catch (error) {
-      console.error("Failed to fetch mistake previous:", error);
+      setLoadingPrevious(false);
     }
   };
-  const fetchMistakeSaved = async () => {
-    try {
-      setLoadingSaved(true);
-      const params = { page: 1, limit: 10 };
-      const savedData = await getMistakeSaved(params);
-      setSavedMistakes(savedData.data);
-      setPreviousAnalysesDetail(savedData.data[0]);
-      fetchMistakePrevious();
-      setLoadingSaved(false);
-    } catch (error) {
-      console.error("Failed to fetch mistake saved:", error);
-    }
-  };
+
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
@@ -158,43 +121,47 @@ const MistakeLog = () => {
 
   useEffect(() => {
     const count = 0;
-
     setActiveFiltersCount(count);
     setFiltersApplied(count > 0);
   }, [MistakeType, GamePhase]);
 
   const handleApplyFilters = () => {
-    fetchMistakePreviousDetail(mistakePreviousDetail.id, false);
+    fetchMistakePreviousDetailForFilter(mistakePreviousDetail.id, false);
     setShowFilters(false);
   };
+
   const handleClearFilters = () => {
     setGamePhase("");
     setMistakeType("");
     setActiveFiltersCount(0);
     setFiltersApplied(false);
-    fetchMistakePreviousDetail(mistakePreviousDetail.id, true);
+    fetchMistakePreviousDetailForFilter(mistakePreviousDetail.id, true);
   };
+
   const handleGoPrevious = () => {
     setSelectedTab("previous");
     setChessMove({});
-    setPgn(mistakePreviousDetail.pgn);
-    setPlayerInfo(mistakePreviousDetail.playerInfo);
-    setTitleGame(mistakePreviousDetail.title);
-    setMovementDetails(mistakePreviousDetail.movementDetail);
-    setPreviousAnalysesDetail(mistakePreviousDetail);
+    if (mistakePreviousDetail.pgn) {
+      setPgn(mistakePreviousDetail.pgn);
+      setPlayerInfo(mistakePreviousDetail.playerInfo);
+      setTitleGame(mistakePreviousDetail.title);
+      setMovementDetails(mistakePreviousDetail.movementDetail);
+      setPreviousAnalysesDetail(mistakePreviousDetail);
+    }
   };
+
   const renderFilters = () => {
     return (
       <>
         <div
           style={{ maxWidth: `calc(100vw - ${widthSidebar}px - 32px)` }}
-          className={`flex flex-row w-full  overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] `}
+          className={`flex flex-row w-full overflow-x-auto bg-[#F2FBFE] items-center mb-4 min-h-[48px] lg:mt-8 rounded-[12px] border border-[#C0CED4] p-2 md:p-[12px] `}
         >
           {previousAnalyses.map((hist: any, i: number) => {
             return (
               <div
                 onClick={() => {
-                  fetchMistakePreviousDetail(hist.id, false);
+                  fetchMistakePreviousDetailForFilter(hist.id, false);
                   setSelectedHistory(hist.id);
                 }}
                 key={i}
@@ -224,14 +191,10 @@ const MistakeLog = () => {
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectItem value="All Type">All Type</SelectItem>
-                <SelectItem value="Critical Mistakes">
-                  Critical Mistakes
-                </SelectItem>
+                <SelectItem value="Critical Mistakes">Critical Mistakes</SelectItem>
                 <SelectItem value="Threats">Threats</SelectItem>
                 <SelectItem value="Bad Moves">Bad Moves</SelectItem>
-                <SelectItem value="Weakness Identification">
-                  Weakness Identification
-                </SelectItem>
+                <SelectItem value="Weakness Identification">Weakness Identification</SelectItem>
               </SelectContent>
             </Select>
 
@@ -304,14 +267,10 @@ const MistakeLog = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="All Type">All Type</SelectItem>
-                  <SelectItem value="Critical Mistakes">
-                    Critical Mistakes
-                  </SelectItem>
+                  <SelectItem value="Critical Mistakes">Critical Mistakes</SelectItem>
                   <SelectItem value="Threats">Threats</SelectItem>
                   <SelectItem value="Bad Moves">Bad Moves</SelectItem>
-                  <SelectItem value="Weakness Identification">
-                    Weakness Identification
-                  </SelectItem>
+                  <SelectItem value="Weakness Identification">Weakness Identification</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -354,7 +313,10 @@ const MistakeLog = () => {
       </>
     );
   };
-  if (!hydrated) return <DotSpinner />;
+
+  // Show loading only if not hydrated or if we're fetching and don't have cached data
+  if (!hydrated || (isFetching && !hasCachedData)) return <DotSpinner />;
+
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
       <div className="flex justify-center lg:justify-start items-center">
@@ -376,7 +338,6 @@ const MistakeLog = () => {
         <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
             onClick={() => {
-              loadData();
               setSelectedTab("saved");
               setChessMove({});
               if (savedMistakes.length > 0) {
@@ -422,51 +383,32 @@ const MistakeLog = () => {
         </TabsList>
 
         <TabsContent value="saved" className="gap-2">
-          {loadingSaved ? (
-            <DotSpinner />
+          <span className="hidden lg:block font-semibold text-[20px]">
+            Saved Feedback
+          </span>
+          {savedMistakes.length > 0 ? (
+            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+              <div className="lg:mt-2">
+                <ChessContent />
+              </div>
+              <div className="xl:w-3/4">
+                <SavedMistakes onClickSeePrevious={handleGoPrevious} />
+              </div>
+            </div>
           ) : (
-            <>
-              <span className="hidden lg:block font-semibold text-[20px]">
-                Saved Feedback
-              </span>
-              {savedMistakes.length > 0 ? (
-                <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-                  <div className="lg:mt-2">
-                    <ChessContent />
-                  </div>
-                  <div className="xl:w-3/4">
-                    <SavedMistakes
-                      reFetch={loadData}
-                      onClickSeePrevious={handleGoPrevious}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <SavedMistakes
-                  reFetch={loadData}
-                  onClickSeePrevious={handleGoPrevious}
-                />
-              )}
-            </>
+            <SavedMistakes onClickSeePrevious={handleGoPrevious} />
           )}
         </TabsContent>
 
         <TabsContent value="previous">
-          {loadingPrevious ? (
-            <DotSpinner />
-          ) : (
-            <>
-              <div className="hidden lg:block">{renderFilters()}</div>
-              <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-                <ChessContent />
-                <div className="block lg:hidden">{renderFilters()}</div>
-
-                <div className="xl:w-3/4">
-                  <PreviousAnalysis reFetch={loadData} />
-                </div>
-              </div>
-            </>
-          )}
+          <div className="hidden lg:block">{renderFilters()}</div>
+          <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+            <ChessContent />
+            <div className="block lg:hidden">{renderFilters()}</div>
+            <div className="xl:w-3/4">
+              <PreviousAnalysis />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </main>

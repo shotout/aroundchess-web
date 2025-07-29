@@ -15,7 +15,9 @@ const TimeControlPerformance: React.FC<TimeControlPerformanceProps> = ({
       <div className="flex items-center justify-between">
         <h1 className="text-base font-medium mb-3">Time Control Performance</h1>
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          content="To present statistical data on the number of games and win rate for each time control type
+(Bullet, Blitz, Rapid, Classical), then sort them based on the highest number of games played.
+This is useful for understanding the player's performance in each time control mode."
           side="left"
         >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

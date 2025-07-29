@@ -75,7 +75,11 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
       <div className="flex items-center justify-between">
       <h1 className="text-base font-medium">Result Distribution</h1>
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+         content={[
+            "**Wins =** counts the number of games won by the player, whether playing as White or Black.",
+            "**Draws =** calculates the total number of games that ended in a draw from all available games.",
+            "**Losses =** totalGames - wins - draws.",
+          ]}
           side="left"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

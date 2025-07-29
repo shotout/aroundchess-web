@@ -20,7 +20,12 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
 
 
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+        content={[
+            "**Average rating =** totalRating / totalGames",
+            "**Total games =** the total number of games played",
+            "**Win rate =** total number of wins / totalGames * 100", 
+            "**Longest streak =** the highest number of consecutive wins achieved by a player without any losses or draws in between", 
+          ]}
           side="left"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

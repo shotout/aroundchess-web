@@ -28,7 +28,13 @@ const RecentAchievements: React.FC<RecentAchievementsProps> = ({
      <div className="flex items-center justify-between">
         <h1 className="text-base font-medium mb-3">Recent Achievements</h1>
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+         content={[
+          "To analyze chess game data and return a maximum of 3 top achievements by the player. These achievements can include:",
+            "The longest winning streak (if it's at least 3 consecutive wins).",
+            "The highest ELO rating that reaches certain milestones (such as 1200, 1400, etc.).",
+            "The number of wins in Bullet mode (fast games).",
+            "The fastest win based on the fewest number of moves." 
+          ]}
           side="left"
         >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

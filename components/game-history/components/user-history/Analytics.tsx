@@ -21,7 +21,7 @@ const MobileTooltip = ({
   side = "left",
 }: {
   children: React.ReactNode;
-  content: string;
+  content: string | string[];
   side?: "left" | "right" | "top" | "bottom";
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -65,6 +65,26 @@ const MobileTooltip = ({
     }
   };
 
+  // Helper function to parse bold text
+  const parseBoldText = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={index} className="font-semibold">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  // Normalize content to array and limit to 4 items
+  const contentArray = Array.isArray(content) 
+    ? content.slice(0, 20) 
+    : [content];
+
   if (isMobile) {
     return (
       <div className="relative inline-block" data-mobile-tooltip>
@@ -77,7 +97,7 @@ const MobileTooltip = ({
         </button>
         {isVisible && (
           <div
-            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg w-72 max-w-[90vw] ${
+            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-sm shadow-lg w-72 max-w-[90vw] ${
               side === "left"
                 ? "right-0 top-8"
                 : side === "right"
@@ -87,19 +107,29 @@ const MobileTooltip = ({
                 : "top-8 left-1/2 transform -translate-x-1/2"
             }`}
           >
-            <div className="text-center leading-relaxed">{content}</div>
+            <div className="text-center leading-relaxed">
+              {contentArray.map((item, index) => (
+                <div 
+                  key={index} 
+                  className={index > 0 ? "mt-2 pt-2 border-t border-gray-600" : ""}
+                >
+                  {parseBoldText(item)}
+                </div>
+              ))}
+            </div>
+
             {/* Arrow */}
-            <div
+            {/* <div
               className={`absolute border-4 border-transparent ${
                 side === "left"
-                  ? "bottom-full right-4 border-b-gray-800"
+                  ? "bottom-full right-0 border-b-gray-800"
                   : side === "right"
                   ? "bottom-full left-4 border-b-gray-800"
                   : side === "top"
                   ? "top-full left-1/2 transform -translate-x-1/2 border-t-gray-800"
                   : "bottom-full left-1/2 transform -translate-x-1/2 border-b-gray-800"
               }`}
-            ></div>
+            ></div> */}
           </div>
         )}
       </div>
@@ -115,7 +145,11 @@ const MobileTooltip = ({
         </button>
       </TooltipTrigger>
       <TooltipContent side={side} className="max-w-xs">
-        <p>{content}</p>
+        {contentArray.map((item, index) => (
+          <p key={index} className={index > 0 ? "mt-2 pt-2 border-t" : ""}>
+            {parseBoldText(item)}
+          </p>
+        ))}
       </TooltipContent>
     </Tooltip>
   );

@@ -3,7 +3,8 @@ const nextConfig = {
   env: {
     BASE_URL: process.env.BASE_URL,
     BASE_URL_IP: process.env.BASE_URL_IP,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
 }, 
 
 experimental: {

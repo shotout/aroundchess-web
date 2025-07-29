@@ -11,16 +11,10 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 
-interface PreviousAnalysisProps {
-  reFetch: () => void;
-}
-
-const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
+const PreviousAnalysis: React.FC = () => {
   const { chessMove, setChessMove } = useChessMoveStore();
-
   const { mistakeLogs, previousAnalyses } = usePgnStore();
-
-  const { saveMistakeLog, unsaveMistakeLog, isLoading } = useApiClient();
+  const { saveMistakeLog, unsaveMistakeLog } = useApiClient();
 
   const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
   const [indexOpen, setIndexOpen] = useState<string[]>(["Critical Mistakes"]);
@@ -67,34 +61,34 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
 
   const handleSaveLog = async (id: string, key: string) => {
     setLoadingToggle(true);
-    saveMistakeLog({ mistakeLogId: id })
-      .then(async (res) => {
-        let dataPrev = PreviousAnalysis;
-        let newData = dataPrev[key].filter((item: any) => item.id != id);
-        newData.push(res.data);
-        dataPrev[key] = newData;
-        setPreviousAnalysis(dataPrev);
-        setLoadingToggle(false);
-      })
-      .catch((e) => {
-        setLoadingToggle(false);
-      });
+    try {
+      const res = await saveMistakeLog({ mistakeLogId: id });
+      let dataPrev = PreviousAnalysis;
+      let newData = dataPrev[key].filter((item: any) => item.id != id);
+      newData.push(res.data);
+      dataPrev[key] = newData;
+      setPreviousAnalysis(dataPrev);
+    } catch (e) {
+      
+    } finally {
+      setLoadingToggle(false);
+    }
   };
 
   const handleUnsaveLog = async (id: string, key: string) => {
     setLoadingToggle(true);
-    unsaveMistakeLog({ mistakeLogId: id })
-      .then(async (res) => {
-        let dataPrev = PreviousAnalysis;
-        let newData = dataPrev[key].filter((item: any) => item.id != id);
-        newData.push(res.data);
-        dataPrev[key] = newData;
-        setPreviousAnalysis(dataPrev);
-        setLoadingToggle(false);
-      })
-      .catch((e) => {
-        setLoadingToggle(false);
-      });
+    try {
+      const res = await unsaveMistakeLog({ mistakeLogId: id });
+      let dataPrev = PreviousAnalysis;
+      let newData = dataPrev[key].filter((item: any) => item.id != id);
+      newData.push(res.data);
+      dataPrev[key] = newData;
+      setPreviousAnalysis(dataPrev);
+    } catch (e) {
+      
+    } finally {
+      setLoadingToggle(false);
+    }
   };
 
   const toggleSection = (type: string) => {
@@ -272,43 +266,12 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
                       <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md  text-[#221AE9]">
-                        {/* Recommended Training Exercise:{" "} */}
                         <span className="font-bold">
                           {item?.recommendation}
                         </span>
                       </span>
                     </div>
                   </div>
-                  {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
-                    {item?.resources.map((resource: any, index: number) => {
-                      return (
-                        <div
-                          key={index}
-                          className="rounded-[4px] flex flex-col justify-between border border-input p-[12px]"
-                        >
-                          <span className="block my-1 font-semibold text-xs sm:text-[12px] text-black">
-                            {resource.title}
-                          </span>
-                          <span className="line-clamp-2 block my-1 text-[#364152] font-light text-xs sm:text-[11px]">
-                            {resource.link}
-                          </span>
-                          <Link href={resource.link}>
-                            <div
-                              className="btn-tertiary rounded-full flex items-center justify-center"
-                              style={{
-                                boxShadow: `inset 0px -2px 2px #C6EEFE,
-                                   inset 0px 2px 0px #FFFFFF`,
-                              }}
-                            >
-                              <span className="text-center text-xs sm:text-[14px] text-[#221AE9] font-medium">
-                                Visit {resource.source}
-                              </span>
-                            </div>
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div> */}
                 </div>
               </div>
             );
@@ -327,8 +290,6 @@ const PreviousAnalysis: React.FC<PreviousAnalysisProps> = ({ reFetch }) => {
       />
     );
   }
-
-  if (isLoading) return <DotSpinner />;
 
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">

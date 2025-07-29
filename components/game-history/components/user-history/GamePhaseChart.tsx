@@ -70,10 +70,8 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Mobile-specific event handlers
   const handleMouseEnter = useCallback(() => {
     if (isMobileDevice) {
-      // Clear any existing timeout
       if (hideTooltipTimeout) {
         clearTimeout(hideTooltipTimeout);
         setHideTooltipTimeout(null);
@@ -84,7 +82,6 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
 
   const handleMouseLeave = useCallback(() => {
     if (isMobileDevice) {
-      // Set timeout to hide tooltip after leaving
       const timeout = setTimeout(() => {
         setTooltipVisible(false);
       }, 150);
@@ -94,7 +91,6 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
 
   const handleTouchStart = useCallback(() => {
     if (isMobileDevice) {
-      // Clear any existing timeout
       if (hideTooltipTimeout) {
         clearTimeout(hideTooltipTimeout);
         setHideTooltipTimeout(null);
@@ -105,18 +101,15 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
 
   const handleTouchEnd = useCallback(() => {
     if (isMobileDevice) {
-      // Set timeout to hide tooltip after touch ends
       const timeout = setTimeout(() => {
         setTooltipVisible(false);
-      }, 1000); // Hide after 1 second of no interaction
+      }, 1000); 
       setHideTooltipTimeout(timeout);
     }
   }, [isMobileDevice]);
 
-  // Handle when user moves away from the chart container
   const handleContainerLeave = useCallback(() => {
     if (isMobileDevice) {
-      // Immediately hide tooltip when leaving container
       if (hideTooltipTimeout) {
         clearTimeout(hideTooltipTimeout);
         setHideTooltipTimeout(null);
@@ -125,7 +118,6 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
     }
   }, [isMobileDevice, hideTooltipTimeout]);
 
-  // Custom tooltip props for mobile
   const tooltipProps = isMobileDevice
     ? {
         active: tooltipVisible,
@@ -138,7 +130,6 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
       }
     : {};
 
-  // Mobile touch styles
   const mobileStyles: React.CSSProperties = {
     WebkitTapHighlightColor: "transparent",
     WebkitTouchCallout: "none" as any,
@@ -147,7 +138,6 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
     touchAction: "manipulation",
   };
 
-  // BarChart props for mobile
   const barChartProps = isMobileDevice
     ? {
         onMouseEnter: handleMouseEnter,
@@ -160,7 +150,11 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
         <div className="flex items-center justify-between">
           <h1 className="text-base font-bold">Performance by Game Phase</h1>
           <MobileTooltip
-            content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+          content={[
+            "**Opening:** If the number of games in the opening phase (openingGames) is at least 3 and other minimum game requirements are met, then the performance score for the opening phase will be calculated based on the win rate specific to that phase. If those conditions are not met, the performance will be based on the overall win rate.",
+            "**Middlegame:** If the number of games in the middlegame phase (middlegameGames) is at least 3 and other minimum requirements are met, then the performance score will be calculated based on the win rate specific to the middlegame. Otherwise, the performance will be based on the overall win rate.",
+            "**Endgame:** If the number of games in the endgame phase (endgameGames) is at least 3 and other minimum requirements are met, then the performance score for the endgame will be calculated based on the win rate specific to that phase. If not, the performance will be based on the overall win rate."
+          ]}
             side="left"
           >
             <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

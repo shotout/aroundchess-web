@@ -15,7 +15,12 @@ const OpeningStatistics: React.FC<OpeningStatisticsProps> = ({
     <div className="flex items-center justify-between">
       <h1 className="text-base font-medium">Opening Statistics</h1>
         <MobileTooltip
-          content="This chart shows your rating progression over time across different game types. Track your improvement and identify trends in your chess performance."
+         content={[
+            "To analyze which chess openings are most frequently used and most effective. It generates statistics based on the name of the opening, including:",
+            "• The number of games played using that opening.",
+            "• The win rate (percentage of wins) for that opening.",
+            "• The results are sorted by the most frequently used openings."
+          ]}
           side="left"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
