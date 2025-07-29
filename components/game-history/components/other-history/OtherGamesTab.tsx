@@ -25,11 +25,9 @@ const OtherGamesTab: React.FC = () => {
     setIsLoading: setZustandIsLoading,
   } = usePgnStore();
 
-  // Fetch other games data
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
     useGames("other");
 
-  // Handle filters
   const {
     filters,
     setFilters,
@@ -42,10 +40,8 @@ const OtherGamesTab: React.FC = () => {
     handleClearFilters,
   } = useFilters(games);
 
-  // Handle pagination
   const paginationProps = usePagination(filteredGames);
 
-  // Handle game analysis
   const handleAnalyzeClick = useCallback(
     async (game: Game) => {
       if (token.balance >= 1) {
@@ -53,7 +49,6 @@ const OtherGamesTab: React.FC = () => {
           setZustandIsLoading(true);
           setPgn(game.pgn);
 
-          // Depth and timeout parameters may need to be adjusted based on your requirements
           const response = await proceedAnalysis(
             game?.pgn,
             username,
@@ -83,7 +78,6 @@ const OtherGamesTab: React.FC = () => {
     [router, setPgn, setDataAnalysis, setZustandIsLoading, username]
   );
 
-  // Source options specific to other games
   const sourceOptions = [
     { value: "All Formats", label: "All Sources" },
     { value: "Lichess", label: "Lichess" },
@@ -93,7 +87,6 @@ const OtherGamesTab: React.FC = () => {
 
   return (
     <div className="mx-auto relative">
-      {/* Filters */}
       <Filters
         filters={filters}
         setFilters={setFilters}
@@ -107,7 +100,6 @@ const OtherGamesTab: React.FC = () => {
         sourceOptions={sourceOptions}
       />
 
-      {/* Games List */}
       <GamesList
         games={filteredGames}
         currentGames={paginationProps.currentGames}

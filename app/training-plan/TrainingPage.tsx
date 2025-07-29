@@ -36,10 +36,9 @@ const ChessProgressionUI: React.FC = () => {
   const [hasPlan, setHasPlan] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const states = ["My Training Plan", "My Progress"];
-  const [activeState, setActiveState] = useState(states[0]);
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
-  const { setOpeningPlayed, isLoading: pgnLoading } = usePgnStore();
+  const { setOpeningPlayed, isLoading: pgnLoading, activeState, setActiveState } = usePgnStore();
 
   const fetchingRefs = useRef({
     openings: false,
@@ -89,7 +88,6 @@ const ChessProgressionUI: React.FC = () => {
 
     Promise.allSettled(promises);
     setInitialDataLoaded(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isSignedIn,
     checkComplete,
@@ -108,7 +106,6 @@ const ChessProgressionUI: React.FC = () => {
     }
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
-  // Only initialize fetches when profile check is complete and user is signed in
   useEffect(() => {
     if (checkComplete && isSignedIn && !initialDataLoaded) {
       initializeConcurrentFetches();

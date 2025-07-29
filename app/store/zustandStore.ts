@@ -64,6 +64,12 @@ const defaultPaginationState: PaginationState = {
 };
 
 interface PgnState {
+  activeState: string;
+  setActiveState: (state: string) => void;
+
+  activeUser: string;
+  setActiveUser:(state: string) => void;
+
   pgn: string;
   username: string;
   usernameAnalysis: string;
@@ -174,6 +180,12 @@ interface PgnState {
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
+      activeState: "My Training Plan",
+      setActiveState: (activeState: string) => set({ activeState }),
+
+      activeUser: "user",
+      setActiveUser: (activeUser: string) => set({ activeUser }),
+
       hydrated: false,
       setHydrated: () => set({ hydrated: true }),
 
@@ -394,6 +406,8 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
+                    activeState: "My Training Plan",
+                    activeUser: "user",
           pgn: "",
           username: "",
           usernameAnalysis: "",
@@ -504,6 +518,8 @@ export const usePgnStore = create<PgnState>()(
         statisticsLastFetched: state.statisticsLastFetched,
         importedGames: state.importedGames,
         providerType: state.providerType,
+                activeState: state.activeState,
+                activeUser:state.activeUser,
       }),
     }
   )
