@@ -75,15 +75,16 @@ export default function Profile() {
 
   return (
     <Suspense>
-      {isLoggingOut && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-white z-[9999] flex items-center justify-center overflow-hidden">
+      {isLoggingOut ? (
+        <div className="fixed no-scrollbar top-0 left-0 w-screen h-screen bg-white z-[9999] flex items-center justify-center overflow-hidden">
           <div className="flex flex-col items-center gap-4">
             <span className="text-lg font-medium text-gray-600">
               Signing out...
             </span>
           </div>
         </div>
-      )}
+      ) : (
+
       <Navigation>
         <ChangePassword />
         <ChessAccountSetup isLoading={isLoading} />
@@ -101,6 +102,8 @@ export default function Profile() {
           </div>
         </div>
       </Navigation>
+      )}
+
     </Suspense>
   );
 }

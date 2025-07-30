@@ -40,25 +40,22 @@ const MistakeLog = () => {
   const {
     hydrated,
     username,
-    mistakeLogs,
     setMistakeLogs,
-    movementDetails,
     setMovementDetails,
-    playerInfo,
     setPlayerInfo,
     setPgn,
-    titleGame,
     setTitleGame,
     savedMistakes,
     previousAnalyses,
     setPreviousAnalysesDetail,
-    previousAnalysesDetail,
+    tabSelected,
+    setTabSelected
   } = usePgnStore();
   
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
   });
-  const [tabSelected, setSelectedTab] = useState<string>("saved");
+  // const [tabSelected, setSelectedTab] = useState<string>("saved");
   const [MistakeType, setMistakeType] = useState<string>("");
   const [GamePhase, setGamePhase] = useState<string>("");
   const [selectedHistory, setSelectedHistory] = useState<string>("1");
@@ -139,7 +136,7 @@ const MistakeLog = () => {
   };
 
   const handleGoPrevious = () => {
-    setSelectedTab("previous");
+    setTabSelected("previous");
     setChessMove({});
     if (mistakePreviousDetail.pgn) {
       setPgn(mistakePreviousDetail.pgn);
@@ -333,12 +330,12 @@ const MistakeLog = () => {
         defaultValue="saved"
         className="w-full p-0"
         value={tabSelected}
-        onValueChange={setSelectedTab}
+        onValueChange={setTabSelected}
       >
         <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
           <TabsTrigger
             onClick={() => {
-              setSelectedTab("saved");
+              setTabSelected("saved");
               setChessMove({});
               if (savedMistakes.length > 0) {
                 setPgn(savedMistakes[0].pgn);

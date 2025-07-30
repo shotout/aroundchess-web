@@ -64,11 +64,14 @@ const defaultPaginationState: PaginationState = {
 };
 
 interface PgnState {
+  tabSelected: string;
+  setTabSelected: (state: string) => void;
+
   activeState: string;
   setActiveState: (state: string) => void;
 
   activeUser: string;
-  setActiveUser:(state: string) => void;
+  setActiveUser: (state: string) => void;
 
   pgn: string;
   username: string;
@@ -187,6 +190,9 @@ interface PgnState {
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
+      tabSelected: "saved",
+      setTabSelected: (tabSelected: string) => set({ tabSelected }),
+
       activeState: "My Training Plan",
       setActiveState: (activeState: string) => set({ activeState }),
 
@@ -246,7 +252,7 @@ export const usePgnStore = create<PgnState>()(
       lastFetchTime: null,
       isFetching: false,
       cacheExpiryTime: 60 * 60 * 1000,
-      
+
       setLastFetchTime: (time: number) => set({ lastFetchTime: time }),
       setIsFetching: (fetching: boolean) => set({ isFetching: fetching }),
       shouldRefetch: () => {
@@ -261,12 +267,19 @@ export const usePgnStore = create<PgnState>()(
       setPgn: (pgn: string) => set({ pgn }),
 
       setUsername: (username: string) =>
-        set((state) => ({
-          username,
-          lastFetchTimestamp:
-            username !== state.username ? Date.now() : state.lastFetchTimestamp,
-          lastAnalysisFetched: username !== state.username ? false : state.lastAnalysisFetched,
-        })),
+        set((state) => {
+          const isActualUsernameChange =
+            username !== state.username && state.username !== "";
+          return {
+            username,
+            lastFetchTimestamp: isActualUsernameChange
+              ? Date.now()
+              : state.lastFetchTimestamp,
+            // lastAnalysisFetched: isActualUsernameChange
+            //   ? false
+            //   : state.lastAnalysisFetched,
+          };
+        }),
       setUsernameAnalysis: (usernameAnalysis: string) =>
         set((state) => ({
           usernameAnalysis,
@@ -282,20 +295,25 @@ export const usePgnStore = create<PgnState>()(
 
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
-      setHasAnalyzedGame: (hasAnalyzedGame: boolean) => set({ hasAnalyzedGame }),
+      setHasAnalyzedGame: (hasAnalyzedGame: boolean) =>
+        set({ hasAnalyzedGame }),
 
-      setIsFromGameHistory: (isFromGameHistory: boolean) => set({ isFromGameHistory }),
+      setIsFromGameHistory: (isFromGameHistory: boolean) =>
+        set({ isFromGameHistory }),
 
-      setLastAnalysisFetched: (lastAnalysisFetched: boolean) => set({ lastAnalysisFetched }),
+      setLastAnalysisFetched: (lastAnalysisFetched: boolean) =>
+        set({ lastAnalysisFetched }),
 
-      setIsLastAnalysisLoading: (isLastAnalysisLoading: boolean) => set({ isLastAnalysisLoading }),
+      setIsLastAnalysisLoading: (isLastAnalysisLoading: boolean) =>
+        set({ isLastAnalysisLoading }),
 
-      clearGameHistoryData: () => set({
-        pgn: "",
-        dataAnalysis: null,
-        dataGamesImport: null,
-        isFromGameHistory: false
-      }),
+      clearGameHistoryData: () =>
+        set({
+          pgn: "",
+          dataAnalysis: null,
+          dataGamesImport: null,
+          isFromGameHistory: false,
+        }),
 
       resetFetchState: () =>
         set({
@@ -425,6 +443,7 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
+          tabSelected: "saved",
           activeState: "My Training Plan",
           activeUser: "user",
           pgn: "",
@@ -552,6 +571,7 @@ export const usePgnStore = create<PgnState>()(
         historyGame: state.historyGame,
         capturedWhite: state.capturedWhite,
         capturedBlack: state.capturedBlack,
+        tabSelected: state.tabSelected,
       }),
     }
   )

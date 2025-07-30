@@ -9,7 +9,6 @@ interface BlackPlayerProps {
   loserColor: string;
   myColor: string;
   AIChoosed: { opponent: { img: string; name: string } };
-  user: any;
   capturedBlack: { capturedTheme: string }[];
   PieceChoosed: string;
 }
@@ -20,15 +19,14 @@ export const BlackPlayer = ({
   loserColor,
   myColor,
   AIChoosed,
-  user,
   capturedBlack,
   PieceChoosed,
 }: BlackPlayerProps) => {
   const { profile } = useProfileStore();
   const { username } = usePgnStore();
-  let isWin = winnerColor == "black";
-  let isDraw = statusGame == "Draw";
-  let isLoss = loserColor == "black";
+  const isWin = winnerColor == "black";
+  const isDraw = statusGame == "Draw";
+  const isLoss = loserColor == "black";
   return (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
@@ -78,8 +76,8 @@ export const BlackPlayer = ({
         {capturedBlack &&
           capturedBlack.length > 0 &&
           capturedBlack.map((captured, index) => {
-            let icon = captured.capturedTheme;
-            let nextIcon = capturedBlack[index + 1]
+            const icon = captured.capturedTheme;
+            const nextIcon = capturedBlack[index + 1]
               ? capturedBlack[index + 1].capturedTheme
               : "";
             if (icon.length != 2) return null;

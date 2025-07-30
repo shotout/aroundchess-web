@@ -17,7 +17,7 @@ const LoadingPage: React.FC = (props) => {
     dataGamesImport,
     setDataGamesImport,
     isLoading,
-  } = usePgnStore(); // Get PGN from the Zustand store
+  } = usePgnStore(); 
   const { pgnToFenList } = useStockfishAnalysis();
   const {
     analyzeComplete,
@@ -48,39 +48,39 @@ const LoadingPage: React.FC = (props) => {
       setEstimateSecond(0);
     } else {
       if (estimateSecond == 0 && estimateMinute == 0) {
-        // set estimate time
-        let pgn = pgnToFenList(storePgn);
-        let basic = 6;
-        let basicResult = pgn && pgn?.length * basic;
-        let basicFormat = getTime(basicResult);
+        const pgn = pgnToFenList(storePgn);
+        const basic = 6;
+        const basicResult = pgn && pgn?.length * basic;
+        const basicFormat = getTime(basicResult);
         setEstimateMinute(basicFormat.minute);
         setEstimateSecond(basicFormat.second);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, estimateSecond]);
 
   const getTime = (seconds: number): any => {
-    let s = Math.round(seconds / 5) * 5;
+    const s = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(s % 60);
-    let time = { minute: minutes, second: remainingSeconds };
+    const time = { minute: minutes, second: remainingSeconds };
     return time;
   };
 
   useEffect(() => {
     getHeaders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storePgn]);
   const getHeaders = () => {
     const tempGame = new Chess();
     tempGame.loadPgn(storePgn);
-    // Check if the PGN was loaded successfully
     if (tempGame.pgn() === "") {
       return false;
     }
-    let headers = tempGame.getHeaders();
+    const headers = tempGame.getHeaders();
     console.log("headers pgn", headers);
     setHeaderPGN(headers);
-    let dataGames = {
+    const dataGames = {
       white: {
         result: headers.Result == "0-1" ? "lose" : "win",
         username: headers.White,
@@ -97,29 +97,29 @@ const LoadingPage: React.FC = (props) => {
 
   useEffect(() => {
     if (dataAnalysis != null) {
-      // setCountDownAfter(`${`00`}:${`00`}`);
       setEstimateMinute(0);
       setEstimateSecond(0);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [estimateSecond, dataAnalysis]);
   useEffect(() => {
-    let countdownBefore = createCountdown(
+    const countdownBefore = createCountdown(
       estimateMinute,
       estimateSecond,
       (min, sec) => {
-        let minuteFormat = min < 10 ? "0" + min : min;
-        let secondFormat = sec < 10 ? "0" + sec : sec;
+        const minuteFormat = min < 10 ? "0" + min : min;
+        const secondFormat = sec < 10 ? "0" + sec : sec;
         if (!analyzeComplete)
           setCountDownBefore(`${minuteFormat}:${secondFormat}`);
       },
       () => console.log("Countdown complete!")
     );
-    let countdownAfter = createCountdown(
+    const countdownAfter = createCountdown(
       estimateMinute,
       estimateSecond,
       (min, sec) => {
-        let minuteFormat = min < 10 ? "0" + min : min;
-        let secondFormat = sec < 10 ? "0" + sec : sec;
+        const minuteFormat = min < 10 ? "0" + min : min;
+        const secondFormat = sec < 10 ? "0" + sec : sec;
         setCountDownAfter(`${minuteFormat}:${secondFormat}`);
       },
       () => console.log("Countdown complete!")
@@ -132,8 +132,8 @@ const LoadingPage: React.FC = (props) => {
     if (analyzeComplete) {
       countdownBefore.stop();
 
-      let estimateM = Math.round(estimateMinute / 2);
-      let estimateS = Math.round(estimateSecond / 2);
+      const estimateM = Math.round(estimateMinute / 2);
+      const estimateS = Math.round(estimateSecond / 2);
       setEstimateMinute(estimateM);
       setEstimateSecond(estimateS);
       countdownAfter.setTime(estimateM, estimateS);

@@ -12,7 +12,6 @@ import { useProfileStore } from "../store/profile";
 import Link from "next/link";
 import { AnalysisSkeleton } from "./skeleton";
 
-
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -50,19 +49,11 @@ export default function AnalysisPage() {
     }
   }, [mounted, sessionId, hydratedProfile]);
 
-  const isFirstTimeUser = () => {
-    return isSignedIn && username && !hasAnalyzedGame;
-  };
-
-  const hasValidGameHistoryData = () => {
-    return pgn && dataAnalysis && isFromGameHistory;
+  const hasExistingData = () => {
+    return pgn && dataAnalysis;
   };
 
   const fetchExistAnalysis = async () => {
-    if (lastAnalysisFetched) {
-      return pgn && dataAnalysis;
-    }
-
     setIsLastAnalysisLoading(true);
     try {
       const response = await getLastAnalysis({});
@@ -72,11 +63,9 @@ export default function AnalysisPage() {
         setLastAnalysisFetched(true);
         return true;
       }
-      setLastAnalysisFetched(true);
       return false;
     } catch (error) {
       console.error("Error fetching analysis:", error);
-      setLastAnalysisFetched(true);
       return false;
     } finally {
       setIsLastAnalysisLoading(false);
@@ -104,44 +93,28 @@ export default function AnalysisPage() {
     if (!mounted || !hydrated || !hydratedProfile) return;
 
     const initializeAnalysisPage = async () => {
-      try {
-        if (hasValidGameHistoryData()) {
-          console.log("Using data from game history");
-          setInitialLoading(false);
-          return;
-        }
+      // If we already have data, don't do anything
+      if (hasExistingData()) {
+        setInitialLoading(false);
+        return;
+      }
 
-        if (isSignedIn && username) {
-          const hasExistingAnalysis = await fetchExistAnalysis();
-          
-          if (!hasExistingAnalysis) {
-            if (isFirstTimeUser()) {
-              console.log("First time user - loading famous game");
-              await loadFamousGame();
-            } else {
-              console.log("No recent analysis - loading famous game");
-              await loadFamousGame();
-            }
-          } else {
-            console.log("Using existing analysis from server");
-          }
-        } else {
-          console.log("User not signed in - loading famous game");
+      // Only fetch or load famous game if we don't have existing data
+      if (isSignedIn && username) {
+        const hasApiData = await fetchExistAnalysis();
+        if (!hasApiData) {
           await loadFamousGame();
         }
-      } catch (error) {
-        console.error("Error initializing analysis page:", error);
+      } else {
         await loadFamousGame();
-      } finally {
-        setInitialLoading(false);
       }
+
+      setInitialLoading(false);
     };
 
-    if (!isLoading) {
-      initializeAnalysisPage();
-    }
+    initializeAnalysisPage();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydrated, hydratedProfile, isSignedIn, username, isLoading]);
+  }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
 
   useEffect(() => {
     if (!mounted) return;

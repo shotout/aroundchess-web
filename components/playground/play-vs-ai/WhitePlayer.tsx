@@ -8,7 +8,6 @@ interface WhitePlayerProps {
   loserColor: string;
   myColor: string;
   AIChoosed: { opponent: { img: string; name: string } };
-  user: any;
   capturedWhite: { capturedTheme: string }[];
   PieceChoosed: string;
 }

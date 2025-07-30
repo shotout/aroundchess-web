@@ -25,6 +25,7 @@ import { usePgnStore } from "../store/zustandStore";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState({
     google: false,
     facebook: false,
@@ -46,7 +47,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsButtonLoading(true);
 
     try {
       setProviderType("email");
@@ -101,6 +102,7 @@ export default function LoginPage() {
                 setSessionId("");
 
                 setDeactivatedAlert(true);
+                setIsButtonLoading(false);
                 return;
               }
             }
@@ -113,7 +115,9 @@ export default function LoginPage() {
         setSessionId(data.data.access_token);
         toast.success("Logged in successfully!");
 
-        // Check username and redirect accordingly - same as SSO callback
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsLoading(true);
+
         try {
           const profileResponse = await fetch(`${baseUrl}/profile`, {
             headers: {
@@ -141,6 +145,7 @@ export default function LoginPage() {
         }
       } else {
         toast.error("No authentication token received");
+        setIsButtonLoading(false);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -148,8 +153,7 @@ export default function LoginPage() {
       } else {
         toast.error("Failed to login");
       }
-    } finally {
-      setIsLoading(false);
+      setIsButtonLoading(false);
     }
   };
 
@@ -237,21 +241,20 @@ export default function LoginPage() {
     }
   };
 
-  //   if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-  //       <div className="text-center">
-  //         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-  //           Completing your sign-in...
-  //         </h2>
-  //         <p className="text-gray-600">
-  //           Please wait while we verify your account.
-  //         </p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Completing your sign-in...
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we verify your account.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -367,9 +370,9 @@ export default function LoginPage() {
                 <button
                   className="w-full h-12 btn-primary text-white font-medium text-base rounded-full transition-colors"
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isButtonLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign-in"}
+                  {isButtonLoading ? "Signing in..." : "Sign-in"}
                 </button>
               </form>
 

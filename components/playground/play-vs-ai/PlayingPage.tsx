@@ -14,7 +14,6 @@ import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import DotSpinner from "@/components/game-history/Spinner";
 import { GameEndStatus } from "@/components/modal/GameEndStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/context/AuthContext";
 import { useApiClient } from "@/functions/api-client";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
@@ -338,7 +337,6 @@ export default function PlayingPage() {
   const hasRun = useRef(false);
 
   const [depthLevel] = useState(14);
-  const { user } = useAuth();
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
   const refBoard = useRef<HTMLDivElement | null>(null);
@@ -1315,7 +1313,6 @@ const handleResize = () => {
                 winnerColor={winnerColor}
                 loserColor={loserColor}
                 AIChoosed={AIChoosed}
-                user={user}
                 PieceChoosed={PieceChoosed}
               />
             </div>
@@ -1328,7 +1325,6 @@ const handleResize = () => {
                 winnerColor={winnerColor}
                 loserColor={loserColor}
                 AIChoosed={AIChoosed}
-                user={user}
                 PieceChoosed={PieceChoosed}
               />
             </div>
@@ -1668,7 +1664,6 @@ const handleResize = () => {
                 winnerColor={winnerColor}
                 loserColor={loserColor}
                 AIChoosed={AIChoosed}
-                user={user}
                 PieceChoosed={PieceChoosed}
               />
             </div>
@@ -1681,7 +1676,6 @@ const handleResize = () => {
                 winnerColor={winnerColor}
                 loserColor={loserColor}
                 AIChoosed={AIChoosed}
-                user={user}
                 PieceChoosed={PieceChoosed}
               />
             </div>
