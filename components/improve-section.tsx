@@ -2,12 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "@/utils/motion";
-import { CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const improveData = [

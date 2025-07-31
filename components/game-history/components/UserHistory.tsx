@@ -1,12 +1,11 @@
-import React, { useState } from "react";
 import GamesTab from "./user-history/GamesTab";
 import Analytics from "./user-history/Analytics";
 import Performance from "./user-history/Performance";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const UserHistory: React.FC = () => {
   const Tabs = ["Games", "Analytics", "Performance"] as const;
-  type TabType = (typeof Tabs)[number];
-  const [tab, setTab] = useState<TabType>("Games");
+  const { tab, setTab } = usePgnStore();
 
   return (
     <div className="w-full">
@@ -32,7 +31,6 @@ const UserHistory: React.FC = () => {
         </div>
       </div>
 
-      {/* Content section */}
       <div className="xl:p-4">
         {tab === "Games" && <GamesTab />}
         {tab === "Analytics" && <Analytics />}

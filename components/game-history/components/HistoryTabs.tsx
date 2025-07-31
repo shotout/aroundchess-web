@@ -8,8 +8,7 @@ interface HistoryTabsProps {
 }
 
 const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
-  // const [activeTab, setActiveTab] = useState<"user" | "other">("user");
-    const { activeUser, setActiveUser } = usePgnStore();
+  const { activeUser, setActiveUser } = usePgnStore();
   
 
   return (

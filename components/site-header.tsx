@@ -32,8 +32,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { UserButton, useUser } from "@clerk/nextjs";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const navItems = {
@@ -400,7 +398,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                 </Button>
               </div>
             ) : (
-              <UserButton showName={true} />
+              null
             )}
           </div>
         </div>

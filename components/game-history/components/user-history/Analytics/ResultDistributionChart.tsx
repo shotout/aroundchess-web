@@ -33,7 +33,6 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // Handle mouse events for desktop
   const handleMouseEnter = useCallback(() => {
     setTooltipVisible(true);
   }, []);
@@ -43,27 +42,23 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
     setActiveIndex(null);
   }, []);
 
-  // Handle touch events for mobile
   const handleTouchStart = useCallback(() => {
     setTooltipVisible(true);
   }, []);
 
   const handleTouchEnd = useCallback(() => {
-    // Add a small delay to prevent immediate hiding on touch
     setTimeout(() => {
       setTooltipVisible(false);
       setActiveIndex(null);
     }, 100);
   }, []);
 
-  // Handle pie slice hover/touch
   const handlePieEnter = useCallback((_: any, index: number) => {
     setActiveIndex(index);
     setTooltipVisible(true);
   }, []);
 
   const handlePieLeave = useCallback(() => {
-    // Don't immediately hide on pie leave for mobile compatibility
     if (!("ontouchstart" in window)) {
       setActiveIndex(null);
       setTooltipVisible(false);

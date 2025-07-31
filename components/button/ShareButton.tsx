@@ -6,19 +6,13 @@ import {
   ChevronDown,
   ChevronUp,
   Bookmark,
-  LinkIcon,
-  MailIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { BookmarkFilledIcon, DiscordLogoIcon } from "@radix-ui/react-icons";
-import { FaFacebook, FaWhatsapp } from "react-icons/fa";
-import { GrTwitter } from "react-icons/gr";
+import { BookmarkFilledIcon,  } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
-import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { useProfileStore } from "@/app/store/profile";
 
 const ShareButton = (props: any) => {

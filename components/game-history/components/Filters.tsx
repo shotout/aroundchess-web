@@ -117,7 +117,7 @@ const Filters: React.FC<FiltersProps> = ({
             className="
               btn-primary text-white
               flex-1 h-12 rounded-full
-              text-[11px] 2xl:text-base
+              text-[11px] lg:text-sm
               flex items-center justify-center gap-2
             "
           >
@@ -131,7 +131,7 @@ const Filters: React.FC<FiltersProps> = ({
               btn-tertiary bg-blue-50 text-blue-600
               border border-blue-100
               flex-1 h-12 rounded-full
-              text-[11px] 2xl:text-base
+              text-[11px] lg:text-sm
               flex items-center justify-center
             "
           >
@@ -143,7 +143,7 @@ const Filters: React.FC<FiltersProps> = ({
             className="
               btn-secondary text-white
               flex-1 h-12 rounded-full
-              text-[11px] 2xl:text-base
+              text-[11px] lg:text-sm
               flex items-center justify-center gap-2
             "
           >

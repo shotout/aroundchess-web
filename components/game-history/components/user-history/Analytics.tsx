@@ -192,7 +192,7 @@ const Analytics: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="grid md:grid-cols-[60%_40%] gap-6 bg-transparent">
+      <div className="grid md:grid-cols-[60%_39%] gap-4 bg-transparent">
         <div className="md:border border-gray-200 rounded-lg p-4">
           <div className="flex flex-col gap-4">
             {loading ? (
@@ -286,7 +286,6 @@ const Analytics: React.FC = () => {
               <CardSkeleton />
             )}
 
-            {/* Time Control Performance */}
             {loading ? (
               <CardSkeleton />
             ) : data ? (
@@ -295,7 +294,6 @@ const Analytics: React.FC = () => {
               <CardSkeleton />
             )}
 
-            {/* Recent Achievements */}
             {loading ? (
               <div className="space-y-3">
                 <CardSkeleton />

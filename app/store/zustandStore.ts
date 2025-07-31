@@ -64,6 +64,9 @@ const defaultPaginationState: PaginationState = {
 };
 
 interface PgnState {
+  tab:string;
+  setTab: (state:string) => void;
+
   tabSelected: string;
   setTabSelected: (state: string) => void;
 
@@ -190,6 +193,9 @@ interface PgnState {
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
+      tab: "Games",
+      setTab: (tab:string) => set({tab}),
+
       tabSelected: "saved",
       setTabSelected: (tabSelected: string) => set({ tabSelected }),
 
@@ -443,6 +449,7 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
+          tab: "Games",
           tabSelected: "saved",
           activeState: "My Training Plan",
           activeUser: "user",
@@ -572,6 +579,7 @@ export const usePgnStore = create<PgnState>()(
         capturedWhite: state.capturedWhite,
         capturedBlack: state.capturedBlack,
         tabSelected: state.tabSelected,
+        tab: state.tab
       }),
     }
   )

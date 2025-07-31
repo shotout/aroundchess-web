@@ -81,7 +81,6 @@ const RatingProgressChart: React.FC<RatingProgressChartProps> = ({
 
 const chartRange = React.useMemo(() => {
   if (cleanData.length === 0) {
-    // Dynamic fallback when no data
     const defaultValues = [800, 1000];
     const minValue = Math.min(...defaultValues);
     const maxValue = Math.max(...defaultValues);
@@ -97,7 +96,6 @@ const chartRange = React.useMemo(() => {
   const values = cleanData.map(item => item.rating).filter(r => r > 0);
   
   if (values.length === 0) {
-    // Dynamic fallback when no valid ratings
     const defaultValues = [800, 1000];
     const minValue = Math.min(...defaultValues);
     const maxValue = Math.max(...defaultValues);
@@ -125,7 +123,7 @@ const chartRange = React.useMemo(() => {
     return (
       <div className="md:p-4 rounded-lg">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-base font-bold">Rating Progress</h1>
+          <h1 className="text-base font-medium">Rating Progress</h1>
           <MobileTooltip
             content={[
             "**Rating =** represents the change in a player's average rating from month to month, which can be used to display a visual graph or performance history.",
@@ -145,7 +143,7 @@ const chartRange = React.useMemo(() => {
   return (
     <div className="md:p-4 rounded-lg">
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-base font-bold">Rating Progress</h1>
+        <h1 className="text-base font-medium">Rating Progress</h1>
         <MobileTooltip
           content={[
             "**Rating =** represents the change in a player's average rating from month to month, which can be used to display a visual graph or performance history.",
