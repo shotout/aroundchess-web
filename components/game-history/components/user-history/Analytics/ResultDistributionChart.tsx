@@ -75,7 +75,7 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
             "**Draws =** calculates the total number of games that ended in a draw from all available games.",
             "**Losses =** totalGames - wins - draws.",
           ]}
-          side="left"
+          side="bottom"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
         </MobileTooltip>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -19,15 +19,17 @@ const MobileTooltip = ({
   children,
   content,
   side = "left",
+  mobileSide ="left"
 }: {
   children: React.ReactNode;
   content: string | string[];
   side?: "left" | "right" | "top" | "bottom";
+  mobileSide? : "left" | "right" | "top" | "bottom";
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
+useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
@@ -37,7 +39,7 @@ const MobileTooltip = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  React.useEffect(() => {
+useEffect(() => {
     if (isMobile && isVisible) {
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as Element;
@@ -65,7 +67,6 @@ const MobileTooltip = ({
     }
   };
 
-  // Helper function to parse bold text
   const parseBoldText = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, index) => {
@@ -80,7 +81,6 @@ const MobileTooltip = ({
     });
   };
 
-  // Normalize content to array and limit to 4 items
   const contentArray = Array.isArray(content) 
     ? content.slice(0, 20) 
     : [content];
@@ -97,56 +97,42 @@ const MobileTooltip = ({
         </button>
         {isVisible && (
           <div
-            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-sm shadow-lg w-72 max-w-[90vw] ${
-              side === "left"
-                ? "right-0 top-8"
-                : side === "right"
+            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-b-sm rounded-tl-sm  w-72 max-w-[90vw] ${
+              mobileSide === "left"
+                ? "right-2 top-5"
+                : mobileSide === "right"
                 ? "left-0 top-8"
-                : side === "top"
+                : mobileSide === "top"
                 ? "bottom-8 left-1/2 transform -translate-x-1/2"
                 : "top-8 left-1/2 transform -translate-x-1/2"
             }`}
           >
-            <div className="text-center leading-relaxed">
+            <div className="r leading-relaxed">
               {contentArray.map((item, index) => (
                 <div 
                   key={index} 
-                  className={index > 0 ? "mt-2 pt-2 border-t border-gray-600" : ""}
+                  className={index > 0 ? "mt-2" : ""}
                 >
                   {parseBoldText(item)}
                 </div>
               ))}
             </div>
-
-            {/* Arrow */}
-            {/* <div
-              className={`absolute border-4 border-transparent ${
-                side === "left"
-                  ? "bottom-full right-0 border-b-gray-800"
-                  : side === "right"
-                  ? "bottom-full left-4 border-b-gray-800"
-                  : side === "top"
-                  ? "top-full left-1/2 transform -translate-x-1/2 border-t-gray-800"
-                  : "bottom-full left-1/2 transform -translate-x-1/2 border-b-gray-800"
-              }`}
-            ></div> */}
           </div>
         )}
       </div>
     );
   }
 
-  // Desktop version uses shadcn tooltip
   return (
-    <Tooltip>
+    <Tooltip >
       <TooltipTrigger asChild>
         <button className="p-1 -m-1 touch-manipulation" type="button">
           {children}
         </button>
       </TooltipTrigger>
-      <TooltipContent side={side} className="max-w-xs">
+      <TooltipContent side={side} className="max-w-md text-xs xl:text-sm">
         {contentArray.map((item, index) => (
-          <p key={index} className={index > 0 ? "mt-2 pt-2 border-t" : ""}>
+          <p key={index} className={index > 0 ? "mt-1 " : ""}>
             {parseBoldText(item)}
           </p>
         ))}
@@ -215,7 +201,6 @@ const Analytics: React.FC = () => {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Result Distribution Chart */}
               {loading ? (
                 <ChartSkeleton />
               ) : data ? (
@@ -226,7 +211,6 @@ const Analytics: React.FC = () => {
                 <CardSkeleton />
               )}
 
-              {/* Opening Statistics */}
               {loading ? (
                 <CardSkeleton />
               ) : data ? (
@@ -236,7 +220,6 @@ const Analytics: React.FC = () => {
               )}
             </div>
 
-            {/* Performance Insights - Desktop */}
             <div className="lg:block md:hidden">
               {loading ? (
                 <div className="grid grid-cols-2 gap-3">
@@ -256,7 +239,6 @@ const Analytics: React.FC = () => {
 
         <div className="md:border border-gray-200 rounded-lg p-4">
           <div className="flex flex-col gap-4">
-            {/* Performance Insights - Tablet */}
             <div className="hidden md:block lg:hidden">
               {loading ? (
                 <div className="grid grid-cols-2 gap-3">
@@ -272,7 +254,6 @@ const Analytics: React.FC = () => {
               )}
             </div>
 
-            {/* Key Statistics */}
             {loading ? (
               <div className="grid grid-cols-2 gap-3">
                 <CardSkeleton />

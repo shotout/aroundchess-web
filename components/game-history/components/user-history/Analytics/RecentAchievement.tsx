@@ -8,7 +8,6 @@ interface RecentAchievementsProps {
   achievements: string[];
 }
 
-// Helper component for achievement icons
 const AchievementIcon: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case "trophy":
@@ -29,11 +28,12 @@ const RecentAchievements: React.FC<RecentAchievementsProps> = ({
         <h1 className="text-base font-medium mb-3">Recent Achievements</h1>
         <MobileTooltip
          content={[
-          "To analyze chess game data and return a maximum of 3 top achievements by the player. These achievements can include:",
-            "The longest winning streak (if it's at least 3 consecutive wins).",
-            "The highest ELO rating that reaches certain milestones (such as 1200, 1400, etc.).",
-            "The number of wins in Bullet mode (fast games).",
-            "The fastest win based on the fewest number of moves." 
+            "**Recent Achievements**",
+            "To analyze chess game data and return a maximum of 3 top achievements by the player. These  achievements can include:",
+            "1. The longest winning streak (if it's at least 3 consecutive wins).",
+            "2. The highest ELO rating that reaches certain milestones (lets use our ELO steps 800, 1200, 1600, 2000, 2400, etc.).",
+            "3. The number of wins in Bullet mode (fast games).",
+            "4. The fastest win based on the fewest number of moves." 
           ]}
           side="left"
         >

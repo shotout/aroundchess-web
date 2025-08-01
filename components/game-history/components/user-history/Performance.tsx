@@ -124,7 +124,6 @@ const Performance: React.FC = () => {
   return (
     <TooltipProvider>
     <div className="flex flex-col lg:border lg:rounded-md p-4">
-      {/* Game Phase Chart */}
       {loading ? (
         <ChartSkeleton />
       ) : data ? (
@@ -143,7 +142,6 @@ const Performance: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Skill Analysis Radar */}
         {loading ? (
           <RadarSkeleton />
         ) : data ? (
@@ -152,7 +150,6 @@ const Performance: React.FC = () => {
           <RadarSkeleton />
         )}
 
-        {/* Strengths and Weaknesses */}
         {loading ? (
           <StrengthsWeaknessesSkeleton />
         ) : data ? (
@@ -165,7 +162,6 @@ const Performance: React.FC = () => {
         )}
       </div>
 
-      {/* Improvement Recommendations */}
       {loading ? (
         <RecommendationsSkeleton />
       ) : data ? (

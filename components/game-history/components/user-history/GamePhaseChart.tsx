@@ -151,9 +151,8 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
           <h1 className="text-base font-bold">Performance by Game Phase</h1>
           <MobileTooltip
           content={[
-            "**Opening:** If the number of games in the opening phase (openingGames) is at least 3 and other minimum game requirements are met, then the performance score for the opening phase will be calculated based on the win rate specific to that phase. If those conditions are not met, the performance will be based on the overall win rate.",
-            "**Middlegame:** If the number of games in the middlegame phase (middlegameGames) is at least 3 and other minimum requirements are met, then the performance score will be calculated based on the win rate specific to the middlegame. Otherwise, the performance will be based on the overall win rate.",
-            "**Endgame:** If the number of games in the endgame phase (endgameGames) is at least 3 and other minimum requirements are met, then the performance score for the endgame will be calculated based on the win rate specific to that phase. If not, the performance will be based on the overall win rate."
+            "**Performance by Game Phase**",
+            "Shows your performance score for each chess phase (opening, middlegame, endgame, tactics, strategy). Scores are calculated using phase-specific win rates when you have at least 3 games in that phase, otherwise uses overall win rate.",
           ]}
             side="left"
           >

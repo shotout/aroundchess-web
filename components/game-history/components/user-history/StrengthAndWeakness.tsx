@@ -84,7 +84,6 @@ const WeaknessCard: React.FC<{ item: SkillWeaknessItem }> = ({ item }) => {
   );
 };
 
-// Main component
 const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({
   strengthsData,
   weaknessesData,
@@ -95,8 +94,10 @@ const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({
         <h1 className="mb-2 font-bold text-base">Strength and weakness</h1>
         <MobileTooltip
          content={[
-          "**Strengths:** The strengths variable contains the player’s top 3 strongest skills based on the highest scores.",
-          "**Areas For Improvement:** The areasForImprovement variable stores the 3 weakest skills of the player based on the lowest scores."
+          "**Strengths**",
+          "The strengths variable contains your top 3 strongest skills based on the highest scores.",
+          "**Areas For Improvement**",
+          "The Areas For Improvement variable stores the 3 weakest skills based on the lowest scores."
           ]}
           side="left"
         >
