@@ -74,7 +74,6 @@ export default function Article() {
     hasRun.current = true;
     getNewsCategories({}).then((response) => {
       if (response.data.length > 0) {
-        // Move "AroundChess Guides" to the front if it exists
         const guidesIndex = response.data.findIndex(
           (cat: { name: string; }) => cat.name === "AroundChess Guides"
         );
