@@ -8,8 +8,8 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import NoData from "../NoData/NoData";
 import remarkGfm from 'remark-gfm'
+import NoData from "../NoData/NoData";
 
 
 function DetailSkeleton() {

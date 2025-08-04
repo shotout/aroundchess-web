@@ -9,6 +9,8 @@ import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import NoData from "../NoData/NoData";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function ArticleSkeletonGrid({ count = 6 }) {
   return (
@@ -40,7 +42,7 @@ function CategorySkeleton({ count = 5 }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="py-2 px-3 rounded-[4px] bg-gray-100 border border-input animate-pulse min-h-[40px] sm:min-h-[44px] h-full"
+          className="py-2 px-3 rounded-[4px] bg-gray-100 border border-input animate-pulse min-h-[40px] sm:min-h-[44px]"
         >
           <div className="h-3 w-3/4 bg-gray-300 rounded mx-auto" />
         </div>
@@ -75,7 +77,7 @@ export default function Article() {
     getNewsCategories({}).then((response) => {
       if (response.data.length > 0) {
         const guidesIndex = response.data.findIndex(
-          (cat: { name: string; }) => cat.name === "AroundChess Guides"
+          (cat: { name: string }) => cat.name === "AroundChess Guides"
         );
         const newCategories = [...response.data];
         if (guidesIndex > -1) {
@@ -91,73 +93,68 @@ export default function Article() {
   }, []);
 
   useEffect(() => {
-    if (categories.length > 0 && selectedTab === null) {
-      setSelectedTab(categories[0].id);
-    }
-  }, [categories, selectedTab]);
-
-  useEffect(() => {
-    if (selectedTab === null) return;
-    const key = String(selectedTab);
+    const key = selectedTab === null ? "all" : String(selectedTab);
     const cache = chessNews[key];
     const now = Date.now();
-    if (cache && now - cache.fetchedAt < CACHE_DURATION_MS && !query) {
+    if (cache && now - cache.fetchedAt < CACHE_DURATION_MS && !query) return;
+    if (!cache?.data?.length) setIsLoading(true);
+    const searchParams =
+      selectedTab === null
+        ? { search: query || undefined }
+        : { categoryId: selectedTab, search: query || undefined };
+    getNews(searchParams).then((response) => {
+      setChessNews(key, response.data);
       setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    getNews({ categoryId: selectedTab, search: query || undefined }).then(
-      (response) => {
-        setChessNews(key, response.data);
-        setIsLoading(false);
-      }
-    );
-  }, [selectedTab]);
+    });
+  }, [selectedTab, categories.length]);
 
   useEffect(() => {
-    if (selectedTab === null) return;
-    const key = String(selectedTab);
     if (query.length >= 3) {
       setSearchLoading(true);
       const timer = setTimeout(() => {
-        setIsLoading(true);
-        getNews({ categoryId: selectedTab, search: query }).then((response) => {
+        const key = selectedTab === null ? "all" : String(selectedTab);
+        const searchParams =
+          selectedTab === null
+            ? { search: query }
+            : { categoryId: selectedTab, search: query };
+        getNews(searchParams).then((response) => {
           setChessNews(key, response.data);
-          setIsLoading(false);
           setSearchLoading(false);
         });
       }, 300);
       return () => clearTimeout(timer);
     }
     if (query.length === 0) {
+      const key = selectedTab === null ? "all" : String(selectedTab);
       const cache = chessNews[key];
       const now = Date.now();
-      if (cache && now - cache.fetchedAt < CACHE_DURATION_MS) {
-        setIsLoading(false);
-        return;
-      }
-      setIsLoading(true);
-      getNews({ categoryId: selectedTab }).then((response) => {
+      if (cache && now - cache.fetchedAt < CACHE_DURATION_MS) return;
+      if (!cache?.data?.length) setIsLoading(true);
+      const searchParams =
+        selectedTab === null ? {} : { categoryId: selectedTab };
+      getNews(searchParams).then((response) => {
         setChessNews(key, response.data);
         setIsLoading(false);
       });
     }
-  }, [query, selectedTab]);
+  }, [query]);
 
   const handleOnSearch = (e: any) => {
     setQuery(e.target.value);
   };
 
   const articles =
-    selectedTab !== null ? chessNews[String(selectedTab)]?.data || [] : [];
+    selectedTab === null
+      ? chessNews["all"]?.data || []
+      : chessNews[String(selectedTab)]?.data || [];
   const { currentData } = usePagination(articles);
 
   return (
-    <div className="flex flex-col w-full p-4 sm:p-6 lg:p-8 justify-center items-between">
+    <div className="flex flex-col w-full p-4 sm:p-6 lg:p-8">
       <div className="flex items-center gap-2">
         <Image
           alt=""
-          src={"/icons/sidebar-news-icon.png"}
+          src="/icons/sidebar-news-icon.png"
           width={1000}
           height={1000}
           className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9"
@@ -165,8 +162,8 @@ export default function Article() {
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
       </div>
       <p className="text-gray-600 text-sm md:text-[18px] py-2 md:py-[8px]">
-        Stay updated with the latest blog posts, tournaments, and player
-        insights from around the world.
+        Stay updated with the latest blog posts, tournaments, and player insights from
+        around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
         <div
@@ -174,114 +171,110 @@ export default function Article() {
             sessionId !== "" ? `xl:w-2/3` : `xl:w-full`
           }`}
         >
-          <div className="flex flex-col mt-4 md:mt-0 bg-white">
-            <div className="mt-4 flex items-center bg-[#F8F9FC] border border-input rounded-md px-2 gap-2">
-              <Search
-                className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6"
-                color="#73778B"
-              />
-              <input
-                onChange={handleOnSearch}
-                placeholder="Search topics..."
-                className="w-full text-xs sm:text-sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none border-none outline-none"
-              />
+          <div className="mt-4 flex items-center bg-[#F8F9FC] border border-input rounded-md px-2 gap-2">
+            <Search className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" color="#73778B" />
+            <input
+              onChange={handleOnSearch}
+              placeholder="Search topics..."
+              className="w-full text-xs sm:text-sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none"
+            />
+          </div>
+          <div className="flex items-start mt-4 w-full">
+            <div className="w-full bg-white">
+              {categories.length === 0 ? (
+                <CategorySkeleton count={5} />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
+                  {categories.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setSelectedTab(tab.id === selectedTab ? null : tab.id);
+                        setQuery("");
+                      }}
+                      className={`py-2 px-3 font-medium rounded-[4px] border-input border text-xs sm:text-sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
+                        tab.id === selectedTab ? `bg-[#81CFF3] text-black` : `bg-white hover:bg-gray-50`
+                      }`}
+                    >
+                      <span className="truncate w-full text-center block leading-tight">
+                        {tab.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex items-start mt-4 w-full">
-              <div className="w-full bg-white">
-                {categories.length === 0 ? (
-                  <CategorySkeleton count={5} />
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
-                    {categories.map((tab: any) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setSelectedTab(tab.id);
-                          setQuery("");
+          </div>
+          {(isLoading || searchLoading) && articles.length === 0 ? (
+            <ArticleSkeletonGrid count={6} />
+          ) : articles.length === 0 ? (
+            <div className="flex w-full h-32 sm:h-40 items-center justify-center">
+              <NoData>News is empty</NoData>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
+              {articles.map((article) => (
+                <Link href={`/chess-news/${article.slug}`} key={article.slug}>
+                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
+                    {article.imageUrl?.trim() !== "" ? (
+                      <Image
+                        src={article.imageUrl}
+                        alt={article.imageCaption || article.title || "Image"}
+                        width={1000}
+                        height={1000}
+                        className="w-full h-[100px] sm:h-[115px] object-cover p-4 rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
                         }}
-                        className={`py-2 px-3 font-medium rounded-[4px] border-input border transition-all duration-200 hover:shadow-sm
-                          text-xs sm:text-sm
-                          min-h-[40px] sm:min-h-[44px]
-                          ${
-                            tab.id === selectedTab
-                              ? `bg-[#81CFF3] text-black `
-                              : `bg-white hover:bg-gray-50`
-                          }
-                        `}
-                      >
-                        <span
-                          className="truncate w-full text-center block leading-tight"
-                          title={tab.name}
-                        >
-                          {tab.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div>
-            {(isLoading || searchLoading) ? (
-              <ArticleSkeletonGrid count={6} />
-            ) : articles.length === 0 ? (
-              <div className="flex w-full h-32 sm:h-40 items-center justify-center gap-2">
-                <NoData>News is empty</NoData>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
-                {articles.map((article: any, index: number) => (
-                  <Link href={`/chess-news/${article.slug}`} key={index}>
-                    <div className="rounded-md overflow-hidden p-2 border border-input shadow-md h-[240px] sm:h-[254px] hover:shadow-lg transition-shadow duration-200">
-                      {article.imageUrl && article.imageUrl.trim() !== "" ? (
-                        <Image
-                          src={article.imageUrl}
-                          alt={
-                            article.imageCaption ||
-                            article.title ||
-                            "Article image"
-                          }
-                          width={1000}
-                          height={1000}
-                          className="w-full h-[100px] sm:h-[115px] object-cover p-4 rounded-md"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 flex items-center justify-center  rounded-md">
-                          <span className="text-gray-500 text-sm">No Image</span>
-                        </div>
-                      )}
-                      <div className="px-2 py-1">
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500">
-                            {formatDateNews(article.publishedAt)}
-                          </p>
-                          <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap">
-                            {article.category?.name || "Uncategorized"}
-                          </p>
-                        </div>
-                        <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mb-2 leading-tight">
-                          {article.title || "Untitled"}
-                        </h2>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: (article.content || "").replace(
-                              /\*\*(.*?)\*\*/g,
-                              "<b>$1</b>"
-                            ),
-                          }}
-                          className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal text-gray-600 leading-tight"
-                        />
+                      />
+                    ) : (
+                      <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 flex items-center justify-center rounded-md">
+                        <span className="text-gray-500 text-sm">No Image</span>
                       </div>
+                    )}
+                    <div className="px-2 py-1">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500">
+                          {formatDateNews(article.publishedAt)}
+                        </p>
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap">
+                          {article.category?.name || "Uncategorized"}
+                        </p>
+                      </div>
+                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mb-2 leading-tight">
+                        {article.title || "Untitled"}
+                      </h2>
+                      {/* <div className="prose prose-sm line-clamp-3 text-gray-600 leading-tight mt-1">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({ children }) => <h1 className="text-xs font-bold">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-xs font-semibold">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-xs font-semibold">{children}</h3>,
+                            p: ({ children }) => <p className="text-xs leading-relaxed">{children}</p>,
+                            ul: ({ children }) => <ul className="list-disc pl-6 mb-0 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal pl-6 mb-0 space-y-1">{children}</ol>,
+                            li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                            blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-700">{children}</blockquote>,
+                            code: ({ children }) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                            pre: ({ children }) => <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">{children}</pre>,
+                            a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">{children}</a>,
+                            // eslint-disable-next-line @next/next/no-img-element
+                            img: ({ src, alt }) => <img src={src} alt={alt} className="max-w-full h-auto rounded-md my-4"/>,
+                            table: ({ children }) => <div className="overflow-x-auto my-4"><table className="min-w-full border-collapse border border-gray-300">{children}</table></div>,
+                            th: ({ children }) => <th className="border border-gray-300 px-4 py-2 bg-gray-100 font-semibold text-left">{children}</th>,
+                            td: ({ children }) => <td className="border border-gray-300 px-4 py-2">{children}</td>,
+                          }}
+                        >
+                          {article.content || ""}
+                        </ReactMarkdown>
+                      </div> */}
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
           {!isLoading && currentData.length > 0 && (
             <div className="mt-6">
               <Pagination data={currentData} />
@@ -293,43 +286,42 @@ export default function Article() {
             sessionId !== "" ? `xl:w-1/3` : `hidden`
           }`}
         >
-          <span className="text-sm sm:text-md font-bold mt-4 block">
-            Saved Articles
-          </span>
+          <span className="text-sm sm:text-md font-bold mt-4 block">Saved Articles</span>
           <div className="flex flex-col mt-2 gap-2">
-            {savedArticles.length === 0 && (
+            {savedArticles.length === 0 ? (
               <div className="flex justify-center items-center py-8">
                 <NoData>Saved is empty</NoData>
               </div>
-            )}
-            {savedArticles.map((article) => (
-              <Link href={`/chess-news/${article.slug}`} key={article.id}>
-                <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3 hover:shadow-lg transition-shadow duration-200">
-                  <Image
-                    src={article.imageUrl}
-                    alt={article.title}
-                    width={1000}
-                    height={1000}
-                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-[4px] object-cover flex-shrink-0"
-                  />
-                  <div className="flex flex-col flex-1 gap-1 sm:gap-2 min-w-0">
-                    <div className="flex flex-row justify-between items-center gap-2">
-                      <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500 truncate">
-                        {formatDateNews(article.publishedAt)}
-                      </p>
-                      <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap flex-shrink-0">
-                        {article.category.name}
-                      </span>
-                    </div>
-                    <div className="flex flex-row items-center justify-between">
-                      <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold leading-tight">
-                        {article.title}
-                      </span>
+            ) : (
+              savedArticles.map((article) => (
+                <Link href={`/chess-news/${article.slug}`} key={article.slug}>
+                  <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3 hover:shadow-lg transition-shadow duration-200">
+                    <Image
+                      src={article.imageUrl}
+                      alt={article.title}
+                      width={1000}
+                      height={1000}
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-[4px] object-cover flex-shrink-0"
+                    />
+                    <div className="flex flex-col flex-1 gap-1 sm:gap-2 min-w-0">
+                      <div className="flex flex-row justify-between items-center gap-2">
+                        <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500 truncate">
+                          {formatDateNews(article.publishedAt)}
+                        </p>
+                        <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap flex-shrink-0">
+                          {article.category.name}
+                        </span>
+                      </div>
+                      <div className="flex flex-row items-center justify-between">
+                        <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold leading-tight">
+                          {article.title}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </div>

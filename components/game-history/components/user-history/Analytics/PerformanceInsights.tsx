@@ -44,7 +44,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
 
         {/* Accuracy Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Accuracy</h1>
+          <h1 className="text-sm font-semibold">Average Accuracy</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.accuracy}%</h1>
