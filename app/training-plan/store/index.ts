@@ -1,8 +1,8 @@
 import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
 import { apiService, endpoints } from "../api/endpoints";
-import CacheUtil, { CACHE_KEYS, getProgressCacheKey } from "../api/cacheUtils";
+import CacheUtil, { CACHE_KEYS, getGameTypeCacheKey, getProgressCacheKey } from "../api/cacheUtils";
 
-// Common interfaces
 export interface UserProfile {
   username: string;
   elo: number;
@@ -11,7 +11,6 @@ export interface UserProfile {
   level?: string;
 }
 
-// ========== TRAINING PLAN STORE ==========
 interface TopicRequirements {
   opening: {
     white: number;
@@ -86,39 +85,36 @@ interface RecommendationsData {
 }
 
 interface TrainingPlanState {
-  // API data
   userProfile: UserProfile | null;
   config: Config | null;
   topics: TopicsData | null;
   recommendations: RecommendationsData | null;
+  currentGameType: string | null;
 
-  // Selected topics
   selectedWhiteOpenings: string[];
   selectedBlackOpenings: string[];
   selectedMiddlegames: string[];
   selectedEndgames: string[];
 
-  // Independent loading states
   isLoadingTopics: boolean;
   isLoadingProfile: boolean;
   isCreating: boolean;
   error: string | null;
   isAdjustMode: boolean;
 
-  // Fetch tracking
   _fetchPromises: Map<string, Promise<any>>;
 
-  // Actions
   fetchTopics: (sessionId: string) => Promise<void>;
   fetchExistingTopics: (sessionId: string) => Promise<void>;
   toggleTopic: (topicId: string, category: string) => void;
   createTrainingPlan: (sessionId: string) => Promise<boolean>;
   setAdjustMode: (mode: boolean) => void;
+  setGameType: (gameType: string) => void;
+  refetchForGameType: (sessionId: string, gameType: string) => Promise<void>;
   reset: () => void;
   resetPartial: () => void;
 }
 
-// Helper function to auto-select recommended topics
 const autoSelectRecommendedTopics = (
   recommendations: RecommendationsData | null
 ) => {
@@ -142,53 +138,87 @@ const autoSelectRecommendedTopics = (
   };
 };
 
-export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
-  // Initial state
-  userProfile: null,
-  config: null,
-  topics: null,
-  recommendations: null,
+export const useTrainingPlanStore = create<TrainingPlanState>()(
+  subscribeWithSelector((set, get) => ({
+    userProfile: null,
+    config: null,
+    topics: null,
+    recommendations: null,
+    currentGameType: null,
 
-  selectedWhiteOpenings: [],
-  selectedBlackOpenings: [],
-  selectedMiddlegames: [],
-  selectedEndgames: [],
+    selectedWhiteOpenings: [],
+    selectedBlackOpenings: [],
+    selectedMiddlegames: [],
+    selectedEndgames: [],
 
-  isLoadingTopics: false,
-  isLoadingProfile: false,
-  isCreating: false,
-  error: null,
-  isAdjustMode: false,
+    isLoadingTopics: false,
+    isLoadingProfile: false,
+    isCreating: false,
+    error: null,
+    isAdjustMode: false,
 
-  _fetchPromises: new Map(),
+    _fetchPromises: new Map(),
 
-  // Set adjust mode
-  setAdjustMode: (mode: boolean) => {
-    set({ isAdjustMode: mode });
-  },
+    setAdjustMode: (mode: boolean) => {
+      set({ isAdjustMode: mode });
+    },
 
-  // Optimized fetchTopics with independent loading
-  fetchTopics: async (sessionId: string) => {
-    const state = get();
-    const cacheKey = `fetchTopics_${sessionId}`;
+    setGameType: (gameType: string) => {
+      const currentState = get();
+      if (currentState.currentGameType !== gameType) {
+        set({ currentGameType: gameType });
+      }
+    },
 
-    // Check if we already have an ongoing request
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
-    }
+    refetchForGameType: async (sessionId: string, gameType: string) => {
+      if (get().currentGameType && get().currentGameType !== gameType) {
+        CacheUtil.clearGameTypeCache(get().currentGameType!);
+      }
+      
+      set({ currentGameType: gameType });
+      CacheUtil.clearGameTypeCache(gameType);
+      await get().fetchTopics(sessionId);
+    },
 
-    const fetchPromise = (async () => {
-      set({ isLoadingTopics: true, error: null });
+    fetchTopics: async (sessionId: string) => {
+      const state = get();
+      const gameType = state.currentGameType;
+      const cacheKey = getGameTypeCacheKey(CACHE_KEYS.TRAINING_TOPICS, gameType);
+      const fetchKey = `fetchTopics_${sessionId}_${gameType || 'default'}`;
 
-      try {
-        // Check if we have valid cached data
-        const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_TOPICS);
-        if (cachedData) {
-          const { userProfile, config, topics, recommendations } = cachedData;
+      if (state._fetchPromises.has(fetchKey)) {
+        return state._fetchPromises.get(fetchKey);
+      }
 
-          // Auto-select recommended topics
-          const autoSelectedTopics =
-            autoSelectRecommendedTopics(recommendations);
+      const fetchPromise = (async () => {
+        set({ isLoadingTopics: true, error: null });
+
+        try {
+          const cachedData = CacheUtil.getItem(cacheKey);
+          if (cachedData) {
+            const { userProfile, config, topics, recommendations } = cachedData;
+            const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
+
+            set({
+              userProfile,
+              config,
+              topics,
+              recommendations,
+              ...autoSelectedTopics,
+              isLoadingTopics: false,
+            });
+            return;
+          }
+
+          const response = await apiService.get(
+            endpoints.trainingPlan.getTopics,
+            sessionId
+          );
+          const { userProfile, config, topics, recommendations } = response.data;
+
+          CacheUtil.setItem(cacheKey, response.data);
+
+          const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
 
           set({
             userProfile,
@@ -198,230 +228,186 @@ export const useTrainingPlanStore = create<TrainingPlanState>((set, get) => ({
             ...autoSelectedTopics,
             isLoadingTopics: false,
           });
-          return;
+        } catch (error) {
+          console.error("Error fetching training plan topics:", error);
+          set({
+            error: error instanceof Error ? error.message : "Failed to fetch training plan topics",
+            isLoadingTopics: false,
+          });
+        } finally {
+          const currentState = get();
+          currentState._fetchPromises.delete(fetchKey);
         }
+      })();
 
-        // If no valid cache, fetch from API
-        const response = await apiService.get(
-          endpoints.trainingPlan.getTopics,
-          sessionId
-        );
-        const { userProfile, config, topics, recommendations } = response.data;
+      set((state) => ({
+        _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
+      }));
 
-        // Cache the response
-        CacheUtil.setItem(CACHE_KEYS.TRAINING_TOPICS, response.data);
+      return fetchPromise;
+    },
 
-        // Auto-select recommended topics
-        const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
+    fetchExistingTopics: async (sessionId: string) => {
+      const state = get();
+      const gameType = state.currentGameType;
+      const cacheKey = getGameTypeCacheKey(CACHE_KEYS.EXISTING_TRAINING_TOPICS, gameType);
+      const fetchKey = `fetchExistingTopics_${sessionId}_${gameType || 'default'}`;
 
-        set({
-          userProfile,
-          config,
-          topics,
-          recommendations,
-          ...autoSelectedTopics,
-          isLoadingTopics: false,
-        });
-      } catch (error) {
-        console.error("Error fetching training plan topics:", error);
-        set({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch training plan topics",
-          isLoadingTopics: false,
-        });
-      } finally {
-        // Remove the promise from tracking
-        const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
+      if (state._fetchPromises.has(fetchKey)) {
+        return state._fetchPromises.get(fetchKey);
       }
-    })();
 
-    // Track the promise
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
-    }));
+      const fetchPromise = (async () => {
+        set({ isLoadingTopics: true, error: null });
 
-    return fetchPromise;
-  },
+        try {
+          const existingResponse = await apiService.get(
+            endpoints.trainingPlan.getExistingTopics,
+            sessionId
+          );
+          const existingData: ExistingTopicsResponse = existingResponse.data;
 
-  // Optimized fetchExistingTopics with independent loading
-  fetchExistingTopics: async (sessionId: string) => {
-    const state = get();
-    const cacheKey = `fetchExistingTopics_${sessionId}`;
+          const selectedWhiteOpenings = existingData.topics.openings.white.map(
+            (topic) => topic.id
+          );
+          const selectedBlackOpenings = existingData.topics.openings.black.map(
+            (topic) => topic.id
+          );
+          const selectedMiddlegames = existingData.topics.middlegames.map(
+            (topic) => topic.id
+          );
+          const selectedEndgames = existingData.topics.endgames.map(
+            (topic) => topic.id
+          );
 
-    // Check if we already have an ongoing request
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
-    }
+          const allTopicsResponse = await apiService.get(
+            endpoints.trainingPlan.getTopics,
+            sessionId
+          );
+          const allTopicsData = allTopicsResponse.data;
 
-    const fetchPromise = (async () => {
-      set({ isLoadingTopics: true, error: null });
+          set({
+            userProfile: allTopicsData.userProfile,
+            config: allTopicsData.config,
+            topics: allTopicsData.topics,
+            recommendations: allTopicsData.recommendations,
+            selectedWhiteOpenings,
+            selectedBlackOpenings,
+            selectedMiddlegames,
+            selectedEndgames,
+            isLoadingTopics: false,
+          });
+        } catch (error) {
+          console.error("Error fetching existing training plan topics:", error);
+          set({
+            error: error instanceof Error ? error.message : "Failed to fetch existing training plan topics",
+            isLoadingTopics: false,
+          });
+        } finally {
+          const currentState = get();
+          currentState._fetchPromises.delete(fetchKey);
+        }
+      })();
+
+      set((state) => ({
+        _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
+      }));
+
+      return fetchPromise;
+    },
+
+    toggleTopic: (topicId: string, category: string) => {
+      if (category.includes("white")) {
+        const { selectedWhiteOpenings } = get();
+        const isSelected = selectedWhiteOpenings.includes(topicId);
+
+        set({
+          selectedWhiteOpenings: isSelected
+            ? selectedWhiteOpenings.filter((id) => id !== topicId)
+            : [...selectedWhiteOpenings, topicId],
+        });
+      } else if (category.includes("black")) {
+        const { selectedBlackOpenings } = get();
+        const isSelected = selectedBlackOpenings.includes(topicId);
+
+        set({
+          selectedBlackOpenings: isSelected
+            ? selectedBlackOpenings.filter((id) => id !== topicId)
+            : [...selectedBlackOpenings, topicId],
+        });
+      } else if (category === "middlegame") {
+        const { selectedMiddlegames } = get();
+        const isSelected = selectedMiddlegames.includes(topicId);
+
+        set({
+          selectedMiddlegames: isSelected
+            ? selectedMiddlegames.filter((id) => id !== topicId)
+            : [...selectedMiddlegames, topicId],
+        });
+      } else if (category === "endgame") {
+        const { selectedEndgames } = get();
+        const isSelected = selectedEndgames.includes(topicId);
+
+        set({
+          selectedEndgames: isSelected
+            ? selectedEndgames.filter((id) => id !== topicId)
+            : [...selectedEndgames, topicId],
+        });
+      }
+    },
+
+    createTrainingPlan: async (sessionId: string) => {
+      const {
+        selectedWhiteOpenings,
+        selectedBlackOpenings,
+        selectedMiddlegames,
+        selectedEndgames,
+      } = get();
+      set({ isCreating: true, error: null });
 
       try {
-        // First, fetch the existing topics to get what's currently selected
-        const existingResponse = await apiService.get(
-          endpoints.trainingPlan.getExistingTopics,
-          sessionId
-        );
-        const existingData: ExistingTopicsResponse = existingResponse.data;
-
-        // Extract the selected topic IDs from the existing topics
-        const selectedWhiteOpenings = existingData.topics.openings.white.map(
-          (topic) => topic.id
-        );
-        const selectedBlackOpenings = existingData.topics.openings.black.map(
-          (topic) => topic.id
-        );
-        const selectedMiddlegames = existingData.topics.middlegames.map(
-          (topic) => topic.id
-        );
-        const selectedEndgames = existingData.topics.endgames.map(
-          (topic) => topic.id
-        );
-
-        // Also fetch all available topics to get the full list and config
-        const allTopicsResponse = await apiService.get(
-          endpoints.trainingPlan.getTopics,
-          sessionId
-        );
-        const allTopicsData = allTopicsResponse.data;
-
-        set({
-          userProfile: allTopicsData.userProfile,
-          config: allTopicsData.config,
-          topics: allTopicsData.topics,
-          recommendations: allTopicsData.recommendations,
-          selectedWhiteOpenings,
-          selectedBlackOpenings,
-          selectedMiddlegames,
-          selectedEndgames,
-          isLoadingTopics: false,
+        await apiService.post(endpoints.trainingPlan.createPlan, sessionId, {
+          whiteOpening: selectedWhiteOpenings,
+          blackOpening: selectedBlackOpenings,
+          middleGame: selectedMiddlegames,
+          endGame: selectedEndgames,
         });
+
+        CacheUtil.clearAll();
+
+        set({ isCreating: false });
+        return true;
       } catch (error) {
-        console.error("Error fetching existing training plan topics:", error);
+        console.error("Error creating training plan:", error);
         set({
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch existing training plan topics",
-          isLoadingTopics: false,
+          error: error instanceof Error ? error.message : "Failed to create training plan",
+          isCreating: false,
         });
-      } finally {
-        // Remove the promise from tracking
-        const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
+        return false;
       }
-    })();
+    },
 
-    // Track the promise
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
-    }));
-
-    return fetchPromise;
-  },
-
-  // Rest of the methods remain the same...
-  toggleTopic: (topicId: string, category: string) => {
-    if (category.includes("white")) {
-      const { selectedWhiteOpenings } = get();
-      const isSelected = selectedWhiteOpenings.includes(topicId);
-
+    reset: () => {
       set({
-        selectedWhiteOpenings: isSelected
-          ? selectedWhiteOpenings.filter((id) => id !== topicId)
-          : [...selectedWhiteOpenings, topicId],
+        selectedWhiteOpenings: [],
+        selectedBlackOpenings: [],
+        selectedMiddlegames: [],
+        selectedEndgames: [],
+        error: null,
+        isAdjustMode: false,
+        _fetchPromises: new Map(),
       });
-    } else if (category.includes("black")) {
-      const { selectedBlackOpenings } = get();
-      const isSelected = selectedBlackOpenings.includes(topicId);
+    },
 
+    resetPartial: () => {
       set({
-        selectedBlackOpenings: isSelected
-          ? selectedBlackOpenings.filter((id) => id !== topicId)
-          : [...selectedBlackOpenings, topicId],
+        error: null,
+        isAdjustMode: false,
       });
-    } else if (category === "middlegame") {
-      const { selectedMiddlegames } = get();
-      const isSelected = selectedMiddlegames.includes(topicId);
+    },
+  }))
+);
 
-      set({
-        selectedMiddlegames: isSelected
-          ? selectedMiddlegames.filter((id) => id !== topicId)
-          : [...selectedMiddlegames, topicId],
-      });
-    } else if (category === "endgame") {
-      const { selectedEndgames } = get();
-      const isSelected = selectedEndgames.includes(topicId);
-
-      set({
-        selectedEndgames: isSelected
-          ? selectedEndgames.filter((id) => id !== topicId)
-          : [...selectedEndgames, topicId],
-      });
-    }
-  },
-
-  createTrainingPlan: async (sessionId: string) => {
-    const {
-      selectedWhiteOpenings,
-      selectedBlackOpenings,
-      selectedMiddlegames,
-      selectedEndgames,
-    } = get();
-    set({ isCreating: true, error: null });
-
-    try {
-      await apiService.post(endpoints.trainingPlan.createPlan, sessionId, {
-        whiteOpening: selectedWhiteOpenings,
-        blackOpening: selectedBlackOpenings,
-        middleGame: selectedMiddlegames,
-        endGame: selectedEndgames,
-      });
-
-      // Clear all caches since creating a new plan affects everything
-      CacheUtil.clearAll();
-
-      set({ isCreating: false });
-      return true;
-    } catch (error) {
-      console.error("Error creating training plan:", error);
-      set({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create training plan",
-        isCreating: false,
-      });
-      return false;
-    }
-  },
-
-  // Reset store state (but preserve auto-selected recommendations in create mode)
-  reset: () => {
-    set({
-      selectedWhiteOpenings: [],
-      selectedBlackOpenings: [],
-      selectedMiddlegames: [],
-      selectedEndgames: [],
-      error: null,
-      isAdjustMode: false,
-      _fetchPromises: new Map(),
-    });
-  },
-
-  // New method to reset only error and adjust mode but keep selections
-  resetPartial: () => {
-    set({
-      error: null,
-      isAdjustMode: false,
-    });
-  },
-}));
-
-// ========== SCHEDULE STORE with Independent Loading ==========
 export interface TrainingTopic {
   id: string;
   title: string;
@@ -448,172 +434,202 @@ interface ScheduleState {
   isLoadingSchedule: boolean;
   scheduleError: string | null;
   planExpired: boolean;
+  currentGameType: string | null;
   _fetchPromises: Map<string, Promise<any>>;
   fetchSchedule: (sessionId: string) => Promise<void>;
   resetExpiredStatus: () => void;
+  setGameType: (gameType: string) => void;
+  refetchForGameType: (sessionId: string, gameType: string) => Promise<void>;
 }
 
-export const useScheduleStore = create<ScheduleState>((set, get) => ({
-  schedule: null,
-  isLoadingSchedule: false,
-  scheduleError: null,
-  planExpired: false,
-  _fetchPromises: new Map(),
+export const useScheduleStore = create<ScheduleState>()(
+  subscribeWithSelector((set, get) => ({
+    schedule: null,
+    isLoadingSchedule: false,
+    scheduleError: null,
+    planExpired: false,
+    currentGameType: null,
+    _fetchPromises: new Map(),
 
-  fetchSchedule: async (sessionId: string) => {
-    if (!sessionId) return;
+    setGameType: (gameType: string) => {
+      set({ currentGameType: gameType });
+    },
 
-    const state = get();
-    const cacheKey = `fetchSchedule_${sessionId}`;
-
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
-    }
-
-    const fetchPromise = (async () => {
-      set({ isLoadingSchedule: true, scheduleError: null, planExpired: false });
-
-      try {
-        const cachedData = CacheUtil.getItem(CACHE_KEYS.TRAINING_SCHEDULE);
-        if (cachedData) {
-          set({ schedule: cachedData, isLoadingSchedule: false });
-          return;
-        }
-
-        const response = await apiService.get(
-          endpoints.trainingPlan.getTodaySchedule,
-          sessionId
-        );
-
-        // Cache the response
-        CacheUtil.setItem(CACHE_KEYS.TRAINING_SCHEDULE, response.data);
-
-        set({ schedule: response.data, isLoadingSchedule: false });
-      } catch (error: any) {
-        console.error("Error fetching training schedule:", error);
-
-        // Check if this is an expired plan error
-        const errorMessage = error instanceof Error ? error.message : "";
-        const responseData = error?.response?.data;
-
-        // Various ways the API might indicate an expired plan
-        const isExpiredPlanError =
-          responseData?.message?.includes("expired") ||
-          errorMessage.includes("expired") ||
-          (responseData?.statusCode === 400 &&
-            responseData?.message?.includes("training plan"));
-
-        if (isExpiredPlanError) {
-          // For expired plan errors, set planExpired flag but don't treat as a fatal error
-          set({
-            planExpired: true,
-            schedule: null,
-            isLoadingSchedule: false,
-            scheduleError:
-              responseData?.message ||
-              "Your training plan has expired. Please create a new one.",
-          });
-        } else {
-          // For other errors, handle normally
-          set({
-            scheduleError:
-              error instanceof Error
-                ? error.message
-                : "Failed to fetch training schedule",
-            isLoadingSchedule: false,
-          });
-        }
-      } finally {
-        // Remove the promise from tracking
-        const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
+    refetchForGameType: async (sessionId: string, gameType: string) => {
+      if (get().currentGameType && get().currentGameType !== gameType) {
+        CacheUtil.clearGameTypeCache(get().currentGameType!);
       }
-    })();
+      
+      set({ currentGameType: gameType });
+      CacheUtil.clearGameTypeCache(gameType);
+      await get().fetchSchedule(sessionId);
+    },
 
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
-    }));
+    fetchSchedule: async (sessionId: string) => {
+      if (!sessionId) return;
 
-    return fetchPromise;
-  },
+      const state = get();
+      const gameType = state.currentGameType;
+      const cacheKey = getGameTypeCacheKey(CACHE_KEYS.TRAINING_SCHEDULE, gameType);
+      const fetchKey = `fetchSchedule_${sessionId}_${gameType || 'default'}`;
 
-  resetExpiredStatus: () => {
-    set({ planExpired: false, scheduleError: null });
-  },
-}));
+      if (state._fetchPromises.has(fetchKey)) {
+        return state._fetchPromises.get(fetchKey);
+      }
+
+      const fetchPromise = (async () => {
+        set({ isLoadingSchedule: true, scheduleError: null, planExpired: false });
+
+        try {
+          const cachedData = CacheUtil.getItem(cacheKey);
+          if (cachedData) {
+            set({ schedule: cachedData, isLoadingSchedule: false });
+            return;
+          }
+
+          const response = await apiService.get(
+            endpoints.trainingPlan.getTodaySchedule,
+            sessionId
+          );
+
+          CacheUtil.setItem(cacheKey, response.data);
+
+          set({ schedule: response.data, isLoadingSchedule: false });
+        } catch (error: any) {
+          console.error("Error fetching training schedule:", error);
+
+          const errorMessage = error instanceof Error ? error.message : "";
+          const responseData = error?.response?.data;
+
+          const isExpiredPlanError =
+            responseData?.message?.includes("expired") ||
+            errorMessage.includes("expired") ||
+            (responseData?.statusCode === 400 &&
+              responseData?.message?.includes("training plan"));
+
+          if (isExpiredPlanError) {
+            set({
+              planExpired: true,
+              schedule: null,
+              isLoadingSchedule: false,
+              scheduleError:
+                responseData?.message ||
+                "Your training plan has expired. Please create a new one.",
+            });
+          } else {
+            set({
+              scheduleError: error instanceof Error ? error.message : "Failed to fetch training schedule",
+              isLoadingSchedule: false,
+            });
+          }
+        } finally {
+          const currentState = get();
+          currentState._fetchPromises.delete(fetchKey);
+        }
+      })();
+
+      set((state) => ({
+        _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
+      }));
+
+      return fetchPromise;
+    },
+
+    resetExpiredStatus: () => {
+      set({ planExpired: false, scheduleError: null });
+    },
+  }))
+);
 
 interface UserState {
   profile: UserProfile | null;
   isLoadingUserProfile: boolean;
   userProfileError: string | null;
+  currentGameType: string | null;
   _fetchPromises: Map<string, Promise<any>>;
   fetchUserProfile: (sessionId: string) => Promise<void>;
+  setGameType: (gameType: string) => void;
+  refetchForGameType: (sessionId: string, gameType: string) => Promise<void>;
 }
 
-export const useUserStore = create<UserState>((set, get) => ({
-  profile: null,
-  isLoadingUserProfile: false,
-  userProfileError: null,
-  _fetchPromises: new Map(),
+export const useUserStore = create<UserState>()(
+  subscribeWithSelector((set, get) => ({
+    profile: null,
+    isLoadingUserProfile: false,
+    userProfileError: null,
+    currentGameType: null,
+    _fetchPromises: new Map(),
 
-  fetchUserProfile: async (sessionId: string) => {
-    if (!sessionId) return;
+    setGameType: (gameType: string) => {
+      set({ currentGameType: gameType });
+    },
 
-    const state = get();
-    const cacheKey = `fetchUserProfile_${sessionId}`;
+    refetchForGameType: async (sessionId: string, gameType: string) => {
+      if (get().currentGameType && get().currentGameType !== gameType) {
+        CacheUtil.clearGameTypeCache(get().currentGameType!);
+      }
+      
+      set({ currentGameType: gameType });
+      CacheUtil.clearGameTypeCache(gameType);
+      await get().fetchUserProfile(sessionId);
+    },
 
-    if (state._fetchPromises.has(cacheKey)) {
-      return state._fetchPromises.get(cacheKey);
-    }
+    fetchUserProfile: async (sessionId: string) => {
+      if (!sessionId) return;
 
-    const fetchPromise = (async () => {
-      set({ isLoadingUserProfile: true, userProfileError: null });
+      const state = get();
+      const gameType = state.currentGameType;
+      const cacheKey = getGameTypeCacheKey(CACHE_KEYS.USER_PROFILE, gameType);
+      const fetchKey = `fetchUserProfile_${sessionId}_${gameType || 'default'}`;
 
-      try {
-        const cachedData = CacheUtil.getItem(CACHE_KEYS.USER_PROFILE);
-        if (cachedData) {
-          set({ profile: cachedData, isLoadingUserProfile: false });
-          return;
-        }
+      if (state._fetchPromises.has(fetchKey)) {
+        return state._fetchPromises.get(fetchKey);
+      }
 
-        const response = await apiService.get(
-          endpoints.trainingPlan.getTopics,
-          sessionId
-        );
+      const fetchPromise = (async () => {
+        set({ isLoadingUserProfile: true, userProfileError: null });
 
-        if (response.data?.userProfile) {
-          CacheUtil.setItem(CACHE_KEYS.USER_PROFILE, response.data.userProfile);
+        try {
+          const cachedData = CacheUtil.getItem(cacheKey);
+          if (cachedData) {
+            set({ profile: cachedData, isLoadingUserProfile: false });
+            return;
+          }
 
+          const response = await apiService.get(
+            endpoints.trainingPlan.getTopics,
+            sessionId
+          );
+
+          if (response.data?.userProfile) {
+            CacheUtil.setItem(cacheKey, response.data.userProfile);
+
+            set({
+              profile: response.data.userProfile,
+              isLoadingUserProfile: false,
+            });
+          } else {
+            throw new Error("User profile not found in the response");
+          }
+        } catch (error) {
           set({
-            profile: response.data.userProfile,
+            userProfileError: error instanceof Error ? error.message : "Failed to fetch user profile",
             isLoadingUserProfile: false,
           });
-        } else {
-          throw new Error("User profile not found in the response");
+        } finally {
+          const currentState = get();
+          currentState._fetchPromises.delete(fetchKey);
         }
-      } catch (error) {
-        set({
-          userProfileError:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch user profile",
-          isLoadingUserProfile: false,
-        });
-      } finally {
-        // Remove the promise from tracking
-        const currentState = get();
-        currentState._fetchPromises.delete(cacheKey);
-      }
-    })();
+      })();
 
-    // Track the promise
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(cacheKey, fetchPromise),
-    }));
+      set((state) => ({
+        _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
+      }));
 
-    return fetchPromise;
-  },
-}));
+      return fetchPromise;
+    },
+  }))
+);
 
 export interface ProgressRatingData {
   week: number;
@@ -670,109 +686,128 @@ export interface ProgressData {
   avgAccuracy: number;
 }
 
-interface ProgressState {
-  progressData: ProgressData | null;
-  isLoadingProgress: boolean;
-  progressError: string | null;
-  currentMonth: string;
-  _fetchPromises: Map<string, Promise<any>>;
-  setCurrentMonth: (month: string) => void;
-  fetchProgressData: (sessionId: string, month?: string) => Promise<void>;
-  forceRefresh: (sessionId: string, month?: string) => Promise<void>;
-}
-
-export const useProgressStore = create<ProgressState>((set, get) => ({
-  progressData: null,
-  isLoadingProgress: false,
-  progressError: null,
-  currentMonth: getCurrentMonth(),
-  _fetchPromises: new Map(),
-
-  setCurrentMonth: (month: string) => {
-    const currentState = get();
-    if (currentState.currentMonth !== month) {
-      set({ 
-        currentMonth: month,
-        progressData: null, 
-      });
-    }
-  },
-
-  fetchProgressData: async (sessionId: string, month?: string) => {
-    if (!sessionId) return;
-
-    const selectedMonth = month || get().currentMonth;
-    const state = get();
-    const cacheKey = getProgressCacheKey(selectedMonth);
-    const fetchKey = `fetchProgress_${sessionId}_${selectedMonth}`;
-
-    if (state._fetchPromises.has(fetchKey)) {
-      return state._fetchPromises.get(fetchKey);
-    }
-
-    const fetchPromise = (async () => {
-      set({ isLoadingProgress: true, progressError: null });
-
-      try {
-        const cachedData = CacheUtil.getItem(cacheKey);
-        if (cachedData) {
-          console.log(`Using cached progress data for ${selectedMonth}`);
-          set({ 
-            progressData: cachedData, 
-            isLoadingProgress: false,
-          });
-          return;
-        }
-
-        console.log(`Fetching fresh progress data for ${selectedMonth}`);
-        
-        const response = await apiService.get(
-          endpoints.trainingPlan.getProgress(selectedMonth),
-          sessionId
-        );
-
-        CacheUtil.setItem(cacheKey, response.data);
-
-        set({ 
-          progressData: response.data, 
-          isLoadingProgress: false,
-        });
-
-      } catch (error) {
-        console.error('Error fetching progress data:', error);
-        set({
-          progressError:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch progress data",
-          isLoadingProgress: false,
-        });
-      } finally {
-        const currentState = get();
-        currentState._fetchPromises.delete(fetchKey);
-      }
-    })();
-
-    set((state) => ({
-      _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
-    }));
-
-    return fetchPromise;
-  },
-
-  forceRefresh: async (sessionId: string, month?: string) => {
-    const selectedMonth = month || get().currentMonth;
-    const cacheKey = getProgressCacheKey(selectedMonth);
-    
-    CacheUtil.clearItem(cacheKey);
-    
-    return get().fetchProgressData(sessionId, selectedMonth);
-  },
-}));
-
 function getCurrentMonth(): string {
   const date = new Date();
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   return `${year}-${month}`;
 }
+
+interface ProgressState {
+  progressData: ProgressData | null;
+  isLoadingProgress: boolean;
+  progressError: string | null;
+  currentMonth: string;
+  currentGameType: string | null;
+  _fetchPromises: Map<string, Promise<any>>;
+  setCurrentMonth: (month: string) => void;
+  fetchProgressData: (sessionId: string, month?: string) => Promise<void>;
+  forceRefresh: (sessionId: string, month?: string) => Promise<void>;
+  setGameType: (gameType: string) => void;
+  refetchForGameType: (sessionId: string, gameType: string) => Promise<void>;
+}
+
+export const useProgressStore = create<ProgressState>()(
+  subscribeWithSelector((set, get) => ({
+    progressData: null,
+    isLoadingProgress: false,
+    progressError: null,
+    currentMonth: getCurrentMonth(),
+    currentGameType: null,
+    _fetchPromises: new Map(),
+
+    setCurrentMonth: (month: string) => {
+      const currentState = get();
+      if (currentState.currentMonth !== month) {
+        set({ 
+          currentMonth: month,
+          progressData: null, 
+        });
+      }
+    },
+
+    setGameType: (gameType: string) => {
+      set({ currentGameType: gameType });
+    },
+
+    refetchForGameType: async (sessionId: string, gameType: string) => {
+      if (get().currentGameType && get().currentGameType !== gameType) {
+        CacheUtil.clearGameTypeCache(get().currentGameType!);
+      }
+      
+      set({ currentGameType: gameType });
+      CacheUtil.clearGameTypeCache(gameType);
+      await get().fetchProgressData(sessionId);
+    },
+
+    fetchProgressData: async (sessionId: string, month?: string) => {
+      if (!sessionId) return;
+
+      const selectedMonth = month || get().currentMonth;
+      const state = get();
+      const gameType = state.currentGameType;
+      const cacheKey = getProgressCacheKey(selectedMonth, gameType);
+      const fetchKey = `fetchProgress_${sessionId}_${selectedMonth}_${gameType || 'default'}`;
+
+      if (state._fetchPromises.has(fetchKey)) {
+        return state._fetchPromises.get(fetchKey);
+      }
+
+      const fetchPromise = (async () => {
+        set({ isLoadingProgress: true, progressError: null });
+
+        try {
+          const cachedData = CacheUtil.getItem(cacheKey);
+          if (cachedData) {
+            console.log(`Using cached progress data for ${selectedMonth}`);
+            set({ 
+              progressData: cachedData, 
+              isLoadingProgress: false,
+            });
+            return;
+          }
+
+          console.log(`Fetching fresh progress data for ${selectedMonth}`);
+          
+          const response = await apiService.get(
+            endpoints.trainingPlan.getProgress(selectedMonth),
+            sessionId
+          );
+
+          CacheUtil.setItem(cacheKey, response.data);
+
+          set({ 
+            progressData: response.data, 
+            isLoadingProgress: false,
+          });
+
+        } catch (error) {
+          console.error('Error fetching progress data:', error);
+          set({
+            progressError: error instanceof Error ? error.message : "Failed to fetch progress data",
+            isLoadingProgress: false,
+          });
+        } finally {
+          const currentState = get();
+          currentState._fetchPromises.delete(fetchKey);
+        }
+      })();
+
+      set((state) => ({
+        _fetchPromises: new Map(state._fetchPromises).set(fetchKey, fetchPromise),
+      }));
+
+      return fetchPromise;
+    },
+
+    forceRefresh: async (sessionId: string, month?: string) => {
+      const selectedMonth = month || get().currentMonth;
+      const gameType = get().currentGameType;
+      const cacheKey = getProgressCacheKey(selectedMonth, gameType);
+      
+      CacheUtil.clearItem(cacheKey);
+      
+      return get().fetchProgressData(sessionId, selectedMonth);
+    },
+  }))
+);

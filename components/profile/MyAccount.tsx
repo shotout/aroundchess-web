@@ -53,6 +53,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     clearPlayerStats,
   } = usePlayerStatsStore();
 
+
   const isEmailProvider = providerType === "email";
 
   useEffect(() => {
@@ -123,6 +124,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
         gameData.elo,
         sessionId
       );
+      
       setSelectedGameType(newGameType);
       toast.success(`Game type updated to ${gameData.label}`);
     } catch (error: any) {

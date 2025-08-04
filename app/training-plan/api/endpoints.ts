@@ -1,5 +1,5 @@
 import axios from "axios";
-import CacheUtil, { CACHE_KEYS, getProgressCacheKey } from "./cacheUtils";
+import CacheUtil, { CACHE_KEYS, getProgressCacheKey, getGameTypeCacheKey } from "./cacheUtils";
 
 const BASE_URL = process.env.BASE_URL;
 

@@ -21,6 +21,7 @@ import {
 } from "./components/SkeletonLoading";
 import { useChessProfile } from "@/components/analysis/onboarding/useChessProfile";
 import { useProfileStore } from "../store/profile";
+import { useGameTypeSync } from "./store/gameTypeSync";
 
 const ChessProgressionUI: React.FC = () => {
   const {
@@ -39,6 +40,8 @@ const ChessProgressionUI: React.FC = () => {
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
   const { setOpeningPlayed, isLoading: pgnLoading, activeState, setActiveState } = usePgnStore();
+
+  useGameTypeSync();
 
   const fetchingRefs = useRef({
     openings: false,
@@ -68,34 +71,33 @@ const ChessProgressionUI: React.FC = () => {
     fetchUserProfile,
   } = useUserStore();
 
-  const initializeConcurrentFetches = useCallback(async () => {
-    if (!isSignedIn || !checkComplete || initialDataLoaded) return;
+const initializeConcurrentFetches = useCallback(async () => {
+  if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
-    const promises = [
-      fetchUserProfile(sessionId).catch(console.error),
-      fetchTopics(sessionId).catch(console.error),
-      fetchSchedule(sessionId).catch(console.error),
-    ];
+  const promises = [
+    fetchTopics(sessionId).catch(console.error),
+    fetchSchedule(sessionId).catch(console.error),
+  ];
 
-    if (!fetchingRefs.current.openings) {
-      fetchingRefs.current.openings = true;
-      promises.push(
-        fetchGameHistoryOpenings().finally(() => {
-          fetchingRefs.current.openings = false;
-        })
-      );
-    }
+  if (!fetchingRefs.current.openings) {
+    fetchingRefs.current.openings = true;
+    promises.push(
+      fetchGameHistoryOpenings().finally(() => {
+        fetchingRefs.current.openings = false;
+      })
+    );
+  }
 
-    Promise.allSettled(promises);
-    setInitialDataLoaded(true);
-  }, [
-    isSignedIn,
-    checkComplete,
-    initialDataLoaded,
-    fetchUserProfile,
-    fetchTopics,
-    fetchSchedule,
-  ]);
+  Promise.allSettled(promises);
+  setInitialDataLoaded(true);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [
+  isSignedIn,
+  checkComplete,
+  initialDataLoaded,
+  fetchTopics,          
+  fetchSchedule,
+]);
 
   const fetchGameHistoryOpenings = useCallback(async () => {
     try {

@@ -9,31 +9,34 @@ export const CACHE_KEYS = {
   TRAINING_TOPICS: "training_topics",
   EXISTING_TRAINING_TOPICS: "existing_training_topics",
   TRAINING_SCHEDULE: "training_schedule",
-  PROGRESS_DATA: "progress_data", 
+  PROGRESS_DATA: "progress_data",
 } as const;
 
-export const getProgressCacheKey = (month: string) => `${CACHE_KEYS.PROGRESS_DATA}_${month}`;
+export const getGameTypeCacheKey = (baseKey: string, gameType?: string | null) => 
+  gameType ? `${baseKey}_${gameType}` : baseKey;
+
+export const getProgressCacheKey = (month: string, gameType?: string | null) => 
+  getGameTypeCacheKey(`${CACHE_KEYS.PROGRESS_DATA}_${month}`, gameType);
 
 const CACHE_EXPIRATION = 60 * 60 * 1000;
 const CACHE_VERSION = "1.0.0";
-const memoryCache = new Map<string, CacheItem>();
 
-const isValidCacheItem = (cacheItem: CacheItem): boolean => {
-  const now = Date.now();
+class CacheManager {
+  private isValidCacheItem = (cacheItem: CacheItem): boolean => {
+    const now = Date.now();
+    
+    if (now - cacheItem.timestamp > CACHE_EXPIRATION) {
+      return false;
+    }
+    
+    if (cacheItem.version && cacheItem.version !== CACHE_VERSION) {
+      return false;
+    }
+    
+    return true;
+  };
 
-  if (now - cacheItem.timestamp > CACHE_EXPIRATION) {
-    return false;
-  }
-
-  if (cacheItem.version && cacheItem.version !== CACHE_VERSION) {
-    return false;
-  }
-
-  return true;
-};
-
-export const CacheUtil = {
-  setItem: (key: string, data: any): void => {
+  setItem = (key: string, data: any): void => {
     try {
       const cacheItem: CacheItem = {
         data,
@@ -41,24 +44,17 @@ export const CacheUtil = {
         version: CACHE_VERSION,
       };
 
-      memoryCache.set(key, cacheItem);
-
-      if (typeof window !== "undefined" && window.localStorage) {
+      if (this.isStorageAvailable()) {
         localStorage.setItem(key, JSON.stringify(cacheItem));
       }
     } catch (error) {
       console.error("Error setting cache item:", error);
     }
-  },
+  };
 
-  getItem: (key: string): any | null => {
+  getItem = (key: string): any | null => {
     try {
-      const memoryItem = memoryCache.get(key);
-      if (memoryItem && isValidCacheItem(memoryItem)) {
-        return memoryItem.data;
-      }
-
-      if (typeof window === "undefined" || !window.localStorage) {
+      if (!this.isStorageAvailable()) {
         return null;
       }
 
@@ -67,85 +63,99 @@ export const CacheUtil = {
 
       const parsedItem: CacheItem = JSON.parse(cachedItem);
 
-      if (!isValidCacheItem(parsedItem)) {
-        CacheUtil.clearItem(key);
+      if (!this.isValidCacheItem(parsedItem)) {
+        this.clearItem(key);
         return null;
       }
-
-      memoryCache.set(key, parsedItem);
 
       return parsedItem.data;
     } catch (error) {
       console.error("Error getting cache item:", error);
-      CacheUtil.clearItem(key);
+      this.clearItem(key);
       return null;
     }
-  },
+  };
 
-  clearItem: (key: string): void => {
+  clearItem = (key: string): void => {
     try {
-      memoryCache.delete(key);
-
-      if (typeof window !== "undefined" && window.localStorage) {
+      if (this.isStorageAvailable()) {
         localStorage.removeItem(key);
       }
     } catch (error) {
       console.error("Error clearing cache item:", error);
     }
-  },
+  };
 
-  clearAll: (): void => {
+  clearAll = (): void => {
     try {
-      memoryCache.clear();
-
-      if (typeof window !== "undefined" && window.localStorage) {
+      if (this.isStorageAvailable()) {
         Object.values(CACHE_KEYS).forEach((key) => {
-          localStorage.removeItem(key);
+          this.clearItemsByPattern(key);
         });
-        CacheUtil.clearAllProgress();
+        this.clearAllProgress();
       }
     } catch (error) {
       console.error("Error clearing all cache items:", error);
     }
-  },
+  };
 
-  clearProgressMonth: (month: string): void => {
-    const cacheKey = getProgressCacheKey(month);
-    CacheUtil.clearItem(cacheKey);
-  },
-
-  clearAllProgress: (): void => {
+  clearGameTypeCache = (gameType: string): void => {
     try {
-      const memoryEntries = Array.from(memoryCache.keys());
-      memoryEntries.forEach(key => {
-        if (key.startsWith(CACHE_KEYS.PROGRESS_DATA)) {
-          memoryCache.delete(key);
-        }
-      });
-
-      if (typeof window !== "undefined" && window.localStorage) {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA)) {
-            keysToRemove.push(key);
-          }
-        }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
+      if (this.isStorageAvailable()) {
+        Object.values(CACHE_KEYS).forEach((baseKey) => {
+          const gameTypeKey = getGameTypeCacheKey(baseKey, gameType);
+          localStorage.removeItem(gameTypeKey);
+        });
+        
+        this.clearProgressByGameType(gameType);
       }
+    } catch (error) {
+      console.error("Error clearing game type cache:", error);
+    }
+  };
+
+  clearProgressMonth = (month: string, gameType?: string | null): void => {
+    const cacheKey = getProgressCacheKey(month, gameType);
+    this.clearItem(cacheKey);
+  };
+
+  private clearItemsByPattern = (pattern: string): void => {
+    if (!this.isStorageAvailable()) return;
+
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.includes(pattern)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  };
+
+  private clearProgressByGameType = (gameType: string): void => {
+    if (!this.isStorageAvailable()) return;
+
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA) && key.includes(`_${gameType}`)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  };
+
+  clearAllProgress = (): void => {
+    try {
+      this.clearItemsByPattern(CACHE_KEYS.PROGRESS_DATA);
     } catch (error) {
       console.error("Error clearing progress cache:", error);
     }
-  },
+  };
 
-  hasValidCache: (key: string): boolean => {
+  hasValidCache = (key: string): boolean => {
     try {
-      const memoryItem = memoryCache.get(key);
-      if (memoryItem) {
-        return isValidCacheItem(memoryItem);
-      }
-
-      if (typeof window === "undefined" || !window.localStorage) {
+      if (!this.isStorageAvailable()) {
         return false;
       }
 
@@ -153,136 +163,119 @@ export const CacheUtil = {
       if (!cachedItem) return false;
 
       const parsedItem: CacheItem = JSON.parse(cachedItem);
-      return isValidCacheItem(parsedItem);
+      return this.isValidCacheItem(parsedItem);
     } catch (error) {
       console.error("Error checking cache validity:", error);
       return false;
     }
-  },
+  };
 
-  getCacheInfo: (): {
-    memorySize: number;
+  getCacheInfo = (): {
     localStorageSize: number;
     keys: string[];
   } => {
     try {
       const info = {
-        memorySize: memoryCache.size,
         localStorageSize: 0,
-        keys: Array.from(memoryCache.keys()),
+        keys: [] as string[],
       };
 
-      if (typeof window !== "undefined" && window.localStorage) {
+      if (this.isStorageAvailable()) {
         Object.values(CACHE_KEYS).forEach((key) => {
           if (localStorage.getItem(key)) {
             info.localStorageSize++;
           }
         });
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && Object.values(CACHE_KEYS).some(cacheKey => key.includes(cacheKey))) {
+            info.keys.push(key);
+          }
+        }
       }
 
       return info;
     } catch (error) {
       console.error("Error getting cache info:", error);
-      return { memorySize: 0, localStorageSize: 0, keys: [] };
+      return { localStorageSize: 0, keys: [] };
     }
-  },
+  };
 
-  preloadCache: (): void => {
+  private isStorageAvailable = (): boolean => {
+    return typeof window !== "undefined" && !!window.localStorage;
+  };
+
+  preloadCache = (): void => {
+    if (!this.isStorageAvailable()) return;
+
     try {
-      if (typeof window === "undefined" || !window.localStorage) {
-        return;
-      }
-
       Object.values(CACHE_KEYS).forEach((key) => {
-        const cachedItem = localStorage.getItem(key);
-        if (cachedItem) {
-          try {
-            const parsedItem: CacheItem = JSON.parse(cachedItem);
-            if (isValidCacheItem(parsedItem)) {
-              memoryCache.set(key, parsedItem);
-            } else {
-              localStorage.removeItem(key);
-            }
-          } catch (error) {
-            localStorage.removeItem(key);
-          }
-        }
+        this.preloadCacheItem(key);
       });
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA)) {
-          const cachedItem = localStorage.getItem(key);
-          if (cachedItem) {
-            try {
-              const parsedItem: CacheItem = JSON.parse(cachedItem);
-              if (isValidCacheItem(parsedItem)) {
-                memoryCache.set(key, parsedItem);
-              } else {
-                localStorage.removeItem(key);
-              }
-            } catch (error) {
-              localStorage.removeItem(key);
-            }
-          }
+          this.preloadCacheItem(key);
         }
       }
     } catch (error) {
       console.error("Error preloading cache:", error);
     }
-  },
+  };
 
-  cleanupExpiredCache: (): void => {
-    try {
-      const memoryEntries = Array.from(memoryCache.entries());
-      for (const [key, item] of memoryEntries) {
-        if (!isValidCacheItem(item)) {
-          memoryCache.delete(key);
+  private preloadCacheItem = (key: string): void => {
+    const cachedItem = localStorage.getItem(key);
+    if (cachedItem) {
+      try {
+        const parsedItem: CacheItem = JSON.parse(cachedItem);
+        if (!this.isValidCacheItem(parsedItem)) {
+          localStorage.removeItem(key);
         }
+      } catch (error) {
+        localStorage.removeItem(key);
       }
+    }
+  };
 
-      if (typeof window !== "undefined" && window.localStorage) {
-        Object.values(CACHE_KEYS).forEach((key) => {
-          const cachedItem = localStorage.getItem(key);
-          if (cachedItem) {
-            try {
-              const parsedItem: CacheItem = JSON.parse(cachedItem);
-              if (!isValidCacheItem(parsedItem)) {
-                localStorage.removeItem(key);
-              }
-            } catch (error) {
-              localStorage.removeItem(key);
-            }
-          }
-        });
-
-        const keysToCheck: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA)) {
-            keysToCheck.push(key);
-          }
-        }
-
-        keysToCheck.forEach(key => {
-          const cachedItem = localStorage.getItem(key);
-          if (cachedItem) {
-            try {
-              const parsedItem: CacheItem = JSON.parse(cachedItem);
-              if (!isValidCacheItem(parsedItem)) {
-                localStorage.removeItem(key);
-              }
-            } catch (error) {
-              localStorage.removeItem(key);
-            }
-          }
-        });
+  cleanupExpiredCache = (): void => {
+    try {
+      if (this.isStorageAvailable()) {
+        this.cleanupStorageCache();
       }
     } catch (error) {
       console.error("Error cleaning up expired cache:", error);
     }
-  },
-};
+  };
+
+  private cleanupStorageCache = (): void => {
+    const keysToCheck: string[] = [];
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && Object.values(CACHE_KEYS).some(cacheKey => key.includes(cacheKey))) {
+        keysToCheck.push(key);
+      }
+    }
+
+    keysToCheck.forEach(key => {
+      const cachedItem = localStorage.getItem(key);
+      if (cachedItem) {
+        try {
+          const parsedItem: CacheItem = JSON.parse(cachedItem);
+          if (!this.isValidCacheItem(parsedItem)) {
+            localStorage.removeItem(key);
+          }
+        } catch (error) {
+          localStorage.removeItem(key);
+        }
+      }
+    });
+  };
+}
+
+export const CacheUtil = new CacheManager();
 
 if (typeof window !== "undefined") {
   CacheUtil.preloadCache();
