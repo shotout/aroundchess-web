@@ -49,7 +49,6 @@ export const useProfileFetch = () => {
   } = useProfileStore();
   useEffect(() => {
     if (sessionId.length > 0 && alreadyFetch == false) {
-      console.log("check hitted call profile fetch", alreadyFetchProfile);
       setAlreadyFetch(true);
       setAlreadyFetchProfile(true);
       if (alreadyFetchProfile == false) {

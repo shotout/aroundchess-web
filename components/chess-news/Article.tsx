@@ -130,7 +130,7 @@ export default function Article() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
               {currentData.map((article) => (
-                <Link href={`/chess-blogs/${article.slug}`} key={article.slug}>
+                <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
                   <div className="rounded-md overflow-hidden p-2 border border-input shadow-md min-h-[210px] h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
                     {article.imageUrl?.trim() !== "" ? (
                       <Image
@@ -185,7 +185,7 @@ export default function Article() {
               ) : (
                 savedArticles.map((article) => (
                   <Link
-                    href={`/chess-blogs/${article.slug}`}
+                    href={`/chess-blog/${article.slug}`}
                     key={article.slug}
                   >
                     <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3 hover:shadow-lg transition-shadow duration-200">

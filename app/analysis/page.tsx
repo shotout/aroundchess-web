@@ -33,6 +33,7 @@ export default function AnalysisPage() {
     setLastAnalysisFetched,
     isLastAnalysisLoading,
     setIsLastAnalysisLoading,
+    setIsFromGameHistory
   } = usePgnStore();
 
   const { getLastAnalysis } = useApiClient();
@@ -93,6 +94,12 @@ export default function AnalysisPage() {
     if (!mounted || !hydrated || !hydratedProfile) return;
 
     const initializeAnalysisPage = async () => {
+      // if (hasExistingData() && isFromGameHistory) {
+      //   setInitialLoading(false);
+      //   setIsFromGameHistory(false)
+      //   return;
+      // }
+
       if (hasExistingData()) {
         setInitialLoading(false);
         return;

@@ -36,7 +36,7 @@ export default function LoginPage() {
   const [deactivatedAlert, setDeactivatedAlert] = useState(false);
   const baseUrl = process.env.BASE_URL;
   const { sessionId, setSessionId } = useProfileStore();
-  const { setProviderType } = usePgnStore();
+  const { setProviderType, setProfileShow } = usePgnStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -128,6 +128,8 @@ export default function LoginPage() {
 
           if (profileResponse.ok) {
             const profileData = await profileResponse.json();
+            setProfileShow(profileData)
+            
             const userUsername =
               profileData.data?.username || profileData.username;
 

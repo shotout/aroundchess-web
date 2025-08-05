@@ -64,6 +64,9 @@ const defaultPaginationState: PaginationState = {
 };
 
 interface PgnState {
+  profileShow: any;
+  setProfileShow: (profile: any) => void;
+
   tab:string;
   setTab: (state:string) => void;
 
@@ -193,6 +196,9 @@ interface PgnState {
 export const usePgnStore = create<PgnState>()(
   persist(
     (set, get) => ({
+      profileShow: {},
+      setProfileShow: (profileShow) => set({ profileShow }),
+
       tab: "Games",
       setTab: (tab:string) => set({tab}),
 
@@ -579,7 +585,8 @@ export const usePgnStore = create<PgnState>()(
         capturedWhite: state.capturedWhite,
         capturedBlack: state.capturedBlack,
         tabSelected: state.tabSelected,
-        tab: state.tab
+        tab: state.tab,
+        profileShow: state.profileShow
       }),
     }
   )

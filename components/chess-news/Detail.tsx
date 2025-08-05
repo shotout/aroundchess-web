@@ -219,7 +219,7 @@ export default function Detail() {
               localDetail?.relatedArticles != null &&
               localDetail?.relatedArticles.map((article: any, index: number) => (
                 <Card
-                  onClick={() => router.push("/chess-blogs/" + article.slug)}
+                  onClick={() => router.push("/chess-blog/" + article.slug)}
                   key={index}
                   className="cursor-pointer rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
                 >
@@ -266,7 +266,7 @@ export default function Detail() {
             )}
             {localMostReads.map((article: any) => (
               <div
-                onClick={() => router.push("/chess-blogs/" + article.slug)}
+                onClick={() => router.push("/chess-blog/" + article.slug)}
                 key={article.id}
                 className="cursor-pointer bg-white flex shadow-md  rounded-sm border border-input gap-2 p-3"
               >
