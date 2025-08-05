@@ -48,7 +48,8 @@ export function useApiClient() {
         if (
           sessionId.length > 0 ||
           path.includes("faq") ||
-          path.includes("contact")
+          path.includes("contact") || 
+          path.includes("news")
         ) {
           setIsLoading(true);
           setError(null);

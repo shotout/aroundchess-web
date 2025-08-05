@@ -172,7 +172,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     }
   };
 
-  // Animation variants for mobile
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -494,7 +493,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     </div>
   );
 
-  // Return wrapped content for mobile with animations
   if (isMobile) {
     return (
       <motion.div
@@ -508,6 +506,5 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     );
   }
 
-  // Return plain content for desktop
   return sidebarContent;
 }

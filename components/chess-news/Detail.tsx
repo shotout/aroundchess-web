@@ -8,39 +8,9 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from 'remark-gfm'
 import NoData from "../NoData/NoData";
+import { DetailSkeleton } from "./SkeletonNews";
 
-
-function DetailSkeleton() {
-  return (
-    <div className="flex flex-col p-4 gap-2 animate-pulse">
-      <div className="flex flex-col xl:flex-row gap-4">
-        <div className="md:border md:border-input md:rounded-md md:px-3 md:py-2 bg-white xl:w-2/3">
-          <div className="h-6 w-1/3 bg-gray-200 rounded mb-4" />
-          <div className="h-8 w-2/3 bg-gray-200 rounded mb-4" />
-          <div className="w-full h-64 bg-gray-200 rounded mb-4" />
-          <div className="h-4 w-full bg-gray-100 rounded mb-2" />
-          <div className="h-4 w-5/6 bg-gray-100 rounded mb-2" />
-          <div className="h-4 w-2/3 bg-gray-100 rounded mb-2" />
-        </div>
-        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
-          <div className="h-6 w-1/2 bg-gray-200 rounded mb-4" />
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <div className="w-16 h-16 bg-gray-200 rounded" />
-              <div className="flex-1">
-                <div className="h-3 w-1/2 bg-gray-200 rounded mb-2" />
-                <div className="h-3 w-2/3 bg-gray-200 rounded mb-2" />
-                <div className="h-3 w-1/3 bg-gray-200 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -104,6 +74,7 @@ export default function Detail() {
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const toggleSave = (id: number) => {
@@ -169,7 +140,6 @@ export default function Detail() {
           
           <div className="prose prose-sm max-w-none mt-4">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => <h1 className="text-2xl font-bold mb-4 mt-6">{children}</h1>,
                 h2: ({ children }) => <h2 className="text-xl font-semibold mb-3 mt-5">{children}</h2>,
@@ -249,7 +219,7 @@ export default function Detail() {
               localDetail?.relatedArticles != null &&
               localDetail?.relatedArticles.map((article: any, index: number) => (
                 <Card
-                  onClick={() => router.push("/chess-news/" + article.slug)}
+                  onClick={() => router.push("/chess-blogs/" + article.slug)}
                   key={index}
                   className="cursor-pointer rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
                 >
@@ -296,7 +266,7 @@ export default function Detail() {
             )}
             {localMostReads.map((article: any) => (
               <div
-                onClick={() => router.push("/chess-news/" + article.slug)}
+                onClick={() => router.push("/chess-blogs/" + article.slug)}
                 key={article.id}
                 className="cursor-pointer bg-white flex shadow-md  rounded-sm border border-input gap-2 p-3"
               >

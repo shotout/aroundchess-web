@@ -27,7 +27,7 @@ export default function SSOCallbackPage() {
     message: "",
   });
 
-  const { setSessionId } = useProfileStore();
+  const { setSessionId, setProfile } = useProfileStore();
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
 
@@ -148,8 +148,13 @@ export default function SSOCallbackPage() {
               },
             });
 
+            
+
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
+              setProfile(profileData)
+              console.log("hi", profileData);
+              
               const userUsername =
                 profileData.data?.username || profileData.username;
 

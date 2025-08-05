@@ -1,30 +1,11 @@
-import React, { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { usePgnStore } from "@/app/store/zustandStore";
-
 import Filters from "../Filters";
-import { toast } from "sonner";
 import { useGames } from "../../hooks/useGameData";
 import { useFilters } from "../../hooks/useFilters";
 import { usePagination } from "../../hooks/usePagination";
 import GamesList from "../GameList";
-import { Game } from "../../types/GameHistoryTypes";
-import { useStockfishAnalysis } from "@/utils/stockfish-utils";
-import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+
 
 const OtherGamesTab: React.FC = () => {
-  const { proceedAnalysis } = useStockfishAnalysis();
-  const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token } = useProfileStore();
-  const router = useRouter();
-  const {
-    username,
-    setPgn,
-    setDataAnalysis,
-    setIsLoading: setZustandIsLoading,
-  } = usePgnStore();
-
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
     useGames("other");
 
@@ -42,41 +23,6 @@ const OtherGamesTab: React.FC = () => {
 
   const paginationProps = usePagination(filteredGames);
 
-  const handleAnalyzeClick = useCallback(
-    async (game: Game) => {
-      if (token.balance >= 1) {
-        try {
-          setZustandIsLoading(true);
-          setPgn(game.pgn);
-
-          const response = await proceedAnalysis(
-            game?.pgn,
-            username,
-            15,
-            60000
-          );
-
-          if (response && response.data) {
-            setDataAnalysis(response.data);
-            router.push("/analysis");
-          } else {
-            throw new Error("Invalid analysis response");
-          }
-        } catch (err) {
-          const errorMessage =
-            err instanceof Error ? err.message : "Analysis failed";
-          setDataAnalysis(null);
-          setZustandIsLoading(false);
-          toast.error(errorMessage);
-        }
-      } else {
-        setOpenPricing(true);
-        setTabType("tokens");
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router, setPgn, setDataAnalysis, setZustandIsLoading, username]
-  );
 
   const sourceOptions = [
     { value: "All Formats", label: "All Sources" },
@@ -105,7 +51,6 @@ const OtherGamesTab: React.FC = () => {
         currentGames={paginationProps.currentGames}
         isLoading={isLoading}
         error={error}
-        handleAnalyzeClick={handleAnalyzeClick}
         handleRetryFetch={handleRetryFetch}
         paginationProps={paginationProps}
       />

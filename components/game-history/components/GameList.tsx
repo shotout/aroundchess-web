@@ -26,7 +26,6 @@ interface GamesListProps {
   currentGames: Game[];
   isLoading: boolean;
   error: Error | null;
-  handleAnalyzeClick: (game: Game) => void;
   handleRetryFetch: () => void;
   paginationProps: {
     currentPage: number;
@@ -83,7 +82,6 @@ const GamesList: React.FC<GamesListProps> = ({
   currentGames,
   isLoading,
   error,
-  handleAnalyzeClick,
   handleRetryFetch,
   paginationProps,
   recentlyImportedIds = [],
@@ -370,7 +368,6 @@ const GamesList: React.FC<GamesListProps> = ({
             <GameCard
               key={game.id}
               gameData={game}
-              onAnalyze={handleAnalyzeClick}
               isNewlyImported={isNewlyImported(game.id)}
             />
           ))}

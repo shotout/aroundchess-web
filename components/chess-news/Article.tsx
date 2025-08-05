@@ -9,45 +9,8 @@ import { Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import NoData from "../NoData/NoData"
+import { ArticleSkeletonGrid, CategorySkeleton } from "./SkeletonNews"
 
-function ArticleSkeletonGrid({ count = 6 }: { count?: number }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-md overflow-hidden p-2 border border-input shadow-md h-[240px] sm:h-[254px] animate-pulse bg-gray-100"
-        >
-          <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 rounded-md mb-2" />
-          <div className="px-2 py-1">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="h-3 w-16 bg-gray-300 rounded" />
-              <div className="h-3 w-12 bg-gray-300 rounded" />
-            </div>
-            <div className="h-4 w-3/4 bg-gray-300 rounded mb-2" />
-            <div className="h-3 w-full bg-gray-200 rounded mb-1" />
-            <div className="h-3 w-5/6 bg-gray-200 rounded" />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function CategorySkeleton({ count = 5 }: { count?: number }) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="py-2 px-3 rounded-[4px] bg-gray-100 border border-input animate-pulse min-h-[40px] sm:min-h-[44px]"
-        >
-          <div className="h-3 w-3/4 bg-gray-300 rounded mx-auto" />
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default function Article() {
   const { sessionId } = useProfileStore()
@@ -87,7 +50,8 @@ export default function Article() {
 
   useEffect(() => {
     fetchChessNews(selectedTab, query, getNews)
-  }, [selectedTab, query, getNews, fetchChessNews])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTab, query])
 
   const key = selectedTab === null ? "all" : String(selectedTab)
   const allArticles = chessNews[key]?.data || []
@@ -166,8 +130,8 @@ export default function Article() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
               {currentData.map((article) => (
-                <Link href={`/chess-news/${article.slug}`} key={article.slug}>
-                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
+                <Link href={`/chess-blogs/${article.slug}`} key={article.slug}>
+                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md min-h-[210px] h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
                     {article.imageUrl?.trim() !== "" ? (
                       <Image
                         src={article.imageUrl}
@@ -221,7 +185,7 @@ export default function Article() {
               ) : (
                 savedArticles.map((article) => (
                   <Link
-                    href={`/chess-news/${article.slug}`}
+                    href={`/chess-blogs/${article.slug}`}
                     key={article.slug}
                   >
                     <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3 hover:shadow-lg transition-shadow duration-200">

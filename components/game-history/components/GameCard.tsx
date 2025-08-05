@@ -16,7 +16,6 @@ import { useProfileStore } from "@/app/store/profile";
 
 interface GameCardProps {
   gameData: Game;
-  onAnalyze: (game: Game) => void;
   isNewlyImported?: boolean;
 }
 
@@ -57,7 +56,6 @@ const fetchLastAnalysis = async (
 
 const GameCard: React.FC<GameCardProps> = ({
   gameData,
-  onAnalyze,
   isNewlyImported = false,
 }) => {
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
