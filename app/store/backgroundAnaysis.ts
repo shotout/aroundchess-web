@@ -10,21 +10,27 @@ interface AnalysisJob {
   finalizingStartedAt?: number;
   result?: any;
   error?: string;
-  isPolling?: boolean; // Track if polling is active for this job
+  isPolling?: boolean;
+  statusUrl?: string;
+  gamePgn?: string;
+  depth?: number;
+  lastPolledAt?: number;
 }
 
 interface BackgroundAnalysisState {
   analysisJobs: Record<string, AnalysisJob>;
-  activePollingJobs: Set<string>; // Track which jobs are currently being polled
-  pollingIntervals: Map<string, NodeJS.Timeout>; // Track interval IDs for cleanup
-  addJob: (gameId: string | number, jobId: string) => void;
+  activePollingJobs: Set<string>;
+  pollingIntervals: Map<string, NodeJS.Timeout>;
+  addJob: (gameId: string | number, jobId: string, statusUrl?: string, gamePgn?: string, depth?: number) => void;
   updateJob: (gameId: string | number, updates: Partial<AnalysisJob>) => void;
   removeJob: (gameId: string | number) => void;
   getJobByGameId: (gameId: string | number) => AnalysisJob | undefined;
   clearOldJobs: () => void;
-  startPolling: (gameId: string | number) => boolean; // Returns true if polling can start
+  startPolling: (gameId: string | number) => boolean;
   stopPolling: (gameId: string | number) => void;
-  forceStopPolling: (gameId: string | number) => void; // Force stop with cleanup
+  forceStopPolling: (gameId: string | number) => void;
+  restorePollingJobs: () => void;
+  getIncompleteJobs: () => AnalysisJob[];
 }
 
 export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
@@ -34,7 +40,7 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
       activePollingJobs: new Set(),
       pollingIntervals: new Map(),
       
-      addJob: (gameId, jobId) => {
+      addJob: (gameId, jobId, statusUrl, gamePgn, depth) => {
         set((state) => ({
           analysisJobs: {
             ...state.analysisJobs,
@@ -44,7 +50,11 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
               status: 'pending',
               progress: 0,
               startedAt: Date.now(),
+              lastPolledAt: Date.now(),
               isPolling: false,
+              statusUrl,
+              gamePgn,
+              depth,
             },
           },
         }));
@@ -57,6 +67,7 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
             [String(gameId)]: {
               ...state.analysisJobs[String(gameId)],
               ...updates,
+              lastPolledAt: updates.status ? Date.now() : state.analysisJobs[String(gameId)]?.lastPolledAt,
             },
           },
         }));
@@ -78,14 +89,22 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
       getJobByGameId: (gameId) => {
         return get().analysisJobs[String(gameId)];
       },
+
+      getIncompleteJobs: () => {
+        const jobs = get().analysisJobs;
+        return Object.values(jobs).filter(job => 
+          ['pending', 'processing', 'finalizing'].includes(job.status) &&
+          job.statusUrl && job.gamePgn
+        );
+      },
       
       startPolling: (gameId) => {
         const state = get();
         const gameKey = String(gameId);
         
         if (state.activePollingJobs.has(gameKey)) {
-          console.log(`[STORE] Polling already active for game ${gameId}`);
-          return false; // Polling already active
+          // console.log(`[STORE] Polling already active for game ${gameId}`);
+          return false;
         }
         
         set((state) => {
@@ -103,8 +122,8 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
           };
         });
         
-        console.log(`[STORE] Started polling for game ${gameId}`);
-        return true; // Polling can start
+        // console.log(`[STORE] Started polling for game ${gameId}`);
+        return true;
       },
       
       stopPolling: (gameId) => {
@@ -113,7 +132,6 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
           const newActivePolling = new Set(state.activePollingJobs);
           newActivePolling.delete(gameKey);
           
-          // Clear interval if it exists
           const intervalId = state.pollingIntervals.get(gameKey);
           if (intervalId) {
             clearInterval(intervalId);
@@ -132,19 +150,18 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
           };
         });
         
-        console.log(`[STORE] Stopped polling for game ${gameId}`);
+        // console.log(`[STORE] Stopped polling for game ${gameId}`);
       },
       
       forceStopPolling: (gameId) => {
         const gameKey = String(gameId);
         const state = get();
         
-        // Force clear any existing interval
-        const intervalId = state.pollingIntervals.get(gameKey);
-        if (intervalId) {
-          clearInterval(intervalId);
-          console.log(`[STORE] Force cleared interval for game ${gameId}`);
-        }
+        // const intervalId = state.pollingIntervals.get(gameKey);
+        // if (intervalId) {
+        //   clearInterval(intervalId);
+        //   console.log(`[STORE] Force cleared interval for game ${gameId}`);
+        // }
         
         set((state) => {
           const newActivePolling = new Set(state.activePollingJobs);
@@ -166,31 +183,39 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
           };
         });
         
-        console.log(`[STORE] Force stopped polling for game ${gameId}`);
+        // console.log(`[STORE] Force stopped polling for game ${gameId}`);
+      },
+
+      restorePollingJobs: () => {
+        const incompleteJobs = get().getIncompleteJobs();
+        
+        incompleteJobs.forEach(job => {
+          const timeSinceLastPoll = Date.now() - (job.lastPolledAt || 0);
+          const shouldRestore = timeSinceLastPoll > 30000; 
+          
+          if (shouldRestore && job.statusUrl && job.gamePgn) {
+            console.log(`[STORE] Restoring polling for job ${job.gameId}`);
+          }
+        });
       },
       
       clearOldJobs: () => {
         const now = Date.now();
-        const oneHourAgo = now - 60 * 60 * 1000; // 1 hour
+        const oneHourAgo = now - 60 * 60 * 1000;
         
         set((state) => {
           const newJobs: Record<string, AnalysisJob> = {};
           const newActivePolling = new Set<string>();
           
           Object.entries(state.analysisJobs).forEach(([key, job]) => {
-            // Keep jobs that are either:
-            // - Less than 1 hour old
-            // - Still processing or finalizing
-            // - Completed with results
             if (
               job.startedAt > oneHourAgo ||
-              job.status === 'processing' ||
-              job.status === 'finalizing' ||
-              (job.status === 'completed' && job.result)
+              ['processing', 'finalizing'].includes(job.status) ||
+              (job.status === 'completed' && job.result) ||
+              (job.status === 'failed' && job.startedAt > now - 3 * 60 * 1000) 
             ) {
               newJobs[key] = job;
-              // Keep active polling state for jobs that are still being polled
-              if (job.isPolling) {
+              if (job.isPolling && ['processing', 'finalizing', 'pending'].includes(job.status)) {
                 newActivePolling.add(key);
               }
             }
@@ -205,8 +230,16 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
     }),
     {
       name: 'background-analysis-storage',
-      // Don't persist activePollingJobs as it's runtime state
-      partialize: (state) => ({ analysisJobs: state.analysisJobs }),
+      partialize: (state) => ({ 
+        analysisJobs: state.analysisJobs,
+        activePollingJobsArray: Array.from(state.activePollingJobs)
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state && (state as any).activePollingJobsArray) {
+          state.activePollingJobs = new Set((state as any).activePollingJobsArray);
+          delete (state as any).activePollingJobsArray;
+        }
+      },
     }
   )
 );

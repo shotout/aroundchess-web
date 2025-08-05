@@ -13,16 +13,13 @@ export const FamousGameButton = () => {
 
   const handleStartAnalysis = async () => {
     try {
-      // Set loading state immediately
       setIsLoading(true);
       setEstimateMinute(0);
       setEstimateSecond(4);
       setError(null);
 
-      // Navigate to analysis page first
       router.push("/analysis");
 
-      // Load the data in background
       const [resFamousGame, resAnalysis] = await Promise.all([
         fetch("/local-data/famous-game.txt"),
         fetch("/local-data/analysis.json"),
@@ -34,7 +31,6 @@ export const FamousGameButton = () => {
       setPgn(pgnLocal);
       setDataAnalysis(responseAnalysis);
 
-      // Keep loading for exactly 4 seconds
       setTimeout(() => {
         setIsLoading(false);
       }, 4000);
@@ -51,8 +47,7 @@ export const FamousGameButton = () => {
         Discover our Advanced Chess Analysis
       </p>
       <p className="block mb-3 text-[16px] sm:text-[20px] text-start font-medium text-[#2e2e2e]">
-        See a sample Analysis of the legendary Game Vladislav Kovalev vs Magnus
-        Carlsen before you start analyzing your own Games!
+        See a sample Analysis of the legendary Game Magnus Carlsen vs Vladislav Kovalev before you start analyzing your own Games!
       </p>
       <div className="flex flex-row justify-center items-center">
         <span className="font-medium text-[14px] text-[#17119B]">

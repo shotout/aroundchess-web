@@ -93,13 +93,11 @@ export default function AnalysisPage() {
     if (!mounted || !hydrated || !hydratedProfile) return;
 
     const initializeAnalysisPage = async () => {
-      // If we already have data, don't do anything
       if (hasExistingData()) {
         setInitialLoading(false);
         return;
       }
 
-      // Only fetch or load famous game if we don't have existing data
       if (isSignedIn && username) {
         const hasApiData = await fetchExistAnalysis();
         if (!hasApiData) {

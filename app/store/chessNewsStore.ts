@@ -1,62 +1,95 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+const CACHE_DURATION_MS = 60 * 60 * 1000;
+
 interface ChessNewsState {
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
   categories: any[];
-  setCategories: (categories: any[]) => void;
-  chessNews: { [categoryId: string]: { data: any[]; fetchedAt: number } };
-  setChessNews: (categoryId: string, data: any[]) => void;
+  setCategories: (cats: any[]) => void;
+  chessNews: Record<string, { data: any[]; fetchedAt: number }>;
+  setChessNews: (key: string, data: any[]) => void;
+  fetchChessNews: (
+    categoryId: number | null,
+    searchTerm: string,
+    fetchFn: (params: any) => Promise<{ data: any[] }>
+  ) => Promise<void>;
   savedArticles: any[];
-  setSavedArticles: (savedArticles: any[]) => void;
+  setSavedArticles: (a: any[]) => void;
   detailNews: any;
-  setDetailNews: (detailNews: any) => void;
+  setDetailNews: (d: any) => void;
   detailNewsFetchedAt?: number;
-  setDetailNewsFetchedAt: (timestamp: number) => void;
-  mostReadsArticle: any;
-  setMostReadsArticle: (mostReadsArticle: any) => void;
+  setDetailNewsFetchedAt: (t: number) => void;
+  mostReadsArticle: any[];
+  setMostReadsArticle: (a: any[]) => void;
   mostReadsFetchedAt?: number;
-  setMostReadsFetchedAt: (timestamp: number) => void;
+  setMostReadsFetchedAt: (t: number) => void;
 }
 
 export const useChessNewsStore = create<ChessNewsState>()(
   persist(
     (set, get) => ({
       isLoading: false,
-      setIsLoading: (isLoading) => set({ isLoading }),
+      setIsLoading: (loading) => set({ isLoading: loading }),
       categories: [],
-      setCategories: (categories) => set({ categories }),
+      setCategories: (cats) => set({ categories: cats }),
       chessNews: {},
-      setChessNews: (categoryId, data) =>
-        set((state) => ({
+      setChessNews: (key, data) =>
+        set((s) => ({
           chessNews: {
-            ...state.chessNews,
-            [categoryId]: { data, fetchedAt: Date.now() },
+            ...s.chessNews,
+            [key]: { data, fetchedAt: Date.now() },
           },
         })),
+      fetchChessNews: async (categoryId, searchTerm, fetchFn) => {
+        const key = categoryId === null ? "all" : String(categoryId);
+        const entry = get().chessNews[key];
+        const now = Date.now();
+        if (!searchTerm && entry && now - entry.fetchedAt < CACHE_DURATION_MS) {
+          return;
+        }
+        set({ isLoading: true });
+        const params: any = {};
+        if (categoryId !== null) params.categoryId = categoryId;
+        if (searchTerm) params.search = searchTerm;
+
+        try {
+          const resp = await fetchFn(params);
+          set((s) => ({
+            chessNews: {
+              ...s.chessNews,
+              [key]: { data: resp.data, fetchedAt: Date.now() },
+            },
+            isLoading: false,
+          }));
+        } catch (err) {
+          set({ isLoading: false });
+          throw err;
+        }
+      },
       savedArticles: [],
-      setSavedArticles: (savedArticles) => set({ savedArticles }),
+      setSavedArticles: (a) => set({ savedArticles: a }),
       detailNews: {},
-      setDetailNews: (detailNews) => set({ detailNews }),
+      setDetailNews: (d) => set({ detailNews: d }),
       detailNewsFetchedAt: undefined,
-      setDetailNewsFetchedAt: (timestamp) => set({ detailNewsFetchedAt: timestamp }),
+      setDetailNewsFetchedAt: (t) => set({ detailNewsFetchedAt: t }),
       mostReadsArticle: [],
-      setMostReadsArticle: (mostReadsArticle) => set({ mostReadsArticle }),
+      setMostReadsArticle: (a) => set({ mostReadsArticle: a }),
       mostReadsFetchedAt: undefined,
-      setMostReadsFetchedAt: (timestamp) => set({ mostReadsFetchedAt: timestamp }),
+      setMostReadsFetchedAt: (t) => set({ mostReadsFetchedAt: t }),
     }),
     {
       name: "chess-news-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         chessNews: state.chessNews,
+        savedArticles: state.savedArticles,
+        categories: state.categories,
         detailNews: state.detailNews,
         detailNewsFetchedAt: state.detailNewsFetchedAt,
-        savedArticles: state.savedArticles,
         mostReadsArticle: state.mostReadsArticle,
         mostReadsFetchedAt: state.mostReadsFetchedAt,
-        categories: state.categories,
       }),
     }
   )

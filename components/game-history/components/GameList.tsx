@@ -19,6 +19,7 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import GamesListSkeleton from "./GameListSkeleton";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
+import { usePollingManager } from "../hooks/usePollingManager";
 
 interface GamesListProps {
   games: Game[];
@@ -92,6 +93,8 @@ const GamesList: React.FC<GamesListProps> = ({
   const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
     usePgnStore();
   const { sessionId } = useProfileStore();
+  const { restorePollingJobs } = usePollingManager();
+
 
   const isNewlyImported = (id: string | number) =>
     recentlyImportedIds.includes(id);
@@ -100,7 +103,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
   useEffect(() => {
     clearOldJobs();
-  }, [clearOldJobs]);
+     restorePollingJobs();
+  }, [clearOldJobs, restorePollingJobs]);
 
 
  const getAnalysisButtonContent = (gameId: string | number, game: Game) => {

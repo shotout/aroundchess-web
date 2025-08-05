@@ -12,8 +12,7 @@ const publicRoutes = [
   "/terms-of-service",
   "/eu-compliance",
   "/contact-us",
-  "/chess-news",
-  "/chess-news/[slug]",
+  "/chess-blogs",
   "/api/webhook",
   "/api/webhooks/clerk",
   "/analysis",
@@ -59,7 +58,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const isPublicRoute = publicRoutes.some((route) => pathname === route);
+  const isPublicRoute = publicRoutes.some((route) => pathname === route) || pathname.startsWith("/chess-blogs/");
   if (isPublicRoute || (token != undefined && token != "")) {
     return NextResponse.next();
   }

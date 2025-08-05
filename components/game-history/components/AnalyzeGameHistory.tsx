@@ -10,6 +10,7 @@ import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { Input } from "@/components/ui/input";
+import { usePollingManager } from "../hooks/usePollingManager";
 
 interface AnalyzeGameHistoryProps {
   open: boolean;
@@ -26,10 +27,9 @@ export function AnalyzeGameHistory({
   const { pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, sessionId } = useProfileStore();
-  const { addJob, updateJob, getJobByGameId, startPolling, forceStopPolling } =
-    useBackgroundAnalysisStore();
-  const { setPgn, setError, setDataAnalysis, setDataGamesImport } =
-    usePgnStore();
+  const { addJob, updateJob, getJobByGameId } = useBackgroundAnalysisStore();
+  const { setPgn, setError, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  const { startBackgroundPolling } = usePollingManager(); 
 
   const depths = [
     {
@@ -125,7 +125,7 @@ export function AnalyzeGameHistory({
       const data = res.data.data;
       if (data?.processingMode === "async") {
         if (!getJobByGameId(game.id) || getJobByGameId(game.id)?.jobId !== data.jobId) {
-          addJob(game.id, data.jobId);
+          addJob(game.id, data.jobId, data.statusUrl, gameToAnalyze, depthChoosed);
         }
         onOpenChange(false);
 
@@ -159,7 +159,8 @@ export function AnalyzeGameHistory({
             }
           );
         }
-        startBackgroundPolling(game.id, data.statusUrl, data.jobId, gameToAnalyze);
+        
+        startBackgroundPolling(game.id, data.statusUrl, data.jobId, gameToAnalyze, game);
       } else if (res.status === 200 && data && !data.processingMode) {
         if (existing && ["pending", "processing"].includes(existing.status)) {
           onOpenChange(false);
@@ -184,132 +185,6 @@ export function AnalyzeGameHistory({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const startBackgroundPolling = async (
-    gameId: string | number,
-    statusUrl: string,
-    jobId: string,
-    gamePgn: string
-  ) => {
-    const existing = getJobByGameId(gameId);
-    if (existing?.status === "completed") return;
-
-    const storeState = useBackgroundAnalysisStore.getState();
-    const existingInterval = storeState.pollingIntervals.get(String(gameId));
-    if (existingInterval) clearInterval(existingInterval);
-
-    forceStopPolling(gameId);
-    if (!startPolling(gameId)) return;
-
-    const gameSize = (gamePgn.match(/\d+\./g) || []).length;
-    const isSmall = gameSize <= 15;
-    const pollInterval = isSmall ? 2000 : 3000;
-    const maxAttempts = isSmall ? 30 : 100;
-
-    let attempts = 0;
-    let active = true;
-    let lastTime = 0;
-    const minInterval = 2000;
-
-    const poll = setInterval(async () => {
-      if (!active) {
-        clearInterval(poll);
-        return;
-      }
-
-      const store = useBackgroundAnalysisStore.getState();
-      if (!store.activePollingJobs.has(String(gameId))) {
-        active = false;
-        clearInterval(poll);
-        return;
-      }
-
-      const current = getJobByGameId(gameId);
-      if (current?.status === "completed") {
-        active = false;
-        clearInterval(poll);
-        forceStopPolling(gameId);
-        return;
-      }
-
-      const now = Date.now();
-      if (now - lastTime < minInterval) return;
-      lastTime = now;
-
-      attempts++;
-      if (attempts > maxAttempts) {
-        active = false;
-        clearInterval(poll);
-        forceStopPolling(gameId);
-        updateJob(gameId, { status: "failed", error: "Polling timeout" });
-        toast.error("Analysis polling timed out. Please try again.");
-        return;
-      }
-
-      try {
-        const { default: axios } = await import("axios");
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
-        const response = await axios.get(`${baseUrl}${statusUrl}`, {
-          headers: { Authorization: `Bearer ${sessionId}` },
-        });
-        const d = response.data.data;
-
-        if (["processing", "pending"].includes(d.status)) {
-          updateJob(gameId, { status: "processing", progress: d.progress || 0 });
-        } else if (["completed", "ready"].includes(d.status)) {
-          clearInterval(poll);
-          const valid = d.result && d.result.id && d.result.userId && d.result.pgn;
-          if (!valid) {
-            forceStopPolling(gameId);
-            updateJob(gameId, {
-              status: "failed",
-              error: "Analysis completed but result is incomplete",
-            });
-            toast.error(
-              "Analysis completed but result is incomplete. Please try again."
-            );
-            return;
-          }
-          if (isSmall) await new Promise((r) => setTimeout(r, 2000));
-
-          forceStopPolling(gameId);
-          updateJob(gameId, {
-            status: "completed",
-            progress: 100,
-            result: d.result || d,
-          });
-          setPgn(gamePgn);
-          setDataGamesImport(game);
-          setDataAnalysis(d.result || d);
-          toast.success(
-            isSmall
-              ? "Analysis complete! (Small games process quickly)"
-              : "Analysis complete!",
-            {
-              description: "Click 'View Results' to see your analysis.",
-              duration: 5000,
-            }
-          );
-        }
-      } catch (error: any) {
-        if (error.response?.status !== 404) {
-          active = false;
-          clearInterval(poll);
-          forceStopPolling(gameId);
-          updateJob(gameId, {
-            status: "failed",
-            error: error.message || "Unknown error",
-          });
-          toast.error("Analysis failed. Please try again.");
-        }
-      }
-    }, pollInterval);
-
-    useBackgroundAnalysisStore
-      .getState()
-      .pollingIntervals.set(String(gameId), poll);
   };
 
   if (!open) return null;
@@ -470,9 +345,7 @@ export function AnalyzeGameHistory({
                   <path
                     className="opacity-75"
                     fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 0 5.373 0\
-  12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135\
-  5.824 3 7.938l3-2.647z"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
                 Processing...
