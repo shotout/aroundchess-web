@@ -403,15 +403,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             whileTap={{ scale: 0.98 }}
           >
             <InitialAvatar
-              name={profileShow?.data.name || username || "Anonymous"}
+              name={profileShow?.data?.name || username || "Anonymous"}
               size="sm"
             />
             <div className="flex-1 overflow-hidden text-left">
               <p className="font-medium text-lg truncate">
-                {profileShow?.data.name || username }
+                {profileShow?.data?.name || username }
               </p>
               <p className="text-sm text-gray-600 truncate">
-                {profileShow?.data.email || "-"}
+                {profileShow?.data?.email || "-"}
               </p>
             </div>
           </motion.button>
