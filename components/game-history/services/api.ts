@@ -12,13 +12,10 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Force the browser to revalidate every request (no HTTP caching)
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
-    Accept: "application/json",
-    "Cache-Control": "no-cache",
   },
 });
 
@@ -40,15 +37,12 @@ export const handleApiError = (error: unknown): Error => {
 };
 
 const handleSessionExpiration = () => {
-  // 1) Clear profile store
   const { clearAll: clearProfile } = useProfileStore.getState();
   clearProfile();
 
-  // 2) Clear PGN store (both chessdotcom & other caches)
   const { clearAll: clearPgn } = usePgnStore.getState();
   clearPgn();
 
-  // 3) Wipe tokens & redirect
   localStorage.removeItem("token");
   setPersistedCookie("token", "", 0);
 
@@ -76,7 +70,6 @@ export const apiRequest = async <T>(
       params,
       onUploadProgress,
       headers: {
-        "Cache-Control": "no-cache",
         ...(sessionId
           ? { Authorization: `Bearer ${sessionId}`, Accept: "application/json" }
           : {}),
@@ -88,7 +81,6 @@ export const apiRequest = async <T>(
     }
 
     const response = await apiClient(config);
-    // If backend wraps { success: boolean, ... }
     if (
       response.data &&
       typeof response.data.success === "boolean" &&

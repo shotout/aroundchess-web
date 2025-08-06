@@ -171,7 +171,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       setIsConfirmationMode(false);
       setIsUploading(false);
       toast.success("Game imported successfully!");
-      // ← force the "other" tab to clear its cache and re-fetch immediately
       handleForceRefresh();
       setTimeout(() => {
         resetDialog();
