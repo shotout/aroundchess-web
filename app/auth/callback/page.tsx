@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 export default function SSOCallbackPage() {
   const [isProcessing, setIsProcessing] = useState(true);
@@ -27,7 +28,8 @@ export default function SSOCallbackPage() {
     message: "",
   });
 
-  const { setSessionId, setProfile } = useProfileStore();
+  const { setSessionId,  } = useProfileStore();
+  const {setProfileShow } = usePgnStore()
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
 
@@ -152,8 +154,7 @@ export default function SSOCallbackPage() {
 
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
-              setProfile(profileData)
-              console.log("hi", profileData);
+              setProfileShow(profileData)
               
               const userUsername =
                 profileData.data?.username || profileData.username;

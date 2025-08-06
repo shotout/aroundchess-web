@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -189,8 +189,7 @@ export function AnalyzeGameHistory({
 
   if (!open) return null;
 
-  const isDesktop =
-    typeof window !== "undefined" && window.innerWidth >= 1280;
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
   const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
   const headerHeight = 72;
   const headerHeightLg = 96;

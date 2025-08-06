@@ -88,8 +88,7 @@ const GamesList: React.FC<GamesListProps> = ({
 }) => {
   const router = useRouter();
   const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
-    usePgnStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
   const { sessionId } = useProfileStore();
   const { restorePollingJobs } = usePollingManager();
 
