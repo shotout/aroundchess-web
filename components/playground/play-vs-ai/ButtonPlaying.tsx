@@ -1,7 +1,7 @@
 import DotSpinner from "@/components/game-history/Spinner";
 import { fadeInUp, motion } from "@/utils/motion";
-
 import Image from "next/image";
+
 interface ButtonPlayingProps {
   currentTurn: string;
   myColor: string;

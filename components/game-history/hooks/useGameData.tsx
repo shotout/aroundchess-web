@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
-import { toast } from "sonner";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
 
@@ -144,41 +143,29 @@ export const countActiveFilters = (
   return count;
 };
 
-// Enhanced cache validation function
 const isValidCache = (
   timestamp: number | null,
   data: any[] | null,
   expiration: number = CACHE_EXPIRATION
 ): boolean => {
-  // Check if timestamp exists and is valid
   if (!timestamp || timestamp <= 0) {
-    // console.log("Cache invalid: No timestamp");
     return false;
   }
 
-  // Check if data exists and is array with content
   if (!data || !Array.isArray(data)) {
-    // console.log("Cache invalid: No data or not array");
     return false;
   }
 
-  // Check cache age
   const now = Date.now();
   const cacheAge = now - timestamp;
 
   if (cacheAge >= expiration) {
-    // console.log(
-    //   `Cache expired: Age ${Math.round(cacheAge / 1000)}s, Max ${Math.round(
-    //     expiration / 1000
-    //   )}s`
-    // );
     return false;
   }
 
   return true;
 };
 
-// Updated useGames function with improved caching
 export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const {
     username,
@@ -240,9 +227,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
       return;
     }
 
-    // Use cache if valid
     if (isCacheValid && cachedGames) {
-      // console.log(`[${type.toUpperCase()}] Using cached data`);
       try {
         const transformedGames = transformApiDataToComponentFormat(cachedGames);
         updateStateWithProcessedData(transformedGames);
@@ -275,21 +260,12 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
       if (response && response.data) {
         const apiData = response.data;
-        // console.log(
-        //   `[${type.toUpperCase()}] Received ${apiData.length} games from API`
-        // );
-
-        // Store in cache
+       
         setGamesInStore(apiData);
 
         const transformedGames = transformApiDataToComponentFormat(apiData);
         updateStateWithProcessedData(transformedGames);
 
-        // console.log(
-        //   `[${type.toUpperCase()}] Successfully processed and cached ${
-        //     transformedGames.length
-        //   } games`
-        // );
       } else {
         throw new Error("Invalid data format received from server");
       }
@@ -315,21 +291,16 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     updateStateWithProcessedData,
   ]);
 
-  // Effect to trigger fetch when needed
   useEffect(() => {
     if (!sessionId) return;
 
     const executionKey = `${sessionId}-${username}-${type}`;
 
-    // Only fetch if we haven't executed for this combination and not currently fetching
     if (lastExecutedRef.current !== executionKey && !fetchRef.current) {
-      // console.log(
-      //   `[${type.toUpperCase()}] Triggering fetch for new combination`
-      // );
+     
       fetchGames();
     } else if (isCacheValid && cachedGames) {
-      // If we have valid cache, use it immediately
-      // console.log(`[${type.toUpperCase()}] Using existing valid cache`);
+      
       const transformedGames = transformApiDataToComponentFormat(cachedGames);
       updateStateWithProcessedData(transformedGames);
       setIsLoading(false);

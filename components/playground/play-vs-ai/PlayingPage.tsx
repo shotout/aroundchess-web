@@ -20,11 +20,15 @@ import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   RotateCw,
+  ChartNoAxesColumn,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -48,6 +52,10 @@ import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
 import { playSound } from "@/utils/play-audio";
 import { classifyMove } from "../src/lib/classifyMove";
+import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import { usePollingManager } from "@/components/game-history/hooks/usePollingManager";
+import { createPgnHash } from "@/utils/crypto-utils";
+import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -317,6 +325,7 @@ const MobileMoveBoxes = ({
 };
 
 export default function PlayingPage() {
+  const {sessionId} = useProfileStore()
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
@@ -339,6 +348,10 @@ export default function PlayingPage() {
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
+  const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+  const { getJobByGameId, addJob, updateJob, clearOldJobs } = useBackgroundAnalysisStore();
+  const { startBackgroundPolling, restorePollingJobs } = usePollingManager();
+  const [currentGameId, setCurrentGameId] = useState<string>("");
   const refBoard = useRef<HTMLDivElement | null>(null);
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
@@ -403,6 +416,11 @@ export default function PlayingPage() {
     });
   }, []);
 
+  useEffect(() => {
+    clearOldJobs();
+    restorePollingJobs();
+  }, [clearOldJobs, restorePollingJobs]);
+
   const navigateToMove = (index: number) => {
     if (index < 0 || index >= fenHistory.length) {
       return;
@@ -449,7 +467,6 @@ export default function PlayingPage() {
     navigateToMove(0);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const goToLatestMove = () => {
     const latestIndex = fenHistory.length - 1;
     navigateToMove(latestIndex);
@@ -489,7 +506,6 @@ export default function PlayingPage() {
       }
       setShouldTriggerAI(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldTriggerAI, isAtCurrentMove, statusGame, myColor, game.turn()]);
 
   useEffect(() => {
@@ -512,7 +528,6 @@ export default function PlayingPage() {
       setCurrentMoveIndex(0);
       setGamePosition(initialFen);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.history().length === 0]);
 
   const getMoveOptions = (square: Square) => {
@@ -919,6 +934,10 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
+    const timestamp = Date.now();
+    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+    setCurrentGameId(gameId);
+    
     setMyColor(AIChoosed.color);
     setHeaderGameStart();
     setBeforeFen(game.fen());
@@ -929,7 +948,7 @@ export default function PlayingPage() {
     }
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
-  }, [isLoading]);
+  }, [AIChoosed]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -938,16 +957,15 @@ export default function PlayingPage() {
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
 
-const handleResize = () => {
+  const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
-    // Get the actual container width
     const containerWidth = refBoard.current?.offsetWidth || width;
-    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
+    const maxBoardWidth = Math.min(containerWidth - 40, 800);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -1030,14 +1048,20 @@ const handleResize = () => {
   };
 
   const handleAnalyzeGame = () => {
-    if (token.balance > 0) {
-      fetchPgnLocal();
-    } else {
+    if (!isMember && token.balance <= 0) {
       setOpenPricing(true);
+      return;
     }
+    
+    const buttonContent = getAnalysisButtonContent();
+    buttonContent.onClick();
   };
 
   const handleRematch = () => {
+    const timestamp = Date.now();
+    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+    setCurrentGameId(gameId);
+    
     setStatusGame("Ongoing");
     game.reset();
     const initialFen = game.fen();
@@ -1268,9 +1292,175 @@ const handleResize = () => {
     setIs3DMode(is3D);
   }, [StyleChoosed]);
 
+  const fetchLastAnalysis = async (pgnHash: string): Promise<any> => {
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+      const response = await fetch(`${endpoint}/v2/analyze/last-analysis/${pgnHash}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch analysis: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching last analysis:", error);
+      return null;
+    }
+  };
+
+  const getAnalysisButtonContent = () => {
+    const job = getJobByGameId(currentGameId);
+    const currentPgn = game.pgn();
+
+    if (job && job.status === "completed") {
+      return {
+        text: "View Results",
+        icon: <CheckCircle className="h-4 w-4 mr-1" />,
+        className: "bg-green-600 hover:bg-green-700 text-white",
+        onClick: async () => {
+          try {
+            const pgnHash = createPgnHash(currentPgn);
+            const lastAnalysis = await fetchLastAnalysis(pgnHash);
+            
+            if (lastAnalysis?.success && lastAnalysis.data) {
+              setPgn(currentPgn);
+              const gameData = {
+                id: currentGameId,
+                white: {
+                  result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                  username: game.header().White,
+                },
+                black: {
+                  result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw", 
+                  username: game.header().Black,
+                },
+                date: formatDatePgn(),
+                pgn: currentPgn,
+                username: username
+              };
+              setDataGamesImport(gameData);
+              setDataAnalysis(lastAnalysis.data);
+              router.push("/analysis");
+            } else {
+              if (job && job.result) {
+                setPgn(currentPgn);
+                const gameData = {
+                  id: currentGameId,
+                  white: {
+                    result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                    username: game.header().White,
+                  },
+                  black: {
+                    result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+                    username: game.header().Black,
+                  },
+                  date: formatDatePgn(),
+                  pgn: currentPgn,
+                  username: username
+                };
+                setDataGamesImport(gameData);
+                setDataAnalysis(job.result);
+                router.push("/analysis");
+              } else {
+                setShowAnalyzeDialog(true);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching analysis:", error);
+            if (job && job.result) {
+              setPgn(currentPgn);
+              const gameData = {
+                id: currentGameId,
+                white: {
+                  result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                  username: game.header().White,
+                },
+                black: {
+                  result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+                  username: game.header().Black,
+                },
+                date: formatDatePgn(),
+                pgn: currentPgn,
+                username: username
+              };
+              setDataGamesImport(gameData);
+              setDataAnalysis(job.result);
+              router.push("/analysis");
+            } else {
+              setShowAnalyzeDialog(true);
+            }
+          }
+        },
+      };
+    }
+
+    if (job) {
+      switch (job.status) {
+        case "pending":
+        case "processing": {
+          const pct = job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
+          return {
+            text: pct,
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            onClick: () => {},
+            disabled: true
+          };
+        }
+        case "finalizing":
+          return {
+            text: "Finalizing...",
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-blue-500 hover:bg-blue-600 text-white",
+            onClick: () => {},
+            disabled: true
+          };
+        case "failed":
+          return {
+            text: "Retry",
+            icon: <AlertCircle className="h-4 w-4 mr-1" />,
+            className: "bg-red-600 hover:bg-red-700 text-white",
+            onClick: () => setShowAnalyzeDialog(true),
+            disabled: false
+          };
+      }
+    }
+
+    return {
+      text: "Analyze",
+      icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+      className: "btn-primary text-white",
+      onClick: () => setShowAnalyzeDialog(true),
+      disabled: false
+    };
+  };
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
       <GameEndStatus gameStatus={statusGame.toLowerCase()} />
+      <AnalyzeGameHistory
+        open={showAnalyzeDialog}
+        onOpenChange={setShowAnalyzeDialog}
+        game={{
+          id: currentGameId,
+          pgn: game.pgn(),
+          username: username,
+          white: {
+            result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+            username: game.header().White,
+          },
+          black: {
+            result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+            username: game.header().Black,
+          },
+          date: formatDatePgn(),
+        }}
+      />
       <div className="flex flex-col w-full gap-y-2 ">
         <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
           <button onClick={  () =>  router.push("/playground/play-vs-ai")}>
@@ -1515,6 +1705,7 @@ const handleResize = () => {
                 handleRematch={handleRematch}
                 handleShare={handleShare}
                 handleDownload={handleDownload}
+                getAnalysisButtonContent={getAnalysisButtonContent}
               />
             )}
 
@@ -1811,6 +2002,7 @@ const handleResize = () => {
                     handleRematch={handleRematch}
                     handleShare={handleShare}
                     handleDownload={handleDownload}
+                    getAnalysisButtonContent={getAnalysisButtonContent}
                   />
                 )}
               </div>

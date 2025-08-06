@@ -285,7 +285,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                       href={!isSignedIn && !section.permission ? "#" : section.href!}
                       onClick={() => handleNavigation(section.href!, section.permission)}
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive ? "text-[#221AE9]" : "hover:bg-[#221AE950] hover:text-[#221AE9]"
                       )}
                     >
@@ -314,7 +314,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   ) : (
                     <div
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex gap-x-2 items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive ? "text-[#221AE9]" : section.disabled ? "text-[#AAA4A4]" : ""
                       )}
                     >

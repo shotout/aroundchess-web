@@ -1,8 +1,8 @@
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
-import {  Plus } from "lucide-react";
-
+import { Plus } from "lucide-react";
 import Image from "next/image";
+
 interface ButtonFinishProps {
   handleAnalyzeGame: () => void;
   handleNewGame: () => void;
@@ -10,6 +10,13 @@ interface ButtonFinishProps {
   handleShare: () => void;
   handleDownload: () => void;
   pgn: string;
+  getAnalysisButtonContent?: () => {
+    text: string;
+    icon: React.ReactNode;
+    className: string;
+    onClick: () => void;
+    disabled?: boolean;
+  };
 }
 
 export const ButtonFinish = ({
@@ -19,24 +26,40 @@ export const ButtonFinish = ({
   handleShare,
   handleDownload,
   pgn,
+  getAnalysisButtonContent,
 }: ButtonFinishProps) => {
+  const analysisButton = getAnalysisButtonContent ? getAnalysisButtonContent() : null;
+
+  const renderAnalyzeButton = (className: string) => {
+    if (!analysisButton) {
+      return <ChooseDepthAnalyze pgnParam={pgn} style={className} />;
+    }
+
+    return (
+      <button
+        onClick={analysisButton.onClick}
+        disabled={analysisButton.disabled}
+        className={`${analysisButton.className} ${className} rounded-full h-[40px] flex items-center justify-center transition-colors duration-150 ${
+          analysisButton.disabled ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+      >
+        <div className="flex flex-row items-center justify-center gap-2">
+          {analysisButton.icon}
+          <span className="font-medium">{analysisButton.text}</span>
+        </div>
+      </button>
+    );
+  };
+
   return (
     <motion.div
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
-      {/* <button
-        onClick={handleAnalyzeGame}
-        className="md:hidden xl:block btn-primary w-full rounded-full h-[40px]"
-      >
-        <div className="flex flex-row items-center justify-center gap-2">
-          <BarChart2 color="white" className="w-[20px] h-[20px]" size={20} />
-          <span>Analyze Game</span>
-        </div>
-      </button> */}
       <div className="md:hidden xl:block">
-        <ChooseDepthAnalyze pgnParam={pgn} style="w-full" />
+        {renderAnalyzeButton("w-full")}
       </div>
+
       <div className="flex w-full gap-2">
         <button
           onClick={handleShare}
@@ -55,6 +78,7 @@ export const ButtonFinish = ({
             </span>
           </div>
         </button>
+        
         <button
           onClick={handleNewGame}
           className="btn-secondary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
@@ -64,64 +88,11 @@ export const ButtonFinish = ({
             <span className="text-[#221AE9] font-medium">New Game</span>
           </div>
         </button>
-        {/* <button
-          onClick={handleRematch}
-          className="btn-tertiary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
-        >
-          <div className="flex flex-row items-center justify-center gap-2">
-            <Image
-              src={"/images/play-vs-ai/rematch.png"}
-              alt="icon"
-              width={1000}
-              height={1000}
-              className="w-[16px] h-[16px] object-contain"
-            />
-            <span className="text-[#221AE9] font-medium">Rematch</span>
-          </div>
-        </button> */}
 
-        <div className="hidden md:block xl:hidden">
-          <ChooseDepthAnalyze style="md:w-2/4" pgnParam={pgn} />
+        <div className="hidden md:block xl:hidden md:w-2/4">
+          {renderAnalyzeButton("w-full")}
         </div>
-        {/* <button
-          onClick={handleAnalyzeGame}
-          className="hidden md:block xl:hidden md:w-2/4 btn-primary w-full rounded-full h-[40px]"
-        >
-          <div className="flex flex-row items-center justify-center gap-2">
-            <BarChart2 color="white" className="w-[20px] h-[20px]" size={20} />
-            <span>Analyze Game</span>
-          </div>
-        </button> */}
       </div>
-      {/* <div className="flex w-full gap-2">
-        <button
-          onClick={handleShare}
-          className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
-        >
-          <Image
-            src={"/images/play-vs-ai/share-filled.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[16px] h-[16px] object-contain"
-          />
-          <span className="font-medium text-xs mt-1">Share</span>
-        </button>
-
-        <button
-          onClick={handleDownload}
-          className="flex flex-row items-center justify-center min-h-[40px] w-full px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
-        >
-          <Image
-            src={"/images/play-vs-ai/download-filled.png"}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[16px] h-[16px] object-contain"
-          />
-          <span className="font-medium text-xs mt-1">Download</span>
-        </button>
-      </div> */}
     </motion.div>
   );
 };
