@@ -6,17 +6,33 @@ import { useProfileStore } from "@/app/store/profile";
 
 export const CACHE_EXPIRATION = 60 * 60 * 1000;
 
+/**
+ * If an item already looks like our UI‐shaped Game, pass it through;
+ * otherwise transform from raw API shape.
+ */
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
 
   return apiData
     .map((item) => {
-      if (!item.id || !item.date) return null;
+      // 1) UI‐shaped Game? let it pass
+      if (
+        (typeof item.id === "string" || typeof item.id === "number") &&
+        typeof item.date === "string" &&
+        typeof item.pgn === "string" &&
+        typeof item.timeControl === "string"
+      ) {
+        return item as Game;
+      }
 
+      // 2) Raw API shape → Game
+      if (!item.id || !item.date || !item.time_control) {
+        return null;
+      }
       const transformedOpening = formatOpening(item.opening_name);
-
-      if (!transformedOpening || !item.time_control) return null;
-
+      if (!transformedOpening) {
+        return null;
+      }
       return {
         id: item.id,
         date: formatDate(item.date),
@@ -44,22 +60,19 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
-
   try {
     if (dateString.includes("T")) {
       return dateString.split("T")[0];
     }
-
-    const dateObj = new Date(dateString);
-    if (isNaN(dateObj.getTime())) {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) {
       return dateString;
     }
-
-    return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
       2,
       "0"
-    )}-${String(dateObj.getDate()).padStart(2, "0")}`;
-  } catch (e) {
+    )}-${String(d.getDate()).padStart(2, "0")}`;
+  } catch {
     return dateString;
   }
 };
@@ -87,17 +100,14 @@ export const filterGames = (
   filters: FilterState
 ): Game[] => {
   if (!Array.isArray(gamesData)) return [];
-
   let filtered = [...gamesData];
-
   if (filters.color !== "All Colors") {
     filtered = filtered.filter(
-      (game) =>
-        game.color?.toLowerCase() === filters.color.toLowerCase() ||
-        game.playerColor?.toLowerCase() === filters.color.toLowerCase()
+      (g) =>
+        g.color?.toLowerCase() === filters.color.toLowerCase() ||
+        g.playerColor?.toLowerCase() === filters.color.toLowerCase()
     );
   }
-
   if (filters.results !== "All Results") {
     const resultMap: Record<string, string> = {
       Wins: "WIN",
@@ -105,21 +115,18 @@ export const filterGames = (
       Draws: "DRAW",
     };
     filtered = filtered.filter(
-      (game) =>
-        game.result === resultMap[filters.results as keyof typeof resultMap]
+      (g) => g.result === resultMap[filters.results as keyof typeof resultMap]
     );
   }
-
   return filtered;
 };
 
 export const getResultData = (
   result: string | undefined | null
 ): { text: string; className: string } => {
-  if (!result || typeof result !== "string") {
+  if (!result) {
     return { text: "UNKNOWN", className: "text-gray-500 font-semibold" };
   }
-
   if (result === "WIN") {
     return { text: "WIN", className: "text-green-500 font-semibold" };
   } else if (result === "LOSS") {
@@ -139,7 +146,6 @@ export const countActiveFilters = (
   if (filters.color !== defaultFilters.color) count++;
   if (filters.gameFormat !== defaultFilters.gameFormat) count++;
   if (filters.results !== defaultFilters.results) count++;
-
   return count;
 };
 
@@ -148,22 +154,10 @@ const isValidCache = (
   data: any[] | null,
   expiration: number = CACHE_EXPIRATION
 ): boolean => {
-  if (!timestamp || timestamp <= 0) {
-    return false;
-  }
-
-  if (!data || !Array.isArray(data)) {
-    return false;
-  }
-
-  const now = Date.now();
-  const cacheAge = now - timestamp;
-
-  if (cacheAge >= expiration) {
-    return false;
-  }
-
-  return true;
+  if (!timestamp || timestamp <= 0) return false;
+  if (!data || !Array.isArray(data)) return false;
+  const age = Date.now() - timestamp;
+  return age < expiration;
 };
 
 export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
@@ -177,7 +171,6 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setOtherGamesData,
     resetFetchState,
   } = usePgnStore();
-
   const { sessionId } = useProfileStore();
 
   const [games, setGames] = useState<Game[]>([]);
@@ -189,58 +182,39 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
 
   const cachedGames =
     type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
-  const gamesLastFetchedTimestamp =
+  const lastFetched =
     type === "chessdotcom" ? gamesLastFetched : otherGamesLastFetched;
-  const setGamesInStore =
+  const setInStore =
     type === "chessdotcom" ? setGamesData : setOtherGamesData;
 
-  const isCacheValid = useMemo(() => {
+  const cacheValid = useMemo(
+    () => isValidCache(lastFetched, cachedGames, CACHE_EXPIRATION),
+    [lastFetched, cachedGames]
+  );
 
-    const isValid = isValidCache(
-      gamesLastFetchedTimestamp,
-      cachedGames,
-      CACHE_EXPIRATION
-    );
-
-    return isValid;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamesLastFetchedTimestamp, cachedGames, type]);
-
-  const updateStateWithProcessedData = useCallback(
-    (processedGames: Game[]) => {
-      setGames(processedGames);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [type]
+  const updateState = useCallback(
+    (processed: Game[]) => setGames(processed),
+    []
   );
 
   const fetchGames = useCallback(async () => {
-    const executionKey = `${sessionId}-${username}-${type}`;
-
-    // Prevent duplicate executions
-    if (fetchRef.current || lastExecutedRef.current === executionKey) {
-      return;
-    }
+    const key = `${sessionId}-${username}-${type}`;
+    if (fetchRef.current || lastExecutedRef.current === key) return;
 
     if (!username && type === "chessdotcom") {
       setIsLoading(false);
       return;
     }
 
-    if (isCacheValid && cachedGames) {
+    if (cacheValid && cachedGames) {
       try {
-        const transformedGames = transformApiDataToComponentFormat(cachedGames);
-        updateStateWithProcessedData(transformedGames);
+        updateState(transformApiDataToComponentFormat(cachedGames));
       } catch (err) {
         console.error(
-          `[${type.toUpperCase()}] Error processing cached data:`,
+          `[${type.toUpperCase()}] cached processing error:`,
           err
         );
-        setError(
-          err instanceof Error
-            ? err
-            : new Error("Failed to process cached data")
-        );
+        setError(err instanceof Error ? err : new Error("Cache error"));
       } finally {
         setIsLoading(false);
       }
@@ -248,35 +222,28 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     }
 
     fetchRef.current = true;
-    lastExecutedRef.current = executionKey;
+    lastExecutedRef.current = key;
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await gameHistoryApi.getUserGames(
+      const res = await gameHistoryApi.getUserGames(
         sessionId ?? null,
         type
       );
-
-      if (response && response.data) {
-        const apiData = response.data;
-       
-        setGamesInStore(apiData);
-
-        const transformedGames = transformApiDataToComponentFormat(apiData);
-        updateStateWithProcessedData(transformedGames);
-
+      if (res?.data) {
+        setInStore(res.data);
+        updateState(transformApiDataToComponentFormat(res.data));
       } else {
-        throw new Error("Invalid data format received from server");
+        throw new Error("Invalid server response");
       }
     } catch (err) {
-      const error =
-        err instanceof Error ? err : new Error("An unknown error occurred");
-      console.error(`[${type.toUpperCase()}] Error fetching games:`, error);
-      setError(error);
+      const e =
+        err instanceof Error ? err : new Error("Fetch unknown error");
+      console.error(`[${type}] fetch error:`, e);
+      setError(e);
     } finally {
       setIsLoading(false);
-      // Reset fetch ref after a delay
       setTimeout(() => {
         fetchRef.current = false;
       }, 1000);
@@ -285,35 +252,22 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     sessionId,
     username,
     type,
-    isCacheValid,
+    cacheValid,
     cachedGames,
-    setGamesInStore,
-    updateStateWithProcessedData,
+    setInStore,
+    updateState,
   ]);
 
   useEffect(() => {
     if (!sessionId) return;
-
-    const executionKey = `${sessionId}-${username}-${type}`;
-
-    if (lastExecutedRef.current !== executionKey && !fetchRef.current) {
-     
+    const key = `${sessionId}-${username}-${type}`;
+    if (lastExecutedRef.current !== key && !fetchRef.current) {
       fetchGames();
-    } else if (isCacheValid && cachedGames) {
-      
-      const transformedGames = transformApiDataToComponentFormat(cachedGames);
-      updateStateWithProcessedData(transformedGames);
+    } else if (cacheValid && cachedGames) {
+      updateState(transformApiDataToComponentFormat(cachedGames));
       setIsLoading(false);
     }
-  }, [
-    sessionId,
-    username,
-    type,
-    fetchGames,
-    isCacheValid,
-    cachedGames,
-    updateStateWithProcessedData,
-  ]);
+  }, [sessionId, username, type, cacheValid, cachedGames, fetchGames]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
@@ -325,13 +279,11 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const handleForceRefresh = useCallback(() => {
     fetchRef.current = false;
     lastExecutedRef.current = "";
-
     if (type === "chessdotcom") {
       usePgnStore.getState().clearGamesData();
     } else {
       usePgnStore.getState().clearOtherGamesData();
     }
-
     resetFetchState();
     fetchGames();
   }, [type, resetFetchState, fetchGames]);
@@ -340,7 +292,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     games,
     isLoading,
     error,
-    isCacheValid,
+    cacheValid,
     handleRetryFetch,
     handleForceRefresh,
   };

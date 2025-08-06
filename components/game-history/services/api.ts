@@ -5,17 +5,20 @@ import axios, { AxiosRequestConfig, AxiosProgressEvent } from "axios";
 import { toast } from "sonner";
 
 const API_BASE_URL = process.env.BASE_URL || "";
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
 }
 
+// Force the browser to revalidate every request (no HTTP caching)
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    "Cache-Control": "no-cache",
   },
 });
 
@@ -37,9 +40,15 @@ export const handleApiError = (error: unknown): Error => {
 };
 
 const handleSessionExpiration = () => {
-  const { clearAll } = useProfileStore.getState();
-  clearAll();
+  // 1) Clear profile store
+  const { clearAll: clearProfile } = useProfileStore.getState();
+  clearProfile();
 
+  // 2) Clear PGN store (both chessdotcom & other caches)
+  const { clearAll: clearPgn } = usePgnStore.getState();
+  clearPgn();
+
+  // 3) Wipe tokens & redirect
   localStorage.removeItem("token");
   setPersistedCookie("token", "", 0);
 
@@ -54,10 +63,11 @@ export const apiRequest = async <T>(
     sessionId?: string | null;
     data?: any;
     params?: Record<string, string | number | boolean>;
-    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+    onUploadProgress?: (e: AxiosProgressEvent) => void;
   } = {}
 ): Promise<T> => {
-  const { method = "GET", sessionId, data, params, onUploadProgress } = options;
+  const { method = "GET", sessionId, data, params, onUploadProgress } =
+    options;
 
   try {
     const config: AxiosRequestConfig = {
@@ -65,21 +75,20 @@ export const apiRequest = async <T>(
       url: endpoint,
       params,
       onUploadProgress,
+      headers: {
+        "Cache-Control": "no-cache",
+        ...(sessionId
+          ? { Authorization: `Bearer ${sessionId}`, Accept: "application/json" }
+          : {}),
+      },
     };
-
-    if (sessionId != "") {
-      config.headers = {
-        Authorization: `Bearer ${sessionId}`,
-        Accept: "application/json",
-      };
-    }
 
     if (data) {
       config.data = data;
     }
 
     const response = await apiClient(config);
-
+    // If backend wraps { success: boolean, ... }
     if (
       response.data &&
       typeof response.data.success === "boolean" &&
@@ -89,8 +98,8 @@ export const apiRequest = async <T>(
     }
 
     return response.data;
-  } catch (error) {
-    throw handleApiError(error);
+  } catch (err) {
+    throw handleApiError(err);
   }
 };
 
@@ -113,8 +122,9 @@ export const gameHistoryApi = {
     sessionId: string | null,
     type: "chessdotcom" | "other" = "chessdotcom"
   ) => {
+    const ts = Date.now();
     return apiRequest<ApiResponse<any[]>>(
-      `/games/my-game-history?type=${type}`,
+      `/games/my-game-history?type=${type}&ts=${ts}`,
       { sessionId }
     );
   },
@@ -136,7 +146,7 @@ export const gameHistoryApi = {
   importGame: async (
     formData: FormData,
     sessionId: string | null,
-    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+    onUploadProgress?: (e: AxiosProgressEvent) => void
   ) => {
     return apiRequest<ApiResponse<any>>("/games/import-game", {
       method: "POST",
@@ -159,7 +169,6 @@ export const gameHistoryApi = {
         depth,
         timeout,
       });
-
       return response;
     } catch (error) {
       throw handleApiError(error);
@@ -173,31 +182,20 @@ export const refetchGameData = async (
 ): Promise<void> => {
   try {
     const store = usePgnStore.getState();
-
     store.resetFetchState();
 
     if (type === "all" || type === "chessdotcom") {
-      const userGamesResponse = await gameHistoryApi.getUserGames(
-        sessionId,
-        "chessdotcom"
-      );
-      if (userGamesResponse && userGamesResponse.data) {
-        store.setGamesData(userGamesResponse.data);
-      }
+      const u = await gameHistoryApi.getUserGames(sessionId, "chessdotcom");
+      if (u?.data) store.setGamesData(u.data);
     }
 
     if (type === "all" || type === "other") {
-      const otherGamesResponse = await gameHistoryApi.getUserGames(
-        sessionId,
-        "other"
-      );
-      if (otherGamesResponse && otherGamesResponse.data) {
-        store.setOtherGamesData(otherGamesResponse.data);
-      }
+      const o = await gameHistoryApi.getUserGames(sessionId, "other");
+      if (o?.data) store.setOtherGamesData(o.data);
     }
 
     toast.success("Game data refreshed successfully");
-  } catch (error) {
+  } catch {
     toast.error("Failed to refresh game data");
   }
 };

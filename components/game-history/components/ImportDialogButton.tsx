@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import { usePgnStore } from "@/app/store/zustandStore";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
-import { gameHistoryApi, refetchGameData } from "../services/api";
+import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
+import { useGames } from "../hooks/useGameData";
 
 interface ImportDialogButtonProps {
   onSuccess?: () => void;
@@ -17,11 +18,13 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 }) => {
   const { sessionId } = useProfileStore();
   const { addOtherImportedGame, username } = usePgnStore();
+  const { handleForceRefresh } = useGames("other");
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("paste");
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [isConfirmationMode, setIsConfirmationMode] = useState<boolean>(false);
+  const [isConfirmationMode, setIsConfirmationMode] =
+    useState<boolean>(false);
   const [isOperationCompleted, setIsOperationCompleted] =
     useState<boolean>(false);
 
@@ -76,7 +79,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -88,7 +90,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -108,16 +109,13 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       toast.error("Please upload a PGN file.");
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size exceeds 5MB limit.");
       return;
     }
-
     setFileName(file.name);
     setFileSize(file.size);
     setUploadedFile(file);
-
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target && typeof e.target.result === "string") {
@@ -129,9 +127,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
   const handleButtonClick = useCallback(() => {
     if (activeTab === "upload" && !fileName) {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
+      fileInputRef.current?.click();
     } else if (
       (activeTab === "paste" && pgnText.trim()) ||
       (activeTab === "upload" && fileName)
@@ -142,79 +138,62 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   }, [activeTab, fileName, pgnText]);
 
   const handleAnalyzeButtonClick = useCallback(async () => {
-    if (isConfirmationMode) {
-      setIsLoading(true);
-      setError(null);
-      setIsUploading(true);
-      setUploadProgress(0);
-
-      try {
-        const requestData = new FormData();
-
-        // Get PGN content
-        const pgnContent = activeTab === "paste" ? pgnText : fileContent;
-        if (!pgnContent) {
-          throw new Error("No PGN content available");
-        }
-
-        // Send both PGN and username to backend
-        requestData.append("pgn", pgnContent);
-        if (username) {
-          requestData.append("username", username);
-        }
-
-        const response = await gameHistoryApi.importGame(
-          requestData,
-          sessionId ?? null,
-          (progressEvent: AxiosProgressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 1)
-            );
-            setUploadProgress(percentCompleted);
-          }
-        );
-
-        // Only use data from backend response
-        if (!response || !response.data) {
-          throw new Error("Invalid response from server");
-        }
-
-        const gameData = {
-          ...response.data,
-          pgn: pgnContent,
-        };
-
-        const newGame = addOtherImportedGame(gameData);
-        setImportedGameId(newGame.id.toString());
-        setIsOperationCompleted(true);
-        setIsConfirmationMode(false);
-        setIsUploading(false);
-
-        toast.success("Game imported successfully!");
-
-        setTimeout(() => {
-          resetDialog();
-          if (onSuccess) onSuccess();
-          refetchGameData(sessionId ?? null, "other").then(() => {});
-        }, 2000);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to import PGN data";
-        setError(errorMessage);
-        toast.error(`Import failed: ${errorMessage}`);
-      } finally {
-        setIsLoading(false);
-        setIsUploading(false);
+    if (!isConfirmationMode) return;
+    setIsLoading(true);
+    setError(null);
+    setIsUploading(true);
+    setUploadProgress(0);
+    try {
+      const formData = new FormData();
+      const content = activeTab === "paste" ? pgnText : fileContent;
+      if (!content) {
+        throw new Error("No PGN content available");
       }
+      formData.append("pgn", content);
+      if (username) {
+        formData.append("username", username);
+      }
+      const response = await gameHistoryApi.importGame(
+        formData,
+        sessionId ?? null,
+        (ev: AxiosProgressEvent) => {
+          const pct = Math.round((ev.loaded * 100) / (ev.total || 1));
+          setUploadProgress(pct);
+        }
+      );
+      if (!response?.data) {
+        throw new Error("Invalid response from server");
+      }
+      const gameData = { ...response.data, pgn: content };
+      const newGame = addOtherImportedGame(gameData);
+      setImportedGameId(newGame.id.toString());
+      setIsOperationCompleted(true);
+      setIsConfirmationMode(false);
+      setIsUploading(false);
+      toast.success("Game imported successfully!");
+      // ← force the "other" tab to clear its cache and re-fetch immediately
+      handleForceRefresh();
+      setTimeout(() => {
+        resetDialog();
+        if (onSuccess) onSuccess();
+      }, 2000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Import failed";
+      setError(msg);
+      toast.error(`Import failed: ${msg}`);
+    } finally {
+      setIsLoading(false);
+      setIsUploading(false);
     }
   }, [
     activeTab,
-    fileContent,
     pgnText,
+    fileContent,
     username,
     sessionId,
     isConfirmationMode,
     addOtherImportedGame,
+    handleForceRefresh,
     resetDialog,
     onSuccess,
   ]);
@@ -415,9 +394,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                                   </h1>
                                 </div>
                                 <div className="flex flex-col">
-                                  <div className="text-gray-800">
-                                    {fileName}
-                                  </div>
+                                  <div className="text-gray-800">{fileName}</div>
                                   <div className="text-gray-500 text-sm">
                                     {(fileSize / 1024).toFixed(1)} KB
                                   </div>
@@ -555,7 +532,8 @@ const SuccessView: React.FC<SuccessViewProps> = ({
   isLoading,
   error,
   title = "Your Import was successful!",
-  description = "Your PGN was successfully uploaded. You can now analyze your Game with our Advanced Chess Engine!",
+  description =
+    "Your PGN was successfully uploaded. You can now analyze your Game with our Advanced Chess Engine!",
   buttonText = "Analyze Game",
   backButtonText = "Back to Game History",
 }) => {
@@ -570,7 +548,9 @@ const SuccessView: React.FC<SuccessViewProps> = ({
         />
       </div>
 
-      <h3 className="text-xl font-semibold text-gray-800 mb-1">{title}</h3>
+      <h3 className="text-xl font-semibold text-gray-800 mb-1">
+        {title}
+      </h3>
       <p className="text-gray-600 text-center mb-6">{description}</p>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
