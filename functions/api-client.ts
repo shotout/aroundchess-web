@@ -48,7 +48,7 @@ export function useApiClient() {
         if (
           sessionId.length > 0 ||
           path.includes("faq") ||
-          path.includes("contact") || 
+          path.includes("contact") ||
           path.includes("news")
         ) {
           setIsLoading(true);
@@ -59,8 +59,6 @@ export function useApiClient() {
             const query = new URLSearchParams(params as any).toString();
             url += `?${query}`;
           }
-
-       
 
           const response = await fetch(url, {
             method,
@@ -634,6 +632,16 @@ export function useApiClient() {
       path: `${process.env.BASE_URL}/games/my-game-history-opening`,
     });
   }, [apiRequest]);
+  const checkoutSessions = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/payments/checkout_sessions`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   return {
     isLoading,
     error,
@@ -691,5 +699,6 @@ export function useApiClient() {
     logOut,
     contactUs,
     GameHistoryOpenings,
+    checkoutSessions,
   };
 }

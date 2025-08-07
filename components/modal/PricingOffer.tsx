@@ -45,7 +45,7 @@ export const PricingOffer: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(false);
 
   const { open, setOpen, tabType } = usePricingOffer();
-  const { isLoading } = useApiClient();
+  const { isLoading, checkoutSessions } = useApiClient();
   const {
     tokenPackage,
     profile,
@@ -72,9 +72,9 @@ export const PricingOffer: React.FC = () => {
   const tokenOptions: TokenOption[] = [
     { amount: 1, price: 0.99, pricePerToken: 0.99 },
     { amount: 5, price: 4.45, pricePerToken: 0.89 },
-    { amount: 10, price: 7.90, pricePerToken: 0.79 },
+    { amount: 10, price: 7.9, pricePerToken: 0.79 },
     { amount: 25, price: 16.25, pricePerToken: 0.65 },
-    { amount: 50, price: 30.00, pricePerToken: 0.60 },
+    { amount: 50, price: 30.0, pricePerToken: 0.6 },
   ];
 
   const fetchTokenPackageLocal = async () => {
@@ -130,21 +130,18 @@ export const PricingOffer: React.FC = () => {
         selectedToken != null && selectedToken != 5
           ? tokenOptions[selectedToken].pricePerToken * 100
           : parseFloat(pricePerToken) * 100;
+      let body = {
+        productName: tokenAmount + " tokens",
+        price: parseFloat(price.toFixed(2)),
+        quantity: parseInt(tokenAmount.toString()),
+        type: "token",
+        idUser: profile.id,
+      };
+      const res = await checkoutSessions(body);
+      window.location.href = res.data.url;
 
-      const res = await fetch("/api/stripe/checkout_sessions", {
-        method: "POST",
-        body: JSON.stringify({
-          productName: tokenAmount + " tokens",
-          price: parseFloat(price.toFixed(2)),
-          quantity: parseInt(tokenAmount.toString()),
-          type: "token",
-          idUser: profile.id,
-        }),
-      });
-
-      const data = await res.json();
-      const stripe = await stripePromise;
-      await stripe?.redirectToCheckout({ sessionId: data.id });
+      setLoading(false);
+      console.log("Checkout session response:", res);
 
       setLoading(false);
       setQuantity(parseInt(tokenAmount.toString()));
@@ -291,7 +288,9 @@ export const PricingOffer: React.FC = () => {
                       <span className="block">with a Subscription</span>
                     </span>
                     <span className="sm:block leading-tight text-center hidden">
-                      <span className="block">Go Unlimited with a Subscription</span>
+                      <span className="block">
+                        Go Unlimited with a Subscription
+                      </span>
                     </span>
                   </div>
                 </TabsTrigger>

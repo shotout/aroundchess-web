@@ -123,7 +123,7 @@ export const PremiumSubsContent: React.FC<{
   } = useProfileStore();
   const { setOpen: setOpenLogin } = useConfirmLogin();
   const { setOpen: setOpenPricing } = usePricingOffer();
-  const { postPurchaseMembership, isLoading } = useApiClient();
+  const { checkoutSessions, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
 
@@ -168,13 +168,12 @@ export const PremiumSubsContent: React.FC<{
     if (profile.discountInfo?.discountCode) {
       body.couponId = profile.discountInfo?.discountCode;
     }
-    const res = await fetch("/api/stripe/checkout_sessions", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    const stripe = await stripePromise;
-    await stripe?.redirectToCheckout({ sessionId: data.id });
+    const res = await checkoutSessions(body);
+    console.log("Checkout session response:", res);
+    window.location.href = res.data.url;
+    // const data = await res.json();
+    // const stripe = await stripePromise;
+    // await stripe?.redirectToCheckout({ sessionId: data.id });
   };
 
   return (
