@@ -49,9 +49,9 @@ const MistakeLog = () => {
     previousAnalyses,
     setPreviousAnalysesDetail,
     tabSelected,
-    setTabSelected
+    setTabSelected,
   } = usePgnStore();
-  
+
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
   });
@@ -74,7 +74,10 @@ const MistakeLog = () => {
     }
   }, [hydrated, initializeData]);
 
-  const fetchMistakePreviousDetailForFilter = async (id: string, reset: boolean) => {
+  const fetchMistakePreviousDetailForFilter = async (
+    id: string,
+    reset: boolean
+  ) => {
     try {
       setLoadingPrevious(true);
       const params = reset
@@ -188,10 +191,14 @@ const MistakeLog = () => {
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectItem value="All Type">All Type</SelectItem>
-                <SelectItem value="Critical Mistakes">Critical Mistakes</SelectItem>
+                <SelectItem value="Critical Mistakes">
+                  Critical Mistakes
+                </SelectItem>
                 <SelectItem value="Threats">Threats</SelectItem>
                 <SelectItem value="Bad Moves">Bad Moves</SelectItem>
-                <SelectItem value="Weakness Identification">Weakness Identification</SelectItem>
+                <SelectItem value="Weakness Identification">
+                  Weakness Identification
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -264,10 +271,14 @@ const MistakeLog = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="All Type">All Type</SelectItem>
-                  <SelectItem value="Critical Mistakes">Critical Mistakes</SelectItem>
+                  <SelectItem value="Critical Mistakes">
+                    Critical Mistakes
+                  </SelectItem>
                   <SelectItem value="Threats">Threats</SelectItem>
                   <SelectItem value="Bad Moves">Bad Moves</SelectItem>
-                  <SelectItem value="Weakness Identification">Weakness Identification</SelectItem>
+                  <SelectItem value="Weakness Identification">
+                    Weakness Identification
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
@@ -343,7 +354,7 @@ const MistakeLog = () => {
                 setTitleGame(savedMistakes[0].title);
                 setMovementDetails(savedMistakes[0].movementDetail);
                 setPreviousAnalysesDetail(savedMistakes[0]);
-              } 
+              }
             }}
             value="saved"
             className={`${
@@ -400,7 +411,11 @@ const MistakeLog = () => {
         <TabsContent value="previous">
           <div className="hidden lg:block">{renderFilters()}</div>
           <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-            <ChessContent />
+            {(!previousAnalyses ||
+              (previousAnalyses != null &&
+                Object.keys(previousAnalyses).length === 0))? null: (
+              <ChessContent />
+            )}
             <div className="block lg:hidden">{renderFilters()}</div>
             <div className="xl:w-3/4">
               <PreviousAnalysis />

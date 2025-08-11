@@ -257,7 +257,7 @@ export default function Detail() {
           </div>
         </div>
         <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
-          <span className="text-md font-semibold mt-4">Most Reads Article</span>
+          <span className="text-md font-semibold mt-4">Most Read Articles</span>
           <div className="flex flex-col mt-2 gap-2">
             {localMostReads.length === 0 && (
               <div className="flex justify-center items-center">

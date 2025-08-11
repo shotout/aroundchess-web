@@ -22,7 +22,7 @@ const PreviousAnalysis: React.FC = () => {
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
 
   useEffect(() => {
-    setPreviousAnalysis(mistakeLogs);
+    setPreviousAnalysis({});
   }, [mistakeLogs]);
 
   useEffect(() => {
@@ -281,7 +281,7 @@ const PreviousAnalysis: React.FC = () => {
     );
   };
 
-  if (!PreviousAnalysis) {
+  if (!PreviousAnalysis || (PreviousAnalysis !=null && Object.keys(PreviousAnalysis).length === 0)) {
     return (
       <EmptyLog
         title="You have not yet Analyses"
