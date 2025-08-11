@@ -19,7 +19,7 @@ const analysisFeatures = [
 const analysis = [
   {
     image: "/images/homepage/assesment.png",
-    title: "GAME ASSESMENT",
+    title: "GAME ASSESSMENT",
     description:
       "Before you deep-dive into detailed metrics, AroundChess offers an <b>overview on Accuracy, Move Classifications, Critical Mistakes and much more</b> in our initial <b>AI-based Game Assessment</b>. ",
     idea: `<span>Create a <b style="color:#221AE9">"Strategic Feedback Chessboard"</b> that visually maps game assessments (e.g. move accuracy, tactical mistakes) directly onto the board using colour-coded overlays for post-game analysis.</span>`,
