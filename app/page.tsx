@@ -16,6 +16,7 @@ import { useApiClient } from "@/functions/api-client";
 import { GrandmastersSection } from "@/components/GrandmasterSection";
 import { formatTimePgn } from "@/functions/format-date";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { useContactUs } from "./store/contactUs";
 
 const checkForAccessToken = () => {
   if (typeof window !== "undefined") {
@@ -24,7 +25,13 @@ const checkForAccessToken = () => {
   }
   return false;
 };
-
+const checkForContactUs = () => {
+  if (typeof window !== "undefined") {
+    const hash = window.location.hash;
+    return hash && hash.includes("contact=");
+  }
+  return false;
+};
 export default function Home() {
   const [isRedirecting, setIsRedirecting] = useState(() =>
     checkForAccessToken()
@@ -32,7 +39,7 @@ export default function Home() {
   const { setCallFetch } = useProfileFetch();
   const { sessionId, setAlreadyFetch } = useProfileStore();
   const hasRun = useRef(false);
-
+  const { setOpen } = useContactUs();
   useLayoutEffect(() => {
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
@@ -43,12 +50,17 @@ export default function Home() {
       }
     }
   }, []);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("contact") === "true") {
+      setOpen(true); // Open the contact modal
+    }
+  }, []);
 
   useEffect(() => {
     if (sessionId && sessionId !== "") {
       if (hasRun.current) return;
       hasRun.current = true;
-     
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
