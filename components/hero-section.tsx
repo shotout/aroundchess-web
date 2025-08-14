@@ -65,12 +65,20 @@ export function HeroSection() {
       </div>
     );
   };
-
+  const handleRegister = () => {
+    router.push("/register");
+  };
+  const handleAppStore = () => {
+    window.open("https://apps.apple.com/us/app/aroundchess/id6746404970")
+  };
+  const handlePlayStore = () => {
+    window.open("https://play.google.com/store/apps/details?id=com.aroundchess")
+  };
   return (
     <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-8 lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
         <motion.div
-          className="flex flex-col sm:flex-row items-center"
+          className="flex flex-col sm:flex-row items-start justify-between"
           variants={staggerContainer}
           initial="initial"
           animate="animate"
@@ -96,7 +104,64 @@ export function HeroSection() {
                 your Chess.com account.
               </p>
             </div>
+            <div className="flex flex-col gap-2 sm:hidden">
+              <button
+                onClick={handleRegister}
+                className="w-full btn-primary rounded-full h-[44px] "
+              >
+                <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+                  Create an Account
+                </span>
+              </button>
+              <span className="font-bold text-[12px] text-black">Or</span>
+              <motion.div
+                className="flex w-full flex-row justify-center flex gap-x-8 px-4"
+                variants={fadeInUp}
+              >
+                <Image
+                  src={"/download-app-store.png"}
+                  alt="herobanner"
+                  width={1000}
+                  height={1000}
+                  onClick={handleAppStore}
+                  className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                  priority
+                />
+                <Image
+                  src={"/download-play-store.png"}
+                  alt="herobanner"
+                  width={1000}
+                  height={1000}
+                  onClick={handlePlayStore}
+                  className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                  priority
+                />
+              </motion.div>
+            </div>
             {isSignedIn ? renderInsertUsername() : <FamousGameButton />}
+          </motion.div>
+          <motion.div
+            className="hidden sm:flex w-[320px] flex-row justify-between mb-4 lg:mb-0 flex gap-y-4 p-4"
+            variants={fadeInUp}
+          >
+            <Image
+              src={"/download-app-store.png"}
+              alt="herobanner"
+              width={1000}
+              height={1000}
+              onClick={handleAppStore}
+              className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+              priority
+            />
+            <Image
+              src={"/download-play-store.png"}
+              alt="herobanner"
+              width={1000}
+              height={1000}
+              onClick={handlePlayStore}
+              className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+              priority
+            />
           </motion.div>
         </motion.div>
       </div>
