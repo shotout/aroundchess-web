@@ -11,6 +11,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { Input } from "@/components/ui/input";
 import { usePollingManager } from "../hooks/usePollingManager";
+import { checkAnalysisCapacity } from "@/lib/services/capacity";
 
 interface AnalyzeGameHistoryProps {
   open: boolean;
@@ -67,6 +68,37 @@ export function AnalyzeGameHistory({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAnalyzeGame = async () => {
+    try {
+      const capacityCheck = await checkAnalysisCapacity(sessionId);
+      
+      if (!capacityCheck.success || !capacityCheck.data.canStart) {
+        const reason = capacityCheck.data.reason || "Cannot start analysis";
+        toast.error("Analysis Capacity Limit", {
+          description: reason,
+          duration: 5000,
+        });
+        
+        if (reason.toLowerCase().includes("token") || reason.toLowerCase().includes("balance")) {
+          onOpenChange(false);
+          setOpenPricing(true);
+          setTabType("tokens");
+        }
+        return;
+      }
+      
+      toast.info(`Analysis Capacity Check`, {
+        description: `Available tokens: ${capacityCheck.data.availableTokens}, Active jobs: ${capacityCheck.data.activeJobs}`,
+        duration: 3000,
+      });
+      
+    } catch (error: any) {
+      toast.error("Capacity Check Failed", {
+        description: error.message || "Failed to check analysis capacity",
+        duration: 5000,
+      });
+      return;
+    }
+
     if (token.balance < 1) {
       setOpenPricing(true);
       setTabType("tokens");
