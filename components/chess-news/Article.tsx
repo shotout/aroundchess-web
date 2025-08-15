@@ -180,7 +180,7 @@ export default function Article() {
             <div className="flex flex-col mt-2 gap-2">
               {savedArticles.length === 0 ? (
                 <div className="flex justify-center items-center py-8">
-                  <NoData>Saved is empty</NoData>
+                  <NoData>Nothing saved yet…</NoData>
                 </div>
               ) : (
                 savedArticles.map((article) => (
