@@ -137,7 +137,7 @@ export default function Detail() {
             </div>
           )}
           
-          <div className="prose prose-sm max-w-none mt-4"> 
+          <div className="prose prose-sm max-w-[2/3] mt-4"> 
             <MarkdownPreview source={localDetail?.content} style={{ padding: 16 }} />
           </div>
 

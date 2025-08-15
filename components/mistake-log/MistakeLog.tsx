@@ -85,6 +85,7 @@ const MistakeLog = () => {
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       const dataDetail = prevDataDetail.data;
+      console.log("getMistakePreviousDetail", dataDetail);
       setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
@@ -149,7 +150,9 @@ const MistakeLog = () => {
       setPreviousAnalysesDetail(mistakePreviousDetail);
     }
   };
-
+  useEffect(() => {
+    setSelectedHistory(previousAnalyses[0].id);
+  }, []);
   const renderFilters = () => {
     return (
       <>
@@ -411,9 +414,9 @@ const MistakeLog = () => {
         <TabsContent value="previous">
           <div className="hidden lg:block">{renderFilters()}</div>
           <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-            {(!previousAnalyses ||
-              (previousAnalyses != null &&
-                Object.keys(previousAnalyses).length === 0))? null: (
+            {!previousAnalyses ||
+            (previousAnalyses != null &&
+              Object.keys(previousAnalyses).length === 0) ? null : (
               <ChessContent />
             )}
             <div className="block lg:hidden">{renderFilters()}</div>
