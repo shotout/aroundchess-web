@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react"
-import { useChessNewsStore } from "../../app/store/chessNewsStore"
-import { useApiClient } from "@/functions/api-client"
-import { useProfileStore } from "@/app/store/profile"
-import { usePagination } from "../pagination/hook/usePagination"
-import { Pagination } from "../pagination/pagination"
-import { formatDateNews } from "@/functions/format-date"
-import { Search } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import NoData from "../NoData/NoData"
-import { ArticleSkeletonGrid, CategorySkeleton } from "./SkeletonNews"
-
+import { useEffect, useState } from "react";
+import { useChessNewsStore } from "../../app/store/chessNewsStore";
+import { useApiClient } from "@/functions/api-client";
+import { useProfileStore } from "@/app/store/profile";
+import { usePagination } from "../pagination/hook/usePagination";
+import { Pagination } from "../pagination/pagination";
+import { formatDateNews } from "@/functions/format-date";
+import { Search } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import NoData from "../NoData/NoData";
+import { ArticleSkeletonGrid, CategorySkeleton } from "./SkeletonNews";
 
 export default function Article() {
-  const { sessionId } = useProfileStore()
-  const { getNews, getNewsCategories, getNewsSaved } = useApiClient()
+  const { sessionId } = useProfileStore();
+  const { getNews, getNewsCategories, getNewsSaved } = useApiClient();
   const {
     categories,
     setCategories,
@@ -23,22 +22,22 @@ export default function Article() {
     isLoading,
     fetchChessNews,
     chessNews,
-  } = useChessNewsStore()
-  const [query, setQuery] = useState("")
-  const [selectedTab, setSelectedTab] = useState<number | null>(null)
+  } = useChessNewsStore();
+  const [query, setQuery] = useState("");
+  const [selectedTab, setSelectedTab] = useState<number | null>(null);
 
   useEffect(() => {
     getNewsCategories({}).then((r) => {
-      const cats = r.data
-      const idx = cats.findIndex((c: any) => c.name === "AroundChess Guides")
+      const cats = r.data;
+      const idx = cats.findIndex((c: any) => c.name === "AroundChess Guides");
       if (idx > -1) {
-        const [g] = cats.splice(idx, 1)
-        cats.unshift(g)
+        const [g] = cats.splice(idx, 1);
+        cats.unshift(g);
       }
-      setCategories(cats)
-    })
+      setCategories(cats);
+    });
     if (sessionId) {
-      getNewsSaved({}).then((r) => setSavedArticles(r.data))
+      getNewsSaved({}).then((r) => setSavedArticles(r.data));
     }
   }, [
     getNewsCategories,
@@ -46,16 +45,16 @@ export default function Article() {
     sessionId,
     setCategories,
     setSavedArticles,
-  ])
+  ]);
 
   useEffect(() => {
-    fetchChessNews(selectedTab, query, getNews)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTab, query])
+    fetchChessNews(selectedTab, query, getNews);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTab, query]);
 
-  const key = selectedTab === null ? "all" : String(selectedTab)
-  const allArticles = chessNews[key]?.data || []
-  const { currentData } = usePagination(allArticles)
+  const key = selectedTab === null ? "all" : String(selectedTab);
+  const allArticles = chessNews[key]?.data || [];
+  const { currentData } = usePagination(allArticles);
 
   return (
     <div className="flex flex-col w-full p-4 sm:p-6 lg:p-8">
@@ -70,8 +69,8 @@ export default function Article() {
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
       </div>
       <p className="text-gray-600 text-sm md:text-[18px] py-2 md:py-[8px]">
-        Stay updated with the latest blog posts, tournaments, and player insights
-        from around the world.
+        Stay updated with the latest blog posts, tournaments, and player
+        insights from around the world.
       </p>
       <div className="flex flex-col xl:flex-row gap-4">
         <div
@@ -103,8 +102,8 @@ export default function Article() {
                       onClick={() => {
                         setSelectedTab((prev) =>
                           prev === tab.id ? null : tab.id
-                        )
-                        setQuery("")
+                        );
+                        setQuery("");
                       }}
                       className={`py-2 px-3 font-medium rounded-[4px] border-input border text-xs sm:text-sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
                         tab.id === selectedTab
@@ -140,7 +139,7 @@ export default function Article() {
                         height={1000}
                         className="w-full h-[100px] sm:h-[115px] object-cover p-4 rounded-md"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none"
+                          e.currentTarget.style.display = "none";
                         }}
                       />
                     ) : (
@@ -178,16 +177,14 @@ export default function Article() {
               Saved Articles
             </span>
             <div className="flex flex-col mt-2 gap-2">
-              {savedArticles.length === 0 ? (
+              {!isLoading && savedArticles.length === 0 ? (
                 <div className="flex justify-center items-center py-8">
                   <NoData>Nothing saved yet…</NoData>
                 </div>
               ) : (
+                !isLoading &&
                 savedArticles.map((article) => (
-                  <Link
-                    href={`/chess-blog/${article.slug}`}
-                    key={article.slug}
-                  >
+                  <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
                     <div className="bg-white flex shadow-md rounded-lg border border-input gap-2 p-3 hover:shadow-lg transition-shadow duration-200">
                       <Image
                         src={article.imageUrl}
@@ -220,5 +217,5 @@ export default function Article() {
         )}
       </div>
     </div>
-  )
+  );
 }

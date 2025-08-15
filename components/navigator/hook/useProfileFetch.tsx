@@ -59,6 +59,25 @@ export const useProfileFetch = () => {
             setUsername(data.username);
           }
         });
+        getTokenPackage({}).then((response) => {
+          if (response.data != null) {
+            const data = response.data;
+            setTokenPackage(data);
+          }
+        });
+        getActiveMembership({}).then((response) => {
+          if (response.data != null) {
+            const data = response.data;
+            setIsMember(data.membershipPackage.type != "FREE");
+            setActiveMembership(data);
+          }
+        });
+        getAllMembershipPackage({}).then((response) => {
+          if (response.data != null) {
+            const data = response.data;
+            setAllMembershipPackages(data);
+          }
+        });
       }
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
@@ -66,25 +85,7 @@ export const useProfileFetch = () => {
           setToken(data);
         }
       });
-      getTokenPackage({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setTokenPackage(data);
-        }
-      });
-      getActiveMembership({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setIsMember(data.membershipPackage.type != "FREE");
-          setActiveMembership(data);
-        }
-      });
-      getAllMembershipPackage({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setAllMembershipPackages(data);
-        }
-      });
+
       getPuzzle().then((res) => {
         const logs = res.data;
         setPuzzleLog(logs);
