@@ -36,7 +36,7 @@ const MyRemainingPuzzle = () => {
                 />
                 <div className="block gap-1 max-w-fill">
                   <span className="font-semibold text-[40px] text-[#221AE9]">
-                    {puzzleLog.length}
+                    {20 - puzzleLog?.length}
                   </span>
                   <span className="font-medium text-[20px]">/20</span>
                 </div>
