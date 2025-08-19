@@ -1,7 +1,14 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { LucideTrophy, TargetIcon, BrainIcon, TrendingUp, Info } from "lucide-react";
+import {
+  LucideTrophy,
+  TargetIcon,
+  BrainIcon,
+  TrendingUp,
+  Info,
+} from "lucide-react";
 import { MobileTooltip } from "../Analytics";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface KeyStatisticsProps {
   stats: {
@@ -13,24 +20,25 @@ interface KeyStatisticsProps {
 }
 
 const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
+  const { analyticsData: data } = usePgnStore();
+
   return (
     <div className="md:p-4 rounded-lg">
-       <div className="flex items-center justify-between">
-         <h1 className="text-base font-medium mb-3">Key Statistics</h1>
-
+      <div className="flex items-center justify-between">
+        <h1 className="text-base font-medium mb-3">Key Statistics</h1>
 
         <MobileTooltip
-        content={[
-            "**Average rating =** totalRating / totalGames",
-            "**Total games =** the total number of games played",
-            "**Win rate =** total number of wins / totalGames * 100", 
-            "**Longest streak =** the highest number of consecutive wins achieved by a player without any losses or draws in between", 
+          content={[
+            `**Average rating ${'(' + stats.averageRating.toLocaleString() + ')'} =** totalRating / totalGames. Your average rating across all games played since ${data?.sinceDate}`,
+            `**Total games ${'(' + stats.totalGames.toLocaleString() + ')'} =** Total number of games you have played since ${data?.sinceDate}`,
+            `**Win rate ${'(' + stats.winRate.toLocaleString() + '%)'} =** Percentage of games you won out of all games played since ${data?.sinceDate}`,
+            `**Longest ${'(' + stats.longestStreak.toLocaleString() + ')'} streak =** the highest number of consecutive wins achieved by a player without any losses or draws in between`,
           ]}
           side="left"
-          >
+        >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
         </MobileTooltip>
-          </div>
+      </div>
       <div className="grid grid-cols-2 gap-3">
         {/* Total Games Card */}
         <Card className="p-3 rounded-lg md:border bg-white h-auto md:h-20 lg:h-24 flex">

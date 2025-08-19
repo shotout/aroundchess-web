@@ -2,6 +2,8 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { MobileTooltip } from "../Analytics";
 import { Info } from "lucide-react";
+import { useAnalyticsData } from "@/components/game-history/hooks/useAnalyticsData";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface PerformanceInsightsProps {
   insights: {
@@ -15,6 +17,7 @@ interface PerformanceInsightsProps {
 const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
   insights,
 }) => {
+  const { analyticsData: data } = usePgnStore(); 
   return (
     <div className="md:p-4 rounded-lg">
       <div className="flex items-center justify-between">
@@ -22,14 +25,14 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
 
         <MobileTooltip
           content={[
-            "**Accuracy =**The winRate value is calculated by dividing the number of wins by the total number of games (totalGames), then multiplying by 100 to convert it into a percentage.",
-            "**Blunder rate =**The lossRate value is calculated by dividing the number of losses by the total number of games (totalGames), then multiplying by 100 to convert it into a percentage.", 
+            `**Average Accuracy =** The average accuracy percentage obtained since ${data?.sinceDate}`,
+            `**Blunder rate =** Blunder rate tracks your losing patterns over time - counts different loss types since ${data?.sinceDate}`,
           ]}
           side="left"
-          >
+        >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
         </MobileTooltip>
-          </div>
+      </div>
       <div className="grid grid-cols-1  sm:grid-cols-3 gap-3">
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
           <h1 className="text-sm font-semibold">Average Game Length</h1>

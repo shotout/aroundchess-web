@@ -120,6 +120,7 @@ export interface TimeControlPerformance {
 }
 
 export interface AnalyticsData {
+  sinceDate: string;
   ratingProgress: number[];
   resultDistribution: {
     win: number;
@@ -154,6 +155,7 @@ export interface AnalyticsData {
 }
 
 export interface ProcessedAnalyticsData {
+  sinceDate: string;
   ratingData: RatingProgressItem[];
   distributionData: ResultDistributionItem[];
   openingData: OpeningStatistic[];

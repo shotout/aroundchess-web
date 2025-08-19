@@ -278,7 +278,7 @@ export function useAnalyticsData() {
 
     try {
       const response = await gameHistoryApi.getAnalyticsData(sessionId ?? null);
-
+      console.log("getAnalyticsData",response)
       if (response && response.success) {
         const apiData = response.data as AnalyticsData;
         setAnalyticsData(apiData);
