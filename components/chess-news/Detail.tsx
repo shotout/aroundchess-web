@@ -6,10 +6,10 @@ import { formatDateNews } from "@/functions/format-date";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import NoData from "../NoData/NoData";
 import { DetailSkeleton } from "./SkeletonNews";
-import MarkdownPreview from '@uiw/react-markdown-preview';
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -58,7 +58,11 @@ export default function Detail() {
       });
     }
 
-    if (mostReadsArticle && mostReadsFetchedAt && now - mostReadsFetchedAt < CACHE_DURATION_MS) {
+    if (
+      mostReadsArticle &&
+      mostReadsFetchedAt &&
+      now - mostReadsFetchedAt < CACHE_DURATION_MS
+    ) {
       setLocalMostReads(mostReadsArticle);
     } else {
       getMostRead({}).then((response) => {
@@ -73,7 +77,7 @@ export default function Detail() {
     return () => {
       cancelled = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const toggleSave = (id: number) => {
@@ -123,7 +127,11 @@ export default function Detail() {
           {localDetail?.imageUrl && localDetail.imageUrl.trim() !== "" ? (
             <Image
               src={localDetail.imageUrl}
-              alt={localDetail?.imageCaption || localDetail?.title || "Article image"}
+              alt={
+                localDetail?.imageCaption ||
+                localDetail?.title ||
+                "Article image"
+              }
               width={1000}
               height={1000}
               className="w-full object-contain"
@@ -136,9 +144,19 @@ export default function Detail() {
               <span className="text-gray-500">No Image Available</span>
             </div>
           )}
-          
-          <div className="prose prose-sm max-w-[2/3] mt-4"> 
-            <MarkdownPreview source={localDetail?.content} style={{ padding: 16 }} />
+
+          <div className="prose prose-sm max-w-[2/3] mt-4">
+            <MarkdownPreview
+              source={localDetail?.content}
+              style={{
+                padding: 16,
+                "--color-canvas-default": "#ffffff",
+                "--color-canvas-subtle": "#f6f8fa",
+                "--color-border-default": "#d0d7de",
+                "--color-fg-default": "#24292f",
+              }}
+              data-color-mode="light"
+            />
           </div>
 
           <div className="flex justify-end my-4">
@@ -154,43 +172,45 @@ export default function Detail() {
           <div className="flex flex-row max-w-full overflow-x-auto gap-3 mt-2">
             {localDetail &&
               localDetail?.relatedArticles != null &&
-              localDetail?.relatedArticles.map((article: any, index: number) => (
-                <Card
-                  onClick={() => router.push("/chess-blog/" + article.slug)}
-                  key={index}
-                  className="cursor-pointer rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
-                >
-                  {article.imageUrl && article.imageUrl.trim() !== "" ? (
-                    <Image
-                      src={article.imageUrl}
-                      alt={article.title || "Related article image"}
-                      width={1000}
-                      height={1000}
-                      className="w-full max-h-[115px] object-cover p-2 rounded-md"
-                    />
-                  ) : (
-                    <div className="w-full h-[115px] bg-gray-200 flex items-center justify-center m-2 rounded-md">
-                      <span className="text-gray-500 text-xs">No Image</span>
-                    </div>
-                  )}
-                  <CardContent className="px-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                        {formatDateNews(article.publishedAt)}
-                      </p>
-                      <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
-                        {article?.category?.name || "Uncategorized"}
-                      </p>
-                    </div>
-                    <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
-                      {article.title || "Untitled"}
-                    </h2>
-                    <h2 className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2">
-                      {article.title || "Untitled"}
-                    </h2>
-                  </CardContent>
-                </Card>
-              ))}
+              localDetail?.relatedArticles.map(
+                (article: any, index: number) => (
+                  <Card
+                    onClick={() => router.push("/chess-blog/" + article.slug)}
+                    key={index}
+                    className="cursor-pointer rounded-md xl:w-[229px] max-h-[254px] overflow-hidden border border-input shadow-md"
+                  >
+                    {article.imageUrl && article.imageUrl.trim() !== "" ? (
+                      <Image
+                        src={article.imageUrl}
+                        alt={article.title || "Related article image"}
+                        width={1000}
+                        height={1000}
+                        className="w-full max-h-[115px] object-cover p-2 rounded-md"
+                      />
+                    ) : (
+                      <div className="w-full h-[115px] bg-gray-200 flex items-center justify-center m-2 rounded-md">
+                        <span className="text-gray-500 text-xs">No Image</span>
+                      </div>
+                    )}
+                    <CardContent className="px-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                          {formatDateNews(article.publishedAt)}
+                        </p>
+                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+                          {article?.category?.name || "Uncategorized"}
+                        </p>
+                      </div>
+                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
+                        {article.title || "Untitled"}
+                      </h2>
+                      <h2 className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2">
+                        {article.title || "Untitled"}
+                      </h2>
+                    </CardContent>
+                  </Card>
+                )
+              )}
           </div>
         </div>
         <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
@@ -210,7 +230,11 @@ export default function Detail() {
                 {article.imageUrl && article.imageUrl.trim() !== "" ? (
                   <Image
                     src={article.imageUrl}
-                    alt={article.imageCaption || article.title || "Most read article image"}
+                    alt={
+                      article.imageCaption ||
+                      article.title ||
+                      "Most read article image"
+                    }
                     width={1000}
                     height={1000}
                     className="w-16 h-16 rounded-[4px] object-cover"

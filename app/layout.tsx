@@ -18,6 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <script src="/stockfish.js" defer></script>
       </head>
