@@ -150,10 +150,10 @@ export default function Detail() {
               source={localDetail?.content}
               style={{
                 padding: 16,
-                "--color-canvas-default": "#ffffff",
-                "--color-canvas-subtle": "#f6f8fa",
-                "--color-border-default": "#d0d7de",
-                "--color-fg-default": "#24292f",
+                ["--color-canvas-default" as string]: "#ffffff",
+                ["--color-canvas-subtle" as string]: "#f6f8fa",
+                ["--color-border-default" as string]: "#d0d7de",
+                ["--color-fg-default" as string]: "#24292f",
               }}
               data-color-mode="light"
             />
