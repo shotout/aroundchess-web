@@ -35,6 +35,7 @@ export const RESULT_COLORS = {
 export const processApiData = (
   apiData: AnalyticsData
 ): ProcessedAnalyticsData => {
+  const since = apiData.sinceDate;
   const processedRatingData = apiData.ratingProgress
     .slice(0, MONTHS.length)
     .map((rating, index) => ({
@@ -96,6 +97,7 @@ export const processApiData = (
   const achievementsData = apiData.recentAchievements || [];
 
   return {
+    sinceDate: since,
     ratingData: processedRatingData,
     distributionData: resultData,
     openingData: openingStats,
@@ -278,7 +280,7 @@ export function useAnalyticsData() {
 
     try {
       const response = await gameHistoryApi.getAnalyticsData(sessionId ?? null);
-      console.log("getAnalyticsData",response)
+      console.log("getAnalyticsData", response);
       if (response && response.success) {
         const apiData = response.data as AnalyticsData;
         setAnalyticsData(apiData);
