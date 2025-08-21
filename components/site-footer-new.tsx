@@ -15,6 +15,7 @@ import { StatusPurchaseTokens } from "./modal/StatusPurchaseTokens";
 import { PricingOffer } from "./modal/PricingOffer";
 import { ShareGame } from "./modal/ShareGame";
 import { SuccessSent } from "./modal/SuccessSent";
+import { ModalSetting } from "@/app/cookies-consent/ModalSetting";
 
 interface SiteFooterProps {
   className?: string;
@@ -291,6 +292,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <PricingOffer />
       <ShareGame />
       <SuccessSent />
+      <ModalSetting/>
     </footer>
   );
 }

@@ -41,6 +41,7 @@ export const useDataCache = () => {
       setPreviousAnalysesDetail(savedData.data[0]);
 
       const prevData = await getMistakePrevious();
+      console.log("prevData",prevData)
       if (prevData.data.length > 0) {
         setPreviousAnalyses(prevData.data);
         

@@ -15,7 +15,6 @@ import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
