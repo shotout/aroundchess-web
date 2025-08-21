@@ -138,7 +138,8 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     onLogoutStart();
     clearAll();
     clearProfile();
-    localStorage.removeItem("token");
+    localStorage.removeItem("background-analysis-storage");
+    localStorage.removeItem("pgn-local-storage");
     handleSignOut();
   };
 

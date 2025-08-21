@@ -65,13 +65,7 @@ export const useProfileFetch = () => {
             setTokenPackage(data);
           }
         });
-        getActiveMembership({}).then((response) => {
-          if (response.data != null) {
-            const data = response.data;
-            setIsMember(data.membershipPackage.type != "FREE");
-            setActiveMembership(data);
-          }
-        });
+
         getAllMembershipPackage({}).then((response) => {
           if (response.data != null) {
             const data = response.data;
@@ -79,6 +73,13 @@ export const useProfileFetch = () => {
           }
         });
       }
+      getActiveMembership({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setIsMember(data.membershipPackage.type != "FREE");
+          setActiveMembership(data);
+        }
+      });
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;

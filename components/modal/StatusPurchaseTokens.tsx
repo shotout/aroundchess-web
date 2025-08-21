@@ -18,17 +18,17 @@ export function StatusPurchaseTokens() {
 
   useEffect(() => {
     if (status == "failed") {
-      setContent(`Your Purchase for ${quantity} Tokens was failed!`);
+      setContent(`Your Purchase of ${quantity} tokens has failed!`);
       setDescription(
-        "Your payment failed, retry payment or try to change the payment method."
+        "Your payment failed. Please retry or use a different payment method."
       );
     } else if (status == "success") {
-      setContent(`Your Purchase for ${quantity} Tokens successful!`);
+      setContent(`Your Purchase of ${quantity} tokens has successful!`);
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
       setContent(`Your AroundChess Premium Subscription Failed!`);
       setDescription(
-        "Your payment failed, retry payment or try to change the payment method."
+        "Your payment failed. Please retry or use a different payment method."
       );
     } else {
       handleWaiting();

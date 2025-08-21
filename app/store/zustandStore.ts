@@ -67,8 +67,8 @@ interface PgnState {
   profileShow: any;
   setProfileShow: (profile: any) => void;
 
-  tab:string;
-  setTab: (state:string) => void;
+  tab: string;
+  setTab: (state: string) => void;
 
   tabSelected: string;
   setTabSelected: (state: string) => void;
@@ -200,7 +200,7 @@ export const usePgnStore = create<PgnState>()(
       setProfileShow: (profileShow) => set({ profileShow }),
 
       tab: "Games",
-      setTab: (tab:string) => set({tab}),
+      setTab: (tab: string) => set({ tab }),
 
       tabSelected: "saved",
       setTabSelected: (tabSelected: string) => set({ tabSelected }),
@@ -492,6 +492,13 @@ export const usePgnStore = create<PgnState>()(
           providerType: "",
           lastFetchTime: null,
           isFetching: false,
+          previousAnalyses: [],
+          previousAnalysesDetail: null,
+          historyGame: [],
+          mistakeLogs: [],
+          movementDetails: null,
+          playerInfo: null,
+          profileShow: null,
         }),
 
       addImportedGame: (gameData) => {
@@ -586,7 +593,7 @@ export const usePgnStore = create<PgnState>()(
         capturedBlack: state.capturedBlack,
         tabSelected: state.tabSelected,
         tab: state.tab,
-        profileShow: state.profileShow
+        profileShow: state.profileShow,
       }),
     }
   )

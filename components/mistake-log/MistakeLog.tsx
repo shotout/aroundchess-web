@@ -19,6 +19,7 @@ import ChessContent from "./ChessContent";
 import PreviousAnalysis from "./PreviousAnalysis";
 import SavedMistakes from "./SavedMistakes";
 import { useDataCache } from "@/app/hooks/useDataCache";
+import EmptyLog from "./EmptyLog";
 
 const MistakeLog = () => {
   const { initializeData, isFetching, hasCachedData } = useDataCache();
@@ -151,7 +152,9 @@ const MistakeLog = () => {
     }
   };
   useEffect(() => {
-    setSelectedHistory(previousAnalyses[0].id);
+    if (previousAnalyses.length > 0) {
+      setSelectedHistory(previousAnalyses[0].id);
+    }
   }, []);
   const renderFilters = () => {
     return (
@@ -335,7 +338,7 @@ const MistakeLog = () => {
           <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>
           <div className="flex justify-center items-end h-full">
             <p className="text-xs text-gray-500 lg:text-[18px] font-normal">
-              {`(${username})`}
+              {`(${username.length>0?username:"No username set"})`}
             </p>
           </div>
         </div>
@@ -420,9 +423,17 @@ const MistakeLog = () => {
               <ChessContent />
             )}
             <div className="block lg:hidden">{renderFilters()}</div>
-            <div className="xl:w-3/4">
-              <PreviousAnalysis />
-            </div>
+            {previousAnalyses.length == 0 ? (
+              <EmptyLog
+                title="You have not yet Analyses"
+                content="Analyze Game now"
+                noButton={true}
+              />
+            ) : (
+              <div className="xl:w-3/4">
+                <PreviousAnalysis />
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

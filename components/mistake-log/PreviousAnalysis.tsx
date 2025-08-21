@@ -281,15 +281,7 @@ const PreviousAnalysis: React.FC = () => {
     );
   };
 
-  if (previousAnalyses.length==0) {
-    return (
-      <EmptyLog
-        title="You have not yet Analyses"
-        content="Analyze Game now"
-        noButton={true}
-      />
-    );
-  }
+  
 
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
