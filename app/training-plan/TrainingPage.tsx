@@ -114,6 +114,7 @@ const ChessProgressionUI: React.FC = () => {
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
   useEffect(() => {
+    // if (checkComplete && isSignedIn && !initialDataLoaded) {
     if (isSignedIn && !initialDataLoaded) {
       initializeConcurrentFetches();
     }
