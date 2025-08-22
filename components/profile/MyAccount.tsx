@@ -20,6 +20,8 @@ import ChangePasswordDialog from "./ChangePasswordDialog";
 import { toast } from "sonner";
 import { ChessApiService } from "../analysis/onboarding/store/APIService";
 import { usePlayerStatsStore } from "../analysis/onboarding/store/usePlayerStatsStore";
+import { useProfileFetch } from "../navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 interface MyAccountProps {
   onLogoutStart: () => void;
@@ -32,7 +34,10 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     setProfile,
     clearAll: clearProfile,
     sessionId,
+    setAlreadyFetchProfile,
+    setAlreadyFetch,
   } = useProfileStore();
+  const { setCallFetch } = useProfileFetch();
   const router = useRouter();
   const { username, setUsername, clearAll, providerType } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -52,7 +57,6 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     getSelectedGameData,
     clearPlayerStats,
   } = usePlayerStatsStore();
-
 
   const isEmailProvider = providerType === "email";
 
@@ -95,7 +99,15 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
   const handleChangePassword = () => {
     router.push("/forgot-password");
   };
-
+  useEffect(() => {
+    const gameData = gameTypesData.find(
+      (game) => game.game_type === profile.gameType
+    );
+    if (gameData) {
+      const gameType = gameData?.game_type;
+      setSelectedGameType(gameType);
+    }
+  }, [gameTypesData]);
   const handleGameTypeChange = async (newGameType: string) => {
     if (!sessionId) {
       toast.error("Authentication required");
@@ -124,7 +136,9 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
         gameData.elo,
         sessionId
       );
-      
+      setAlreadyFetch(false);
+      setAlreadyFetchProfile(false);
+      setCallFetch(formatTimePgn());
       setSelectedGameType(newGameType);
       toast.success(`Game type updated to ${gameData.label}`);
     } catch (error: any) {

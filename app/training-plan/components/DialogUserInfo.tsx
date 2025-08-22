@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
-import { useUserStore } from "../store";
+import { useTrainingPlanStore, useUserStore } from "../store";
+import { useProfileStore } from "@/app/store/profile";
 
 interface DialogUserInfoProps {
   username: string;
@@ -48,9 +49,13 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   keyInfo,
   skillLevels = DEFAULT_SKILL_LEVELS,
 }) => {
-  const { profile } = useUserStore();
+  const { userProfile: profile } = useTrainingPlanStore();
   const displayUsername = profile?.username || username;
   const currentElo = profile?.elo || 0;
+
+  useEffect(() => {
+    console.log("profile", profile);
+  }, []);
 
   const getCurrentLevel = () => {
     for (let i = skillLevels.length - 1; i >= 0; i--) {
