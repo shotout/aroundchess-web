@@ -39,7 +39,12 @@ const ChessProgressionUI: React.FC = () => {
   const states = ["My Training Plan", "My Progress"];
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
-  const { setOpeningPlayed, isLoading: pgnLoading, activeState, setActiveState } = usePgnStore();
+  const {
+    setOpeningPlayed,
+    isLoading: pgnLoading,
+    activeState,
+    setActiveState,
+  } = usePgnStore();
 
   useGameTypeSync();
 
@@ -71,33 +76,33 @@ const ChessProgressionUI: React.FC = () => {
     fetchUserProfile,
   } = useUserStore();
 
-const initializeConcurrentFetches = useCallback(async () => {
-  if (!isSignedIn || !checkComplete || initialDataLoaded) return;
+  const initializeConcurrentFetches = useCallback(async () => {
+    if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
-  const promises = [
-    fetchTopics(sessionId).catch(console.error),
-    fetchSchedule(sessionId).catch(console.error),
-  ];
+    const promises = [
+      fetchTopics(sessionId).catch(console.error),
+      fetchSchedule(sessionId).catch(console.error),
+    ];
 
-  if (!fetchingRefs.current.openings) {
-    fetchingRefs.current.openings = true;
-    promises.push(
-      fetchGameHistoryOpenings().finally(() => {
-        fetchingRefs.current.openings = false;
-      })
-    );
-  }
+    if (!fetchingRefs.current.openings) {
+      fetchingRefs.current.openings = true;
+      promises.push(
+        fetchGameHistoryOpenings().finally(() => {
+          fetchingRefs.current.openings = false;
+        })
+      );
+    }
 
-  Promise.allSettled(promises);
-  setInitialDataLoaded(true);
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [
-  isSignedIn,
-  checkComplete,
-  initialDataLoaded,
-  fetchTopics,          
-  fetchSchedule,
-]);
+    Promise.allSettled(promises);
+    setInitialDataLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isSignedIn,
+    checkComplete,
+    initialDataLoaded,
+    fetchTopics,
+    fetchSchedule,
+  ]);
 
   const fetchGameHistoryOpenings = useCallback(async () => {
     try {
@@ -109,7 +114,7 @@ const initializeConcurrentFetches = useCallback(async () => {
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
   useEffect(() => {
-    if (checkComplete && isSignedIn && !initialDataLoaded) {
+    if (isSignedIn && !initialDataLoaded) {
       initializeConcurrentFetches();
     }
   }, [
