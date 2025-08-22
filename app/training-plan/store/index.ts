@@ -194,21 +194,21 @@ export const useTrainingPlanStore = create<TrainingPlanState>()(
         set({ isLoadingTopics: true, error: null });
 
         try {
-          const cachedData = CacheUtil.getItem(cacheKey);
-          if (cachedData) {
-            const { userProfile, config, topics, recommendations } = cachedData;
-            const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
+          // const cachedData = CacheUtil.getItem(cacheKey);
+          // if (cachedData) {
+          //   const { userProfile, config, topics, recommendations } = cachedData;
+          //   const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
 
-            set({
-              userProfile,
-              config,
-              topics,
-              recommendations,
-              ...autoSelectedTopics,
-              isLoadingTopics: false,
-            });
-            return;
-          }
+          //   set({
+          //     userProfile,
+          //     config,
+          //     topics,
+          //     recommendations,
+          //     ...autoSelectedTopics,
+          //     isLoadingTopics: false,
+          //   });
+          //   return;
+          // }
 
           const response = await apiService.get(
             endpoints.trainingPlan.getTopics,

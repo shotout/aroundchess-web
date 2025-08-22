@@ -77,10 +77,11 @@ const ChessProgressionUI: React.FC = () => {
   } = useUserStore();
 
   const initializeConcurrentFetches = useCallback(async () => {
-    if (!isSignedIn || !checkComplete || initialDataLoaded) return;
+    if (!isSignedIn || initialDataLoaded) return;
+    // if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
     const promises = [
-      fetchTopics(sessionId).catch(console.error),
+      fetchTopics(sessionId).catch((error) => console.error(error)),
       fetchSchedule(sessionId).catch(console.error),
     ];
 
