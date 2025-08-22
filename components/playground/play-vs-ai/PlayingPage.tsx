@@ -325,7 +325,7 @@ const MobileMoveBoxes = ({
 };
 
 export default function PlayingPage() {
-  const {sessionId} = useProfileStore()
+  const { sessionId } = useProfileStore();
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
@@ -349,7 +349,8 @@ export default function PlayingPage() {
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
-  const { getJobByGameId, addJob, updateJob, clearOldJobs } = useBackgroundAnalysisStore();
+  const { getJobByGameId, addJob, updateJob, clearOldJobs } =
+    useBackgroundAnalysisStore();
   const { startBackgroundPolling, restorePollingJobs } = usePollingManager();
   const [currentGameId, setCurrentGameId] = useState<string>("");
   const refBoard = useRef<HTMLDivElement | null>(null);
@@ -404,7 +405,7 @@ export default function PlayingPage() {
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
@@ -894,11 +895,13 @@ export default function PlayingPage() {
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+    loadLogs();
+  }, []);
+  const loadLogs = () => {
     getVSAILogs({ limit: 30, page: 1 }).then((res: any) => {
       setPastGames(res.data);
     });
-  }, []);
-
+  };
   const setHeaderGameStart = () => {
     const date = formatDatePgn();
     const time = formatTimePgn();
@@ -937,7 +940,7 @@ export default function PlayingPage() {
     const timestamp = Date.now();
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
-    
+
     setMyColor(AIChoosed.color);
     setHeaderGameStart();
     setBeforeFen(game.fen());
@@ -970,7 +973,9 @@ export default function PlayingPage() {
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
+      setBoardSize(
+        Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth)
+      );
     } else {
       const availableHeight = height - minPadding * 2;
       setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
@@ -1052,7 +1057,7 @@ export default function PlayingPage() {
       setOpenPricing(true);
       return;
     }
-    
+
     const buttonContent = getAnalysisButtonContent();
     buttonContent.onClick();
   };
@@ -1061,7 +1066,7 @@ export default function PlayingPage() {
     const timestamp = Date.now();
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
-    
+
     setStatusGame("Ongoing");
     game.reset();
     const initialFen = game.fen();
@@ -1089,6 +1094,7 @@ export default function PlayingPage() {
       pgn: game.pgn(),
     };
     await postVSAILogs(body);
+    loadLogs();
   };
 
   const checkStatusGame = () => {
@@ -1294,13 +1300,17 @@ export default function PlayingPage() {
 
   const fetchLastAnalysis = async (pgnHash: string): Promise<any> => {
     try {
-      const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
-      const response = await fetch(`${endpoint}/v2/analyze/last-analysis/${pgnHash}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${sessionId}`,
-        },
-      });
+      const endpoint =
+        process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+      const response = await fetch(
+        `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch analysis: ${response.statusText}`);
@@ -1326,22 +1336,32 @@ export default function PlayingPage() {
           try {
             const pgnHash = createPgnHash(currentPgn);
             const lastAnalysis = await fetchLastAnalysis(pgnHash);
-            
+
             if (lastAnalysis?.success && lastAnalysis.data) {
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
                 white: {
-                  result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                  result:
+                    game.header().Result === "0-1"
+                      ? "lose"
+                      : game.header().Result === "1-0"
+                      ? "win"
+                      : "draw",
                   username: game.header().White,
                 },
                 black: {
-                  result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw", 
+                  result:
+                    game.header().Result === "1-0"
+                      ? "lose"
+                      : game.header().Result === "0-1"
+                      ? "win"
+                      : "draw",
                   username: game.header().Black,
                 },
                 date: formatDatePgn(),
                 pgn: currentPgn,
-                username: username
+                username: username,
               };
               setDataGamesImport(gameData);
               setDataAnalysis(lastAnalysis.data);
@@ -1352,16 +1372,26 @@ export default function PlayingPage() {
                 const gameData = {
                   id: currentGameId,
                   white: {
-                    result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                    result:
+                      game.header().Result === "0-1"
+                        ? "lose"
+                        : game.header().Result === "1-0"
+                        ? "win"
+                        : "draw",
                     username: game.header().White,
                   },
                   black: {
-                    result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+                    result:
+                      game.header().Result === "1-0"
+                        ? "lose"
+                        : game.header().Result === "0-1"
+                        ? "win"
+                        : "draw",
                     username: game.header().Black,
                   },
                   date: formatDatePgn(),
                   pgn: currentPgn,
-                  username: username
+                  username: username,
                 };
                 setDataGamesImport(gameData);
                 setDataAnalysis(job.result);
@@ -1377,16 +1407,26 @@ export default function PlayingPage() {
               const gameData = {
                 id: currentGameId,
                 white: {
-                  result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+                  result:
+                    game.header().Result === "0-1"
+                      ? "lose"
+                      : game.header().Result === "1-0"
+                      ? "win"
+                      : "draw",
                   username: game.header().White,
                 },
                 black: {
-                  result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+                  result:
+                    game.header().Result === "1-0"
+                      ? "lose"
+                      : game.header().Result === "0-1"
+                      ? "win"
+                      : "draw",
                   username: game.header().Black,
                 },
                 date: formatDatePgn(),
                 pgn: currentPgn,
-                username: username
+                username: username,
               };
               setDataGamesImport(gameData);
               setDataAnalysis(job.result);
@@ -1403,13 +1443,14 @@ export default function PlayingPage() {
       switch (job.status) {
         case "pending":
         case "processing": {
-          const pct = job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
+          const pct =
+            job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
           return {
             text: pct,
             icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
             className: "bg-yellow-500 hover:bg-yellow-600 text-white",
             onClick: () => {},
-            disabled: true
+            disabled: true,
           };
         }
         case "finalizing":
@@ -1418,7 +1459,7 @@ export default function PlayingPage() {
             icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
             className: "bg-blue-500 hover:bg-blue-600 text-white",
             onClick: () => {},
-            disabled: true
+            disabled: true,
           };
         case "failed":
           return {
@@ -1426,7 +1467,7 @@ export default function PlayingPage() {
             icon: <AlertCircle className="h-4 w-4 mr-1" />,
             className: "bg-red-600 hover:bg-red-700 text-white",
             onClick: () => setShowAnalyzeDialog(true),
-            disabled: false
+            disabled: false,
           };
       }
     }
@@ -1436,7 +1477,7 @@ export default function PlayingPage() {
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
       onClick: () => setShowAnalyzeDialog(true),
-      disabled: false
+      disabled: false,
     };
   };
 
@@ -1451,11 +1492,21 @@ export default function PlayingPage() {
           pgn: game.pgn(),
           username: username,
           white: {
-            result: game.header().Result === "0-1" ? "lose" : game.header().Result === "1-0" ? "win" : "draw",
+            result:
+              game.header().Result === "0-1"
+                ? "lose"
+                : game.header().Result === "1-0"
+                ? "win"
+                : "draw",
             username: game.header().White,
           },
           black: {
-            result: game.header().Result === "1-0" ? "lose" : game.header().Result === "0-1" ? "win" : "draw",
+            result:
+              game.header().Result === "1-0"
+                ? "lose"
+                : game.header().Result === "0-1"
+                ? "win"
+                : "draw",
             username: game.header().Black,
           },
           date: formatDatePgn(),
@@ -1463,7 +1514,7 @@ export default function PlayingPage() {
       />
       <div className="flex flex-col w-full gap-y-2 ">
         <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
-          <button onClick={  () =>  router.push("/playground/play-vs-ai")}>
+          <button onClick={() => router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
           <div className="flex flex-1 flex-row justify-center items-center gap-2">

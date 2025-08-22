@@ -148,7 +148,9 @@ export default function Detail() {
           <div className="prose prose-sm max-w-[2/3] mt-4">
             <MarkdownPreview
               source={localDetail?.content}
+              className="w-full md:max-w-[66vw]"
               style={{
+                margin: "0 auto",
                 padding: 16,
                 ["--color-canvas-default" as string]: "#ffffff",
                 ["--color-canvas-subtle" as string]: "#f6f8fa",

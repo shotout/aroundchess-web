@@ -55,6 +55,7 @@ export const useProfileFetch = () => {
         getProfile({}).then((response) => {
           if (response.data != null) {
             const data = response.data;
+            console.log("getProfile",data)
             setProfile(data);
             setUsername(data.username);
           }
