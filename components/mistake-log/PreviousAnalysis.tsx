@@ -13,8 +13,9 @@ import NoData from "../NoData/NoData";
 
 const PreviousAnalysis: React.FC = () => {
   const { chessMove, setChessMove } = useChessMoveStore();
-  const { mistakeLogs, previousAnalyses } = usePgnStore();
-  const { saveMistakeLog, unsaveMistakeLog } = useApiClient();
+  const { mistakeLogs, setMistakeLogs, previousAnalyses, setSavedMistakes } =
+    usePgnStore();
+  const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
 
   const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
   const [indexOpen, setIndexOpen] = useState<string[]>(["Critical Mistakes"]);
@@ -64,14 +65,18 @@ const PreviousAnalysis: React.FC = () => {
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
       let dataPrev = PreviousAnalysis;
+      console.log("saveMistakeLog", res);
       let newData = dataPrev[key].filter((item: any) => item.id != id);
+      console.log("newData", newData);
       newData.push(res.data);
       dataPrev[key] = newData;
       setPreviousAnalysis(dataPrev);
-    } catch (e) {
-      
-    } finally {
+      setMistakeLogs(dataPrev);
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      setSavedMistakes(savedData.data);
       setLoadingToggle(false);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -84,10 +89,12 @@ const PreviousAnalysis: React.FC = () => {
       newData.push(res.data);
       dataPrev[key] = newData;
       setPreviousAnalysis(dataPrev);
-    } catch (e) {
-      
-    } finally {
+      setMistakeLogs(dataPrev);
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      setSavedMistakes(savedData.data);
       setLoadingToggle(false);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -280,8 +287,6 @@ const PreviousAnalysis: React.FC = () => {
       </div>
     );
   };
-
-  
 
   return (
     <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
