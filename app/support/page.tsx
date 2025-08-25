@@ -6,7 +6,7 @@ export default function SupportPage() {
     handleContactUs();
   }, []);
   const handleContactUs = () => {
-    window.location.href = `${window.location.origin}?contact=true`;
+    window.location.href = `${window.location.origin}/faq`;
   };
   return null;
 }

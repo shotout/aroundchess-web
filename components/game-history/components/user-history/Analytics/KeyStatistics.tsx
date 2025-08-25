@@ -29,10 +29,10 @@ const KeyStatisticsSection: React.FC<KeyStatisticsProps> = ({ stats }) => {
 
         <MobileTooltip
           content={[
-            `**Average rating ${'(' + stats.averageRating.toLocaleString() + ')'} =** totalRating / totalGames. Your average rating across all games played since ${data?.sinceDate}`,
             `**Total games ${'(' + stats.totalGames.toLocaleString() + ')'} =** Total number of games you have played since ${data?.sinceDate}`,
             `**Win rate ${'(' + stats.winRate.toLocaleString() + '%)'} =** Percentage of games you won out of all games played since ${data?.sinceDate}`,
-            `**Longest ${'(' + stats.longestStreak.toLocaleString() + ')'} streak =** the highest number of consecutive wins achieved by a player without any losses or draws in between`,
+            `**Average rating ${'(' + stats.averageRating.toLocaleString() + ')'} =** Your average rating across all games played since ${data?.sinceDate}`,
+            `**Longest streak ${'(' + stats.longestStreak.toLocaleString() + ')'} =** The highest number of consecutive wins achieved without any losses or draws in between`,
           ]}
           side="left"
         >
