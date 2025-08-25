@@ -519,7 +519,7 @@ const chartRange = React.useMemo(() => {
                   <div className="flex items-center gap-x-1 lg:gap-x-2">
                     <TargetIcon className="w-5 h-5 text-[#FAC933]" />
                     <h1 className="text-sm lg:text-lg font-medium text-black">
-                      Accuracy
+                      Average Accuracy
                     </h1>
                   </div>
 
