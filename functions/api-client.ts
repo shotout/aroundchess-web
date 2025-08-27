@@ -5,6 +5,7 @@ import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useProfileStore } from "@/app/store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { supabase } from "@/lib/supabase";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -21,7 +22,12 @@ export function useApiClient() {
   const { sessionId } = useProfileStore();
   const [error, setError] = useState<Error | null>(null);
   const { clearAll } = useProfileStore();
+  const { clearAll: clearPGN } = usePgnStore();
   const handleSignOut = async () => {
+    clearAll();
+    clearPGN();
+    localStorage.removeItem("background-analysis-storage");
+    localStorage.removeItem("pgn-local-storage");
     logOut({ sessionId })
       .then(() => {})
       .finally(() => {
