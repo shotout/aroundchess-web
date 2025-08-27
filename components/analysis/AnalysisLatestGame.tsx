@@ -61,12 +61,11 @@ const AnalysisLatestGame: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
 
-const handleResize = () => {
-  const widthC = window?.innerWidth < 1280 
-    ? "auto" 
-    : window?.innerWidth * 0.52;
-  setWidthContainer(widthC);
-};
+  const handleResize = () => {
+    const widthC =
+      window?.innerWidth < 1280 ? "auto" : window?.innerWidth * 0.52;
+    setWidthContainer(widthC);
+  };
 
   useEffect(() => {
     setIsLoading(false);
@@ -210,7 +209,9 @@ const handleResize = () => {
         );
     }
   };
-
+  useEffect(() => {
+    setTabFocus(focusPage);
+  }, [focusPage]);
   const handleOnChangeTab = (tab: { name: string; label: string }) => {
     if (isSignedIn) {
       setTabFocus(tab.name);
