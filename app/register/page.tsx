@@ -361,7 +361,7 @@ export default function RegisterPage() {
 
             {!emailSent ? (
               <div className="flex-1">
-                <form onSubmit={onSubmit} className="space-y-4 sm:space-y-2">
+                <form onSubmit={onSubmit} className="space-y-4 sm:space-y-4">
                   <div className="space-y-3 sm:space-y-4">
                     <div>
                       <div className="flex items-center mb-2">
