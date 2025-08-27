@@ -12,11 +12,20 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useSearchParams } from "next/navigation";
 
+interface PasswordCondition {
+  id: string;
+  text: string;
+  validator: (password: string) => boolean;
+}
+interface EmailValidation {
+  isValid: boolean;
+  message: string;
+}
 export default function RegisterPage() {
   const searchParams = useSearchParams();
   const emailParam = searchParams?.get("email");
 
-  const [email, setEmail] = useState(emailParam);
+  const [email, setEmail] = useState<string | null>(emailParam);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [emailSent, setEmailSent] = useState(false);
@@ -26,6 +35,60 @@ export default function RegisterPage() {
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
   const { setSessionId } = useProfileStore();
+  const passwordConditions: PasswordCondition[] = [
+    {
+      id: "minLength",
+      text: "Minimum 8 characters",
+      validator: (password) => password.length >= 8,
+    },
+    {
+      id: "uppercase",
+      text: "At least 1 uppercase letter (A-Z)",
+      validator: (password) => /[A-Z]/.test(password),
+    },
+    {
+      id: "number",
+      text: "At least 1 number (0-9)",
+      validator: (password) => /\d/.test(password),
+    },
+    {
+      id: "lowercase",
+      text: "At least 1 lowercase letter (a-z)",
+      validator: (password) => /[a-z]/.test(password),
+    },
+  ];
+  const validateEmail = (email: string): EmailValidation => {
+    if (email === "") {
+      return { isValid: false, message: "" };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidFormat = emailRegex.test(email);
+
+    if (!isValidFormat) {
+      return { isValid: false, message: "Please enter a valid email address" };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
+  const validatePassword = (password: string) => {
+    return passwordConditions.map((condition) => ({
+      ...condition,
+      isValid: condition.validator(password),
+    }));
+  };
+
+  const passwordsMatch = password === confirmPassword && confirmPassword !== "";
+  const allConditionsMet = passwordConditions.every((condition) =>
+    condition.validator(password)
+  );
+  const emailValidation = validateEmail(email as string);
+
+  const canRegister =
+    emailValidation.isValid && allConditionsMet && passwordsMatch;
+
+  const validatedConditions = validatePassword(password);
 
   useEffect(() => {
     setEmail(emailParam);
@@ -271,7 +334,7 @@ export default function RegisterPage() {
               overflow-y-auto
             `}
           >
-            <div className="flex items-center mb-4 sm:mb-6">
+            <div className="flex items-center mb-4 sm:mb-2">
               <Link
                 href="/"
                 className="text-black hover:text-blue-700 transition-colors"
@@ -280,7 +343,7 @@ export default function RegisterPage() {
               </Link>
             </div>
 
-            <div className="text-center mb-5 sm:mb-6">
+            <div className="text-center mb-2 sm:mb-2">
               <h1 className="text-2xl sm:text-3xl font-medium text-black">
                 {!emailSent ? "Create an account" : "Verify Your Email"}
               </h1>
@@ -298,7 +361,7 @@ export default function RegisterPage() {
 
             {!emailSent ? (
               <div className="flex-1">
-                <form onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
+                <form onSubmit={onSubmit} className="space-y-4 sm:space-y-2">
                   <div className="space-y-3 sm:space-y-4">
                     <div>
                       <div className="flex items-center mb-2">
@@ -319,6 +382,11 @@ export default function RegisterPage() {
                           className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
                         />
                       </div>
+                      {emailValidation.message !== "" && (
+                        <span className="text-[#FF383C] text-[12px] mb-4 -mt-2 ml-2">
+                          {emailValidation.message}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center mb-2">
@@ -363,11 +431,55 @@ export default function RegisterPage() {
                       </div>
                     </div>
                   </div>
-
+                  {password !== confirmPassword && (
+                    <span className="text-[#FF383C] text-[12px] mb-2 ml-2">
+                      Password doesn't match
+                    </span>
+                  )}
+                  <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
+                    <div className="flex flex-row flex-wrap">
+                      {validatedConditions.map((condition, index) => (
+                        <div key={condition.id} className="w-1/2">
+                          <div className="flex flex-row items-center">
+                            <Image
+                              alt=""
+                              width={16}
+                              height={16}
+                              src={
+                                condition.isValid
+                                  ? "/auth/checkmark-circle.png"
+                                  : (password.length > 0 ||
+                                      confirmPassword.length > 0) &&
+                                    !condition.isValid
+                                  ? "/auth/close-circle.png"
+                                  : "/auth/dot-circle.png"
+                              }
+                              className="w-[16px] h-[16px]"
+                            />
+                            <span
+                              className={`ml-2 flex-1 font-normal text-[12px] ${
+                                condition.isValid
+                                  ? "text-[#34C759]"
+                                  : (password.length > 0 ||
+                                      confirmPassword.length > 0) &&
+                                    !condition.isValid
+                                  ? "text-[#FF383C]"
+                                  : "text-[#2E3133]"
+                              }`}
+                            >
+                              {condition.text}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <button
-                    className="w-full h-12 btn-primary text-white font-medium text-base rounded-full transition-colors"
+                    className={`w-full h-12 ${
+                      !canRegister ? `bg-light-60 text-light-80` : `btn-primary text-white`
+                    } font-medium text-base rounded-full transition-colors`}
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || !canRegister}
                   >
                     {isLoading ? "Processing..." : "Sign-up"}
                   </button>

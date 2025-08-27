@@ -19,6 +19,11 @@ const backgroundStyles = {
 
 const BASE_URL = process.env.BASE_URL;
 
+interface PasswordCondition {
+  id: string;
+  text: string;
+  validator: (password: string) => boolean;
+}
 const ForgotPasswordPage: NextPage = () => {
   const { profile } = useProfileStore();
   const [email, setEmail] = useState("");
@@ -43,6 +48,43 @@ const ForgotPasswordPage: NextPage = () => {
       setEmail(profile.email);
     }
   }, [profile, isLoggedIn]);
+  const passwordConditions: PasswordCondition[] = [
+    {
+      id: "minLength",
+      text: "Minimum 8 characters",
+      validator: (password) => password.length >= 8,
+    },
+    {
+      id: "uppercase",
+      text: "At least 1 uppercase letter (A-Z)",
+      validator: (password) => /[A-Z]/.test(password),
+    },
+    {
+      id: "number",
+      text: "At least 1 number (0-9)",
+      validator: (password) => /\d/.test(password),
+    },
+    {
+      id: "lowercase",
+      text: "At least 1 lowercase letter (a-z)",
+      validator: (password) => /[a-z]/.test(password),
+    },
+  ];
+  const validatePassword = (password: string) => {
+    return passwordConditions.map((condition) => ({
+      ...condition,
+      isValid: condition.validator(password),
+    }));
+  };
+
+  const passwordsMatch =
+    newPassword === confirmPassword && confirmPassword !== "";
+  const allConditionsMet = passwordConditions.every((condition) =>
+    condition.validator(newPassword)
+  );
+  const canContinue = allConditionsMet && passwordsMatch;
+
+  const validatedConditions = validatePassword(newPassword);
 
   async function startPasswordReset(e: React.FormEvent) {
     e.preventDefault();
@@ -523,12 +565,56 @@ const ForgotPasswordPage: NextPage = () => {
                       </div>
                     </div>
                   </div>
-
+                  {newPassword !== confirmPassword && (
+                    <span className="text-[#FF383C] text-[12px] mb-2 ml-2">
+                      Password doesn't match
+                    </span>
+                  )}
+                  <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
+                    <div className="flex flex-row flex-wrap">
+                      {validatedConditions.map((condition, index) => (
+                        <div key={condition.id} className="w-1/2">
+                          <div className="flex flex-row items-center">
+                            <Image
+                              alt=""
+                              width={16}
+                              height={16}
+                              src={
+                                condition.isValid
+                                  ? "/auth/checkmark-circle.png"
+                                  : (newPassword.length > 0 ||
+                                      confirmPassword.length > 0) &&
+                                    !condition.isValid
+                                  ? "/auth/close-circle.png"
+                                  : "/auth/dot-circle.png"
+                              }
+                              className="w-[16px] h-[16px]"
+                            />
+                            <span
+                              className={`ml-2 flex-1 font-normal text-[12px] ${
+                                condition.isValid
+                                  ? "text-[#34C759]"
+                                  : (newPassword.length > 0 ||
+                                      confirmPassword.length > 0) &&
+                                    !condition.isValid
+                                  ? "text-[#FF383C]"
+                                  : "text-[#2E3133]"
+                              }`}
+                            >
+                              {condition.text}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <button
                     type="submit"
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full flex items-center justify-center gap-2 transition-colors"
+                    className={`w-full h-12  ${
+                      !canContinue ? `bg-light-60 text-light-80` : `bg-blue-600 hover:bg-blue-700 text-white`
+                    } font-medium rounded-full flex items-center justify-center gap-2 transition-colors`}
                     disabled={
-                      isResettingPassword || !newPassword || !confirmPassword
+                      isResettingPassword || !newPassword || !confirmPassword || !canContinue
                     }
                   >
                     {isResettingPassword ? (
