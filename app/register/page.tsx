@@ -476,8 +476,8 @@ export default function RegisterPage() {
                   </div>
                   <button
                     className={`w-full h-12 ${
-                      !canRegister ? `bg-light-60 text-light-80` : `btn-primary text-white`
-                    } font-medium text-base rounded-full transition-colors`}
+                      !canRegister ? `bg-light-60` : `btn-primary`
+                    } text-white font-medium text-base rounded-full transition-colors`}
                     type="submit"
                     disabled={isLoading || !canRegister}
                   >

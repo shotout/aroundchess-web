@@ -517,7 +517,7 @@ const ForgotPasswordPage: NextPage = () => {
               </div>
             ) : /* Step 3: Password Reset */
             tokenVerified && !resetComplete ? (
-              <div className="text-center flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col">
                 <form onSubmit={resetPassword} className="space-y-6">
                   <div className="space-y-3 sm:space-y-4">
                     <div>
@@ -611,8 +611,8 @@ const ForgotPasswordPage: NextPage = () => {
                   <button
                     type="submit"
                     className={`w-full h-12  ${
-                      !canContinue ? `bg-light-60 text-light-80` : `bg-blue-600 hover:bg-blue-700 text-white`
-                    } font-medium rounded-full flex items-center justify-center gap-2 transition-colors`}
+                      !canContinue ? `bg-light-60` : `bg-blue-600 hover:bg-blue-700`
+                    }  text-white font-medium rounded-full flex items-center justify-center gap-2 transition-colors`}
                     disabled={
                       isResettingPassword || !newPassword || !confirmPassword || !canContinue
                     }
