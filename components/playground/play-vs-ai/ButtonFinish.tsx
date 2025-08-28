@@ -9,6 +9,8 @@ interface ButtonFinishProps {
   handleRematch: () => void;
   handleShare: () => void;
   handleDownload: () => void;
+  handleSave: () => void;
+  isSaving?: boolean;
   pgn: string;
   getAnalysisButtonContent?: () => {
     text: string;
@@ -25,6 +27,8 @@ export const ButtonFinish = ({
   handleRematch,
   handleShare,
   handleDownload,
+  handleSave,
+  isSaving,
   pgn,
   getAnalysisButtonContent,
 }: ButtonFinishProps) => {
@@ -87,6 +91,29 @@ export const ButtonFinish = ({
             <Plus color="#221AE9" className="w-[20px] h-[20px]" size={20} />
             <span className="text-[#221AE9] font-medium">New Game</span>
           </div>
+        </button>
+        <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-white w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4]"
+        >
+          {/* <div className="flex flex-row items-center justify-center gap-2">
+            <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
+            <span className="text-[#221AE9] font-medium">Save Game</span>
+          </div> */}
+          {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+          ) : (
+              <>
+                <div className="flex flex-row items-center justify-center gap-2">
+                  <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
+                  <span className="text-[#221AE9] font-medium">Save Game</span>
+                </div>
+              </>
+          )}
         </button>
 
         <div className="hidden md:block xl:hidden md:w-2/4">
