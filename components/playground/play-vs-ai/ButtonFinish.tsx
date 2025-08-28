@@ -1,6 +1,6 @@
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
-import { Plus } from "lucide-react";
+import { Loader2,Plus,Save } from "lucide-react";
 import Image from "next/image";
 
 interface ButtonFinishProps {
