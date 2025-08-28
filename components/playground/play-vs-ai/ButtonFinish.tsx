@@ -101,18 +101,16 @@ export const ButtonFinish = ({
             <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
             <span className="text-[#221AE9] font-medium">Save Game</span>
           </div> */}
-          {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
+           {isSaving ? (
+              <div className="flex flex-row items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[#221AE9]" />
+                <span className="text-[#221AE9] font-medium">Saving...</span>
+              </div>
           ) : (
-              <>
-                <div className="flex flex-row items-center justify-center gap-2">
-                  <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
-                  <span className="text-[#221AE9] font-medium">Save Game</span>
-                </div>
-              </>
+              <div className="flex flex-row items-center justify-center gap-2">
+                <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
+                <span className="text-[#221AE9] font-medium">Save Game</span>
+              </div>
           )}
         </button>
 
