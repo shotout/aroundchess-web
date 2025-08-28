@@ -20,6 +20,8 @@ const publicRoutes = [
   "/register",
   "/forgot-password",
   "/auth/callback",
+  "/support",
+  "/contact",
 ];
 
 export async function middleware(req: NextRequest) {
