@@ -75,10 +75,7 @@ const ResultDistributionChart: React.FC<ResultDistributionChartProps> = ({
         <MobileTooltip
           content={[
             "**Result distribution =** Shows the percentage breakdown of wins, draws, and losses across all games you've played since " +
-              `${data?.sinceDate}`,
-            "**Wins =** counts the number of games won by the player, whether playing as White or Black.",
-            "**Draws =** calculates the total number of games that ended in a draw from all available games.",
-            "**Losses =** totalGames - wins - draws.",
+              `${data?.sinceDate}`
           ]}
           side="bottom"
         >
