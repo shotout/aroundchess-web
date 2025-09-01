@@ -14,22 +14,26 @@ import OpeningStatistics from "./Analytics/OpeningStatistics";
 import KeyStatisticsSection from "./Analytics/KeyStatistics";
 import TimeControlPerformance from "./Analytics/TimeControlPerformance";
 import RecentAchievements from "./Analytics/RecentAchievement";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import Image from "next/image";
+import { Info } from "lucide-react";
+import { Close } from "@radix-ui/react-dialog";
 
 const MobileTooltip = ({
   children,
   content,
   side = "left",
-  mobileSide ="left"
+  mobileSide = "left",
 }: {
   children: React.ReactNode;
   content: string | string[];
   side?: "left" | "right" | "top" | "bottom";
-  mobileSide? : "left" | "right" | "top" | "bottom";
+  mobileSide?: "left" | "right" | "top" | "bottom";
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
@@ -39,7 +43,7 @@ useEffect(() => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (isMobile && isVisible) {
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as Element;
@@ -80,14 +84,36 @@ useEffect(() => {
       return part;
     });
   };
+  const renderModalMobile = () => {
+    return (
+      <Dialog open={isVisible} onOpenChange={setIsVisible}>
+        <DialogContent className="bg-[#E6F7FE] rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] max-h-[95%] overflow-y-hidden">
+          <DialogHeader className="flex flex-row justify-between items-center mb-2">
+            <div className="flex flex-row gap-2 items-center">
+              <Info className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />
+              <h2 className="text-[16px] font-semibold">Information</h2>
+            </div>
+          </DialogHeader>
 
-  const contentArray = Array.isArray(content) 
-    ? content.slice(0, 20) 
+          <div className="r leading-relaxed">
+            {contentArray.map((item, index) => (
+              <div key={index} className={`text-[14px] text-[#040404] font-normal ${index > 0 ? "mt-2" : ""}`}>
+                {parseBoldText(item)}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+  const contentArray = Array.isArray(content)
+    ? content.slice(0, 20)
     : [content];
 
   if (isMobile) {
     return (
       <div className="relative inline-block" data-mobile-tooltip>
+        {renderModalMobile()}
         <button
           onClick={handleClick}
           className="p-1 -m-1 touch-manipulation"
@@ -95,7 +121,7 @@ useEffect(() => {
         >
           {children}
         </button>
-        {isVisible && (
+        {/* {isVisible && (
           <div
             className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-b-sm rounded-tl-sm  w-72 max-w-[90vw] ${
               mobileSide === "left"
@@ -109,22 +135,19 @@ useEffect(() => {
           >
             <div className="r leading-relaxed">
               {contentArray.map((item, index) => (
-                <div 
-                  key={index} 
-                  className={index > 0 ? "mt-2" : ""}
-                >
+                <div key={index} className={index > 0 ? "mt-2" : ""}>
                   {parseBoldText(item)}
                 </div>
               ))}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     );
   }
 
   return (
-    <Tooltip >
+    <Tooltip>
       <TooltipTrigger asChild>
         <button className="p-1 -m-1 touch-manipulation" type="button">
           {children}
@@ -229,7 +252,9 @@ const Analytics: React.FC = () => {
                   <CardSkeleton />
                 </div>
               ) : data ? (
-                <PerformanceInsightsSection insights={data.performanceInsights} />
+                <PerformanceInsightsSection
+                  insights={data.performanceInsights}
+                />
               ) : (
                 <CardSkeleton />
               )}
@@ -248,7 +273,9 @@ const Analytics: React.FC = () => {
                   <CardSkeleton />
                 </div>
               ) : data ? (
-                <PerformanceInsightsSection insights={data.performanceInsights} />
+                <PerformanceInsightsSection
+                  insights={data.performanceInsights}
+                />
               ) : (
                 <CardSkeleton />
               )}

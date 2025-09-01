@@ -63,7 +63,7 @@ export const ButtonFinish = ({
   const renderButtonSave = () => {
     return (
       <TooltipProvider>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row items-center gap-2">
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -89,7 +89,7 @@ export const ButtonFinish = ({
             ]}
             side="left"
           >
-            <Info className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />
+            <Info color="#221AE9" className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />
           </MobileTooltip>
         </div>
       </TooltipProvider>
