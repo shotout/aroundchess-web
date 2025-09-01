@@ -1,6 +1,8 @@
+import { MobileTooltip } from "@/components/game-history/components/user-history/Analytics";
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
-import { Loader2,Plus,Save } from "lucide-react";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { Info, Loader2, Plus, Save } from "lucide-react";
 import Image from "next/image";
 
 interface ButtonFinishProps {
@@ -32,7 +34,9 @@ export const ButtonFinish = ({
   pgn,
   getAnalysisButtonContent,
 }: ButtonFinishProps) => {
-  const analysisButton = getAnalysisButtonContent ? getAnalysisButtonContent() : null;
+  const analysisButton = getAnalysisButtonContent
+    ? getAnalysisButtonContent()
+    : null;
 
   const renderAnalyzeButton = (className: string) => {
     if (!analysisButton) {
@@ -43,8 +47,10 @@ export const ButtonFinish = ({
       <button
         onClick={analysisButton.onClick}
         disabled={analysisButton.disabled}
-        className={`${analysisButton.className} ${className} rounded-full h-[40px] flex items-center justify-center transition-colors duration-150 ${
-          analysisButton.disabled ? 'opacity-50 cursor-not-allowed' : ''
+        className={`${
+          analysisButton.className
+        } ${className} rounded-full h-[40px] flex items-center justify-center transition-colors duration-150 ${
+          analysisButton.disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
         <div className="flex flex-row items-center justify-center gap-2">
@@ -54,14 +60,49 @@ export const ButtonFinish = ({
       </button>
     );
   };
-
+  const renderButtonSave = () => {
+    return (
+      <TooltipProvider>
+        <div className="flex flex-row gap-2">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="btn-primary w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4]"
+          >
+            {isSaving ? (
+              <div className="flex flex-row items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[#221AE9]" />
+                <span className="text-[#fff] font-medium">Saving...</span>
+              </div>
+            ) : (
+              <div className="flex flex-row items-center justify-center gap-2">
+                <Save color="#fff" className="w-[20px] h-[20px]" size={20} />
+                <span className="text-[#fff] font-medium">Save Game</span>
+              </div>
+            )}
+          </button>
+          <MobileTooltip
+            content={[
+              `The game will be saved in the "Other Games" category of the
+                  Game History. If you would like to Analyze this Game, please
+                  visit your Game History.`,
+            ]}
+            side="left"
+          >
+            <Info className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />
+          </MobileTooltip>
+        </div>
+      </TooltipProvider>
+    );
+  };
   return (
     <motion.div
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
       <div className="md:hidden xl:block">
-        {renderAnalyzeButton("w-full")}
+        {/* {renderAnalyzeButton("w-full")} */}
+        {renderButtonSave()}
       </div>
 
       <div className="flex w-full gap-2">
@@ -82,7 +123,7 @@ export const ButtonFinish = ({
             </span>
           </div>
         </button>
-        
+
         <button
           onClick={handleNewGame}
           className="btn-secondary w-full md:w-1/4 xl:w-full rounded-full h-[40px]"
@@ -92,30 +133,10 @@ export const ButtonFinish = ({
             <span className="text-[#221AE9] font-medium">New Game</span>
           </div>
         </button>
-        <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-white w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4]"
-        >
-          {/* <div className="flex flex-row items-center justify-center gap-2">
-            <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
-            <span className="text-[#221AE9] font-medium">Save Game</span>
-          </div> */}
-           {isSaving ? (
-              <div className="flex flex-row items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-[#221AE9]" />
-                <span className="text-[#221AE9] font-medium">Saving...</span>
-              </div>
-          ) : (
-              <div className="flex flex-row items-center justify-center gap-2">
-                <Save color="#221AE9" className="w-[20px] h-[20px]" size={20} />
-                <span className="text-[#221AE9] font-medium">Save Game</span>
-              </div>
-          )}
-        </button>
 
         <div className="hidden md:block xl:hidden md:w-2/4">
-          {renderAnalyzeButton("w-full")}
+          {/* {renderAnalyzeButton("w-full")} */}
+          {renderButtonSave()}
         </div>
       </div>
     </motion.div>
