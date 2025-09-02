@@ -108,7 +108,7 @@ export function BenefitsOf() {
                     alt=""
                     priority
                   />
-                  <span className="text-black text-sm md:text-md text-center sm:text-left lg:text-[20px] font-medium mb-2">
+                  <span className="text-black text-sm md:text-md sm:text-left lg:text-[20px] font-medium mb-2">
                     {item.title}
                   </span>
                   <span className="text-[#364152] text-xs md:text-sm lg:text-[18px] font-normal">

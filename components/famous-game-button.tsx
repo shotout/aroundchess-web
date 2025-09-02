@@ -49,11 +49,11 @@ export const FamousGameButton = () => {
       <p className="block mb-3 text-[16px] sm:text-[20px] text-start font-medium text-[#2e2e2e]">
         See a sample Analysis of the legendary Game Magnus Carlsen vs Vladislav Kovalev before you start analyzing your own Games!
       </p>
-      <div className="flex flex-row justify-center items-center">
+      {/* <div className="flex flex-row justify-center items-center">
         <span className="font-medium text-[14px] text-[#17119B]">
           29/12/2022
         </span>
-      </div>
+      </div> */}
       <div className="flex flex-row justify-between items-center gap-1">
         <div className="flex flex-col lg:flex-row items-center justify-between rounded-[8px] p-[12px] gap-2 border border-[#00B427] bg-[#D3FFDD]">
           <div className="flex flex-col lg:flex-row items-center">
