@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import NoData from "../NoData/NoData";
 import { DetailSkeleton } from "./SkeletonNews";
 import MarkdownPreview from "@uiw/react-markdown-preview";
+import { ScrollArea } from "../ui/scroll-area";
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -223,46 +224,48 @@ export default function Detail() {
                 <NoData>Most Reads is empty</NoData>
               </div>
             )}
-            {localMostReads.map((article: any) => (
-              <div
-                onClick={() => router.push("/chess-blog/" + article.slug)}
-                key={article.id}
-                className="cursor-pointer bg-white flex shadow-md rounded-sm border border-input gap-2 p-3"
-              >
-                {article.imageUrl && article.imageUrl.trim() !== "" ? (
-                  <Image
-                    src={article.imageUrl}
-                    alt={
-                      article.imageCaption ||
-                      article.title ||
-                      "Most read article image"
-                    }
-                    width={1000}
-                    height={1000}
-                    className="w-16 h-16 rounded-[4px] object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-[4px]">
-                    <span className="text-gray-500 text-xs">No Image</span>
-                  </div>
-                )}
-                <div className="flex flex-col flex-1 gap-2">
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
-                      {formatDateNews(article.publishedAt)}
-                    </p>
-                    <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
-                      {article?.category?.name || "Uncategorized"}
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-between max-h-[40px] ">
-                    <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold">
-                      {article.title || "Untitled"}
-                    </span>
+            <ScrollArea className="h-[77vh]">
+              {localMostReads.map((article: any) => (
+                <div
+                  onClick={() => router.push("/chess-blog/" + article.slug)}
+                  key={article.id}
+                  className="cursor-pointer bg-white mt-2 flex shadow-md rounded-sm border border-input gap-2 p-3"
+                >
+                  {article.imageUrl && article.imageUrl.trim() !== "" ? (
+                    <Image
+                      src={article.imageUrl}
+                      alt={
+                        article.imageCaption ||
+                        article.title ||
+                        "Most read article image"
+                      }
+                      width={1000}
+                      height={1000}
+                      className="w-16 h-16 rounded-[4px] object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-[4px]">
+                      <span className="text-gray-500 text-xs">No Image</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col flex-1 gap-2">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                        {formatDateNews(article.publishedAt)}
+                      </p>
+                      <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
+                        {article?.category?.name || "Uncategorized"}
+                      </span>
+                    </div>
+                    <div className="flex flex-row items-center justify-between max-h-[40px] ">
+                      <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold">
+                        {article.title || "Untitled"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </ScrollArea>
           </div>
         </div>
       </div>
