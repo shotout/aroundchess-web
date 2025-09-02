@@ -75,7 +75,7 @@ const fetchLastAnalysis = async (
 };
 
 const DESKTOP_GRID_TEMPLATE =
-  "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 2fr 1fr 2fr";
+  "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
 
 const GamesList: React.FC<GamesListProps> = ({
   games,
@@ -259,7 +259,7 @@ const GamesList: React.FC<GamesListProps> = ({
           <div className="px-2 text-left">Result</div>
           <div className="px-4 text-left">Opponent</div>
           <div className="px-2 text-left">Rating</div>
-          {/* <div className="px-2 text-left">Game Type</div> */}
+          <div className="px-2 text-left">Game Type</div>
           <div className="px-2 text-left">Moves</div>
           <div className="px-4 text-left">Opening</div>
           <div className="px-2 text-left">Source</div>
@@ -320,9 +320,9 @@ const GamesList: React.FC<GamesListProps> = ({
                   {game.rating || "N/A"}
                 </div>
 
-                {/* <div className="flex items-center px-2 py-3 truncate">
+                <div className="flex items-center px-2 py-3 truncate">
                   {game.timeClass || "Unknown Game Type"}
-                </div> */}
+                </div>
 
                 <div className="flex items-center px-2 py-3">
                   {game.moves || "N/A"}
