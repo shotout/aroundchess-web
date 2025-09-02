@@ -215,7 +215,7 @@ export default function Detail() {
               )}
           </div>
         </div>
-        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
+        <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3 xl:sticky xl:top-4 xl:h-fit">
           <span className="text-md font-semibold mt-4">Most Read Articles</span>
           <div className="flex flex-col mt-2 gap-2">
             {localMostReads.length === 0 && (
@@ -227,7 +227,7 @@ export default function Detail() {
               <div
                 onClick={() => router.push("/chess-blog/" + article.slug)}
                 key={article.id}
-                className="cursor-pointer bg-white flex shadow-md  rounded-sm border border-input gap-2 p-3"
+                className="cursor-pointer bg-white flex shadow-md rounded-sm border border-input gap-2 p-3"
               >
                 {article.imageUrl && article.imageUrl.trim() !== "" ? (
                   <Image
