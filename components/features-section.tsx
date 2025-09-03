@@ -26,9 +26,9 @@ export function FeaturesSection() {
             <Image
               src={"/images/switzerland.png"}
               alt="made-in-switzerland"
-              width={286}
-              height={96}
               quality={100}
+                width={600}
+                height={600}
               className="w-[130px] h-[44px] sm:w-[286px] sm:h-[96px] object-contain"
             />
           </div>
