@@ -17,7 +17,7 @@ export const formatDatePgn = (date?: string) => {
   if (month.length < 2) month = "0" + month;
   if (day.length < 2) day = "0" + day;
 
-  return [day, month, year].join(".");
+  return [year, month, day].join(".");
 };
 export const formatTimePgn = (date?: string) => {
   let d = date ? new Date(date) : new Date(),
