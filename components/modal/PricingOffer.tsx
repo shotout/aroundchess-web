@@ -143,18 +143,20 @@ export const PricingOffer: React.FC = () => {
         type: "token",
         idUser: profile.id,
       };
-      const res = await checkoutSessions(body);
-      window.location.href = res.data.url;
-
-      setLoading(false);
-      console.log("Checkout session response:", res);
-
-      setLoading(false);
-      setQuantity(parseInt(tokenAmount.toString()));
-      setStatus("waiting");
-      setOpenStatusPurchase(true);
-      setOpen(false);
-      handleStop();
+      try {
+        const res = await checkoutSessions(body);
+        setLoading(false);
+        setQuantity(parseInt(tokenAmount.toString()));
+        setStatus("waiting");
+        setOpenStatusPurchase(true);
+        setOpen(false);
+        window.location.href = res.data.url;
+        handleStop();
+        console.log("Checkout session response:", res);
+      } catch (error) {
+        setLoading(false);
+        console.log("Checkout session error:", error);
+      }
     }
   };
 
@@ -320,7 +322,7 @@ export const PricingOffer: React.FC = () => {
                     {tokenData &&
                       tokenData.length > 0 &&
                       tokenData.map((option: any, index: number) => {
-                        if(option.quantity > 50) return null;
+                        if (option.quantity > 50) return null;
                         return (
                           <div
                             key={index}
