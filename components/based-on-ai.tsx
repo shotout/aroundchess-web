@@ -14,7 +14,7 @@ const analysisFeatures = [
 export function BasedOnAI() {
   return (
     <section className="py-2 sm:py-6 md:py-6 xl:py-8 bg-[#E6F7FE] sm:mt-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 md:px-6 lg:px-12">
         <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
           <motion.div
             className="md:w-1/2 relative mt-8 lg:mt-0"

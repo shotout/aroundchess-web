@@ -4,7 +4,7 @@ import React from "react";
 export const GrandmastersSection: React.FC = () => {
   return (
     <section className="py-4 px-0 sm:py-16 lg:py-12 xl:py-16 bg-white">
-      <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
+      <div className="container px-4 md:px-6 lg:px-12 mx-auto">
         <div className="border-2 border-cyan-200 rounded-2xl p-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             {/* Content Section */}

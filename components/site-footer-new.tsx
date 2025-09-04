@@ -47,7 +47,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
       {/* modal */}
 
-      <div className="flex flex-col px-4 lg:px-[80px] lg:py-2 lg:pt-8">
+      <div className="flex flex-col px-4 md:px-6 lg:px-12 lg:py-2 lg:pt-8">
         <div className="relative flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[366px] sm:min-h-[205px] w-full rounded-[16px] mb-[64px] ">
           <Image
             src="/images/footer/background.png"

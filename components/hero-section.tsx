@@ -69,14 +69,16 @@ export function HeroSection() {
     router.push("/register");
   };
   const handleAppStore = () => {
-    window.open("https://apps.apple.com/us/app/aroundchess/id6746404970")
+    window.open("https://apps.apple.com/us/app/aroundchess/id6746404970");
   };
   const handlePlayStore = () => {
-    window.open("https://play.google.com/store/apps/details?id=com.aroundchess")
+    window.open(
+      "https://play.google.com/store/apps/details?id=com.aroundchess"
+    );
   };
   return (
     <section className="flex flex-1 relative overflow-hidden py-4 sm:bg-white lg:pb-8 lg:pt-0 w-full">
-      <div className="container mx-auto px-4 md:px-0 lg:px-8 z-10">
+      <div className="container mx-auto px-4 md:px-6 lg:px-12 z-10">
         <motion.div
           className="flex flex-col sm:flex-row items-start justify-between"
           variants={staggerContainer}
@@ -87,7 +89,7 @@ export function HeroSection() {
             className="sm:w-2/3 lg:pr-12 mb-4 lg:mb-0 text-center sm:text-left flex sm:block flex-col gap-y-4"
             variants={fadeInUp}
           >
-            <div className="bg-[black] sm:bg-transparent rounded-lg p-4 sm:p-8">
+            <div className="bg-[black] sm:bg-transparent rounded-lg py-4 sm:py-8">
               <h1 className="font-heading text-lg text-white sm:text-black sm:text-xl xl:text-4xl tracking-tight ">
                 <span className="block sm:mb-0">
                   Understand your{" "}
@@ -115,7 +117,7 @@ export function HeroSection() {
               </button>
               <span className="font-bold text-[12px] text-black">Or</span>
               <motion.div
-                className="flex w-full flex-row justify-center flex gap-x-8 px-4"
+                className="flex w-full flex-row justify-center flex gap-x-8 px-4 "
                 variants={fadeInUp}
               >
                 <Image
@@ -141,7 +143,7 @@ export function HeroSection() {
             {isSignedIn ? renderInsertUsername() : <FamousGameButton />}
           </motion.div>
           <motion.div
-            className="hidden sm:flex w-[320px] flex-row justify-between mb-4 lg:mb-0 flex gap-y-4 p-4"
+            className="hidden sm:flex w-[280px] flex-row justify-between mb-4 lg:mb-0 flex gap-y-4 py-4"
             variants={fadeInUp}
           >
             <Image

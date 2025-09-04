@@ -9,8 +9,8 @@ import { useProfileStore } from "@/app/store/profile";
 export function CTASection() {
   const { sessionId } = useProfileStore();
   return (
-    <section className="py-4 px-8 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
-      <div className="container px-4 md:px-6 mx-auto max-w-[90rem]">
+    <section className="py-4 px-4 md:px-6 lg:px-12 sm:py-16 lg:py-20 xl:py-24 bg-[linear-gradient(to_bottom,#ffffff_50%,#E6F7FE_50%)]">
+      <div className="container mx-auto">
         <motion.div
           className="bg-[#0B094E] rounded-3xl overflow-hidden shadow-2xl"
           initial={{ opacity: 0, y: 50 }}
