@@ -46,23 +46,18 @@ export const useProfileFetch = () => {
     setProfile,
     setPuzzleLog,
     setIsMember,
+    setTokenData,
   } = useProfileStore();
   useEffect(() => {
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
-      setAlreadyFetchProfile(true);
       if (alreadyFetchProfile == false) {
+        setAlreadyFetchProfile(true);
         getProfile({}).then((response) => {
           if (response.data != null) {
             const data = response.data;
             setProfile(data);
             setUsername(data.username);
-          }
-        });
-        getTokenPackage({}).then((response) => {
-          if (response.data != null) {
-            const data = response.data;
-            setTokenPackage(data);
           }
         });
 

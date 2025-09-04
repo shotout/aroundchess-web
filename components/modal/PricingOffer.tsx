@@ -20,7 +20,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
 
-
 interface TokenOption {
   amount: number;
   price: number;
@@ -44,7 +43,7 @@ export const PricingOffer: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(false);
 
   const { open, setOpen, tabType } = usePricingOffer();
-  const { isLoading, checkoutSessions } = useApiClient();
+  const { isLoading, getTokenPackage, checkoutSessions } = useApiClient();
   const {
     tokenPackage,
     profile,
@@ -52,6 +51,8 @@ export const PricingOffer: React.FC = () => {
     token,
     activeMembership,
     setTokenPackage,
+    setTokenData,
+    tokenData,
     sessionId,
   } = useProfileStore();
   const { open: openSuccessSubscription, setOpen: setOpenSuccessSubscription } =
@@ -85,6 +86,12 @@ export const PricingOffer: React.FC = () => {
   useEffect(() => {
     setMounted(true);
     setWidthC(window?.innerWidth);
+    getTokenPackage({}).then((response) => {
+      if (response.data != null) {
+        const data = response.data;
+        setTokenData(data);
+      }
+    });
     fetchTokenPackageLocal();
     setOpen(open);
   }, [open]);
@@ -123,11 +130,11 @@ export const PricingOffer: React.FC = () => {
       setLoading(true);
       const tokenAmount =
         selectedToken != null && selectedToken != 5
-          ? tokenOptions[selectedToken].amount
+          ? tokenData[selectedToken].quantity
           : customAmount;
       const price =
         selectedToken != null && selectedToken != 5
-          ? tokenOptions[selectedToken].pricePerToken * 100
+          ? tokenData[selectedToken].pricePerToken * 100
           : parseFloat(pricePerToken) * 100;
       let body = {
         productName: tokenAmount + " tokens",
@@ -200,8 +207,8 @@ export const PricingOffer: React.FC = () => {
       const dataPrice = tokenPackage.find(
         (price: any) => price.quantity == conditionedValue
       );
-      const perToken = parseFloat(dataPrice.pricePerToken);
-      const totalPriceValue = parseFloat(dataPrice.totalPrice);
+      const perToken = parseFloat(dataPrice?.pricePerToken);
+      const totalPriceValue = parseFloat(dataPrice?.totalPrice);
       setPricePerToken(perToken.toFixed(2));
       setTotalPrice(totalPriceValue.toFixed(2));
     } else {
@@ -310,7 +317,93 @@ export const PricingOffer: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
-                    {tokenOptions.map((option, index) => (
+                    {tokenData &&
+                      tokenData.length > 0 &&
+                      tokenData.map((option: any, index: number) => {
+                        if(option.quantity > 50) return null;
+                        return (
+                          <div
+                            key={index}
+                            className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                              selectedToken === index
+                                ? "border-4 border-[#221AE9]"
+                                : " "
+                            }`}
+                            onClick={() => {
+                              startInterval();
+                              setSelectedToken(index);
+                            }}
+                          >
+                            {selectedToken != index && (
+                              <div
+                                className={`h-[96%] w-[99%] mx-[8px]  absolute rounded-[10px] inset-0`}
+                                style={{
+                                  boxShadow:
+                                    "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
+                                }}
+                              />
+                            )}
+
+                            <Image
+                              src={`/images/pricing/${
+                                widthC <= 1024
+                                  ? option.quantity + `-token-mobile`
+                                  : option.quantity + `-token`
+                              }.png`}
+                              alt="icon"
+                              width={1000}
+                              height={1000}
+                              priority
+                              className="w-full h-full absolute inset-0 object-cover rounded-[14px] -z-10 "
+                              style={
+                                selectedToken != index
+                                  ? {
+                                      backgroundImage: `
+                            linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
+                            linear-gradient(230deg, #FFFFFF, #9FDEFE)
+                          `,
+                                      backgroundClip: "padding-box, border-box",
+                                      backgroundOrigin:
+                                        "padding-box, border-box",
+                                      borderLeft: "8px solid transparent",
+                                      borderBottom: "8px solid transparent",
+                                      borderTop: "2px solid transparent",
+                                      borderRight: "2px solid transparent",
+                                    }
+                                  : {
+                                      background: `
+                            radial-gradient(circle at center, #ABE3FF 10%,#ABE3FF 57%,#ABE3FF 100%) 
+                          `,
+                                    }
+                              }
+                            />
+                            <div className="absolute top-3 right-3 z-2">
+                              <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
+                                {selectedToken === index && (
+                                  <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col justify-center items-center text-center mt-2 z-10 gap-1 ">
+                              <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
+                                {option.quantity === 1
+                                  ? "1 Token"
+                                  : `${option.quantity} Tokens`}
+                              </span>
+                              <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
+                                ${option.totalPrice.toFixed(2)}
+                              </span>
+                              {option.quantity != 1 && (
+                                <span className="font-normal text-[14px] text-[#221AE9]">
+                                  ${option.pricePerToken.toFixed(2)}/Token
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    {/* {tokenOptions.map((option, index) => (
                       <div
                         key={index}
                         className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
@@ -389,7 +482,7 @@ export const PricingOffer: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    ))}
+                    ))} */}
 
                     <div
                       className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${

@@ -10,6 +10,8 @@ interface ProfileState {
   setToken: (token: any) => void;
   tokenPackage: any;
   setTokenPackage: (token: any) => void;
+  tokenData: any;
+  setTokenData: (token: any) => void;
   activeMembership: any;
   setActiveMembership: (activeMembership: any) => void;
   allMembershipPackages: any;
@@ -36,6 +38,8 @@ export const useProfileStore = create<ProfileState>()(
       setProfile: (profile) => set({ profile }),
       tokenPackage: {},
       setTokenPackage: (tokenPackage) => set({ tokenPackage }),
+      tokenData: {},
+      setTokenData: (tokenData) => set({ tokenData }),
       token: {},
       setToken: (token) => set({ token }),
       alreadyFetch: false,
