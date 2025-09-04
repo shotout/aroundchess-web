@@ -32,13 +32,13 @@ export default function Profile() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    setAlreadyFetchProfile(false);
-    setAlreadyFetch(false);
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
 
     if (!status) return;
 
+    setAlreadyFetchProfile(false);
+    setAlreadyFetch(false);
     router.replace("/profile");
 
     switch (status) {
@@ -63,15 +63,8 @@ export default function Profile() {
         setStatus("failed");
         break;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    searchParams,
-    router,
-    setOpenSuccess,
-    setOpenPurchaseStatus,
-    setQuantity,
-    setStatus,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Suspense>
@@ -84,26 +77,24 @@ export default function Profile() {
           </div>
         </div>
       ) : (
-
-      <Navigation>
-        <ChangePassword />
-        <ChessAccountSetup isLoading={isLoading} />
-        <div className="relative">
-          <div
-            className={`flex flex-col z-10 p-[32px] gap-4 ${
-              isLoggingOut ? "pointer-events-none" : ""
-            }`}
-          >
-            <MyAccount onLogoutStart={() => setIsLoggingOut(true)} />
-            <MySubscription />
-            <MyRemainingAnalysisTokens />
-            <MyRemainingPuzzle />
-            <DeleteAccount />
+        <Navigation>
+          <ChangePassword />
+          <ChessAccountSetup isLoading={isLoading} />
+          <div className="relative">
+            <div
+              className={`flex flex-col z-10 p-[32px] gap-4 ${
+                isLoggingOut ? "pointer-events-none" : ""
+              }`}
+            >
+              <MyAccount onLogoutStart={() => setIsLoggingOut(true)} />
+              <MySubscription />
+              <MyRemainingAnalysisTokens />
+              <MyRemainingPuzzle />
+              <DeleteAccount />
+            </div>
           </div>
-        </div>
-      </Navigation>
+        </Navigation>
       )}
-
     </Suspense>
   );
 }
