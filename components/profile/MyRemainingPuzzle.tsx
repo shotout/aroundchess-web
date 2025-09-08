@@ -1,17 +1,28 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import CurrentInfo from "./CurrentInfo";
 import Image from "next/image";
 import { useProfileStore } from "@/app/store/profile";
 import { formatDate, formatDateHistory } from "@/functions/format-date";
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useApiClient } from "@/functions/api-client";
 
 const MyRemainingPuzzle = () => {
-  const { puzzleLog, activeMembership, isMember } = useProfileStore();
-
+  const {  activeMembership, isMember } = useProfileStore();
+  const { getUsagePuzzle } = useApiClient();
+  const [remainingPuzzle, setRemainingPuzzle] = useState(0);
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
+  useEffect(() => {
+    handleGetLog();
+  }, []);
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
     setTabType(type);
+  };
+  const handleGetLog = async () => {
+    await getUsagePuzzle().then((res) => {
+      let usage = res.data.totalPuzzlesThisMonth;
+      setRemainingPuzzle(usage);
+    });
   };
   return (
     <div className={`flex flex-col gap-4`}>
@@ -36,7 +47,7 @@ const MyRemainingPuzzle = () => {
                 />
                 <div className="block gap-1 max-w-fill">
                   <span className="font-semibold text-[40px] text-[#221AE9]">
-                    {20 - puzzleLog?.length}
+                    {20 - remainingPuzzle}
                   </span>
                   <span className="font-medium text-[20px]">/20</span>
                 </div>

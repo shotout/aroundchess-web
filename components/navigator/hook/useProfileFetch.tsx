@@ -81,10 +81,10 @@ export const useProfileFetch = () => {
         }
       });
 
-      getPuzzle().then((res) => {
-        const logs = res.data;
-        setPuzzleLog(logs);
-      });
+      // getPuzzle().then((res) => {
+      //   const logs = res.data;
+      //   setPuzzleLog(logs);
+      // });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, callFetch]);

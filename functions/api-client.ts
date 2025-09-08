@@ -322,6 +322,14 @@ export function useApiClient() {
       path: `${process.env.BASE_URL}/playground/puzzles`,
     });
   }, [apiRequest]);
+
+  const getUsagePuzzle = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/playground/puzzle/check-puzzle-usage`,
+    });
+  }, [apiRequest]);
+
   const postPuzzle = useCallback(
     (body: any) => {
       return apiRequest({
@@ -677,6 +685,7 @@ export function useApiClient() {
     rematch,
     uploadPGN,
     getPuzzle,
+    getUsagePuzzle,
     postPuzzle,
     getVSAILogs,
     postVSAILogs,

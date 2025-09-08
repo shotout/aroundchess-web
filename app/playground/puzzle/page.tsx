@@ -49,8 +49,8 @@ export default function Puzzle() {
   } = usePuzzles(filteredPuzzles);
 
   const { isMember } = useProfileStore();
-  const { postPuzzle, getPuzzle, isLoading } = useApiClient();
-  const [puzzleLog, setPuzzleLog] = useState<any[]>([]);
+  const { postPuzzle, getUsagePuzzle, isLoading } = useApiClient();
+  const [remainingPuzzle, setRemainingPuzzle] = useState(0);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const hasRun = useRef(false);
 
@@ -79,10 +79,10 @@ export default function Puzzle() {
   }, [isSolved]);
 
   const handleGetLog = async () => {
-    await getPuzzle().then((res) => {
-      const logs = res.data;
-      setPuzzleLog(logs);
-      if (logs.length >= 20 && !isMember) {
+    await getUsagePuzzle().then((res) => {
+      let usage = res.data.totalPuzzlesThisMonth;
+      setRemainingPuzzle(usage);
+      if (usage >= 20 && !isMember) {
         setShowPremiumDialog(true);
       }
     });
@@ -126,12 +126,12 @@ export default function Puzzle() {
         />
       ) : (
         <PuzzleGame
-          fenHistory={fenHistory} 
-          puzzleMoves={solutionHistory} 
+          fenHistory={fenHistory}
+          puzzleMoves={solutionHistory}
           currentMoveIndex={currentSolutionIndex}
           setCurrentMoveIndex={setCurrentSolutionIndex}
-          isGameOver={isSolved} 
-          onGameOver={() => {}} 
+          isGameOver={isSolved}
+          onGameOver={() => {}}
           setFenHistory={setFenHistory}
           setActivePlayer={setActivePlayer}
           activePlayer={activePlayer}
