@@ -56,7 +56,7 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "@/components/game-history/hooks/usePollingManager";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
-import {gameHistoryApi} from "@/components/game-history/services/api";
+import { gameHistoryApi } from "@/components/game-history/services/api";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -327,7 +327,7 @@ const MobileMoveBoxes = ({
 
 export default function PlayingPage() {
   const { sessionId } = useProfileStore();
-  const { addOtherImportedGame} = usePgnStore();
+  const { addOtherImportedGame } = usePgnStore();
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
@@ -346,7 +346,7 @@ export default function PlayingPage() {
     hideDiv,
   } = usePgnStore();
   const hasRun = useRef(false);
-  const [isSaving,setIsSaving] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
@@ -926,9 +926,10 @@ export default function PlayingPage() {
     game.header("UTCTime", time);
   };
 
-  const setHeaderGameFinish = () => {
+  const setHeaderGameFinish = (winnerColor: string) => {
     const date = formatDatePgn();
     const time = formatTimePgn();
+    console.log(winnerColor);
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
     const winResult = isWhiteWin + "-" + isBlackWin;
@@ -1046,10 +1047,10 @@ export default function PlayingPage() {
     setTimeout(() => {
       setOpenGameStatus(true);
     }, 1000);
-    setHeaderGameFinish();
     const loserColorLocal = myColor;
     const winnerColorLocal = loserColorLocal === "white" ? "black" : "white";
     const losserColorLocal = loserColorLocal !== "white" ? "black" : "white";
+    setHeaderGameFinish(winnerColorLocal);
     setWinnerColor(winnerColorLocal);
     setLoserColor(losserColorLocal);
   };
@@ -1095,39 +1096,41 @@ export default function PlayingPage() {
       status: statusGame,
       pgn: game.pgn(),
     };
+    console.log("game.pgn()", game.pgn());
     await postVSAILogs(body);
     loadLogs();
   };
 
   const handleSave = async () => {
-    try
-    {
-      setIsSaving(true)
-      const formData = new FormData()
-      const currentPgn = game.pgn()
-      console.log('save')
-      formData.append("pgn",currentPgn)
-      const response = await gameHistoryApi.importGame(formData,sessionId ?? null)
+    try {
+      setIsSaving(true);
+      const formData = new FormData();
+      const currentPgn = game.pgn();
+      console.log("save");
+      formData.append("pgn", currentPgn);
+      const response = await gameHistoryApi.importGame(
+        formData,
+        sessionId ?? null
+      );
       if (!response?.data) {
         throw new Error("Invalid response from server");
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
       toast.success("Game saved successfully!");
-    }
-    catch (err:any){
-      toast.error("Save Failed !")
+    } catch (err: any) {
+      toast.error("Save Failed !");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
-  
+  };
+
   const checkStatusGame = () => {
     if (game.isGameOver()) {
-      setHeaderGameFinish();
       const loserColorLocal = game.turn();
       const winnerColorLocal = loserColorLocal === "w" ? "black" : "white";
       const losserColorLocal = loserColorLocal !== "w" ? "black" : "white";
+      setHeaderGameFinish(winnerColorLocal);
       const isUserWin = myColor === winnerColorLocal;
       setWinnerColor(winnerColorLocal);
       setLoserColor(losserColorLocal);
