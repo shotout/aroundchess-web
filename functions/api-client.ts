@@ -26,13 +26,17 @@ export function useApiClient() {
   const handleSignOut = async () => {
     clearAll();
     clearPGN();
-    localStorage.removeItem("background-analysis-storage");
-    localStorage.removeItem("pgn-local-storage");
+
     logOut({ sessionId })
       .then(() => {})
       .finally(() => {
         clearAll();
+        localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
+        localStorage.removeItem("background-analysis-storage");
+        localStorage.removeItem("training_schedule");
+        localStorage.removeItem("training_topics");
+        localStorage.removeItem("pgn-local-storage");
         setPersistedCookie("token", "", 0);
       });
     const { error } = await supabase.auth.signOut();

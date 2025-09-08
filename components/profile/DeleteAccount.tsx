@@ -34,7 +34,13 @@ const DeleteAccount = () => {
       console.error("Error during sign out:", error);
     } finally {
       clearAll();
+
+      localStorage.removeItem("sessionId");
       localStorage.removeItem("token");
+      localStorage.removeItem("background-analysis-storage");
+      localStorage.removeItem("training_schedule");
+      localStorage.removeItem("training_topics");
+      localStorage.removeItem("pgn-local-storage");
       setPersistedCookie("token", "", 365);
     }
   };
@@ -42,7 +48,6 @@ const DeleteAccount = () => {
   const handleLogout = async () => {
     clearAll();
     clearProfile();
-    localStorage.removeItem("token");
     await handleSignOut();
   };
 

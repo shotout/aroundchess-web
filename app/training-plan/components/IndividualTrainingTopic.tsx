@@ -26,16 +26,19 @@ type LegacyOpeningData = OpeningData[];
 interface UpdatedIndividualTrainingTopicProps
   extends IndividualTrainingTopicProps {
   isRecommended?: boolean;
+  disabled?: boolean;
 }
 
 const IndividualTrainingTopic: React.FC<
   UpdatedIndividualTrainingTopicProps
-> = ({ topic, isSelected, onSelect, isRecommended = false }) => {
+> = ({ topic, isSelected, onSelect, isRecommended = false, disabled }) => {
   const isOpeningTopic =
     topic.category === "whiteOpening" || topic.category === "blackOpening";
 
   const bgColor = isSelected
     ? "bg-gradient-to-r from-white to-blue-base/30"
+    : disabled
+    ? "bg-[#f0f0f0]"
     : "bg-white";
   const borderColor = isSelected ? "border-blue-base" : "border-[#d0cffa]";
 
@@ -186,8 +189,12 @@ const IndividualTrainingTopic: React.FC<
         >
           {isRecommended && (
             <Badge
-              className={`flex text-xs items-center gap-x-2 font-bold rounded-[2px] border border-gray-200 ${
-                isRecommended ? "bg-white" : " border-blue-base text-blue-base"
+              className={`flex text-xs items-center gap-x-2 font-bold rounded-[2px] ${
+                disabled
+                  ? "bg-[f0f0f0]"
+                  : isRecommended
+                  ? "bg-white"
+                  : " border-blue-base text-blue-base"
               }`}
             >
               <Image

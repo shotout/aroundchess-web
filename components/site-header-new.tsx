@@ -99,8 +99,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
 
   const handleLogout = async () => {
     clearAll();
-    clearProfile();
-    localStorage.removeItem("token");
+    clearProfile(); 
     handleSignOut();
   };
 
@@ -109,7 +108,12 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
       .then(() => {})
       .finally(() => {
         clearAll();
+        localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
+        localStorage.removeItem("background-analysis-storage");
+        localStorage.removeItem("training_schedule");
+        localStorage.removeItem("training_topics");
+        localStorage.removeItem("pgn-local-storage");
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";
       });

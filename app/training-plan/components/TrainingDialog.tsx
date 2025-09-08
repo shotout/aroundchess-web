@@ -189,7 +189,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   const transformCategoryInfo = useCallback(() => {
     if (!config?.requirements) return defaultCategoryInfo;
-
+    
     const requirements = config.requirements;
 
     return [
@@ -467,6 +467,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
                     description={category.description}
                     subcategories={category.subcategories}
                     topics={getTopicsByCategory(category.id)}
+                    requirements={config?.requirements}
                     selectedTopics={selectedTopics}
                     onToggleTopic={handleToggleTopic}
                     recommendations={getRecommendationsForCategory(category.id)}

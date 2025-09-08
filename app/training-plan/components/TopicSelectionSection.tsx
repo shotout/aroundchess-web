@@ -5,6 +5,7 @@ import OpeningTooltip from "./OpeningTooltip";
 
 interface UpdatedTopicSelectionSectionProps extends TopicSelectionSectionProps {
   recommendations?: any[];
+  requirements?: any;
 }
 
 const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
@@ -12,12 +13,24 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
   title,
   icon,
   description,
+  requirements,
   subcategories = [],
   topics,
   selectedTopics,
   onToggleTopic,
   recommendations = [],
 }) => {
+  const openingWhiteMax = requirements?.opening?.white || 1;
+  const openingBlackMax = requirements?.opening?.black || 1;
+  const middleMin = requirements?.middlegame?.min || 1;
+  const middleMax = requirements?.middlegame?.max || 1;
+  const endMin = requirements?.endgame?.min || 1;
+  const endMax = requirements?.endgame?.max || 1;
+
+  const isMiddle = categoryId === "middlegame";
+  const isEnd = categoryId === "endgame";
+  const max = isMiddle ? middleMax : isEnd ? endMax : 0;
+  const min = isMiddle ? middleMin : isEnd ? endMin : 0;
   const getTopicsBySubcategory = (subcategoryId: string) => {
     return topics.filter((topic) => topic.category === subcategoryId);
   };
@@ -88,6 +101,16 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
             const nonRecommendedTopics = getNonRecommendedTopicsBySubcategory(
               subcategory.id
             );
+            const recommendValues = recommendedTopics.filter((value) =>
+              selectedTopics.includes(value.id)
+            );
+            const nonRecommendSelected = nonRecommendedTopics.filter((value) =>
+              selectedTopics.includes(value.id)
+            );
+            const isWhite = subcategory.title.includes("White");
+            let max = isWhite ? openingWhiteMax : openingBlackMax;
+            const isMaxSelected =
+              nonRecommendSelected.length + recommendValues.length == max;
 
             return (
               <div key={subcategory.id} className="mb-3 w-full">
@@ -97,27 +120,47 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1 hide-scrollbar">
                   {recommendedTopics.length > 0 && (
                     <>
-                      {recommendedTopics.map((topic) => (
-                        <IndividualTrainingTopic
-                          key={topic.id}
-                          topic={topic}
-                          isSelected={selectedTopics.includes(topic.id)}
-                          onSelect={onToggleTopic}
-                          isRecommended={true}
-                        />
-                      ))}
+                      {recommendedTopics.map((topic) => {
+                        return (
+                          <IndividualTrainingTopic
+                            key={topic.id}
+                            topic={topic}
+                            isSelected={selectedTopics.includes(topic.id)}
+                            disabled={
+                              isMaxSelected &&
+                              !selectedTopics.includes(topic.id)
+                            }
+                            onSelect={
+                              isMaxSelected &&
+                              !selectedTopics.includes(topic.id)
+                                ? () => null
+                                : onToggleTopic
+                            }
+                            isRecommended={true}
+                          />
+                        );
+                      })}
                     </>
                   )}
 
-                  {nonRecommendedTopics.map((topic) => (
-                    <IndividualTrainingTopic
-                      key={topic.id}
-                      topic={topic}
-                      isSelected={selectedTopics.includes(topic.id)}
-                      onSelect={onToggleTopic}
-                      isRecommended={false}
-                    />
-                  ))}
+                  {nonRecommendedTopics.map((topic) => {
+                    return (
+                      <IndividualTrainingTopic
+                        key={topic.id}
+                        topic={topic}
+                        isSelected={selectedTopics.includes(topic.id)}
+                        disabled={
+                          isMaxSelected && !selectedTopics.includes(topic.id)
+                        }
+                        onSelect={
+                          isMaxSelected && !selectedTopics.includes(topic.id)
+                            ? () => null
+                            : onToggleTopic
+                        }
+                        isRecommended={false}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -130,7 +173,14 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
               getRecommendedTopicsByCategory(categoryId);
             const nonRecommendedTopics =
               getNonRecommendedTopicsByCategory(categoryId);
-
+            const recommendValues = recommendedTopics.filter((value) =>
+              selectedTopics.includes(value.id)
+            );
+            const nonRecommendSelected = nonRecommendedTopics.filter((value) =>
+              selectedTopics.includes(value.id)
+            );
+            const isMaxSelected =
+              nonRecommendSelected.length + recommendValues.length == max;
             return (
               <>
                 {recommendedTopics.length > 0 && (
@@ -140,7 +190,14 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
                         key={topic.id}
                         topic={topic}
                         isSelected={selectedTopics.includes(topic.id)}
-                        onSelect={onToggleTopic}
+                        disabled={
+                          isMaxSelected && !selectedTopics.includes(topic.id)
+                        }
+                        onSelect={
+                          isMaxSelected && !selectedTopics.includes(topic.id)
+                            ? () => null
+                            : onToggleTopic
+                        }
                         isRecommended={true}
                       />
                     ))}
@@ -152,8 +209,15 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
                     key={topic.id}
                     topic={topic}
                     isSelected={selectedTopics.includes(topic.id)}
-                    onSelect={onToggleTopic}
                     isRecommended={false}
+                    disabled={
+                      isMaxSelected && !selectedTopics.includes(topic.id)
+                    }
+                    onSelect={
+                      isMaxSelected && !selectedTopics.includes(topic.id)
+                        ? () => null
+                        : onToggleTopic
+                    }
                   />
                 ))}
               </>
