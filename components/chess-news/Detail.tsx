@@ -148,7 +148,7 @@ export default function Detail() {
 
           <div className="prose prose-sm max-w-[2/3] mt-4">
             <MarkdownPreview
-              source={localDetail?.content}
+              source={localDetail?.content.replace(/^(-{3,}|\*{3,})$/gm, '')}
               className="w-full md:max-w-[66vw]"
               style={{
                 margin: "0 auto",
