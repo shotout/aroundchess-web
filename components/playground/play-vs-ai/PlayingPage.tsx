@@ -908,14 +908,14 @@ export default function PlayingPage() {
     const date = formatDatePgn();
     const time = formatTimePgn();
     const whiteName =
-      AIChoosed.color === "white"
-        ? AIChoosed.opponent.name + " (AI)"
-        : username;
-    const blackName =
       AIChoosed.color !== "white"
         ? AIChoosed.opponent.name + " (AI)"
         : username;
-
+    const blackName =
+      AIChoosed.color == "white"
+        ? AIChoosed.opponent.name + " (AI)"
+        : username;
+    console.log(whiteName, blackName);
     game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
     game.header("Site", "aroundchess.com");
     game.header("Date", date);
@@ -945,6 +945,7 @@ export default function PlayingPage() {
     setCurrentGameId(gameId);
 
     setMyColor(AIChoosed.color);
+    console.log("AIChoosed", AIChoosed);
     setHeaderGameStart();
     setBeforeFen(game.fen());
     if (AIChoosed.color === "black") {
