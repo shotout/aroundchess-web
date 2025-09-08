@@ -60,14 +60,13 @@ export const useProfileFetch = () => {
             setUsername(data.username);
           }
         });
-
-        getAllMembershipPackage({}).then((response) => {
-          if (response.data != null) {
-            const data = response.data;
-            setAllMembershipPackages(data);
-          }
-        });
       }
+      getAllMembershipPackage({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setAllMembershipPackages(data);
+        }
+      });
       getActiveMembership({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
