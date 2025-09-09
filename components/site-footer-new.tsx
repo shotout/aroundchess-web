@@ -16,6 +16,7 @@ import { PricingOffer } from "./modal/PricingOffer";
 import { ShareGame } from "./modal/ShareGame";
 import { SuccessSent } from "./modal/SuccessSent";
 import { ModalSetting } from "@/app/cookies-consent/ModalSetting";
+import { LimitPuzzle } from "./modal/LimitPuzzle";
 
 interface SiteFooterProps {
   className?: string;
@@ -303,6 +304,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
         </div>
       </div>
+      <LimitPuzzle />
       <CookieConsent />
       <ConfirmLogin />
       <ContactUs />

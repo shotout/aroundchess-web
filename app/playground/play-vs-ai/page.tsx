@@ -1,4 +1,5 @@
 "use client";
+import { useLimitPuzzle } from "@/app/store/limitPuzzle";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 import Navigation from "@/components/navigator/navigation";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 
 export default function PlayVSAI() {
   const { isLoading } = useApiClient();
+  const { setOpen } = useLimitPuzzle();
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -45,7 +47,7 @@ export default function PlayVSAI() {
       toast.error(
         "You have reached your play limit. Please upgrade to premium."
       );
-      setShowPremiumDialog(true);
+      setOpen(true);
     }
   };
 

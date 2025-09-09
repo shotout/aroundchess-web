@@ -1,6 +1,7 @@
 "use client";
 
 import { usePuzzles } from "@/app/hooks/usePuzzles";
+import { useLimitPuzzle } from "@/app/store/limitPuzzle";
 import { useProfileStore } from "@/app/store/profile";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import Navigation from "@/components/navigator/navigation";
@@ -47,6 +48,7 @@ export default function Puzzle() {
     clearHint,
     changeTopicPuzzle,
   } = usePuzzles(filteredPuzzles);
+  const { setOpen } = useLimitPuzzle();
 
   const { isMember } = useProfileStore();
   const { postPuzzle, getUsagePuzzle, isLoading } = useApiClient();
@@ -90,13 +92,13 @@ export default function Puzzle() {
         toast.error(
           `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
         );
-        setShowPremiumDialog(true);
+        setOpen(true);
       }
     });
   };
   const handleNextPuzzle = () => {
     if (remainingPuzzle >= 20 && !isMember) {
-      setShowPremiumDialog(true);
+      setOpen(true);
     } else {
       getNextPuzzle();
     }

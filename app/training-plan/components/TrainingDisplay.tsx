@@ -13,6 +13,7 @@ import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { toast } from "sonner";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
+import { useLimitPuzzle } from "@/app/store/limitPuzzle";
 
 interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
@@ -31,6 +32,8 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   const { isMember } = useProfileStore();
   const { isLoading: loading, getUsagePuzzle } = useApiClient();
   const [remainingPuzzle, setRemainingPuzzle] = React.useState(0);
+  const { setOpen } = useLimitPuzzle();
+
   const nextMonth =
     new Date().getMonth() + 2 > 12
       ? "01." + (new Date().getFullYear() + 1)
@@ -59,7 +62,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
       toast.error(
         `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
       );
-      setShowPremiumDialog(true);
+      setOpen(true);
       return;
     }
     router.push("/playground/puzzle");
