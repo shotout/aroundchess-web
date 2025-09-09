@@ -2,10 +2,7 @@
 
 import { useLimitPuzzle } from "@/app/store/limitPuzzle";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import {
-  Dialog,
-  DialogContent
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -13,13 +10,15 @@ import { useEffect } from "react";
 export function LimitPuzzle() {
   const router = useRouter();
   const { open, setOpen } = useLimitPuzzle();
-  const { setOpen: setOpenPricingOffer } = usePricingOffer();
+  const { setOpen: setOpenPricingOffer,setTabType } = usePricingOffer();
   useEffect(() => {
     setOpen(open);
   }, [open]);
 
   const handleOpenPaywall = () => {
+    setTabType("subscription");
     setOpenPricingOffer(true);
+    setOpen(false);
   };
   const nextMonth =
     new Date().getMonth() + 2 > 12
