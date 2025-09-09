@@ -315,7 +315,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setGameEnded(true);
       onGameOver();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [position, gameEnded, onGameOver]);
 
   useEffect(() => {
@@ -601,13 +601,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [resetPuzzle, setCurrentMoveIndex]);
 
   const getNextPuzzleHandler = useCallback(() => {
+    getNextPuzzle();
     setCapturedBlack([]);
     setCapturedWhite([]);
     chessGame.reset();
     setCurrentMoveIndex(0);
     setMoveProcessed(false);
     setGameEnded(false);
-    getNextPuzzle();
   }, [setCurrentMoveIndex, getNextPuzzle]);
 
   useEffect(() => {
@@ -710,7 +710,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return () => window?.removeEventListener("resize", handleResize);
   }, [mounted, hideDiv, is3DMode]);
 
- const handleResize = () => {
+  const handleResize = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
@@ -723,7 +723,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth));
+      setBoardSize(
+        Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth)
+      );
     } else {
       const availableHeight = height - minPadding * 2;
       setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
