@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import DaySelector from "./DaySelector";
@@ -9,6 +9,10 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { TrainingSchedule } from "../store";
 import { AlertTriangle, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useApiClient } from "@/functions/api-client";
+import { useProfileStore } from "@/app/store/profile";
+import { toast } from "sonner";
+import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 
 interface TrainingPlanDisplayProps {
   schedule?: TrainingSchedule | null;
@@ -24,8 +28,40 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   onAdjustPlan,
 }) => {
   const router = useRouter();
+  const { isMember } = useProfileStore();
+  const { isLoading: loading, getUsagePuzzle } = useApiClient();
+  const [remainingPuzzle, setRemainingPuzzle] = React.useState(0);
+  const nextMonth =
+    new Date().getMonth() + 2 > 12
+      ? "01." + (new Date().getFullYear() + 1)
+      : "01." + (new Date().getMonth() + 2) + "." + new Date().getFullYear();
+  const [showPremiumDialog, setShowPremiumDialog] =
+    React.useState<boolean>(false);
+  useEffect(() => {
+    handleGetLog();
+  }, []);
+  const handleGetLog = async () => {
+    await getUsagePuzzle().then((res) => {
+      let usage = res.data.totalPuzzlesThisMonth;
+      setRemainingPuzzle(usage);
+    });
+  };
+  const handleClosePremium = () => {
+    setShowPremiumDialog(false);
+  };
 
+  const handleGetPremium = () => {
+    setShowPremiumDialog(false);
+    toast.success("Thank you for subscribing to Premium!");
+  };
   const handleStartPuzzle = () => {
+    if (remainingPuzzle >= 20 && !isMember) {
+      toast.error(
+        `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
+      );
+      setShowPremiumDialog(true);
+      return;
+    }
     router.push("/playground/puzzle");
   };
 
@@ -194,6 +230,11 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               For today's practice, <strong>solve 10 Puzzles</strong>.
             </div>
 
+            <PremiumSubscription
+              visible={showPremiumDialog && !isLoading}
+              onClose={handleClosePremium}
+              onGetPremium={handleGetPremium}
+            />
             <div className="flex justify-center">
               <Button
                 onClick={handleStartPuzzle}

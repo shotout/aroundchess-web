@@ -77,12 +77,19 @@ export default function Puzzle() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSolved]);
+  const nextMonth =
+    new Date().getMonth() + 2 > 12
+      ? "01." + (new Date().getFullYear() + 1)
+      : "01." + (new Date().getMonth() + 2) + "." + new Date().getFullYear();
 
   const handleGetLog = async () => {
     await getUsagePuzzle().then((res) => {
       let usage = res.data.totalPuzzlesThisMonth;
       setRemainingPuzzle(usage);
       if (usage >= 20 && !isMember) {
+        toast.error(
+          `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
+        );
         setShowPremiumDialog(true);
       }
     });
