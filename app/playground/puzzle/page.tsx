@@ -94,12 +94,19 @@ export default function Puzzle() {
       }
     });
   };
-
+  const handleNextPuzzle = () => {
+    if (remainingPuzzle >= 20 && !isMember) {
+      setShowPremiumDialog(true);
+    } else {
+      getNextPuzzle();
+    }
+  };
   const handleSaveLog = async () => {
     const body = {
       puzzleId: filteredPuzzles[0].PuzzleId,
     };
     await postPuzzle(body);
+    handleGetLog();
   };
 
   const handleFetchPuzzles = (puzzles: Puzzle[]) => {
@@ -145,7 +152,7 @@ export default function Puzzle() {
           color={playerColor}
           boardOrientation={boardOrientation}
           resetPuzzle={resetPuzzle}
-          getNextPuzzle={getNextPuzzle}
+          getNextPuzzle={handleNextPuzzle}
           hint={hint}
           arrow={arrow}
           clearHint={() => {
