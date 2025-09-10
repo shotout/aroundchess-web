@@ -7,7 +7,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useApiClient } from "@/functions/api-client";
 
 const MyRemainingPuzzle = () => {
-  const {  activeMembership, isMember } = useProfileStore();
+  const { activeMembership, isMember } = useProfileStore();
   const { getUsagePuzzle } = useApiClient();
   const [remainingPuzzle, setRemainingPuzzle] = useState(0);
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
@@ -24,6 +24,10 @@ const MyRemainingPuzzle = () => {
       setRemainingPuzzle(usage);
     });
   };
+  const nextMonth =
+    new Date().getMonth() + 2 > 12
+      ? "01." + (new Date().getFullYear() + 1)
+      : "01." + (new Date().getMonth() + 2) + "." + new Date().getFullYear();
   return (
     <div className={`flex flex-col gap-4`}>
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
@@ -47,15 +51,14 @@ const MyRemainingPuzzle = () => {
                 />
                 <div className="block gap-1 max-w-fill">
                   <span className="font-semibold text-[40px] text-[#221AE9]">
-                    {20 - remainingPuzzle}
+                    {20 - remainingPuzzle < 0 ? 0 : 20 - remainingPuzzle}
                   </span>
                   <span className="font-medium text-[20px]">/20</span>
                 </div>
               </div>
               <span className="font-normal text-[11px] text-center">
-                Free Puzzles reset on{" "}
-                {formatDateHistory(activeMembership.endDate)}. Get Unlimited
-                Puzzles now by clicking the button below.
+                Free Puzzles reset on {nextMonth}. Get Unlimited Puzzles now by
+                clicking the button below.
               </span>
             </>
           ) : (

@@ -302,7 +302,20 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
 
   const prevFenHistory = useRef<string[]>([]);
+  const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (username) {
+      fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.avatar) {
+            setChessComAvatar(data.avatar);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [username]);
   useEffect(() => {
     const board = chessGame.board();
     getMaterialDifferences(board);
@@ -767,12 +780,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          <InitialAvatar
+          {/* <InitialAvatar
             name={profile?.name != "" ? profile?.name : username}
             size="sm"
+          /> */}
+          <Image
+            src={chessComAvatar || ""}
+            alt="icon"
+            width={1000}
+            height={1000}
+            className="w-[48px] h-[48px] rounded-full object-contain"
           />
           <span className={`text-[17.23px] font-medium text-[#040404]`}>
-            {profile?.name != "" ? profile?.name : username}
+            {username}
           </span>
           {profile?.country && (
             <ReactCountryFlag

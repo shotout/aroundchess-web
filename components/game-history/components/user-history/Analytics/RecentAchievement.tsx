@@ -29,9 +29,9 @@ const RecentAchievements: React.FC<RecentAchievementsProps> = ({
         <MobileTooltip
          content={[
             "**Recent Achievements**",
-            "To analyze chess game data and return a maximum of 3 top achievements by the player. These  achievements can include:",
-            "1. The longest winning streak (if it's at least 3 consecutive wins).",
-            "2. The highest ELO rating that reaches certain milestones (lets use our ELO steps 800, 1200, 1600, 2000, 2400, etc.).",
+            "To analyze chess game data and return a maximum of 3 top achievements by the player. These achievements can include:",
+            "1. The longest winning streak.",
+            "2. The highest ELO rating that reaches certain milestones (800, 1200, 1600, 2000, 2400, etc.).",
             "3. The number of wins in Bullet mode (fast games).",
             "4. The fastest win based on the fewest number of moves." 
           ]}
