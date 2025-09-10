@@ -112,7 +112,9 @@ export default function Puzzle() {
   };
 
   const handleFetchPuzzles = (puzzles: Puzzle[]) => {
-    if (puzzles.length === 0) {
+    if (remainingPuzzle >= 20 && !isMember) {
+      return;
+    } else if (puzzles.length === 0) {
       return;
     }
     setFilteredPuzzles(puzzles);
@@ -129,7 +131,13 @@ export default function Puzzle() {
     resetPuzzle();
     setGameStarted(false);
   };
-
+  const handleStartPuzzle = () => {
+    if (remainingPuzzle >= 20 && !isMember) {
+      setOpen(true);
+    } else {
+      setGameStarted(true);
+    }
+  };
   return (
     <Navigation>
       {showInitialization || !currentPuzzle ? (
@@ -138,7 +146,7 @@ export default function Puzzle() {
           onFetchPuzzles={handleFetchPuzzles}
           filteredPuzzles={filteredPuzzles}
           setFilteredPuzzles={setFilteredPuzzles}
-          setGameStarted={setGameStarted}
+          setGameStarted={handleStartPuzzle}
         />
       ) : (
         <PuzzleGame
