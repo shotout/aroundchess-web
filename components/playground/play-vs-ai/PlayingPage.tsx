@@ -930,7 +930,8 @@ export default function PlayingPage() {
     console.log(winnerColor);
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
-    const winResult = isWhiteWin + "-" + isBlackWin;
+    const winResult =
+      statusGame == "draw" ? "0-0" : isWhiteWin + "-" + isBlackWin;
 
     game.header("Result", winResult);
     game.header("EndDate", date);
