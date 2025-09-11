@@ -780,17 +780,22 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
       >
         <div className="flex flex-row items-center gap-2">
-          {/* <InitialAvatar
-            name={profile?.name != "" ? profile?.name : username}
-            size="sm"
-          /> */}
-          <Image
-            src={chessComAvatar || ""}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[48px] h-[48px] rounded-full object-contain"
-          />
+          <>
+            {chessComAvatar && chessComAvatar.length > 0 ? (
+              <Image
+                src={chessComAvatar || ""}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[48px] h-[48px] rounded-full object-contain"
+              />
+            ) : (
+              <InitialAvatar
+                name={username}
+                size="sm"
+              />
+            )}
+          </>
           <span className={`text-[17.23px] font-medium text-[#040404]`}>
             {username}
           </span>

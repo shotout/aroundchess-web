@@ -2,6 +2,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface BlackPlayerProps {
   winnerColor: string;
@@ -27,6 +28,20 @@ export const BlackPlayer = ({
   const isWin = winnerColor == "black";
   const isDraw = statusGame == "Draw";
   const isLoss = loserColor == "black";
+  const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (myColor === "white" && username) {
+      fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.avatar) {
+            setChessComAvatar(data.avatar);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [myColor, username]);
   return (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
@@ -41,10 +56,19 @@ export const BlackPlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor != "white" ? (
-          <InitialAvatar
-            name={profile?.name != "" ? profile?.name : username}
-            size="sm"
-          />
+          <>
+            {chessComAvatar && chessComAvatar.length > 0 ? (
+              <Image
+                src={chessComAvatar || ""}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[48px] h-[48px] rounded-full object-contain"
+              />
+            ) : (
+              <InitialAvatar name={username} size="sm" />
+            )}
+          </>
         ) : (
           <Image
             src={AIChoosed.opponent.img}
@@ -66,7 +90,9 @@ export const BlackPlayer = ({
               : "text-[#040404]"
           }`}
         >
-          {myColor != "white" ? username : AIChoosed.opponent.name.replace(/ .*/,'')}
+          {myColor != "white"
+            ? username
+            : AIChoosed.opponent.name.replace(/ .*/, "")}
           {/* <div className="text-center">
               <h2 className="text-xl">{blackTime}</h2>
             </div> */}

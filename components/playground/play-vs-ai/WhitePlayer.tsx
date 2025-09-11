@@ -2,7 +2,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import Image from "next/image";
-import {useEffect,useState} from "react";
+import { useEffect, useState } from "react";
 interface WhitePlayerProps {
   winnerColor: string;
   statusGame: string;
@@ -32,13 +32,13 @@ export const WhitePlayer = ({
   useEffect(() => {
     if (myColor === "white" && username) {
       fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (data?.avatar) {
-              setChessComAvatar(data.avatar);
-            }
-          })
-          .catch(() => {});
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.avatar) {
+            setChessComAvatar(data.avatar);
+          }
+        })
+        .catch(() => {});
     }
   }, [myColor, username]);
   return (
@@ -55,17 +55,19 @@ export const WhitePlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor == "white" ? (
-          // <InitialAvatar
-          //   name={profile?.name != "" ? profile?.name : username}
-          //   size="sm"
-          // />
-          <Image
-            src={chessComAvatar ||""}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[48px] h-[48px] rounded-full object-contain"
-          />
+          <>
+            {chessComAvatar && chessComAvatar.length > 0 ? (
+              <Image
+                src={chessComAvatar || ""}
+                alt="icon"
+                width={1000}
+                height={1000}
+                className="w-[48px] h-[48px] rounded-full object-contain"
+              />
+            ) : (
+              <InitialAvatar name={username} size="sm" />
+            )}
+          </>
         ) : (
           <Image
             src={AIChoosed.opponent.img}

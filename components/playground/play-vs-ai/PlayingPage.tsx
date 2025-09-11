@@ -912,10 +912,8 @@ export default function PlayingPage() {
         ? AIChoosed.opponent.name + " (AI)"
         : username;
     const blackName =
-      AIChoosed.color == "white"
-        ? AIChoosed.opponent.name + " (AI)"
-        : username;
-    
+      AIChoosed.color == "white" ? AIChoosed.opponent.name + " (AI)" : username;
+
     game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
     game.header("Site", "aroundchess.com");
     game.header("Date", date);
@@ -1106,8 +1104,10 @@ export default function PlayingPage() {
       setIsSaving(true);
       const formData = new FormData();
       const currentPgn = game.pgn();
+      const totalMoves = game.history().length;
       console.log("save");
       formData.append("pgn", currentPgn);
+      // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
         formData,
         sessionId ?? null
