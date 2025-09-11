@@ -89,9 +89,9 @@ export default function Puzzle() {
       let usage = res.data.totalPuzzlesThisMonth;
       setRemainingPuzzle(usage);
       if (usage >= 20 && !isMember) {
-        toast.error(
-          `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
-        );
+        // toast.error(
+        //   `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
+        // );
         setOpen(true);
       }
     });
