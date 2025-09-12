@@ -16,10 +16,13 @@ import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { usePgnStore } from "../store/zustandStore";
 import { useProfileStore } from "../store/profile";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 export default function Profile() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { setCallFetch } = useProfileFetch();
   const { setAlreadyFetchProfile, setAlreadyFetch } = useProfileStore();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
   const {
@@ -39,6 +42,7 @@ export default function Profile() {
 
     setAlreadyFetchProfile(false);
     setAlreadyFetch(false);
+    setCallFetch(formatTimePgn());
     router.replace("/profile");
 
     switch (status) {
