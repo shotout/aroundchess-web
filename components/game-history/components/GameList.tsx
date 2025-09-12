@@ -113,13 +113,8 @@ const GamesList: React.FC<GamesListProps> = ({
     const isCompleted = Object.values(analysisJobs).filter(
       (gameData) => gameData.status == "completed"
     );
-    
-    console.log(
-      "totalCompletedJobs < isCompleted.length",
-      totalCompletedJobs < isCompleted.length
-    );
+     
     if (totalCompletedJobs < isCompleted.length) {
-      console.log("load token balance");
       setTotalCompletedJobs(isCompleted.length);
       getTokenBalance({}).then((response) => {
         if (response.data != null) {

@@ -1135,7 +1135,6 @@ export default function PlayingPage() {
       const loserColorLocal = game.turn();
       const winnerColorLocal = loserColorLocal === "w" ? "black" : "white";
       const losserColorLocal = loserColorLocal !== "w" ? "black" : "white";
-      setHeaderGameFinish(winnerColorLocal);
       const isUserWin = myColor === winnerColorLocal;
       setWinnerColor(winnerColorLocal);
       setLoserColor(losserColorLocal);
@@ -1147,11 +1146,13 @@ export default function PlayingPage() {
         setMoveClassification(commentar);
         setStatusGame(gameStatus);
         setTimeout(() => {
+          setHeaderGameFinish(winnerColorLocal);
           setOpenGameStatus(true);
         }, 1000);
       } else {
         setStatusGame("Draw");
         setTimeout(() => {
+          setHeaderGameFinish(winnerColorLocal);
           setOpenGameStatus(true);
         }, 1000);
       }
@@ -1356,25 +1357,20 @@ export default function PlayingPage() {
     }
   };
   useEffect(() => {
-      const isCompleted = Object.values(analysisJobs).filter(
-        (gameData) => gameData.status == "completed"
-      );
-      
-      console.log(
-        "totalCompletedJobs < isCompleted.length",
-        totalCompletedJobs < isCompleted.length
-      );
-      if (totalCompletedJobs < isCompleted.length) {
-        console.log("load token balance");
-        setTotalCompletedJobs(isCompleted.length);
-        getTokenBalance({}).then((response) => {
-          if (response.data != null) {
-            const data = response.data;
-            setToken(data);
-          }
-        });
-      }
-    }, [analysisJobs]);
+    const isCompleted = Object.values(analysisJobs).filter(
+      (gameData) => gameData.status == "completed"
+    );
+
+    if (totalCompletedJobs < isCompleted.length) {
+      setTotalCompletedJobs(isCompleted.length);
+      getTokenBalance({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setToken(data);
+        }
+      });
+    }
+  }, [analysisJobs]);
   const getAnalysisButtonContent = () => {
     const job = getJobByGameId(currentGameId);
     const currentPgn = game.pgn();
