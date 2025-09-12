@@ -57,6 +57,7 @@ import { usePollingManager } from "@/components/game-history/hooks/usePollingMan
 import { createPgnHash } from "@/utils/crypto-utils";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
 import { gameHistoryApi } from "@/components/game-history/services/api";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -326,7 +327,8 @@ const MobileMoveBoxes = ({
 };
 
 export default function PlayingPage() {
-  const { sessionId } = useProfileStore();
+  const { sessionId, setToken } = useProfileStore();
+  const { setCallFetch } = useProfileFetch();
   const { addOtherImportedGame } = usePgnStore();
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
@@ -335,7 +337,8 @@ export default function PlayingPage() {
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
   const [afterFen, setAfterFen] = useState<string>("");
-  const { getVSAILogs, postVSAILogs, isLoading } = useApiClient();
+  const { getVSAILogs, postVSAILogs, getTokenBalance, isLoading } =
+    useApiClient();
   const {
     setIsLoading,
     setPgn,
@@ -351,7 +354,7 @@ export default function PlayingPage() {
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
-  const { getJobByGameId, addJob, updateJob, clearOldJobs } =
+  const { getJobByGameId, analysisJobs, clearOldJobs } =
     useBackgroundAnalysisStore();
   const { startBackgroundPolling, restorePollingJobs } = usePollingManager();
   const [currentGameId, setCurrentGameId] = useState<string>("");
@@ -408,6 +411,7 @@ export default function PlayingPage() {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
@@ -1351,7 +1355,26 @@ export default function PlayingPage() {
       return null;
     }
   };
-
+  useEffect(() => {
+      const isCompleted = Object.values(analysisJobs).filter(
+        (gameData) => gameData.status == "completed"
+      );
+      
+      console.log(
+        "totalCompletedJobs < isCompleted.length",
+        totalCompletedJobs < isCompleted.length
+      );
+      if (totalCompletedJobs < isCompleted.length) {
+        console.log("load token balance");
+        setTotalCompletedJobs(isCompleted.length);
+        getTokenBalance({}).then((response) => {
+          if (response.data != null) {
+            const data = response.data;
+            setToken(data);
+          }
+        });
+      }
+    }, [analysisJobs]);
   const getAnalysisButtonContent = () => {
     const job = getJobByGameId(currentGameId);
     const currentPgn = game.pgn();

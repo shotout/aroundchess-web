@@ -20,6 +20,9 @@ import GamesListSkeleton from "./GameListSkeleton";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { usePollingManager } from "../hooks/usePollingManager";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
+import { useApiClient } from "@/functions/api-client";
 
 interface GamesListProps {
   games: Game[];
@@ -74,8 +77,7 @@ const fetchLastAnalysis = async (
   }
 };
 
-const DESKTOP_GRID_TEMPLATE =
-  "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
+const DESKTOP_GRID_TEMPLATE = "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
 
 const GamesList: React.FC<GamesListProps> = ({
   games,
@@ -87,43 +89,79 @@ const GamesList: React.FC<GamesListProps> = ({
   recentlyImportedIds = [],
 }) => {
   const router = useRouter();
-  const { getJobByGameId, clearOldJobs } = useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
-  const { sessionId } = useProfileStore();
+  const { getJobByGameId, clearOldJobs, analysisJobs } =
+    useBackgroundAnalysisStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
+    usePgnStore();
+  const { getTokenBalance } = useApiClient();
+  const { sessionId, setToken } = useProfileStore();
+  const { setCallFetch } = useProfileFetch();
   const { restorePollingJobs } = usePollingManager();
-
-
+  const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
   const isNewlyImported = (id: string | number) =>
     recentlyImportedIds.includes(id);
 
   const [openGameId, setOpenGameId] = useState<string | number | null>(null);
 
   useEffect(() => {
+    console.log("GamesList mounted, clearing old jobs and restoring polling");
     clearOldJobs();
-     restorePollingJobs();
+    restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
 
+  useEffect(() => {
+    const isCompleted = Object.values(analysisJobs).filter(
+      (gameData) => gameData.status == "completed"
+    );
+    
+    console.log(
+      "totalCompletedJobs < isCompleted.length",
+      totalCompletedJobs < isCompleted.length
+    );
+    if (totalCompletedJobs < isCompleted.length) {
+      console.log("load token balance");
+      setTotalCompletedJobs(isCompleted.length);
+      getTokenBalance({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setToken(data);
+        }
+      });
+    }
+  }, [analysisJobs]);
+  const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
+    const job = getJobByGameId(gameId);
 
- const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
-  const job = getJobByGameId(gameId);
+    if (game.isAnalysis || (job && job.status === "completed")) {
+      return {
+        text: "View Results",
+        icon: <CheckCircle className="h-4 w-4 mr-1" />,
+        className: "bg-green-600 hover:bg-green-700 text-white",
+        onClick: async () => {
+          try {
+            const pgnHash = createPgnHash(game.pgn);
+            const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
 
-  if (game.isAnalysis || (job && job.status === "completed")) {
-    return {
-      text: "View Results",
-      icon: <CheckCircle className="h-4 w-4 mr-1" />,
-      className: "bg-green-600 hover:bg-green-700 text-white",
-      onClick: async () => {
-        try {
-          const pgnHash = createPgnHash(game.pgn);
-          const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-          
-          if (lastAnalysis?.success && lastAnalysis.data) {
-            setPgn(game.pgn); 
-            setDataGamesImport(game);
-            setDataAnalysis(lastAnalysis.data);
-            setIsFromGameHistory(true);
-            router.push("/analysis");
-          } else {
+            if (lastAnalysis?.success && lastAnalysis.data) {
+              setPgn(game.pgn);
+              setDataGamesImport(game);
+              setDataAnalysis(lastAnalysis.data);
+              setIsFromGameHistory(true);
+              router.push("/analysis");
+            } else {
+              if (job && job.result) {
+                setPgn(game.pgn);
+                setDataGamesImport(game);
+                setDataAnalysis(job.result);
+                setIsFromGameHistory(true);
+                router.push("/analysis");
+              } else {
+                console.error("No analysis found for this game");
+                setOpenGameId(gameId);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching analysis:", error);
             if (job && job.result) {
               setPgn(game.pgn);
               setDataGamesImport(game);
@@ -131,63 +169,50 @@ const GamesList: React.FC<GamesListProps> = ({
               setIsFromGameHistory(true);
               router.push("/analysis");
             } else {
-              console.error("No analysis found for this game");
               setOpenGameId(gameId);
             }
           }
-        } catch (error) {
-          console.error("Error fetching analysis:", error);
-          if (job && job.result) {
-            setPgn(game.pgn);
-            setDataGamesImport(game);
-            setDataAnalysis(job.result);
-            setIsFromGameHistory(true);
-            router.push("/analysis");
-          } else {
-            setOpenGameId(gameId);
-          }
-        }
-      },
-    };
-  }
-
-  if (job) {
-    switch (job.status) {
-      case "pending":
-      case "processing": {
-        const pct =
-          job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
-        return {
-          text: pct,
-          icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-          className: "bg-yellow-500 hover:bg-yellow-600 text-white",
-          onClick: () => {},
-        };
-      }
-      case "finalizing":
-        return {
-          text: "Finalizing...",
-          icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-          className: "bg-blue-500 hover:bg-blue-600 text-white",
-          onClick: () => {},
-        };
-      case "failed":
-        return {
-          text: "Retry",
-          icon: <AlertCircle className="h-4 w-4 mr-1" />,
-          className: "bg-red-600 hover:bg-red-700 text-white",
-          onClick: () => setOpenGameId(gameId),
-        };
+        },
+      };
     }
-  }
 
-  return {
-    text: "Analyze",
-    icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
-    className: "btn-primary text-white",
-    onClick: () => setOpenGameId(gameId),
+    if (job) {
+      switch (job.status) {
+        case "pending":
+        case "processing": {
+          const pct =
+            job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
+          return {
+            text: pct,
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            onClick: () => {},
+          };
+        }
+        case "finalizing":
+          return {
+            text: "Finalizing...",
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-blue-500 hover:bg-blue-600 text-white",
+            onClick: () => {},
+          };
+        case "failed":
+          return {
+            text: "Retry",
+            icon: <AlertCircle className="h-4 w-4 mr-1" />,
+            className: "bg-red-600 hover:bg-red-700 text-white",
+            onClick: () => setOpenGameId(gameId),
+          };
+      }
+    }
+
+    return {
+      text: "Analyze",
+      icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+      className: "btn-primary text-white",
+      onClick: () => setOpenGameId(gameId),
+    };
   };
-};
 
   const displayTimeControl = (tc: string) => {
     if (!tc.trim()) {
@@ -270,8 +295,7 @@ const GamesList: React.FC<GamesListProps> = ({
           {currentGames.map((game, idx) => {
             const isNew = isNewlyImported(game.id);
             const indexInPage =
-              (paginationProps.currentPage - 1) *
-                paginationProps.itemsPerPage +
+              (paginationProps.currentPage - 1) * paginationProps.itemsPerPage +
               idx +
               1;
             return (
@@ -373,9 +397,7 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       </div>
 
-      {currentGames.length > 0 && (
-        <PaginationControls {...paginationProps} />
-      )}
+      {currentGames.length > 0 && <PaginationControls {...paginationProps} />}
     </div>
   );
 };
