@@ -151,7 +151,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       if (error instanceof Error) {
-        toast.error(error.message || "Failed to login");
+        toast.error("Your password is incorrect.");
       } else {
         toast.error("Failed to login");
       }
