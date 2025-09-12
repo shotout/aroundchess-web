@@ -935,7 +935,7 @@ export default function PlayingPage() {
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
     const winResult =
-      statusGame == "draw" ? "1/2-1/2" : isWhiteWin + "-" + isBlackWin;
+      statusGame == "Draw" ? "1/2-1/2" : isWhiteWin + "-" + isBlackWin;
 
     game.header("Result", winResult);
     game.header("EndDate", date);
