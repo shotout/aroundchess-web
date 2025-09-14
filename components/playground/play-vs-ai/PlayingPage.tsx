@@ -1094,7 +1094,7 @@ export default function PlayingPage() {
     const body = {
       enemyTag: AIChoosed.opponent.name,
       eloRating: AIChoosed.opponent.elo + "",
-      totalMoves: game.history().length,
+      totalMoves: Math.ceil(game.history().length / 2),
       totalTime: "10 Minutes",
       status: statusGame,
       pgn: game.pgn(),
@@ -1109,7 +1109,7 @@ export default function PlayingPage() {
       setIsSaving(true);
       const formData = new FormData();
       const currentPgn = game.pgn();
-      const totalMoves = game.history().length;
+      const totalMoves = Math.ceil(game.history().length / 2);
       console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
