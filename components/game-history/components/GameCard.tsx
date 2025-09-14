@@ -76,8 +76,8 @@ const GameCard: React.FC<GameCardProps> = ({
     
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
     
-    // If source is "Other" and moves seem to be individual moves (high number), divide by 2
-    if (source === "Other" && numMoves > 0) {
+    // If source is "Other Game" and moves seem to be individual moves, divide by 2
+    if (source === "Other Game" && numMoves > 0) {
       return Math.ceil(numMoves / 2).toString();
     }
     
