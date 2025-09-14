@@ -931,11 +931,11 @@ export default function PlayingPage() {
   const setHeaderGameFinish = (winnerColor: string) => {
     const date = formatDatePgn();
     const time = formatTimePgn();
-    console.log(winnerColor);
+    console.log(statusGame);
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
     const winResult =
-      statusGame == "Draw" ? "1/2-1/2" : isWhiteWin + "-" + isBlackWin;
+      winnerColor == "draw" ? "1/2-1/2" : isWhiteWin + "-" + isBlackWin;
 
     game.header("Result", winResult);
     game.header("EndDate", date);
@@ -1110,7 +1110,7 @@ export default function PlayingPage() {
       const formData = new FormData();
       const currentPgn = game.pgn();
       const totalMoves = game.history().length;
-      console.log("save");
+      console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
@@ -1152,7 +1152,7 @@ export default function PlayingPage() {
       } else {
         setStatusGame("Draw");
         setTimeout(() => {
-          setHeaderGameFinish(winnerColorLocal);
+          setHeaderGameFinish("draw");
           setOpenGameStatus(true);
         }, 1000);
       }
