@@ -231,6 +231,21 @@ const GamesList: React.FC<GamesListProps> = ({
     return op;
   };
 
+  const displayMoves = (moves: number | string, source: string) => {
+    if (!moves || moves === "N/A") {
+      return "N/A";
+    }
+    
+    const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
+    
+    // If source is "Other" and moves seem to be individual moves (high number), divide by 2
+    if (source === "Other" && numMoves > 0) {
+      return Math.ceil(numMoves / 2);
+    }
+    
+    return numMoves;
+  };
+
   if (isLoading) {
     return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
   }
@@ -344,7 +359,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 </div>
 
                 <div className="flex items-center px-2 py-3">
-                  {game.moves || "N/A"}
+                  {displayMoves(game.moves, game.source)}
                 </div>
 
                 <div className="flex items-center px-4 py-3">
