@@ -70,7 +70,7 @@ export function useApiClient() {
             url += `?${query}`;
           }
 
-          const response = await fetch(url, {
+          const response = await fetch(url+"?t="+Date.now(), {
             method,
             headers: {
               Accept: "*/*",
@@ -80,6 +80,7 @@ export function useApiClient() {
               ...(!body || !(body instanceof FormData)
                 ? { "Content-Type": "application/json" }
                 : {}),
+              // cache: "no-store",
             },
             body:
               method !== "GET"
