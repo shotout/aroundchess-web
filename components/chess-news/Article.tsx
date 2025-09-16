@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NoData from "../NoData/NoData";
 import { ArticleSkeletonGrid, CategorySkeleton } from "./SkeletonNews";
+import { ImageWithFallback } from "./ImageWithFallback";
 
 export default function Article() {
   const { sessionId } = useProfileStore();
@@ -55,6 +56,7 @@ export default function Article() {
   const key = selectedTab === null ? "all" : String(selectedTab);
   const allArticles = chessNews[key]?.data || [];
   const { currentData } = usePagination(allArticles);
+  
 
   return (
     <div className="flex flex-col w-full p-4 sm:p-6 lg:p-8">
@@ -130,17 +132,14 @@ export default function Article() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
               {currentData.map((article) => (
                 <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
-                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md min-h-[210px] h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
+                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md min-h-[224px] h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
                     {article.imageUrl?.trim() !== "" ? (
-                      <Image
+                      <ImageWithFallback
                         src={article.imageUrl}
                         alt={article.imageCaption || article.title || "Image"}
                         width={1000}
                         height={1000}
                         className="w-full h-[100px] sm:h-[115px] object-cover p-4 rounded-md"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
                       />
                     ) : (
                       <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 flex items-center justify-center rounded-md">

@@ -11,6 +11,7 @@ import NoData from "../NoData/NoData";
 import { DetailSkeleton } from "./SkeletonNews";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { ScrollArea } from "../ui/scroll-area";
+import { ImageWithFallback } from "./ImageWithFallback";
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -148,7 +149,7 @@ export default function Detail() {
 
           <div className="prose prose-sm max-w-[2/3] mt-4">
             <MarkdownPreview
-              source={localDetail?.content.replace(/^(-{3,}|\*{3,})$/gm, '')}
+              source={localDetail?.content.replace(/^(-{3,}|\*{3,})$/gm, "")}
               className="w-full md:max-w-[66vw]"
               style={{
                 margin: "0 auto",
@@ -232,7 +233,7 @@ export default function Detail() {
                   className="cursor-pointer bg-white mt-2 flex shadow-md rounded-sm border border-input gap-2 p-3"
                 >
                   {article.imageUrl && article.imageUrl.trim() !== "" ? (
-                    <Image
+                    <ImageWithFallback
                       src={article.imageUrl}
                       alt={
                         article.imageCaption ||
