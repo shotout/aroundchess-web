@@ -9,7 +9,6 @@ type Props = {
 };
 
 export default function Page(props: Props) {
-  const params = use(props.params)
   const endgameStore = useMemo(() => useEndgameStore, []);
 
   return (
@@ -18,7 +17,7 @@ export default function Page(props: Props) {
         <Navigation>
           <div className="w-full -mt-16 sm:-mt-16 md:-mt-20 lg:-mt-20 xl:mt-0">
             <ChessLessonDetail
-              params={params}
+              params={props.params}
               lessonType="endgame"
               lessonStore={endgameStore()}
             />
