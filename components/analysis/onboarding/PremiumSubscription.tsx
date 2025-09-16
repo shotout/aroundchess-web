@@ -156,7 +156,13 @@ export const PremiumSubsContent: React.FC<{
     };
     const body: BodyType = {
       productName: premium.name,
-      price: isPass > 0 ? 7999 : premium.price * 100,
+      price: (
+        !isMember &&
+        profile?.discountInfo?.hasActiveDiscount &&
+        isPass > 0
+      )
+        ? 7999
+        : premium.price * 100,
       quantity: 1,
       description: premium.description,
       type: "membership",
@@ -300,8 +306,11 @@ export const PremiumSubsContent: React.FC<{
               <h3 className="text-lg font-semibold">
                 Premium Package (Yearly)
               </h3>
-              {profile?.discountInfo?.hasActiveDiscount == false &&
-              (isMember || isPass < 0) ? (
+              {!(
+                !isMember &&
+                profile?.discountInfo?.hasActiveDiscount &&
+                isPass > 0
+              ) ? (
                 <div className="text-xl font-semibold">
                   $99.99 <span className="text-sm font-normal">/year</span>
                 </div>
