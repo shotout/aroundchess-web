@@ -18,8 +18,7 @@ import { usePgnStore } from "../store/zustandStore";
 import { useProfileStore } from "../store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
-
-export default function Profile() {
+function Profile() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { setCallFetch } = useProfileFetch();
@@ -99,6 +98,13 @@ export default function Profile() {
           </div>
         </Navigation>
       )}
+    </Suspense>
+  );
+}
+export default function Page() {
+  return (
+    <Suspense>
+      <Profile />
     </Suspense>
   );
 }

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useProfileStore } from "../store/profile";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useSearchParams } from "next/navigation";
-
+export const dynamic = "force-dynamic";
 interface PasswordCondition {
   id: string;
   text: string;
@@ -21,7 +21,7 @@ interface EmailValidation {
   isValid: boolean;
   message: string;
 }
-export default function RegisterPage() {
+function RegisterPage() {
   const searchParams = useSearchParams();
   const emailParam = searchParams?.get("email");
 
@@ -717,5 +717,12 @@ export default function RegisterPage() {
         <SiteFooterNew />
       </div>
     </>
+  );
+}
+export default function Page() {
+  return (
+    <Suspense>
+      <RegisterPage />
+    </Suspense>
   );
 }

@@ -2,10 +2,14 @@
 
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { useOpeningStore } from "../OpeningStore";
+type Props = {
+  params: Promise<{ slug: string }>;
+};
 
-export default function Page({ params }: { params: { slug: string } }) {
+export default function Page(props: Props) {
+  const params = use(props.params);
   const openingStore = useMemo(() => useOpeningStore, []);
 
   return (

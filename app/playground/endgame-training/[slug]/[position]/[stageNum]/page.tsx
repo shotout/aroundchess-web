@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import Navigation from "@/components/navigator/navigation";
 import StageDetailView from "../../../components/board/StageDetailView";
+type Props = {
+  params: Promise<{ slug: string; position: string; stageNum: string }>;
+};
 
-export default function Page({
-  params,
-}: {
-  params: { slug: string; position: string; stageNum: string };
-}) {
+export default function Page(props: Props) {
+  const params = use(props.params);
+
   return (
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,7 @@ import { Lock, ArrowLeft, CheckCircle } from "lucide-react";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Image from "next/image";
-
-export default function ResetPassword() {
+function ResetPassword() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isResetting, setIsResetting] = useState(false);
@@ -136,5 +135,12 @@ export default function ResetPassword() {
 
       <SiteFooterNew />
     </div>
+  );
+}
+export default function Page() {
+  return (
+    <Suspense>
+      <ResetPassword />
+    </Suspense>
   );
 }

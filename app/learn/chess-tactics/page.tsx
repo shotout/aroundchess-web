@@ -1,7 +1,4 @@
 import { Metadata } from "next";
-import ChessTacticsClient from "./ChessTacticsClient";
-import ClearanceSacrifices from "@/components/learn/chess-tactics/ClearanceSacrifices";
-
 export const metadata: Metadata = {
   title: "Chess Tactics | Chess Analyzer",
   description:
