@@ -1,11 +1,15 @@
 "use client";
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { useEndgameStore } from "../EndgameStore";
 
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
-export default function Page({ params }:{ params: { slug: string } }) {
+export default function Page({ params }:PageProps) {
+  const { slug } = use(params);
   const endgameStore = useMemo(() => useEndgameStore, []);
 
   return (
@@ -14,7 +18,7 @@ export default function Page({ params }:{ params: { slug: string } }) {
         <Navigation>
           <div className="w-full -mt-16 sm:-mt-16 md:-mt-20 lg:-mt-20 xl:mt-0">
             <ChessLessonDetail
-              params={params}
+              params={{ slug }}
               lessonType="endgame"
               lessonStore={endgameStore()}
             />
