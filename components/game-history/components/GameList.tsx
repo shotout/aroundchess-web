@@ -231,17 +231,12 @@ const GamesList: React.FC<GamesListProps> = ({
     return op;
   };
 
-  const displayMoves = (moves: number | string, source: string) => {
+  const displayMoves = (moves: number | string) => {
     if (!moves || moves === "N/A") {
       return "N/A";
     }
     
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
-    
-    // If source is "Other Game" and moves seem to be individual moves, divide by 2
-    if (source === "Other Game" && numMoves > 0) {
-      return Math.ceil(numMoves / 2);
-    }
     
     return numMoves;
   };
@@ -359,7 +354,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 </div>
 
                 <div className="flex items-center px-2 py-3">
-                  {displayMoves(game.moves, game.source)}
+                  {displayMoves(game.moves)}
                 </div>
 
                 <div className="flex items-center px-4 py-3">

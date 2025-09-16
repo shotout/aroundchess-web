@@ -69,17 +69,12 @@ const GameCard: React.FC<GameCardProps> = ({
   } = usePgnStore();
   const { sessionId } = useProfileStore();
 
-  const displayMoves = (moves: number | string, source: string) => {
+  const displayMoves = (moves: number | string) => {
     if (!moves || moves === "N/A") {
       return "N/A";
     }
     
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
-    
-    // If source is "Other Game" and moves seem to be individual moves, divide by 2
-    if (source === "Other Game" && numMoves > 0) {
-      return Math.ceil(numMoves / 2).toString();
-    }
     
     return numMoves.toString();
   };
@@ -182,7 +177,7 @@ const GameCard: React.FC<GameCardProps> = ({
     ],
     [
       { label: "Opening", value: gameData.opening },
-      { label: "Moves", value: displayMoves(gameData.moves, gameData.source) },
+      { label: "Moves", value: displayMoves(gameData.moves) },
       { label: "Source", value: gameData.source },
     ],
   ];
