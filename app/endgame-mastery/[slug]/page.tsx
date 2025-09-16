@@ -4,13 +4,9 @@ import Navigation from "@/components/navigator/navigation";
 import { useMemo } from "react";
 import { useEndgameStore } from "../EndgameStore";
 
-interface EndgamePageProps {
-  params: {
-    slug: string;
-  };
-}
 
-export default function Page({ params }: EndgamePageProps) {
+
+export default function Page({ params }:{ params: { slug: string } }) {
   const endgameStore = useMemo(() => useEndgameStore, []);
 
   return (
