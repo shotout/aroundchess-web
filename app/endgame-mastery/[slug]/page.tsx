@@ -4,12 +4,12 @@ import Navigation from "@/components/navigator/navigation";
 import { use, useMemo } from "react";
 import { useEndgameStore } from "../EndgameStore";
 
-interface PageProps {
+type Props = {
   params: Promise<{ slug: string }>;
-}
+};
 
-export default function Page({ params }:PageProps) {
-  const { slug } = use(params);
+export default function Page(props: Props) {
+  const params = use(props.params)
   const endgameStore = useMemo(() => useEndgameStore, []);
 
   return (
@@ -18,7 +18,7 @@ export default function Page({ params }:PageProps) {
         <Navigation>
           <div className="w-full -mt-16 sm:-mt-16 md:-mt-20 lg:-mt-20 xl:mt-0">
             <ChessLessonDetail
-              params={{ slug }}
+              params={params}
               lessonType="endgame"
               lessonStore={endgameStore()}
             />
