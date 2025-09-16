@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { useEndgameStore } from "../EndgameStore";
 
 
-
 export default function Page({ params }:{ params: { slug: string } }) {
   const endgameStore = useMemo(() => useEndgameStore, []);
 
