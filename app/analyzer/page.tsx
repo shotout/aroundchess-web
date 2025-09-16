@@ -2,6 +2,7 @@ import React from "react";
 import PGNAnalyzer from "@/components/analyzer/PGNAnalyzer";
 import { SiteHeader } from "@/components/site-header";
 
+
 export default function AnalyzePage() {
   return (
     <>
