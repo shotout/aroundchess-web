@@ -69,8 +69,10 @@ export function useApiClient() {
             const query = new URLSearchParams(params as any).toString();
             url += `?${query}`;
           }
-
-          const response = await fetch(url+"?t="+Date.now(), {
+          let mewUrl = url?.includes("?")
+            ? url + "&t=" + Date.now()
+            : url + "?t=" + Date.now();
+          const response = await fetch(mewUrl, {
             method,
             headers: {
               Accept: "*/*",
