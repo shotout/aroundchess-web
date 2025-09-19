@@ -88,13 +88,13 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
 
   const renderMoveAnalysis = (item: any) => (
     <div className="flex flex-col gap-2">
-      <span className="text-sm sm:text-md md:text-md lg:text-xs font-normal">
+      <span className="text-sm sm:text-md md:text-md lg:text-md font-normal">
         <span className="font-bold">Analysis: </span>
         {item.analysis}
       </span>
       {item.explanation && (
-        <span className="text-sm sm:text-md md:text-md lg:text-xs font-normal">
-          <span className="font-bold">Explanation: </span>
+        <span className="text-sm sm:text-md md:text-md lg:text-md font-normal">
+          <span className="font-bold">Recommendation: </span>
           {item.explanation}
         </span>
       )}
@@ -119,10 +119,10 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               </span>
               <div className="flex flex-row items-center gap-1">
                 <InfoIcon size={16} color="#221AE9" />
-                <span className="text-xs sm:text-sm md:text-md lg:text-xs">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md">
                   Type:
                 </span>
-                <span className="text-xs sm:text-sm md:text-md lg:text-xs font-semibold">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold">
                   Middlegame
                 </span>
               </div>
@@ -158,7 +158,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                         <div className="flex flex-row gap-2">
                           <span
                             onClick={() => handleOnClickMovement(item)}
-                            className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                            className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                           >
                             Move {item?.moveNumber}:{" "}
                             {capturedWhite &&
@@ -179,7 +179,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                             <span className="font-bold">{item?.move}</span>
                           </span>
                           <span
-                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-xs text-center font-normal ${getScoreClass(
+                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                               item.classification
                             )}`}
                           >
@@ -187,7 +187,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                           </span>
                         </div>
                         <span
-                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
+                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                             item.classification
                           )}`}
                         >
@@ -237,10 +237,10 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
               </span>
               <div className="flex flex-row items-center gap-1">
                 <InfoIcon size={16} color="#221AE9" />
-                <span className="text-xs sm:text-sm md:text-md lg:text-xs">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md">
                   Type:
                 </span>
-                <span className="text-xs sm:text-sm md:text-md lg:text-xs font-semibold">
+                <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold">
                   Middlegame
                 </span>
               </div>
@@ -276,7 +276,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                         <div className="flex flex-row gap-2">
                           <span
                             onClick={() => handleOnClickMovement(item)}
-                            className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                            className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                           >
                             Move {item?.moveNumber}:{" "}
                             {capturedWhite &&
@@ -297,7 +297,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                             <span className="font-bold">{item?.move}</span>
                           </span>
                           <span
-                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-xs text-center font-normal ${getScoreClass(
+                            className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                               item.classification
                             )}`}
                           >
@@ -305,7 +305,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                           </span>
                         </div>
                         <span
-                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
+                          className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                             item.classification
                           )}`}
                         >

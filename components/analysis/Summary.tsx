@@ -311,7 +311,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             >
               <div className="flex flex-col items-end justify-around gap-2 ">
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[40px] xl:min-w-[194px] text-center sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] text-center sm:text-sm md:text-md lg:text-md text-right font-normal p-1 ">
                     Opening:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -324,13 +324,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                         className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                       />
                     )}
-                    <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                    <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                       {whiteSide?.analysis?.opening}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1 ">
                     Middlegame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -343,13 +343,13 @@ const Summary: React.FC<SummaryProps> = (props) => {
                         className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                       />
                     )}
-                    <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                    <span className="text-[11px]  font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                       {whiteSide?.analysis?.middleGame}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-row items-center justify-around gap-2">
-                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-xs text-right font-normal p-1 ">
+                  <span className="text-xs min-w-[40px] xl:min-w-[194px] sm:text-sm md:text-md lg:text-md text-right font-normal p-1 ">
                     Endgame:
                   </span>
                   <div className="flex max-w-[44px] flex-col items-center w-16">
@@ -363,7 +363,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       />
                     )}
 
-                    <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                    <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                       {whiteSide?.analysis?.endGame}
                     </span>
                   </div>
@@ -383,7 +383,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                   )}
-                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis?.opening}
                   </span>
                 </div>
@@ -399,7 +399,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                   )}
-                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis?.middleGame}
                   </span>
                 </div>
@@ -415,7 +415,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
                   )}
-                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-xs text-center p-1">
+                  <span className="text-[11px] font-normal sm:text-sm md:text-md lg:text-md text-center p-1">
                     {blackSide?.analysis?.endGame}
                   </span>
                 </div>

@@ -139,7 +139,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           <div className="flex flex-row gap-2">
                             <span
                               onClick={() => handleOnClickMovement(item)}
-                              className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                              className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                             >
                               Move {item?.moveNumber}:{" "}
                               {capturedWhite &&
@@ -259,7 +259,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           <div className="flex flex-row gap-2">
                             <span
                               onClick={() => handleOnClickMovement(item)}
-                              className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                              className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                             >
                               Move {item?.moveNumber}:{" "}
                               {capturedWhite &&

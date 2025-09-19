@@ -128,11 +128,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-xs text-right sm:text-left">
+            <p className="text-sm sm:text-sm md:text-md lg:text-md text-right sm:text-left">
               White Opening:{" "}
             </p>
             <div className="flex flex-row justify-end sm:justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
+              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
                 {openings.white.name}
               </span>
               {whiteOpening.classification && (
@@ -147,11 +147,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </div>
           </div>
           <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-xs text-left">
+            <p className="text-sm sm:text-sm md:text-md lg:text-md text-left">
               Black Opening:{" "}
             </p>
             <div className="flex flex-row justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-xs text-blue-600">
+              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
                 {openings.black.name}
               </span>
               {blackOpening.classification && (
@@ -171,15 +171,15 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(whiteOpening)}
-                className="max-w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+                className="max-w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
+                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
                   {whiteOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                   whiteOpening.classification
                 )}`}
               >
@@ -190,14 +190,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {whiteOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-xs">
+                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-md">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-xs xl:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
               {whiteOpening.explanation}
             </div>
           </div>
@@ -205,15 +205,15 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(blackOpening)}
-                className="w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-xs rounded-[4px] border border-primary p-1"
+                className="w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-xs font-bold">
+                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
                   {blackOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-xs ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
                   blackOpening.classification
                 )}`}
               >
@@ -224,14 +224,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <ul className="list-inside text-xs">
               {blackOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1">
-                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-xs">
+                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-md">
                     {detail.split(" ")[0]}
                   </span>{" "}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-xs xl:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
               {blackOpening.explanation}
             </div>
           </div>
