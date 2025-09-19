@@ -450,7 +450,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         {/* best moves  */}
-        <div className="border border-primary border-t-4 rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
               alt=""
@@ -462,7 +462,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
               Best Moves
             </span>
-            <div onClick={() => setOpenBestMoves(!openBestMoves)}>
+            
+            <div className="hidden sm:block" onClick={() => setOpenBestMoves(!openBestMoves)}>
               {openBestMoves ? (
                 <ChevronUp size={24} color="black" />
               ) : (
@@ -474,7 +475,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <div className="flex flex-col gap-2 mt-2">
               {bestMoves != null &&
                 bestMoves.middleGame &&
-                bestMoves.middleGame.map((middle: any, i: number) => {
+                bestMoves.middleGame.slice(0,5).map((middle: any, i: number) => {
                   return (
                     <div
                       className={`border ${
@@ -512,7 +513,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           )}
         </div>
         {/* critical mistakes moves  */}
-        <div className="border border-primary border-t-4 rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
               alt=""
@@ -524,7 +525,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
               Critical Mistakes
             </span>
-            <div onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
+            <div className="hidden sm:block" onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
               {openCriticalMoves ? (
                 <ChevronUp size={24} color="black" />
               ) : (
@@ -535,7 +536,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           {openCriticalMoves &&
             criticalMistakes &&
             criticalMistakes.length > 0 &&
-            criticalMistakes.map((item: any, index: number) => {
+            criticalMistakes.slice(0,5).map((item: any, index: number) => {
               return (
                 <div className="flex flex-col gap-2 mt-2" key={index}>
                   <div

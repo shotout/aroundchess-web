@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
@@ -17,7 +17,8 @@ const Threats: React.FC<ThreatsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { PieceChoosed } = useChessBoardThemeStore();
-
+  const [showAllThreats, setShowAllThreats] = useState<boolean>(false);
+  const ITEMS_TO_SHOW = 5;
   // Safe destructuring with defaults
   const { threats = [] } = dataAnalysis ?? {};
 
@@ -29,7 +30,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        <div className="border w-full border-primary border-t-4 rounded-md p-3">
+        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
               alt="images"
@@ -44,54 +45,75 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           </div>
           <div className="flex flex-col gap-2 mt-2">
             {threats.length === 0 && <NoData />}
-            {threats.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className={`border ${
-                    chessMove.move == item.move
-                      ? `border-2 border-[#221AE9] bg-[#221AE910]`
-                      : `border-input`
-                  } rounded-md p-4`}
-                >
-                  <div className="flex flex-row justify-between items-center gap-2 mb-2">
-                    <span
-                      onClick={() => handleOnClickMovement(item)}
-                      className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
-                    >
-                      Move {item?.moveNumber}:{" "}
-                      {capturedWhite &&
-                        capturedWhite
-                          .filter((wp) => wp.san == item?.move)
-                          .map((item, index) => {
-                            return (
-                              <Image
-                                key={index}
-                                src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                alt="icon"
-                                width={1000}
-                                height={1000}
-                                className="w-[12px] h-[12px] object-contain inline-block"
-                              />
-                            );
-                          })}
-                      <span className="font-bold">{item?.move}</span>
+            {(showAllThreats ? threats : threats.slice(0, ITEMS_TO_SHOW)).map(
+              (item: any, index: number) => {
+                return (
+                  <div
+                    key={index}
+                    className={`border ${
+                      chessMove.move == item.move
+                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
+                        : `border-input`
+                    } rounded-md p-4`}
+                  >
+                    <div className="flex flex-row justify-between items-center gap-2 mb-2">
+                      <span
+                        onClick={() => handleOnClickMovement(item)}
+                        className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-xs font-normal border border-primary rounded-[4px] p-1 gap-1"
+                      >
+                        Move {item?.moveNumber}:{" "}
+                        {capturedWhite &&
+                          capturedWhite
+                            .filter((wp) => wp.san == item?.move)
+                            .map((item, index) => {
+                              return (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  className="w-[12px] h-[12px] object-contain inline-block"
+                                />
+                              );
+                            })}
+                        <span className="font-bold">{item?.move}</span>
+                      </span>
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
+                        {item?.threatType}
+                      </span>
+                    </div>
+                    <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal">
+                    <span className="font-bold">Analysis:</span> {item?.explanation}
                     </span>
-                    <span className="text-[10px] sm:text-sm md:text-md lg:text-xs font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
-                      {item?.threatType}
-                    </span>
+                    <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                      <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                       <span className="font-bold">Recommendation:</span> {item?.solution}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal">
-                    {item?.explanation}
-                  </span>
-                  <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                    <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
-                      {item?.solution}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
+            {threats.length > ITEMS_TO_SHOW && (
+              <button
+                onClick={() => setShowAllThreats(!showAllThreats)}
+                className="w-full flex flex-row items-center justify-center mt-2 py-2 gap-[4px] h-[40px] bg-[#FAFDFF] rounded-[100px] border-[0.5px] border-[#C0CED4]"
+              >
+                <span className="text-center text-[14px] text-[#221AE9] font-medium">
+                  {showAllThreats
+                    ? "See Less"
+                    : `See More (${threats.length - ITEMS_TO_SHOW})`}
+                </span>
+                <Image
+                  src="/icons/chevron-down.png"
+                  alt="arrow down"
+                  width={16}
+                  height={16}
+                  className={`ml-1 ${showAllThreats ? "rotate-180" : ""}`}
+                />
+              </button>
+            )}
           </div>
         </div>
       </div>
