@@ -156,13 +156,10 @@ export const PremiumSubsContent: React.FC<{
     };
     const body: BodyType = {
       productName: premium.name,
-      price: (
-        !isMember &&
-        profile?.discountInfo?.hasActiveDiscount &&
-        isPass > 0
-      )
-        ? 7999
-        : premium.price * 100,
+      price:
+        !isMember && profile?.discountInfo?.hasActiveDiscount && isPass > 0
+          ? 7999
+          : premium.price * 100,
       quantity: 1,
       description: premium.description,
       type: "membership",
@@ -221,62 +218,66 @@ export const PremiumSubsContent: React.FC<{
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-blue-50 rounded-full">
-              <Image
-                src="/onboarding/free.png"
-                alt="Free Icon"
-                width={48}
-                height={48}
-              />
+      <div className={`grid gap-4 ${sessionId.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+        {sessionId.length > 0 && (
+          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-50 rounded-full">
+                <Image
+                  src="/onboarding/free.png"
+                  alt="Free Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-black">
+                  Free Package
+                </h3>
+                <div className="text-xl font-semibold text-black">${0}</div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-black">Free Package</h3>
-              <div className="text-xl font-semibold text-black">${0}</div>
+
+            <p className="text-gray-700 text-sm mb-3">
+              Our Basic Package for free limited Access!
+            </p>
+
+            <div className="space-y-2 flex-grow">
+              <BenefitItem text="1 Game Analysis every 72h" />
+              <BenefitItem text="Basic Game Analysis" />
+              <BenefitItem text="Limited Access to the Feedback Log and Game History" />
+              <BenefitItem text="20 Puzzles per month" />
+              <BenefitItem text="Play vs. AI" />
+              <BenefitItem text="Board Vision Training" />
+              <BenefitItem text="Endgame Training" />
+              <BenefitItem text="Chess Handbook" />
             </div>
+
+            {isLoading && <DotSpinner />}
+            {!isMember && !isLoading && (
+              <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+                <Image
+                  src="/onboarding/currentPackage.png"
+                  alt="Free Icon"
+                  className=""
+                  width={40}
+                  height={40}
+                />
+                <p className="text-sm font-medium text-black">
+                  You are on this Package
+                </p>
+
+                <Image
+                  width={160}
+                  height={160}
+                  alt="member"
+                  src={"/onboarding/member.png"}
+                  className="absolute top-0 right-8"
+                />
+              </div>
+            )}
           </div>
-
-          <p className="text-gray-700 text-sm mb-3">
-            Our Basic Package for free limited Access!
-          </p>
-
-          <div className="space-y-2 flex-grow">
-            <BenefitItem text="1 Game Analysis every 72h" />
-            <BenefitItem text="Basic Game Analysis" />
-            <BenefitItem text="Limited Access to the Feedback Log and Game History" />
-            <BenefitItem text="20 Puzzles per month" />
-            <BenefitItem text="Play vs. AI" />
-            <BenefitItem text="Board Vision Training" />
-            <BenefitItem text="Endgame Training" />
-            <BenefitItem text="Chess Handbook" />
-          </div>
-
-          {isLoading && <DotSpinner />}
-          {!isMember && !isLoading && (
-            <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-              <Image
-                src="/onboarding/currentPackage.png"
-                alt="Free Icon"
-                className=""
-                width={40}
-                height={40}
-              />
-              <p className="text-sm font-medium text-black">
-                You are on this Package
-              </p>
-
-              <Image
-                width={160}
-                height={160}
-                alt="member"
-                src={"/onboarding/member.png"}
-                className="absolute top-0 right-8"
-              />
-            </div>
-          )}
-        </div>
+        )}
 
         <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
           <div className="absolute -top-2 left-0 right-0 flex justify-center">

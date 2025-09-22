@@ -462,8 +462,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
               Best Moves
             </span>
-            
-            <div className="hidden sm:block" onClick={() => setOpenBestMoves(!openBestMoves)}>
+
+            <div
+              className="hidden sm:block"
+              onClick={() => setOpenBestMoves(!openBestMoves)}
+            >
               {openBestMoves ? (
                 <ChevronUp size={24} color="black" />
               ) : (
@@ -475,40 +478,44 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <div className="flex flex-col gap-2 mt-2">
               {bestMoves != null &&
                 bestMoves.middleGame &&
-                bestMoves.middleGame.slice(0,5).map((middle: any, i: number) => {
-                  return (
-                    <div
-                      className={`border ${
-                        chessMove.move == middle.move
-                          ? `border-2 border-[#221AE9] bg-[#221AE910]`
-                          : `border-input`
-                      } rounded-md p-4`}
-                      key={i}
-                    >
-                      <div className="flex flex-row justify-between gap-2 mb-2">
-                        <span
-                          onClick={() => handleOnClickMovement(middle)}
-                          className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
-                        >
-                          Move {middle.moveNumber}:{" "}
-                          <span className="font-bold">{middle.move}</span>
+                bestMoves.middleGame
+                  .slice(0, 5)
+                  .map((middle: any, i: number) => {
+                    return (
+                      <div
+                        className={`border ${
+                          chessMove.move == middle.move
+                            ? `border-2 border-[#221AE9] bg-[#221AE910]`
+                            : `border-input`
+                        } rounded-md p-4`}
+                        key={i}
+                      >
+                        <div className="flex flex-row justify-between gap-2 mb-2">
+                          <span
+                            onClick={() => handleOnClickMovement(middle)}
+                            className="cursor-pointer text-[10px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+                          >
+                            Move {middle.moveNumber}:{" "}
+                            <span className="font-bold">{middle.move}</span>
+                          </span>
+                          <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
+                            {middle.classification}
+                          </span>
+                        </div>
+                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
+                          {middle.analysis}
                         </span>
-                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1">
-                          {middle.classification}
-                        </span>
+                        {middle.recommendation && (
+                          <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                            <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
+                              {/* [HOW THE THREAT COULD HAVE BEEN AVOIDED] */}
+                              Recommendation: {middle.recommendation}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal">
-                        {middle.analysis}
-                      </span>
-                      <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                        <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
-                          {/* [HOW THE THREAT COULD HAVE BEEN AVOIDED] */}
-                          Evaluation: {middle.evaluation}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
             </div>
           )}
         </div>
@@ -525,7 +532,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
             <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
               Critical Mistakes
             </span>
-            <div className="hidden sm:block" onClick={() => setOpenCriticalMoves(!openCriticalMoves)}>
+            <div
+              className="hidden sm:block"
+              onClick={() => setOpenCriticalMoves(!openCriticalMoves)}
+            >
               {openCriticalMoves ? (
                 <ChevronUp size={24} color="black" />
               ) : (
@@ -536,7 +546,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
           {openCriticalMoves &&
             criticalMistakes &&
             criticalMistakes.length > 0 &&
-            criticalMistakes.slice(0,5).map((item: any, index: number) => {
+            criticalMistakes.slice(0, 5).map((item: any, index: number) => {
               return (
                 <div className="flex flex-col gap-2 mt-2" key={index}>
                   <div
@@ -563,11 +573,14 @@ const Summary: React.FC<SummaryProps> = (props) => {
                         {item.analysis}
                       </span>
                     )}
-                    <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-primary">
-                        {item.solution}
-                      </span>
-                    </div>
+                    {item.solution && (
+                      <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                        <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                          <span className="font-bold">Recommendation: </span>
+                          {item.solution}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

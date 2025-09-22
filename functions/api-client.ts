@@ -59,7 +59,7 @@ export function useApiClient() {
           sessionId.length > 0 ||
           path.includes("faq") ||
           path.includes("contact") ||
-          path.includes("news")
+          path.includes("news") || path.includes("tokens/packages")
         ) {
           setIsLoading(true);
           setError(null);

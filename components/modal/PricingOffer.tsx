@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
+import { useRouter } from "next/navigation";
 
 interface TokenOption {
   amount: number;
@@ -29,7 +30,7 @@ interface TokenOption {
 export const PricingOffer: React.FC = () => {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const arrNumber = [12, 78, 50, 99, 15];
-
+  const router = useRouter();
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("0");
   const [index, setIndex] = useState(0);
@@ -114,7 +115,8 @@ export const PricingOffer: React.FC = () => {
 
   const handleGetPremium = () => {
     if (sessionId.length == 0) {
-      setOpenConfirmLogin(true);
+      // setOpenConfirmLogin(true);
+      router.push("login");
       setOpen(false);
     } else {
       handleStop();
@@ -125,7 +127,9 @@ export const PricingOffer: React.FC = () => {
 
   const handlePurchaseToken = async () => {
     if (sessionId.length == 0) {
-      setOpenConfirmLogin(true);
+      // setOpenConfirmLogin(true);
+      router.push("login");
+      setOpen(false);
     } else {
       setLoading(true);
       const tokenAmount =
@@ -232,7 +236,11 @@ export const PricingOffer: React.FC = () => {
             height: activeTab == "tokens" ? "auto" : "auto",
             width: "100%",
           }}
-          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
+          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] ${
+            sessionId.length > 0
+              ? "sm:max-w-[640px] xl:max-w-[1141px]"
+              : "sm:max-w-[640px] xl:max-w-[640px]"
+          } max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
@@ -251,29 +259,33 @@ export const PricingOffer: React.FC = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div>
               <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
-                <TabsTrigger
-                  value="tokens"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
-                    activeTab == "tokens"
-                      ? "font-semibold border border-[#C0CED4]"
-                      : "font-normal"
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
-                    <Image
-                      src={`/images/pricing/token-icon.png`}
-                      alt="Logo"
-                      width={1000}
-                      height={1000}
-                      className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
-                      priority
-                    />
-                    <span className="block leading-tight text-center">
-                      <span className="block sm:inline">Unlock More</span>
-                      <span className="block sm:inline sm:ml-1">Analyses</span>
-                    </span>
-                  </div>
-                </TabsTrigger>
+                {sessionId.length > 0 && (
+                  <TabsTrigger
+                    value="tokens"
+                    className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
+                      activeTab == "tokens"
+                        ? "font-semibold border border-[#C0CED4]"
+                        : "font-normal"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
+                      <Image
+                        src={`/images/pricing/token-icon.png`}
+                        alt="Logo"
+                        width={1000}
+                        height={1000}
+                        className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
+                        priority
+                      />
+                      <span className="block leading-tight text-center">
+                        <span className="block sm:inline">Unlock More</span>
+                        <span className="block sm:inline sm:ml-1">
+                          Analyses
+                        </span>
+                      </span>
+                    </div>
+                  </TabsTrigger>
+                )}
                 <TabsTrigger
                   value="subscription"
                   className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
@@ -303,109 +315,111 @@ export const PricingOffer: React.FC = () => {
                   </div>
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="tokens">
-                <div className="gap-[16px] flex flex-col">
-                  <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
-                    Purchase Tokens to unlock more Analyses right now!
-                  </span>
-                  <div className="flex items-center justify-center gap-2 ">
-                    <CheckCircle
-                      className="w-[16px] h-[16px] xl:w-[24px] xl:h-[24px]"
-                      color="#221AE9"
-                    />
-                    <span className="text-[12px] xl:text-[18px] font-normal">
-                      Spend 1 Analysis Token for each Analysis
+              {sessionId.length > 0 && (
+                <TabsContent value="tokens">
+                  <div className="gap-[16px] flex flex-col">
+                    <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
+                      Purchase Tokens to unlock more Analyses right now!
                     </span>
-                  </div>
+                    <div className="flex items-center justify-center gap-2 ">
+                      <CheckCircle
+                        className="w-[16px] h-[16px] xl:w-[24px] xl:h-[24px]"
+                        color="#221AE9"
+                      />
+                      <span className="text-[12px] xl:text-[18px] font-normal">
+                        Spend 1 Analysis Token for each Analysis
+                      </span>
+                    </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
-                    {tokenData &&
-                      tokenData.length > 0 &&
-                      tokenData.map((option: any, index: number) => {
-                        if (option.quantity > 50) return null;
-                        return (
-                          <div
-                            key={index}
-                            className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
-                              selectedToken === index
-                                ? "border-4 border-[#221AE9]"
-                                : " "
-                            }`}
-                            onClick={() => {
-                              startInterval();
-                              setSelectedToken(index);
-                            }}
-                          >
-                            {selectedToken != index && (
-                              <div
-                                className={`h-[96%] w-[99%] mx-[8px]  absolute rounded-[10px] inset-0`}
-                                style={{
-                                  boxShadow:
-                                    "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
-                                }}
-                              />
-                            )}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
+                      {tokenData &&
+                        tokenData.length > 0 &&
+                        tokenData.map((option: any, index: number) => {
+                          if (option.quantity > 50) return null;
+                          return (
+                            <div
+                              key={index}
+                              className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                                selectedToken === index
+                                  ? "border-4 border-[#221AE9]"
+                                  : " "
+                              }`}
+                              onClick={() => {
+                                startInterval();
+                                setSelectedToken(index);
+                              }}
+                            >
+                              {selectedToken != index && (
+                                <div
+                                  className={`h-[96%] w-[99%] mx-[8px]  absolute rounded-[10px] inset-0`}
+                                  style={{
+                                    boxShadow:
+                                      "inset 2px 0px 40px 2px rgba(247, 242, 242, 0.9)",
+                                  }}
+                                />
+                              )}
 
-                            <Image
-                              src={`/images/pricing/${
-                                widthC <= 1024
-                                  ? option.quantity + `-token-mobile`
-                                  : option.quantity + `-token`
-                              }.png`}
-                              alt="icon"
-                              width={1000}
-                              height={1000}
-                              priority
-                              className="w-full h-full absolute inset-0 object-cover rounded-[14px] -z-10 "
-                              style={
-                                selectedToken != index
-                                  ? {
-                                      backgroundImage: `
+                              <Image
+                                src={`/images/pricing/${
+                                  widthC <= 1024
+                                    ? option.quantity + `-token-mobile`
+                                    : option.quantity + `-token`
+                                }.png`}
+                                alt="icon"
+                                width={1000}
+                                height={1000}
+                                priority
+                                className="w-full h-full absolute inset-0 object-cover rounded-[14px] -z-10 "
+                                style={
+                                  selectedToken != index
+                                    ? {
+                                        backgroundImage: `
                             linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
                             linear-gradient(230deg, #FFFFFF, #9FDEFE)
                           `,
-                                      backgroundClip: "padding-box, border-box",
-                                      backgroundOrigin:
-                                        "padding-box, border-box",
-                                      borderLeft: "8px solid transparent",
-                                      borderBottom: "8px solid transparent",
-                                      borderTop: "2px solid transparent",
-                                      borderRight: "2px solid transparent",
-                                    }
-                                  : {
-                                      background: `
+                                        backgroundClip:
+                                          "padding-box, border-box",
+                                        backgroundOrigin:
+                                          "padding-box, border-box",
+                                        borderLeft: "8px solid transparent",
+                                        borderBottom: "8px solid transparent",
+                                        borderTop: "2px solid transparent",
+                                        borderRight: "2px solid transparent",
+                                      }
+                                    : {
+                                        background: `
                             radial-gradient(circle at center, #ABE3FF 10%,#ABE3FF 57%,#ABE3FF 100%) 
                           `,
-                                    }
-                              }
-                            />
-                            <div className="absolute top-3 right-3 z-2">
-                              <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
-                                {selectedToken === index && (
-                                  <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
+                                      }
+                                }
+                              />
+                              <div className="absolute top-3 right-3 z-2">
+                                <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
+                                  {selectedToken === index && (
+                                    <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col justify-center items-center text-center mt-2 z-10 gap-1 ">
+                                <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
+                                  {option.quantity === 1
+                                    ? "1 Token"
+                                    : `${option.quantity} Tokens`}
+                                </span>
+                                <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
+                                  ${option.totalPrice.toFixed(2)}
+                                </span>
+                                {option.quantity != 1 && (
+                                  <span className="font-normal text-[14px] text-[#221AE9]">
+                                    ${option.pricePerToken.toFixed(2)}/Token
+                                  </span>
                                 )}
                               </div>
                             </div>
-
-                            <div className="flex flex-col justify-center items-center text-center mt-2 z-10 gap-1 ">
-                              <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
-                                {option.quantity === 1
-                                  ? "1 Token"
-                                  : `${option.quantity} Tokens`}
-                              </span>
-                              <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
-                                ${option.totalPrice.toFixed(2)}
-                              </span>
-                              {option.quantity != 1 && (
-                                <span className="font-normal text-[14px] text-[#221AE9]">
-                                  ${option.pricePerToken.toFixed(2)}/Token
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    {/* {tokenOptions.map((option, index) => (
+                          );
+                        })}
+                      {/* {tokenOptions.map((option, index) => (
                       <div
                         key={index}
                         className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
@@ -486,114 +500,117 @@ export const PricingOffer: React.FC = () => {
                       </div>
                     ))} */}
 
-                    <div
-                      className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
-                        selectedToken === 5 ? "border-4 border-[#221AE9]" : " "
-                      }`}
-                      style={
-                        selectedToken != 5
-                          ? {
-                              backgroundImage: `
+                      <div
+                        className={`w-[154px] sm:w-[185px] sm:h-[120px] xl:h-[160px] xl:w-[348px] rounded-[16px] p-[16px] cursor-pointer relative ${
+                          selectedToken === 5
+                            ? "border-4 border-[#221AE9]"
+                            : " "
+                        }`}
+                        style={
+                          selectedToken != 5
+                            ? {
+                                backgroundImage: `
                             linear-gradient(to bottom, #EEF8FB 0%, #D5F2FD 57%, #E7F3F7 100%),
                             linear-gradient(230deg, #FFFFFF, #9FDEFE)
                           `,
-                              backgroundClip: "padding-box, border-box",
-                              backgroundOrigin: "padding-box, border-box",
-                              borderLeft: "8px solid transparent",
-                              borderBottom: "8px solid transparent",
-                              borderTop: "2px solid transparent",
-                              borderRight: "2px solid transparent",
-                            }
-                          : {
-                              background: `
+                                backgroundClip: "padding-box, border-box",
+                                backgroundOrigin: "padding-box, border-box",
+                                borderLeft: "8px solid transparent",
+                                borderBottom: "8px solid transparent",
+                                borderTop: "2px solid transparent",
+                                borderRight: "2px solid transparent",
+                              }
+                            : {
+                                background: `
                             linear-gradient(to bottom, #ABE3FF 0%,#C8F1FF 20%,#C8F1FF 57%,#ABE3FF 100%) 
                           `,
-                            }
-                      }
-                      onClick={() => {
-                        setSelectedToken(5);
-                        handleStop();
-                        setCustomAmount("0");
-                      }}
-                    >
-                      <div className="absolute top-3 right-3 z-2">
-                        <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
-                          {selectedToken === 5 && (
-                            <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
-                          )}
+                              }
+                        }
+                        onClick={() => {
+                          setSelectedToken(5);
+                          handleStop();
+                          setCustomAmount("0");
+                        }}
+                      >
+                        <div className="absolute top-3 right-3 z-2">
+                          <div className="w-[16px] h-[16px] bg-[#EDFAFF] border-2 border-[#1246B676] rounded-full flex items-center justify-center">
+                            {selectedToken === 5 && (
+                              <div className="w-[10px] h-[10px] bg-[#221AE9] rounded-full" />
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="text-center gap-1">
-                        <div className="font-normal text-[12px] xl:text-[14px]">
-                          Enter Amount
-                        </div>
-                        <div
-                          onClick={
-                            !isRunning
-                              ? () => null
-                              : () => {
-                                  setSelectedToken(5);
-                                  handleStop();
-                                  setCustomAmount("0");
-                                }
-                          }
-                          className="flex items-center justify-center gap-2"
-                        >
-                          <input
-                            type="number"
-                            max={100}
-                            className={`font-medium  w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none ${
-                              selectedToken == 5
-                                ? `text-black`
-                                : `text-[#ABABAB]`
-                            }`}
-                            value={customAmount}
-                            onChange={handleOnChange}
-                            onClick={(e) => {
-                              setSelectedToken(5);
-                              e.stopPropagation();
-                              handleStop();
-                              setCustomAmount("0");
-                            }}
-                          />
-                          <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
-                            Token
-                          </span>
-                        </div>
-                        <div className="font-medium text-[20px] xl:text-[24px]">
-                          ${totalPrice}
-                        </div>
-                        <div className="text-[14px] font-normal text-[#221AE9]">
-                          ${pricePerToken}/Token
+                        <div className="text-center gap-1">
+                          <div className="font-normal text-[12px] xl:text-[14px]">
+                            Enter Amount
+                          </div>
+                          <div
+                            onClick={
+                              !isRunning
+                                ? () => null
+                                : () => {
+                                    setSelectedToken(5);
+                                    handleStop();
+                                    setCustomAmount("0");
+                                  }
+                            }
+                            className="flex items-center justify-center gap-2"
+                          >
+                            <input
+                              type="number"
+                              max={100}
+                              className={`font-medium  w-[29px] xl:w-[48px] sm:h-[22px] xl:h-[40px] text-center border-b border-gray-300 focus:outline-none ${
+                                selectedToken == 5
+                                  ? `text-black`
+                                  : `text-[#ABABAB]`
+                              }`}
+                              value={customAmount}
+                              onChange={handleOnChange}
+                              onClick={(e) => {
+                                setSelectedToken(5);
+                                e.stopPropagation();
+                                handleStop();
+                                setCustomAmount("0");
+                              }}
+                            />
+                            <span className="font-semibold text-[18px] xl:text-[28px] text-[#221AE9]">
+                              Token
+                            </span>
+                          </div>
+                          <div className="font-medium text-[20px] xl:text-[24px]">
+                            ${totalPrice}
+                          </div>
+                          <div className="text-[14px] font-normal text-[#221AE9]">
+                            ${pricePerToken}/Token
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <div className="flex items-center justify-center">
+                      {isLoading || loading ? (
+                        <DotSpinner />
+                      ) : (
+                        <button
+                          disabled={
+                            isLoading ||
+                            loading ||
+                            (customAmount == "0" && selectedToken == null)
+                          }
+                          onClick={handlePurchaseToken}
+                          className={`${
+                            isLoading ||
+                            (customAmount == "0" && selectedToken == null)
+                              ? `bg-[#C0CED4]`
+                              : `btn-primary`
+                          } w-full xl:w-1/2 h-[48px] rounded-full`}
+                        >
+                          Purchase Now
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-center">
-                    {isLoading || loading ? (
-                      <DotSpinner />
-                    ) : (
-                      <button
-                        disabled={
-                          isLoading ||
-                          loading ||
-                          (customAmount == "0" && selectedToken == null)
-                        }
-                        onClick={handlePurchaseToken}
-                        className={`${
-                          isLoading ||
-                          (customAmount == "0" && selectedToken == null)
-                            ? `bg-[#C0CED4]`
-                            : `btn-primary`
-                        } w-full xl:w-1/2 h-[48px] rounded-full`}
-                      >
-                        Purchase Now
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
+                </TabsContent>
+              )}
 
               <TabsContent value="subscription" className="-pt-[10px]">
                 <PremiumSubsContent onGetPremium={handleGetPremium} />
