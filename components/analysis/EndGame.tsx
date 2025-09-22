@@ -179,6 +179,16 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           <span className="font-bold">Analysis: </span>
                           {item.analysis}
                         </span>
+                         {item.recommendation && (
+                          <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                            <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                              <span className="font-bold">
+                                Recommendation:{" "}
+                              </span>
+                              {item.recommendation}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
