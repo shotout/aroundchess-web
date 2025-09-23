@@ -511,7 +511,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                               <span className="font-bold">
                                 Recommendation:{" "}
                               </span>
-                              Recommendation: {middle.recommendation}
+                              {middle.recommendation}
                             </span>
                           </div>
                         )}
