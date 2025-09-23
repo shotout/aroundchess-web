@@ -20,13 +20,11 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
 import { useRouter } from "next/navigation";
-
 interface TokenOption {
   amount: number;
   price: number;
   pricePerToken: number;
 }
-
 export const PricingOffer: React.FC = () => {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const arrNumber = [12, 78, 50, 99, 15];
