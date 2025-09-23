@@ -20,7 +20,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
 import { useRouter } from "next/navigation";
- 
+
 interface TokenOption {
   amount: number;
   price: number;
@@ -236,11 +236,7 @@ export const PricingOffer: React.FC = () => {
             height: activeTab == "tokens" ? "auto" : "auto",
             width: "100%",
           }}
-          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[358px] ${
-            sessionId.length > 0
-              ? "sm:max-w-[640px] xl:max-w-[1141px]"
-              : "sm:max-w-[640px] xl:max-w-[640px]"
-          } max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
+          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[380px] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
@@ -257,65 +253,65 @@ export const PricingOffer: React.FC = () => {
             <CountdownTimerToken />
           )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div>
-              <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
+            {sessionId.length > 0 && (
+              <div>
                 {sessionId.length > 0 && (
-                  <TabsTrigger
-                    value="tokens"
-                    className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
-                      activeTab == "tokens"
-                        ? "font-semibold border border-[#C0CED4]"
-                        : "font-normal"
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
-                      <Image
-                        src={`/images/pricing/token-icon.png`}
-                        alt="Logo"
-                        width={1000}
-                        height={1000}
-                        className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
-                        priority
-                      />
-                      <span className="block leading-tight text-center">
-                        <span className="block sm:inline">Unlock More</span>
-                        <span className="block sm:inline sm:ml-1">
-                          Analyses
+                  <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
+                    <TabsTrigger
+                      value="tokens"
+                      className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
+                        activeTab == "tokens"
+                          ? "font-semibold border border-[#C0CED4]"
+                          : "font-normal"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
+                        <Image
+                          src={`/images/pricing/token-icon.png`}
+                          alt="Logo"
+                          width={1000}
+                          height={1000}
+                          className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
+                          priority
+                        />
+                        <span className="block leading-tight text-center">
+                          <span className="block sm:inline">Unlock More</span>
+                          <span className="block sm:inline sm:ml-1">
+                            Analyses
+                          </span>
                         </span>
-                      </span>
-                    </div>
-                  </TabsTrigger>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="subscription"
+                      className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
+                        activeTab == "subscription"
+                          ? "font-semibold border border-[#C0CED4]"
+                          : "font-normal"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
+                        <Image
+                          src={`/images/pricing/unlimited-icon.png`}
+                          alt="Logo"
+                          width={1000}
+                          height={1000}
+                          className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
+                          priority
+                        />
+                        <span className="block leading-tight text-center sm:hidden">
+                          <span className="block">Go Unlimited</span>
+                          <span className="block">with a Subscription</span>
+                        </span>
+                        <span className="sm:block leading-tight text-center hidden">
+                          <span className="block">
+                            Go Unlimited with a Subscription
+                          </span>
+                        </span>
+                      </div>
+                    </TabsTrigger>
+                  </TabsList>
                 )}
-                <TabsTrigger
-                  value="subscription"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
-                    activeTab == "subscription"
-                      ? "font-semibold border border-[#C0CED4]"
-                      : "font-normal"
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2 w-full">
-                    <Image
-                      src={`/images/pricing/unlimited-icon.png`}
-                      alt="Logo"
-                      width={1000}
-                      height={1000}
-                      className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px]"
-                      priority
-                    />
-                    <span className="block leading-tight text-center sm:hidden">
-                      <span className="block">Go Unlimited</span>
-                      <span className="block">with a Subscription</span>
-                    </span>
-                    <span className="sm:block leading-tight text-center hidden">
-                      <span className="block">
-                        Go Unlimited with a Subscription
-                      </span>
-                    </span>
-                  </div>
-                </TabsTrigger>
-              </TabsList>
-              {sessionId.length > 0 && (
                 <TabsContent value="tokens">
                   <div className="gap-[16px] flex flex-col">
                     <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
@@ -610,12 +606,26 @@ export const PricingOffer: React.FC = () => {
                     </div>
                   </div>
                 </TabsContent>
-              )}
 
-              <TabsContent value="subscription" className="-pt-[10px]">
+                <TabsContent
+                  value="subscription"
+                  className={`${
+                    sessionId.length > 0 ? `-pt-[10px]` : `-mt-[20px]`
+                  }`}
+                >
+                  <PremiumSubsContent onGetPremium={handleGetPremium} />
+                </TabsContent>
+              </div>
+            )}
+            {sessionId.length == 0 && (
+              <div
+                className={`${
+                  sessionId.length > 0 ? `-pt-[10px]` : `-mt-[20px]`
+                }`}
+              >
                 <PremiumSubsContent onGetPremium={handleGetPremium} />
-              </TabsContent>
-            </div>
+              </div>
+            )}
           </Tabs>
         </DialogContent>
       </DialogPortal>

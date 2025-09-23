@@ -177,9 +177,11 @@ export const PremiumSubsContent: React.FC<{
     // const stripe = await stripePromise;
     // await stripe?.redirectToCheckout({ sessionId: data.id });
   };
-
+  const handleSignUp = () => {
+    window.location.href = "/register";
+  };
   return (
-    <div className="space-y-4">
+    <div className={`${sessionId.length > 0 ? `space-y-4` : `space-y-4 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] `}`}>
       <div className="text-center space-y-2">
         <p className="text-sm text-black">
           Discover our Suite of Powerful Features with the AroundChess{" "}
@@ -188,8 +190,8 @@ export const PremiumSubsContent: React.FC<{
           </span>
         </p>
 
-        <div className="flex justify-center">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 max-w-2xl">
+        <div className="flex items-center justify-center ">
+          <div className="flex overflow-x-scroll gap-2 xl:overflow-x-hidden xl:space-x-4 xl:grid xl:grid-cols-3 xl:grid-cols-6 xl:gap-4 ">
             <FeatureImage
               imageUrl={"/icons/sidebar-analyze-icon-active.png"}
               label="Analyze Games"
@@ -218,68 +220,74 @@ export const PremiumSubsContent: React.FC<{
         </div>
       </div>
 
-      <div className={`grid gap-4 ${sessionId.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
-        {sessionId.length > 0 && (
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col order-2 md:order-none">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-blue-50 rounded-full">
-                <Image
-                  src="/onboarding/free.png"
-                  alt="Free Icon"
-                  width={48}
-                  height={48}
-                />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-black">
-                  Free Package
-                </h3>
-                <div className="text-xl font-semibold text-black">${0}</div>
-              </div>
+      <div className={`flex max-w-full overflow-x-scroll gap-4 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2`}>
+        <div className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-blue-50 rounded-full">
+              <Image
+                src="/onboarding/free.png"
+                alt="Free Icon"
+                width={48}
+                height={48}
+              />
             </div>
-
-            <p className="text-gray-700 text-sm mb-3">
-              Our Basic Package for free limited Access!
-            </p>
-
-            <div className="space-y-2 flex-grow">
-              <BenefitItem text="1 Game Analysis every 72h" />
-              <BenefitItem text="Basic Game Analysis" />
-              <BenefitItem text="Limited Access to the Feedback Log and Game History" />
-              <BenefitItem text="20 Puzzles per month" />
-              <BenefitItem text="Play vs. AI" />
-              <BenefitItem text="Board Vision Training" />
-              <BenefitItem text="Endgame Training" />
-              <BenefitItem text="Chess Handbook" />
+            <div>
+              <h3 className="text-lg font-semibold text-black">Free Package</h3>
+              <div className="text-xl font-semibold text-black">${0}</div>
             </div>
-
-            {isLoading && <DotSpinner />}
-            {!isMember && !isLoading && (
-              <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-                <Image
-                  src="/onboarding/currentPackage.png"
-                  alt="Free Icon"
-                  className=""
-                  width={40}
-                  height={40}
-                />
-                <p className="text-sm font-medium text-black">
-                  You are on this Package
-                </p>
-
-                <Image
-                  width={160}
-                  height={160}
-                  alt="member"
-                  src={"/onboarding/member.png"}
-                  className="absolute top-0 right-8"
-                />
-              </div>
-            )}
           </div>
-        )}
 
-        <div className="bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 order-1 md:order-none rounded-xl shadow-md relative flex flex-col">
+          <p className="text-gray-700 text-sm mb-3">
+            Our Basic Package for free limited Access!
+          </p>
+
+          <div className="space-y-2 flex-grow">
+            <BenefitItem text="1 Game Analysis every 72h" />
+            <BenefitItem text="Basic Game Analysis" />
+            <BenefitItem text="Limited Access to the Feedback Log and Game History" />
+            <BenefitItem text="20 Puzzles per month" />
+            <BenefitItem text="Play vs. AI" />
+            <BenefitItem text="Board Vision Training" />
+            <BenefitItem text="Endgame Training" />
+            <BenefitItem text="Chess Handbook" />
+          </div>
+
+          {isLoading && <DotSpinner />}
+          {sessionId.length == 0 && (
+            <div
+              onClick={handleSignUp}
+              className="cursor-pointer mt-3 relative w-full py-2 bg-[#221AE9] rounded-full flex items-center justify-center gap-2 overflow-hidden"
+            >
+              <span className="text-white font-medium text-sm">
+                Sign up for free
+              </span>
+            </div>
+          )}
+          {!isMember && !isLoading && sessionId.length > 0 && (
+            <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+              <Image
+                src="/onboarding/currentPackage.png"
+                alt="Free Icon"
+                className=""
+                width={40}
+                height={40}
+              />
+              <p className="text-sm font-medium text-black">
+                You are on this Package
+              </p>
+
+              <Image
+                width={160}
+                height={160}
+                alt="member"
+                src={"/onboarding/member.png"}
+                className="absolute top-0 right-8"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col">
           <div className="absolute -top-2 left-0 right-0 flex justify-center">
             <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
               For frequent Chess Players
@@ -434,25 +442,31 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
     : [label, null];
 
   return (
-    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-lg flex flex-col justify-center items-center w-20 h-20">
+    <div className="bg-blue-base/10 border border-blue-base gap-1 rounded-lg flex flex-col justify-center items-center min-w-[110px] h-[110px]">
       <Image
         alt="-"
         src={imageUrl}
-        width={24}
-        height={24}
-        className="w-6 h-6"
+        width={1000}
+        height={1000}
+        className="max-w-[34px] h-[32px] object-contain"
       />
       <div className="text-center flex flex-col justify-end px-1">
-        <p className="text-[10px] font-normal text-gray-900 leading-tight">
-          {firstPart}
-          {hasColon ? ":" : ""}
-        </p>
+        {firstPart == "Analyze Games" ? (
+          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+            Analyze <br /> Games
+          </p>
+        ) : (
+          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+            {firstPart}
+            {hasColon ? ":" : ""}
+          </p>
+        )}
         {secondPart ? (
           <p className="text-[10px] font-medium text-gray-900 leading-tight">
             {secondPart}
           </p>
         ) : (
-          <div className="h-3"></div>
+          <div></div>
         )}
       </div>
     </div>
