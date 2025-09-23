@@ -31,7 +31,7 @@
         "chessAccountInfo": {}
       },
       "analysis": {
-        "accuracy": 53.8,
+        "accuracy": 92.7,
         "moveQuality": {
           "brilliant": 0,
           "great": 8,
@@ -53,7 +53,7 @@
         "chessAccountInfo": {}
       },
       "analysis": {
-        "accuracy": 50,
+        "accuracy": 87.5,
         "moveQuality": {
           "brilliant": 0,
           "great": 6,
@@ -68,7 +68,7 @@
       }
     },
     "overallGameAssessment": {
-      "gameAccuracy": 53.8,
+      "gameAccuracy": 90.1,
       "analysis": "You did a great job keeping your pieces safe and slowly pushing your pawns forward, and you found some really strong moves with your rook and knight at the end. Try to watch out for times when you give away pieces or miss a chance to capture, but overall you played well and got a big advantage by the finish!"
     },
     "bestMoves": {
