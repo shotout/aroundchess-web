@@ -83,9 +83,9 @@ export const PricingOffer: React.FC = () => {
     setTokenPackage(response);
   };
   useEffect(() => {
-    trackCustomEvent("ViewPricing");
-  }, []);
-  useEffect(() => {
+    if (open) {
+      trackCustomEvent("ViewPricing");
+    }
     setMounted(true);
     setWidthC(window?.innerWidth);
     getTokenPackage({}).then((response) => {
