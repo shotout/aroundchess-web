@@ -117,10 +117,10 @@ const GamesList: React.FC<GamesListProps> = ({
 
     if (totalCompletedJobs < isCompleted.length) {
       setTotalCompletedJobs(isCompleted.length);
-      trackCustomEvent(
-        "AnalysisCompleted",
-        isCompleted[isCompleted.length].gameId
-      );
+      const lastCompleted = isCompleted[isCompleted.length - 1];
+      if (lastCompleted) {
+        trackCustomEvent("AnalysisCompleted", lastCompleted.gameId);
+      }
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
@@ -128,7 +128,7 @@ const GamesList: React.FC<GamesListProps> = ({
         }
       });
     }
-  }, [analysisJobs]);
+  }, [analysisJobs, totalCompletedJobs, getTokenBalance, setToken]);
   const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
     const job = getJobByGameId(gameId);
 
