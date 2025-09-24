@@ -3,6 +3,7 @@
 import { usePuzzles } from "@/app/hooks/usePuzzles";
 import { useLimitPuzzle } from "@/app/store/limitPuzzle";
 import { useProfileStore } from "@/app/store/profile";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import Navigation from "@/components/navigator/navigation";
 import { PuzzleGame } from "@/components/playground/puzzle/PuzzleGame";
@@ -64,7 +65,9 @@ export default function Puzzle() {
     setShowPremiumDialog(false);
     toast.success("Thank you for subscribing to Premium!");
   };
-
+useEffect(() => {
+    trackCustomEvent("ViewPuzzle");
+  }, []);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;

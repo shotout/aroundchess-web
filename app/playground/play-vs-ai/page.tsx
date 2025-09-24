@@ -1,5 +1,6 @@
 "use client";
 import { useLimitPuzzle } from "@/app/store/limitPuzzle";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 import Navigation from "@/components/navigator/navigation";
@@ -14,7 +15,9 @@ export default function PlayVSAI() {
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(false);
-
+useEffect(() => {
+    trackCustomEvent("ViewPlayVSAI");
+  }, []);
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1280);

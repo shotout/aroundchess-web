@@ -1,10 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Navigation from "@/components/navigator/navigation";
 import EndgameTrainingPage from "./EndgameTrainingPage";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 export default function Page() {
+  useEffect(() => {
+      trackCustomEvent("ViewEndgameTraining");
+    }, []);
   return (
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">

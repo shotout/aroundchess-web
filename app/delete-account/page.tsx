@@ -4,9 +4,14 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function LoginPage() {
   const route = useRouter();
+  useEffect(() => {
+    trackCustomEvent("ViewDeleteAccount");
+  }, []);
   const handleLogin = () => {
     route.push("/login");
   };

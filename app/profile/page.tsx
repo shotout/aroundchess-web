@@ -18,7 +18,10 @@ import { usePgnStore } from "../store/zustandStore";
 import { useProfileStore } from "../store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
+import { usePricingOffer } from "../store/pricingOffer";
 function Profile() {
+  const { paramsPayment } = usePricingOffer();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { setCallFetch } = useProfileFetch();
@@ -32,7 +35,9 @@ function Profile() {
   const { isLoading } = usePgnStore();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
+  useEffect(() => {
+    trackCustomEvent("ViewProfile");
+  }, []);
   useEffect(() => {
     const status = searchParams?.get("status");
     const amount = searchParams?.get("amount");
@@ -47,6 +52,11 @@ function Profile() {
     switch (status) {
       case "successSubscribe":
         setOpenSuccess(true);
+        trackCustomEvent("Subscribe", {
+          ...paramsPayment,
+          currency: "USD",
+          value: paramsPayment.price,
+        });
         break;
 
       case "cancelSubscribe":
@@ -58,6 +68,11 @@ function Profile() {
         setOpenPurchaseStatus(true);
         setQuantity(amount);
         setStatus("success");
+        trackCustomEvent("Purchase", {
+          ...paramsPayment,
+          currency: "USD",
+          value: paramsPayment.price,
+        });
         break;
 
       case "cancelToken":

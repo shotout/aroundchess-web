@@ -20,6 +20,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
 import { useRouter } from "next/navigation";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 interface TokenOption {
   amount: number;
   price: number;
@@ -41,7 +42,7 @@ export const PricingOffer: React.FC = () => {
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
 
-  const { open, setOpen, tabType } = usePricingOffer();
+  const { open, setOpen, tabType, setParamsPayment } = usePricingOffer();
   const { isLoading, getTokenPackage, checkoutSessions } = useApiClient();
   const {
     tokenPackage,
@@ -81,7 +82,9 @@ export const PricingOffer: React.FC = () => {
     const response = await resTokenPackage.json();
     setTokenPackage(response);
   };
-
+  useEffect(() => {
+    trackCustomEvent("ViewPricing");
+  }, []);
   useEffect(() => {
     setMounted(true);
     setWidthC(window?.innerWidth);
@@ -146,6 +149,8 @@ export const PricingOffer: React.FC = () => {
         idUser: profile.id,
       };
       try {
+        trackCustomEvent("InitiateCheckoutToken", body);
+        setParamsPayment(body);
         const res = await checkoutSessions(body);
         setLoading(false);
         setQuantity(parseInt(tokenAmount.toString()));

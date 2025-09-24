@@ -11,6 +11,7 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useSearchParams } from "next/navigation";
+import { trackCustomEvent, trackSignUp } from "../utils/facebookPixel";
 export const dynamic = "force-dynamic";
 interface PasswordCondition {
   id: string;
@@ -89,7 +90,9 @@ function RegisterPage() {
     emailValidation.isValid && allConditionsMet && passwordsMatch;
 
   const validatedConditions = validatePassword(password);
-
+  useEffect(() => {
+    trackCustomEvent("ViewRegister");
+  }, []);
   useEffect(() => {
     setEmail(emailParam);
   }, [emailParam]);
@@ -167,11 +170,12 @@ function RegisterPage() {
         setPersistedCookie("token", data.data.access_token, 365);
 
         toast.success("Account verified and logged in successfully!");
-
+        trackCustomEvent("CompleteRegistration", { email });
         window.location.href = "/analysis";
       } else if (data.token) {
         setSessionId(data.token);
         setPersistedCookie("token", data.token, 365);
+        trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
         window.location.href = "/analysis";

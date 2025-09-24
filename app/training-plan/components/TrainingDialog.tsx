@@ -16,6 +16,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTrainingPlanStore } from "../store";
 import { useProfileStore } from "@/app/store/profile";
 import WhiteSpinner from "@/components/SpinnerWhite";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 interface ChessTrainingPlanDialogProps {
   open: boolean;
@@ -189,7 +190,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
   const transformCategoryInfo = useCallback(() => {
     if (!config?.requirements) return defaultCategoryInfo;
-    
+
     const requirements = config.requirements;
 
     return [
@@ -292,6 +293,14 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
 
         if (success) {
           onOpenChange(false);
+
+          trackCustomEvent("TrainingSaved", {
+            selectedWhiteOpenings,
+            selectedBlackOpenings,
+            selectedMiddlegames,
+            selectedEndgames,
+            profile: displayUserProfile,
+          });
           onPlanCreated();
         }
       } finally {

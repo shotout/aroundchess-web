@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePgnStore } from "../store/zustandStore";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +39,9 @@ export default function LoginPage() {
   const { sessionId, setSessionId } = useProfileStore();
   const { setProviderType, setProfileShow } = usePgnStore();
   const router = useRouter();
-
+useEffect(() => {
+    trackCustomEvent("ViewLogin");
+  }, []);
   useEffect(() => {
     if (sessionId != null && sessionId.length > 0) {
       setPersistedCookie("token", sessionId, 365);

@@ -2,8 +2,9 @@
 
 import ChessLessonDetail from "@/components/handbooks/ChessLessonDetail";
 import Navigation from "@/components/navigator/navigation";
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo } from "react";
 import { useOpeningStore } from "../OpeningStore";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -11,7 +12,9 @@ type Props = {
 export default function Page(props: Props) {
   const params = use(props.params);
   const openingStore = useMemo(() => useOpeningStore, []);
-
+  useEffect(() => {
+    trackCustomEvent("ViewOpeningHandbook", params);
+  }, []);
   return (
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">

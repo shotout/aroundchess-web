@@ -23,6 +23,7 @@ import { usePollingManager } from "../hooks/usePollingManager";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 interface GamesListProps {
   games: Game[];
@@ -113,9 +114,13 @@ const GamesList: React.FC<GamesListProps> = ({
     const isCompleted = Object.values(analysisJobs).filter(
       (gameData) => gameData.status == "completed"
     );
-     
+
     if (totalCompletedJobs < isCompleted.length) {
       setTotalCompletedJobs(isCompleted.length);
+      trackCustomEvent(
+        "AnalysisCompleted",
+        isCompleted[isCompleted.length].gameId
+      );
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
@@ -196,7 +201,11 @@ const GamesList: React.FC<GamesListProps> = ({
             text: "Retry",
             icon: <AlertCircle className="h-4 w-4 mr-1" />,
             className: "bg-red-600 hover:bg-red-700 text-white",
-            onClick: () => setOpenGameId(gameId),
+            onClick: () => {
+              trackCustomEvent("RetryAnalysis", gameId);
+
+              setOpenGameId(gameId);
+            },
           };
       }
     }
@@ -205,7 +214,10 @@ const GamesList: React.FC<GamesListProps> = ({
       text: "Analyze",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
-      onClick: () => setOpenGameId(gameId),
+      onClick: () => {
+        setOpenGameId(gameId);
+        trackCustomEvent("StartAnalysis", gameId);
+      },
     };
   };
 
@@ -235,9 +247,9 @@ const GamesList: React.FC<GamesListProps> = ({
     if (!moves || moves === "N/A") {
       return "N/A";
     }
-    
+
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
-    
+
     return numMoves;
   };
 

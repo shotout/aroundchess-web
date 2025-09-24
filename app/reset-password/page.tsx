@@ -7,6 +7,7 @@ import { Lock, ArrowLeft, CheckCircle } from "lucide-react";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import Image from "next/image";
+import { trackCustomEvent } from "../utils/facebookPixel";
 function ResetPassword() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +20,9 @@ function ResetPassword() {
   const code = searchParams?.get("code");
 
   async function handlePasswordReset(e: React.FormEvent) {}
-
+  useEffect(() => {
+    trackCustomEvent("ViewResetPassword");
+  }, []);
   useEffect(() => {
     if (!code) {
       router.push("/forgot-password");

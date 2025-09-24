@@ -11,6 +11,7 @@ import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetu
 import { useProfileStore } from "../store/profile";
 import Link from "next/link";
 import { AnalysisSkeleton } from "./skeleton";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -33,12 +34,14 @@ export default function AnalysisPage() {
     setLastAnalysisFetched,
     isLastAnalysisLoading,
     setIsLastAnalysisLoading,
-    setIsFromGameHistory
+    setIsFromGameHistory,
   } = usePgnStore();
 
   const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
-
+  useEffect(() => {
+    trackCustomEvent("ViewAnalysis");
+  }, []);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -118,7 +121,7 @@ export default function AnalysisPage() {
     };
 
     initializeAnalysisPage();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
 
   useEffect(() => {

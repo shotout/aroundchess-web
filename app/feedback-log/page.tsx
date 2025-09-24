@@ -6,10 +6,14 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useEffect, useState } from "react";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function FeedbackLog() {
   const { isLoading, hydrated } = usePgnStore();
   const [ready, setReady] = useState(false);
+  useEffect(() => {
+      trackCustomEvent("ViewFeedbackLog");
+    }, []);
   useEffect(() => {
     if (hydrated) {
       setReady(true);

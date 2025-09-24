@@ -1,8 +1,13 @@
 "use client";
 
 import Navigation from "@/components/navigator/navigation";
+import { useEffect } from "react";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function EUCompliance() {
+  useEffect(() => {
+      trackCustomEvent("ViewEUCompliance");
+    }, []);
   return (
     <Navigation>
       <div className="flex-1 flex-col p-4 lg:py-12 lg:px-8 min-h-screen">

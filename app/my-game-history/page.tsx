@@ -4,10 +4,14 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import GameHistoryPage from "@/components/game-history/GameHistoryPage";
 import Navigation from "@/components/navigator/navigation";
 import { usePgnStore } from "../store/zustandStore";
+import { useEffect } from "react";
+import { trackCustomEvent } from "../utils/facebookPixel";
 
 export default function Page() {
   const { isLoading } = usePgnStore();
-
+useEffect(() => {
+    trackCustomEvent("ViewGameHistory");
+  }, []);
   return (
     <>
       {isLoading == true ? (

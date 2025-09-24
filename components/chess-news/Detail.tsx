@@ -12,6 +12,7 @@ import { DetailSkeleton } from "./SkeletonNews";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import { ScrollArea } from "../ui/scroll-area";
 import { ImageWithFallback } from "./ImageWithFallback";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -35,7 +36,9 @@ export default function Detail() {
   const slug = params?.id as string;
   const [localDetail, setLocalDetail] = useState<any>(null);
   const [localMostReads, setLocalMostReads] = useState<any[]>([]);
-
+  useEffect(() => {
+    trackCustomEvent("ViewChessBlogDetail", params);
+  }, []);
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);

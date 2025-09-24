@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -121,7 +122,7 @@ export const PremiumSubsContent: React.FC<{
     sessionId,
   } = useProfileStore();
   const { setOpen: setOpenLogin } = useConfirmLogin();
-  const { setOpen: setOpenPricing } = usePricingOffer();
+  const { setOpen: setOpenPricing, setParamsPayment } = usePricingOffer();
   const { checkoutSessions, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
@@ -170,6 +171,8 @@ export const PremiumSubsContent: React.FC<{
     if (profile.discountInfo?.discountCode) {
       body.couponId = profile.discountInfo?.discountCode;
     }
+    setParamsPayment(body);
+    trackCustomEvent("InitiateCheckoutSubscription", body);
     const res = await checkoutSessions(body);
     console.log("Checkout session response:", res);
     window.location.href = res.data.url;
@@ -181,7 +184,13 @@ export const PremiumSubsContent: React.FC<{
     window.location.href = "/register";
   };
   return (
-    <div className={`${sessionId.length > 0 ? `space-y-4` : `space-y-4 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] `}`}>
+    <div
+      className={`${
+        sessionId.length > 0
+          ? `space-y-4`
+          : `space-y-4 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] `
+      }`}
+    >
       <div className="text-center space-y-2">
         <p className="text-sm text-black">
           Discover our Suite of Powerful Features with the AroundChess{" "}
@@ -220,7 +229,9 @@ export const PremiumSubsContent: React.FC<{
         </div>
       </div>
 
-      <div className={`flex max-w-full overflow-x-scroll gap-4 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2`}>
+      <div
+        className={`flex max-w-full overflow-x-scroll gap-4 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2`}
+      >
         <div className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-50 rounded-full">
