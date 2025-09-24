@@ -29,6 +29,7 @@ export function ModalSetting() {
     console.log("Cookie settings saved:", settings);
     setSetting(settings);
     setOpen(false);
+    window.location.reload()
     // Here you would typically save to localStorage or send to your backend
   };
 

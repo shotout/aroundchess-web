@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useModalSetting } from "../store/cookiesSetting";
 
 export default function CookieConsent() {
-  const { open, setOpen, setting } = useModalSetting();
+  const { open, setOpen, setting, setSetting } = useModalSetting();
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   useEffect(() => {
@@ -18,6 +18,13 @@ export default function CookieConsent() {
     localStorage.setItem("cookiesConsent", "true");
     localStorage.setItem("cookiesSetting", JSON.stringify(setting));
     setShowBanner(false);
+    setSetting({
+      essential: true,
+      marketing: true,
+      functional: true,
+      analytics: true,
+    });
+    window.location.reload()
   };
   const handleOpenPrivacy = () => {
     window.location.href = "/privacy-policy";

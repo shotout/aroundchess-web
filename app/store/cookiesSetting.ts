@@ -32,10 +32,10 @@ export const useModalSetting = create<ModalSettingState>()(
       setSetting: (setting) => set({ setting }),
     }),
     {
-      name: "modal-settings",
-      partialize: (state) => ({
-        setting: state.setting,
-      }),
+      name: "modal-settings", 
+      partialize: (state) => ({ 
+        setting: state.setting 
+      }), 
     }
   )
 );
