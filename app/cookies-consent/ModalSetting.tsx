@@ -26,6 +26,7 @@ export function ModalSetting() {
   };
 
   const handleSaveChanges = () => {
+    localStorage.setItem("cookiesConsent", "true");
     console.log("Cookie settings saved:", settings);
     setSetting(settings);
     setOpen(false);
