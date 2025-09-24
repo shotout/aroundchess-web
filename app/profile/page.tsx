@@ -56,6 +56,7 @@ function Profile() {
           ...paramsPayment,
           currency: "USD",
           value: paramsPayment.price,
+          predicted_ltv:paramsPayment.price
         });
         break;
 
