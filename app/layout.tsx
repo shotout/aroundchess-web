@@ -1,20 +1,17 @@
-import type { Metadata } from "next";
+"use client";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Script from "next/script";
-
-export const metadata: Metadata = {
-  title: "AroundChess",
-  description: "Advanced chess training and analysis powered by AI",
-};
+import { useModalSetting } from "./store/cookiesSetting";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { setting } = useModalSetting();
   return (
     <html lang="en">
       <head>
@@ -22,22 +19,22 @@ export default function RootLayout({
         <meta name="color-scheme" content="light" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <script src="/stockfish.js" defer></script>
-        <noscript>
-          <img 
-            height="1" 
-            width="1" 
-            style={{display: 'none'}}
-            src="https://www.facebook.com/tr?id=1143400640994363&ev=PageView&noscript=1"
-            alt=""
-          />
-        </noscript>
+        {setting.marketing && (
+          <noscript>
+            <img
+              height="1"
+              width="1"
+              style={{ display: "none" }}
+              src="https://www.facebook.com/tr?id=1143400640994363&ev=PageView&noscript=1"
+              alt=""
+            />
+          </noscript>
+        )}
       </head>
       <body>
-         <Script
-          id="facebook-pixel"
-          strategy="afterInteractive"
-        >
-          {`
+        {setting.marketing && (
+          <Script id="facebook-pixel" strategy="afterInteractive">
+            {`
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -49,7 +46,9 @@ export default function RootLayout({
             fbq('init', '1143400640994363');
             fbq('track', 'PageView');
           `}
-        </Script>
+          </Script>
+        )}
+
         {/* <React.StrictMode> */}
         <AuthProvider>
           {children}
