@@ -60,16 +60,14 @@ const PreviousAnalysis: React.FC = () => {
     }
   };
 
-  const handleSaveLog = async (id: string, key: string) => {
+  const handleSaveLog = async (id: string, key: string, index: number) => {
     setLoadingToggle(true);
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
       let dataPrev = PreviousAnalysis;
       console.log("saveMistakeLog", res);
-      let newData = dataPrev[key].filter((item: any) => item.id != id);
-      console.log("newData", newData);
-      newData.push(res.data);
-      dataPrev[key] = newData;
+      console.log("indexData", index);
+      dataPrev[key][index] = res.data; 
       setPreviousAnalysis(dataPrev);
       setMistakeLogs(dataPrev);
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
@@ -80,14 +78,14 @@ const PreviousAnalysis: React.FC = () => {
     }
   };
 
-  const handleUnsaveLog = async (id: string, key: string) => {
+  const handleUnsaveLog = async (id: string, key: string, index: number) => {
     setLoadingToggle(true);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
-      let dataPrev = PreviousAnalysis;
-      let newData = dataPrev[key].filter((item: any) => item.id != id);
-      newData.push(res.data);
-      dataPrev[key] = newData;
+     let dataPrev = PreviousAnalysis;
+      console.log("saveMistakeLog", res);
+      console.log("indexData", index);
+      dataPrev[key][index] = res.data;
       setPreviousAnalysis(dataPrev);
       setMistakeLogs(dataPrev);
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
@@ -244,13 +242,17 @@ const PreviousAnalysis: React.FC = () => {
                         <>
                           {item?.saved ? (
                             <BookmarkFilledIcon
-                              onClick={() => handleUnsaveLog(item?.id, keyObj)}
+                              onClick={() =>
+                                handleUnsaveLog(item?.id, keyObj, key)
+                              }
                               className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
                               color="#221AE9"
                             />
                           ) : (
                             <Bookmark
-                              onClick={() => handleSaveLog(item?.id, keyObj)}
+                              onClick={() =>
+                                handleSaveLog(item?.id, keyObj, key)
+                              }
                               className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
                               color="#221AE9"
                             />
