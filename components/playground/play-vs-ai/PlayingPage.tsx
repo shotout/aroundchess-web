@@ -1118,13 +1118,13 @@ export default function PlayingPage() {
         sessionId ?? null
       );
       if (!response?.data) {
+        toast.error("Save Failed !", response.data.message);
         throw new Error("Invalid response from server");
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
       toast.success("Game saved successfully!");
     } catch (err: any) {
-      toast.error("Save Failed !");
     } finally {
       setIsSaving(false);
     }
