@@ -1,3 +1,4 @@
+import { usePgnStore } from "@/app/store/zustandStore";
 import { MobileTooltip } from "@/components/game-history/components/user-history/Analytics";
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
@@ -34,6 +35,7 @@ export const ButtonFinish = ({
   pgn,
   getAnalysisButtonContent,
 }: ButtonFinishProps) => {
+  const { username } = usePgnStore();
   const analysisButton = getAnalysisButtonContent
     ? getAnalysisButtonContent()
     : null;
@@ -89,7 +91,10 @@ export const ButtonFinish = ({
             ]}
             side="left"
           >
-            <Info color="#221AE9" className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />
+            <Info
+              color="#221AE9"
+              className="h-[24] w-[24] text-gray-500 hover:text-gray-700"
+            />
           </MobileTooltip>
         </div>
       </TooltipProvider>
@@ -102,7 +107,7 @@ export const ButtonFinish = ({
     >
       <div className="md:hidden xl:block">
         {/* {renderAnalyzeButton("w-full")} */}
-        {renderButtonSave()}
+        {username.length > 0 && renderButtonSave()}
       </div>
 
       <div className="flex w-full gap-2">
@@ -136,7 +141,7 @@ export const ButtonFinish = ({
 
         <div className="hidden md:block xl:hidden md:w-2/4">
           {/* {renderAnalyzeButton("w-full")} */}
-          {renderButtonSave()}
+          {username.length > 0 && renderButtonSave()}
         </div>
       </div>
     </motion.div>
