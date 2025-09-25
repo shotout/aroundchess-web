@@ -35,7 +35,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         <div className="w-full md:w-1/2 flex flex-col justify-between space-y-2 md:space-y-0">
           <div className="flex flex-col">
             <h3 className="font-semibold xl:font-bold text-base xl:text-2xl text-black">
-              {category.name}
+              {category.name.replace("-"," & ")}
             </h3>
           </div>
           <div>
