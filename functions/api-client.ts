@@ -59,7 +59,8 @@ export function useApiClient() {
           sessionId.length > 0 ||
           path.includes("faq") ||
           path.includes("contact") ||
-          path.includes("news") || path.includes("tokens/packages")
+          path.includes("news") ||
+          path.includes("tokens/packages")
         ) {
           setIsLoading(true);
           setError(null);
@@ -99,8 +100,27 @@ export function useApiClient() {
               // console.log("errorData", url, errorData, response);
               throw new Error(errorData.message || "API request failed");
             }
-            if (errorData.statusCode == 401) {
-              handleSignOut();
+            const originalRequest = errorData.config;
+
+            // kalau 401 (unauthorized), coba refresh token
+            if (errorData.response?.status === 401 && !originalRequest._retry) {
+              originalRequest._retry = true;
+
+              const { data, error: refreshError } =
+                await supabase.auth.refreshSession();
+
+              if (refreshError) {
+                console.error("Refresh token gagal:", refreshError.message);
+                // bisa redirect ke login page
+                handleSignOut();
+                return Promise.reject(error);
+              }
+
+              const newAccessToken = data.session?.access_token;
+              if (newAccessToken) {
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                return apiRequest(originalRequest); // ulangi request dengan token baru
+              }
             }
           }
 
