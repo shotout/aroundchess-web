@@ -9,21 +9,29 @@ import { useEffect, useState } from "react";
 
 export function StatusPurchaseTokens() {
   const router = useRouter();
-  const { open, setOpen, status,  quantity } =
-    useStatusPurchaseTokens();
+  const { open, setOpen, status, quantity } = useStatusPurchaseTokens();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [content, setContent] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [dots, setDots] = useState<string>("");
 
   useEffect(() => {
+    let isMoreThanOne = parseInt(quantity) > 1;
     if (status == "failed") {
-      setContent(`Your Purchase of ${quantity} tokens has failed!`);
+      setContent(
+        `Your Purchase of ${quantity} token${
+          isMoreThanOne ? `s` : ``
+        } has failed!`
+      );
       setDescription(
         "Your payment failed. Please retry or use a different payment method."
       );
     } else if (status == "success") {
-      setContent(`Your Purchase of ${quantity} tokens has successful!`);
+      setContent(
+        `Your Purchase of token${
+          isMoreThanOne ? `s` : ``
+        } tokens has successful!`
+      );
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
       setContent(`Your AroundChess Premium Subscription Failed!`);
