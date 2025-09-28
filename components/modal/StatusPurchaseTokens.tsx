@@ -19,18 +19,16 @@ export function StatusPurchaseTokens() {
     let isMoreThanOne = parseInt(quantity) > 1;
     if (status == "failed") {
       setContent(
-        `Your Purchase of ${quantity} token${
-          isMoreThanOne ? `s` : ``
-        } was failed!`
+        `Your Purchase of ${quantity} token${isMoreThanOne ? `s` : ``} failed!`
       );
       setDescription(
         "Your payment failed. Please retry or use a different payment method."
       );
     } else if (status == "success") {
       setContent(
-        `Your Purchase of token${
+        `Your Purchase of ${quantity} token${
           isMoreThanOne ? `s` : ``
-        } tokens was successful!`
+        } was successful!`
       );
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
@@ -121,17 +119,16 @@ export function StatusPurchaseTokens() {
               </span>
             </button>
           )}
-          {status == "failed" ||
-            (status == "failed-membership" && (
-              <button
-                onClick={handleFailed}
-                className="w-[320px] btn-primary rounded-full h-[44px] "
-              >
-                <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
-                  Retry Payment
-                </span>
-              </button>
-            ))}
+          {(status == "failed" || status == "failed-membership") && (
+            <button
+              onClick={handleFailed}
+              className="w-[320px] btn-primary rounded-full h-[44px] "
+            >
+              <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+                Retry Payment
+              </span>
+            </button>
+          )}
           {status != "waiting" && (
             <button
               onClick={handleBack}

@@ -42,7 +42,7 @@ export function SuccessSubscription() {
           </div>
           <div className="flex flex-col items-center justify-center gap-2 mt-4 mb-4">
             <span className="font-medium text-[18px] text-[#2e2e2e] text-center">
-              Your AroundChess Premium Subscription successful!
+              Your AroundChess Premium Subscription was successful!
             </span>
             <span className="font-normal text-[14px] text-[#2e2e2e] text-center">
               Enhance your Chess Skills now with Full Access to our advanced AI Features!
