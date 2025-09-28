@@ -21,7 +21,7 @@ export function StatusPurchaseTokens() {
       setContent(
         `Your Purchase of ${quantity} token${
           isMoreThanOne ? `s` : ``
-        } has failed!`
+        } was failed!`
       );
       setDescription(
         "Your payment failed. Please retry or use a different payment method."
@@ -30,7 +30,7 @@ export function StatusPurchaseTokens() {
       setContent(
         `Your Purchase of token${
           isMoreThanOne ? `s` : ``
-        } tokens has successful!`
+        } tokens was successful!`
       );
       setDescription("Analyze more games now!");
     } else if (status == "failed-membership") {
