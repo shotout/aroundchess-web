@@ -72,7 +72,7 @@
     "recharts": "^2.15.1",
     "remark-gfm": "^4.0.1",
     "sonner": "^1.7.1",
-    "stockfish": "^16.0.0",
+    "stockfish": "^17.1.0",
     "stripe": "^18.0.0",
     "svix": "^1.44.0",
     "tailwind-merge": "^2.6.0",
