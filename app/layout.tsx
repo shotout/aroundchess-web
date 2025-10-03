@@ -49,6 +49,12 @@ export default function RootLayout({
           `}
           </Script>
         )}
+        {setting.analytics && (
+          <Script
+            id="google-analytics"
+            strategy="afterInteractive"
+            src="https://www.googletagmanager.com/gtag/js?id=G-C2DL4G5MEB" />
+        )}
 
         {/* <React.StrictMode> */}
         <AuthProvider>
