@@ -64,11 +64,13 @@ export const trackInitialCheckout = () => {
 
 export const trackCustomEvent = (eventName: string, parameters?: any) => {
   if (typeof window !== "undefined" && window.fbq) {
+    console.log("track FB", eventName, parameters);
     window.fbq("track", eventName, parameters);
   }
 
   // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
+    console.log("track GA4", eventName, parameters);
     window.gtag("event", eventName, parameters);
   }
 };
