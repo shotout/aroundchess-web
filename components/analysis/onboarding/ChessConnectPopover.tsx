@@ -16,6 +16,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { ChessApiService } from "./store/APIService";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayerStatsStore } from "./store/usePlayerStatsStore";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 export interface ChessConnectDialogProps {
   open: boolean;
@@ -179,6 +180,10 @@ export const ChessConnectDialog = ({
     }
 
     setIsSubmitting(true);
+
+    trackCustomEvent("Saved Username", {
+      username: storeUsername,
+    });
 
     try {
       const result = await ChessApiService.setUsername(
