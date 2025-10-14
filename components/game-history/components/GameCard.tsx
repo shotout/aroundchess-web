@@ -141,6 +141,26 @@ const GameCard: React.FC<GameCardProps> = ({
             disabled: true,
           };
         }
+        case "waiting": {
+          // compute remaining time if possible
+          let text = "Just one more moment...";
+          if (job.estimatedDurationSeconds && job.startedAt) {
+            const elapsed = Math.floor((Date.now() - job.startedAt) / 1000);
+            const remaining = Math.max(0, job.estimatedDurationSeconds - elapsed);
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            const timeStr = `${mins}:${secs.toString().padStart(2, "0")}`;
+            text = `${text} (${timeStr})`;
+          }
+
+          return {
+            text,
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className: "bg-yellow-500 hover:bg-yellow-600",
+            onClick: () => {},
+            disabled: true,
+          };
+        }
         case "finalizing":
           return {
             text: "Finalizing...",

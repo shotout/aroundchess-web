@@ -189,6 +189,25 @@ const GamesList: React.FC<GamesListProps> = ({
             onClick: () => {},
           };
         }
+        case "waiting": {
+          // build text with remaining time if available
+          let text = "Just one more moment...";
+          if (job.estimatedDurationSeconds && job.startedAt) {
+            const elapsed = Math.floor((Date.now() - job.startedAt) / 1000);
+            const remaining = Math.max(0, job.estimatedDurationSeconds - elapsed);
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            text = `${text} (${mins}:${secs.toString().padStart(2, "0")})`;
+          }
+
+          return {
+            text,
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            onClick: () => {},
+            disabled: true,
+          };
+        }
         case "finalizing":
           return {
             text: "Finalizing...",

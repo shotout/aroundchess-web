@@ -26,7 +26,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
   const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
-  const [showSpecialDiscount, setShowSpecialDiscount] = useState(true);
+  const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
 
   useEffect(() => {
     if (!checkComplete || isLoading) return;

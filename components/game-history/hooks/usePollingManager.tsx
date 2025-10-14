@@ -89,7 +89,26 @@ export const usePollingManager = () => {
 
 
         if (["processing", "pending"].includes(d.status)) {
-          updateJob(gameId, { status: "processing", progress: d.progress || 0 });
+          // compute client-side progress estimate if job has estimated duration
+          const state = useBackgroundAnalysisStore.getState();
+          const storeJob = state.analysisJobs[String(gameId)];
+          let computedProgress = d.progress || 0;
+
+          if (storeJob && storeJob.estimatedDurationSeconds) {
+            const elapsedSec = Math.floor((Date.now() - (storeJob.startedAt || Date.now())) / 1000);
+            const estimate = storeJob.estimatedDurationSeconds;
+
+            // progress is elapsed / estimate, capped to 100
+            computedProgress = Math.max(0, Math.min(100, Math.round((elapsedSec / estimate) * 100)));
+
+            if (elapsedSec > estimate) {
+              // past estimate and still processing -> mark as waiting
+              updateJob(gameId, { status: "waiting", progress: 100 });
+              return;
+            }
+          }
+
+          updateJob(gameId, { status: "processing", progress: computedProgress });
         } else if (["completed", "ready"].includes(d.status)) {
           clearInterval(poll);
           const valid = d.result && d.result.id && d.result.userId && d.result.pgn;
@@ -108,10 +127,12 @@ export const usePollingManager = () => {
           if (isSmall) await new Promise((r) => setTimeout(r, 2000));
 
           forceStopPolling(gameId);
+          // override any waiting/finalizing state and mark completed
           updateJob(gameId, {
             status: "completed",
             progress: 100,
             result: d.result || d,
+            error: undefined,
           });
 
           toast.success(

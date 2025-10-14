@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 interface AnalysisJob {
   gameId: string | number;
   jobId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'finalizing';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'finalizing' | 'waiting';
   progress: number;
   startedAt: number;
   finalizingStartedAt?: number;
@@ -15,6 +15,7 @@ interface AnalysisJob {
   gamePgn?: string;
   depth?: number;
   lastPolledAt?: number;
+  estimatedDurationSeconds?: number;
 }
 
 interface BackgroundAnalysisState {
@@ -41,6 +42,13 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
       pollingIntervals: new Map(),
       
       addJob: (gameId, jobId, statusUrl, gamePgn, depth) => {
+        // map depths to estimated durations (in seconds)
+        const estimateMap: Record<number, number> = {
+          12: 101, // 1:41 -> 101s
+          16: 150, // 2:30 -> 150s
+          18: 113, // 1:53 -> 113s
+        };
+        const estimatedDurationSeconds = depth ? (estimateMap[depth] || 150) : undefined;
         set((state) => ({
           analysisJobs: {
             ...state.analysisJobs,
@@ -55,6 +63,7 @@ export const useBackgroundAnalysisStore = create<BackgroundAnalysisState>()(
               statusUrl,
               gamePgn,
               depth,
+              estimatedDurationSeconds,
             },
           },
         }));
