@@ -474,6 +474,7 @@ export function AnalyzeDifferentGame({
                 </div>
                 <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <input
+                    disabled={true}
                     type="text"
                     id="username"
                     value={username}
