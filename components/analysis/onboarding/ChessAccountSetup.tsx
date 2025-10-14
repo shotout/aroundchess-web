@@ -9,6 +9,7 @@ import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSub
 import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 import { useChessProfile } from "./useChessProfile";
 import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
+import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -24,7 +25,8 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
-  const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(true);
+  const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
+  const [showSpecialDiscount, setShowSpecialDiscount] = useState(true);
 
   useEffect(() => {
     if (!checkComplete || isLoading) return;
@@ -51,6 +53,11 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     setShowAnalyzeFreeBanner(false);
     setShowPremiumDialog(true);
   };
+
+  const handleSpecialDiscount = () => {
+    setShowSpecialDiscount(false);
+    setShowPremiumDialog(true);
+  };
   const handleConnectClose = () => {
     setShowConnectDialog(false);
     setShowPremiumDialog(true);
@@ -73,9 +80,15 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   return (
     <>
+      <DialogSpecialDiscount
+        open={showSpecialDiscount}
+        setOpen={handleSpecialDiscount}
+        onClose={setShowSpecialDiscount}
+      />
       <DialogAnalyzeFree
         open={showAnalyzeFreeBanner}
         setOpen={handleCloseFreeBanner}
+        onClose={setShowAnalyzeFreeBanner}
       />
       <ChessConnectDialog
         open={showConnectDialog && !isLoading}

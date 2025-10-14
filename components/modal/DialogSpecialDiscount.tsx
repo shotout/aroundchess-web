@@ -15,7 +15,7 @@ interface Props {
   onClose: (open: boolean) => void;
 }
 
-export const DialogAnalyzeFree: React.FC<Props> = ({
+export const DialogSpecialDiscount: React.FC<Props> = ({
   open,
   setOpen,
   onClose,
@@ -40,35 +40,39 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const src =
-    width < 768
-      ? "/offers/mobile-analyze-free.png"
-      : "/offers/desktop-analyze-free.png";
+  const src = "/offers/special-discount.png";
 
   return (
     <Dialog open={dialogOpen} onOpenChange={() => onClose(false)}>
       <DialogPortal>
         <DialogContent
-          className={`p-0 bg-white shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
+          className={`pt-4 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
         >
-          <DialogTitle></DialogTitle>
-          <div className="w-full block">
+          <DialogTitle className="">
+            <span className="text-[16px] font-semibold">
+              You have used all of your Analysis Tokens!
+            </span>
+          </DialogTitle>
+          <div className="w-full flex flex-col items-center justify-center space-y-4 relative">
+            <span className="text-[24px] text-center font-bold text-[#221AE9]">
+              Get more Analyses at the best price!
+            </span>
             <Image
               src={src}
-              alt="Analyze 10 games for free"
-              width={width < 768 ? 360 : 720}
-              height={width < 768 ? 780 : 620}
-              className="w-full h-auto object-cover block"
+              alt="Special Discount Offer"
+              width={width < 768 ? 277 : 299}
+              height={width < 768 ? 285 : 254}
+              className="object-cover block"
               priority
             />
           </div>
 
-          <div className=" absolute bottom-[10%] sm:bottom-[20%] left-1/2 transform -translate-x-1/2 w-full flex justify-center">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full flex justify-center">
             <button
               onClick={() => setDialogOpen(false)}
-              className={`max-w-[92%] sm:max-w-[720px] px-5 py-2 btn-primary rounded-full`}
+              className={`min-w-[92%] sm:max-w-[720px] px-5 py-2 btn-primary rounded-full`}
             >
-              Discover the Game Analysis
+              SEE OFFER
             </button>
           </div>
         </DialogContent>
@@ -77,4 +81,4 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
   );
 };
 
-export default DialogAnalyzeFree;
+export default DialogSpecialDiscount;
