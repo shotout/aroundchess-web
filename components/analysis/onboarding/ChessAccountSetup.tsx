@@ -24,6 +24,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+  const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(true);
 
   useEffect(() => {
     if (!checkComplete || isLoading) return;
@@ -40,9 +41,16 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
-    setShowPremiumDialog(true);
+    handleOpenAnalyzeFree();
   };
 
+  const handleOpenAnalyzeFree = () => {
+    setShowAnalyzeFreeBanner(true);
+  };
+  const handleCloseFreeBanner = () => {
+    setShowAnalyzeFreeBanner(false);
+    setShowPremiumDialog(true);
+  };
   const handleConnectClose = () => {
     setShowConnectDialog(false);
     setShowPremiumDialog(true);
@@ -65,7 +73,10 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   return (
     <>
-      <DialogAnalyzeFree open={true} />
+      <DialogAnalyzeFree
+        open={showAnalyzeFreeBanner}
+        setOpen={handleCloseFreeBanner}
+      />
       <ChessConnectDialog
         open={showConnectDialog && !isLoading}
         onOpenChange={(open) => {
