@@ -8,6 +8,7 @@ import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnec
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 import { useChessProfile } from "./useChessProfile";
+import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -64,6 +65,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   return (
     <>
+      <DialogAnalyzeFree open={true} />
       <ChessConnectDialog
         open={showConnectDialog && !isLoading}
         onOpenChange={(open) => {
