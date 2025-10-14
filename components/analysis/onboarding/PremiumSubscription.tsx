@@ -11,7 +11,7 @@ import { fadeInUp, motion } from "@/utils/motion";
 import { loadStripe } from "@stripe/stripe-js";
 import { CheckCircle, Users, X } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
@@ -120,13 +120,14 @@ export const PremiumSubsContent: React.FC<{
     isMember,
     profile,
     sessionId,
+    isMemberMonthly,
   } = useProfileStore();
   const { setOpen: setOpenLogin } = useConfirmLogin();
   const { setOpen: setOpenPricing, setParamsPayment } = usePricingOffer();
   const { checkoutSessions, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
-
+  const [packageFilter, setPackageFilter] = useState("monthly"); // monthly, yearly
   const handleOpenContactUs = () => {
     setOpenPricing(false);
     setOpen(true);
@@ -183,15 +184,99 @@ export const PremiumSubsContent: React.FC<{
   const handleSignUp = () => {
     window.location.href = "/register";
   };
+
+  // refs to detect which package card is centered in the horizontal scroll
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const monthlyCardRef = useRef<HTMLDivElement | null>(null);
+  const freeCardRef = useRef<HTMLDivElement | null>(null);
+  const yearlyCardRef = useRef<HTMLDivElement | null>(null);
+
+  // on scroll detect which card is nearest to the container center and set the filter
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    let raf = 0;
+
+    const handleScroll = () => {
+      if (window.innerWidth > 425) return null;
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+
+        const candidates: Array<{
+          ref: React.RefObject<HTMLDivElement>;
+          key: string;
+        }> = [
+          { ref: freeCardRef, key: "" },
+          { ref: monthlyCardRef, key: "monthly" },
+          { ref: yearlyCardRef, key: "yearly" },
+        ];
+
+        let closestKey: string | null = null;
+        let minDist = Infinity;
+
+        candidates.forEach((c) => {
+          const node = c.ref.current;
+          if (!node) return;
+          const r = node.getBoundingClientRect();
+          const nodeCenter = r.left + r.width / 2;
+          const dist = Math.abs(nodeCenter - centerX);
+          if (dist < minDist) {
+            minDist = dist;
+            closestKey = c.key;
+          }
+        });
+
+        if (closestKey !== null && closestKey !== packageFilter) {
+          setPackageFilter(closestKey);
+        }
+      });
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    // run once to initialize
+    handleScroll();
+
+    return () => {
+      el.removeEventListener("scroll", handleScroll as EventListener);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [packageFilter]);
+
+  // helper to scroll a card into center of the container and set the packageFilter
+  const scrollToAndSet = (
+    ref: React.RefObject<HTMLDivElement>,
+    key: string
+  ) => {
+    const container = containerRef.current;
+    const node = ref.current;
+    if (!container || !node) {
+      setPackageFilter(key);
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    const offset =
+      nodeRect.left -
+      containerRect.left -
+      (containerRect.width / 2 - nodeRect.width / 2);
+
+    // animate scroll
+    container.scrollTo({
+      left: container.scrollLeft + offset,
+      behavior: "smooth",
+    });
+    setPackageFilter(key);
+  };
+
   return (
     <div
-      className={`${
-        sessionId.length > 0
-          ? `space-y-4`
-          : `space-y-4 max-w-[358px] sm:max-w-[640px] xl:max-w-[1141px] `
-      }`}
+      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] xl:max-w-[1141px] `}`}
     >
-      <div className="text-center space-y-2">
+      <div className="hidden md:block text-center space-y-2">
         <p className="text-sm text-black">
           Discover our Suite of Powerful Features with the AroundChess{" "}
           <span className="text-blue-base font-medium">
@@ -228,11 +313,57 @@ export const PremiumSubsContent: React.FC<{
           </div>
         </div>
       </div>
-
+      <div className="flex flex-row items-center justify-between">
+        <div
+          className={`${
+            packageFilter === "monthly"
+              ? "bg-[#81CFF3] border border-primary"
+              : "bg-white border border-gray-300"
+          } flex justify-center items-center cursor-pointer w-[48%] rounded-full py-1`}
+          onClick={() => {
+            scrollToAndSet(monthlyCardRef, "monthly");
+          }}
+        >
+          <span
+            className={`${
+              packageFilter === "monthly"
+                ? "font-semibold text-[#221AE9] "
+                : " font-normal"
+            } cursor-pointer`}
+          >
+            Monthly
+          </span>
+        </div>
+        <div
+          className={`${
+            packageFilter === "yearly"
+              ? "bg-[#81CFF3] border border-primary"
+              : "bg-white border border-gray-300"
+          } flex justify-center items-center cursor-pointer w-[48%] rounded-full py-1`}
+          onClick={() => {
+            scrollToAndSet(yearlyCardRef, "yearly");
+          }}
+        >
+          <span
+            className={`${
+              packageFilter === "yearly"
+                ? "font-semibold text-[#221AE9] "
+                : " font-normal"
+            } cursor-pointer`}
+          >
+            Yearly
+          </span>
+        </div>
+      </div>
       <div
-        className={`flex max-w-full overflow-x-scroll gap-4 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2`}
+        ref={containerRef}
+        className={`flex max-w-full overflow-x-scroll gap-2 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 `}
       >
-        <div className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none">
+        {/* free */}
+        <div
+          ref={freeCardRef}
+          className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none"
+        >
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-50 rounded-full">
               <Image
@@ -297,134 +428,265 @@ export const PremiumSubsContent: React.FC<{
             </div>
           )}
         </div>
-
-        <div className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col">
-          <div className="absolute -top-2 left-0 right-0 flex justify-center">
-            <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
-              For frequent Chess Players
-            </div>
-          </div>
-
-          {!isMember &&
-            profile?.discountInfo?.hasActiveDiscount &&
-            isPass > 0 && (
-              <div className="flex justify-center items-center my-2">
-                <CountdownTimerDiscount />
+        {/* monthly */}
+        {(packageFilter === "monthly" || window.innerWidth <= 425) && (
+          <div
+            ref={monthlyCardRef}
+            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
+          >
+            <div className="absolute -top-2 left-0 right-0 flex justify-center">
+              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
+                For frequent Chess Players
               </div>
+            </div>
+
+            {!isMemberMonthly &&
+              profile?.discountInfo?.hasActiveDiscount &&
+              isPass > 0 && (
+                <div className="flex justify-center items-center my-2">
+                  <CountdownTimerDiscount />
+                </div>
+              )}
+
+            <div className="flex items-center gap-3 mb-3 pt-1">
+              <div className="p-1 rounded-full">
+                <Image
+                  src="/onboarding/premium.png"
+                  alt="Premium Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">
+                  Premium Package (Monthly)
+                </h3>
+                {!(
+                  !isMemberMonthly &&
+                  profile?.discountInfo?.hasActiveDiscount &&
+                  isPass > 0
+                ) ? (
+                  <div className="text-xl font-semibold">
+                    $9.99 <span className="text-sm font-normal">/month</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <PriceDiscount price={99.99} />
+                    <div className="text-xl font-semibold">
+                      $6.99 <span className="text-sm font-normal">/month</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm mb-3">
+              Our Unlimited Package for frequent Chess Players!
+            </p>
+
+            <div className="space-y-2 flex-grow">
+              <BenefitItem
+                text="80 Analyses per year (meaning 0.10 Cent per Analysis)"
+                light
+              />
+              <BenefitItem
+                text="Full Access to the Feedback Log and Game History"
+                light
+              />
+              <BenefitItem text="Unlimited Puzzles" light />
+              <BenefitItem text="Play vs. AI" light />
+              <BenefitItem text="Board Vision Training" light />
+              <BenefitItem text="Endgame Training" light />
+              <BenefitItem text="Chess Handbook" light />
+              <BenefitItem text="Early Feature Update" light />
+              <BenefitItem text="Discord VIP Access" light />
+            </div>
+
+            {isLoading && <DotSpinner />}
+            {!isMemberMonthly && !isLoading && (
+              <button
+                onClick={handleGetPremium}
+                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+              >
+                Get Premium
+              </button>
             )}
 
-          <div className="flex items-center gap-3 mb-3 pt-1">
-            <div className="p-1 rounded-full">
-              <Image
-                src="/onboarding/premium.png"
-                alt="Premium Icon"
-                width={48}
-                height={48}
-              />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">
-                Premium Package (Yearly)
-              </h3>
-              {!(
-                !isMember &&
-                profile?.discountInfo?.hasActiveDiscount &&
-                isPass > 0
-              ) ? (
-                <div className="text-xl font-semibold">
-                  $99.99 <span className="text-sm font-normal">/year</span>
-                </div>
-              ) : (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                  <PriceDiscount price={99.99} />
-                  <div className="text-xl font-semibold">
-                    $79.99 <span className="text-sm font-normal">/year</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm mb-3">
-            Our Unlimited Package for frequent Chess Players!
-          </p>
-
-          <div className="space-y-2 flex-grow">
-            <BenefitItem
-              text="1,000 Analyses per year (meaning 0.10 Cent per Analysis)"
-              light
-            />
-            <BenefitItem
-              text="Choose between Basic, Standard and Deep Analysis"
-              light
-            />
-            <BenefitItem
-              text="Full Access to the Feedback Log and Game History"
-              light
-            />
-            <BenefitItem text="Unlimited Puzzles" light />
-            <BenefitItem text="Play vs. AI" light />
-            <BenefitItem text="Board Vision Training" light />
-            <BenefitItem text="Endgame Training" light />
-            <BenefitItem text="Chess Handbook" light />
-            <BenefitItem text="Early Feature Update" light />
-            <BenefitItem text="Discord VIP Access" light />
-          </div>
-
-          {isLoading && <DotSpinner />}
-          {!isMember && !isLoading && (
-            <button
-              onClick={handleGetPremium}
-              className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
-            >
-              Get Premium
-            </button>
-          )}
-
-          {isMember && (
-            <>
-              <motion.div
-                variants={fadeInUp}
-                className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
-              >
-                <div className="flex h-12 flex-row items-center rounded-lg gap-2">
-                  <Image
-                    src="/icons/onboarding-popup.png"
-                    alt="icon"
-                    width={32}
-                    height={32}
-                    className="object-contain m-3 mr-0"
-                  />
-                  <span className="font-medium text-xs text-black z-10">
-                    {`You are on this Package. ${
-                      activeMembership.autoRenew
-                        ? ` The Subscription automatically renews on ` +
-                          formatDateHistory(activeMembership.endDate) +
-                          "."
-                        : ``
-                    }`}
-                  </span>
-                  <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
+            {isMemberMonthly && (
+              <>
+                <motion.div
+                  variants={fadeInUp}
+                  className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
+                >
+                  <div className="flex h-12 flex-row items-center rounded-lg gap-2">
                     <Image
-                      src="/icons/sparks-member.png"
+                      src="/icons/onboarding-popup.png"
                       alt="icon"
-                      width={48}
-                      height={48}
-                      className="object-cover"
+                      width={32}
+                      height={32}
+                      className="object-contain m-3 mr-0"
                     />
+                    <span className="font-medium text-xs text-black z-10">
+                      {`You are on this Package. ${
+                        activeMembership.autoRenew
+                          ? ` The Subscription automatically renews on ` +
+                            formatDateHistory(activeMembership.endDate) +
+                            "."
+                          : ``
+                      }`}
+                    </span>
+                    <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
+                      <Image
+                        src="/icons/sparks-member.png"
+                        alt="icon"
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
+                </motion.div>
+                {activeMembership.autoRenew && (
+                  <button className="mt-3" onClick={handleCancelSubscription}>
+                    <span className="font-medium text-sm text-white">
+                      Cancel Subscription
+                    </span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* yearly */}
+        {(packageFilter === "yearly" || window.innerWidth <= 425) && (
+          <div
+            ref={yearlyCardRef}
+            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
+          >
+            <div className="absolute -top-2 left-0 right-0 flex justify-center">
+              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
+                For frequent Chess Players
+              </div>
+            </div>
+
+            {!isMember &&
+              profile?.discountInfo?.hasActiveDiscount &&
+              isPass > 0 && (
+                <div className="flex justify-center items-center my-2">
+                  <CountdownTimerDiscount />
                 </div>
-              </motion.div>
-              {activeMembership.autoRenew && (
-                <button className="mt-3" onClick={handleCancelSubscription}>
-                  <span className="font-medium text-sm text-white">
-                    Cancel Subscription
-                  </span>
-                </button>
               )}
-            </>
-          )}
-        </div>
+
+            <div className="flex items-center gap-3 mb-3 pt-1">
+              <div className="p-1 rounded-full">
+                <Image
+                  src="/onboarding/premium.png"
+                  alt="Premium Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">
+                  Premium Package (Yearly)
+                </h3>
+                {!(
+                  !isMember &&
+                  profile?.discountInfo?.hasActiveDiscount &&
+                  isPass > 0
+                ) ? (
+                  <div className="text-xl font-semibold">
+                    $99.99 <span className="text-sm font-normal">/year</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <PriceDiscount price={99.99} />
+                    <div className="text-xl font-semibold">
+                      $79.99 <span className="text-sm font-normal">/year</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm mb-3">
+              Our Unlimited Package for frequent Chess Players!
+            </p>
+
+            <div className="space-y-2 flex-grow">
+              <BenefitItem
+                text="1,000 Analyses per year (meaning 0.10 Cent per Analysis)"
+                light
+              />
+              <BenefitItem
+                text="Full Access to the Feedback Log and Game History"
+                light
+              />
+              <BenefitItem text="Unlimited Puzzles" light />
+              <BenefitItem text="Play vs. AI" light />
+              <BenefitItem text="Board Vision Training" light />
+              <BenefitItem text="Endgame Training" light />
+              <BenefitItem text="Chess Handbook" light />
+              <BenefitItem text="Early Feature Update" light />
+              <BenefitItem text="Discord VIP Access" light />
+            </div>
+
+            {isLoading && <DotSpinner />}
+            {!isMember && !isLoading && (
+              <button
+                onClick={handleGetPremium}
+                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+              >
+                Get Premium
+              </button>
+            )}
+
+            {isMember && (
+              <>
+                <motion.div
+                  variants={fadeInUp}
+                  className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
+                >
+                  <div className="flex h-12 flex-row items-center rounded-lg gap-2">
+                    <Image
+                      src="/icons/onboarding-popup.png"
+                      alt="icon"
+                      width={32}
+                      height={32}
+                      className="object-contain m-3 mr-0"
+                    />
+                    <span className="font-medium text-xs text-black z-10">
+                      {`You are on this Package. ${
+                        activeMembership.autoRenew
+                          ? ` The Subscription automatically renews on ` +
+                            formatDateHistory(activeMembership.endDate) +
+                            "."
+                          : ``
+                      }`}
+                    </span>
+                    <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
+                      <Image
+                        src="/icons/sparks-member.png"
+                        alt="icon"
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+                {activeMembership.autoRenew && (
+                  <button className="mt-3" onClick={handleCancelSubscription}>
+                    <span className="font-medium text-sm text-white">
+                      Cancel Subscription
+                    </span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
