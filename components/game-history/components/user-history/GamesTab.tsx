@@ -3,9 +3,9 @@ import { useFilters } from "../../hooks/useFilters";
 import { usePagination } from "../../hooks/usePagination";
 import Filters from "../Filters";
 import GamesList from "../GameList";
+import { useEffect } from "react";
 
 const GamesTab: React.FC = () => {
-
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
     useGames("chessdotcom");
 
@@ -30,7 +30,9 @@ const GamesTab: React.FC = () => {
     { value: "Online Games", label: "Online Games" },
     { value: "Tournaments", label: "Tournaments" },
   ];
-
+  useEffect(() => {
+    console.log("filteredGames",filteredGames);
+  }, [filteredGames]);
   return (
     <div className="mx-auto relative flex flex-col">
       <Filters

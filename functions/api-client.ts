@@ -151,6 +151,15 @@ export function useApiClient() {
     });
   }, [apiRequest]);
 
+  const viewAnalysisResult = useCallback(
+    (id: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/games/mark-analysis-viewed/${id}`,
+      });
+    },
+    [apiRequest]
+  );
   const getHistoryOptions = useCallback(() => {
     return apiRequest({
       method: "GET",
@@ -688,6 +697,7 @@ export function useApiClient() {
     error,
     getHistoryGames,
     getHistoryOptions,
+    viewAnalysisResult,
     getAnalyticGamePerformance,
     getAnalyticGameAnalytic,
     getAnalyticGameSummary,

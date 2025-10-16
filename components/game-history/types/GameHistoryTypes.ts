@@ -17,6 +17,7 @@ export interface Game {
   pgn: string;
   timeClass: string;
   isAnalysis: boolean;
+  hasViewedAnalysis: boolean;
 }
 
 export interface FilterState {

@@ -356,7 +356,7 @@ export function AnalyzeDifferentGame({
                 }}
                 key={index}
                 disabled={depth.mustMember && !isMember}
-                className={`relative flex flex-col justify-around px-2 py-2 md:h-[280px] gap-2 items-center shadow-md  ${
+                className={`relative flex flex-col justify-around px-2 py-2 md:h-[240px] gap-2 items-center shadow-md  ${
                   depth.mustMember && !isMember ? `bg-[#C0CED4]` : `bg-white`
                 } border ${
                   depthChoosed == depth.value
@@ -397,12 +397,12 @@ export function AnalyzeDifferentGame({
                 <span className="font-light text-[#364152] text-center text-[11px]">
                   {depth.description}
                 </span>
-                <div className="flex flex-col gap-1 items-center">
+                {/* <div className="flex flex-col gap-1 items-center">
                   <span className="font-medium text-[10px]">
                     Analysis can take up to:
                   </span>
                   <span className="font-medium text-[10px]  ">{estimate}</span>
-                </div>
+                </div> */}
               </button>
             );
           })}
