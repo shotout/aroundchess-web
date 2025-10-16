@@ -50,8 +50,10 @@ export default function AnalysisPage() {
     if (!isFromGameHistory) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
+    } else {
+      setIsFromGameHistory(false);
     }
-  }, [isFromGameHistory]);
+  }, []);
   useEffect(() => {
     if (!mounted) return;
     if (hydratedProfile) {

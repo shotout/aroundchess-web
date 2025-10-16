@@ -53,6 +53,7 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         username: item.username,
         timeClass: item.time_class,
         isAnalysis: item.is_analysis,
+        hasViewedAnalysis: item.has_viewed_analysis, 
       };
     })
     .filter(Boolean) as Game[];
