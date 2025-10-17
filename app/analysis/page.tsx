@@ -141,9 +141,6 @@ export default function AnalysisPage() {
     clearGameHistoryData();
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
 
   return (
     <div className="min-h-screen">

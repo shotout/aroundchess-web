@@ -240,7 +240,6 @@ export function AnalyzeDifferentGame({
   const processAnalyze = async (pgn: string | any) => {
     let arr: AnalysisResult | null = null;
     try {
-      setIsLoading(true);
       setDataAnalysis(arr);
 
       const responseAnalysis = await proceedAnalysis(

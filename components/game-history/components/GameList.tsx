@@ -7,6 +7,7 @@ import {
   BookOpen,
   Loader2,
   CheckCircle,
+  Eye,
 } from "lucide-react";
 import GameCard from "./GameCard";
 import PaginationControls from "./PaginationControls";
@@ -196,9 +197,10 @@ const GamesList: React.FC<GamesListProps> = ({
 
     if (game.isAnalysis || (job && job.status === "completed")) {
       return {
-        text: "View Results",
-        icon: <CheckCircle className="h-4 w-4 mr-1" />,
-        className: "bg-green-600 hover:bg-green-700 text-white",
+        text: "View Result",
+        icon: <Eye className="h-4 w-4 mr-2" />,
+        className:
+          "border border-white bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
           try {
             setDisabled(true);
@@ -263,24 +265,26 @@ const GamesList: React.FC<GamesListProps> = ({
         case "pending":
         case "processing": {
           const pct =
-            job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
+            job.progress > 0 ? `${job.progress}%` : "In Progress";
           return {
             text: pct,
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-yellow-400 border border-white hover:bg-yellow-500 text-gray-900 shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
           };
         }
         case "waiting": {
-          let text = "Just one more moment...";
+          let text = "Checking...";
           if (job.estimatedDurationSeconds && job.startedAt) {
             text = `${text} `;
           }
 
           return {
             text,
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-yellow-400 border border-white text-gray-900 shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
             disabled: true,
           };
@@ -288,15 +292,17 @@ const GamesList: React.FC<GamesListProps> = ({
         case "finalizing":
           return {
             text: "Finalizing...",
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-blue-500 hover:bg-blue-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-gradient-to-b from-blue-600 to-blue-700 border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
             onClick: () => {},
           };
         case "failed":
           return {
             text: "Retry",
-            icon: <AlertCircle className="h-4 w-4 mr-1" />,
-            className: "bg-red-600 hover:bg-red-700 text-white",
+            icon: <AlertCircle className="h-4 w-4 mr-2" />,
+            className:
+              "bg-red-600 hover:bg-red-700 border border-white text-white shadow-sm ring-1 ring-red-200",
             onClick: () => {
               trackCustomEvent("RetryAnalysis", gameId);
 
@@ -308,8 +314,9 @@ const GamesList: React.FC<GamesListProps> = ({
 
     return {
       text: "Analyze",
-      icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
-      className: "btn-primary text-white",
+      icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+      className:
+        "bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => {
         setOpenGameId(gameId);
         trackCustomEvent("StartAnalysis", gameId);
