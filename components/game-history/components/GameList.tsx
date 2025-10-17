@@ -94,11 +94,72 @@ const GamesList: React.FC<GamesListProps> = ({
     useBackgroundAnalysisStore();
   const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
     usePgnStore();
-  const { getTokenBalance } = useApiClient();
+  // helper to update hasViewedAnalysis flag in the persisted store arrays
+  const markHasViewedAnalysisInStore = (id: string | number) => {
+    try {
+      const state = usePgnStore.getState();
+      const { gamesData, otherGamesData, setGamesData, setOtherGamesData } =
+        state as any;
+
+      if (Array.isArray(gamesData)) {
+        const idx = gamesData.findIndex((g: any) => g.id === id);
+        // console.log("Found game index in store:", idx);
+        if (idx !== -1) {
+          const newGames = [...gamesData];
+          newGames[idx] = { ...newGames[idx], has_viewed_analysis: true };
+          // console.log("Marking game as viewed in store:", newGames);
+          setGamesData(newGames);
+        }
+      }
+
+      if (Array.isArray(otherGamesData)) {
+        const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
+        if (idx2 !== -1) {
+          const newOther = [...otherGamesData];
+          newOther[idx2] = { ...newOther[idx2], has_viewed_analysis: true };
+          setOtherGamesData(newOther);
+        }
+      }
+    } catch (e) {
+      console.error("Error marking game as viewed in store:", e);
+    }
+  };
+  const markIsAnalysisInStore = (id: string | number) => {
+    try {
+      const state = usePgnStore.getState();
+      const { gamesData, otherGamesData, setGamesData, setOtherGamesData } =
+        state as any;
+
+      if (Array.isArray(gamesData)) {
+        const idx = gamesData.findIndex((g: any) => g.id === id);
+        // console.log("Found game index in store:", idx);
+        if (idx !== -1) {
+          const newGames = [...gamesData];
+          newGames[idx] = { ...newGames[idx], is_analysis: true };
+          // console.log("Marking game as viewed in store:", newGames);
+          setGamesData(newGames);
+        }
+      }
+
+      if (Array.isArray(otherGamesData)) {
+        const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
+        if (idx2 !== -1) {
+          const newOther = [...otherGamesData];
+          newOther[idx2] = { ...newOther[idx2], is_analysis: true };
+          setOtherGamesData(newOther);
+        }
+      }
+    } catch (e) {
+      console.error("Error marking game as viewed in store:", e);
+    }
+  };
+  const { getTokenBalance, viewAnalysisResult } = useApiClient();
   const { sessionId, setToken } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { restorePollingJobs } = usePollingManager();
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
+  const [disabled, setDisabled] = useState(false);
+  const [gameId, setGameId] = useState<string | number | null>(null);
   const isNewlyImported = (id: string | number) =>
     recentlyImportedIds.includes(id);
 
@@ -120,6 +181,7 @@ const GamesList: React.FC<GamesListProps> = ({
       const lastCompleted = isCompleted[isCompleted.length - 1];
       if (lastCompleted) {
         trackCustomEvent("AnalysisCompleted", lastCompleted.gameId);
+        markIsAnalysisInStore(lastCompleted.gameId);
       }
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
@@ -139,16 +201,35 @@ const GamesList: React.FC<GamesListProps> = ({
         className: "bg-green-600 hover:bg-green-700 text-white",
         onClick: async () => {
           try {
+            setDisabled(true);
+            setGameId(gameId);
             const pgnHash = createPgnHash(game.pgn);
             const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
 
+            if (game.hasViewedAnalysis === false) {
+              // console.log("Marking analysis as viewed for game:", game.id);
+              const res = await viewAnalysisResult(game.id);
+              // if API reports success (or we got a 2xx), update store and local object
+              if (res?.success) {
+                // update persisted store arrays
+                markHasViewedAnalysisInStore(game.id);
+                // also update the in-memory game object so UI updates immediately
+                try {
+                  game.hasViewedAnalysis = true as any;
+                } catch (e) {
+                  // if game is immutable, we'll still rely on store update
+                }
+              }
+            }
             if (lastAnalysis?.success && lastAnalysis.data) {
+              setDisabled(false);
               setPgn(game.pgn);
               setDataGamesImport(game);
               setDataAnalysis(lastAnalysis.data);
               setIsFromGameHistory(true);
               router.push("/analysis");
             } else {
+              setDisabled(false);
               if (job && job.result) {
                 setPgn(game.pgn);
                 setDataGamesImport(game);
@@ -162,6 +243,7 @@ const GamesList: React.FC<GamesListProps> = ({
             }
           } catch (error) {
             console.error("Error fetching analysis:", error);
+            setDisabled(false);
             if (job && job.result) {
               setPgn(game.pgn);
               setDataGamesImport(game);
@@ -187,6 +269,20 @@ const GamesList: React.FC<GamesListProps> = ({
             icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
             className: "bg-yellow-500 hover:bg-yellow-600 text-white",
             onClick: () => {},
+          };
+        }
+        case "waiting": {
+          let text = "Just one more moment...";
+          if (job.estimatedDurationSeconds && job.startedAt) {
+            text = `${text} `;
+          }
+
+          return {
+            text,
+            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
+            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            onClick: () => {},
+            disabled: true,
           };
         }
         case "finalizing":
@@ -310,7 +406,11 @@ const GamesList: React.FC<GamesListProps> = ({
 
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
           {currentGames.map((game, idx) => {
-            const isNew = isNewlyImported(game.id);
+            const btn = getAnalysisButtonContent(game.id, game);
+            const isNew =
+              btn.text.includes("In Progress") ||
+              (!game.hasViewedAnalysis && game.isAnalysis) ||
+              isNewlyImported(game.id);
             const indexInPage =
               (paginationProps.currentPage - 1) * paginationProps.itemsPerPage +
               idx +
@@ -320,7 +420,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 key={game.id}
                 className={`grid relative transition-colors duration-150 ${
                   isNew
-                    ? "bg-green-50"
+                    ? "bg-yellow-50"
                     : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
                 }`}
                 style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
@@ -332,9 +432,9 @@ const GamesList: React.FC<GamesListProps> = ({
                 />
 
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
-                  {isNew && (
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-                  )}
+                  {/* {isNew && (
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                  )} */}
                   <span className="w-6 text-center text-gray-500">
                     {indexInPage}
                   </span>
@@ -382,15 +482,22 @@ const GamesList: React.FC<GamesListProps> = ({
                     const btn = getAnalysisButtonContent(game.id, game);
                     return (
                       <button
-                        className={`${btn.className} h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
+                        className={`${btn.className} ${
+                          disabled && "bg-gray-700"
+                        } h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
+                          disabled ||
                           btn.text.startsWith("In Progress") ||
                           btn.text === "Finalizing..." ||
                           btn.text === "Checking..."
                         }
                       >
-                        {btn.icon}
+                        {disabled && game.id == gameId ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          btn.icon
+                        )}
                         {btn.text}
                       </button>
                     );

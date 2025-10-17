@@ -12,6 +12,7 @@ import { useProfileStore } from "../store/profile";
 import Link from "next/link";
 import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
+import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -36,7 +37,7 @@ export default function AnalysisPage() {
     setIsLastAnalysisLoading,
     setIsFromGameHistory,
   } = usePgnStore();
-
+  const [openNewAnalysis, setOpenNewAnalysis] = useState(false);
   const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
   useEffect(() => {
@@ -45,7 +46,14 @@ export default function AnalysisPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
+  useEffect(() => {
+    if (!isFromGameHistory) {
+      setOpenNewAnalysis(true);
+      setIsFromGameHistory(false);
+    } else {
+      setIsFromGameHistory(false);
+    }
+  }, []);
   useEffect(() => {
     if (!mounted) return;
     if (hydratedProfile) {
@@ -184,8 +192,9 @@ export default function AnalysisPage() {
                       overall positional advantages, helping players understand
                       strategic strengths and weaknesses.
                     </div>
+                    <AnalyzeDifferentGame openPopup={openNewAnalysis} />
 
-                    {isSignedIn && widthC > 1024 && username && (
+                    {/* {isSignedIn && widthC > 1024 && username && (
                       <Link
                         href="/my-game-history"
                         className="w-fill px-5 py-2 btn-primary rounded-full"
@@ -193,10 +202,9 @@ export default function AnalysisPage() {
                       >
                         Analyze a different game
                       </Link>
-                    )}
+                    )} */}
                   </div>
                 </div>
-
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (

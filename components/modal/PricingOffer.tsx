@@ -239,7 +239,7 @@ export const PricingOffer: React.FC = () => {
             height: activeTab == "tokens" ? "auto" : "auto",
             width: "100%",
           }}
-          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[380px] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
+          className={`fixed top-1/2 overflow-x-hidden left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[95%] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
@@ -259,7 +259,7 @@ export const PricingOffer: React.FC = () => {
             {sessionId.length > 0 && (
               <div>
                 {sessionId.length > 0 && (
-                  <TabsList className="flex-1 h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
+                  <TabsList className="flex h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                     <TabsTrigger
                       value="tokens"
                       className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${

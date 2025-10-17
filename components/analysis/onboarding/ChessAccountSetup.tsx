@@ -8,6 +8,8 @@ import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnec
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
 import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 import { useChessProfile } from "./useChessProfile";
+import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
+import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -23,6 +25,8 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+  const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
+  const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
 
   useEffect(() => {
     if (!checkComplete || isLoading) return;
@@ -39,9 +43,21 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
+    handleOpenAnalyzeFree();
+  };
+
+  const handleOpenAnalyzeFree = () => {
+    setShowAnalyzeFreeBanner(true);
+  };
+  const handleCloseFreeBanner = () => {
+    setShowAnalyzeFreeBanner(false);
     setShowPremiumDialog(true);
   };
 
+  const handleSpecialDiscount = () => {
+    setShowSpecialDiscount(false);
+    setShowPremiumDialog(true);
+  };
   const handleConnectClose = () => {
     setShowConnectDialog(false);
     setShowPremiumDialog(true);
@@ -64,6 +80,16 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   return (
     <>
+      <DialogSpecialDiscount
+        open={showSpecialDiscount}
+        setOpen={handleSpecialDiscount}
+        onClose={setShowSpecialDiscount}
+      />
+      <DialogAnalyzeFree
+        open={showAnalyzeFreeBanner}
+        setOpen={handleCloseFreeBanner}
+        onClose={setShowAnalyzeFreeBanner}
+      />
       <ChessConnectDialog
         open={showConnectDialog && !isLoading}
         onOpenChange={(open) => {

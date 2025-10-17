@@ -24,6 +24,8 @@ interface ProfileState {
   setAlreadyFetchProfile: (alreadyFetch: any) => void;
   isMember: any;
   setIsMember: (isMember: any) => void;
+  isMemberMonthly: any;
+  setIsMemberMonthly: (isMemberMonthly: any) => void;
   clearAll: () => void;
   hydrated: boolean;
   setHydrated: () => void;
@@ -57,6 +59,8 @@ export const useProfileStore = create<ProfileState>()(
       setPuzzleLog: (puzzleLog) => set({ puzzleLog }),
       isMember: null,
       setIsMember: (isMember) => set({ isMember }),
+      isMemberMonthly: null,
+      setIsMemberMonthly: (isMemberMonthly) => set({ isMemberMonthly }),
       clearAll: () =>
         set({
           profile: {},
