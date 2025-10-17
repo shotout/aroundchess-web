@@ -34,7 +34,7 @@ export const useTutorial = () => {
 export function TutorialProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const search = useSearchParams();
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(true);
   const [steps, setSteps] = useState<MinimalStep[]>([]);
   const [stepFocused, setStepFocused] = useState<number>(0);
   const [currentTourId, setCurrentTourId] = useState<string | undefined>(

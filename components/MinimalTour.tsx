@@ -31,6 +31,7 @@ export default function MinimalTour({
   const [rect, setRect] = useState<DOMRect | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
+  const [shaking, setShaking] = useState(false);
   useEffect(() => {
     console.log("MinimalTour stepFocused", stepFocused);
     console.log("MinimalTour pathname", pathname);
@@ -190,9 +191,53 @@ export default function MinimalTour({
   const overlay = rect ? (
     <svg
       aria-hidden
-      className="pointer-events-none fixed inset-0"
+      // overlay receives pointer events so clicks can be handled
+      className="fixed inset-0"
       style={{ width: "100%", height: "100%" }}
+      onClick={(e) => {
+        // if click happened inside the transparent hole, forward to underlying element
+        const cx = (e as React.MouseEvent).clientX + window.scrollX;
+        const cy = (e as React.MouseEvent).clientY + window.scrollY;
+        const holeLeft = rect.left + window.scrollX - 8;
+        const holeTop = rect.top + window.scrollY - 8;
+        const holeRight = holeLeft + rect.width + 16;
+        const holeBottom = holeTop + rect.height + 16;
+
+        if (cx >= holeLeft && cx <= holeRight && cy >= holeTop && cy <= holeBottom) {
+          // forward the click to the element inside the hole
+          const el = document.elementFromPoint((e as React.MouseEvent).clientX, (e as React.MouseEvent).clientY) as HTMLElement | null;
+          if (el) {
+            // create a new MouseEvent and dispatch it on the found element
+            const ev = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            });
+            el.dispatchEvent(ev);
+            return;
+          }
+        }
+
+        // otherwise trigger shake animation on the tooltip box
+        setShaking(true);
+        window.setTimeout(() => setShaking(false), 600);
+      }}
     >
+      {/* make the svg catch pointer events but let the hole area be transparent visually */}
+      <defs>
+        <mask id="tour-hole-mask">
+          <rect x="0" y="0" width="100%" height="100%" fill="white" />
+          <rect
+            x={rect.left + window.scrollX - 8}
+            y={rect.top + window.scrollY - 8}
+            width={rect.width + 16}
+            height={rect.height + 16}
+            rx={8}
+            ry={8}
+            fill="black"
+          />
+        </mask>
+      </defs>
       <defs>
         <mask id="tour-hole-mask">
           <rect x="0" y="0" width="100%" height="100%" fill="white" />
@@ -264,12 +309,12 @@ export default function MinimalTour({
       {overlay}
       {highlight}
 
-      <div
+      <div id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
         className={`block max-w-[400px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
           rect ? "" : "fixed right-3 bottom-3"
-        }`}
+        } ${shaking ? 'ac-shake' : ''}`}
         style={
           rect
             ? {
@@ -284,6 +329,23 @@ export default function MinimalTour({
             : { position: "fixed", right: 12, bottom: 12, zIndex: 1000000 }
         }
       >
+        <style jsx>{`
+          @keyframes acShake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-8px); }
+            20% { transform: translateX(8px); }
+            30% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            50% { transform: translateX(-4px); }
+            60% { transform: translateX(4px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+            100% { transform: translateX(0); }
+          }
+          .ac-shake {
+            animation: acShake 600ms ease-in-out;
+          }
+        `}</style>
         <div className="flex flex-row justify-between items-center mb-4">
           <span className="font-semibold text-[14px]">{step?.title}</span>
           <span className="text-[11px] font-normal text-gray-500">
