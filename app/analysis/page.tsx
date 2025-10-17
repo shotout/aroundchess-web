@@ -47,7 +47,7 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (!isFromGameHistory) {
+    if (!isFromGameHistory && sessionId.length>0) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {

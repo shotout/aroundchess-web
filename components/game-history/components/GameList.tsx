@@ -14,7 +14,7 @@ import PaginationControls from "./PaginationControls";
 import { getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import GamesListSkeleton from "./GameListSkeleton";
@@ -93,8 +93,16 @@ const GamesList: React.FC<GamesListProps> = ({
   const router = useRouter();
   const { getJobByGameId, clearOldJobs, analysisJobs } =
     useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
-    usePgnStore();
+  const {
+    setPgn,
+    setDataAnalysis,
+    isFromAnalyzeDifferentGame,
+    activeUser,
+    setDataGamesImport,
+    setIsFromGameHistory,
+  } = usePgnStore();
+  const { setIsFromAnalyzeDifferentGame } = usePgnStore();
+  const pathname = usePathname();
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
@@ -165,6 +173,35 @@ const GamesList: React.FC<GamesListProps> = ({
     recentlyImportedIds.includes(id);
 
   const [openGameId, setOpenGameId] = useState<string | number | null>(null);
+  const [autoStartGameId, setAutoStartGameId] = useState<
+    string | number | null
+  >(null);
+
+  // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
+  useEffect(() => {
+    // only act when flag is true, we're on my-game-history, and there is at least one game
+    if (
+      isFromAnalyzeDifferentGame &&
+      pathname === "/my-game-history" &&
+      currentGames &&
+      currentGames.length > 0
+    ) {
+      const first = currentGames[0];
+      // don't open modal — trigger auto-start for the first game
+      setAutoStartGameId(first.id);
+      // reset the flag so this only runs once
+      try {
+        setIsFromAnalyzeDifferentGame(false);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [
+    isFromAnalyzeDifferentGame,
+    pathname,
+    currentGames,
+    setIsFromAnalyzeDifferentGame,
+  ]);
 
   useEffect(() => {
     console.log("GamesList mounted, clearing old jobs and restoring polling");
@@ -264,8 +301,7 @@ const GamesList: React.FC<GamesListProps> = ({
       switch (job.status) {
         case "pending":
         case "processing": {
-          const pct =
-            job.progress > 0 ? `${job.progress}%` : "In Progress";
+          const pct = job.progress > 0 ? `${job.progress}%` : "In Progress";
           return {
             text: pct,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -436,6 +472,11 @@ const GamesList: React.FC<GamesListProps> = ({
                   open={openGameId === game.id}
                   onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
                   game={game}
+                  autoStart={autoStartGameId === game.id}
+                  onAutoStartComplete={() => {
+                    // clear the auto start marker once done
+                    setAutoStartGameId(null);
+                  }}
                 />
 
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
@@ -490,22 +531,25 @@ const GamesList: React.FC<GamesListProps> = ({
                     return (
                       <button
                         className={`${btn.className} ${
-                          disabled && "bg-gray-700"
+                          (disabled || autoStartGameId == game.id) &&
+                          "bg-gray-700"
                         } h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
+                          autoStartGameId == game.id ||
                           disabled ||
                           btn.text.startsWith("In Progress") ||
                           btn.text === "Finalizing..." ||
                           btn.text === "Checking..."
                         }
                       >
-                        {disabled && game.id == gameId ? (
+                        {(disabled && game.id == gameId) ||
+                        autoStartGameId == game.id ? (
                           <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                         ) : (
                           btn.icon
                         )}
-                        {btn.text}
+                        {autoStartGameId == game.id ? "Processing":btn.text}
                       </button>
                     );
                   })()}

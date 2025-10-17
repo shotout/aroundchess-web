@@ -88,6 +88,7 @@ interface PgnState {
   hideDiv: boolean;
   hasAnalyzedGame: boolean;
   isFromGameHistory: boolean;
+  isFromAnalyzeDifferentGame: boolean;
   lastAnalysisFetched: boolean;
   isLastAnalysisLoading: boolean;
 
@@ -145,6 +146,8 @@ interface PgnState {
   setDataGames: (dataGames: any) => void;
   setHideDiv: (hideDiv: boolean) => void;
   setHasAnalyzedGame: (hasAnalyzedGame: boolean) => void;
+
+  setIsFromAnalyzeDifferentGame: (isFromAnalyzeDifferentGame: boolean) => void;
   setIsFromGameHistory: (isFromGameHistory: boolean) => void;
   clearGameHistoryData: () => void;
   setLastAnalysisFetched: (fetched: boolean) => void;
@@ -222,6 +225,7 @@ export const usePgnStore = create<PgnState>()(
       lastFetchTimestamp: 0,
       hideDiv: false,
       hasAnalyzedGame: false,
+      isFromAnalyzeDifferentGame: false,
       isFromGameHistory: false,
       lastAnalysisFetched: false,
       isLastAnalysisLoading: false,
@@ -310,6 +314,8 @@ export const usePgnStore = create<PgnState>()(
       setHasAnalyzedGame: (hasAnalyzedGame: boolean) =>
         set({ hasAnalyzedGame }),
 
+      setIsFromAnalyzeDifferentGame: (isFromAnalyzeDifferentGame: boolean) =>
+        set({ isFromAnalyzeDifferentGame }),
       setIsFromGameHistory: (isFromGameHistory: boolean) =>
         set({ isFromGameHistory }),
 
@@ -510,8 +516,17 @@ export const usePgnStore = create<PgnState>()(
         };
 
         set((state) => ({
-          importedGames: [newGame, ...state.importedGames],
-          gamesData: [newGame, ...state.gamesData.slice(0, 4)],
+          importedGames: [
+            newGame,
+            ...state.importedGames
+          ],
+          gamesData: [
+            newGame,
+            ...state.gamesData.filter(
+              (g) =>
+                g.opponent != gameData.opponent && g.moves != gameData.moves
+            ),
+          ],
           gamesLastFetched: Date.now(),
           gamesPagination: {
             ...state.gamesPagination,
