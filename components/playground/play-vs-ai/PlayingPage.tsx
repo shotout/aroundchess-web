@@ -1166,6 +1166,7 @@ export default function PlayingPage() {
       statusGame === "Draw"
     ) {
       handleSaveLog();
+      handleSave()
     }
   }, [statusGame]);
 
