@@ -16,6 +16,7 @@ import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -138,13 +139,15 @@ export const PremiumSubsContent: React.FC<{
   };
 
   const free = allMembershipPackages[0];
-  const premium = allMembershipPackages[1];
-  const deadline = new Date(profile.createdAt).getTime() + 24 * 60 * 60 * 1000;
+  const premium = allMembershipPackages[2];
+  const monthlyPremium = allMembershipPackages[1];
+  const deadline = new Date(profile?.discountInfo?.startDate).getTime() + 7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
-  const handleGetPremium = async () => {
+  const handleGetPremium = async (type: string) => {
     if (sessionId.length == 0) setOpenLogin(true);
-
+    let isMonthly = type == "monthly" ? true : false;
+    let packages = isMonthly ? monthlyPremium : premium;
     type BodyType = {
       productName: any;
       price: number;
@@ -156,18 +159,23 @@ export const PremiumSubsContent: React.FC<{
       stripeProductId: any;
       couponId?: any;
     };
+    let yearlyPrice =
+      profile?.discountInfo?.hasActiveDiscount && isPass > 0
+        ? 7999
+        : premium.price * 100;
+    let monthlyPrice =
+      profile?.discountInfo?.hasActiveDiscount && isPass > 0
+        ? 699
+        : monthlyPremium.price * 100;
     const body: BodyType = {
-      productName: premium.name,
-      price:
-        !isMember && profile?.discountInfo?.hasActiveDiscount && isPass > 0
-          ? 7999
-          : premium.price * 100,
+      productName: packages.name,
+      price: isMonthly ? monthlyPrice : yearlyPrice,
       quantity: 1,
-      description: premium.description,
+      description: packages.description,
       type: "membership",
       idUser: profile.id,
-      membershipId: premium.id,
-      stripeProductId: premium.stripeProductId,
+      membershipId: packages.id,
+      stripeProductId: packages.stripeProductId,
     };
     if (profile.discountInfo?.discountCode) {
       body.couponId = profile.discountInfo?.discountCode;
@@ -442,9 +450,10 @@ export const PremiumSubsContent: React.FC<{
 
             {!isMemberMonthly &&
               profile?.discountInfo?.hasActiveDiscount &&
-              isPass > 0 && (
+              isPass > 0 &&
+               (
                 <div className="flex justify-center items-center my-2">
-                  <CountdownTimerDiscount />
+                  <CountdownTimerDiscountMonthly />
                 </div>
               )}
 
@@ -471,7 +480,7 @@ export const PremiumSubsContent: React.FC<{
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <PriceDiscount price={99.99} />
+                    <PriceDiscount price={9.99} />
                     <div className="text-xl font-semibold">
                       $6.99 <span className="text-sm font-normal">/month</span>
                     </div>
@@ -505,7 +514,7 @@ export const PremiumSubsContent: React.FC<{
             {isLoading && <DotSpinner />}
             {!isMemberMonthly && !isLoading && (
               <button
-                onClick={handleGetPremium}
+                onClick={() => handleGetPremium("monthly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 Get Premium
@@ -570,13 +579,13 @@ export const PremiumSubsContent: React.FC<{
               </div>
             </div>
 
-            {!isMember &&
+            {/* {!isMember &&
               profile?.discountInfo?.hasActiveDiscount &&
               isPass > 0 && (
                 <div className="flex justify-center items-center my-2">
                   <CountdownTimerDiscount />
                 </div>
-              )}
+              )} */}
 
             <div className="flex items-center gap-3 mb-3 pt-1">
               <div className="p-1 rounded-full">
@@ -591,22 +600,22 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                {!(
+                {/* {!(
                   !isMember &&
                   profile?.discountInfo?.hasActiveDiscount &&
                   isPass > 0
-                ) ? (
-                  <div className="text-xl font-semibold">
-                    $99.99 <span className="text-sm font-normal">/year</span>
-                  </div>
-                ) : (
+                ) ? ( */}
+                <div className="text-xl font-semibold">
+                  $79.99 <span className="text-sm font-normal">/year</span>
+                </div>
+                {/* ) : (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                     <PriceDiscount price={99.99} />
                     <div className="text-xl font-semibold">
                       $79.99 <span className="text-sm font-normal">/year</span>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -635,7 +644,7 @@ export const PremiumSubsContent: React.FC<{
             {isLoading && <DotSpinner />}
             {!isMember && !isLoading && (
               <button
-                onClick={handleGetPremium}
+                onClick={() => handleGetPremium("yearly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 Get Premium
