@@ -24,6 +24,7 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { DummyList } from "./DummyList";
 
 interface GamesListProps {
   games: Game[];
@@ -92,8 +93,13 @@ const GamesList: React.FC<GamesListProps> = ({
   const router = useRouter();
   const { getJobByGameId, clearOldJobs, analysisJobs } =
     useBackgroundAnalysisStore();
-  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
-    usePgnStore();
+  const {
+    setPgn,
+    setDataAnalysis,
+    setDataGamesImport,
+    setIsFromGameHistory,
+    isOpenTutorial,
+  } = usePgnStore();
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
@@ -405,6 +411,7 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
 
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
+          {isOpenTutorial && <DummyList />}
           {currentGames.map((game, idx) => {
             const btn = getAnalysisButtonContent(game.id, game);
             const isNew =

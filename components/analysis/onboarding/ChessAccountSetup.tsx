@@ -19,7 +19,7 @@ interface ChessAccountSetupProps {
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
 }) => {
-  const { setUsername } = usePgnStore();
+  const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
 
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -43,6 +43,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
+    setIsOpenTutorial(true)
     handleOpenAnalyzeFree();
   };
 

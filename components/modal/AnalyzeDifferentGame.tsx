@@ -332,7 +332,7 @@ export function AnalyzeDifferentGame({
 
   const renderDepthChoose = () => {
     return (
-      <div className="gap-2">
+      <div className="gap-2" data-tutorial="2">
         <span className="text-[18px] font-medium text-[#121212]">
           Choose your Analysis Depth
         </span>
@@ -501,7 +501,7 @@ export function AnalyzeDifferentGame({
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 ">
+              <div className="space-y-2 mx-1" data-tutorial="1">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
@@ -620,6 +620,7 @@ export function AnalyzeDifferentGame({
                 </p>
               </div>
             ) : (
+              <div data-tutorial="3">
               <button
                 onClick={handleAnalyzeGame}
                 className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
@@ -641,6 +642,7 @@ export function AnalyzeDifferentGame({
               >
                 Analyze Game
               </button>
+              </div>
             )}
           </Tabs>
         </ScrollArea>

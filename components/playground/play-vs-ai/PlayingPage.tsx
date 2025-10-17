@@ -1100,6 +1100,7 @@ export default function PlayingPage() {
       pgn: game.pgn(),
     };
     console.log("game.pgn()", game.pgn());
+    handleSave();
     await postVSAILogs(body);
     loadLogs();
   };

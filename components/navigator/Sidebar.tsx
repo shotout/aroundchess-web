@@ -279,7 +279,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
             return (
               <motion.div key={section.name} variants={isMobile ? itemVariants : {}}>
-                <div className="space-y-2">
+                <div className="space-y-2"  >
                   {section.href ? (
                     <Link
                       href={!isSignedIn && !section.permission ? "#" : section.href!}
@@ -339,6 +339,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         return (
                           <motion.div key={child.href} variants={isMobile ? itemVariants : {}}>
                             <Link
+                            data-tutorial={child.name === "My Game History" ? "5" : undefined}
                               href={!isSignedIn && !child.permission ? "#" : child.href}
                               onClick={() => handleNavigation(child.href, child.permission)}
                               className={cn(

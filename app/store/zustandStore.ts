@@ -124,6 +124,8 @@ interface PgnState {
 
   importedGames: Game[];
 
+  isOpenTutorial: boolean;
+  setIsOpenTutorial: (isOpenTutorial: boolean) => void;
   openingPlayed: any[];
   setOpeningPlayed: (openingPlayed: any[]) => void;
 
@@ -258,6 +260,9 @@ export const usePgnStore = create<PgnState>()(
       savedMistakes: [],
 
       importedGames: [],
+
+      isOpenTutorial: false,
+      setIsOpenTutorial: (isOpenTutorial: boolean) => set({ isOpenTutorial }),
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
 

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -36,24 +37,29 @@ export default function AnalysisPage() {
     isLastAnalysisLoading,
     setIsLastAnalysisLoading,
     setIsFromGameHistory,
+    isOpenTutorial,
   } = usePgnStore();
+  const { startTutorial } = useTutorial();
   const [openNewAnalysis, setOpenNewAnalysis] = useState(false);
+  const { stepFocused } = useTutorial();
   const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
   useEffect(() => {
     trackCustomEvent("ViewAnalysis");
+    if (!isOpenTutorial) return;
+    startTutorial();
   }, []);
   useEffect(() => {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (!isFromGameHistory) {
+    if (!isFromGameHistory && stepFocused != 6) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
       setIsFromGameHistory(false);
     }
-  }, []);
+  }, [stepFocused]);
   useEffect(() => {
     if (!mounted) return;
     if (hydratedProfile) {
@@ -193,7 +199,6 @@ export default function AnalysisPage() {
                       strategic strengths and weaknesses.
                     </div>
                     <AnalyzeDifferentGame openPopup={openNewAnalysis} />
-
                     {/* {isSignedIn && widthC > 1024 && username && (
                       <Link
                         href="/my-game-history"
@@ -205,6 +210,10 @@ export default function AnalysisPage() {
                     )} */}
                   </div>
                 </div>
+                <div
+                  data-tutorial="7"
+                  className="absolute top-1/2 left-1/2 w-[0px] h-[0px]"
+                ></div>
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (
