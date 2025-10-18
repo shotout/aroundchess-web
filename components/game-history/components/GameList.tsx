@@ -311,7 +311,7 @@ const GamesList: React.FC<GamesListProps> = ({
           };
         }
         case "waiting": {
-          let text = "Checking...";
+          let text = "Just one more moment...";
           if (job.estimatedDurationSeconds && job.startedAt) {
             text = `${text} `;
           }
@@ -525,7 +525,7 @@ const GamesList: React.FC<GamesListProps> = ({
                   {game.source || "Unknown"}
                 </div>
 
-                <div className="px-4 py-3">
+                <div className="px-4 py-3 min-w-[140px]">
                   {(() => {
                     const btn = getAnalysisButtonContent(game.id, game);
                     return (
@@ -533,14 +533,14 @@ const GamesList: React.FC<GamesListProps> = ({
                         className={`${btn.className} ${
                           (disabled || autoStartGameId == game.id) &&
                           "bg-gray-700"
-                        } h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
+                        } h-8 w-full rounded-3xl ${btn.text === "Just one more moment..." && 'text-[10px]'} text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
                           autoStartGameId == game.id ||
                           disabled ||
                           btn.text.startsWith("In Progress") ||
                           btn.text === "Finalizing..." ||
-                          btn.text === "Checking..."
+                          btn.text === "Just one more moment..."
                         }
                       >
                         {(disabled && game.id == gameId) ||
