@@ -241,7 +241,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "google" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Google signup");
@@ -266,7 +265,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "facebook" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Facebook signup");
@@ -291,7 +289,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "apple" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Apple signup");
