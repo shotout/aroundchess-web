@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -17,12 +17,16 @@ interface AnalyzeGameHistoryProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   game?: any;
+  autoStart?: boolean;
+  onAutoStartComplete?: () => void;
 }
 
 export function AnalyzeGameHistory({
   open,
   onOpenChange,
   game,
+  autoStart = false,
+  onAutoStartComplete,
 }: AnalyzeGameHistoryProps) {
   const router = useRouter();
   const { pgnToFenList } = useStockfishAnalysis();
@@ -30,7 +34,9 @@ export function AnalyzeGameHistory({
   const { isMember, token, sessionId } = useProfileStore();
   const { addJob, updateJob, getJobByGameId } = useBackgroundAnalysisStore();
   const { setPgn, setError, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const { startBackgroundPolling } = usePollingManager(); 
+  const autoStartedRef = useRef(false);
 
   const depths = [
     {
@@ -218,6 +224,43 @@ export function AnalyzeGameHistory({
       setIsSubmitting(false);
     }
   };
+
+  // When opened with autoStart flag, or when autoStart is true even if dialog is hidden,
+  // trigger analysis once without showing the dialog.
+  useEffect(() => {
+    // allow autoStart to trigger even if open is false
+    if (!autoStart) return;
+    let mounted = true;
+
+    const run = async () => {
+      if (autoStartedRef.current) return;
+      autoStartedRef.current = true;
+      try {
+        await handleAnalyzeGame();
+        // notify caller that auto-start completed so they can clear any local state
+        try {
+          onAutoStartComplete && onAutoStartComplete();
+        } catch (e) {}
+        // clear the trigger flag in the global store so it doesn't re-run
+        try {
+          setIsFromAnalyzeDifferentGame(false);
+        } catch (e) {
+          // ignore
+        }
+      } catch (e) {
+        // swallow - handleAnalyzeGame already shows toasts
+      }
+    };
+
+    if (mounted) run();
+
+    return () => {
+      mounted = false;
+      // allow future auto-starts when modal re-opens
+      autoStartedRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, autoStart]);
 
   if (!open) return null;
 

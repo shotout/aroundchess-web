@@ -7,13 +7,14 @@ import {
   BookOpen,
   Loader2,
   CheckCircle,
+  Eye,
 } from "lucide-react";
 import GameCard from "./GameCard";
 import PaginationControls from "./PaginationControls";
 import { getResultData } from "../hooks/useGameData";
 import { Game } from "../types/GameHistoryTypes";
 import { AnalyzeGameHistory } from "./AnalyzeGameHistory";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import GamesListSkeleton from "./GameListSkeleton";
@@ -96,10 +97,13 @@ const GamesList: React.FC<GamesListProps> = ({
   const {
     setPgn,
     setDataAnalysis,
+    isFromAnalyzeDifferentGame,
+    activeUser,
     setDataGamesImport,
     setIsFromGameHistory,
-    isOpenTutorial,
   } = usePgnStore();
+  const { setIsFromAnalyzeDifferentGame } = usePgnStore();
+  const pathname = usePathname();
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
@@ -170,6 +174,35 @@ const GamesList: React.FC<GamesListProps> = ({
     recentlyImportedIds.includes(id);
 
   const [openGameId, setOpenGameId] = useState<string | number | null>(null);
+  const [autoStartGameId, setAutoStartGameId] = useState<
+    string | number | null
+  >(null);
+
+  // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
+  useEffect(() => {
+    // only act when flag is true, we're on my-game-history, and there is at least one game
+    if (
+      isFromAnalyzeDifferentGame &&
+      pathname === "/my-game-history" &&
+      currentGames &&
+      currentGames.length > 0
+    ) {
+      const first = currentGames[0];
+      // don't open modal — trigger auto-start for the first game
+      setAutoStartGameId(first.id);
+      // reset the flag so this only runs once
+      try {
+        setIsFromAnalyzeDifferentGame(false);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [
+    isFromAnalyzeDifferentGame,
+    pathname,
+    currentGames,
+    setIsFromAnalyzeDifferentGame,
+  ]);
 
   useEffect(() => {
     console.log("GamesList mounted, clearing old jobs and restoring polling");
@@ -202,9 +235,10 @@ const GamesList: React.FC<GamesListProps> = ({
 
     if (game.isAnalysis || (job && job.status === "completed")) {
       return {
-        text: "View Results",
-        icon: <CheckCircle className="h-4 w-4 mr-1" />,
-        className: "bg-green-600 hover:bg-green-700 text-white",
+        text: "View Result",
+        icon: <Eye className="h-4 w-4 mr-2" />,
+        className:
+          "border border-white bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
           try {
             setDisabled(true);
@@ -268,25 +302,26 @@ const GamesList: React.FC<GamesListProps> = ({
       switch (job.status) {
         case "pending":
         case "processing": {
-          const pct =
-            job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
+          const pct = job.progress > 0 ? `${job.progress}%` : "In Progress";
           return {
             text: pct,
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-yellow-400 border border-white hover:bg-yellow-500 text-gray-900 shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
           };
         }
         case "waiting": {
-          let text = "Just one more moment...";
+          let text = "Checking...";
           if (job.estimatedDurationSeconds && job.startedAt) {
             text = `${text} `;
           }
 
           return {
             text,
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-yellow-400 border border-white text-gray-900 shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
             disabled: true,
           };
@@ -294,15 +329,17 @@ const GamesList: React.FC<GamesListProps> = ({
         case "finalizing":
           return {
             text: "Finalizing...",
-            icon: <Loader2 className="h-4 w-4 mr-1 animate-spin" />,
-            className: "bg-blue-500 hover:bg-blue-600 text-white",
+            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            className:
+              "bg-gradient-to-b from-blue-600 to-blue-700 border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
             onClick: () => {},
           };
         case "failed":
           return {
             text: "Retry",
-            icon: <AlertCircle className="h-4 w-4 mr-1" />,
-            className: "bg-red-600 hover:bg-red-700 text-white",
+            icon: <AlertCircle className="h-4 w-4 mr-2" />,
+            className:
+              "bg-red-600 hover:bg-red-700 border border-white text-white shadow-sm ring-1 ring-red-200",
             onClick: () => {
               trackCustomEvent("RetryAnalysis", gameId);
 
@@ -314,8 +351,9 @@ const GamesList: React.FC<GamesListProps> = ({
 
     return {
       text: "Analyze",
-      icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
-      className: "btn-primary text-white",
+      icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+      className:
+        "bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => {
         setOpenGameId(gameId);
         trackCustomEvent("StartAnalysis", gameId);
@@ -436,6 +474,11 @@ const GamesList: React.FC<GamesListProps> = ({
                   open={openGameId === game.id}
                   onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
                   game={game}
+                  autoStart={autoStartGameId === game.id}
+                  onAutoStartComplete={() => {
+                    // clear the auto start marker once done
+                    setAutoStartGameId(null);
+                  }}
                 />
 
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
@@ -490,22 +533,25 @@ const GamesList: React.FC<GamesListProps> = ({
                     return (
                       <button
                         className={`${btn.className} ${
-                          disabled && "bg-gray-700"
+                          (disabled || autoStartGameId == game.id) &&
+                          "bg-gray-700"
                         } h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
+                          autoStartGameId == game.id ||
                           disabled ||
                           btn.text.startsWith("In Progress") ||
                           btn.text === "Finalizing..." ||
                           btn.text === "Checking..."
                         }
                       >
-                        {disabled && game.id == gameId ? (
+                        {(disabled && game.id == gameId) ||
+                        autoStartGameId == game.id ? (
                           <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                         ) : (
                           btn.icon
                         )}
-                        {btn.text}
+                        {autoStartGameId == game.id ? "Processing":btn.text}
                       </button>
                     );
                   })()}

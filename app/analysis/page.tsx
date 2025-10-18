@@ -53,7 +53,7 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (!isFromGameHistory && stepFocused != 6) {
+    if (!isFromGameHistory && sessionId.length>0) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
@@ -147,9 +147,6 @@ export default function AnalysisPage() {
     clearGameHistoryData();
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
 
   return (
     <div className="min-h-screen">

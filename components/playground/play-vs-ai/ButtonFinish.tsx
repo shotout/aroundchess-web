@@ -22,6 +22,7 @@ interface ButtonFinishProps {
     onClick: () => void;
     disabled?: boolean;
   };
+  isSaved: boolean;
 }
 
 export const ButtonFinish = ({
@@ -32,6 +33,7 @@ export const ButtonFinish = ({
   handleDownload,
   handleSave,
   isSaving,
+  isSaved,
   pgn,
   getAnalysisButtonContent,
 }: ButtonFinishProps) => {
@@ -68,8 +70,10 @@ export const ButtonFinish = ({
         <div className="flex flex-row items-center gap-2">
           <button
             onClick={handleSave}
-            disabled={isSaving}
-            className="btn-primary w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4]"
+            disabled={isSaving || isSaved}
+            className={` w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] ${
+              isSaved ? "bg-green-600":"btn-primary"
+            }`}
           >
             {isSaving ? (
               <div className="flex flex-row items-center justify-center gap-2">
@@ -79,7 +83,9 @@ export const ButtonFinish = ({
             ) : (
               <div className="flex flex-row items-center justify-center gap-2">
                 <Save color="#fff" className="w-[20px] h-[20px]" size={20} />
-                <span className="text-[#fff] font-medium">Save Game</span>
+                <span className="text-[#fff] font-medium">
+                  {isSaved ? "Game Saved" : "Save Game"}
+                </span>
               </div>
             )}
           </button>

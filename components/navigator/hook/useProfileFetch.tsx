@@ -46,12 +46,13 @@ export const useProfileFetch = () => {
     setProfile,
     setPuzzleLog,
     setIsMember,
+    setIsMemberMonthly,
     setTokenData,
   } = useProfileStore();
   useEffect(() => {
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
-      if (alreadyFetchProfile == false) {
+      // if (alreadyFetchProfile == false) {
         setAlreadyFetchProfile(true);
         getProfile({}).then((response) => {
           if (response.data != null) {
@@ -60,7 +61,7 @@ export const useProfileFetch = () => {
             setUsername(data.username);
           }
         });
-      }
+      // }
       getAllMembershipPackage({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
@@ -70,7 +71,8 @@ export const useProfileFetch = () => {
       getActiveMembership({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
-          setIsMember(data.membershipPackage.type != "FREE");
+          setIsMember(data.membershipPackage.type == "YEARLY");
+          setIsMemberMonthly(data.membershipPackage.type == "MONTHLY");
           setActiveMembership(data);
         }
       });

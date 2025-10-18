@@ -350,6 +350,7 @@ export default function PlayingPage() {
   } = usePgnStore();
   const hasRun = useRef(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
@@ -1084,6 +1085,7 @@ export default function PlayingPage() {
     setWinnerColor("");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
+    setIsSaved(true);
   };
 
   const handleNewGame = () => {
@@ -1102,6 +1104,8 @@ export default function PlayingPage() {
     console.log("game.pgn()", game.pgn());
     handleSave();
     await postVSAILogs(body);
+    handleSave();
+
     loadLogs();
   };
 
@@ -1124,6 +1128,7 @@ export default function PlayingPage() {
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
+      setIsSaved(true);
       toast.success("Game saved successfully!");
     } catch (err: any) {
     } finally {
@@ -1807,6 +1812,7 @@ export default function PlayingPage() {
                 handleDownload={handleDownload}
                 getAnalysisButtonContent={getAnalysisButtonContent}
                 handleSave={handleSave}
+                isSaved={isSaved}
                 isSaving={isSaving}
               />
             )}
@@ -2106,6 +2112,7 @@ export default function PlayingPage() {
                     handleDownload={handleDownload}
                     getAnalysisButtonContent={getAnalysisButtonContent}
                     handleSave={handleSave}
+                    isSaved={isSaved}
                     isSaving={isSaving}
                   />
                 )}
