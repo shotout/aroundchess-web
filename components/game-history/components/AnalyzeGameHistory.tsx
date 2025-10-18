@@ -33,9 +33,16 @@ export function AnalyzeGameHistory({
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, sessionId } = useProfileStore();
   const { addJob, updateJob, getJobByGameId } = useBackgroundAnalysisStore();
-  const { setPgn, setError, setDataAnalysis, setDataGamesImport } = usePgnStore();
+  const {
+    setPgn,
+    setError,
+    setDataAnalysis,
+    setDataGamesImport,
+    depth,
+    setDepth,
+  } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
-  const { startBackgroundPolling } = usePollingManager(); 
+  const { startBackgroundPolling } = usePollingManager();
   const autoStartedRef = useRef(false);
 
   const depths = [
@@ -70,33 +77,35 @@ export function AnalyzeGameHistory({
 
   const [activeTab] = useState("auto");
   const [pgnText] = useState("");
-  const [depthChoosed, setDepthChoosed] = useState(12);
+  const [depthChoosed, setDepthChoosed] = useState(depth);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAnalyzeGame = async () => {
     try {
       const capacityCheck = await checkAnalysisCapacity(sessionId);
-      
+
       if (!capacityCheck.success || !capacityCheck.data.canStart) {
         const reason = capacityCheck.data.reason || "Cannot start analysis";
         toast.error("Analysis Capacity Limit", {
           description: reason,
           duration: 5000,
         });
-        
-        if (reason.toLowerCase().includes("token") || reason.toLowerCase().includes("balance")) {
+
+        if (
+          reason.toLowerCase().includes("token") ||
+          reason.toLowerCase().includes("balance")
+        ) {
           onOpenChange(false);
           setOpenPricing(true);
           setTabType("tokens");
         }
         return;
       }
-      
+
       toast.info(`Analysis Capacity Check`, {
         description: `Available tokens: ${capacityCheck.data.availableTokens}, Active jobs: ${capacityCheck.data.activeJobs}`,
         duration: 3000,
       });
-      
     } catch (error: any) {
       toast.error("Capacity Check Failed", {
         description: error.message || "Failed to check analysis capacity",
@@ -134,7 +143,7 @@ export function AnalyzeGameHistory({
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const { default: axios } = await import("axios");
       const baseUrl =
@@ -151,7 +160,11 @@ export function AnalyzeGameHistory({
 
       const res = await axios.post(
         endpoint,
-        { pgn: gameToAnalyze, username: game.username || "", depth: depthChoosed },
+        {
+          pgn: gameToAnalyze,
+          username: game.username || "",
+          depth: depthChoosed,
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -162,8 +175,17 @@ export function AnalyzeGameHistory({
 
       const data = res.data.data;
       if (data?.processingMode === "async") {
-        if (!getJobByGameId(game.id) || getJobByGameId(game.id)?.jobId !== data.jobId) {
-          addJob(game.id, data.jobId, data.statusUrl, gameToAnalyze, depthChoosed);
+        if (
+          !getJobByGameId(game.id) ||
+          getJobByGameId(game.id)?.jobId !== data.jobId
+        ) {
+          addJob(
+            game.id,
+            data.jobId,
+            data.statusUrl,
+            gameToAnalyze,
+            depthChoosed
+          );
         }
         onOpenChange(false);
 
@@ -197,8 +219,14 @@ export function AnalyzeGameHistory({
             }
           );
         }
-        
-        startBackgroundPolling(game.id, data.statusUrl, data.jobId, gameToAnalyze, game);
+
+        startBackgroundPolling(
+          game.id,
+          data.statusUrl,
+          data.jobId,
+          gameToAnalyze,
+          game
+        );
       } else if (res.status === 200 && data && !data.processingMode) {
         if (existing && ["pending", "processing"].includes(existing.status)) {
           onOpenChange(false);
@@ -216,7 +244,9 @@ export function AnalyzeGameHistory({
       }
     } catch (err: any) {
       const msg =
-        err.response?.data?.message || err.message || "Failed to start analysis";
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to start analysis";
       toast.error(msg);
       setError(err instanceof Error ? err : new Error(msg));
       updateJob(game.id, { status: "failed", error: msg });
@@ -236,6 +266,8 @@ export function AnalyzeGameHistory({
       if (autoStartedRef.current) return;
       autoStartedRef.current = true;
       try {
+        setDepthChoosed(depth);
+        setDepth(depth);
         await handleAnalyzeGame();
         // notify caller that auto-start completed so they can clear any local state
         try {
@@ -322,7 +354,9 @@ export function AnalyzeGameHistory({
                 />
               </div>
               <div className="space-y-2">
-                <p className="block text-base sm:text-sm text-black">Select Game</p>
+                <p className="block text-base sm:text-sm text-black">
+                  Select Game
+                </p>
                 <div className="relative">
                   <select
                     disabled
@@ -341,6 +375,7 @@ export function AnalyzeGameHistory({
                     <button
                       key={idx}
                       onClick={() => {
+                        setDepth(depth.value);
                         setDepthChoosed(depth.value);
                       }}
                       disabled={depth.mustMember && !isMember}
