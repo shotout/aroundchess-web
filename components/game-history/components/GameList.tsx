@@ -302,7 +302,7 @@ const GamesList: React.FC<GamesListProps> = ({
       switch (job.status) {
         case "pending":
         case "processing": {
-          const pct = job.progress > 0 ? `${job.progress}%` : "In Progress";
+          const pct = job.progress > 0 ? `${job.progress}%` : "On Progress";
           return {
             text: pct,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -312,7 +312,7 @@ const GamesList: React.FC<GamesListProps> = ({
           };
         }
         case "waiting": {
-          let text = "Checking...";
+          let text = "Just one more moment...";
           if (job.estimatedDurationSeconds && job.startedAt) {
             text = `${text} `;
           }
@@ -527,7 +527,7 @@ const GamesList: React.FC<GamesListProps> = ({
                   {game.source || "Unknown"}
                 </div>
 
-                <div className="px-4 py-3">
+                <div className="px-4 py-3 min-w-[140px]">
                   {(() => {
                     const btn = getAnalysisButtonContent(game.id, game);
                     return (
@@ -535,23 +535,40 @@ const GamesList: React.FC<GamesListProps> = ({
                         className={`${btn.className} ${
                           (disabled || autoStartGameId == game.id) &&
                           "bg-gray-700"
-                        } h-8 w-full rounded-3xl text-xs flex justify-center items-center transition-colors duration-150`}
+                        } h-8 w-full rounded-3xl ${
+                          btn.text === "Just one more moment..." &&
+                          "text-[10px]"
+                        } text-xs flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
                           autoStartGameId == game.id ||
                           disabled ||
                           btn.text.startsWith("In Progress") ||
                           btn.text === "Finalizing..." ||
-                          btn.text === "Checking..."
+                          btn.text === "Just one more moment..."
                         }
                       >
                         {(disabled && game.id == gameId) ||
-                        autoStartGameId == game.id ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        autoStartGameId == game.id ||btn.text === "Just one more moment..."? (
+                          <Loader2
+                            className={`${
+                              btn.text === "Just one more moment..." &&
+                              "block sm:hidden"
+                            } h-4 w-4 mr-1 animate-spin`}
+                          />
                         ) : (
                           btn.icon
                         )}
-                        {autoStartGameId == game.id ? "Processing":btn.text}
+                        <span className="hidden sm:block">
+                          {autoStartGameId == game.id ? "Processing" : btn.text}
+                        </span>
+                        <span className="block sm:hidden">
+                          {autoStartGameId == game.id
+                            ? "Processing"
+                            : btn.text.includes("%")
+                            ? "On Progress: " + btn.text
+                            : ""}
+                        </span>
                       </button>
                     );
                   })()}

@@ -315,7 +315,7 @@ export function AnalyzeDifferentGame({
 
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
-    setDepthChoosed(14);
+    setDepthChoosed(12);
     let time = timeBasic;
 
     setEstimateMinute(time.minute);

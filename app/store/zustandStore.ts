@@ -556,7 +556,10 @@ export const usePgnStore = create<PgnState>()(
 
         set((state) => ({
           importedGames: [newGame, ...state.importedGames],
-          otherGamesData: [newGame, ...state.otherGamesData.slice(0, 4)],
+          otherGamesData: [newGame, ...state.otherGamesData.filter(
+              (g) =>
+                g.opponent != gameData.opponent && g.moves != gameData.moves
+            ),],
           otherGamesLastFetched: Date.now(),
           otherGamesPagination: {
             ...state.otherGamesPagination,

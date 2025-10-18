@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { trackCustomEvent } from "@/app/utils/facebookPixel";
 
 export default function SSOCallbackPage() {
   const [isProcessing, setIsProcessing] = useState(true);
@@ -29,7 +30,7 @@ export default function SSOCallbackPage() {
   });
 
   const { setSessionId,  } = useProfileStore();
-  const {setProfileShow } = usePgnStore()
+  const {setProfileShow,providerType } = usePgnStore()
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
 
@@ -81,7 +82,10 @@ export default function SSOCallbackPage() {
 
         const params = new URLSearchParams(hash.substring(1));
         const accessToken = params.get("access_token");
-
+        const isNew = params.get("is_new");
+        if(isNew){
+          trackCustomEvent("CompleteRegistration", { sso: providerType});
+        }
         if (!accessToken) {
           showAlert(
             "Authentication Error",
