@@ -20,7 +20,15 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
-import { Check, Clipboard, Info, UploadCloud, X } from "lucide-react";
+import {
+  Check,
+  Clipboard,
+  Info,
+  Loader,
+  Loader2,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +36,7 @@ import { toast } from "sonner";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
+import { gameHistoryApi } from "../game-history/services/api";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -45,7 +54,7 @@ export function AnalyzeDifferentGame({
   const router = useRouter();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token } = useProfileStore();
+  const { isMember, token, isMemberMonthly } = useProfileStore();
 
   const {
     estimateMinute,
@@ -60,6 +69,10 @@ export function AnalyzeDifferentGame({
     setError,
     setDataAnalysis,
     setDataGamesImport,
+    setIsFromAnalyzeDifferentGame,
+    addOtherImportedGame,
+    addImportedGame,
+    setActiveUser,
   } = usePgnStore();
   const depths = [
     {
@@ -111,7 +124,7 @@ export function AnalyzeDifferentGame({
   );
   const [debouncedQuery, setDebouncedQuery] = useState(globalUsername || "");
   const [isSelectOpen, setIsSelectOpen] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   // Update local username when globalUsername changes
   useEffect(() => {
     if (globalUsername && globalUsername !== username) {
@@ -155,7 +168,7 @@ export function AnalyzeDifferentGame({
 
       setEstimateMinute(time.minute);
       setEstimateSecond(time.second);
-      setDepthChoosed(14);
+      setDepthChoosed(12);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -221,13 +234,13 @@ export function AnalyzeDifferentGame({
 
   const handleAnalyzeGame = async () => {
     if (token.balance >= 1) {
-      if (selectedGame) {
-        setDataAnalysis(null);
+      if (tabSelected == "auto" && selectedGame) {
         setDataGamesImport(availableGames[0]?.data_games);
         processAnalyze(selectedGame);
         setPgn(selectedGame);
       } else if (pgnText) {
-        processAnalyze(pgnText);
+        console.log("Other game process");
+        processAnalyzeOtherGame(pgnText);
         setPgn(pgnText);
         setDataGamesImport(null);
       }
@@ -236,39 +249,67 @@ export function AnalyzeDifferentGame({
       setTabType("tokens");
     }
   };
-
-  const processAnalyze = async (pgn: string | any) => {
-    let arr: AnalysisResult | null = null;
+  const processAnalyzeOtherGame = async (pgn: string | any) => {
     try {
-      setIsLoading(true);
-      setDataAnalysis(arr);
+      setLoading(true);
+      const formData = new FormData();
+      const currentPgn = pgn;
 
-      const responseAnalysis = await proceedAnalysis(
-        pgn,
-        username,
-        depthChoosed,
-        60000
+      console.log("save", currentPgn);
+      formData.append("pgn", currentPgn);
+      // formData.append("totalMoves", totalMoves.toString());
+      const response = await gameHistoryApi.importGame(
+        formData,
+        sessionId ?? null
       );
-      setDataAnalysis(responseAnalysis.data);
-      setPgn(responseAnalysis.data.gameInfo.pgn);
-
+      if (!response?.data) {
+        setLoading(false);
+        toast.error("Save Failed !", response.data.message);
+        throw new Error("Invalid response from server");
+      }
+      const gameData = { ...response.data, pgn: currentPgn };
+      addOtherImportedGame(gameData);
+      setActiveUser("other");
       setOpen(false);
+      setLoading(false);
+      //use handleAnalyzeGame here
 
-      arr = responseAnalysis.data;
-    } catch (err) {
-      toast.error(err + "");
-      setIsLoading(false);
-
-      setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
+      setIsFromAnalyzeDifferentGame(true);
+      router.push("/my-game-history");
+    } catch (err: any) {
+      console.error(err);
     } finally {
-      setTimeout(() => {
-        if (arr != null) {
-          router.push("/analysis");
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-        }
-      }, 2000);
+    }
+  };
+  const processAnalyze = async (pgn: string | any) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      const currentPgn = pgn;
+
+      console.log("save", currentPgn);
+      formData.append("pgn", currentPgn);
+      // formData.append("totalMoves", totalMoves.toString());
+      const response = await gameHistoryApi.importGame(
+        formData,
+        sessionId ?? null
+      );
+      if (!response?.data) {
+        setLoading(false);
+        toast.error("Save Failed !", response.data.message);
+        throw new Error("Invalid response from server");
+      }
+      const gameData = { ...response.data, pgn: currentPgn };
+      addImportedGame(gameData);
+      setActiveUser("user");
+      setOpen(false);
+      setLoading(false);
+      //use handleAnalyzeGame here
+      setIsFromAnalyzeDifferentGame(true);
+      router.push("/my-game-history");
+    } catch (err: any) {
+      console.error(err);
+    } finally {
     }
   };
 
@@ -355,13 +396,13 @@ export function AnalyzeDifferentGame({
                   setDepthChoosed(depth.value);
                 }}
                 key={index}
-                disabled={depth.mustMember && !isMember}
+                disabled={depth.mustMember && !isMember && !isMemberMonthly}
                 className={`relative flex flex-col justify-around px-2 py-2 md:h-[240px] gap-2 items-center shadow-md  ${
                   depth.mustMember && !isMember ? `bg-[#C0CED4]` : `bg-white`
                 } border ${
                   depthChoosed == depth.value
                     ? `border-[#221AE9]`
-                    : isMember
+                    : isMember || isMemberMonthly
                     ? `border-[#DEDEDE]`
                     : `border-[#99A5A9]`
                 } rounded-md`}
@@ -374,7 +415,7 @@ export function AnalyzeDifferentGame({
                   className="w-[80px] h-[80px] object-contain relative"
                   priority
                 />
-                {depth.mustMember && !isMember && (
+                {depth.mustMember && !isMember && !isMemberMonthly && (
                   <Image
                     src={`/icons/premium-info.png`}
                     alt={"premium-info"}
@@ -386,7 +427,7 @@ export function AnalyzeDifferentGame({
                 )}
                 <div
                   className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
-                    depth.mustMember && !isMember
+                    depth.mustMember && !isMember && !isMemberMonthly
                       ? `bg-[#99A5A9] border-1 border-[#737C7F]`
                       : depthChoosed == depth.value
                       ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`
@@ -415,6 +456,7 @@ export function AnalyzeDifferentGame({
     <Dialog
       open={open}
       onOpenChange={() => {
+        if (loading) return;
         if (!open) {
           setOpen(true);
           setOpen(true);
@@ -622,12 +664,13 @@ export function AnalyzeDifferentGame({
             ) : (
               <button
                 onClick={handleAnalyzeGame}
-                className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+                className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-sm rounded-full py-2 my-4 ${
                   (usernameStatus !== "found" &&
                     !selectedGame &&
                     !pgnText &&
-                    !fileName) ||
-                  depthChoosed == 0
+                    !fileName &&
+                    depthChoosed == 0) ||
+                  loading
                     ? "opacity-70 cursor-not-allowed"
                     : ""
                 }`}
@@ -636,9 +679,11 @@ export function AnalyzeDifferentGame({
                     !selectedGame &&
                     !pgnText &&
                     !fileName) ||
-                  depthChoosed == 0
+                  depthChoosed == 0 ||
+                  loading
                 }
               >
+                {loading && <Loader2 className="animate-spin" />}
                 Analyze Game
               </button>
             )}
