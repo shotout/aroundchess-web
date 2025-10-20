@@ -451,7 +451,7 @@ const GamesList: React.FC<GamesListProps> = ({
           {currentGames.map((game, idx) => {
             const btn = getAnalysisButtonContent(game.id, game);
             const isNew = autoStartGameId == game.id||
-              btn.text.includes("In Progress") ||
+              btn.text.includes("%") ||
               (!game.hasViewedAnalysis && game.isAnalysis) ||
               isNewlyImported(game.id);
             const indexInPage =
