@@ -2095,7 +2095,7 @@ export default function PlayingPage() {
                 )}
 
                 {statusGame !== "Ongoing" && (
-                  <CommentarGame statusGame={statusGame} />
+                  <CommentarGame lossReason={lossReason} statusGame={statusGame} />
                 )}
                 {statusGame === "Ongoing" ? (
                   <ButtonPlaying
