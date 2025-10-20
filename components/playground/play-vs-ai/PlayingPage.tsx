@@ -333,7 +333,7 @@ export default function PlayingPage() {
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
-  const { isMember, token } = useProfileStore();
+  const { isMember, isMemberMonthly, token } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
   const [afterFen, setAfterFen] = useState<string>("");
@@ -393,6 +393,9 @@ export default function PlayingPage() {
   const [rightClickedSquares, setRightClickedSquares] = useState<
     Record<string, CSSProperties>
   >({});
+  const [lossReason, setLossReason] = useState<"checkmate" | "resign" | null>(
+    null
+  );
   const [moveSquares] = useState<Record<string, CSSProperties>>({});
   const [optionSquares, setOptionSquares] = useState<
     Record<string, CSSProperties>
@@ -1048,6 +1051,7 @@ export default function PlayingPage() {
 
   const handleResign = () => {
     setStatusGame("Loss");
+    setLossReason("resign");
     setTimeout(() => {
       setOpenGameStatus(true);
     }, 1000);
@@ -1060,7 +1064,7 @@ export default function PlayingPage() {
   };
 
   const handleAnalyzeGame = () => {
-    if (!isMember && token.balance <= 0) {
+    if (!isMember && !isMemberMonthly && token.balance <= 0) {
       setOpenPricing(true);
       return;
     }
@@ -1085,7 +1089,7 @@ export default function PlayingPage() {
     setWinnerColor("");
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
-    setIsSaved(true);
+    setIsSaved(false);
   };
 
   const handleNewGame = () => {
@@ -1102,7 +1106,7 @@ export default function PlayingPage() {
       pgn: game.pgn(),
     };
     console.log("game.pgn()", game.pgn());
-    handleSave();
+    setIsSaving(true);
     await postVSAILogs(body);
     handleSave();
 
@@ -1111,7 +1115,6 @@ export default function PlayingPage() {
 
   const handleSave = async () => {
     try {
-      setIsSaving(true);
       const formData = new FormData();
       const currentPgn = game.pgn();
       const totalMoves = Math.ceil(game.history().length / 2);
@@ -1130,9 +1133,9 @@ export default function PlayingPage() {
       const newGame = addOtherImportedGame(gameData);
       setIsSaved(true);
       toast.success("Game saved successfully!");
+      setIsSaving(false);
     } catch (err: any) {
     } finally {
-      setIsSaving(false);
     }
   };
 
@@ -1151,11 +1154,13 @@ export default function PlayingPage() {
           gameStatus === "Win" ? "checkmate-you" : "checkmate-opponent";
         setMoveClassification(commentar);
         setStatusGame(gameStatus);
+        setLossReason("checkmate");
         setTimeout(() => {
           setHeaderGameFinish(winnerColorLocal);
           setOpenGameStatus(true);
         }, 1000);
       } else {
+        setLossReason(null);
         setStatusGame("Draw");
         setTimeout(() => {
           setHeaderGameFinish("draw");
@@ -1788,7 +1793,10 @@ export default function PlayingPage() {
           <div className="sm:hidden flex flex-col gap-4 mt-4">
             {statusGame !== "Ongoing" && (
               <div className="flex justify-center items-center">
-                <CommentarGame statusGame={statusGame} />
+                <CommentarGame
+                  statusGame={statusGame}
+                  lossReason={lossReason}
+                />
               </div>
             )}
 
@@ -2090,7 +2098,7 @@ export default function PlayingPage() {
                 )}
 
                 {statusGame !== "Ongoing" && (
-                  <CommentarGame statusGame={statusGame} />
+                  <CommentarGame lossReason={lossReason} statusGame={statusGame} />
                 )}
                 {statusGame === "Ongoing" ? (
                   <ButtonPlaying

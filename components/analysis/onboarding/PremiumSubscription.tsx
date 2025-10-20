@@ -413,7 +413,7 @@ export const PremiumSubsContent: React.FC<{
               </span>
             </div>
           )}
-          {!isMember && !isLoading && sessionId.length > 0 && (
+          {(!isMember&&!isMemberMonthly) && !isLoading && sessionId.length > 0 && (
             <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
               <Image
                 src="/onboarding/currentPackage.png"
@@ -512,7 +512,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && <DotSpinner />}
-            {!isMemberMonthly && !isLoading && (
+            {(!isMember&&!isMemberMonthly) && !isLoading && (
               <button
                 onClick={() => handleGetPremium("monthly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
@@ -642,7 +642,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && <DotSpinner />}
-            {!isMember && !isLoading && (
+            {(!isMember&&!isMemberMonthly) && !isLoading && (
               <button
                 onClick={() => handleGetPremium("yearly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"

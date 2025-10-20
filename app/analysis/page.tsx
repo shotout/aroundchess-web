@@ -167,15 +167,16 @@ export default function AnalysisPage() {
                     </h2>
 
                     {isSignedIn && widthC <= 1024 && username && (
-                      <div className="lg:hidden flex items-center justify-center my-2">
-                        <Link
-                          href="/my-game-history"
-                          className="w-fill px-5 py-2 btn-primary rounded-full"
-                          onClick={handleAnalyzeDifferentGame}
-                        >
-                          Analyze a different game
-                        </Link>
-                      </div>
+                      // <div className="lg:hidden flex items-center justify-center my-2">
+                      //   <Link
+                      //     href="/my-game-history"
+                      //     className="w-fill px-5 py-2 btn-primary rounded-full"
+                      //     onClick={handleAnalyzeDifferentGame}
+                      //   >
+                      //     Analyze a different game
+                      //   </Link>
+                      // </div>
+                      <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                     )}
 
                     <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">

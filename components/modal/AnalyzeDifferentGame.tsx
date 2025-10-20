@@ -73,6 +73,8 @@ export function AnalyzeDifferentGame({
     addOtherImportedGame,
     addImportedGame,
     setActiveUser,
+    depth,
+    setDepth,
   } = usePgnStore();
   const depths = [
     {
@@ -113,7 +115,7 @@ export function AnalyzeDifferentGame({
   const [dragActive, setDragActive] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState(0);
+  const [depthChoosed, setDepthChoosed] = useState(depth);
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
   const [tabSelected, setTabSelected] = useState("auto");
@@ -169,6 +171,7 @@ export function AnalyzeDifferentGame({
       setEstimateMinute(time.minute);
       setEstimateSecond(time.second);
       setDepthChoosed(12);
+      setDepth(12);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -316,6 +319,8 @@ export function AnalyzeDifferentGame({
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
     setDepthChoosed(12);
+    setDepth(12);
+
     let time = timeBasic;
 
     setEstimateMinute(time.minute);
@@ -394,6 +399,7 @@ export function AnalyzeDifferentGame({
                   setEstimateMinute(time.minute);
                   setEstimateSecond(time.second);
                   setDepthChoosed(depth.value);
+                  setDepth(depth.value);
                 }}
                 key={index}
                 disabled={depth.mustMember && !isMember && !isMemberMonthly}

@@ -78,7 +78,8 @@ interface PgnState {
 
   activeUser: string;
   setActiveUser: (state: string) => void;
-
+  depth: number;
+  setDepth: (state: number) => void;
   pgn: string;
   username: string;
   usernameAnalysis: string;
@@ -212,7 +213,8 @@ export const usePgnStore = create<PgnState>()(
 
       activeState: "My Training Plan",
       setActiveState: (activeState: string) => set({ activeState }),
-
+      depth: 12,
+      setDepth: (depth: number) => set({ depth }),
       activeUser: "user",
       setActiveUser: (activeUser: string) => set({ activeUser }),
 
@@ -521,10 +523,7 @@ export const usePgnStore = create<PgnState>()(
         };
 
         set((state) => ({
-          importedGames: [
-            newGame,
-            ...state.importedGames
-          ],
+          importedGames: [newGame, ...state.importedGames],
           gamesData: [
             newGame,
             ...state.gamesData.filter(
@@ -556,10 +555,13 @@ export const usePgnStore = create<PgnState>()(
 
         set((state) => ({
           importedGames: [newGame, ...state.importedGames],
-          otherGamesData: [newGame, ...state.otherGamesData.filter(
+          otherGamesData: [
+            newGame,
+            ...state.otherGamesData.filter(
               (g) =>
                 g.opponent != gameData.opponent && g.moves != gameData.moves
-            ),],
+            ),
+          ],
           otherGamesLastFetched: Date.now(),
           otherGamesPagination: {
             ...state.otherGamesPagination,

@@ -29,7 +29,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   onAdjustPlan,
 }) => {
   const router = useRouter();
-  const { isMember } = useProfileStore();
+  const { isMember , isMemberMonthly} = useProfileStore();
   const { isLoading: loading, getUsagePuzzle } = useApiClient();
   const [remainingPuzzle, setRemainingPuzzle] = React.useState(0);
   const { setOpen } = useLimitPuzzle();
@@ -58,7 +58,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     toast.success("Thank you for subscribing to Premium!");
   };
   const handleStartPuzzle = () => {
-    if (remainingPuzzle >= 20 && !isMember) {
+    if (remainingPuzzle >= 20 &&(!isMember&&!isMemberMonthly)) {
       // toast.error(
       //   `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
       // );

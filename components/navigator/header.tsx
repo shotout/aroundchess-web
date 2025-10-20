@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const [isDesktop, setIsDesktop] = useState(false);
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
-  const { token: tokenBalance, isMember, sessionId } = useProfileStore();
+  const { token: tokenBalance, isMember, isMemberMonthly, sessionId } = useProfileStore();
   const { profile } = useUserStore();
   const { isLoading } = useApiClient();
 
@@ -149,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </span>
       </span>
 
-      {!isMember && (
+      {(!isMember&&!isMemberMonthly) && (
         <div className="w-full flex flex-row gap-[8px]">
           <button
             onClick={() => handleOpenOffer("tokens")}
@@ -166,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </div>
       )}
 
-      {isMember && (
+      {(isMember||isMemberMonthly) && (
         <motion.div
           variants={fadeInUp}
           className="hidden xl:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
@@ -225,7 +225,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </div>
       )}
 
-      {isMember && (
+      {(isMember||isMemberMonthly) && (
         <motion.div
           variants={fadeInUp}
           className="hidden sm:block relative w-full rounded-[8px] bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
@@ -307,7 +307,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
       {!isDesktop && (
         <div className="flex items-center space-x-3">
-          {!isLoading && (isMember !== null || isSignedIn !== null) && (
+          {!isLoading && (isMember !== null || isMemberMonthly!==null|| isSignedIn !== null) && (
             <MobileUserInfo />
           )}
           <MobileMenuButton />
@@ -315,7 +315,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       )}
 
       {isDesktop && 
-        (isMember !== null || isSignedIn !== null) && (
+        (isMember !== null || isMemberMonthly!==null||isSignedIn !== null) && (
           <div
             className={`flex ${
               isGuestMode ? "xl:justify-end" : ""

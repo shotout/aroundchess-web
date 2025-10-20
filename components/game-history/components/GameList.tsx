@@ -116,7 +116,11 @@ const GamesList: React.FC<GamesListProps> = ({
         // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
-          newGames[idx] = { ...newGames[idx], has_viewed_analysis: true };
+          newGames[idx] = {
+            ...newGames[idx],
+            has_viewed_analysis: true,
+            hasViewedAnalysis: true,
+          };
           // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
         }
@@ -126,7 +130,11 @@ const GamesList: React.FC<GamesListProps> = ({
         const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
         if (idx2 !== -1) {
           const newOther = [...otherGamesData];
-          newOther[idx2] = { ...newOther[idx2], has_viewed_analysis: true };
+          newOther[idx2] = {
+            ...newOther[idx2],
+            has_viewed_analysis: true,
+            hasViewedAnalysis: true,
+          };
           setOtherGamesData(newOther);
         }
       }
@@ -252,7 +260,6 @@ const GamesList: React.FC<GamesListProps> = ({
               // if API reports success (or we got a 2xx), update store and local object
               if (res?.success) {
                 // update persisted store arrays
-                markHasViewedAnalysisInStore(game.id);
                 // also update the in-memory game object so UI updates immediately
                 try {
                   game.hasViewedAnalysis = true as any;
@@ -268,6 +275,7 @@ const GamesList: React.FC<GamesListProps> = ({
               setDataAnalysis(lastAnalysis.data);
               setIsFromGameHistory(true);
               router.push("/analysis");
+              markHasViewedAnalysisInStore(game.id);
             } else {
               setDisabled(false);
               if (job && job.result) {
@@ -276,6 +284,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 setDataAnalysis(job.result);
                 setIsFromGameHistory(true);
                 router.push("/analysis");
+                markHasViewedAnalysisInStore(game.id);
               } else {
                 console.error("No analysis found for this game");
                 setOpenGameId(gameId);
@@ -453,7 +462,9 @@ const GamesList: React.FC<GamesListProps> = ({
           {currentGames.map((game, idx) => {
             const btn = getAnalysisButtonContent(game.id, game);
             const isNew =
-              btn.text.includes("In Progress") ||
+              autoStartGameId == game.id ||
+              btn.text.includes("%") ||
+              btn.text.includes("Processing") ||
               (!game.hasViewedAnalysis && game.isAnalysis) ||
               isNewlyImported(game.id);
             const indexInPage =
@@ -536,9 +547,9 @@ const GamesList: React.FC<GamesListProps> = ({
                           (disabled || autoStartGameId == game.id) &&
                           "bg-gray-700"
                         } h-8 w-full rounded-3xl ${
-                          btn.text === "Just one more moment..." &&
-                          "text-[10px]"
-                        } text-xs flex justify-center items-center transition-colors duration-150`}
+                          btn.text === "Just one more moment..." ?
+                          "text-[10px]":"text-xs "
+                        } flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
                           autoStartGameId == game.id ||
@@ -549,7 +560,8 @@ const GamesList: React.FC<GamesListProps> = ({
                         }
                       >
                         {(disabled && game.id == gameId) ||
-                        autoStartGameId == game.id ||btn.text === "Just one more moment..."? (
+                        autoStartGameId == game.id ||
+                        btn.text === "Just one more moment..." ? (
                           <Loader2
                             className={`${
                               btn.text === "Just one more moment..." &&
