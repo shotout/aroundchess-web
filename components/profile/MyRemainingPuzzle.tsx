@@ -7,7 +7,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useApiClient } from "@/functions/api-client";
 
 const MyRemainingPuzzle = () => {
-  const { activeMembership, isMember } = useProfileStore();
+  const { activeMembership, isMember, isMemberMonthly } = useProfileStore();
   const { getUsagePuzzle } = useApiClient();
   const [remainingPuzzle, setRemainingPuzzle] = useState(0);
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
@@ -37,10 +37,10 @@ const MyRemainingPuzzle = () => {
         <CurrentInfo
           handleOnClick={() => handleOpenOffer("subscription")}
           title="Remaining Puzzles in this month:"
-          textButton={isMember ? null : "Go Unlimited"}
+          textButton={isMember || isMemberMonthly ? null : "Go Unlimited"}
           image="/images/puzzle/asset-puzzle.png"
         >
-          {!isMember ? (
+          {(!isMember&&!isMemberMonthly) ? (
             <>
               <div className="flex flex-row items-center justify-center">
                 <Image

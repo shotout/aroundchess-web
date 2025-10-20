@@ -26,7 +26,7 @@ export function AnalyzeGameDialog({
   const router = useRouter();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const { isMember, token } = useProfileStore();
+  const { isMember, isMemberMonthly, token } = useProfileStore();
   const { setEstimateMinute, setEstimateSecond } = useLoadingAPI();
   const {
     setPgn,
@@ -443,15 +443,15 @@ export function AnalyzeGameDialog({
                         setDepthChoosed(depth.value);
                       }}
                       key={index}
-                      disabled={depth.mustMember && !isMember}
+                      disabled={depth.mustMember &&(!isMember&&!isMemberMonthly)}
                       className={`relative flex flex-col justify-around px-2 py-2 md:h-[300px] gap-2 items-center shadow-md  ${
-                        depth.mustMember && !isMember
+                        depth.mustMember && (!isMember&&!isMemberMonthly)
                           ? `bg-[#C0CED4]`
                           : `bg-white`
                       } border ${
                         depthChoosed == depth.value
                           ? `border-[#221AE9]`
-                          : isMember
+                          : isMember||isMemberMonthly
                           ? `border-[#DEDEDE]`
                           : `border-[#99A5A9]`
                       } rounded-md`}
@@ -464,7 +464,7 @@ export function AnalyzeGameDialog({
                         className="w-[80px] h-[80px] object-contain relative"
                         priority
                       />
-                      {depth.mustMember && !isMember && (
+                      {depth.mustMember &&(!isMember&&!isMemberMonthly) && (
                         <Image
                           src={`/icons/premium-info.png`}
                           alt={"premium-info"}
@@ -476,7 +476,7 @@ export function AnalyzeGameDialog({
                       )}
                       <div
                         className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
-                          depth.mustMember && !isMember
+                          depth.mustMember && (!isMember&&!isMemberMonthly)
                             ? `bg-[#99A5A9] border-1 border-[#737C7F]`
                             : depthChoosed == depth.value
                             ? `bg-[#221AE9] shadow-[#3871EC] shadow-md`

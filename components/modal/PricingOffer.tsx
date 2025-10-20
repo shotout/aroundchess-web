@@ -48,6 +48,7 @@ export const PricingOffer: React.FC = () => {
     tokenPackage,
     profile,
     isMember,
+    isMemberMonthly,
     token,
     activeMembership,
     setTokenPackage,

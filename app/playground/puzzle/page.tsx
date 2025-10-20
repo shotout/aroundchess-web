@@ -51,7 +51,7 @@ export default function Puzzle() {
   } = usePuzzles(filteredPuzzles);
   const { setOpen } = useLimitPuzzle();
 
-  const { isMember } = useProfileStore();
+  const { isMember, isMemberMonthly } = useProfileStore();
   const { postPuzzle, getUsagePuzzle, isLoading } = useApiClient();
   const [remainingPuzzle, setRemainingPuzzle] = useState(0);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -91,7 +91,7 @@ useEffect(() => {
     await getUsagePuzzle().then((res) => {
       let usage = res.data.totalPuzzlesThisMonth;
       setRemainingPuzzle(usage);
-      if (usage >= 20 && !isMember) {
+      if (usage >= 20 && (!isMember&&!isMemberMonthly)) {
         // toast.error(
         //   `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
         // );
@@ -100,7 +100,7 @@ useEffect(() => {
     });
   };
   const handleNextPuzzle = () => {
-    if (remainingPuzzle >= 20 && !isMember) {
+    if (remainingPuzzle >= 20 && (!isMember&&!isMemberMonthly)) {
       setOpen(true);
     } else {
       getNextPuzzle();
@@ -115,7 +115,7 @@ useEffect(() => {
   };
 
   const handleFetchPuzzles = (puzzles: Puzzle[]) => {
-    if (remainingPuzzle >= 20 && !isMember) {
+    if (remainingPuzzle >= 20 && (!isMember&&!isMemberMonthly)) {
       return;
     } else if (puzzles.length === 0) {
       return;
@@ -135,7 +135,7 @@ useEffect(() => {
     setGameStarted(false);
   };
   const handleStartPuzzle = () => {
-    if (remainingPuzzle >= 20 && !isMember) {
+    if (remainingPuzzle >= 20 &&(!isMember&&!isMemberMonthly)) {
       setOpen(true);
     } else {
       setGameStarted(true);

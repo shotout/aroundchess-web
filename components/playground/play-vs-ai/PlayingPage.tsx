@@ -333,7 +333,7 @@ export default function PlayingPage() {
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
-  const { isMember, token } = useProfileStore();
+  const { isMember, isMemberMonthly, token } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const [beforeFen, setBeforeFen] = useState<string>("");
   const [afterFen, setAfterFen] = useState<string>("");
@@ -1064,7 +1064,7 @@ export default function PlayingPage() {
   };
 
   const handleAnalyzeGame = () => {
-    if (!isMember && token.balance <= 0) {
+    if ((!isMember &&!isMemberMonthly)&& token.balance <= 0) {
       setOpenPricing(true);
       return;
     }
