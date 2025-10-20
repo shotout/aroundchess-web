@@ -545,9 +545,9 @@ const GamesList: React.FC<GamesListProps> = ({
                           (disabled || autoStartGameId == game.id) &&
                           "bg-gray-700"
                         } h-8 w-full rounded-3xl ${
-                          btn.text === "Just one more moment..." &&
-                          "text-[10px]"
-                        } text-xs flex justify-center items-center transition-colors duration-150`}
+                          btn.text === "Just one more moment..." ?
+                          "text-[10px]":"text-xs "
+                        } flex justify-center items-center transition-colors duration-150`}
                         onClick={btn.onClick}
                         disabled={
                           autoStartGameId == game.id ||
