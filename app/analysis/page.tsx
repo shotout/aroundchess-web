@@ -125,6 +125,7 @@ export default function AnalysisPage() {
       // }
 
       if (isTutorialPlay && stepFocused == 6) {
+        console.log("disini tutorial set");
         try {
           const [tutorialGame] = await Promise.all([
             fetch("/local-data/tutorialPgn.json"),
@@ -137,15 +138,18 @@ export default function AnalysisPage() {
         } catch (err) {
           console.error("Error loading famous game:", err);
         }
-      } else if (hasExistingData()) {
-        setInitialLoading(false);
-        return;
       } else if (isSignedIn && username) {
+        console.log("hasApiData");
         const hasApiData = await fetchExistAnalysis();
         if (!hasApiData) {
           await loadFamousGame();
         }
+      } else if (hasExistingData()) {
+        console.log("hasExistingData");
+        setInitialLoading(false);
+        return;
       } else {
+        console.log("loadFamousGame");
         await loadFamousGame();
       }
 
@@ -161,6 +165,7 @@ export default function AnalysisPage() {
     isSignedIn,
     username,
     isTutorialPlay,
+    stepFocused,
   ]);
 
   useEffect(() => {
