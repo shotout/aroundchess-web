@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import UserHistory from "../components/UserHistory";
 import OtherHistory from "../components/OtherHistory";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface HistoryTabsProps {
   username: string | null;
@@ -9,7 +10,7 @@ interface HistoryTabsProps {
 
 const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
   const { activeUser, setActiveUser } = usePgnStore();
-  
+  const { isTutorialPlay, dataTutorial } = useTutorial();
 
   return (
     <div className="xl:px-4 pb-4">
@@ -23,28 +24,28 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
                   ? "font-bold "
                   : "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
               }
-              ${activeUser=== "user" ? "rounded-tl-md" : ""}
+              ${activeUser === "user" ? "rounded-tl-md" : ""}
               border-r border-gray-200`}
           >
-            {username || "My Games"}
+            {isTutorialPlay ? dataTutorial.username : username || "My Games"}
           </button>
           <button
             onClick={() => setActiveUser("other")}
             className={`flex-1 py-3 text-center text-sm md:text-base xl:text-lg transition-colors
               ${
-                activeUser=== "other"
+                activeUser === "other"
                   ? "font-bold "
                   : "text-black border-b border-light-40 shadow-[inset_1px_1px_1px_1px_rgba(0,0,0,0.1)]"
               }
-              ${activeUser=== "other" ? "rounded-tr-md" : ""}`}
+              ${activeUser === "other" ? "rounded-tr-md" : ""}`}
           >
             Other Games
           </button>
         </div>
 
         <div className="mt-4">
-          {activeUser=== "user" && <UserHistory />}
-          {activeUser=== "other" && <OtherHistory />}
+          {activeUser === "user" && <UserHistory />}
+          {activeUser === "other" && <OtherHistory />}
         </div>
       </div>
     </div>

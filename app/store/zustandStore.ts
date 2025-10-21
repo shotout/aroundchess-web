@@ -78,6 +78,8 @@ interface PgnState {
 
   activeUser: string;
   setActiveUser: (state: string) => void;
+  everShowOffer: boolean;
+  setEverShowOffer: (state: boolean) => void;
   depth: number;
   setDepth: (state: number) => void;
   pgn: string;
@@ -213,6 +215,8 @@ export const usePgnStore = create<PgnState>()(
 
       activeState: "My Training Plan",
       setActiveState: (activeState: string) => set({ activeState }),
+      everShowOffer: false,
+      setEverShowOffer: (everShowOffer: boolean) => set({ everShowOffer }),
       depth: 12,
       setDepth: (depth: number) => set({ depth }),
       activeUser: "user",
@@ -267,7 +271,7 @@ export const usePgnStore = create<PgnState>()(
 
       importedGames: [],
 
-      isOpenTutorial: false,
+      isOpenTutorial: true,
       setIsOpenTutorial: (isOpenTutorial: boolean) => set({ isOpenTutorial }),
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
@@ -580,6 +584,7 @@ export const usePgnStore = create<PgnState>()(
 
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
+        everShowOffer: state.everShowOffer,
         dataAnalysis: state.dataAnalysis,
         isLoading: state.isLoading,
         username: state.username,

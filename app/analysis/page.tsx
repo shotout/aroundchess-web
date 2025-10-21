@@ -31,29 +31,36 @@ export default function AnalysisPage() {
     username,
     hasAnalyzedGame,
     isFromGameHistory,
+    isOpenTutorial,
     clearGameHistoryData,
     lastAnalysisFetched,
     setLastAnalysisFetched,
     isLastAnalysisLoading,
     setIsLastAnalysisLoading,
     setIsFromGameHistory,
-    isOpenTutorial,
   } = usePgnStore();
-  const { startTutorial } = useTutorial();
   const [openNewAnalysis, setOpenNewAnalysis] = useState(false);
-  const { stepFocused } = useTutorial();
+  const { stepFocused, isTutorialPlay, gameTutorial } = useTutorial();
   const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
   useEffect(() => {
     trackCustomEvent("ViewAnalysis");
-    if (!isOpenTutorial) return;
-    startTutorial();
   }, []);
   useEffect(() => {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (!isFromGameHistory && sessionId.length>0) {
+    console.log(
+      "isOpenTutorial, isTutorialPlay",
+      isOpenTutorial,
+      isTutorialPlay
+    );
+    if (isOpenTutorial && isTutorialPlay && stepFocused != 6) {
+      setOpenNewAnalysis(true);
+    }
+  }, [isOpenTutorial, isTutorialPlay, stepFocused]);
+  useEffect(() => {
+    if (!isFromGameHistory && sessionId.length > 0 && username.length > 0) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
@@ -117,12 +124,23 @@ export default function AnalysisPage() {
       //   return;
       // }
 
-      if (hasExistingData()) {
+      if (isTutorialPlay && stepFocused == 6) {
+        try {
+          const [tutorialGame] = await Promise.all([
+            fetch("/local-data/tutorialPgn.json"),
+          ]);
+
+          const responseGame = await tutorialGame.json();
+
+          setDataAnalysis(responseGame);
+          return;
+        } catch (err) {
+          console.error("Error loading famous game:", err);
+        }
+      } else if (hasExistingData()) {
         setInitialLoading(false);
         return;
-      }
-
-      if (isSignedIn && username) {
+      } else if (isSignedIn && username) {
         const hasApiData = await fetchExistAnalysis();
         if (!hasApiData) {
           await loadFamousGame();
@@ -136,7 +154,14 @@ export default function AnalysisPage() {
 
     initializeAnalysisPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
+  }, [
+    mounted,
+    hydrated,
+    hydratedProfile,
+    isSignedIn,
+    username,
+    isTutorialPlay,
+  ]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -146,7 +171,6 @@ export default function AnalysisPage() {
   const handleAnalyzeDifferentGame = () => {
     clearGameHistoryData();
   };
-
 
   return (
     <div className="min-h-screen">

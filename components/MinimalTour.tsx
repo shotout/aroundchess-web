@@ -23,8 +23,8 @@ export default function MinimalTour({
   run: boolean;
   onClose?: () => void;
 }) {
-  const { setIsOpenTutorial } = usePgnStore();
-  const { stepFocused, stopTutorial, setStepFocused } = useTutorial();
+  const { setIsOpenTutorial, setIsFromGameHistory } = usePgnStore();
+  const { stepFocused, stopTutorial, setStepFocused, allSteps } = useTutorial();
   const router = useRouter();
   const pathname = usePathname();
   const [index, setIndex] = useState(0);
@@ -32,21 +32,21 @@ export default function MinimalTour({
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
+  const step = steps[index];
+
   useEffect(() => {
     console.log("MinimalTour stepFocused", stepFocused);
     console.log("MinimalTour pathname", pathname);
-    console.log("MinimalTour index", index, steps[index]);
-    if (pathname.includes("/my-game-history") && stepFocused == 3) {
+    console.log("MinimalTour index", index, steps);
+    if (pathname.includes("/my-game-history") && stepFocused == 2) {
       setIndex(0);
     } else if (pathname.includes("/analysis") && stepFocused == 0) {
       setIndex(0);
-    } else if (pathname.includes("/analysis") && stepFocused == 2) {
+    } else if (pathname.includes("/analysis") && stepFocused == 3) {
       setIndex(2);
-    } else if (pathname.includes("/analysis") && stepFocused == -1) {
-      setIndex(2);
-    } else if (pathname.includes("/analysis") && stepFocused == 6) {
+    } else if (pathname.includes("/analysis") && stepFocused == 5) {
       setIndex(3);
-    } else if (pathname.includes("/my-game-history") && stepFocused == 5) {
+    } else if (pathname.includes("/my-game-history") && stepFocused == 6) {
       setIndex(2);
     }
   }, [pathname, stepFocused]);
@@ -141,46 +141,49 @@ export default function MinimalTour({
     };
   }, [run]);
 
+  useEffect(() => {
+    if (step != null) {
+      let focusedIndex = allSteps.findIndex(
+        (st) => st.stepText == step.stepText
+      );
+      console.log("focused step", focusedIndex);
+      setStepFocused(focusedIndex);
+    }
+  }, [index]);
+
   if (!run || !steps || steps.length === 0) return null;
 
   const next = () => {
-    if (index == 2 && pathname.includes("/analysis")) {
+    console.log("index", steps.length, stepFocused, pathname, index);
+    if (stepFocused == 2 && pathname.includes("/analysis")) {
       router.replace("/my-game-history");
-      setStepFocused((i: number) => i + 1);
       //   setIndex((i) => i + 1);
-    } else if (index == 2 && pathname.includes("/my-game-history")) {
+    } else if (stepFocused == 5 && pathname.includes("/my-game-history")) {
+      setIsFromGameHistory(true);
       router.replace("/analysis");
-      setStepFocused((i: number) => i + 1);
       //   setIndex((i) => i + 1);
-    } else if (stepFocused + 1 >= steps.length) {
-      onClose?.();
     } else {
       setIndex((i) => i + 1);
-      setStepFocused((i: number) => i + 1);
     }
   };
   const prev = () => {
+    console.log("index", stepFocused, pathname, index);
     if (stepFocused == 3 && pathname.includes("/my-game-history")) {
       router.replace("/analysis");
       //   setIndex((i) => Math.max(0, i - 1));
-      setStepFocused((i: number) => i - 1);
     } else if (stepFocused == 6 && pathname.includes("/analysis")) {
       router.replace("/my-game-history");
       //   setIndex((i) => Math.max(0, i - 1));
-      setStepFocused((i: number) => i - 1);
-    }
-    {
+    } else {
       setIndex((i) => Math.max(0, i - 1));
-      setStepFocused((i: number) => i - 1);
     }
   };
   const skip = () => {
     onClose?.();
-    stopTutorial()
+    stopTutorial();
     setIsOpenTutorial(false);
   };
 
-  const step = steps[index];
 
   // compute left/top values (kept inline for dynamic coords)
   const left = rect ? Math.max(8, rect.left + window.scrollX) : undefined;
@@ -203,12 +206,20 @@ export default function MinimalTour({
         const holeRight = holeLeft + rect.width + 16;
         const holeBottom = holeTop + rect.height + 16;
 
-        if (cx >= holeLeft && cx <= holeRight && cy >= holeTop && cy <= holeBottom) {
+        if (
+          cx >= holeLeft &&
+          cx <= holeRight &&
+          cy >= holeTop &&
+          cy <= holeBottom
+        ) {
           // forward the click to the element inside the hole
-          const el = document.elementFromPoint((e as React.MouseEvent).clientX, (e as React.MouseEvent).clientY) as HTMLElement | null;
+          const el = document.elementFromPoint(
+            (e as React.MouseEvent).clientX,
+            (e as React.MouseEvent).clientY
+          ) as HTMLElement | null;
           if (el) {
             // create a new MouseEvent and dispatch it on the found element
-            const ev = new MouseEvent('click', {
+            const ev = new MouseEvent("click", {
               bubbles: true,
               cancelable: true,
               view: window,
@@ -309,12 +320,13 @@ export default function MinimalTour({
       {overlay}
       {highlight}
 
-      <div id="box-tutorial"
+      <div
+        id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
         className={`block max-w-[400px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
           rect ? "" : "fixed right-3 bottom-3"
-        } ${shaking ? 'ac-shake' : ''}`}
+        } ${shaking ? "ac-shake" : ""}`}
         style={
           rect
             ? {
@@ -331,16 +343,36 @@ export default function MinimalTour({
       >
         <style jsx>{`
           @keyframes acShake {
-            0% { transform: translateX(0); }
-            10% { transform: translateX(-8px); }
-            20% { transform: translateX(8px); }
-            30% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            50% { transform: translateX(-4px); }
-            60% { transform: translateX(4px); }
-            70% { transform: translateX(-2px); }
-            80% { transform: translateX(2px); }
-            100% { transform: translateX(0); }
+            0% {
+              transform: translateX(0);
+            }
+            10% {
+              transform: translateX(-8px);
+            }
+            20% {
+              transform: translateX(8px);
+            }
+            30% {
+              transform: translateX(-6px);
+            }
+            40% {
+              transform: translateX(6px);
+            }
+            50% {
+              transform: translateX(-4px);
+            }
+            60% {
+              transform: translateX(4px);
+            }
+            70% {
+              transform: translateX(-2px);
+            }
+            80% {
+              transform: translateX(2px);
+            }
+            100% {
+              transform: translateX(0);
+            }
           }
           .ac-shake {
             animation: acShake 600ms ease-in-out;

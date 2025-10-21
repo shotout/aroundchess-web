@@ -1,4 +1,3 @@
-import { Step } from "react-joyride";
 
 const AnalysisModalSteps: any[] = [
   {
@@ -59,16 +58,7 @@ const historySteps: any[] = [
   },
 ];
 
-const lassteps: any[] = [
-  {
-    target: "[data-tutorial='7']",
-    title: "How to start a Game Analysis",
-    content: "That’s it, time to discover your Game Analysis!",
-    stepText: "7/7",
-  },
-];
 const tutorials: Record<string, any[]> = {
-  "/analysis/#": lassteps,
   "/analysis": AnalysisModalSteps,
   "/my-game-history": historySteps,
 };

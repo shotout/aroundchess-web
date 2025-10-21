@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Target, BarChart2, Trophy, Swords } from "lucide-react";
 import Image from "next/image";
 import { useGameStatistics } from "@/components/game-history/hooks/useGameStatistics";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface StatisticsSectionProps {
   username: string | null;
@@ -115,7 +116,7 @@ const StatCard: React.FC<{
 
 const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
   const { statistics, isLoading } = useGameStatistics();
-
+  const { isTutorialPlay, dataTutorial } = useTutorial();
   const formatNumber = (num: any) => {
     if (num === undefined || num === null) return "0";
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -124,8 +125,14 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
   const cardConfigs = [
     {
       title: "Best Win (rating)",
-      value: formatNumber(statistics?.bestWin?.rating),
-      subtitle: `vs ${statistics?.bestWin?.opponent || "Unknown"}`,
+      value: isTutorialPlay
+        ? dataTutorial.bestWinRating
+        : formatNumber(statistics?.bestWin?.rating),
+      subtitle: `vs ${
+        isTutorialPlay
+          ? dataTutorial.bestWinEnemy
+          : statistics?.bestWin?.opponent || "Unknown"
+      }`,
       icon: <Swords className="h-4 w-4 mr-1" fill="white" />,
       bgGradient: "bg-gradient-to-br from-[#A855F7] to-[#CF9DFF] text-white",
       bgImage: "/my-game-history/background.png",
@@ -133,9 +140,21 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
     },
     {
       title: "Win Rate",
-      value: `${statistics?.winRate?.percentage || 0}%`,
-      subtitle: `${(statistics?.winRate?.monthlyChange || 0) > 0 ? "+" : ""}${
-        statistics?.winRate?.monthlyChange || 0
+      value: `${
+        isTutorialPlay
+          ? dataTutorial.winRate
+          : statistics?.winRate?.percentage || 0
+      }%`,
+      subtitle: `${
+        isTutorialPlay
+          ? "+"
+          : (statistics?.winRate?.monthlyChange || 0) > 0
+          ? "+"
+          : ""
+      }${
+        isTutorialPlay
+          ? dataTutorial.winRateThisMonth
+          : statistics?.winRate?.monthlyChange || 0
       }% this month`,
       icon: <Target className="h-4 w-4 text-green-500" />,
       bgGradient: "bg-[#F6FFFA] border-[1px] border-[#029A46] text-black",
@@ -144,10 +163,20 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
     },
     {
       title: "Average ELO Rating",
-      value: formatNumber(statistics?.averageEloRating?.rating),
+      value: isTutorialPlay
+        ? dataTutorial.averageEloRating
+        : formatNumber(statistics?.averageEloRating?.rating),
       subtitle: `${
-        (statistics?.averageEloRating?.monthlyChange || 0) > 0 ? "+" : ""
-      }${statistics?.averageEloRating?.monthlyChange || 0} points this month`,
+        isTutorialPlay
+          ? "+"
+          : (statistics?.averageEloRating?.monthlyChange || 0) > 0
+          ? "+"
+          : ""
+      }${
+        isTutorialPlay
+          ? dataTutorial.averagePoint
+          : statistics?.averageEloRating?.monthlyChange || 0
+      } points this month`,
       icon: <BarChart2 className="h-4 w-4 text-blue-500" />,
       bgGradient: "border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black",
       bgImage: "/my-game-history/background-b.png",
@@ -155,9 +184,15 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
     },
     {
       title: "Total Games",
-      value: formatNumber(statistics?.totalGames?.count),
+      value:isTutorialPlay
+          ? dataTutorial.totalGames
+          :  formatNumber(statistics?.totalGames?.count),
       subtitle: `${
-        (statistics?.totalGames?.monthlyChange || 0) > 0 ? "+" : ""
+         isTutorialPlay
+          ? "+"
+          :isTutorialPlay
+          ? dataTutorial.totalGamesThisMonth
+          : (statistics?.totalGames?.monthlyChange || 0) > 0 ? "+" : ""
       }${statistics?.totalGames?.monthlyChange || 0} this month`,
       icon: <Trophy className="h-4 w-4 text-yellow-500" fill="#eab308" />,
       bgGradient: "border-[1px] border-[#DEDEDE] text-black",
@@ -183,7 +218,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
             bgImage={config.bgImage}
             rectangleImage={config.rectangleImage}
             starImage={config.starImage}
-            isLoading={isLoading}
+            isLoading={!isTutorialPlay && isLoading}
           />
         ))}
       </div>
