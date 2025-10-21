@@ -565,7 +565,7 @@ export function AnalyzeDifferentGame({
                 {isTutorialPlay ? (
                   <div className={"p-3 rounded-md border border-gray-200"}>
                     <span className="text-[14px]">
-                      {dataTutorial.gameTitle}
+                    {dataTutorial.dateSelectedGame} {dataTutorial.gameTitle}
                     </span>
                   </div>
                 ) : (

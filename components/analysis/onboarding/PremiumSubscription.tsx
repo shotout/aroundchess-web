@@ -139,8 +139,8 @@ export const PremiumSubsContent: React.FC<{
   };
 
   const free = allMembershipPackages[0];
-  const premium = allMembershipPackages[2];
-  const monthlyPremium = allMembershipPackages[1];
+  const premium = allMembershipPackages[1];
+  const monthlyPremium = allMembershipPackages[2];
   const deadline = new Date(profile?.discountInfo?.startDate).getTime() + 7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
