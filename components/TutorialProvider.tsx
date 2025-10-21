@@ -2,6 +2,7 @@
 
 import React, {
   createContext,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -280,17 +281,19 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <TutorialContext.Provider value={value}>
-      {children}
-      {/* Render a minimal in-house tour to avoid react-joyride/react-dom issues */}
-      {steps.length > 0 && (
-        <MinimalTour
-          steps={steps as MinimalStep[]}
-          run={isRunning}
-          // onClose={() => setIsRunning(false)}
-        />
-      )}
-    </TutorialContext.Provider>
+    <Suspense>
+      <TutorialContext.Provider value={value}>
+        {children}
+        {/* Render a minimal in-house tour to avoid react-joyride/react-dom issues */}
+        {steps.length > 0 && (
+          <MinimalTour
+            steps={steps as MinimalStep[]}
+            run={isRunning}
+            // onClose={() => setIsRunning(false)}
+          />
+        )}
+      </TutorialContext.Provider>
+    </Suspense>
   );
 }
 
