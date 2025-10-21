@@ -13,6 +13,7 @@ import Link from "next/link";
 import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -30,6 +31,7 @@ export default function AnalysisPage() {
     username,
     hasAnalyzedGame,
     isFromGameHistory,
+    isOpenTutorial,
     clearGameHistoryData,
     lastAnalysisFetched,
     setLastAnalysisFetched,
@@ -38,6 +40,7 @@ export default function AnalysisPage() {
     setIsFromGameHistory,
   } = usePgnStore();
   const [openNewAnalysis, setOpenNewAnalysis] = useState(false);
+  const { stepFocused, isTutorialPlay, gameTutorial } = useTutorial();
   const { getLastAnalysis } = useApiClient();
   const [widthC, setWidthC] = useState<number>(0);
   useEffect(() => {
@@ -47,13 +50,23 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (!isFromGameHistory && sessionId.length>0) {
+    console.log(
+      "isOpenTutorial, isTutorialPlay",
+      isOpenTutorial,
+      isTutorialPlay
+    );
+    if (isOpenTutorial && isTutorialPlay && stepFocused != 6) {
+      setOpenNewAnalysis(true);
+    }
+  }, [isOpenTutorial, isTutorialPlay, stepFocused]);
+  useEffect(() => {
+    if (!isFromGameHistory && sessionId.length > 0 && username.length > 0) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
       setIsFromGameHistory(false);
     }
-  }, []);
+  }, [stepFocused]);
   useEffect(() => {
     if (!mounted) return;
     if (hydratedProfile) {
@@ -111,17 +124,32 @@ export default function AnalysisPage() {
       //   return;
       // }
 
-      if (hasExistingData()) {
-        setInitialLoading(false);
-        return;
-      }
+      if (isTutorialPlay && stepFocused == 6) {
+        console.log("disini tutorial set");
+        try {
+          const [tutorialGame] = await Promise.all([
+            fetch("/local-data/tutorialPgn.json"),
+          ]);
 
-      if (isSignedIn && username) {
+          const responseGame = await tutorialGame.json();
+
+          setDataAnalysis(responseGame);
+          return;
+        } catch (err) {
+          console.error("Error loading famous game:", err);
+        }
+      } else if (isSignedIn && username) {
+        console.log("hasApiData");
         const hasApiData = await fetchExistAnalysis();
         if (!hasApiData) {
           await loadFamousGame();
         }
+      } else if (hasExistingData()) {
+        console.log("hasExistingData");
+        setInitialLoading(false);
+        return;
       } else {
+        console.log("loadFamousGame");
         await loadFamousGame();
       }
 
@@ -130,7 +158,15 @@ export default function AnalysisPage() {
 
     initializeAnalysisPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
+  }, [
+    mounted,
+    hydrated,
+    hydratedProfile,
+    isSignedIn,
+    username,
+    isTutorialPlay,
+    stepFocused,
+  ]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -140,7 +176,6 @@ export default function AnalysisPage() {
   const handleAnalyzeDifferentGame = () => {
     clearGameHistoryData();
   };
-
 
   return (
     <div className="min-h-screen">
@@ -161,15 +196,16 @@ export default function AnalysisPage() {
                     </h2>
 
                     {isSignedIn && widthC <= 1024 && username && (
-                      <div className="lg:hidden flex items-center justify-center my-2">
-                        <Link
-                          href="/my-game-history"
-                          className="w-fill px-5 py-2 btn-primary rounded-full"
-                          onClick={handleAnalyzeDifferentGame}
-                        >
-                          Analyze a different game
-                        </Link>
-                      </div>
+                      // <div className="lg:hidden flex items-center justify-center my-2">
+                      //   <Link
+                      //     href="/my-game-history"
+                      //     className="w-fill px-5 py-2 btn-primary rounded-full"
+                      //     onClick={handleAnalyzeDifferentGame}
+                      //   >
+                      //     Analyze a different game
+                      //   </Link>
+                      // </div>
+                      <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                     )}
 
                     <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
@@ -190,7 +226,6 @@ export default function AnalysisPage() {
                       strategic strengths and weaknesses.
                     </div>
                     <AnalyzeDifferentGame openPopup={openNewAnalysis} />
-
                     {/* {isSignedIn && widthC > 1024 && username && (
                       <Link
                         href="/my-game-history"
@@ -202,6 +237,10 @@ export default function AnalysisPage() {
                     )} */}
                   </div>
                 </div>
+                <div
+                  data-tutorial="7"
+                  className="absolute top-1/2 left-1/2 w-[0px] h-[0px]"
+                ></div>
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (

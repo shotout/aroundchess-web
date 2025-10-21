@@ -17,6 +17,7 @@ import { ShareGame } from "./modal/ShareGame";
 import { SuccessSent } from "./modal/SuccessSent";
 import { ModalSetting } from "@/app/cookies-consent/ModalSetting";
 import { LimitPuzzle } from "./modal/LimitPuzzle";
+import DialogSpecialDiscount from "./modal/DialogSpecialDiscount";
 
 interface SiteFooterProps {
   className?: string;
@@ -315,6 +316,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <ShareGame />
       <SuccessSent />
       <ModalSetting />
+        <DialogSpecialDiscount   />
     </footer>
   );
 }

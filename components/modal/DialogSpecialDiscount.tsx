@@ -8,29 +8,17 @@ import {
   DialogPortal,
   DialogTitle,
 } from "components/ui/dialog";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 
-interface Props {
-  open?: boolean;
-  setOpen?: (open: boolean) => void;
-  onClose: (open: boolean) => void;
-}
+interface Props {}
 
-export const DialogSpecialDiscount: React.FC<Props> = ({
-  open,
-  setOpen,
-  onClose,
-}) => {
-  const [internalOpen, setInternalOpen] = useState(false);
+export const DialogSpecialDiscount: React.FC<Props> = () => {
   const [width, setWidth] = useState<number>(0);
-
-  const isControlled =
-    typeof open !== "undefined" && typeof setOpen === "function";
-
-  const dialogOpen = isControlled ? open! : internalOpen;
-  const setDialogOpen = (v: boolean) => {
-    if (isControlled) return setOpen!(v);
-    return setInternalOpen(v);
-  };
+  const {
+    openOffer,
+    setOpenOffer,
+    setOpen: setOpenPricing,
+  } = usePricingOffer();
 
   useEffect(() => {
     // only run on client
@@ -43,7 +31,7 @@ export const DialogSpecialDiscount: React.FC<Props> = ({
   const src = "/offers/special-discount.png";
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={() => onClose(false)}>
+    <Dialog open={openOffer} onOpenChange={() => setOpenOffer(false)}>
       <DialogPortal>
         <DialogContent
           className={`pt-4 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
@@ -69,7 +57,10 @@ export const DialogSpecialDiscount: React.FC<Props> = ({
 
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full flex justify-center">
             <button
-              onClick={() => setDialogOpen(false)}
+              onClick={() => {
+                setOpenOffer(false);
+                setOpenPricing(true);
+              }}
               className={`min-w-[92%] sm:max-w-[720px] px-5 py-2 btn-primary rounded-full`}
             >
               SEE OFFER

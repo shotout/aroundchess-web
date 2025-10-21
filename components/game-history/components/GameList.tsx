@@ -25,6 +25,8 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { DummyList } from "./DummyList";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface GamesListProps {
   games: Game[];
@@ -97,12 +99,14 @@ const GamesList: React.FC<GamesListProps> = ({
     setPgn,
     setDataAnalysis,
     isFromAnalyzeDifferentGame,
-    activeUser,
+    isOpenTutorial,
     setDataGamesImport,
     setIsFromGameHistory,
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const pathname = usePathname();
+  const { isTutorialPlay, dataTutorial } = useTutorial();
+
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
@@ -115,7 +119,11 @@ const GamesList: React.FC<GamesListProps> = ({
         // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
-          newGames[idx] = { ...newGames[idx], has_viewed_analysis: true };
+          newGames[idx] = {
+            ...newGames[idx],
+            has_viewed_analysis: true,
+            hasViewedAnalysis: true,
+          };
           // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
         }
@@ -125,7 +133,11 @@ const GamesList: React.FC<GamesListProps> = ({
         const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
         if (idx2 !== -1) {
           const newOther = [...otherGamesData];
-          newOther[idx2] = { ...newOther[idx2], has_viewed_analysis: true };
+          newOther[idx2] = {
+            ...newOther[idx2],
+            has_viewed_analysis: true,
+            hasViewedAnalysis: true,
+          };
           setOtherGamesData(newOther);
         }
       }
@@ -251,7 +263,6 @@ const GamesList: React.FC<GamesListProps> = ({
               // if API reports success (or we got a 2xx), update store and local object
               if (res?.success) {
                 // update persisted store arrays
-                markHasViewedAnalysisInStore(game.id);
                 // also update the in-memory game object so UI updates immediately
                 try {
                   game.hasViewedAnalysis = true as any;
@@ -267,6 +278,7 @@ const GamesList: React.FC<GamesListProps> = ({
               setDataAnalysis(lastAnalysis.data);
               setIsFromGameHistory(true);
               router.push("/analysis");
+              markHasViewedAnalysisInStore(game.id);
             } else {
               setDisabled(false);
               if (job && job.result) {
@@ -275,6 +287,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 setDataAnalysis(job.result);
                 setIsFromGameHistory(true);
                 router.push("/analysis");
+                markHasViewedAnalysisInStore(game.id);
               } else {
                 console.error("No analysis found for this game");
                 setOpenGameId(gameId);
@@ -301,7 +314,7 @@ const GamesList: React.FC<GamesListProps> = ({
       switch (job.status) {
         case "pending":
         case "processing": {
-          const pct = job.progress > 0 ? `${job.progress}%` : "In Progress";
+          const pct = job.progress > 0 ? `${job.progress}%` : "On Progress";
           return {
             text: pct,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -392,11 +405,11 @@ const GamesList: React.FC<GamesListProps> = ({
     return numMoves;
   };
 
-  if (isLoading) {
+  if (isLoading && !isTutorialPlay) {
     return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
   }
 
-  if (error) {
+  if (error && !isTutorialPlay) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
         <AlertCircle className="h-5 w-5 mr-2" />
@@ -411,7 +424,7 @@ const GamesList: React.FC<GamesListProps> = ({
     );
   }
 
-  if (games.length === 0) {
+  if (games.length === 0 && !isTutorialPlay) {
     return (
       <div className="p-8 text-center border rounded-lg">
         <p className="text-gray-500">
@@ -448,115 +461,141 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
 
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
-          {currentGames.map((game, idx) => {
-            const btn = getAnalysisButtonContent(game.id, game);
-            const isNew =
-              btn.text.includes("In Progress") ||
-              (!game.hasViewedAnalysis && game.isAnalysis) ||
-              isNewlyImported(game.id);
-            const indexInPage =
-              (paginationProps.currentPage - 1) * paginationProps.itemsPerPage +
-              idx +
-              1;
-            return (
-              <div
-                key={game.id}
-                className={`grid relative transition-colors duration-150 ${
-                  isNew
-                    ? "bg-yellow-50"
-                    : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
-                }`}
-                style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
-              >
-                <AnalyzeGameHistory
-                  open={openGameId === game.id}
-                  onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
-                  game={game}
-                  autoStart={autoStartGameId === game.id}
-                  onAutoStartComplete={() => {
-                    // clear the auto start marker once done
-                    setAutoStartGameId(null);
-                  }}
-                />
+          {isOpenTutorial && isTutorialPlay && <DummyList />}
+          {!isTutorialPlay &&
+            currentGames.map((game, idx) => {
+              const btn = getAnalysisButtonContent(game.id, game);
+              const isNew =
+                autoStartGameId == game.id ||
+                btn.text.includes("%") ||
+                btn.text.includes("Processing") ||
+                (!game.hasViewedAnalysis && game.isAnalysis) ||
+                isNewlyImported(game.id);
+              const indexInPage =
+                (paginationProps.currentPage - 1) *
+                  paginationProps.itemsPerPage +
+                idx +
+                1;
+              return (
+                <div
+                  key={game.id}
+                  className={`grid relative transition-colors duration-150 ${
+                    isNew
+                      ? "bg-yellow-50"
+                      : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
+                  }`}
+                  style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                >
+                  <AnalyzeGameHistory
+                    open={openGameId === game.id}
+                    onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
+                    game={game}
+                    autoStart={autoStartGameId === game.id}
+                    onAutoStartComplete={() => {
+                      // clear the auto start marker once done
+                      setAutoStartGameId(null);
+                    }}
+                  />
 
-                <div className="flex items-center px-2 py-3 border-r border-gray-200">
-                  {/* {isNew && (
+                  <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                    {/* {isNew && (
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
                   )} */}
-                  <span className="w-6 text-center text-gray-500">
-                    {indexInPage}
-                  </span>
-                </div>
+                    <span className="w-6 text-center text-gray-500">
+                      {indexInPage}
+                    </span>
+                  </div>
 
-                <div className="flex items-center px-4 py-3">{game.date}</div>
+                  <div className="flex items-center px-4 py-3">{game.date}</div>
 
-                <div className="flex items-center px-2 py-3">
-                  {displayTimeControl(game.timeControl)}
-                </div>
+                  <div className="flex items-center px-2 py-3">
+                    {displayTimeControl(game.timeControl)}
+                  </div>
 
-                <div className="flex items-center px-2 py-3">
-                  {(() => {
-                    const r = getResultData(game.result);
-                    return <span className={r.className}>{r.text}</span>;
-                  })()}
-                </div>
+                  <div className="flex items-center px-2 py-3">
+                    {(() => {
+                      const r = getResultData(game.result);
+                      return <span className={r.className}>{r.text}</span>;
+                    })()}
+                  </div>
 
-                <div className="flex items-center px-4 py-3 truncate">
-                  {game.opponent || "Unknown Player"}
-                </div>
+                  <div className="flex items-center px-4 py-3 truncate">
+                    {game.opponent || "Unknown Player"}
+                  </div>
 
-                <div className="flex items-center px-2 py-3">
-                  {game.rating || "N/A"}
-                </div>
+                  <div className="flex items-center px-2 py-3">
+                    {game.rating || "N/A"}
+                  </div>
 
-                <div className="flex items-center px-2 py-3 truncate">
-                  {game.timeClass || "Unknown Game Type"}
-                </div>
+                  <div className="flex items-center px-2 py-3 truncate">
+                    {game.timeClass || "Unknown Game Type"}
+                  </div>
 
-                <div className="flex items-center px-2 py-3">
-                  {displayMoves(game.moves)}
-                </div>
+                  <div className="flex items-center px-2 py-3">
+                    {displayMoves(game.moves)}
+                  </div>
 
-                <div className="flex items-center px-4 py-3">
-                  {displayOpening(game.opening)}
-                </div>
+                  <div className="flex items-center px-4 py-3">
+                    {displayOpening(game.opening)}
+                  </div>
 
-                <div className="flex items-center px-2 py-3">
-                  {game.source || "Unknown"}
-                </div>
+                  <div className="flex items-center px-2 py-3">
+                    {game.source || "Unknown"}
+                  </div>
 
-                <div className="px-4 py-3 min-w-[140px]">
-                  {(() => {
-                    const btn = getAnalysisButtonContent(game.id, game);
-                    return (
-                      <button
-                        className={`${btn.className} ${
-                          (disabled || autoStartGameId == game.id) &&
-                          "bg-gray-700"
-                        } h-8 w-full rounded-3xl ${btn.text === "Just one more moment..." && 'text-[10px]'} text-xs flex justify-center items-center transition-colors duration-150`}
-                        onClick={btn.onClick}
-                        disabled={
+                  <div className="px-4 py-3 min-w-[140px]">
+                    {(() => {
+                      const btn = getAnalysisButtonContent(game.id, game);
+                      return (
+                        <button
+                          className={`${btn.className} ${
+                            (disabled || autoStartGameId == game.id) &&
+                            "bg-gray-700"
+                          } h-8 w-full rounded-3xl ${
+                            btn.text === "Just one more moment..."
+                              ? "text-[10px]"
+                              : "text-xs "
+                          } flex justify-center items-center transition-colors duration-150`}
+                          onClick={btn.onClick}
+                          disabled={
+                            autoStartGameId == game.id ||
+                            disabled ||
+                            btn.text.startsWith("In Progress") ||
+                            btn.text === "Finalizing..." ||
+                            btn.text === "Just one more moment..."
+                          }
+                        >
+                          {(disabled && game.id == gameId) ||
                           autoStartGameId == game.id ||
-                          disabled ||
-                          btn.text.startsWith("In Progress") ||
-                          btn.text === "Finalizing..." ||
-                          btn.text === "Just one more moment..."
-                        }
-                      >
-                        {(disabled && game.id == gameId) ||
-                        autoStartGameId == game.id ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                        ) : (
-                          btn.icon
-                        )}
-                        {autoStartGameId == game.id ? "Processing":btn.text}
-                      </button>
-                    );
-                  })()}
+                          btn.text === "Just one more moment..." ? (
+                            <Loader2
+                              className={`${
+                                btn.text === "Just one more moment..." &&
+                                "block sm:hidden"
+                              } h-4 w-4 mr-1 animate-spin`}
+                            />
+                          ) : (
+                            btn.icon
+                          )}
+                          <span className="hidden sm:block">
+                            {autoStartGameId == game.id
+                              ? "Processing"
+                              : btn.text}
+                          </span>
+                          <span className="block sm:hidden">
+                            {autoStartGameId == game.id
+                              ? "Processing"
+                              : btn.text.includes("%")
+                              ? "On Progress: " + btn.text
+                              : ""}
+                          </span>
+                        </button>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
 

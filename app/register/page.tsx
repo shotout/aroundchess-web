@@ -12,6 +12,7 @@ import { SiteFooterNew } from "@/components/site-footer-new";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { useSearchParams } from "next/navigation";
 import { trackCustomEvent, trackSignUp } from "../utils/facebookPixel";
+import { useRouter } from "next/navigation";
 export const dynamic = "force-dynamic";
 interface PasswordCondition {
   id: string;
@@ -25,7 +26,7 @@ interface EmailValidation {
 function RegisterPage() {
   const searchParams = useSearchParams();
   const emailParam = searchParams?.get("email");
-
+  const router = useRouter()
   const [email, setEmail] = useState<string | null>(emailParam);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -171,14 +172,16 @@ function RegisterPage() {
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { email });
-        window.location.href = "/analysis";
+                      router.push("/analysis");
+
       } else if (data.token) {
         setSessionId(data.token);
         setPersistedCookie("token", data.token, 365);
         trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
-        window.location.href = "/analysis";
+                      router.push("/analysis");
+
       } else {
         toast.error("No authentication token received");
       }
@@ -241,7 +244,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "google" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Google signup");
@@ -266,7 +268,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "facebook" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Facebook signup");
@@ -291,7 +292,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (data.data.url) {
-        trackCustomEvent("CompleteRegistration", { sso: "apple" });
         window.location.href = data.data.url;
       } else {
         toast.error("Failed to initiate Apple signup");

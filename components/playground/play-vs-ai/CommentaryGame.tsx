@@ -3,8 +3,12 @@ import { fadeInUp, motion } from "@/utils/motion";
 import Image from "next/image";
 interface CommentarGameProps {
   statusGame: string;
+  lossReason: string | null;
 }
-export const CommentarGame = ({ statusGame }: CommentarGameProps) => {
+export const CommentarGame = ({
+  statusGame,
+  lossReason,
+}: CommentarGameProps) => {
   const gradColor =
     statusGame == "Win"
       ? `bg-[linear-gradient(to_right,_#FFFFFF58,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#00B427,_#FFFFFF40)]`
@@ -35,7 +39,9 @@ export const CommentarGame = ({ statusGame }: CommentarGameProps) => {
       ? "Congratulations! You won this game!"
       : statusGame == "Draw"
       ? "The Game ended in a Draw."
-      : "The Game ended You loss";
+      : lossReason === "resign"
+      ? "You lost by resigning the game"
+      : "You lost by checkmate";
   return (
     <motion.div
       variants={fadeInUp}

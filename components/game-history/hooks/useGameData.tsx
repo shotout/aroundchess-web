@@ -53,7 +53,7 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         username: item.username,
         timeClass: item.time_class,
         isAnalysis: item.is_analysis,
-        hasViewedAnalysis: item.has_viewed_analysis, 
+        hasViewedAnalysis: item.has_viewed_analysis || false,
       };
     })
     .filter(Boolean) as Game[];
@@ -185,8 +185,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
   const lastFetched =
     type === "chessdotcom" ? gamesLastFetched : otherGamesLastFetched;
-  const setInStore =
-    type === "chessdotcom" ? setGamesData : setOtherGamesData;
+  const setInStore = type === "chessdotcom" ? setGamesData : setOtherGamesData;
 
   const cacheValid = useMemo(
     () => isValidCache(lastFetched, cachedGames, CACHE_EXPIRATION),
@@ -211,10 +210,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
       try {
         updateState(transformApiDataToComponentFormat(cachedGames));
       } catch (err) {
-        console.error(
-          `[${type.toUpperCase()}] cached processing error:`,
-          err
-        );
+        console.error(`[${type.toUpperCase()}] cached processing error:`, err);
         setError(err instanceof Error ? err : new Error("Cache error"));
       } finally {
         setIsLoading(false);
@@ -228,10 +224,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setError(null);
 
     try {
-      const res = await gameHistoryApi.getUserGames(
-        sessionId ?? null,
-        type
-      );
+      const res = await gameHistoryApi.getUserGames(sessionId ?? null, type);
       if (res?.data) {
         setInStore(res.data);
         updateState(transformApiDataToComponentFormat(res.data));
@@ -239,8 +232,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         throw new Error("Invalid server response");
       }
     } catch (err) {
-      const e =
-        err instanceof Error ? err : new Error("Fetch unknown error");
+      const e = err instanceof Error ? err : new Error("Fetch unknown error");
       console.error(`[${type}] fetch error:`, e);
       setError(e);
     } finally {

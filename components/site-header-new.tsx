@@ -90,7 +90,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
     checkSession();
   }, [sessionId, isSignedIn]);
 
-  const { isMember, token, clearAll: clearProfile } = useProfileStore();
+  const { isMember,isMemberMonthly, token, clearAll: clearProfile } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   const handleDashboard = () => {
@@ -273,7 +273,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                     isSignedIn={isSignedIn}
                     handleLogout={handleLogout}
                     handleDashboard={handleDashboard}
-                    isMember={isMember}
+                    isMember={isMember || isMemberMonthly}
                     token={token.balance}
                     handleOpenOffer={handleOpenOffer}
                     handleStartAnalysis={handleStartAnalysis} // Pass the same function

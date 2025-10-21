@@ -139,7 +139,7 @@ const sidebarLinks: SidebarLink[] = [
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isMember, token, profile, sessionId } = useProfileStore();
+  const { isMember, isMemberMonthly, token, profile, sessionId } = useProfileStore();
   const { username, profileShow } = usePgnStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
@@ -218,7 +218,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             </span>
           </span>
         </div>
-        {!isMember ? (
+        {(!isMember &&!isMemberMonthly) ? (
           <div className="w-full flex flex-col gap-2">
             <button
               onClick={() => handleOpenOffer("tokens")}
@@ -279,7 +279,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
             return (
               <motion.div key={section.name} variants={isMobile ? itemVariants : {}}>
-                <div className="space-y-2">
+                <div className="space-y-2"  >
                   {section.href ? (
                     <Link
                       href={!isSignedIn && !section.permission ? "#" : section.href!}
@@ -339,6 +339,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         return (
                           <motion.div key={child.href} variants={isMobile ? itemVariants : {}}>
                             <Link
+                            data-tutorial={child.name === "My Game History" ? "5" : undefined}
                               href={!isSignedIn && !child.permission ? "#" : child.href}
                               onClick={() => handleNavigation(child.href, child.permission)}
                               className={cn(

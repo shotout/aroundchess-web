@@ -6,6 +6,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { supabase } from "@/lib/supabase";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useRouter } from "next/navigation";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -18,6 +19,7 @@ interface RequestOptions {
 }
 
 export function useApiClient() {
+  const router = useRouter()
   const { setIsLoading, isLoading } = useLoadingAPI();
   const { sessionId } = useProfileStore();
   const [error, setError] = useState<Error | null>(null);
@@ -39,6 +41,7 @@ export function useApiClient() {
         localStorage.removeItem("pgn-local-storage");
         setPersistedCookie("token", "", 0);
       });
+      router.replace("/login")
     const { error } = await supabase.auth.signOut();
 
     if (error) {
@@ -108,7 +111,7 @@ export function useApiClient() {
 
               const { data, error: refreshError } =
                 await supabase.auth.refreshSession();
-
+              console.log("refreshError", refreshError);
               if (refreshError) {
                 console.error("Refresh token gagal:", refreshError.message);
                 // bisa redirect ke login page

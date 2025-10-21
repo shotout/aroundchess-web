@@ -48,6 +48,7 @@ export const PricingOffer: React.FC = () => {
     tokenPackage,
     profile,
     isMember,
+    isMemberMonthly,
     token,
     activeMembership,
     setTokenPackage,
@@ -252,9 +253,9 @@ export const PricingOffer: React.FC = () => {
               or buy Analysis Tokens for access to more Analyses
             </DialogDescription>
           </div>
-          {activeTab == "tokens" && !isMember && token.balance == 0 && (
+          {/* {activeTab == "tokens" && !isMember && token.balance == 0 && (
             <CountdownTimerToken />
-          )}
+          )} */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {sessionId.length > 0 && (
               <div>

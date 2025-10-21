@@ -1,3 +1,4 @@
+import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
@@ -20,25 +21,7 @@ export const useProfileFetch = () => {
     setAlreadyFetch,
     alreadyFetchProfile,
     setAlreadyFetchProfile,
-  } = useProfileStore();
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  useEffect(() => {
-    if (!sessionId) return;
-    setIsSignedIn(true);
-  }, [sessionId]);
-
-  const [callFetch, setCallFetch] = useState<string>("");
-  const { setUsername } = usePgnStore();
-  const {
-    getTokenBalance,
-    getProfile,
-    getActiveMembership,
-    getAllMembershipPackage,
-    getPuzzle,
-    getTokenPackage,
-  } = useApiClient();
-  const {
+    profile,
     setToken,
     setTokenPackage,
     setActiveMembership,
@@ -49,18 +32,37 @@ export const useProfileFetch = () => {
     setIsMemberMonthly,
     setTokenData,
   } = useProfileStore();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const {setOpenOffer} = usePricingOffer()
   useEffect(() => {
+    if (!sessionId) return;
+    setIsSignedIn(true);
+  }, [sessionId]);
+
+  const [callFetch, setCallFetch] = useState<string>("");
+  const { setUsername, everShowOffer, setEverShowOffer } = usePgnStore();
+  const {
+    getTokenBalance,
+    getProfile,
+    getActiveMembership,
+    getAllMembershipPackage,
+    getPuzzle,
+    getTokenPackage,
+  } = useApiClient();
+  useEffect(() => {
+    let profileData = profile
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
       // if (alreadyFetchProfile == false) {
-        setAlreadyFetchProfile(true);
-        getProfile({}).then((response) => {
-          if (response.data != null) {
-            const data = response.data;
-            setProfile(data);
-            setUsername(data.username);
-          }
-        });
+      setAlreadyFetchProfile(true);
+      getProfile({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setProfile(data);
+          setUsername(data.username);
+          profileData = data
+        }
+      });
       // }
       getAllMembershipPackage({}).then((response) => {
         if (response.data != null) {
@@ -80,6 +82,14 @@ export const useProfileFetch = () => {
         if (response.data != null) {
           const data = response.data;
           setToken(data);
+          if (
+            data.balance == 0 &&
+            profileData.discountInfo.hasActiveDiscount &&
+            profileData?.discountInfo?.startDate && !everShowOffer
+          ) {
+            setOpenOffer(true);
+            setEverShowOffer(true)
+          }
         }
       });
 

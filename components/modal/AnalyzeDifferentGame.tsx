@@ -37,6 +37,7 @@ import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { gameHistoryApi } from "../game-history/services/api";
+import { useTutorial } from "../TutorialProvider";
 
 const getDataUsername = process.env.BASE_URL + "/games/get-data/";
 
@@ -52,6 +53,7 @@ export function AnalyzeDifferentGame({
   style,
 }: AnalyzeDifferentGameProps) {
   const router = useRouter();
+  const { isTutorialPlay, dataTutorial } = useTutorial();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, isMemberMonthly } = useProfileStore();
@@ -67,13 +69,16 @@ export function AnalyzeDifferentGame({
     username: globalUsername,
     setIsLoading,
     setError,
-    setDataAnalysis,
+    isOpenTutorial,
     setDataGamesImport,
     setIsFromAnalyzeDifferentGame,
     addOtherImportedGame,
     addImportedGame,
     setActiveUser,
+    depth,
+    setDepth,
   } = usePgnStore();
+  const { startTutorial } = useTutorial();
   const depths = [
     {
       image: "/icons/board-small-analysis.png",
@@ -113,7 +118,7 @@ export function AnalyzeDifferentGame({
   const [dragActive, setDragActive] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
-  const [depthChoosed, setDepthChoosed] = useState(0);
+  const [depthChoosed, setDepthChoosed] = useState(depth);
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
   const [tabSelected, setTabSelected] = useState("auto");
@@ -139,6 +144,7 @@ export function AnalyzeDifferentGame({
   }, [username]);
 
   useEffect(() => {
+    openTutorial();
     if (openPopup != null && open != true) {
       setOpen(openPopup);
     }
@@ -150,6 +156,11 @@ export function AnalyzeDifferentGame({
       getByUsername();
     }
   }, [debouncedQuery]);
+
+  const openTutorial = () => {
+    if (!isOpenTutorial) return;
+    startTutorial();
+  };
 
   const getByUsername = async () => {
     const url = getDataUsername + username;
@@ -169,6 +180,7 @@ export function AnalyzeDifferentGame({
       setEstimateMinute(time.minute);
       setEstimateSecond(time.second);
       setDepthChoosed(12);
+      setDepth(12);
     } else {
       setUsernameStatus("idle");
       setAvailableGames([]);
@@ -315,7 +327,9 @@ export function AnalyzeDifferentGame({
 
   const handleGameSelect = (value: string) => {
     setSelectedGame(value);
-    setDepthChoosed(14);
+    setDepthChoosed(12);
+    setDepth(12);
+
     let time = timeBasic;
 
     setEstimateMinute(time.minute);
@@ -373,7 +387,7 @@ export function AnalyzeDifferentGame({
 
   const renderDepthChoose = () => {
     return (
-      <div className="gap-2">
+      <div className="gap-2" data-tutorial="2">
         <span className="text-[18px] font-medium text-[#121212]">
           Choose your Analysis Depth
         </span>
@@ -394,6 +408,7 @@ export function AnalyzeDifferentGame({
                   setEstimateMinute(time.minute);
                   setEstimateSecond(time.second);
                   setDepthChoosed(depth.value);
+                  setDepth(depth.value);
                 }}
                 key={index}
                 disabled={depth.mustMember && !isMember && !isMemberMonthly}
@@ -519,16 +534,16 @@ export function AnalyzeDifferentGame({
                     disabled={true}
                     type="text"
                     id="username"
-                    value={username}
+                    value={isTutorialPlay ? dataTutorial.username : username}
                     placeholder="Enter your Chess.com Username"
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full bg-transparent h-[24px] focus:outline-none"
                   />
                   <div className="flex items-center">
-                    {usernameStatus === "loading" && (
+                    {!isTutorialPlay && usernameStatus === "loading" && (
                       <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
                     )}
-                    {usernameStatus === "found" && (
+                    {(isTutorialPlay || usernameStatus === "found") && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
                         <span className="text-xs">Username found</span>
@@ -543,42 +558,50 @@ export function AnalyzeDifferentGame({
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 ">
+              <div className="space-y-2 mx-1" data-tutorial="1">
                 <p className="block text-base sm:text-sm text-black">
                   Select Game
                 </p>
-                <Select
-                  name="game"
-                  disabled={usernameStatus !== "found"}
-                  value={selectedGame}
-                  onValueChange={handleGameSelect}
-                  onOpenChange={setIsSelectOpen}
-                >
-                  <SelectTrigger
-                    className={`w-full ${
-                      usernameStatus !== "found"
-                        ? "bg-gray-100 cursor-not-allowed"
-                        : ""
-                    }`}
+                {isTutorialPlay ? (
+                  <div className={"p-3 rounded-md border border-gray-200"}>
+                    <span className="text-[14px]">
+                    {dataTutorial.dateSelectedGame} {dataTutorial.gameTitle}
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    name="game"
+                    disabled={usernameStatus !== "found"}
+                    value={selectedGame}
+                    onValueChange={handleGameSelect}
+                    onOpenChange={setIsSelectOpen}
                   >
-                    <SelectValue placeholder="Select your game" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableGames.map((game, index) => (
-                      <SelectItem
-                        key={index}
-                        value={game.value}
-                        className={
-                          index !== availableGames.length - 1
-                            ? "border-b border-gray-200"
-                            : ""
-                        }
-                      >
-                        {game.text} ({game.result})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectTrigger
+                      className={`w-full ${
+                        usernameStatus !== "found"
+                          ? "bg-gray-100 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <SelectValue placeholder="Select your game" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableGames.map((game, index) => (
+                        <SelectItem
+                          key={index}
+                          value={game.value}
+                          className={
+                            index !== availableGames.length - 1
+                              ? "border-b border-gray-200"
+                              : ""
+                          }
+                        >
+                          {game.text} ({game.result})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               {renderDepthChoose()}
             </TabsContent>
@@ -662,30 +685,32 @@ export function AnalyzeDifferentGame({
                 </p>
               </div>
             ) : (
-              <button
-                onClick={handleAnalyzeGame}
-                className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-sm rounded-full py-2 my-4 ${
-                  (usernameStatus !== "found" &&
-                    !selectedGame &&
-                    !pgnText &&
-                    !fileName &&
-                    depthChoosed == 0) ||
-                  loading
-                    ? "opacity-70 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={
-                  (usernameStatus !== "found" &&
-                    !selectedGame &&
-                    !pgnText &&
-                    !fileName) ||
-                  depthChoosed == 0 ||
-                  loading
-                }
-              >
-                {loading && <Loader2 className="animate-spin" />}
-                Analyze Game
-              </button>
+              <div data-tutorial="3">
+                <button
+                  onClick={handleAnalyzeGame}
+                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-sm rounded-full py-2 my-4 ${
+                    (usernameStatus !== "found" &&
+                      !selectedGame &&
+                      !pgnText &&
+                      !fileName &&
+                      depthChoosed == 0) ||
+                    loading
+                      ? "opacity-70 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={
+                    (usernameStatus !== "found" &&
+                      !selectedGame &&
+                      !pgnText &&
+                      !fileName) ||
+                    depthChoosed == 0 ||
+                    loading
+                  }
+                >
+                  {loading && <Loader2 className="animate-spin" />}
+                  Analyze Game
+                </button>
+              </div>
             )}
           </Tabs>
         </ScrollArea>

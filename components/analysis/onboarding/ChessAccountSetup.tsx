@@ -10,6 +10,7 @@ import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 import { useChessProfile } from "./useChessProfile";
 import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
 import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -19,9 +20,9 @@ interface ChessAccountSetupProps {
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
 }) => {
-  const { setUsername } = usePgnStore();
+  const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
-
+  const { startTutorial } = useTutorial();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
@@ -51,7 +52,8 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   };
   const handleCloseFreeBanner = () => {
     setShowAnalyzeFreeBanner(false);
-    setShowPremiumDialog(true);
+    setIsOpenTutorial(true);
+    startTutorial();
   };
 
   const handleSpecialDiscount = () => {
@@ -80,11 +82,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   return (
     <>
-      <DialogSpecialDiscount
-        open={showSpecialDiscount}
-        setOpen={handleSpecialDiscount}
-        onClose={setShowSpecialDiscount}
-      />
       <DialogAnalyzeFree
         open={showAnalyzeFreeBanner}
         setOpen={handleCloseFreeBanner}

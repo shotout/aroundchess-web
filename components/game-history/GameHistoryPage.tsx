@@ -10,11 +10,13 @@ import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
 import ChessAccountSetup from "../analysis/onboarding/ChessAccountSetup";
 import { useProfileStore } from "@/app/store/profile";
+import { useTutorial } from "../TutorialProvider";
 
 const GameHistoryPage: React.FC = () => {
-  const { username } = usePgnStore();
+  const { username, isOpenTutorial } = usePgnStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
+  const { isTutorialPlay, dataTutorial } = useTutorial();
 
   useEffect(() => {
     if (!sessionId) return;
@@ -25,20 +27,22 @@ const GameHistoryPage: React.FC = () => {
   const [isUsernameFetching, setIsUsernameFetching] = useState(false);
 
   useEffect(() => {
-    if (!isSignedIn) {
-      setIsLoading(false);
-      return;
+    if (!isTutorialPlay && !isOpenTutorial) {
+      if (!isSignedIn) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsUsernameFetching(true);
+
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsUsernameFetching(false);
+      }, 500);
     }
-
-    setIsUsernameFetching(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsUsernameFetching(false);
-    }, 500);
   }, [isSignedIn]);
 
-  if (isLoading) {
+  if (!isTutorialPlay && !isOpenTutorial && isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <DotSpinner />
@@ -61,7 +65,11 @@ const GameHistoryPage: React.FC = () => {
                   <LoadingDot />
                 ) : (
                   <p className="text-xs text-gray-500 lg:text-[18px]">
-                    {username ? `(${username})` : "(No username set)"}
+                    {isTutorialPlay
+                      ? dataTutorial.username
+                      : username
+                      ? `(${username})`
+                      : "(No username set)"}
                   </p>
                 )}
               </div>

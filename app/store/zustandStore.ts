@@ -78,7 +78,10 @@ interface PgnState {
 
   activeUser: string;
   setActiveUser: (state: string) => void;
-
+  everShowOffer: boolean;
+  setEverShowOffer: (state: boolean) => void;
+  depth: number;
+  setDepth: (state: number) => void;
   pgn: string;
   username: string;
   usernameAnalysis: string;
@@ -125,6 +128,8 @@ interface PgnState {
 
   importedGames: Game[];
 
+  isOpenTutorial: boolean;
+  setIsOpenTutorial: (isOpenTutorial: boolean) => void;
   openingPlayed: any[];
   setOpeningPlayed: (openingPlayed: any[]) => void;
 
@@ -210,7 +215,10 @@ export const usePgnStore = create<PgnState>()(
 
       activeState: "My Training Plan",
       setActiveState: (activeState: string) => set({ activeState }),
-
+      everShowOffer: false,
+      setEverShowOffer: (everShowOffer: boolean) => set({ everShowOffer }),
+      depth: 12,
+      setDepth: (depth: number) => set({ depth }),
       activeUser: "user",
       setActiveUser: (activeUser: string) => set({ activeUser }),
 
@@ -262,6 +270,9 @@ export const usePgnStore = create<PgnState>()(
       savedMistakes: [],
 
       importedGames: [],
+
+      isOpenTutorial: false,
+      setIsOpenTutorial: (isOpenTutorial: boolean) => set({ isOpenTutorial }),
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
 
@@ -516,10 +527,7 @@ export const usePgnStore = create<PgnState>()(
         };
 
         set((state) => ({
-          importedGames: [
-            newGame,
-            ...state.importedGames
-          ],
+          importedGames: [newGame, ...state.importedGames],
           gamesData: [
             newGame,
             ...state.gamesData.filter(
@@ -551,7 +559,13 @@ export const usePgnStore = create<PgnState>()(
 
         set((state) => ({
           importedGames: [newGame, ...state.importedGames],
-          otherGamesData: [newGame, ...state.otherGamesData.slice(0, 4)],
+          otherGamesData: [
+            newGame,
+            ...state.otherGamesData.filter(
+              (g) =>
+                g.opponent != gameData.opponent && g.moves != gameData.moves
+            ),
+          ],
           otherGamesLastFetched: Date.now(),
           otherGamesPagination: {
             ...state.otherGamesPagination,
@@ -570,6 +584,7 @@ export const usePgnStore = create<PgnState>()(
 
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
+        everShowOffer: state.everShowOffer,
         dataAnalysis: state.dataAnalysis,
         isLoading: state.isLoading,
         username: state.username,
