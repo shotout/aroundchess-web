@@ -184,7 +184,6 @@ export default function MinimalTour({
     setIsOpenTutorial(false);
   };
 
-
   // compute left/top values (kept inline for dynamic coords)
   const left = rect ? Math.max(8, rect.left + window.scrollX) : undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
@@ -318,7 +317,7 @@ export default function MinimalTour({
       }}
     >
       {overlay}
-      {highlight}
+      {stepFocused != 6 && highlight}
 
       <div
         id="box-tutorial"

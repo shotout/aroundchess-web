@@ -35,8 +35,8 @@ export default function CookieConsent() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]">
-      <div className="max-w-[70%]">
+    <div className="fixed flex flex-col gap-2 md:flex md:flex-row w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]">
+      <div className="w-full md:max-w-[70%]">
         <p className="text-sm">
           We use cookies and similar technologies to enable services and
           functionality on our site and to understand your interaction with our
@@ -48,7 +48,7 @@ export default function CookieConsent() {
           </a>
         </p>
       </div>
-      <div className="w-[30%] flex flex-row justify-end items-center gap-2">
+      <div className="w-full md:w-[30%] flex flex-row justify-end items-center gap-2">
         <button
           onClick={openSetting}
           className="border border-blue-500 text-white font-bold py-2 px-4 rounded"

@@ -137,11 +137,19 @@ export const PremiumSubsContent: React.FC<{
   const handleCancelSubscription = () => {
     setOpenCancel(true);
   };
-
+  useEffect(() => {
+    if (isMember) {
+      scrollToAndSet(yearlyCardRef, "yearly");
+    } else if (isMemberMonthly) {
+      scrollToAndSet(monthlyCardRef, "monthly");
+    }
+  }, []);
   const free = allMembershipPackages[0];
   const premium = allMembershipPackages[1];
   const monthlyPremium = allMembershipPackages[2];
-  const deadline = new Date(profile?.discountInfo?.startDate).getTime() + 7 * 24 * 60 * 60 * 1000;
+  const deadline =
+    new Date(profile?.discountInfo?.startDate).getTime() +
+    7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
   const handleGetPremium = async (type: string) => {
@@ -282,7 +290,7 @@ export const PremiumSubsContent: React.FC<{
 
   return (
     <div
-      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] xl:max-w-[1141px] `}`}
+      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] md:max-w-[1000px] xl:max-w-[1141px]`}`}
     >
       <div className="hidden md:block text-center space-y-2">
         <p className="text-sm text-black">
@@ -368,76 +376,85 @@ export const PremiumSubsContent: React.FC<{
         className={`flex max-w-full overflow-x-scroll gap-2 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 `}
       >
         {/* free */}
-        <div
-          ref={freeCardRef}
-          className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-blue-50 rounded-full">
-              <Image
-                src="/onboarding/free.png"
-                alt="Free Icon"
-                width={48}
-                height={48}
-              />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-black">Free Package</h3>
-              <div className="text-xl font-semibold text-black">${0}</div>
-            </div>
-          </div>
-
-          <p className="text-gray-700 text-sm mb-3">
-            Our Basic Package for free limited Access!
-          </p>
-
-          <div className="space-y-2 flex-grow">
-            <BenefitItem text="1 Game Analysis every 72h" />
-            <BenefitItem text="Basic Game Analysis" />
-            <BenefitItem text="Limited Access to the Feedback Log and Game History" />
-            <BenefitItem text="20 Puzzles per month" />
-            <BenefitItem text="Play vs. AI" />
-            <BenefitItem text="Board Vision Training" />
-            <BenefitItem text="Endgame Training" />
-            <BenefitItem text="Chess Handbook" />
-          </div>
-
-          {isLoading && <DotSpinner />}
-          {sessionId.length == 0 && (
-            <div
-              onClick={handleSignUp}
-              className="cursor-pointer mt-3 relative w-full py-2 bg-[#221AE9] rounded-full flex items-center justify-center gap-2 overflow-hidden"
-            >
-              <span className="text-white font-medium text-sm">
-                Sign up for free
-              </span>
-            </div>
-          )}
-          {(!isMember&&!isMemberMonthly) && !isLoading && sessionId.length > 0 && (
-            <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-              <Image
-                src="/onboarding/currentPackage.png"
-                alt="Free Icon"
-                className=""
-                width={40}
-                height={40}
-              />
-              <p className="text-sm font-medium text-black">
-                You are on this Package
-              </p>
-
-              <Image
-                width={160}
-                height={160}
-                alt="member"
-                src={"/onboarding/member.png"}
-                className="absolute top-0 right-8"
-              />
-            </div>
-          )}
-        </div>
-        {/* monthly */}
         {(packageFilter === "monthly" || window.innerWidth <= 425) && (
+          <div
+            ref={freeCardRef}
+            className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-50 rounded-full">
+                <Image
+                  src="/onboarding/free.png"
+                  alt="Free Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-black">
+                  Free Package
+                </h3>
+                <div className="text-xl font-semibold text-black">${0}</div>
+              </div>
+            </div>
+
+            <p className="text-gray-700 text-sm mb-3">
+              Our Basic Package for free limited Access!
+            </p>
+
+            <div className="space-y-2 flex-grow">
+              <BenefitItem text="1 Game Analysis every 72h" />
+              <BenefitItem text="Basic Game Analysis" />
+              <BenefitItem text="Limited Access to the Feedback Log and Game History" />
+              <BenefitItem text="20 Puzzles per month" />
+              <BenefitItem text="Play vs. AI" />
+              <BenefitItem text="Board Vision Training" />
+              <BenefitItem text="Endgame Training" />
+              <BenefitItem text="Chess Handbook" />
+            </div>
+
+            {isLoading && <DotSpinner />}
+            {sessionId.length == 0 && (
+              <div
+                onClick={handleSignUp}
+                className="cursor-pointer mt-3 relative w-full py-2 bg-[#221AE9] rounded-full flex items-center justify-center gap-2 overflow-hidden"
+              >
+                <span className="text-white font-medium text-sm">
+                  Sign up for free
+                </span>
+              </div>
+            )}
+            {!isMember &&
+              !isMemberMonthly &&
+              !isLoading &&
+              sessionId.length > 0 && (
+                <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+                  <Image
+                    src="/onboarding/currentPackage.png"
+                    alt="Free Icon"
+                    className=""
+                    width={40}
+                    height={40}
+                  />
+                  <p className="text-sm font-medium text-black">
+                    You are on this Package
+                  </p>
+
+                  <Image
+                    width={160}
+                    height={160}
+                    alt="member"
+                    src={"/onboarding/member.png"}
+                    className="absolute top-0 right-8"
+                  />
+                </div>
+              )}
+          </div>
+        )}
+        {/* monthly */}
+        {(packageFilter === "monthly" ||
+          packageFilter === "yearly" ||
+          window.innerWidth <= 425) && (
           <div
             ref={monthlyCardRef}
             className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
@@ -450,8 +467,7 @@ export const PremiumSubsContent: React.FC<{
 
             {!isMemberMonthly &&
               profile?.discountInfo?.hasActiveDiscount &&
-              isPass > 0 &&
-               (
+              isPass > 0 && (
                 <div className="flex justify-center items-center my-2">
                   <CountdownTimerDiscountMonthly />
                 </div>
@@ -512,7 +528,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && <DotSpinner />}
-            {(!isMember&&!isMemberMonthly) && !isLoading && (
+            {!isMember && !isMemberMonthly && !isLoading && (
               <button
                 onClick={() => handleGetPremium("monthly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
@@ -642,7 +658,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && <DotSpinner />}
-            {(!isMember&&!isMemberMonthly) && !isLoading && (
+            {!isMember && !isMemberMonthly && !isLoading && (
               <button
                 onClick={() => handleGetPremium("yearly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
