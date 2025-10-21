@@ -271,7 +271,7 @@ export const usePgnStore = create<PgnState>()(
 
       importedGames: [],
 
-      isOpenTutorial: true,
+      isOpenTutorial: false,
       setIsOpenTutorial: (isOpenTutorial: boolean) => set({ isOpenTutorial }),
       openingPlayed: [],
       setOpeningPlayed: (openingPlayed: any) => set({ openingPlayed }),
