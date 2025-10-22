@@ -1107,9 +1107,11 @@ export default function PlayingPage() {
     };
     console.log("game.pgn()", game.pgn());
     setIsSaving(true);
-    handleSave();
+    // handleSave();
     await postVSAILogs(body);
-
+    setIsSaved(true);
+    toast.success("Game saved successfully!");
+    setIsSaving(false);
     loadLogs();
   };
 
