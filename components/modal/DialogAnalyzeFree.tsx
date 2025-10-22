@@ -19,17 +19,12 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
   open,
   setOpen,
   onClose,
-}) => {
-  const [internalOpen, setInternalOpen] = useState(false);
+}) => { 
   const [width, setWidth] = useState<number>(0);
-
-  const isControlled =
-    typeof open !== "undefined" && typeof setOpen === "function";
-
-  const dialogOpen = isControlled ? open! : internalOpen;
+ 
+  const dialogOpen = open;
   const setDialogOpen = (v: boolean) => {
-    if (isControlled) return setOpen!(v);
-    return setInternalOpen(v);
+    setOpen!(v);
   };
 
   useEffect(() => {

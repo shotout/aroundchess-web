@@ -285,7 +285,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       <TutorialContext.Provider value={value}>
         {children}
         {/* Render a minimal in-house tour to avoid react-joyride/react-dom issues */}
-        {steps.length > 0 && (
+        {steps.length > 0 && isRunning&& (
           <MinimalTour
             steps={steps as MinimalStep[]}
             run={isRunning}
