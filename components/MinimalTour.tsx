@@ -35,9 +35,9 @@ export default function MinimalTour({
   const step = steps[index];
 
   useEffect(() => {
-    console.log("MinimalTour stepFocused", stepFocused);
-    console.log("MinimalTour pathname", pathname);
-    console.log("MinimalTour index", index, steps);
+    // console.log("MinimalTour stepFocused", stepFocused);
+    // console.log("MinimalTour pathname", pathname);
+    // console.log("MinimalTour index", index, steps);
     if (pathname.includes("/my-game-history") && stepFocused == 2) {
       setIndex(0);
     } else if (pathname.includes("/analysis") && stepFocused == 0) {
@@ -146,7 +146,7 @@ export default function MinimalTour({
       let focusedIndex = allSteps.findIndex(
         (st) => st.stepText == step.stepText
       );
-      console.log("focused step", focusedIndex);
+      // console.log("focused step", focusedIndex);
       setStepFocused(focusedIndex);
     }
   }, [index]);
