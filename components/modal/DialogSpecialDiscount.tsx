@@ -18,6 +18,7 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
     openOffer,
     setOpenOffer,
     setOpen: setOpenPricing,
+    setTabType,
   } = usePricingOffer();
 
   useEffect(() => {
@@ -59,6 +60,8 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
             <button
               onClick={() => {
                 setOpenOffer(false);
+                setTabType("subscription");
+
                 setOpenPricing(true);
               }}
               className={`min-w-[92%] sm:max-w-[720px] px-5 py-2 btn-primary rounded-full`}

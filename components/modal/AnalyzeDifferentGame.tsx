@@ -53,7 +53,7 @@ export function AnalyzeDifferentGame({
   style,
 }: AnalyzeDifferentGameProps) {
   const router = useRouter();
-  const { isTutorialPlay, dataTutorial } = useTutorial();
+  const { isTutorialPlay, dataTutorial,stepFocused } = useTutorial();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, isMemberMonthly } = useProfileStore();
@@ -387,11 +387,11 @@ export function AnalyzeDifferentGame({
 
   const renderDepthChoose = () => {
     return (
-      <div className="gap-2" data-tutorial="2">
-        <span className="text-[18px] font-medium text-[#121212]">
+      <div className="gap-1 md:gap-2" data-tutorial="2">
+        <span className="text-[12px] md:text-[18px] font-medium text-[#121212]">
           Choose your Analysis Depth
         </span>
-        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-3 items-center mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 items-center mt-2">
           {depths.map((depth, index) => {
             let estimate =
               index == 0
@@ -427,7 +427,7 @@ export function AnalyzeDifferentGame({
                   alt={depth.title}
                   width={1000}
                   height={1000}
-                  className="w-[80px] h-[80px] object-contain relative"
+                  className="w-[40px] h-[40px] md:w-[80px] md:h-[80px] object-contain relative"
                   priority
                 />
                 {depth.mustMember && !isMember && !isMemberMonthly && (
@@ -449,8 +449,8 @@ export function AnalyzeDifferentGame({
                       : `border-input border-2`
                   } `}
                 />
-                <span className="font-normal text-[14px]">{depth.title}</span>
-                <span className="font-light text-[#364152] text-center text-[11px]">
+                <span className="font-normal text-[12px] md:text-[14px]">{depth.title}</span>
+                <span className="font-light text-[#364152] text-center text-[8px] md:text-[11px]">
                   {depth.description}
                 </span>
                 {/* <div className="flex flex-col gap-1 items-center">
@@ -482,23 +482,23 @@ export function AnalyzeDifferentGame({
     >
       <DialogTrigger asChild>
         <button
-          className={`w-fill px-5 py-2 btn-primary rounded-full ${style}`}
+          className={`w-fill px-3 md:px-5 md:py-2 btn-primary rounded-full ${style}`}
         >
           {label && label.length > 0 ? label : "Analyze a different game"}
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm md:max-w-xl overflow-y-auto max-h-[95%]">
-        <DialogHeader className="gap-2 mb-2">
-          <DialogTitle className="text-[24px] font-semibold">
+      <DialogContent className="rounded-lg max-w-full md:max-w-xl overflow-y-auto flex flex-col max-h-full sm:max-h-[95%]">
+        <DialogHeader className="md:gap-2 md:mb-2">
+          <DialogTitle className="text-[14px] md:text-[24px] font-semibold text-start">
             Analyze your games
           </DialogTitle>
-          <DialogDescription className="text-black text-[18px]">
+          <DialogDescription className="text-black text-[12px] md:text-[18px] text-start">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="overflow-auto md:max-w-[640px] max-h-[480px] md:max-h-screen ">
+        <ScrollArea className="overflow-auto max-h-full md:max-w-[640px] md:max-h-screen ">
           <Tabs
             className="w-full"
             value={tabSelected}
@@ -506,16 +506,16 @@ export function AnalyzeDifferentGame({
           >
             <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
               <TabsTrigger value="auto">
-                <span className="text-xs">From Chess.com</span>
+                <span className="text-[12px] md:text-xs">From Chess.com</span>
               </TabsTrigger>
               <TabsTrigger value="manual">
                 <Clipboard className="mr-2 h-4 w-4" />
-                <span className="text-xs">Paste or Upload PGN</span>
+                <span className="text-[12px] md:text-xs">Paste or Upload PGN</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="auto" className="space-y-4">
-              <div className="space-y-2">
+            <TabsContent value="auto" className="space-y-2 md:space-y-4">
+              <div className="space-y-1 md:space-y-2">
                 <div className="flex flex-row items-center">
                   <Image
                     src="/icons/hero-section.png"
@@ -525,7 +525,7 @@ export function AnalyzeDifferentGame({
                     className="w-3 h-4 relative z-10"
                     priority
                   />
-                  <p className="block ml-1 text-base sm:text-sm text-black">
+                  <p className="block ml-1 text-[12px] md:text-sm text-black">
                     Chess.com Username
                   </p>
                 </div>
@@ -537,7 +537,7 @@ export function AnalyzeDifferentGame({
                     value={isTutorialPlay ? dataTutorial.username : username}
                     placeholder="Enter your Chess.com Username"
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent h-[24px] focus:outline-none"
+                    className="w-full bg-transparent text-[12px] sm:text-sm h-[24px] focus:outline-none"
                   />
                   <div className="flex items-center">
                     {!isTutorialPlay && usernameStatus === "loading" && (
@@ -546,26 +546,26 @@ export function AnalyzeDifferentGame({
                     {(isTutorialPlay || usernameStatus === "found") && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Username found</span>
+                        <span className="text-[12px] md:text-xs">Username found</span>
                       </div>
                     )}
                     {usernameStatus === "not-found" && (
                       <div className="flex items-center text-red-500 whitespace-nowrap">
                         <X className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Username not found</span>
+                        <span className="text-[12px] md:text-xs">Username not found</span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
               <div className="space-y-2 mx-1" data-tutorial="1">
-                <p className="block text-base sm:text-sm text-black">
+                <p className="block text-[12px] md:text-sm text-black">
                   Select Game
                 </p>
                 {isTutorialPlay ? (
                   <div className={"p-3 rounded-md border border-gray-200"}>
-                    <span className="text-[14px]">
-                    {dataTutorial.dateSelectedGame} {dataTutorial.gameTitle}
+                    <span className="text-[12px] md:text-[14px]">
+                    { stepFocused > 1 ?dataTutorial.dateSelectedGame +" "+dataTutorial.gameTitle:"Select your Game"}
                     </span>
                   </div>
                 ) : (
@@ -616,7 +616,7 @@ export function AnalyzeDifferentGame({
                     onChange={(e) => setPgnText(e.target.value)}
                   />
                 </div>
-                <span className="flex items-center justify-center text-black text-xs text-center font-bold">
+                <span className="flex items-center justify-center text-black text-[10px] md:text-xs text-center font-bold">
                   Or upload a .PGN file below:
                 </span>
                 <div
@@ -644,14 +644,14 @@ export function AnalyzeDifferentGame({
                       <p className="text-gray-800 font-medium mb-1">
                         {fileName}
                       </p>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 text-[10px] md:text-sm">
                         {(fileSize / 1024).toFixed(1)} KB
                       </p>
                     </div>
                   ) : (
                     <div className="text-center lg:h-48 flex flex-col items-center justify-center">
                       <UploadCloud className="h-10 w-10 mx-auto text-blue-600 mb-2" />
-                      <p className="block text-sm text-black-700 mb-1">
+                      <p className="block text-[10px] md:text-sm text-black-700 mb-1">
                         Drag & drop or click to
                         <span
                           className="underline text-blue-600 font-bold cursor-pointer"
@@ -680,7 +680,7 @@ export function AnalyzeDifferentGame({
                 <div className="flex-shrink-0 w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
                   <Info className="text-blue-base" />
                 </div>
-                <p className="text-sm text-blue-base">
+                <p className="text-[10px] md:text-sm text-blue-base">
                   If you want to analyse more, check the My Game History page
                 </p>
               </div>
@@ -688,7 +688,7 @@ export function AnalyzeDifferentGame({
               <div data-tutorial="3">
                 <button
                   onClick={handleAnalyzeGame}
-                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-sm rounded-full py-2 my-4 ${
+                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[10px] md:text-sm rounded-full py-2 my-4 ${
                     (usernameStatus !== "found" &&
                       !selectedGame &&
                       !pgnText &&

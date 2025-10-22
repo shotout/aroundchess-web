@@ -42,7 +42,6 @@ export const DummyList = () => {
   const { stepFocused, startTutorial, isTutorialPlay, dataTutorial } =
     useTutorial();
   useEffect(() => {
-     
     startTutorial();
     console.log("DummyList stepFocused", stepFocused);
   }, [stepFocused]);
@@ -78,7 +77,8 @@ export const DummyList = () => {
 
     return numMoves;
   };
-  if (stepFocused == 3 || stepFocused == 0) {
+  if (window.innerWidth < 1024) return null;
+  if (stepFocused == 3) {
     return (
       <div>
         <div className="" data-tutorial="4">
@@ -89,9 +89,7 @@ export const DummyList = () => {
               <div
                 key={game.id}
                 className={`grid relative transition-colors duration-150 ${
-                  isNew
-                    ? "bg-[#FFF6DB]"
-                    : "bg-[#FFF6DB]"
+                  isNew ? "bg-[#FFF6DB]" : "bg-[#FFF6DB]"
                 }`}
                 style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
               >
@@ -169,7 +167,7 @@ export const DummyList = () => {
           const indexInPage = idx + 1;
           return (
             <div
-              key={game.id+ Math.random()}
+              key={game.id + Math.random()}
               className={`grid relative transition-colors duration-150 ${
                 isNew
                   ? "bg-[#FFF6DB]"
@@ -182,7 +180,7 @@ export const DummyList = () => {
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
                   )} */}
                 <span className="w-6 text-center text-gray-500">
-                  {indexInPage}
+                  {indexInPage + 1}
                 </span>
               </div>
 
@@ -250,7 +248,7 @@ export const DummyList = () => {
   } else {
     return (
       <div>
-        <div className="" >
+        <div className="">
           {dummyAnalysis.map((game, idx) => {
             const isNew = !game.has_viewed_analysis && game.is_analysis;
             const indexInPage = idx + 1;
@@ -258,9 +256,7 @@ export const DummyList = () => {
               <div
                 key={game.id}
                 className={`grid relative transition-colors duration-150 ${
-                  isNew
-                    ? "bg-[#FFF6DB]"
-                    : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
+                  isNew ? "bg-[#FFF6DB]" : "bg-[#FFF6DB]"
                 }`}
                 style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
               >
@@ -351,7 +347,7 @@ export const DummyList = () => {
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
                   )} */}
                 <span className="w-6 text-center text-gray-500">
-                  {indexInPage+1}
+                  {indexInPage + 1}
                 </span>
               </div>
 

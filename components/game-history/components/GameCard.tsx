@@ -13,6 +13,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface GameCardProps {
   gameData: Game;
@@ -60,29 +61,43 @@ const GameCard: React.FC<GameCardProps> = ({
 }) => {
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
   const router = useRouter();
+  const { isTutorialPlay, stepFocused } = useTutorial();
   const { getJobByGameId } = useBackgroundAnalysisStore();
-  const {
-    setPgn,
-    setDataAnalysis,
-    setDataGamesImport,
-    setIsFromGameHistory,
-  } = usePgnStore();
+  const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } =
+    usePgnStore();
   const { sessionId } = useProfileStore();
 
   const displayMoves = (moves: number | string) => {
     if (!moves || moves === "N/A") {
       return "N/A";
     }
-    
+
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
-    
+
     return numMoves.toString();
   };
 
   const getButtonContent = () => {
     const job = getJobByGameId(gameData.id);
-
-    if (gameData.isAnalysis || (job && job.status === "completed")) {
+    if (isTutorialPlay && stepFocused == 3 &&isNewlyImported) {
+      return {
+        text: "In progress 40%",
+        icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+        className: "bg-yellow-500 hover:bg-yellow-600",
+        onClick: () => {},
+        disabled: true,
+      };
+    }else if(isTutorialPlay && stepFocused == 5 &&isNewlyImported){
+      return {
+        text: "View Results",
+        icon: <CheckCircle className="h-4 w-4 mr-2" />,
+        className: "bg-green-600 hover:bg-green-700",
+        onClick: async () => {
+            null
+        },
+        disabled: true,
+      };
+    } else if (gameData.isAnalysis || (job && job.status === "completed")) {
       return {
         text: "View Results",
         icon: <CheckCircle className="h-4 w-4 mr-2" />,
@@ -148,7 +163,6 @@ const GameCard: React.FC<GameCardProps> = ({
             text = `${text} `;
           }
 
-
           return {
             text,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -197,6 +211,7 @@ const GameCard: React.FC<GameCardProps> = ({
       { label: "Source", value: gameData.source },
     ],
   ];
+  const btn = getButtonContent();
 
   return (
     <>
@@ -207,7 +222,12 @@ const GameCard: React.FC<GameCardProps> = ({
       />
       <div
         className={`p-4 border md:rounded-md relative ${
-          isNewlyImported ? "border-green-500 bg-green-50" : ""
+          btn.text.includes("%") ||
+          btn.text.includes("Processing") ||
+          (!gameData.hasViewedAnalysis && gameData.isAnalysis) ||
+          isNewlyImported
+            ? "bg-[#FFF6DB]"
+            : ""
         }`}
       >
         <div className="flex justify-between items-center mb-4 text-xs">
@@ -254,11 +274,11 @@ const GameCard: React.FC<GameCardProps> = ({
           );
         })()}
 
-        {isNewlyImported && (
+        {/* {isNewlyImported && (
           <span className="absolute top-2 right-2 px-2 py-0.5 bg-green-500 text-white text-xs rounded-full">
             New
           </span>
-        )}
+        )} */}
       </div>
     </>
   );

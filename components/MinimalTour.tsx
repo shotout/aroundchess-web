@@ -33,7 +33,7 @@ export default function MinimalTour({
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
   const step = steps[index];
-  const width = window.innerWidth
+  const width = window.innerWidth;
   useEffect(() => {
     // console.log("MinimalTour stepFocused", stepFocused);
     // console.log("MinimalTour pathname", pathname);
@@ -185,7 +185,21 @@ export default function MinimalTour({
   };
 
   // compute left/top values (kept inline for dynamic coords)
-  const left = rect ? stepFocused == 5? Math.max(8, rect.left + window.scrollX)  - 300:Math.max(8, rect.left + window.scrollX): undefined;
+  const left = rect
+    ? stepFocused == 5 && window.innerWidth > 1024
+      ? Math.max(8, rect.left + window.scrollX) - 300
+      : stepFocused == 5 &&
+        (window.innerWidth == 1024 || window.innerWidth > 768)
+      ? Math.max(8, rect.left + window.scrollX) - 360
+      : stepFocused == 4 &&
+        (window.innerWidth == 1024 || window.innerWidth <= 1280)
+      ? Math.max(8, rect.left + window.scrollX) - 300
+      : stepFocused == 4 && window.innerWidth <= 425
+      ? Math.max(8, rect.left + window.scrollX) - 180
+      : stepFocused == 4 && window.innerWidth < 1024
+      ? Math.max(8, rect.left + window.scrollX) - 300
+      : Math.max(8, rect.left + window.scrollX)
+    : undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
   const bottom = rect ? Math.max(8, rect.top + window.scrollY + 8) : undefined;
 
@@ -272,7 +286,23 @@ export default function MinimalTour({
         mask="url(#tour-hole-mask)"
       />
     </svg>
-  ) : null;
+  ) : (
+    <svg
+      aria-hidden
+      // overlay receives pointer events so clicks can be handled
+      className="fixed inset-0"
+      style={{ width: "100%", height: "100%" }}
+    >
+      <rect
+        x={0}
+        y={0}
+        width="100%"
+        height="100%"
+        fill="rgba(0,0,0,0.2)"
+        mask="url(#tour-hole-mask)"
+      />
+    </svg>
+  );
 
   // highlight element positioned over the target rect (above overlay)
   const highlight = rect ? (
@@ -297,7 +327,6 @@ export default function MinimalTour({
   const handleStartGameAnalysis = () => {
     setStepFocused((i: number) => i + 1);
     stopTutorial();
-    onClose?.();
     setIsOpenTutorial(false);
   };
   // Portal content wrapped so it receives pointer events even when some
@@ -316,7 +345,7 @@ export default function MinimalTour({
       }}
     >
       {overlay}
-      {stepFocused != 6 && highlight}
+      {highlight}
 
       <div
         id="box-tutorial"
@@ -328,6 +357,7 @@ export default function MinimalTour({
         style={
           rect
             ? {
+                minWidth: window.innerWidth < 425 ? 300 : 500,
                 position: "fixed",
                 left: `${left}px`,
                 top:
@@ -336,7 +366,16 @@ export default function MinimalTour({
                     : `${top && top - (rect.height + 200)}px`,
                 zIndex: 1000000,
               }
-            : { position: "fixed", right: 12, bottom: 12, zIndex: 1000000 }
+            : {
+                minWidth: window.innerWidth < 425 ? 300 : 400,
+                position: "fixed",
+                right:
+                  window.innerWidth > 1024
+                    ? window.innerWidth / 3
+                    : window.innerWidth / 4,
+                bottom: window.innerWidth / 3,
+                zIndex: 1000000,
+              }
         }
       >
         <style jsx>{`
@@ -464,7 +503,7 @@ export default function MinimalTour({
               }}
               className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center"
             >
-              <span className="text-white font-semibold text-[12px]">
+              <span className="text-white font-semibold text-[10px] sm:text-[12px]">
                 Start Game Analysis
               </span>
             </div>

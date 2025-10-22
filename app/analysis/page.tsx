@@ -134,7 +134,7 @@ export default function AnalysisPage() {
     const initializeAnalysisPage = async () => {
       if (hasExistingData() && isFromGameHistory) {
         setInitialLoading(false);
-        setIsFromGameHistory(false)
+        setIsFromGameHistory(false);
         return;
       }
       if (!isTutorialPlay) {
@@ -202,7 +202,6 @@ export default function AnalysisPage() {
                         <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                       </div>
                     )}
-
                     <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
                       Discover a Chess.com Game Analysis.
                     </span>
@@ -232,6 +231,7 @@ export default function AnalysisPage() {
                     )} */}
                   </div>
                 </div>
+
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (

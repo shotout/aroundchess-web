@@ -27,6 +27,7 @@ import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { DummyList } from "./DummyList";
 import { useTutorial } from "@/components/TutorialProvider";
+import { DummyCard } from "./DummyCard";
 
 interface GamesListProps {
   games: Game[];
@@ -601,7 +602,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
       <div className="lg:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-xs">
-          {currentGames.map((game) => (
+          {isOpenTutorial && isTutorialPlay && <DummyCard />}
+          {!isTutorialPlay &&!isOpenTutorial&&currentGames.map((game) => (
             <GameCard
               key={game.id}
               gameData={game}

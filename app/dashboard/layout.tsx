@@ -12,7 +12,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isTutorialPlay, stepFocused } = useTutorial();
   return (
     <div className="min-h-screen flex">
       {/* Mobile sidebar */}
@@ -32,10 +31,7 @@ export default function DashboardLayout({
 
       {/* Desktop sidebar */}
       <div className="fixed inset-y-0 z-50 hidden xl:flex xl:w-72 xl:flex-col">
-        <Sidebar
-          open={isTutorialPlay && stepFocused == 4 ? true : sidebarOpen}
-          setOpen={setSidebarOpen}
-        />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       </div>
 
       {/* Main content area */}
