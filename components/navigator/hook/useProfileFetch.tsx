@@ -63,21 +63,9 @@ export const useProfileFetch = () => {
           profileData = data
         }
       });
+      
       // }
-      getAllMembershipPackage({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setAllMembershipPackages(data);
-        }
-      });
-      getActiveMembership({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setIsMember(data.membershipPackage.type == "YEARLY");
-          setIsMemberMonthly(data.membershipPackage.type == "MONTHLY");
-          setActiveMembership(data);
-        }
-      });
+
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
@@ -90,6 +78,20 @@ export const useProfileFetch = () => {
             setOpenOffer(true);
             setEverShowOffer(true)
           }
+        }
+      });
+      getAllMembershipPackage({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setAllMembershipPackages(data);
+        }
+      });
+      getActiveMembership({}).then((response) => {
+        if (response.data != null) {
+          const data = response.data;
+          setIsMember(data.membershipPackage.type == "YEARLY");
+          setIsMemberMonthly(data.membershipPackage.type == "MONTHLY");
+          setActiveMembership(data);
         }
       });
 

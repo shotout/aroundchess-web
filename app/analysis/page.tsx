@@ -50,21 +50,17 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
-    console.log(
-      "isOpenTutorial, isTutorialPlay",
-      isOpenTutorial,
-      isTutorialPlay
-    );
-    if (isOpenTutorial && isTutorialPlay && stepFocused != 6) {
-      setOpenNewAnalysis(true);
-    }
-  }, [isOpenTutorial, isTutorialPlay, stepFocused]);
-  useEffect(() => {
-    if (!isFromGameHistory && sessionId.length > 0 && username.length > 0) {
+    console.log("isFromGameHistory", isFromGameHistory);
+    if (
+      !isFromGameHistory &&
+      sessionId.length > 0 &&
+      username.length > 0 &&
+      stepFocused <= 5
+    ) {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
-      setIsFromGameHistory(false);
+      setOpenNewAnalysis(false);
     }
   }, [stepFocused]);
   useEffect(() => {
@@ -113,19 +109,9 @@ export default function AnalysisPage() {
       console.error("Error loading famous game:", err);
     }
   };
-
   useEffect(() => {
-    if (!mounted || !hydrated || !hydratedProfile) return;
-
-    const initializeAnalysisPage = async () => {
-      // if (hasExistingData() && isFromGameHistory) {
-      //   setInitialLoading(false);
-      //   setIsFromGameHistory(false)
-      //   return;
-      // }
-
-      if (isTutorialPlay && stepFocused == 6) {
-        console.log("disini tutorial set");
+    const checkTutorialStep = async () => {
+      if (isTutorialPlay && stepFocused >= 5) {
         try {
           const [tutorialGame] = await Promise.all([
             fetch("/local-data/tutorialPgn.json"),
@@ -138,19 +124,34 @@ export default function AnalysisPage() {
         } catch (err) {
           console.error("Error loading famous game:", err);
         }
-      } else if (isSignedIn && username) {
-        console.log("hasApiData");
-        const hasApiData = await fetchExistAnalysis();
-        if (!hasApiData) {
+      }
+    };
+    checkTutorialStep();
+  }, [isTutorialPlay, stepFocused]);
+  useEffect(() => {
+    if (!mounted || !hydrated || !hydratedProfile) return;
+
+    const initializeAnalysisPage = async () => {
+      // if (hasExistingData() && isFromGameHistory) {
+      //   setInitialLoading(false);
+      //   setIsFromGameHistory(false)
+      //   return;
+      // }
+      if (!isTutorialPlay) {
+        if (isSignedIn && username) {
+          console.log("hasApiData");
+          const hasApiData = await fetchExistAnalysis();
+          if (!hasApiData) {
+            await loadFamousGame();
+          }
+        } else if (hasExistingData()) {
+          console.log("hasExistingData");
+          setInitialLoading(false);
+          return;
+        } else {
+          console.log("loadFamousGame");
           await loadFamousGame();
         }
-      } else if (hasExistingData()) {
-        console.log("hasExistingData");
-        setInitialLoading(false);
-        return;
-      } else {
-        console.log("loadFamousGame");
-        await loadFamousGame();
       }
 
       setInitialLoading(false);
@@ -158,15 +159,7 @@ export default function AnalysisPage() {
 
     initializeAnalysisPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    mounted,
-    hydrated,
-    hydratedProfile,
-    isSignedIn,
-    username,
-    isTutorialPlay,
-    stepFocused,
-  ]);
+  }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -205,7 +198,9 @@ export default function AnalysisPage() {
                       //     Analyze a different game
                       //   </Link>
                       // </div>
-                      <AnalyzeDifferentGame openPopup={openNewAnalysis} />
+                      <div className="lg:hidden flex items-center justify-center my-2">
+                        <AnalyzeDifferentGame openPopup={openNewAnalysis} />
+                      </div>
                     )}
 
                     <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
@@ -237,10 +232,6 @@ export default function AnalysisPage() {
                     )} */}
                   </div>
                 </div>
-                <div
-                  data-tutorial="7"
-                  className="absolute top-1/2 left-1/2 w-[0px] h-[0px]"
-                ></div>
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (

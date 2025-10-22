@@ -11,6 +11,7 @@ import { useChessProfile } from "./useChessProfile";
 import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
 import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 import { useTutorial } from "@/components/TutorialProvider";
+import { useRouter } from "next/navigation";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -28,7 +29,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
   const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
   const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
-
+  const router =useRouter()
   useEffect(() => {
     if (!checkComplete || isLoading) return;
 
@@ -51,6 +52,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     setShowAnalyzeFreeBanner(true);
   };
   const handleCloseFreeBanner = () => {
+    router.replace("/analysis")
     setShowAnalyzeFreeBanner(false);
     setIsOpenTutorial(true);
     startTutorial();

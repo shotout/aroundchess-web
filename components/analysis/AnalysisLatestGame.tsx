@@ -229,7 +229,7 @@ const AnalysisLatestGame: React.FC = () => {
       style={{ width: widthContainer }}
       className={`flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 lg:p-[32px]`}
     >
-      <div className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
+      <div data-tutorial="7" className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
         <span className="text-[24px] sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
           Analysis
         </span>
