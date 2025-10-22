@@ -1107,8 +1107,8 @@ export default function PlayingPage() {
     };
     console.log("game.pgn()", game.pgn());
     setIsSaving(true);
-    await postVSAILogs(body);
     handleSave();
+    await postVSAILogs(body);
 
     loadLogs();
   };
@@ -2098,7 +2098,10 @@ export default function PlayingPage() {
                 )}
 
                 {statusGame !== "Ongoing" && (
-                  <CommentarGame lossReason={lossReason} statusGame={statusGame} />
+                  <CommentarGame
+                    lossReason={lossReason}
+                    statusGame={statusGame}
+                  />
                 )}
                 {statusGame === "Ongoing" ? (
                   <ButtonPlaying
