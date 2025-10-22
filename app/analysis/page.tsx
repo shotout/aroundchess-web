@@ -50,6 +50,7 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
+    console.log("isFromGameHistory", isFromGameHistory);
     if (
       !isFromGameHistory &&
       sessionId.length > 0 &&
@@ -59,7 +60,7 @@ export default function AnalysisPage() {
       setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
-      setIsFromGameHistory(false);
+      setOpenNewAnalysis(false);
     }
   }, [stepFocused]);
   useEffect(() => {
