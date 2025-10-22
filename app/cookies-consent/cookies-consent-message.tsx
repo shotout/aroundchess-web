@@ -32,7 +32,7 @@ export default function CookieConsent() {
   const openSetting = () => {
     setOpen(true);
   };
-  if (!showBanner && open) return null;
+  if (!showBanner || (showBanner && open)) return null;
 
   return (
     <div className="fixed flex flex-col gap-2 md:flex md:flex-row w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]">
