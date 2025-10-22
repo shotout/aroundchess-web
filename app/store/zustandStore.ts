@@ -518,12 +518,12 @@ export const usePgnStore = create<PgnState>()(
           profileShow: null,
         }),
 
-      addImportedGame: (gameData) => {
-        const newId = `imported_user_${Date.now()}_${Math.random()}`;
+      addImportedGame: (gameData: any) => {
+        // const newId = `imported_user_${Date.now()}_${Math.random()}`;
 
         const newGame: Game = {
           ...gameData,
-          id: newId,
+          id: gameData.id,
         };
 
         set((state) => ({
@@ -545,12 +545,10 @@ export const usePgnStore = create<PgnState>()(
         return newGame;
       },
 
-      addOtherImportedGame: (gameData) => {
-        const newId = `imported_other_${Date.now()}_${Math.random()}`;
-
+      addOtherImportedGame: (gameData: any) => {
         const newGame: Game = {
           ...gameData,
-          id: newId,
+          id: gameData.id,
           source: gameData.source || "PGN Upload",
           gameFormat: gameData.gameFormat || "PGN Upload",
           playerColor: gameData.color || gameData.playerColor || "White",

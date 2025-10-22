@@ -33,13 +33,14 @@ export const useProfileFetch = () => {
     setTokenData,
   } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const {setOpenOffer} = usePricingOffer()
+  const { setOpenOffer } = usePricingOffer();
   useEffect(() => {
     if (!sessionId) return;
     setIsSignedIn(true);
   }, [sessionId]);
 
   const [callFetch, setCallFetch] = useState<string>("");
+  const [callingNumber, setCallingNumber] = useState<number>(0);
   const { setUsername, everShowOffer, setEverShowOffer } = usePgnStore();
   const {
     getTokenBalance,
@@ -50,9 +51,10 @@ export const useProfileFetch = () => {
     getTokenPackage,
   } = useApiClient();
   useEffect(() => {
-    let profileData = profile
+    let profileData = profile;
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
+      setCallingNumber((i) => i + 1);
       // if (alreadyFetchProfile == false) {
       setAlreadyFetchProfile(true);
       getProfile({}).then((response) => {
@@ -60,23 +62,25 @@ export const useProfileFetch = () => {
           const data = response.data;
           setProfile(data);
           setUsername(data.username);
-          profileData = data
+          profileData = data;
         }
       });
-      
+
       // }
 
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
           setToken(data);
+          // console.log("profileData",callingNumber, profileData);
           if (
             data.balance == 0 &&
             profileData.discountInfo.hasActiveDiscount &&
-            profileData?.discountInfo?.startDate && !everShowOffer
+            profileData?.discountInfo?.startDate &&
+            !everShowOffer
           ) {
             setOpenOffer(true);
-            setEverShowOffer(true)
+            setEverShowOffer(true);
           }
         }
       });

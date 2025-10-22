@@ -1,7 +1,7 @@
 "use client";
 
 import { useModalSetting } from "@/app/store/cookiesSetting";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 
 export function ModalSetting() {
@@ -36,15 +36,15 @@ export function ModalSetting() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden">
+      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden z-[2100]">
         <DialogHeader className="flex items-center">
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <DialogTitle className="text-xl font-semibold text-gray-900">
               Advanced Cookie Settings
-            </h2>
+            </DialogTitle>
           </div>
         </DialogHeader>
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
           {/* Essential Cookies */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

@@ -62,7 +62,7 @@ export default function AnalysisPage() {
     } else {
       setOpenNewAnalysis(false);
     }
-  }, [stepFocused]);
+  }, [stepFocused, isTutorialPlay]);
   useEffect(() => {
     if (!mounted) return;
     if (hydratedProfile) {
@@ -132,11 +132,11 @@ export default function AnalysisPage() {
     if (!mounted || !hydrated || !hydratedProfile) return;
 
     const initializeAnalysisPage = async () => {
-      // if (hasExistingData() && isFromGameHistory) {
-      //   setInitialLoading(false);
-      //   setIsFromGameHistory(false)
-      //   return;
-      // }
+      if (hasExistingData() && isFromGameHistory) {
+        setInitialLoading(false);
+        setIsFromGameHistory(false)
+        return;
+      }
       if (!isTutorialPlay) {
         if (isSignedIn && username) {
           console.log("hasApiData");
