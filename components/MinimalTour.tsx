@@ -33,7 +33,7 @@ export default function MinimalTour({
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
   const step = steps[index];
-
+  const width = window.innerWidth
   useEffect(() => {
     // console.log("MinimalTour stepFocused", stepFocused);
     // console.log("MinimalTour pathname", pathname);
@@ -185,7 +185,7 @@ export default function MinimalTour({
   };
 
   // compute left/top values (kept inline for dynamic coords)
-  const left = rect ? Math.max(8, rect.left + window.scrollX) : undefined;
+  const left = rect ? stepFocused == 5? Math.max(8, rect.left + window.scrollX)  - 300:Math.max(8, rect.left + window.scrollX): undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
   const bottom = rect ? Math.max(8, rect.top + window.scrollY + 8) : undefined;
 
@@ -300,7 +300,6 @@ export default function MinimalTour({
     onClose?.();
     setIsOpenTutorial(false);
   };
-
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.
   const content = (
@@ -324,7 +323,7 @@ export default function MinimalTour({
         ref={tooltipRef}
         role="dialog"
         className={`block max-w-[400px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
-          rect ? "" : "fixed right-3 bottom-3"
+          rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
         style={
           rect
@@ -419,8 +418,8 @@ export default function MinimalTour({
             viewBox="0 0 24 12"
             style={{
               position: "absolute",
-              bottom: -4,
-              left: arrowLeft - 12,
+              bottom: -8,
+              left: arrowLeft - 16,
               overflow: "visible",
               pointerEvents: "none",
               zIndex: 61,

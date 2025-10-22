@@ -511,7 +511,7 @@ export const PremiumSubsContent: React.FC<{
 
             <div className="space-y-2 flex-grow">
               <BenefitItem
-                text="80 Analyses per year (meaning 0.10 Cent per Analysis)"
+                text="80 Analyses per year (meaning 0.13 Cent per Analysis)"
                 light
               />
               <BenefitItem
@@ -641,7 +641,7 @@ export const PremiumSubsContent: React.FC<{
 
             <div className="space-y-2 flex-grow">
               <BenefitItem
-                text="1,000 Analyses per year (meaning 0.10 Cent per Analysis)"
+                text="1,000 Analyses per year (meaning 0.13 Cent per Analysis)"
                 light
               />
               <BenefitItem

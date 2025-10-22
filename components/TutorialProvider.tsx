@@ -38,7 +38,7 @@ export const useTutorial = () => {
 export function TutorialProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const search = useSearchParams();
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(true);
   const [steps, setSteps] = useState<MinimalStep[]>([]);
   const [stepFocused, setStepFocused] = useState<number>(0);
   const [gameTutorial, setGameTutorial] = useState<any>({});
@@ -285,7 +285,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       <TutorialContext.Provider value={value}>
         {children}
         {/* Render a minimal in-house tour to avoid react-joyride/react-dom issues */}
-        {steps.length > 0 && isRunning&& (
+        {steps.length > 0 && isRunning && window.innerWidth >= 1024 && (
           <MinimalTour
             steps={steps as MinimalStep[]}
             run={isRunning}

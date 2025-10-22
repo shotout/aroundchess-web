@@ -235,7 +235,7 @@ export default function TermsOfService() {
               discretion.
             </p>
 
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div className="bg-[#FFF6DB] border-l-4 border-yellow-400 p-4">
               <p className="text-gray-700 font-medium mb-2">
                 aroundchess reserves the right to:
               </p>
@@ -368,7 +368,7 @@ export default function TermsOfService() {
             LIMITATION OF LIABILITY
           </h2>
 
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 space-y-4">
+          <div className="bg-[#FFF6DB] border-l-4 border-yellow-400 p-6 space-y-4">
             <p className="text-gray-700 leading-relaxed">
               We make no representation or warranties about the suitability,
               reliability, security, correctness, availability, timeliness and
