@@ -174,7 +174,7 @@ export function AnalyzeDifferentGame({
     if (response.status == 200) {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
-      setSelectedGame(response.data.data[0].value);
+      // setSelectedGame(response.data.data[0].value);
       let time = timeBasic;
 
       setEstimateMinute(time.minute);
