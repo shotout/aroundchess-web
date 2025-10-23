@@ -152,7 +152,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
     onLogoutStart();
     clearAll();
     clearProfile();
-    handleSignOut()
+    handleSignOut();
   };
 
   const handleSignOut = async () => {
@@ -185,15 +185,15 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
           onClick={handleLogout}
           className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
         >
-          {isLoading ? (
+          {/* {isLoading ? (
             <DotSpinner size={5} />
           ) : (
             <>
-              {" "}
-              <LogOut size={18} />
-              <span>Sign-out</span>
-            </>
-          )}
+              {" "} */}
+          <LogOut size={18} />
+          <span>Sign-out</span>
+          {/* </>
+          )} */}
         </button>
       </div>
 

@@ -1108,7 +1108,9 @@ export default function PlayingPage() {
     console.log("game.pgn()", game.pgn());
     setIsSaving(true);
     // handleSave();
-    await postVSAILogs(body);
+    let res = await postVSAILogs(body);
+    addOtherImportedGame(res.data);
+    console.log("res postVSAILogs", res);
     setIsSaved(true);
     toast.success("Game saved successfully!");
     setIsSaving(false);
@@ -1133,6 +1135,7 @@ export default function PlayingPage() {
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
+      console.log("newGame", newGame);
       setIsSaved(true);
       toast.success("Game saved successfully!");
       setIsSaving(false);

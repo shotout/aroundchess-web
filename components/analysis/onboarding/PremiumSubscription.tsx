@@ -129,6 +129,7 @@ export const PremiumSubsContent: React.FC<{
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
   const [packageFilter, setPackageFilter] = useState("monthly"); // monthly, yearly
+  const [paySelected, setPaySelected] = useState(""); // monthly, yearly
   const handleOpenContactUs = () => {
     setOpenPricing(false);
     setOpen(true);
@@ -153,6 +154,7 @@ export const PremiumSubsContent: React.FC<{
   const isPass = deadline - Date.now();
 
   const handleGetPremium = async (type: string) => {
+    setPaySelected(type);
     if (sessionId.length == 0) setOpenLogin(true);
     let isMonthly = type == "monthly" ? true : false;
     let packages = isMonthly ? monthlyPremium : premium;
@@ -167,10 +169,7 @@ export const PremiumSubsContent: React.FC<{
       stripeProductId: any;
       couponId?: any;
     };
-    let yearlyPrice =
-      profile?.discountInfo?.hasActiveDiscount && isPass > 0
-        ? 7999
-        : premium.price * 100;
+    let yearlyPrice = premium.price * 100;
     let monthlyPrice =
       profile?.discountInfo?.hasActiveDiscount && isPass > 0
         ? 699
@@ -290,7 +289,7 @@ export const PremiumSubsContent: React.FC<{
 
   return (
     <div
-      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] md:max-w-[1000px] xl:max-w-full`}`}
+      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] md:max-w-[1000px] xl:max-w-[1141px] mx-auto`}`}
     >
       <div className="hidden md:block text-center space-y-2">
         <p className="text-sm text-black">
@@ -403,7 +402,7 @@ export const PremiumSubsContent: React.FC<{
             </p>
 
             <div className="space-y-2 flex-grow">
-              <BenefitItem text="1 Game Analysis every 72h" />
+              <BenefitItem text="10 free Game Analyses. Purchase more Analyses on demand." />
               <BenefitItem text="Basic Game Analysis" />
               <BenefitItem text="Limited Access to the Feedback Log and Game History" />
               <BenefitItem text="20 Puzzles per month" />
@@ -459,11 +458,11 @@ export const PremiumSubsContent: React.FC<{
             ref={monthlyCardRef}
             className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
           >
-            <div className="absolute -top-2 left-0 right-0 flex justify-center">
+            {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
                 For frequent Chess Players
               </div>
-            </div>
+            </div> */}
 
             {!isMemberMonthly &&
               profile?.discountInfo?.hasActiveDiscount &&
@@ -511,7 +510,13 @@ export const PremiumSubsContent: React.FC<{
 
             <div className="space-y-2 flex-grow">
               <BenefitItem
-                text="80 Analyses per year (meaning 0.13 Cent per Analysis)"
+                text={
+                  profile?.discountInfo &&
+                  profile?.discountInfo?.hasActiveDiscount &&
+                  isPass > 0
+                    ? "80 Analyses per year (meaning $0.09 Cent per Analysis)"
+                    : "80 Analyses per year (meaning $0.13 Cent per Analysis)"
+                }
                 light
               />
               <BenefitItem
@@ -527,7 +532,7 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Discord VIP Access" light />
             </div>
 
-            {isLoading && <DotSpinner />}
+            {isLoading && paySelected == "monthly" && <DotSpinner />}
             {!isMember && !isMemberMonthly && !isLoading && (
               <button
                 onClick={() => handleGetPremium("monthly")}
@@ -641,7 +646,7 @@ export const PremiumSubsContent: React.FC<{
 
             <div className="space-y-2 flex-grow">
               <BenefitItem
-                text="1,000 Analyses per year (meaning 0.13 Cent per Analysis)"
+                text="1,000 Analyses per year (meaning $0.08 Cent per Analysis)"
                 light
               />
               <BenefitItem
@@ -657,7 +662,7 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Discord VIP Access" light />
             </div>
 
-            {isLoading && <DotSpinner />}
+            {isLoading && paySelected == "yearly" && <DotSpinner />}
             {!isMember && !isMemberMonthly && !isLoading && (
               <button
                 onClick={() => handleGetPremium("yearly")}
