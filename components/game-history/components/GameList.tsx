@@ -28,6 +28,7 @@ import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { DummyList } from "./DummyList";
 import { useTutorial } from "@/components/TutorialProvider";
 import { DummyCard } from "./DummyCard";
+import { usePricingOffer } from "@/app/store/pricingOffer";
 
 interface GamesListProps {
   games: Game[];
@@ -103,10 +104,14 @@ const GamesList: React.FC<GamesListProps> = ({
     isOpenTutorial,
     setDataGamesImport,
     setIsFromGameHistory,
+    everShowOffer,
+    setEverShowOffer,
+    isFromGameHistory,
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const pathname = usePathname();
   const { isTutorialPlay, dataTutorial } = useTutorial();
+  const { setOpenOffer } = usePricingOffer();
 
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
@@ -175,8 +180,8 @@ const GamesList: React.FC<GamesListProps> = ({
       console.error("Error marking game as viewed in store:", e);
     }
   };
-  const { getTokenBalance, viewAnalysisResult } = useApiClient();
-  const { sessionId, setToken } = useProfileStore();
+  const { getTokenBalance, viewAnalysisResult, getProfile } = useApiClient();
+  const { sessionId, setToken, setProfile } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { restorePollingJobs } = usePollingManager();
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
@@ -238,6 +243,24 @@ const GamesList: React.FC<GamesListProps> = ({
         if (response.data != null) {
           const data = response.data;
           setToken(data);
+          if (data.balance == 0) {
+            getProfile({}).then((response) => {
+              if (response.data != null) {
+                const profileData = response.data;
+                setProfile(data);
+                if (
+                  data.balance == 0 &&
+                  profileData.discountInfo.hasActiveDiscount &&
+                  profileData?.discountInfo?.startDate &&
+                  !everShowOffer &&
+                  !isFromGameHistory
+                ) {
+                  setOpenOffer(true);
+                  setEverShowOffer(true);
+                }
+              }
+            });
+          }
         }
       });
     }
@@ -257,7 +280,7 @@ const GamesList: React.FC<GamesListProps> = ({
             setGameId(gameId);
             const pgnHash = createPgnHash(game.pgn);
             const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-            
+
             if (game.hasViewedAnalysis === false) {
               // console.log("Marking analysis as viewed for game:", game.id);
               const res = await viewAnalysisResult(game.id);

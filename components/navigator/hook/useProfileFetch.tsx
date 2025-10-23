@@ -2,6 +2,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 export type AuthState = {
   isAuthenticated: boolean;
@@ -34,6 +35,7 @@ export const useProfileFetch = () => {
   } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { setOpenOffer } = usePricingOffer();
+  const pathname = usePathname()
   useEffect(() => {
     if (!sessionId) return;
     setIsSignedIn(true);
@@ -77,7 +79,7 @@ export const useProfileFetch = () => {
             data.balance == 0 &&
             profileData.discountInfo.hasActiveDiscount &&
             profileData?.discountInfo?.startDate &&
-            !everShowOffer &&!isFromGameHistory
+            !everShowOffer && !isFromGameHistory
           ) {
             setOpenOffer(true);
             setEverShowOffer(true);
