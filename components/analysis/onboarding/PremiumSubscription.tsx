@@ -402,7 +402,7 @@ export const PremiumSubsContent: React.FC<{
             </p>
 
             <div className="space-y-2 flex-grow">
-              <BenefitItem text="1 Game Analysis every 72h" />
+              <BenefitItem text="10 free Game Analyses. Purchase more Analyses on demand." />
               <BenefitItem text="Basic Game Analysis" />
               <BenefitItem text="Limited Access to the Feedback Log and Game History" />
               <BenefitItem text="20 Puzzles per month" />
