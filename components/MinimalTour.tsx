@@ -324,9 +324,9 @@ export default function MinimalTour({
   ) : null;
 
   const handleStartGameAnalysis = () => {
-    setStepFocused((i: number) => i + 1);
     stopTutorial();
     setIsOpenTutorial(false);
+    window.location.reload()
   };
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.
@@ -497,7 +497,6 @@ export default function MinimalTour({
 
             <div
               onClick={(e) => {
-                e.stopPropagation();
                 handleStartGameAnalysis();
               }}
               className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center"

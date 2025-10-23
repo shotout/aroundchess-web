@@ -47,7 +47,7 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
           className={`p-0 bg-white shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
         >
           <DialogTitle></DialogTitle>
-          <div className="w-full h-full block -mt-2">
+          <div className="w-full h-full block -mt-4">
             <Image
               src={src}
               alt="Analyze 10 games for free"

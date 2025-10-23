@@ -42,7 +42,9 @@ export const DummyList = () => {
   const { stepFocused, startTutorial, isTutorialPlay, dataTutorial } =
     useTutorial();
   useEffect(() => {
-    startTutorial();
+    if (stepFocused > 6 && isTutorialPlay) {
+      startTutorial();
+    }
     console.log("DummyList stepFocused", stepFocused);
   }, [stepFocused]);
 

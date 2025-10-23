@@ -15,6 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useProfileStore } from "@/app/store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { useApiClient } from "@/functions/api-client";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -26,7 +27,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
+  const { setToken } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
+  const { getTokenBalance } = useApiClient();
   const { startTutorial } = useTutorial();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -50,7 +53,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
-    setCallFetch(formatTimePgn())
+    // setCallFetch(formatTimePgn())
+    getTokenBalance({}).then((response) => {
+      if (response.data != null) {
+        const data = response.data;
+        setToken(data);
+      }
+    });
     handleOpenAnalyzeFree();
   };
 
