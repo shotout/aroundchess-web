@@ -44,7 +44,7 @@ export function ModalSetting() {
             </DialogTitle>
           </div>
         </DialogHeader>
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(80vh-200px)]">
           {/* Essential Cookies */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
