@@ -27,6 +27,7 @@ import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { DummyList } from "./DummyList";
 import { useTutorial } from "@/components/TutorialProvider";
+import { DummyCard } from "./DummyCard";
 
 interface GamesListProps {
   games: Game[];
@@ -462,7 +463,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
           {isOpenTutorial && isTutorialPlay && <DummyList />}
-          {!isTutorialPlay &&
+          {!isTutorialPlay &&!isOpenTutorial&&
             currentGames.map((game, idx) => {
               const btn = getAnalysisButtonContent(game.id, game);
               const isNew =
@@ -481,7 +482,7 @@ const GamesList: React.FC<GamesListProps> = ({
                   key={game.id}
                   className={`grid relative transition-colors duration-150 ${
                     isNew
-                      ? "bg-yellow-50"
+                      ? "bg-[#FFF6DB]"
                       : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
                   }`}
                   style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
@@ -601,7 +602,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
       <div className="lg:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-xs">
-          {currentGames.map((game) => (
+          {isOpenTutorial && isTutorialPlay && <DummyCard />}
+          {!isTutorialPlay &&!isOpenTutorial&&currentGames.map((game) => (
             <GameCard
               key={game.id}
               gameData={game}

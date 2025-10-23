@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DotSpinner from "../game-history/Spinner";
 import { useProfileFetch } from "./hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { useTutorial } from "../TutorialProvider";
 
 export default function Navigation({
   children,
@@ -22,6 +23,7 @@ export default function Navigation({
   const pathname = usePathname();
   const { sessionId, hydrated, setAlreadyFetch } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
+  const { isTutorialPlay, stepFocused } = useTutorial();
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -168,7 +170,10 @@ export default function Navigation({
         </div>
 
         <AnimatePresence mode="wait">
-          {!isDesktop && isSidebarOpen && (
+          {((!isDesktop && isSidebarOpen) ||
+            (isTutorialPlay &&
+              stepFocused == 4 &&
+              window.innerWidth <= 1024)) && (
             <>
               <motion.div
                 className="fixed inset-0 bg-black/50 z-50"

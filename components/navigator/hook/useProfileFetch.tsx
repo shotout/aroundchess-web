@@ -41,7 +41,7 @@ export const useProfileFetch = () => {
 
   const [callFetch, setCallFetch] = useState<string>("");
   const [callingNumber, setCallingNumber] = useState<number>(0);
-  const { setUsername, everShowOffer, setEverShowOffer } = usePgnStore();
+  const { setUsername, everShowOffer, setEverShowOffer, isFromGameHistory } = usePgnStore();
   const {
     getTokenBalance,
     getProfile,
@@ -77,7 +77,7 @@ export const useProfileFetch = () => {
             data.balance == 0 &&
             profileData.discountInfo.hasActiveDiscount &&
             profileData?.discountInfo?.startDate &&
-            !everShowOffer
+            !everShowOffer &&!isFromGameHistory
           ) {
             setOpenOffer(true);
             setEverShowOffer(true);
