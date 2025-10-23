@@ -179,8 +179,7 @@ export default function MinimalTour({
     }
   };
   const skip = () => {
-    stopTutorial();
-    setIsOpenTutorial(false);
+   handleStartGameAnalysis()
   };
 
   // compute left/top values (kept inline for dynamic coords)
@@ -325,8 +324,9 @@ export default function MinimalTour({
 
   const handleStartGameAnalysis = () => {
     stopTutorial();
+    setIsFromGameHistory(false);
     setIsOpenTutorial(false);
-    window.location.reload()
+    window.location.reload();
   };
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.
@@ -510,8 +510,7 @@ export default function MinimalTour({
         {stepFocused < 6 && (
           <div className="flex flex-row justify-between items-center mt-2">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={(e) => { 
                 skip();
               }}
               className="bg-[#E6F7FE] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
@@ -521,17 +520,20 @@ export default function MinimalTour({
               </span>
             </button>
             <div className="flex gap-2 justify-end mt-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  prev();
-                }}
-                className="bg-[#81CFF3] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
-              >
-                <span className="text-[#221AE9] font-semibold text-[12px]">
-                  prev
-                </span>
-              </button>
+              {stepFocused > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prev();
+                  }}
+                  className="bg-[#81CFF3] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
+                >
+                  <span className="text-[#221AE9] font-semibold text-[12px]">
+                    Prev
+                  </span>
+                </button>
+              )}
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();

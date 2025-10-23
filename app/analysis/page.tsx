@@ -125,6 +125,8 @@ export default function AnalysisPage() {
         } catch (err) {
           console.error("Error loading famous game:", err);
         }
+      } else {
+        await loadFamousGame();
       }
     };
     checkTutorialStep();
