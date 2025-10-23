@@ -46,10 +46,11 @@ export const DummyCard = () => {
   const { stepFocused, startTutorial, isTutorialPlay, dataTutorial } =
     useTutorial();
   useEffect(() => {
-    startTutorial();
-    console.log("DummyCard stepFocused", stepFocused);
+    if (stepFocused > 6 && isTutorialPlay) {
+      startTutorial();
+    }
   }, [stepFocused]);
- 
+
   const gameDataDummy = transformApiDataToComponentFormat(dummyAnalysis);
   const gameDataTutorial = transformApiDataToComponentFormat(
     dataTutorial?.dataHistory
