@@ -179,7 +179,6 @@ export default function MinimalTour({
     }
   };
   const skip = () => {
-    onClose?.();
     stopTutorial();
     setIsOpenTutorial(false);
   };

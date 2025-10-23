@@ -79,21 +79,23 @@ const GameCard: React.FC<GameCardProps> = ({
 
   const getButtonContent = () => {
     const job = getJobByGameId(gameData.id);
-    if (isTutorialPlay && stepFocused == 3 &&isNewlyImported) {
+    if (isTutorialPlay && stepFocused == 3 && isNewlyImported) {
       return {
         text: "In progress 40%",
         icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-        className: "bg-yellow-500 hover:bg-yellow-600",
+        className:
+          "border border-[#FFE057] bg-gradient-to-b from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
         onClick: () => {},
         disabled: true,
       };
-    }else if(isTutorialPlay && stepFocused == 5 &&isNewlyImported){
+    } else if (isTutorialPlay && stepFocused == 5 && isNewlyImported) {
       return {
         text: "View Results",
         icon: <CheckCircle className="h-4 w-4 mr-2" />,
-        className: "bg-green-600 hover:bg-green-700",
+        className:
+          "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
-            null
+          null;
         },
         disabled: true,
       };
@@ -101,7 +103,8 @@ const GameCard: React.FC<GameCardProps> = ({
       return {
         text: "View Results",
         icon: <CheckCircle className="h-4 w-4 mr-2" />,
-        className: "bg-green-600 hover:bg-green-700",
+        className:
+          "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
           try {
             const pgnHash = createPgnHash(gameData.pgn);
@@ -151,7 +154,8 @@ const GameCard: React.FC<GameCardProps> = ({
           return {
             text: progressText,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600",
+            className:
+              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
             disabled: true,
           };
@@ -166,7 +170,8 @@ const GameCard: React.FC<GameCardProps> = ({
           return {
             text,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className: "bg-yellow-500 hover:bg-yellow-600",
+            className:
+              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
             disabled: true,
           };
@@ -175,7 +180,8 @@ const GameCard: React.FC<GameCardProps> = ({
           return {
             text: "Finalizing...",
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className: "bg-blue-500 hover:bg-blue-600",
+            className:
+              "bg-gradient-to-b from-blue-600 to-blue-[#221AE9] border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
             onClick: () => {},
             disabled: true,
           };
@@ -183,7 +189,8 @@ const GameCard: React.FC<GameCardProps> = ({
           return {
             text: "Retry",
             icon: <AlertCircle className="h-4 w-4 mr-2" />,
-            className: "bg-red-600 hover:bg-red-700",
+            className:
+              "border border-white bg-red-600 hover:bg-red-700 border border-white text-white shadow-sm ring-1 ring-red-200",
             onClick: () => setIsAnalyzeOpen(true),
             disabled: false,
           };
@@ -193,7 +200,8 @@ const GameCard: React.FC<GameCardProps> = ({
     return {
       text: "Analyze",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
-      className: "btn-primary",
+      className:
+        "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => setIsAnalyzeOpen(true),
       disabled: false,
     };
