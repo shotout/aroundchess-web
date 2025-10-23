@@ -50,6 +50,7 @@ export default function AnalysisPage() {
     setMounted(true);
   }, []);
   useEffect(() => {
+    console.log("stepFocused, isTutorialPlay", stepFocused, isTutorialPlay);
     console.log("isFromGameHistory", isFromGameHistory);
     if (
       !isFromGameHistory &&
@@ -132,12 +133,12 @@ export default function AnalysisPage() {
     if (!mounted || !hydrated || !hydratedProfile) return;
 
     const initializeAnalysisPage = async () => {
-      if (hasExistingData() && isFromGameHistory) {
-        setInitialLoading(false);
-        setIsFromGameHistory(false);
-        return;
-      }
       if (!isTutorialPlay) {
+        if (hasExistingData()) {
+          setInitialLoading(false);
+          setIsFromGameHistory(false);
+          return;
+        }
         if (isSignedIn && username) {
           console.log("hasApiData");
           const hasApiData = await fetchExistAnalysis();

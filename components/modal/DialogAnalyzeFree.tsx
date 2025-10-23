@@ -47,13 +47,13 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
           className={`p-0 bg-white shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
         >
           <DialogTitle></DialogTitle>
-          <div className="w-full block mt-4">
+          <div className="w-full h-full block -mt-2">
             <Image
               src={src}
               alt="Analyze 10 games for free"
               width={width < 768 ? 360 : 720}
-              height={width < 768 ? 780 : 620}
-              className="w-full object-contain block"
+              height={width < 768 ? 780 : 720}
+              className="w-full h-full object-cover block"
               priority
             />
           </div>

@@ -12,6 +12,9 @@ import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
 import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 import { useTutorial } from "@/components/TutorialProvider";
 import { usePathname, useRouter } from "next/navigation";
+import { useProfileStore } from "@/app/store/profile";
+import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { formatTimePgn } from "@/functions/format-date";
 
 interface ChessAccountSetupProps {
   isLoading?: boolean;
@@ -22,6 +25,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
+  const { setCallFetch } = useProfileFetch();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
   const { startTutorial } = useTutorial();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
@@ -46,6 +50,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
+    setCallFetch(formatTimePgn())
     handleOpenAnalyzeFree();
   };
 

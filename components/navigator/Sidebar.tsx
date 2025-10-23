@@ -139,8 +139,14 @@ const sidebarLinks: SidebarLink[] = [
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isMember, isMemberMonthly, token, profile, sessionId } = useProfileStore();
-  const { username, profileShow } = usePgnStore();
+  const {
+    isMember,
+    isMemberMonthly,
+    token,
+    profile: profileShow,
+    sessionId,
+  } = useProfileStore();
+  const { username } = usePgnStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -172,11 +178,18 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.2, staggerChildren: 0.05, delayChildren: 0.1 } },
+    visible: {
+      opacity: 1,
+      transition: { duration: 0.2, staggerChildren: 0.05, delayChildren: 0.1 },
+    },
   };
   const itemVariants = {
     hidden: { opacity: 0, x: -20, transition: { duration: 0.2 } },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
   };
 
   const sidebarContent = (
@@ -213,12 +226,17 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           />
           <span className="text-[#221AE9] font-medium">
             Remaining Tokens:{" "}
-            <span className={cn(token.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]", "font-bold")}>
+            <span
+              className={cn(
+                token.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]",
+                "font-bold"
+              )}
+            >
               {token.balance}
             </span>
           </span>
         </div>
-        {(!isMember &&!isMemberMonthly) ? (
+        {!isMember && !isMemberMonthly ? (
           <div className="w-full flex flex-col gap-2">
             <button
               onClick={() => handleOpenOffer("tokens")}
@@ -278,15 +296,24 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               : section.children?.some((c) => pathname === c.href);
 
             return (
-              <motion.div key={section.name} variants={isMobile ? itemVariants : {}}>
-                <div className="space-y-2"  >
+              <motion.div
+                key={section.name}
+                variants={isMobile ? itemVariants : {}}
+              >
+                <div className="space-y-2">
                   {section.href ? (
                     <Link
-                      href={!isSignedIn && !section.permission ? "#" : section.href!}
-                      onClick={() => handleNavigation(section.href!, section.permission)}
+                      href={
+                        !isSignedIn && !section.permission ? "#" : section.href!
+                      }
+                      onClick={() =>
+                        handleNavigation(section.href!, section.permission)
+                      }
                       className={cn(
                         "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                        isActive ? "text-[#221AE9]" : "hover:bg-[#221AE950] hover:text-[#221AE9]"
+                        isActive
+                          ? "text-[#221AE9]"
+                          : "hover:bg-[#221AE950] hover:text-[#221AE9]"
                       )}
                     >
                       <Image
@@ -296,10 +323,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         height={1000}
                         className={cn(
                           "h-5 w-5 transition-colors",
-                          isActive ? "text-[#221AE9]" : "text-gray-400 group-hover:text-[#221AE9]"
+                          isActive
+                            ? "text-[#221AE9]"
+                            : "text-gray-400 group-hover:text-[#221AE9]"
                         )}
                       />
-                      <span className="flex-1 font-semibold">{section.name}</span>
+                      <span className="flex-1 font-semibold">
+                        {section.name}
+                      </span>
                       {!isSignedIn && !section.permission && (
                         <Image
                           src="/icons/lock.png"
@@ -315,7 +346,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                     <div
                       className={cn(
                         "group flex gap-x-2 items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                        isActive ? "text-[#221AE9]" : section.disabled ? "text-[#AAA4A4]" : ""
+                        isActive
+                          ? "text-[#221AE9]"
+                          : section.disabled
+                          ? "text-[#AAA4A4]"
+                          : ""
                       )}
                     >
                       <Image
@@ -325,23 +360,43 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         height={1000}
                         className={cn(
                           "h-5 w-5 transition-colors",
-                          isActive ? "text-[#221AE9]" : "text-gray-400 group-hover:text-[#221AE9]"
+                          isActive
+                            ? "text-[#221AE9]"
+                            : "text-gray-400 group-hover:text-[#221AE9]"
                         )}
                       />
-                      <span className="flex-1 font-semibold">{section.name}</span>
+                      <span className="flex-1 font-semibold">
+                        {section.name}
+                      </span>
                     </div>
                   )}
 
                   {hasChildren && (
-                    <motion.div className="ml-6 space-y-2" variants={isMobile ? containerVariants : {}}>
+                    <motion.div
+                      className="ml-6 space-y-2"
+                      variants={isMobile ? containerVariants : {}}
+                    >
                       {section.children!.map((child) => {
                         const isChildActive = pathname?.includes(child.href);
                         return (
-                          <motion.div key={child.href} variants={isMobile ? itemVariants : {}}>
+                          <motion.div
+                            key={child.href}
+                            variants={isMobile ? itemVariants : {}}
+                          >
                             <Link
-                            data-tutorial={child.name === "My Game History" ? "5" : undefined}
-                              href={!isSignedIn && !child.permission ? "#" : child.href}
-                              onClick={() => handleNavigation(child.href, child.permission)}
+                              data-tutorial={
+                                child.name === "My Game History"
+                                  ? "5"
+                                  : undefined
+                              }
+                              href={
+                                !isSignedIn && !child.permission
+                                  ? "#"
+                                  : child.href
+                              }
+                              onClick={() =>
+                                handleNavigation(child.href, child.permission)
+                              }
                               className={cn(
                                 "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
                                 isChildActive
@@ -353,7 +408,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                             >
                               <div className="flex items-center">
                                 <Image
-                                  src={isChildActive ? child.iconActive : child.icon}
+                                  src={
+                                    isChildActive
+                                      ? child.iconActive
+                                      : child.icon
+                                  }
                                   alt={child.name}
                                   width={1000}
                                   height={1000}
@@ -404,15 +463,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             whileTap={{ scale: 0.98 }}
           >
             <InitialAvatar
-              name={profileShow?.data?.name || username || "Anonymous"}
+              name={profileShow?.name || username || "Anonymous"}
               size="sm"
             />
             <div className="flex-1 overflow-hidden text-left">
               <p className="font-medium text-lg truncate">
-                {profileShow?.data?.name || username }
+                {profileShow?.name || username}
               </p>
               <p className="text-sm text-gray-600 truncate">
-                {profileShow?.data?.email || "-"}
+                {profileShow?.email || "-"}
               </p>
             </div>
           </motion.button>
@@ -423,7 +482,12 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   if (isMobile) {
     return (
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="h-full">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="h-full"
+      >
         {sidebarContent}
       </motion.div>
     );

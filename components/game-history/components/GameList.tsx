@@ -250,14 +250,14 @@ const GamesList: React.FC<GamesListProps> = ({
         text: "View Result",
         icon: <Eye className="h-4 w-4 mr-2" />,
         className:
-          "border border-white bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm ring-1 ring-green-200",
+          "border-2 border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
           try {
             setDisabled(true);
             setGameId(gameId);
             const pgnHash = createPgnHash(game.pgn);
             const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
-
+            
             if (game.hasViewedAnalysis === false) {
               // console.log("Marking analysis as viewed for game:", game.id);
               const res = await viewAnalysisResult(game.id);
@@ -320,7 +320,7 @@ const GamesList: React.FC<GamesListProps> = ({
             text: pct,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
             className:
-              "bg-yellow-400 border border-white hover:bg-yellow-500 text-gray-900 shadow-sm ring-1 ring-yellow-200",
+              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
           };
         }
@@ -334,7 +334,7 @@ const GamesList: React.FC<GamesListProps> = ({
             text,
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
             className:
-              "bg-yellow-400 border border-white text-gray-900 shadow-sm ring-1 ring-yellow-200",
+              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
             disabled: true,
           };
@@ -344,7 +344,7 @@ const GamesList: React.FC<GamesListProps> = ({
             text: "Finalizing...",
             icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
             className:
-              "bg-gradient-to-b from-blue-600 to-blue-700 border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
+              "bg-gradient-to-b from-blue-600 to-blue-[#221AE9] border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
             onClick: () => {},
           };
         case "failed":
@@ -366,7 +366,7 @@ const GamesList: React.FC<GamesListProps> = ({
       text: "Analyze",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
       className:
-        "bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+        "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => {
         setOpenGameId(gameId);
         trackCustomEvent("StartAnalysis", gameId);
@@ -463,7 +463,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
         <div className="divide-y divide-gray-200 text-xs xl:text-sm">
           {isOpenTutorial && isTutorialPlay && <DummyList />}
-          {!isTutorialPlay &&!isOpenTutorial&&
+          {!isTutorialPlay &&
+            !isOpenTutorial &&
             currentGames.map((game, idx) => {
               const btn = getAnalysisButtonContent(game.id, game);
               const isNew =
@@ -603,13 +604,15 @@ const GamesList: React.FC<GamesListProps> = ({
       <div className="lg:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-xs">
           {isOpenTutorial && isTutorialPlay && <DummyCard />}
-          {!isTutorialPlay &&!isOpenTutorial&&currentGames.map((game) => (
-            <GameCard
-              key={game.id}
-              gameData={game}
-              isNewlyImported={isNewlyImported(game.id)}
-            />
-          ))}
+          {!isTutorialPlay &&
+            !isOpenTutorial &&
+            currentGames.map((game) => (
+              <GameCard
+                key={game.id}
+                gameData={game}
+                isNewlyImported={isNewlyImported(game.id)}
+              />
+            ))}
         </div>
       </div>
 
