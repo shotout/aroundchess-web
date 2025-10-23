@@ -179,7 +179,7 @@ export default function MinimalTour({
     }
   };
   const skip = () => {
-   handleStartGameAnalysis()
+    handleStartGameAnalysis();
   };
 
   // compute left/top values (kept inline for dynamic coords)
@@ -189,11 +189,13 @@ export default function MinimalTour({
       : stepFocused == 5 &&
         (window.innerWidth == 1024 || window.innerWidth > 768)
       ? Math.max(8, rect.left + window.scrollX) - 360
+      : stepFocused == 4 && window.innerWidth >= 425
+      ? Math.max(8, rect.left + window.scrollX) - 180
+      : stepFocused == 4 && window.innerWidth < 425
+      ? Math.max(8, rect.left + window.scrollX) - 160
       : stepFocused == 4 &&
         (window.innerWidth == 1024 || window.innerWidth <= 1280)
       ? Math.max(8, rect.left + window.scrollX) - 300
-      : stepFocused == 4 && window.innerWidth <= 425
-      ? Math.max(8, rect.left + window.scrollX) - 180
       : stepFocused == 4 && window.innerWidth < 1024
       ? Math.max(8, rect.left + window.scrollX) - 300
       : Math.max(8, rect.left + window.scrollX)
@@ -350,7 +352,7 @@ export default function MinimalTour({
         id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
-        className={`block max-w-[400px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
+        className={`block max-w-[375px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
         style={
@@ -371,6 +373,8 @@ export default function MinimalTour({
                 right:
                   window.innerWidth > 1024
                     ? window.innerWidth / 3
+                    : window.innerWidth < 425
+                    ? window.innerWidth / 8
                     : window.innerWidth / 4,
                 bottom: window.innerWidth / 3,
                 zIndex: 1000000,
@@ -428,7 +432,7 @@ export default function MinimalTour({
             viewBox="0 0 24 12"
             style={{
               position: "absolute",
-              top: -8,
+              top: window.innerWidth > 425 ? -8 : -10,
               left: arrowLeft - 12,
               overflow: "visible",
               pointerEvents: "none",
@@ -456,7 +460,7 @@ export default function MinimalTour({
             viewBox="0 0 24 12"
             style={{
               position: "absolute",
-              bottom: -8,
+              bottom: window.innerWidth > 425 ? -8 : -10,
               left: arrowLeft - 16,
               overflow: "visible",
               pointerEvents: "none",
@@ -510,7 +514,7 @@ export default function MinimalTour({
         {stepFocused < 6 && (
           <div className="flex flex-row justify-between items-center mt-2">
             <button
-              onClick={(e) => { 
+              onClick={(e) => {
                 skip();
               }}
               className="bg-[#E6F7FE] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"

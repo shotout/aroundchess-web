@@ -53,11 +53,11 @@ export function AnalyzeDifferentGame({
   style,
 }: AnalyzeDifferentGameProps) {
   const router = useRouter();
-  const { isTutorialPlay, dataTutorial,stepFocused } = useTutorial();
+  const { isTutorialPlay, dataTutorial, stepFocused } = useTutorial();
   const { proceedAnalysis, pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember, token, isMemberMonthly } = useProfileStore();
-
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const {
     estimateMinute,
     estimateSecond,
@@ -387,11 +387,11 @@ export function AnalyzeDifferentGame({
 
   const renderDepthChoose = () => {
     return (
-      <div className="gap-1 md:gap-2" data-tutorial="2">
-        <span className="text-[12px] md:text-[18px] font-medium text-[#121212]">
+      <div className="gap-1 md:gap-2" >
+        <span className="text-[14px] md:text-[18px] font-medium text-[#121212]">
           Choose your Analysis Depth
         </span>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 items-center mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 items-center mt-2" data-tutorial="2">
           {depths.map((depth, index) => {
             let estimate =
               index == 0
@@ -412,7 +412,7 @@ export function AnalyzeDifferentGame({
                 }}
                 key={index}
                 disabled={depth.mustMember && !isMember && !isMemberMonthly}
-                className={`relative flex flex-col justify-around px-2 py-2 md:h-[240px] gap-2 items-center shadow-md  ${
+                className={`relative flex flex-col justify-around px-2 py-2 h-[110px] md:h-[240px] gap-1 sm:gap-2 items-center shadow-md  ${
                   depth.mustMember && !isMember ? `bg-[#C0CED4]` : `bg-white`
                 } border ${
                   depthChoosed == depth.value
@@ -449,8 +449,10 @@ export function AnalyzeDifferentGame({
                       : `border-input border-2`
                   } `}
                 />
-                <span className="font-normal text-[12px] md:text-[14px]">{depth.title}</span>
-                <span className="font-light text-[#364152] text-center text-[8px] md:text-[11px]">
+                <span className="font-normal text-[12px] md:text-[14px]">
+                  {depth.title}
+                </span>
+                <span className="font-light text-[#364152] text-center text-[10px] md:text-[11px]">
                   {depth.description}
                 </span>
                 {/* <div className="flex flex-col gap-1 items-center">
@@ -465,6 +467,41 @@ export function AnalyzeDifferentGame({
         </div>
       </div>
     );
+  };
+
+  // useEffect(() => {
+  //   if (stepFocused == 0 || stepFocused == 1) {
+  //     scrollToStart();
+  //   } else {
+  //     scrollToEnd();
+  //   }
+  // }, [stepFocused]);
+
+  const scrollToStart = () => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      viewport?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToEnd = () => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      viewport?.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
+    }
+  };
+
+  const scrollToPosition = (position: number) => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      viewport?.scrollTo({ top: position, behavior: "smooth" });
+    }
   };
 
   return (
@@ -487,7 +524,7 @@ export function AnalyzeDifferentGame({
           {label && label.length > 0 ? label : "Analyze a different game"}
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-full md:max-w-xl overflow-y-auto flex flex-col max-h-full sm:max-h-[95%]">
+      <DialogContent className="py-1 sm:py-1 rounded-lg max-w-full md:max-w-xl overflow-y-auto flex flex-col max-h-full sm:max-h-[95%]">
         <DialogHeader className="md:gap-2 md:mb-2">
           <DialogTitle className="text-[14px] md:text-[24px] font-semibold text-start">
             Analyze your games
@@ -498,7 +535,10 @@ export function AnalyzeDifferentGame({
             for a detailed Game Analysis.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="overflow-auto max-h-full md:max-w-[640px] md:max-h-screen ">
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="overflow-auto max-h-full md:max-w-[640px] md:max-h-screen"
+        >
           <Tabs
             className="w-full"
             value={tabSelected}
@@ -510,13 +550,15 @@ export function AnalyzeDifferentGame({
               </TabsTrigger>
               <TabsTrigger value="manual">
                 <Clipboard className="mr-2 h-4 w-4" />
-                <span className="text-[12px] md:text-xs">Paste or Upload PGN</span>
+                <span className="text-[12px] md:text-xs">
+                  Paste or Upload PGN
+                </span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="auto" className="space-y-2 md:space-y-4">
               <div className="space-y-1 md:space-y-2">
-                <div className="flex flex-row items-center">
+                <div className="hidden md:flex flex-row items-center">
                   <Image
                     src="/icons/hero-section.png"
                     alt="chess"
@@ -546,26 +588,34 @@ export function AnalyzeDifferentGame({
                     {(isTutorialPlay || usernameStatus === "found") && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
-                        <span className="text-[12px] md:text-xs">Username found</span>
+                        <span className="text-[12px] md:text-xs">
+                          Username found
+                        </span>
                       </div>
                     )}
                     {usernameStatus === "not-found" && (
                       <div className="flex items-center text-red-500 whitespace-nowrap">
                         <X className="h-4 w-4 mr-1" />
-                        <span className="text-[12px] md:text-xs">Username not found</span>
+                        <span className="text-[12px] md:text-xs">
+                          Username not found
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
               <div className="space-y-2 mx-1" data-tutorial="1">
-                <p className="block text-[12px] md:text-sm text-black">
+                <p className="hidden md:block text-[12px] md:text-sm text-black">
                   Select Game
                 </p>
                 {isTutorialPlay ? (
                   <div className={"p-3 rounded-md border border-gray-200"}>
-                    <span className="text-[12px] md:text-[14px]">
-                    { stepFocused > 1 ?dataTutorial.dateSelectedGame +" "+dataTutorial.gameTitle:"Select your Game"}
+                    <span className="text-[12px] md:text-[14px] line-clamp-1">
+                      {stepFocused > 1
+                        ? dataTutorial.dateSelectedGame +
+                          " " +
+                          dataTutorial.gameTitle
+                        : "Select your Game"}
                     </span>
                   </div>
                 ) : (
@@ -688,7 +738,7 @@ export function AnalyzeDifferentGame({
               <div data-tutorial="3">
                 <button
                   onClick={handleAnalyzeGame}
-                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[10px] md:text-sm rounded-full py-2 my-4 ${
+                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[12px] md:text-sm rounded-full py-2 my-4 ${
                     (usernameStatus !== "found" &&
                       !selectedGame &&
                       !pgnText &&
