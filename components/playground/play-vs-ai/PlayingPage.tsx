@@ -58,6 +58,7 @@ import { createPgnHash } from "@/utils/crypto-utils";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
 import { gameHistoryApi } from "@/components/game-history/services/api";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { useGames } from "@/components/game-history/hooks/useGameData";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -339,6 +340,7 @@ export default function PlayingPage() {
   const [afterFen, setAfterFen] = useState<string>("");
   const { getVSAILogs, postVSAILogs, getTokenBalance, isLoading } =
     useApiClient();
+  const { handleForceRefresh } = useGames("other");
   const {
     setIsLoading,
     setPgn,
@@ -1109,7 +1111,7 @@ export default function PlayingPage() {
     setIsSaving(true);
     // handleSave();
     let res = await postVSAILogs(body);
-    addOtherImportedGame(res.data);
+    handleForceRefresh();
     console.log("res postVSAILogs", res);
     setIsSaved(true);
     toast.success("Game saved successfully!");
