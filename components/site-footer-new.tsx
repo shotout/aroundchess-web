@@ -316,7 +316,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <ShareGame />
       <SuccessSent />
       <ModalSetting />
-        <DialogSpecialDiscount   />
+      <DialogSpecialDiscount />
     </footer>
   );
 }

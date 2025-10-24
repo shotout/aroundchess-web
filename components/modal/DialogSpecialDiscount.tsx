@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogPortal,
   DialogTitle,
@@ -30,7 +31,10 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
   }, []);
 
   const src = "/offers/special-discount.png";
-
+  const close = () => {
+    setOpenOffer(false);
+    console.log("close offer")
+  };
   return (
     <Dialog open={openOffer}>
       <DialogPortal>
@@ -41,6 +45,17 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
             <span className="text-[16px] font-semibold">
               You have used all of your Analysis Tokens!
             </span>
+            <div className="absolute top-3 right-2 bg-white z-[100]" onClick={close}>
+              <Image
+                onClick={close}
+                src={"/icons/close.png"}
+                alt="Close"
+                width={1000}
+                height={1000}
+                className="cursor-pointer object-contain w-[30px] h-[24px] block bg-white"
+                priority
+              />
+            </div>
           </DialogTitle>
           <div className="w-full flex flex-col items-center justify-center space-y-4 relative">
             <span className="text-[24px] text-center font-bold text-[#221AE9]">

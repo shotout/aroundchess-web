@@ -35,7 +35,7 @@ export const useProfileFetch = () => {
   } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { setOpenOffer } = usePricingOffer();
-  const pathname = usePathname()
+  const pathname = usePathname();
   useEffect(() => {
     if (!sessionId) return;
     setIsSignedIn(true);
@@ -43,7 +43,8 @@ export const useProfileFetch = () => {
 
   const [callFetch, setCallFetch] = useState<string>("");
   const [callingNumber, setCallingNumber] = useState<number>(0);
-  const { setUsername, everShowOffer, setEverShowOffer, isFromGameHistory } = usePgnStore();
+  const { setUsername, everShowOffer, setEverShowOffer, isFromGameHistory } =
+    usePgnStore();
   const {
     getTokenBalance,
     getProfile,
@@ -65,27 +66,29 @@ export const useProfileFetch = () => {
           setProfile(data);
           setUsername(data.username);
           profileData = data;
+          getTokenBalance({}).then((response) => {
+            if (response.data != null) {
+              const data = response.data;
+              setToken(data);
+              console.log("profileData", profileData.discountInfo);
+              console.log("data.balance", data.balance);
+              if (
+                data.balance == 0 &&
+                profileData.discountInfo.hasActiveDiscount &&
+                profileData?.discountInfo?.startDate &&
+                !everShowOffer &&
+                !isFromGameHistory
+              ) {
+                setOpenOffer(true);
+                setEverShowOffer(true);
+              }
+            }
+          });
         }
       });
 
       // }
 
-      getTokenBalance({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setToken(data);
-          // console.log("profileData",callingNumber, profileData);
-          if (
-            data.balance == 0 &&
-            profileData.discountInfo.hasActiveDiscount &&
-            profileData?.discountInfo?.startDate &&
-            !everShowOffer && !isFromGameHistory
-          ) {
-            setOpenOffer(true);
-            setEverShowOffer(true);
-          }
-        }
-      });
       getAllMembershipPackage({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
