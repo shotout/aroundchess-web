@@ -41,7 +41,7 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
       : "/offers/desktop-analyze-free.png";
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={() => null}>
+    <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(false)}>
       <DialogPortal>
         <DialogContent
           className={`p-0 bg-white shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}

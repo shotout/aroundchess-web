@@ -533,8 +533,9 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && paySelected == "monthly" && <DotSpinner />}
-            {!isMember && !isMemberMonthly && !isLoading && (
+            {!isMember && !isMemberMonthly && (
               <button
+                disabled={isLoading}
                 onClick={() => handleGetPremium("monthly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
@@ -663,8 +664,9 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {isLoading && paySelected == "yearly" && <DotSpinner />}
-            {!isMember && !isMemberMonthly && !isLoading && (
+            {!isMember && !isMemberMonthly && (
               <button
+                disabled={isLoading}
                 onClick={() => handleGetPremium("yearly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >

@@ -328,7 +328,7 @@ export default function MinimalTour({
     stopTutorial();
     setIsFromGameHistory(false);
     setIsOpenTutorial(false);
-    window.location.reload();
+    window.location.href = '/analysis';
   };
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.
