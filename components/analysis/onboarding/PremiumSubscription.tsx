@@ -514,8 +514,8 @@ export const PremiumSubsContent: React.FC<{
                   profile?.discountInfo &&
                   profile?.discountInfo?.hasActiveDiscount &&
                   isPass > 0
-                    ? "80 Analyses per year (meaning $0.09 Cent per Analysis)"
-                    : "80 Analyses per year (meaning $0.13 Cent per Analysis)"
+                    ? "80 Analyses per year (meaning $0.09 per Analysis)"
+                    : "80 Analyses per year (meaning $0.13 per Analysis)"
                 }
                 light
               />
@@ -647,7 +647,7 @@ export const PremiumSubsContent: React.FC<{
 
             <div className="space-y-2 flex-grow">
               <BenefitItem
-                text="1,000 Analyses per year (meaning $0.08 Cent per Analysis)"
+                text="1,000 Analyses per year (meaning $0.08 per Analysis)"
                 light
               />
               <BenefitItem
