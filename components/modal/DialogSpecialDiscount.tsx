@@ -32,7 +32,7 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
   const src = "/offers/special-discount.png";
 
   return (
-    <Dialog open={openOffer} onOpenChange={() => setOpenOffer(false)}>
+    <Dialog open={openOffer}>
       <DialogPortal>
         <DialogContent
           className={`pt-4 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
