@@ -355,7 +355,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
           return {
             text,
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            icon: null,
             className:
               "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
             onClick: () => {},
@@ -568,7 +568,7 @@ const GamesList: React.FC<GamesListProps> = ({
                     {game.source || "Unknown"}
                   </div>
 
-                  <div className="px-4 py-3 min-w-[140px]">
+                  <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
                     {(() => {
                       const btn = getAnalysisButtonContent(game.id, game);
                       return (
@@ -580,7 +580,7 @@ const GamesList: React.FC<GamesListProps> = ({
                             btn.text === "Just one more moment..."
                               ? "text-[10px]"
                               : "text-xs "
-                          } flex justify-center items-center transition-colors duration-150`}
+                          } flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
                           onClick={btn.onClick}
                           disabled={
                             autoStartGameId == game.id ||
@@ -591,18 +591,12 @@ const GamesList: React.FC<GamesListProps> = ({
                           }
                         >
                           {(disabled && game.id == gameId) ||
-                          autoStartGameId == game.id ||
-                          btn.text === "Just one more moment..." ? (
-                            <Loader2
-                              className={`${
-                                btn.text === "Just one more moment..." &&
-                                "block sm:hidden"
-                              } h-4 w-4 mr-1 animate-spin`}
-                            />
+                          autoStartGameId == game.id ? (
+                            <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
                           ) : (
                             btn.icon
                           )}
-                          <span className="hidden sm:block">
+                          <span className="hidden sm:block max-w-[90px]">
                             {autoStartGameId == game.id
                               ? "Processing"
                               : btn.text}
