@@ -411,8 +411,7 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Endgame Training" />
               <BenefitItem text="Chess Handbook" />
             </div>
-
-            {isLoading && <DotSpinner />}
+ 
             {sessionId.length == 0 && (
               <div
                 onClick={handleSignUp}
@@ -425,7 +424,6 @@ export const PremiumSubsContent: React.FC<{
             )}
             {!isMember &&
               !isMemberMonthly &&
-              !isLoading &&
               sessionId.length > 0 && (
                 <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
                   <Image
@@ -539,7 +537,7 @@ export const PremiumSubsContent: React.FC<{
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 {isLoading && paySelected == "monthly" ? (
-                  <DotSpinner />
+                  <DotSpinner size={8}/>
                 ) : (
                   "Get Premium"
                 )}
@@ -673,7 +671,7 @@ export const PremiumSubsContent: React.FC<{
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 {isLoading && paySelected == "yearly" ? (
-                  <DotSpinner />
+                  <DotSpinner size={8}/>
                 ) : (
                   "Get Premium"
                 )}
