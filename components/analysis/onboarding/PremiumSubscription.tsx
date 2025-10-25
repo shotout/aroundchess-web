@@ -532,14 +532,17 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Discord VIP Access" light />
             </div>
 
-            {isLoading && paySelected == "monthly" && <DotSpinner />}
             {!isMember && !isMemberMonthly && (
               <button
                 disabled={isLoading}
                 onClick={() => handleGetPremium("monthly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
-                Get Premium
+                {isLoading && paySelected == "monthly" ? (
+                  <DotSpinner />
+                ) : (
+                  "Get Premium"
+                )}
               </button>
             )}
 
@@ -663,14 +666,17 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Discord VIP Access" light />
             </div>
 
-            {isLoading && paySelected == "yearly" && <DotSpinner />}
             {!isMember && !isMemberMonthly && (
               <button
                 disabled={isLoading}
                 onClick={() => handleGetPremium("yearly")}
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
-                Get Premium
+                {isLoading && paySelected == "yearly" ? (
+                  <DotSpinner />
+                ) : (
+                  "Get Premium"
+                )}
               </button>
             )}
 
