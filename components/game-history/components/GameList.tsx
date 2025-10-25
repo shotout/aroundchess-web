@@ -250,6 +250,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 setProfile(data);
                 if (
                   data.balance == 0 &&
+                  profileData.username.length > 0 &&
                   profileData.discountInfo.hasActiveDiscount &&
                   profileData?.discountInfo?.startDate &&
                   !everShowOffer &&

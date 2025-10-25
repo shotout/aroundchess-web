@@ -74,6 +74,7 @@ export const useProfileFetch = () => {
               // console.log("data.balance", data.balance);
               if (
                 data.balance == 0 &&
+                profileData.username.length > 0 &&
                 profileData.discountInfo.hasActiveDiscount &&
                 profileData?.discountInfo?.startDate &&
                 !everShowOffer &&
