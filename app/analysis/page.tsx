@@ -125,7 +125,10 @@ export default function AnalysisPage() {
         } catch (err) {
           console.error("Error loading famous game:", err);
         }
-      } else {
+      } else if (
+        dataAnalysis?.summary.blackSide.profileInfo.username == "Guest12345"
+      ) {
+        console.log("loadFamousGame:tutorial");
         await loadFamousGame();
       }
     };
@@ -137,6 +140,7 @@ export default function AnalysisPage() {
     const initializeAnalysisPage = async () => {
       if (!isTutorialPlay) {
         if (hasExistingData()) {
+          console.log("hasExistingData 1");
           setInitialLoading(false);
           setIsFromGameHistory(false);
           return;
@@ -147,9 +151,11 @@ export default function AnalysisPage() {
           if (!hasApiData) {
             await loadFamousGame();
           }
+          return;
         } else if (hasExistingData()) {
           console.log("hasExistingData");
           setInitialLoading(false);
+          setIsFromGameHistory(false);
           return;
         } else {
           console.log("loadFamousGame");
@@ -162,7 +168,7 @@ export default function AnalysisPage() {
 
     initializeAnalysisPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, hydrated, hydratedProfile, isSignedIn, username]);
+  }, [isSignedIn, username]);
 
   useEffect(() => {
     if (!mounted) return;

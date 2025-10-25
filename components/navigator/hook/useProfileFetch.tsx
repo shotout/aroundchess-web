@@ -70,8 +70,8 @@ export const useProfileFetch = () => {
             if (response.data != null) {
               const data = response.data;
               setToken(data);
-              console.log("profileData", profileData.discountInfo);
-              console.log("data.balance", data.balance);
+              // console.log("profileData", profileData.discountInfo);
+              // console.log("data.balance", data.balance);
               if (
                 data.balance == 0 &&
                 profileData.discountInfo.hasActiveDiscount &&
