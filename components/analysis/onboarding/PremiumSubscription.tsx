@@ -289,7 +289,7 @@ export const PremiumSubsContent: React.FC<{
 
   return (
     <div
-      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] md:max-w-[1000px] xl:max-w-[1141px] mx-auto`}`}
+      className={`${`space-y-4 max-w-[375px] sm:max-w-[640px] md:max-w-[1000px] xl:max-w-[1141px]`}`}
     >
       <div className="hidden md:block text-center space-y-2">
         <p className="text-sm text-black">

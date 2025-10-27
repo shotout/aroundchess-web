@@ -19,7 +19,7 @@ const MyRemainingAnalysisTokens = () => {
           My Remaining Analysis Tokens
         </span>
       </div>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center sm:justify-start">
         <CurrentInfo
           handleOnClick={() => handleOpenOffer("tokens")}
           title="Remaining Tokens:"

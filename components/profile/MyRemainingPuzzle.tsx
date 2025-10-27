@@ -33,7 +33,7 @@ const MyRemainingPuzzle = () => {
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
         <span className="text-[18px] font-semibold">My Remaining Puzzle</span>
       </div>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center sm:justify-start">
         <CurrentInfo
           handleOnClick={() => handleOpenOffer("subscription")}
           title="Remaining Puzzles in this month:"
