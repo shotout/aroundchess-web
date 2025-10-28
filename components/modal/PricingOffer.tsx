@@ -142,13 +142,19 @@ export const PricingOffer: React.FC = () => {
         selectedToken != null && selectedToken != 5
           ? tokenData[selectedToken].pricePerToken
           : parseFloat(pricePerToken);
+      const total_price =
+        selectedToken != null && selectedToken != 5
+          ? tokenData[selectedToken].totalPrice
+          : parseFloat(totalPrice);
       let body = {
+        totalPrice: total_price,
         productName: tokenAmount + " tokens",
         price: parseFloat(price),
         quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
       };
+      console.log("body", body);
       try {
         trackCustomEvent("InitiateCheckoutToken", body);
         setParamsPayment(body);
@@ -219,8 +225,8 @@ export const PricingOffer: React.FC = () => {
       );
       const perToken = parseFloat(dataPrice?.pricePerToken);
       const totalPriceValue = parseFloat(dataPrice?.totalPrice);
-      setPricePerToken(perToken+"");
-      setTotalPrice(totalPriceValue+"");
+      setPricePerToken(perToken.toFixed(2));
+      setTotalPrice(totalPriceValue.toFixed(2));
     } else {
       setPricePerToken("0.00");
       setTotalPrice("0.00");
@@ -408,11 +414,11 @@ export const PricingOffer: React.FC = () => {
                                     : `${option.quantity} Tokens`}
                                 </span>
                                 <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
-                                  ${option.totalPrice+""}
+                                  ${option.totalPrice.toFixed(2)}
                                 </span>
                                 {option.quantity != 1 && (
                                   <span className="font-normal text-[14px] text-[#221AE9]">
-                                    ${option.pricePerToken+""}/Token
+                                    ${option.pricePerToken.toFixed(2)}/Token
                                   </span>
                                 )}
                               </div>
