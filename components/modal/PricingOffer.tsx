@@ -140,8 +140,8 @@ export const PricingOffer: React.FC = () => {
           : customAmount;
       const price =
         selectedToken != null && selectedToken != 5
-          ? tokenData[selectedToken].pricePerToken * 100
-          : parseFloat(pricePerToken) * 100;
+          ? tokenData[selectedToken].pricePerToken
+          : parseFloat(pricePerToken);
       let body = {
         productName: tokenAmount + " tokens",
         price: parseFloat(price.toFixed(2)),
