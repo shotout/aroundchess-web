@@ -142,13 +142,19 @@ export const PricingOffer: React.FC = () => {
         selectedToken != null && selectedToken != 5
           ? tokenData[selectedToken].pricePerToken
           : parseFloat(pricePerToken);
+      const total_price =
+        selectedToken != null && selectedToken != 5
+          ? tokenData[selectedToken].totalPrice
+          : parseFloat(totalPrice);
       let body = {
+        totalPrice: total_price,
         productName: tokenAmount + " tokens",
-        price: parseFloat(price.toFixed(2)),
+        price: parseFloat(price),
         quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
       };
+      console.log("body", body);
       try {
         trackCustomEvent("InitiateCheckoutToken", body);
         setParamsPayment(body);
