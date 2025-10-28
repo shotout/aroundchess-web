@@ -167,6 +167,7 @@ export const PremiumSubsContent: React.FC<{
       idUser: any;
       membershipId: any;
       stripeProductId: any;
+      totalPrice: any;
       couponId?: any;
     };
     let yearlyPrice = premium.price * 100;
@@ -183,6 +184,7 @@ export const PremiumSubsContent: React.FC<{
       idUser: profile.id,
       membershipId: packages.id,
       stripeProductId: packages.stripeProductId,
+      totalPrice: isMonthly ? monthlyPrice : yearlyPrice,
     };
     if (profile.discountInfo?.discountCode) {
       body.couponId = profile.discountInfo?.discountCode;
@@ -411,7 +413,7 @@ export const PremiumSubsContent: React.FC<{
               <BenefitItem text="Endgame Training" />
               <BenefitItem text="Chess Handbook" />
             </div>
- 
+
             {sessionId.length == 0 && (
               <div
                 onClick={handleSignUp}
@@ -422,30 +424,28 @@ export const PremiumSubsContent: React.FC<{
                 </span>
               </div>
             )}
-            {!isMember &&
-              !isMemberMonthly &&
-              sessionId.length > 0 && (
-                <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
-                  <Image
-                    src="/onboarding/currentPackage.png"
-                    alt="Free Icon"
-                    className=""
-                    width={40}
-                    height={40}
-                  />
-                  <p className="text-sm font-medium text-black">
-                    You are on this Package
-                  </p>
+            {!isMember && !isMemberMonthly && sessionId.length > 0 && (
+              <div className="mt-3 relative w-full py-2 bg-gradient-to-r from-white via-[#E6F7FE] to-white rounded-md border border-dashed border-primary-gray flex items-center justify-center gap-2 overflow-hidden">
+                <Image
+                  src="/onboarding/currentPackage.png"
+                  alt="Free Icon"
+                  className=""
+                  width={40}
+                  height={40}
+                />
+                <p className="text-sm font-medium text-black">
+                  You are on this Package
+                </p>
 
-                  <Image
-                    width={160}
-                    height={160}
-                    alt="member"
-                    src={"/onboarding/member.png"}
-                    className="absolute top-0 right-8"
-                  />
-                </div>
-              )}
+                <Image
+                  width={160}
+                  height={160}
+                  alt="member"
+                  src={"/onboarding/member.png"}
+                  className="absolute top-0 right-8"
+                />
+              </div>
+            )}
           </div>
         )}
         {/* monthly */}
@@ -537,7 +537,7 @@ export const PremiumSubsContent: React.FC<{
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 {isLoading && paySelected == "monthly" ? (
-                  <DotSpinner size={8}/>
+                  <DotSpinner size={8} />
                 ) : (
                   "Get Premium"
                 )}
@@ -671,7 +671,7 @@ export const PremiumSubsContent: React.FC<{
                 className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
               >
                 {isLoading && paySelected == "yearly" ? (
-                  <DotSpinner size={8}/>
+                  <DotSpinner size={8} />
                 ) : (
                   "Get Premium"
                 )}
