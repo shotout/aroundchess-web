@@ -144,7 +144,7 @@ export const PricingOffer: React.FC = () => {
           : parseFloat(pricePerToken);
       let body = {
         productName: tokenAmount + " tokens",
-        price: parseFloat(price.toFixed(2)),
+        price: parseFloat(price),
         quantity: parseInt(tokenAmount.toString()),
         type: "token",
         idUser: profile.id,
@@ -219,8 +219,8 @@ export const PricingOffer: React.FC = () => {
       );
       const perToken = parseFloat(dataPrice?.pricePerToken);
       const totalPriceValue = parseFloat(dataPrice?.totalPrice);
-      setPricePerToken(perToken.toFixed(2));
-      setTotalPrice(totalPriceValue.toFixed(2));
+      setPricePerToken(perToken+"");
+      setTotalPrice(totalPriceValue+"");
     } else {
       setPricePerToken("0.00");
       setTotalPrice("0.00");
@@ -408,11 +408,11 @@ export const PricingOffer: React.FC = () => {
                                     : `${option.quantity} Tokens`}
                                 </span>
                                 <span className="font-medium text-[20px] xl:text-[24px] text-[#221AE9]">
-                                  ${option.totalPrice.toFixed(2)}
+                                  ${option.totalPrice+""}
                                 </span>
                                 {option.quantity != 1 && (
                                   <span className="font-normal text-[14px] text-[#221AE9]">
-                                    ${option.pricePerToken.toFixed(2)}/Token
+                                    ${option.pricePerToken+""}/Token
                                   </span>
                                 )}
                               </div>
