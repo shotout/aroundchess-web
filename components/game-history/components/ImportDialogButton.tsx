@@ -154,6 +154,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         formData.append("username", username);
       }
       const response = await gameHistoryApi.importGame(
+        "game_history",
         formData,
         sessionId ?? null,
         (ev: AxiosProgressEvent) => {

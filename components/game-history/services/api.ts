@@ -136,11 +136,12 @@ export const gameHistoryApi = {
   },
 
   importGame: async (
+    mode:string,
     formData: FormData,
     sessionId: string | null,
     onUploadProgress?: (e: AxiosProgressEvent) => void
   ) => {
-    return apiRequest<ApiResponse<any>>("/games/import-game", {
+    return apiRequest<ApiResponse<any>>("/games/import-game?mode="+mode, {
       method: "POST",
       sessionId,
       data: formData,
