@@ -271,6 +271,7 @@ export function AnalyzeDifferentGame({
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
+        "analysis",
         formData,
         sessionId ?? null
       );
@@ -303,6 +304,7 @@ export function AnalyzeDifferentGame({
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
+        "analysis",
         formData,
         sessionId ?? null
       );
@@ -387,11 +389,14 @@ export function AnalyzeDifferentGame({
 
   const renderDepthChoose = () => {
     return (
-      <div className="gap-1 md:gap-2" >
+      <div className="gap-1 md:gap-2">
         <span className="text-[14px] md:text-[18px] font-medium text-[#121212]">
           Choose your Analysis Depth
         </span>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 items-center mt-2" data-tutorial="2">
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 items-center mt-2"
+          data-tutorial="2"
+        >
           {depths.map((depth, index) => {
             let estimate =
               index == 0

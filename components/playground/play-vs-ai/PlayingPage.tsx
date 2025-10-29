@@ -1128,6 +1128,7 @@ export default function PlayingPage() {
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
+        "vsai",
         formData,
         sessionId ?? null
       );
