@@ -1,0 +1,19 @@
+on:
+  issues:
+    types: [opened]
+jobs:
+  create_trello_card:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Trello card
+        run: |
+          curl -X POST "https://api.trello.com/1/cards" \
+          -d "name=${{ github.event.issue.title || github.event.pull_request.title }}" \
+          -d "desc=${{ github.event.issue.html_url || github.event.pull_request.html_url }}" \
+          -d "idList=69033d4f2c187968ffac0784" \
+          -d "labels=GitHub-Backend" \
+          -d "key=$TRELLO_KEY" \
+          -d "token=$TRELLO_TOKEN"
+        env:
+          TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
