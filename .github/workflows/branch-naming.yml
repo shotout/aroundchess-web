@@ -3,7 +3,7 @@ name: Branch Naming Policy
 on:
   create:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 jobs:
   check-branch-naming:
@@ -12,7 +12,34 @@ jobs:
       - name: Check branch naming convention
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          if [[ ! "$BRANCH_NAME" =~ ^(feature|hotfix|snyk-upgrade-)/.* && "$BRANCH_NAME" != "develop" && "$BRANCH_NAME" != "main" ]]; then
-            echo "Branch name must start with 'feature/', 'hotfix/', or 'snyk-upgrade-'"
-            exit 1
+          echo "Checking branch name: $BRANCH_NAME"
+          
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" ]]; then
+            echo "✅ Protected branch detected: $BRANCH_NAME"
+            exit 0
           fi
+          
+          if [[ "$BRANCH_NAME" =~ ^(feat|fix|hotfix|chore|docs|refactor|test|style|perf)/.+ ]]; then
+            echo "✅ Valid branch name: $BRANCH_NAME"
+            exit 0
+          fi
+          
+          if [[ "$BRANCH_NAME" =~ ^snyk-upgrade-.+ ]]; then
+            echo "✅ Valid Snyk upgrade branch: $BRANCH_NAME"
+            exit 0
+          fi
+          
+          echo "❌ ERROR: Invalid branch name: $BRANCH_NAME"
+          echo "Branch name must follow one of these patterns:"
+          echo "  - feat/<description>       (new features)"
+          echo "  - fix/<description>        (bug fixes)"
+          echo "  - hotfix/<description>     (urgent production fixes)"
+          echo "  - chore/<description>      (maintenance tasks)"
+          echo "  - docs/<description>       (documentation)"
+          echo "  - refactor/<description>   (code refactoring)"
+          echo "  - test/<description>       (tests)"
+          echo "  - style/<description>      (formatting)"
+          echo "  - perf/<description>       (performance)"
+          echo "  - snyk-upgrade-<id>        (Snyk security updates)"
+          echo "  - main, develop            (protected branches)"
+          exit 1
