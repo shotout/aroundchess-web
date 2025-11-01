@@ -12,7 +12,7 @@ jobs:
       - name: Check branch naming convention
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          if [[ ! "$BRANCH_NAME" =~ ^(feature|hotfix)/.+ && "$BRANCH_NAME" != "develop" && "$BRANCH_NAME" != "main" ]]; then
-            echo "Branch name must start with 'feature/' or 'hotfix/'"
+          if [[ ! "$BRANCH_NAME" =~ ^(feature|hotfix|snyk-upgrade-)/.* && "$BRANCH_NAME" != "develop" && "$BRANCH_NAME" != "main" ]]; then
+            echo "Branch name must start with 'feature/', 'hotfix/', or 'snyk-upgrade-'"
             exit 1
-          fi 
+          fi
