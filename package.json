@@ -75,7 +75,7 @@
     "sonner": "^1.7.1",
     "stockfish": "^17.1.0",
     "stripe": "^18.0.0",
-    "svix": "^1.44.0",
+    "svix": "^1.77.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
