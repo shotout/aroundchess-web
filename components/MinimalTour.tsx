@@ -183,22 +183,45 @@ export default function MinimalTour({
   };
 
   // compute left/top values (kept inline for dynamic coords)
+  // NOTE: We first compute the raw left with step-specific offsets, then clamp
+  // the final value inside the viewport. This prevents the tooltip from
+  // overflowing on the left edge (observed on step 5/7) while the arrow keeps
+  // pointing at the same target (arrow position is recomputed from the final
+  // tooltip rect in useEffect).
   const left = rect
-    ? stepFocused == 5 && window.innerWidth > 1024
-      ? Math.max(8, rect.left + window.scrollX) - 300
-      : stepFocused == 5 &&
-        (window.innerWidth == 1024 || window.innerWidth > 768)
-      ? Math.max(8, rect.left + window.scrollX) - 360
-      : stepFocused == 4 && window.innerWidth >= 425
-      ? Math.max(8, rect.left + window.scrollX) - 180
-      : stepFocused == 4 && window.innerWidth < 425
-      ? Math.max(8, rect.left + window.scrollX) - 160
-      : stepFocused == 4 &&
-        (window.innerWidth == 1024 || window.innerWidth <= 1280)
-      ? Math.max(8, rect.left + window.scrollX) - 300
-      : stepFocused == 4 && window.innerWidth < 1024
-      ? Math.max(8, rect.left + window.scrollX) - 300
-      : Math.max(8, rect.left + window.scrollX)
+    ? (() => {
+        const base = rect.left + window.scrollX;
+        let raw = base;
+        if (stepFocused == 5 && window.innerWidth > 1024) {
+          raw = base - 300;
+        } else if (
+          stepFocused == 5 &&
+          (window.innerWidth == 1024 || window.innerWidth > 768)
+        ) {
+          raw = base - 360;
+        } else if (stepFocused == 4 && window.innerWidth >= 425) {
+          raw = base - 180;
+        } else if (stepFocused == 4 && window.innerWidth < 425) {
+          raw = base - 160;
+        } else if (
+          stepFocused == 4 &&
+          (window.innerWidth == 1024 || window.innerWidth <= 1280)
+        ) {
+          raw = base - 300;
+        } else if (stepFocused == 4 && window.innerWidth < 1024) {
+          raw = base - 300;
+        }
+
+        // Clamp to viewport: >= 8px from left, and <= right margin so the box
+        // stays fully visible. Width uses current tooltip width if available,
+        // otherwise falls back to the minWidth used in styles below.
+        const tooltipWidth =
+          tooltipRef.current?.getBoundingClientRect().width ??
+          (window.innerWidth < 425 ? 300 : 500);
+        const minLeft = 8;
+        const maxLeft = Math.max(minLeft, window.innerWidth - tooltipWidth - 8);
+        return Math.min(Math.max(raw, minLeft), maxLeft);
+      })()
     : undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
   const bottom = rect ? Math.max(8, rect.top + window.scrollY + 8) : undefined;
