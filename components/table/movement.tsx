@@ -179,84 +179,108 @@ export default function MovementTable() {
                     : "bg-white"
                 }`}
               >
-                <Popover>
-                  <PopoverContent
-                    className="w-auto p-0 bg-white rounded-md"
-                    align="start"
+                {tabFocus === "middlegame" || tabFocus === "endgame" ? (
+                  <Button
+                    variant={"ghost"}
+                    className="rounded-none hover:bg-[#81CFF3]"
+                    onClick={() => handleOnClickMovement(move, index, "white")}
                   >
-                    <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                      <div className="flex flex-row items-center justify-between gap-2">
-                        <div className="flex flex-row items-center gap-2">
-                          <span className="text-sm font-semibold">
-                            {move?.move || ""}
-                          </span>
-                          <span
-                            className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal  ${getScoreClass(
-                              move?.classification?.toLowerCase() || ""
-                            )}`}
-                          >
-                            {move?.evaluation || ""}
-                          </span>
-                        </div>
-                        <div className="flex flex-row items-center gap-2">
-                          <span
-                            className={`mx-1 py-1 rounded-[4px] px-2 ${getBadgeClass(
-                              move?.classification || ""
-                            )}`}
-                          >
-                            {move?.classification || ""}
-                          </span>
-                          <PopoverClose>
-                            <Image
-                              alt="close"
-                              src={"/icons/close-icon.png"}
-                              width={1000}
-                              height={1000}
-                              className="w-5 h-5"
-                            />
-                          </PopoverClose>
-                        </div>
-                      </div>
-                      {move?.analysis && (
-                        <span className="text-sm text-left lg:text-md font-normal py-1">
-                          {move.analysis}
-                        </span>
-                      )}
-                      <div className="flex flex-row gap-1">
-                        <InfoIcon size={16} color="#221AE9" />
-                        <span className="text-sm ">Type:</span>
-                        <span className="text-sm font-semibold ">
-                          {move?.gamePhase || ""}
-                        </span>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"ghost"}
-                      className="rounded-none hover:bg-[#81CFF3]"
-                      onClick={() =>
-                        handleOnClickMovement(move, index, "white")
-                      }
+                    {whiteHistoryItem?.captured && (
+                      <Image
+                        key={`white-${index}`}
+                        src={`/pieces/${PieceChoosed}/${
+                          "w" + whiteHistoryItem.captured.toUpperCase()
+                        }.png`}
+                        alt="icon"
+                        width={1000}
+                        height={1000}
+                        className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                      />
+                    )}
+                    <span className="text-[11px] text-center font-semibold py-2">
+                      {move?.move || ""}
+                    </span>
+                  </Button>
+                ) : (
+                  <Popover>
+                    <PopoverContent
+                      className="w-auto p-0 bg-white rounded-md"
+                      align="start"
                     >
-                      {whiteHistoryItem?.captured && (
-                        <Image
-                          key={`white-${index}`}
-                          src={`/pieces/${PieceChoosed}/${
-                            "w" + whiteHistoryItem.captured.toUpperCase()
-                          }.png`}
-                          alt="icon"
-                          width={1000}
-                          height={1000}
-                          className="w-[12px] h-[12px] object-contain inline-block mr-1"
-                        />
-                      )}
-                      <span className="text-[11px] text-center font-semibold py-2">
-                        {move?.move || ""}
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                </Popover>
+                      <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
+                        <div className="flex flex-row items-center justify-between gap-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-sm font-semibold">
+                              {move?.move || ""}
+                            </span>
+                            <span
+                              className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal  ${getScoreClass(
+                                move?.classification?.toLowerCase() || ""
+                              )}`}
+                            >
+                              {move?.evaluation || ""}
+                            </span>
+                          </div>
+                          <div className="flex flex-row items-center gap-2">
+                            <span
+                              className={`mx-1 py-1 rounded-[4px] px-2 ${getBadgeClass(
+                                move?.classification || ""
+                              )}`}
+                            >
+                              {move?.classification || ""}
+                            </span>
+                            <PopoverClose>
+                              <Image
+                                alt="close"
+                                src={"/icons/close-icon.png"}
+                                width={1000}
+                                height={1000}
+                                className="w-5 h-5"
+                              />
+                            </PopoverClose>
+                          </div>
+                        </div>
+                        {move?.analysis && (
+                          <span className="text-sm text-left lg:text-md font-normal py-1">
+                            {move.analysis}
+                          </span>
+                        )}
+                        <div className="flex flex-row gap-1">
+                          <InfoIcon size={16} color="#221AE9" />
+                          <span className="text-sm ">Type:</span>
+                          <span className="text-sm font-semibold ">
+                            {move?.gamePhase || ""}
+                          </span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"ghost"}
+                        className="rounded-none hover:bg-[#81CFF3]"
+                        onClick={() =>
+                          handleOnClickMovement(move, index, "white")
+                        }
+                      >
+                        {whiteHistoryItem?.captured && (
+                          <Image
+                            key={`white-${index}`}
+                            src={`/pieces/${PieceChoosed}/${
+                              "w" + whiteHistoryItem.captured.toUpperCase()
+                            }.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                          />
+                        )}
+                        <span className="text-[11px] text-center font-semibold py-2">
+                          {move?.move || ""}
+                        </span>
+                      </Button>
+                    </PopoverTrigger>
+                  </Popover>
+                )}
 
                 <span
                   className={`text-xs text-center py-2 ${getScoreClass(
@@ -288,84 +312,110 @@ export default function MovementTable() {
               >
                 {blackMove ? (
                   <>
-                    <Popover>
-                      <PopoverContent
-                        className="w-auto p-0 bg-white rounded-md"
-                        align="start"
+                    {tabFocus === "middlegame" || tabFocus === "endgame" ? (
+                      <Button
+                        variant={"ghost"}
+                        className="rounded-none hover:bg-[#81CFF3]"
+                        onClick={() =>
+                          handleOnClickMovement(blackMove, index, "black")
+                        }
                       >
-                        <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                          <div className="flex flex-row items-center justify-between gap-2">
-                            <div className="flex flex-row items-center gap-2">
-                              <span className="text-sm font-semibold">
-                                {blackMove.move || ""}
-                              </span>
-                              <span
-                                className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal py-2 ${getScoreClass(
-                                  blackMove.classification?.toLowerCase() || ""
-                                )}`}
-                              >
-                                {blackMove.evaluation || ""}
-                              </span>
-                            </div>
-                            <div className="flex flex-row items-center gap-2">
-                              <span
-                                className={`mx-1 py-1 rounded-[4px] text-xs px-2 ${getBadgeClass(
-                                  blackMove.classification || ""
-                                )}`}
-                              >
-                                {blackMove.classification || ""}
-                              </span>
-                              <PopoverClose>
-                                <Image
-                                  alt="close"
-                                  src={"/icons/close-icon.png"}
-                                  width={1000}
-                                  height={1000}
-                                  className="w-5 h-5"
-                                />
-                              </PopoverClose>
-                            </div>
-                          </div>
-                          {blackMove.analysis && (
-                            <span className="text-sm text-left lg:text-md font-normal py-1">
-                              {blackMove.analysis}
-                            </span>
-                          )}
-                          <div className="flex flex-row items-center gap-1">
-                            <InfoIcon size={16} color="#221AE9" />
-                            <span className="text-sm">Type:</span>
-                            <span className="text-sm font-semibold ">
-                              {blackMove.gamePhase || ""}
-                            </span>
-                          </div>
-                        </div>
-                      </PopoverContent>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"ghost"}
-                          className="rounded-none hover:bg-[#81CFF3]"
-                          onClick={() =>
-                            handleOnClickMovement(blackMove, index, "black")
-                          }
+                        {blackHistoryItem?.captured && (
+                          <Image
+                            key={`black-${index}`}
+                            src={`/pieces/${PieceChoosed}/${
+                              "b" + blackHistoryItem.captured.toUpperCase()
+                            }.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                          />
+                        )}
+                        <span className="text-[11px] text-center font-semibold py-2">
+                          {blackMove.move || ""}
+                        </span>
+                      </Button>
+                    ) : (
+                      <Popover>
+                        <PopoverContent
+                          className="w-auto p-0 bg-white rounded-md"
+                          align="start"
                         >
-                          {blackHistoryItem?.captured && (
-                            <Image
-                              key={`black-${index}`}
-                              src={`/pieces/${PieceChoosed}/${
-                                "b" + blackHistoryItem.captured.toUpperCase()
-                              }.png`}
-                              alt="icon"
-                              width={1000}
-                              height={1000}
-                              className="w-[12px] h-[12px] object-contain inline-block mr-1"
-                            />
-                          )}
-                          <span className="text-[11px] text-center font-semibold py-2">
-                            {blackMove.move || ""}
-                          </span>
-                        </Button>
-                      </PopoverTrigger>
-                    </Popover>
+                          <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
+                            <div className="flex flex-row items-center justify-between gap-2">
+                              <div className="flex flex-row items-center gap-2">
+                                <span className="text-sm font-semibold">
+                                  {blackMove.move || ""}
+                                </span>
+                                <span
+                                  className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal py-2 ${getScoreClass(
+                                    blackMove.classification?.toLowerCase() || ""
+                                  )}`}
+                                >
+                                  {blackMove.evaluation || ""}
+                                </span>
+                              </div>
+                              <div className="flex flex-row items-center gap-2">
+                                <span
+                                  className={`mx-1 py-1 rounded-[4px] text-xs px-2 ${getBadgeClass(
+                                    blackMove.classification || ""
+                                  )}`}
+                                >
+                                  {blackMove.classification || ""}
+                                </span>
+                                <PopoverClose>
+                                  <Image
+                                    alt="close"
+                                    src={"/icons/close-icon.png"}
+                                    width={1000}
+                                    height={1000}
+                                    className="w-5 h-5"
+                                  />
+                                </PopoverClose>
+                              </div>
+                            </div>
+                            {blackMove.analysis && (
+                              <span className="text-sm text-left lg:text-md font-normal py-1">
+                                {blackMove.analysis}
+                              </span>
+                            )}
+                            <div className="flex flex-row items-center gap-1">
+                              <InfoIcon size={16} color="#221AE9" />
+                              <span className="text-sm">Type:</span>
+                              <span className="text-sm font-semibold ">
+                                {blackMove.gamePhase || ""}
+                              </span>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"ghost"}
+                            className="rounded-none hover:bg-[#81CFF3]"
+                            onClick={() =>
+                              handleOnClickMovement(blackMove, index, "black")
+                            }
+                          >
+                            {blackHistoryItem?.captured && (
+                              <Image
+                                key={`black-${index}`}
+                                src={`/pieces/${PieceChoosed}/${
+                                  "b" + blackHistoryItem.captured.toUpperCase()
+                                }.png`}
+                                alt="icon"
+                                width={1000}
+                                height={1000}
+                                className="w-[12px] h-[12px] object-contain inline-block mr-1"
+                              />
+                            )}
+                            <span className="text-[11px] text-center font-semibold py-2">
+                              {blackMove.move || ""}
+                            </span>
+                          </Button>
+                        </PopoverTrigger>
+                      </Popover>
+                    )}
 
                     <span
                       className={`text-[11px] text-center py-2 ${getScoreClass(

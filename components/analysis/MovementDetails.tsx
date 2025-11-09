@@ -40,6 +40,45 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   // Safe access to movement details with defaults
   const movementDetails = movementDetailsData || { white: [], black: [] };
 
+  // Canonical analysis sources: Middlegame/Endgame
+  const middleGameBest =
+    dataAnalysis?.middleGame?.bestMoves != null
+      ? dataAnalysis?.middleGame?.bestMoves
+      : [];
+  const middleGameBad =
+    dataAnalysis?.middleGame?.badMoves != null
+      ? dataAnalysis?.middleGame?.badMoves
+      : [];
+  const endGameBest =
+    dataAnalysis?.endGame?.bestMoves != null
+      ? dataAnalysis?.endGame?.bestMoves
+      : [];
+  const endGameBad =
+    dataAnalysis?.endGame?.badMoves != null
+      ? dataAnalysis?.endGame?.badMoves
+      : [];
+
+  const getMoveInsight = (move: any) => {
+    if (!move) return null;
+    const candidates = [
+      ...middleGameBest,
+      ...middleGameBad,
+      ...endGameBest,
+      ...endGameBad,
+    ];
+    const found =
+      candidates.find(
+        (m: any) =>
+          m?.moveNumber === move?.moveNumber && String(m?.move) === String(move?.move)
+      ) || null;
+    if (!found) return null;
+    return {
+      analysis: found.analysis,
+      recommendation: found.recommendation,
+      gamePhase: move?.gamePhase,
+    };
+  };
+
   useEffect(() => {
     console.log("movementDetails", movementDetails);
   }, [movementDetails]);
@@ -95,10 +134,15 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any, index: number, type: string) => {
-    move.index = index;
-    move.type = type;
-    console.log("handleOnClickMovement", move);
-    setChessMove(move);
+    // Enrich the selected move with analysis/recommendation from Middlegame/Endgame
+    const insight = getMoveInsight(move);
+    const enrichedMove = {
+      ...move,
+      ...(insight || {}),
+      index,
+      type,
+    };
+    setChessMove(enrichedMove);
   };
 
   return (
@@ -163,81 +207,123 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
           </div>
 
           {movementDetails.white &&
-            movementDetails.white.map((move: any, index: number) => (
-              <div
-                key={index}
-                className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
-                  index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
-                }`}
-              >
-                <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
-                  {index + 1}
-                </span>
+            movementDetails.white.map((move: any, index: number) => {
+              const whiteInsight: any = getMoveInsight(move);
+              const blackMove: any = movementDetails.black[index];
+              const blackInsight: any = getMoveInsight(blackMove);
+              const showWhiteTooltip =
+                !!(whiteInsight && (whiteInsight.analysis || whiteInsight.recommendation));
+              const showBlackTooltip =
+                !!(blackInsight && (blackInsight.analysis || blackInsight.recommendation));
+              return (
                 <div
-                  className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
-                    chessMove.move == move.move &&
-                    chessMove.moveNumber == move.moveNumber &&
-                    `bg-[#81CFF3] `
+                  key={index}
+                  className={`grid grid-cols-2 sm:grid-cols-[6%_47%_47%] divide-x border-b text-center ${
+                    index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
                   }`}
                 >
-                  <Popover>
-                    <PopoverContent
-                      className="lg:hidden w-auto p-0"
-                      align="start"
-                    >
-                      <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                        <div className="flex flex-row items-center justify-between gap-2">
-                          <div className="flex flex-row items-center gap-2">
-                            <span className="text-xs  sm:text-xs md:text-md lg:text-md xl:text-sm font-semibold">
+                  <span className="hidden sm:block text-xs sm:text-sm md:text-md lg:text-md text-center font-semibold py-2 border-b border-b-[#749BBF]">
+                    {index + 1}
+                  </span>
+                  <div
+                    className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
+                      chessMove.move == move.move &&
+                      chessMove.moveNumber == move.moveNumber &&
+                      `bg-[#81CFF3] `
+                    }`}
+                  >
+                    {showWhiteTooltip ? (
+                      <Popover>
+                        <PopoverContent
+                          className="lg:hidden w-auto p-0"
+                          align="start"
+                        >
+                          <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
+                            <div className="flex flex-row items-center justify-between gap-2">
+                              <div className="flex flex-row items-center gap-2">
+                                <span className="text-xs  sm:text-xs md:text-md lg:text-md xl:text-sm font-semibold">
+                                  {move.move}
+                                </span>
+                                <span
+                                  className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
+                                    move.classification?.toLowerCase() || ""
+                                  )}`}
+                                >
+                                  {move.evaluation}
+                                </span>
+                              </div>
+                              <div className="flex flex-row items-center gap-2">
+                                <span
+                                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-sm px-2 ${getBadgeClass(
+                                    move.classification
+                                  )}`}
+                                >
+                                  {move.classification}
+                                </span>
+                                <PopoverClose>
+                                  <Image
+                                    alt="close"
+                                    src={"/icons/close-icon.png"}
+                                    width={1000}
+                                    height={1000}
+                                    className="w-5 h-5"
+                                  />
+                                </PopoverClose>
+                              </div>
+                            </div>
+                            {whiteInsight?.analysis && (
+                              <span className="text-xs font-normal py-1">
+                                {whiteInsight.analysis}
+                              </span>
+                            )}
+                            {whiteInsight?.recommendation && (
+                              <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                                <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                                  <span className="font-bold">Recommendation: </span>
+                                  {whiteInsight.recommendation}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex flex-row gap-1">
+                              <InfoIcon size={16} color="#221AE9" />
+                              <span className="text-xs">Type:</span>
+                              <span className="text-xs font-semibold ">
+                                {move.gamePhase}
+                              </span>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="rounded-none"
+                            onClick={() =>
+                              handleOnClickMovement(move, index, "white")
+                            }
+                          >
+                            {historyGame[index * 2] &&
+                              historyGame[index * 2].captured != null && (
+                                <Image
+                                  key={index}
+                                  src={`/pieces/${PieceChoosed}/${
+                                    "w" + historyGame[index * 2].captured.toUpperCase()
+                                  }.png`}
+                                  alt="icon"
+                                  width={1000}
+                                  height={1000}
+                                  unoptimized
+                                  className="w-[16px] h-[16px] object-contain inline-block mr-1"
+                                />
+                              )}
+                            <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-semibold py-2">
                               {move.move}
                             </span>
-                            <span
-                              className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
-                                move.classification?.toLowerCase() || ""
-                              )}`}
-                            >
-                              {move.evaluation}
-                            </span>
-                          </div>
-                          <div className="flex flex-row items-center gap-2">
-                            <span
-                              className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-sm px-2 ${getBadgeClass(
-                                move.classification
-                              )}`}
-                            >
-                              {move.classification}
-                            </span>
-                            <PopoverClose>
-                              <Image
-                                alt="close"
-                                src={"/icons/close-icon.png"}
-                                width={1000}
-                                height={1000}
-                                className="w-5 h-5"
-                              />
-                            </PopoverClose>
-                          </div>
-                        </div>
-                        {move.analysis && (
-                          <span className="text-xs font-normal py-1">
-                            {move.analysis}
-                          </span>
-                        )}
-                        <div className="flex flex-row gap-1">
-                          <InfoIcon size={16} color="#221AE9" />
-                          <span className="text-xs">Type:</span>
-                          <span className="text-xs font-semibold ">
-                            {move.gamePhase}
-                          </span>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                    <PopoverTrigger asChild>
+                          </button>
+                        </PopoverTrigger>
+                      </Popover>
+                    ) : (
                       <button
                         className="rounded-none"
-                        onClick={() =>
-                          handleOnClickMovement(move, index, "white")
-                        }
+                        onClick={() => handleOnClickMovement(move, index, "white")}
                       >
                         {historyGame[index * 2] &&
                           historyGame[index * 2].captured != null && (
@@ -257,92 +343,131 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                           {move.move}
                         </span>
                       </button>
-                    </PopoverTrigger>
-                  </Popover>
+                    )}
 
-                  <span
-                    className={`text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
-                      move.classification
-                    )}`}
-                  >
-                    {move.evaluation}
-                  </span>
-                  <span
-                    className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
-                      move.classification
-                    )}`}
-                  >
-                    {move.classification}
-                  </span>
-                </div>
+                    <span
+                      className={`text-xs sm:text-sm md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
+                        move.classification
+                      )}`}
+                    >
+                      {move.evaluation}
+                    </span>
+                    <span
+                      className={`mx-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
+                        move.classification
+                      )}`}
+                    >
+                      {move.classification}
+                    </span>
+                  </div>
 
-                {/* Black move column */}
-                <div
-                  className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
-                    movementDetails.black[index] &&
-                    chessMove.move == movementDetails.black[index]?.move &&
-                    chessMove.moveNumber ==
-                      movementDetails.black[index]?.moveNumber &&
-                    `bg-[#81CFF3] `
-                  }`}
-                >
-                  {movementDetails.black[index] && (
-                    <>
-                      <Popover>
-                        <PopoverContent
-                          className="lg:hidden w-auto p-0"
-                          align="start"
-                        >
-                          <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
-                            <div className="flex flex-row items-center justify-between gap-2">
-                              <div className="flex flex-row items-center gap-2">
-                                <span className="text-xs  sm:text-xs md:text-md lg:text-md xl:text-sm font-semibold">
+                  {/* Black move column */}
+                  <div
+                    className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
+                      movementDetails.black[index] &&
+                      chessMove.move == movementDetails.black[index]?.move &&
+                      chessMove.moveNumber ==
+                        movementDetails.black[index]?.moveNumber &&
+                      `bg-[#81CFF3] `
+                    }`}
+                  >
+                    {movementDetails.black[index] && (
+                      <>
+                        {showBlackTooltip ? (
+                          <Popover>
+                            <PopoverContent
+                              className="lg:hidden w-auto p-0"
+                              align="start"
+                            >
+                              <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
+                                <div className="flex flex-row items-center justify-between gap-2">
+                                  <div className="flex flex-row items-center gap-2">
+                                    <span className="text-xs  sm:text-xs md:text-md lg:text-md xl:text-sm font-semibold">
+                                      {movementDetails.black[index]?.move}
+                                    </span>
+                                    <span
+                                      className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
+                                        movementDetails.black[
+                                          index
+                                        ]?.classification?.toLowerCase() || ""
+                                      )}`}
+                                    >
+                                      {movementDetails.black[index]?.evaluation}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-row items-center gap-2">
+                                    <span
+                                      className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-sm px-2 ${getBadgeClass(
+                                        movementDetails.black[index]?.classification
+                                      )}`}
+                                    >
+                                      {movementDetails.black[index]?.classification}
+                                    </span>
+                                    <PopoverClose>
+                                      <Image
+                                        alt="close"
+                                        src={"/icons/close-icon.png"}
+                                        width={1000}
+                                        height={1000}
+                                        className="w-5 h-5"
+                                      />
+                                    </PopoverClose>
+                                  </div>
+                                </div>
+                                {blackInsight?.analysis && (
+                                  <span className="text-xs font-normal py-1">
+                                    {blackInsight.analysis}
+                                  </span>
+                                )}
+                                {blackInsight?.recommendation && (
+                                  <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                                    <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                                      <span className="font-bold">Recommendation: </span>
+                                      {blackInsight.recommendation}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex flex-row gap-1">
+                                  <InfoIcon size={16} color="#221AE9" />
+                                  <span className="text-xs">Type:</span>
+                                  <span className="text-xs font-semibold ">
+                                    {movementDetails.black[index]?.gamePhase}
+                                  </span>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                            <PopoverTrigger asChild>
+                              <button
+                                className="rounded-none"
+                                onClick={() =>
+                                  handleOnClickMovement(
+                                    movementDetails.black[index],
+                                    index,
+                                    "black"
+                                  )
+                                }
+                              >
+                                {historyGame[index * 2 + 1] &&
+                                  historyGame[index * 2 + 1].captured != null && (
+                                    <Image
+                                      key={index}
+                                      src={`/pieces/${PieceChoosed}/${
+                                        "b" + historyGame[index * 2 + 1].captured.toUpperCase()
+                                      }.png`}
+                                      alt="icon"
+                                      width={1000}
+                                      height={1000}
+                                      unoptimized
+                                      className="w-[16px] h-[16px] object-contain inline-block mr-1"
+                                    />
+                                  )}
+                                <span className="text-xs sm:text-sm md:text-md lg:text-mdtext-center font-semibold py-2">
                                   {movementDetails.black[index]?.move}
                                 </span>
-                                <span
-                                  className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-xs md:text-md lg:text-md xl:text-sm text-center font-normal py-2 ${getScoreClass(
-                                    movementDetails.black[
-                                      index
-                                    ]?.classification?.toLowerCase() || ""
-                                  )}`}
-                                >
-                                  {movementDetails.black[index]?.evaluation}
-                                </span>
-                              </div>
-                              <div className="flex flex-row items-center gap-2">
-                                <span
-                                  className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-xs md:text-sm lg:text-md xl:text-sm px-2 ${getBadgeClass(
-                                    movementDetails.black[index]?.classification
-                                  )}`}
-                                >
-                                  {movementDetails.black[index]?.classification}
-                                </span>
-                                <PopoverClose>
-                                  <Image
-                                    alt="close"
-                                    src={"/icons/close-icon.png"}
-                                    width={1000}
-                                    height={1000}
-                                    className="w-5 h-5"
-                                  />
-                                </PopoverClose>
-                              </div>
-                            </div>
-                            {movementDetails.black[index]?.analysis && (
-                              <span className="text-xs font-normal py-1">
-                                {movementDetails.black[index]?.analysis}
-                              </span>
-                            )}
-                            <div className="flex flex-row gap-1">
-                              <InfoIcon size={16} color="#221AE9" />
-                              <span className="text-xs">Type:</span>
-                              <span className="text-xs font-semibold ">
-                                {movementDetails.black[index]?.gamePhase}
-                              </span>
-                            </div>
-                          </div>
-                        </PopoverContent>
-                        <PopoverTrigger asChild>
+                              </button>
+                            </PopoverTrigger>
+                          </Popover>
+                        ) : (
                           <button
                             className="rounded-none"
                             onClick={() =>
@@ -371,28 +496,28 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                               {movementDetails.black[index]?.move}
                             </span>
                           </button>
-                        </PopoverTrigger>
-                      </Popover>
+                        )}
 
-                      <span
-                        className={`text-xs sm:text-sm md:text-md lg:text-mdtext-center font-normal py-2 ${getScoreClass(
-                          movementDetails.black[index]?.classification
-                        )}`}
-                      >
-                        {movementDetails.black[index]?.evaluation}
-                      </span>
-                      <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
-                          movementDetails.black[index]?.classification
-                        )}`}
-                      >
-                        {movementDetails.black[index]?.classification}
-                      </span>
-                    </>
-                  )}
+                        <span
+                          className={`text-xs sm:text-sm md:text-md lg:text-mdtext-center font-normal py-2 ${getScoreClass(
+                            movementDetails.black[index]?.classification
+                          )}`}
+                        >
+                          {movementDetails.black[index]?.evaluation}
+                        </span>
+                        <span
+                          className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md ${getBadgeClass(
+                            movementDetails.black[index]?.classification
+                          )}`}
+                        >
+                          {movementDetails.black[index]?.classification}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       </div>
 
