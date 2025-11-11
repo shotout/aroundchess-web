@@ -397,10 +397,11 @@ export function useApiClient() {
     [apiRequest]
   );
 
-  const getMistakePrevious = useCallback(() => {
+  const getMistakePrevious = useCallback((params?: any) => {
     return apiRequest({
       method: "GET",
       path: `${process.env.BASE_URL}/mistake-logs/previous`,
+      params,
     });
   }, [apiRequest]);
   const getMistakePreviousDetail = useCallback(
@@ -659,6 +660,15 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getAnalysisByPgnHash = useCallback(
+    (pgnHash: string) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/v2/analyze/last-analysis/${pgnHash}`,
+      });
+    },
+    [apiRequest]
+  );
   const logOut = useCallback(
     (body: any) => {
       return apiRequest({
@@ -751,6 +761,7 @@ export function useApiClient() {
     toggleSaveNews,
     getFAQ,
     getLastAnalysis,
+    getAnalysisByPgnHash,
     logOut,
     contactUs,
     GameHistoryOpenings,

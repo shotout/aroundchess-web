@@ -320,10 +320,22 @@ const ChessContent: React.FC = () => {
         setCurrentMove(moveIndex);
       }
     } else if (chessMove.move) {
-      const color = chessMove.type == "black" ? "b" : "w";
-      const data = parsedMoves.find(
-        (i) => i.san == chessMove.move && i.color == color
-      );
+      const sanitize = (s: string) =>
+        (s || "").replace(/[+#?!]/g, "").trim();
+      const targetSan = sanitize(chessMove.move);
+      let candidates = parsedMoves.filter((i) => sanitize(i.san) === targetSan);
+      if (candidates.length > 1 && chessMove.moveNumber) {
+        const mn = parseInt(chessMove.moveNumber as any, 10);
+        const byNumber = candidates.find((i) => {
+          const idx = parsedMoves.indexOf(i);
+          const num = Math.floor(idx / 2) + 1;
+          return num === mn;
+        });
+        if (byNumber) {
+          candidates = [byNumber];
+        }
+      }
+      const data = candidates[0];
       if (data) {
         const moveIndex = parsedMoves.indexOf(data) + 1;
         setCurrentMoveIndex(moveIndex);
