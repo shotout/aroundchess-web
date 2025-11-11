@@ -65,11 +65,16 @@ const PreviousAnalysis: React.FC = () => {
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
       let dataPrev = PreviousAnalysis;
-      console.log("saveMistakeLog", res);
-      console.log("indexData", index);
-      dataPrev[key][index] = res.data; 
-      setPreviousAnalysis(dataPrev);
-      setMistakeLogs(dataPrev);
+      // Preserve enriched fields (analysis text), update saved flags only
+      if (res?.data) {
+        dataPrev[key][index] = {
+          ...dataPrev[key][index],
+          saved: true,
+          savedDate: res.data.savedDate || new Date().toString(),
+        };
+      }
+      setPreviousAnalysis({ ...dataPrev });
+      setMistakeLogs({ ...dataPrev });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
@@ -82,12 +87,16 @@ const PreviousAnalysis: React.FC = () => {
     setLoadingToggle(true);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
-     let dataPrev = PreviousAnalysis;
-      console.log("saveMistakeLog", res);
-      console.log("indexData", index);
-      dataPrev[key][index] = res.data;
-      setPreviousAnalysis(dataPrev);
-      setMistakeLogs(dataPrev);
+      let dataPrev = PreviousAnalysis;
+      if (res?.data) {
+        dataPrev[key][index] = {
+          ...dataPrev[key][index],
+          saved: false,
+          savedDate: null,
+        };
+      }
+      setPreviousAnalysis({ ...dataPrev });
+      setMistakeLogs({ ...dataPrev });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
@@ -266,7 +275,7 @@ const PreviousAnalysis: React.FC = () => {
                     {item?.analysis}
                   </span>
                   <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                    <div className="flex flex-row items-start justify-start gap-2">
+                    <div className="flex flex-row items-center justify-start gap-2 w-full">
                       <Image
                         alt=""
                         src={"/icons/recommended-training-icon.png"}
@@ -274,7 +283,7 @@ const PreviousAnalysis: React.FC = () => {
                         height={1000}
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
-                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md  text-[#221AE9]">
+                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md text-[#221AE9] truncate whitespace-nowrap flex-1">
                         <span className="font-bold">
                           {item?.recommendation}
                         </span>

@@ -11,6 +11,8 @@ import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import DotSpinner from "../game-history/Spinner";
 import { Pagination } from "../pagination/pagination";
 import { usePagination } from "../pagination/hook/usePagination";
+import { sha256Hex } from "@/functions/sha256";
+import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
 
 interface savedProps {
   onClickSeePrevious?: () => void;
@@ -29,16 +31,48 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     setPreviousAnalysesDetail,
   } = usePgnStore();
   
-  const { unsaveMistakeLog } = useApiClient();
+  const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
   const { currentData } = usePagination(savedMistakes);
   const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
+  const [sectionsByHash, setSectionsByHash] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (savedMistakes.length > 0) {
       setSelectedMistakes(savedMistakes[0]?.mistakeLog.id);
     }
   }, [savedMistakes]);
+
+  // Prefetch Analyze Game sections for items on current page
+  useEffect(() => {
+    const doFetch = async () => {
+      try {
+        const pgns = Array.from(
+          new Set(currentData.map((it: any) => it.pgn).filter(Boolean))
+        );
+        const entries = await Promise.all(
+          pgns.map(async (pgn: string) => {
+            const hash = await sha256Hex(pgn);
+            const res = await getAnalysisByPgnHash(hash);
+            return [
+              hash,
+              {
+                threats: res?.data?.threats || [],
+                middleGame: res?.data?.middleGame || { badMoves: [] },
+                endGame: res?.data?.endGame || { badMoves: [] },
+              },
+            ] as const;
+          })
+        );
+        const map: Record<string, any> = {};
+        entries.forEach(([h, s]) => (map[h] = s));
+        setSectionsByHash(map);
+      } catch {}
+    };
+    if (currentData.length > 0) {
+      doFetch();
+    }
+  }, [currentData, getAnalysisByPgnHash]);
 
   const getBadgeClass = (type: string) => {
     switch (type) {
@@ -84,6 +118,47 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     }
   };
 
+  const buildDisplayMistakeLog = (item: any) => {
+    const moveItem = item?.mistakeLog;
+    if (!moveItem) return null;
+    // Hide Opening phase entirely
+    if (moveItem?.gamePhase === "Opening") return null;
+    const pgn = item?.pgn || "";
+    const hash = (item as any).__hash as string | undefined;
+    const sections =
+      (hash && sectionsByHash[hash]) || undefined;
+    if (!sections) return { ...moveItem, analysis: "-", recommendation: "-" };
+    const enriched = enrichMistakeLogsWithAnalyzeSections(
+      {
+        criticalMistakes: [],
+        weaknessIdentification: [],
+        badMoves: moveItem?.type === "Threats" ? [] : [moveItem],
+        threats: moveItem?.type === "Threats" ? [moveItem] : [],
+      },
+      sections
+    );
+    const merged =
+      (enriched.threats && enriched.threats[0]) ||
+      (enriched.badMoves && enriched.badMoves[0]) ||
+      (enriched.criticalMistakes && enriched.criticalMistakes[0]) ||
+      (enriched.weaknessIdentification && enriched.weaknessIdentification[0]) ||
+      null;
+    return merged;
+  };
+
+  // Attach hashes to current page items for quick lookup
+  useEffect(() => {
+    (async () => {
+      const promises = currentData.map(async (it: any) => {
+        if (!it.__hash) {
+          it.__hash = await sha256Hex(it.pgn || "");
+        }
+      });
+      await Promise.all(promises);
+      setSectionsByHash((m) => ({ ...m }));
+    })();
+  }, [currentData]);
+
   const handleUnsaveLog = async (id: string) => {
     setLoadingUnsave(true);
     try {
@@ -116,12 +191,14 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
         {currentData.length > 0 &&
           currentData.map((item: any, index: number) => {
+            const display = buildDisplayMistakeLog(item);
+            if (!display) return null;
             return (
               <div
                 key={index}
                 className="flex flex-col gap-2 lg:mt-2 cursor-pointer"
                 onClick={() => {
-                  handleOnClickMovement(item.mistakeLog);
+                  handleOnClickMovement(display);
                   setPreviousAnalysesDetail(item);
                   setPgn(item.pgn);
                 }}
@@ -207,10 +284,10 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   </div>
                   <span className="text-xs sm:text-md md:text-md lg:text-[14px] font-normal">
                     <span className="font-semibold">Analysis: </span>
-                    {item?.mistakeLog.analysis}
+                    {display?.analysis ?? ""}
                   </span>
                   <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                    <div className="flex flex-row items-start justify-start gap-2">
+                    <div className="flex flex-row items-center justify-start gap-2 w-full">
                       <Image
                         alt=""
                         src={"/icons/recommended-training-icon.png"}
@@ -218,9 +295,9 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                         height={1000}
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
-                      <span className=" text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
+                      <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9] truncate whitespace-nowrap flex-1">
                         <span className="font-bold">
-                          {item?.mistakeLog.recommendation}
+                          {display?.recommendation ?? ""}
                         </span>
                       </span>
                     </div>
