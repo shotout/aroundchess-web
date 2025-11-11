@@ -12,13 +12,23 @@ import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 
 const PreviousAnalysis: React.FC = () => {
+  const STORAGE_KEY = "feedbackLogOpenSections";
   const { chessMove, setChessMove } = useChessMoveStore();
   const { mistakeLogs, setMistakeLogs, previousAnalyses, setSavedMistakes } =
     usePgnStore();
   const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
 
   const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
-  const [indexOpen, setIndexOpen] = useState<string[]>(["Critical Mistakes"]);
+  const [indexOpen, setIndexOpen] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem("feedbackLogOpenSections");
+      const saved = raw ? JSON.parse(raw) : [];
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
 
@@ -26,25 +36,15 @@ const PreviousAnalysis: React.FC = () => {
     setPreviousAnalysis(mistakeLogs);
   }, [mistakeLogs]);
 
+  // Persist open sections whenever they change
   useEffect(() => {
-    const openSections: string[] = [];
-    if (PreviousAnalysis["criticalMistakes"]?.length > 0) {
-      openSections.push("Critical Mistakes");
-    }
-    if (PreviousAnalysis["badMoves"]?.length > 0) {
-      openSections.push("Bad Moves");
-    }
-    if (PreviousAnalysis["threats"]?.length > 0) {
-      openSections.push("Threats");
-    }
-    if (PreviousAnalysis["weaknessIdentification"]?.length > 0) {
-      openSections.push("Weakness Identification");
-    }
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(indexOpen));
+    } catch {}
+  }, [indexOpen]);
 
-    if (openSections.length > 0) {
-      setIndexOpen(openSections);
-    }
-
+  useEffect(() => {
     if (previousAnalyses.length > 0) {
       setSelectedMistakes(previousAnalyses[0]);
     }
