@@ -39,7 +39,8 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
   useEffect(() => {
     if (savedMistakes.length > 0) {
-      setSelectedMistakes(savedMistakes[0]?.mistakeLog.id);
+      // Keep selectedMistakes consistently as an object with an id
+      setSelectedMistakes(savedMistakes[0]?.mistakeLog);
     }
   }, [savedMistakes]);
 
