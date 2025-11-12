@@ -64,17 +64,20 @@ const PreviousAnalysis: React.FC = () => {
     setLoadingToggle(true);
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
-      let dataPrev = PreviousAnalysis;
-      // Preserve enriched fields (analysis text), update saved flags only
-      if (res?.data) {
-        dataPrev[key][index] = {
-          ...dataPrev[key][index],
+      setPreviousAnalysis((prev: any) => {
+        const prevList: any[] = Array.isArray(prev?.[key]) ? prev[key] : [];
+        const updatedItem = {
+          ...prevList[index],
           saved: true,
-          savedDate: res.data.savedDate || new Date().toString(),
+          savedDate: res?.data?.savedDate || new Date().toString(),
         };
-      }
-      setPreviousAnalysis({ ...dataPrev });
-      setMistakeLogs({ ...dataPrev });
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        const next = { ...prev, [key]: newList };
+        // Keep global store in sync
+        setMistakeLogs(next);
+        return next;
+      });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
@@ -87,16 +90,20 @@ const PreviousAnalysis: React.FC = () => {
     setLoadingToggle(true);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
-      let dataPrev = PreviousAnalysis;
-      if (res?.data) {
-        dataPrev[key][index] = {
-          ...dataPrev[key][index],
+      setPreviousAnalysis((prev: any) => {
+        const prevList: any[] = Array.isArray(prev?.[key]) ? prev[key] : [];
+        const updatedItem = {
+          ...prevList[index],
           saved: false,
           savedDate: null,
         };
-      }
-      setPreviousAnalysis({ ...dataPrev });
-      setMistakeLogs({ ...dataPrev });
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        const next = { ...prev, [key]: newList };
+        // Keep global store in sync
+        setMistakeLogs(next);
+        return next;
+      });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
