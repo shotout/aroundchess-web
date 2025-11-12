@@ -1,6 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { usePgnStore } from '@/app/store/zustandStore';
 import { useApiClient } from '@/functions/api-client';
+import { sha256Hex } from '@/functions/sha256';
+import { enrichMistakeLogsWithAnalyzeSections } from '@/components/mistake-log/utils';
 
 export const useDataCache = () => {
   const {
@@ -26,6 +28,7 @@ export const useDataCache = () => {
     getMistakeSaved,
     getMistakePrevious,
     getMistakePreviousDetail,
+    getAnalysisByPgnHash,
   } = useApiClient();
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -40,7 +43,8 @@ export const useDataCache = () => {
       setSavedMistakes(savedData.data);
       setPreviousAnalysesDetail(savedData.data[0]);
 
-      const prevData = await getMistakePrevious();
+      // Force-refresh to avoid backend cache for previous analyses
+      const prevData = await getMistakePrevious({ force: 1 });
       console.log("prevData",prevData)
       if (prevData.data.length > 0) {
         setPreviousAnalyses(prevData.data);
@@ -55,7 +59,22 @@ export const useDataCache = () => {
         setTitleGame(dataDetail.title);
         setMovementDetails(dataDetail.movementDetail);
         setPlayerInfo(dataDetail.playerInfo);
-        setMistakeLogs(dataDetail.mistakeLogs);
+        try {
+          const hash = await sha256Hex(dataDetail.pgn || "");
+          const analysisRes = await getAnalysisByPgnHash(hash);
+          const sections = {
+            threats: analysisRes?.data?.threats || [],
+            middleGame: analysisRes?.data?.middleGame || { badMoves: [] },
+            endGame: analysisRes?.data?.endGame || { badMoves: [] },
+          };
+          const enriched = enrichMistakeLogsWithAnalyzeSections(
+            dataDetail.mistakeLogs,
+            sections
+          );
+          setMistakeLogs(enriched as any);
+        } catch {
+          setMistakeLogs(dataDetail.mistakeLogs);
+        }
       }
 
       setLastFetchTime(Date.now());

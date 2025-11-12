@@ -12,13 +12,23 @@ import DotSpinner from "../game-history/Spinner";
 import NoData from "../NoData/NoData";
 
 const PreviousAnalysis: React.FC = () => {
+  const STORAGE_KEY = "feedbackLogOpenSections";
   const { chessMove, setChessMove } = useChessMoveStore();
   const { mistakeLogs, setMistakeLogs, previousAnalyses, setSavedMistakes } =
     usePgnStore();
   const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
 
   const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
-  const [indexOpen, setIndexOpen] = useState<string[]>(["Critical Mistakes"]);
+  const [indexOpen, setIndexOpen] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem("feedbackLogOpenSections");
+      const saved = raw ? JSON.parse(raw) : [];
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [PreviousAnalysis, setPreviousAnalysis] = useState<any>(mistakeLogs);
 
@@ -26,25 +36,15 @@ const PreviousAnalysis: React.FC = () => {
     setPreviousAnalysis(mistakeLogs);
   }, [mistakeLogs]);
 
+  // Persist open sections whenever they change
   useEffect(() => {
-    const openSections: string[] = [];
-    if (PreviousAnalysis["criticalMistakes"]?.length > 0) {
-      openSections.push("Critical Mistakes");
-    }
-    if (PreviousAnalysis["badMoves"]?.length > 0) {
-      openSections.push("Bad Moves");
-    }
-    if (PreviousAnalysis["threats"]?.length > 0) {
-      openSections.push("Threats");
-    }
-    if (PreviousAnalysis["weaknessIdentification"]?.length > 0) {
-      openSections.push("Weakness Identification");
-    }
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(indexOpen));
+    } catch {}
+  }, [indexOpen]);
 
-    if (openSections.length > 0) {
-      setIndexOpen(openSections);
-    }
-
+  useEffect(() => {
     if (previousAnalyses.length > 0) {
       setSelectedMistakes(previousAnalyses[0]);
     }
@@ -64,12 +64,20 @@ const PreviousAnalysis: React.FC = () => {
     setLoadingToggle(true);
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
-      let dataPrev = PreviousAnalysis;
-      console.log("saveMistakeLog", res);
-      console.log("indexData", index);
-      dataPrev[key][index] = res.data; 
-      setPreviousAnalysis(dataPrev);
-      setMistakeLogs(dataPrev);
+      setPreviousAnalysis((prev: any) => {
+        const prevList: any[] = Array.isArray(prev?.[key]) ? prev[key] : [];
+        const updatedItem = {
+          ...prevList[index],
+          saved: true,
+          savedDate: res?.data?.savedDate || new Date().toString(),
+        };
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        const next = { ...prev, [key]: newList };
+        // Keep global store in sync
+        setMistakeLogs(next);
+        return next;
+      });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
@@ -82,12 +90,20 @@ const PreviousAnalysis: React.FC = () => {
     setLoadingToggle(true);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
-     let dataPrev = PreviousAnalysis;
-      console.log("saveMistakeLog", res);
-      console.log("indexData", index);
-      dataPrev[key][index] = res.data;
-      setPreviousAnalysis(dataPrev);
-      setMistakeLogs(dataPrev);
+      setPreviousAnalysis((prev: any) => {
+        const prevList: any[] = Array.isArray(prev?.[key]) ? prev[key] : [];
+        const updatedItem = {
+          ...prevList[index],
+          saved: false,
+          savedDate: null,
+        };
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        const next = { ...prev, [key]: newList };
+        // Keep global store in sync
+        setMistakeLogs(next);
+        return next;
+      });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
@@ -266,7 +282,7 @@ const PreviousAnalysis: React.FC = () => {
                     {item?.analysis}
                   </span>
                   <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                    <div className="flex flex-row items-start justify-start gap-2">
+                    <div className="flex flex-row items-center justify-start gap-2 w-full">
                       <Image
                         alt=""
                         src={"/icons/recommended-training-icon.png"}
@@ -274,7 +290,7 @@ const PreviousAnalysis: React.FC = () => {
                         height={1000}
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
-                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md  text-[#221AE9]">
+                      <span className="font-normal text-xs sm:text-sm md:text-md lg:text-md xl:text-md text-[#221AE9] truncate whitespace-nowrap flex-1">
                         <span className="font-bold">
                           {item?.recommendation}
                         </span>

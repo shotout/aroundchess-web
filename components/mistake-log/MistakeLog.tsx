@@ -20,10 +20,12 @@ import PreviousAnalysis from "./PreviousAnalysis";
 import SavedMistakes from "./SavedMistakes";
 import { useDataCache } from "@/app/hooks/useDataCache";
 import EmptyLog from "./EmptyLog";
+import { sha256Hex } from "@/functions/sha256";
+import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
 
 const MistakeLog = () => {
   const { initializeData, isFetching, hasCachedData } = useDataCache();
-  const { getMistakePreviousDetail } = useApiClient();
+  const { getMistakePreviousDetail, getAnalysisByPgnHash } = useApiClient();
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isDesktop, setIsDesktop] = useState(false);
   const [widthSidebar, setWidthSidebar] = useState(0);
@@ -92,7 +94,25 @@ const MistakeLog = () => {
       setTitleGame(dataDetail.title);
       setMovementDetails(dataDetail.movementDetail);
       setPlayerInfo(dataDetail.playerInfo);
-      setMistakeLogs(dataDetail.mistakeLogs);
+
+      // Enrich mistake logs with Analyze Game sections and hide Opening/missing
+      try {
+        const hash = await sha256Hex(dataDetail.pgn || "");
+        const analysisRes = await getAnalysisByPgnHash(hash);
+        const sections = {
+          threats: analysisRes?.data?.threats || [],
+          middleGame: analysisRes?.data?.middleGame || { badMoves: [] },
+          endGame: analysisRes?.data?.endGame || { badMoves: [] },
+        };
+        const enriched = enrichMistakeLogsWithAnalyzeSections(
+          dataDetail.mistakeLogs,
+          sections
+        );
+        setMistakeLogs(enriched as any);
+      } catch (e) {
+        // If enrichment fails, still set original (but Opening items may still appear)
+        setMistakeLogs(dataDetail.mistakeLogs);
+      }
       setLoadingPrevious(false);
     } catch (error) {
       setLoadingPrevious(false);
@@ -143,12 +163,9 @@ const MistakeLog = () => {
   const handleGoPrevious = () => {
     setTabSelected("previous");
     setChessMove({});
-    if (mistakePreviousDetail.pgn) {
-      setPgn(mistakePreviousDetail.pgn);
-      setPlayerInfo(mistakePreviousDetail.playerInfo);
-      setTitleGame(mistakePreviousDetail.title);
-      setMovementDetails(mistakePreviousDetail.movementDetail);
-      setPreviousAnalysesDetail(mistakePreviousDetail);
+    if (mistakePreviousDetail.id) {
+      // Refresh detail to ensure enrichment applied when switching tabs
+      fetchMistakePreviousDetailForFilter(mistakePreviousDetail.id, false);
     }
   };
   useEffect(() => {
