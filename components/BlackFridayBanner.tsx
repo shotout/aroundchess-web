@@ -125,7 +125,7 @@ export function BlackFridayBanner() {
       {/* Mobile Banner */}
       <div
         onClick={handleBannerClick}
-        className="md:hidden w-full min-h-[120px] flex items-center justify-center py-4 px-4 cursor-pointer active:opacity-95 transition-opacity"
+        className="md:hidden w-full min-h-[100px] flex items-center justify-center py-3 px-4 cursor-pointer active:opacity-95 transition-opacity"
         style={{
           backgroundImage: "url('/images/black-friday/Slicing - Desktop Banner/background.png')",
           backgroundSize: "cover",
@@ -154,19 +154,19 @@ export function BlackFridayBanner() {
         </button>
 
         {/* Mobile content */}
-        <div className="flex items-center justify-center gap-1 w-full -ml-4 relative z-10">
+        <div className="flex items-center justify-center gap-6 w-full -ml-4 relative z-10">
           <div className="flex items-center justify-center">
             <img
               src="/images/black-friday/Slicing - Mobile Bar/version_1/graphic_with_text/graphic_with_text_4x.png"
               alt="Black Friday Special Offer $50 OFF"
-              className="h-[120px] sm:h-[130px] w-auto object-contain"
+              className="h-[110px] sm:h-[120px] w-auto object-contain"
             />
           </div>
           <div className="flex items-center justify-center">
             <img
               src="/images/black-friday/Slicing - Mobile Bar/version_1/all_content/all_content_4x.png"
               alt="Get $50 OFF - Code: BLACK50"
-              className="h-[120px] sm:h-[130px] w-auto object-contain"
+              className="h-[110px] sm:h-[120px] w-auto object-contain"
             />
           </div>
         </div>

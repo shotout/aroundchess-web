@@ -118,6 +118,9 @@ useEffect(() => {
         setSessionId(data.data.access_token);
         toast.success("Logged in successfully!");
 
+        // Set flag to show Black Friday modal after redirect
+        sessionStorage.setItem("showBlackFridayModal", "true");
+
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoading(true);
 

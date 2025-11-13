@@ -6,6 +6,8 @@ import Navigation from "@/components/navigator/navigation";
 import { usePgnStore } from "../store/zustandStore";
 import { useEffect } from "react";
 import { trackCustomEvent } from "../utils/facebookPixel";
+import { BlackFridayPromoTrigger } from "@/components/modal/BlackFridayPromoTrigger";
+import { PricingOffer } from "@/components/modal/PricingOffer";
 
 export default function Page() {
   const { isLoading } = usePgnStore();
@@ -27,6 +29,8 @@ useEffect(() => {
           </div>
         </div>
       )}
+      <PricingOffer />
+      <BlackFridayPromoTrigger />
     </>
   );
 }
