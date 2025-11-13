@@ -42,7 +42,7 @@ export const PricingOffer: React.FC = () => {
   const [widthC, setWidthC] = useState<number>(0);
   const [mounted, setMounted] = useState<boolean>(false);
 
-  const { open, setOpen, tabType, setParamsPayment } = usePricingOffer();
+  const { open, setOpen, tabType, setParamsPayment, subscriptionFilter } = usePricingOffer();
   const { isLoading, getTokenPackage, checkoutSessions } = useApiClient();
   const {
     tokenPackage,
@@ -623,7 +623,7 @@ export const PricingOffer: React.FC = () => {
                     sessionId.length > 0 ? `-pt-[10px]` : `-mt-[20px]`
                   }`}
                 >
-                  <PremiumSubsContent onGetPremium={handleGetPremium} />
+                  <PremiumSubsContent onGetPremium={handleGetPremium} initialFilter={subscriptionFilter} />
                 </TabsContent>
               </div>
             )}
@@ -633,7 +633,7 @@ export const PricingOffer: React.FC = () => {
                   sessionId.length > 0 ? `-pt-[10px]` : `-mt-[20px]`
                 }`}
               >
-                <PremiumSubsContent onGetPremium={handleGetPremium} />
+                <PremiumSubsContent onGetPremium={handleGetPremium} initialFilter={subscriptionFilter} />
               </div>
             )}
           </Tabs>

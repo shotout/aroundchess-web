@@ -114,7 +114,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
-}> = ({ onGetPremium }) => {
+  initialFilter?: "monthly" | "yearly";
+}> = ({ onGetPremium, initialFilter = "monthly" }) => {
   const {
     allMembershipPackages,
     activeMembership,
@@ -128,7 +129,7 @@ export const PremiumSubsContent: React.FC<{
   const { checkoutSessions, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
-  const [packageFilter, setPackageFilter] = useState("monthly"); // monthly, yearly
+  const [packageFilter, setPackageFilter] = useState(initialFilter); // monthly, yearly
   const [paySelected, setPaySelected] = useState(""); // monthly, yearly
   const handleOpenContactUs = () => {
     setOpenPricing(false);

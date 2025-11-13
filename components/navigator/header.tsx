@@ -263,6 +263,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       } ${
         isEndgameTraining && !isDesktop ? "bg-[#E6F7FE]" : "bg-white border-b"
       } px-3 lg:px-6 h-[72px] lg:h-[97px]`}
+      style={{ top: "var(--banner-height, 0px)" }}
     >
       <div
         className={`flex ${

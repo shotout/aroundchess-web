@@ -99,10 +99,18 @@ export default function Navigation({
     return (
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         <div className="flex flex-col w-full">
-          <div className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0">
+          <div
+            className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0"
+            style={{ top: "calc(var(--banner-height, 0px) - 1px)" }}
+          >
             <Header onSidebarToggle={toggleSidebar} />
           </div>
-          <main className="flex-1 overflow-y-auto pt-[72px] lg:pt-24">
+          <main
+            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            style={{
+              paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
+            }}
+          >
             <div className="flex items-center justify-center min-h-[calc(100vh-72px)]">
               <DotSpinner />
             </div>
@@ -127,8 +135,12 @@ export default function Navigation({
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         {isDesktop && (
           <div
-            style={{ width: widthSidebar }}
-            className={`fixed top-0 left-0 h-full border-r border-gray-200 bg-white z-30`}
+            style={{ 
+              width: widthSidebar,
+              top: "var(--banner-height, 0px)",
+              height: "calc(100vh - var(--banner-height, 0px))"
+            }}
+            className={`fixed left-0 border-r border-gray-200 bg-white z-30`}
           >
             <Sidebar />
           </div>
@@ -139,18 +151,23 @@ export default function Navigation({
           className={`flex flex-col w-full`}
         >
           <div
-            style={{ left: widthSidebar }}
+            style={{ left: widthSidebar, top: "calc(var(--banner-height, 0px) - 1px)" }}
             className={`fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0`}
           >
             <Header onSidebarToggle={toggleSidebar} />
           </div>
 
-          <main className="flex-1 overflow-y-auto pt-[72px] lg:pt-24">
+          <main
+            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            style={{
+              paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
+            }}
+          >
             {isDialogOpen && (
               <div
                 className="fixed inset-0 bg-black/10 z-20"
                 style={{
-                  top: "4.5rem",
+                  top: "calc(var(--banner-height, 0px) + 4.5rem)",
                   left: isDesktop ? "16rem" : "0",
                   bottom: "0",
                 }}
