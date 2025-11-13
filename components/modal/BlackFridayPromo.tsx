@@ -118,7 +118,7 @@ export function BlackFridayPromo() {
             </button>
 
             {/* Fine Print */}
-            <p className="text-white/90 text-[10px] text-center px-4 leading-tight max-w-[480px]">
+            <p className="text-white/90 text-[14px] text-center px-4 leading-tight max-w-[480px]">
               Valid until November 30, 2025. Subscription Purchase must be made on a desktop device to claim the discount.
             </p>
           </div>
