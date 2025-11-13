@@ -280,7 +280,7 @@ export const PremiumSubsContent: React.FC<{
   // helper to scroll a card into center of the container and set the packageFilter
   const scrollToAndSet = (
     ref: React.RefObject<HTMLDivElement>,
-    key: string
+    key: "monthly" | "yearly"
   ) => {
     const container = containerRef.current;
     const node = ref.current;
@@ -639,22 +639,12 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                {/* {!(
-                  !isMember &&
-                  profile?.discountInfo?.hasActiveDiscount &&
-                  isPass > 0
-                ) ? ( */}
-                <div className="text-xl font-semibold">
-                  $79.99 <span className="text-sm font-normal">/year</span>
-                </div>
-                {/* ) : (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <PriceDiscount price={99.99} />
-                    <div className="text-xl font-semibold">
-                      $79.99 <span className="text-sm font-normal">/year</span>
-                    </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <PriceDiscount price={79.99} />
+                  <div className="text-xl font-semibold">
+                    $29.99 <span className="text-sm font-normal">/year</span>
                   </div>
-                )} */}
+                </div>
               </div>
             </div>
 
