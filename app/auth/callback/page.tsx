@@ -146,6 +146,9 @@ export default function SSOCallbackPage() {
           setPersistedCookie("token", accessToken, 365);
           setSessionId(accessToken);
 
+          // Set flag to show Black Friday modal after redirect
+          sessionStorage.setItem("showBlackFridayModal", "true");
+
           try {
             const profileResponse = await fetch(`${baseUrl}/profile`, {
               headers: {

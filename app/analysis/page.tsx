@@ -14,6 +14,8 @@ import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import { useTutorial } from "@/components/TutorialProvider";
+import { BlackFridayPromoTrigger } from "@/components/modal/BlackFridayPromoTrigger";
+import { PricingOffer } from "@/components/modal/PricingOffer";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -258,6 +260,8 @@ export default function AnalysisPage() {
           </Navigation>
         </div>
       </div>
+      <PricingOffer />
+      <BlackFridayPromoTrigger />
     </div>
   );
 }

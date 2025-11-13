@@ -132,7 +132,11 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
 
   return (
     <motion.header
-      className="sticky top-0 z-[200] w-full h-[72px] lg:h-[97px] bg-white"
+      className="sticky z-[200] w-full h-[72px] lg:h-[97px] bg-white"
+      style={{ 
+        top: "var(--banner-height, 0px)",
+        marginTop: "var(--banner-height, 0px)"
+      }}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
