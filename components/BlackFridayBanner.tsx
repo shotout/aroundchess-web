@@ -16,6 +16,22 @@ export function BlackFridayBanner() {
     }
   }, []);
 
+  // Listen for a global reset event so we can show the banner again immediately
+  // after login, without requiring a full page refresh.
+  useEffect(() => {
+    const handleReset = () => {
+      // Only show again if it was previously closed
+      setIsVisible(true);
+      document.documentElement.style.setProperty("--banner-height", "0px");
+    };
+
+    window.addEventListener("blackFridayBanner:reset", handleReset);
+
+    return () => {
+      window.removeEventListener("blackFridayBanner:reset", handleReset);
+    };
+  }, []);
+
   // Measure actual banner height (desktop/mobile) and push to CSS var
   useEffect(() => {
     if (!isVisible) {
