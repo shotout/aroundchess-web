@@ -77,6 +77,8 @@
   :root {
     --header-height: 97px;
     --mobile-header-height: 56px;
+    --banner-height: 0px;
+    --current-header-height: var(--mobile-header-height);
     --background: 220 33% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
@@ -105,6 +107,12 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --current-header-height: var(--header-height);
   }
 }
 

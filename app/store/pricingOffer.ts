@@ -7,6 +7,8 @@ interface PricingOfferState {
   setOpenOffer: (open: any) => void;
   tabType: string;
   setTabType: (tabType: string) => void;
+  subscriptionFilter: "monthly" | "yearly";
+  setSubscriptionFilter: (filter: "monthly" | "yearly") => void;
   paramsPayment: any;
   setParamsPayment: (paramsPayment: any) => void;
 }
@@ -18,6 +20,8 @@ export const usePricingOffer = create<PricingOfferState>((set) => ({
   setOpenOffer: (openOffer) => set({ openOffer }),
   tabType: "analyses",
   setTabType: (tabType) => set({ tabType }),
+  subscriptionFilter: "monthly",
+  setSubscriptionFilter: (subscriptionFilter) => set({ subscriptionFilter }),
   paramsPayment: "analyses",
   setParamsPayment: (paramsPayment) => set({ paramsPayment }),
 }));

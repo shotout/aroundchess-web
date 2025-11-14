@@ -42,7 +42,13 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
+      (event: string, session: Session | null) => {
+        // When user logs in, clear the Black Friday banner closed flag
+        // so the banner reappears on their next login
+        if (event === "SIGNED_IN" && session?.user) {
+          localStorage.removeItem("blackFridayBannerClosed");
+        }
+        
         setUser(session?.user || null);
         setLoading(false);
       }

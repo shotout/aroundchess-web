@@ -114,7 +114,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
-}> = ({ onGetPremium }) => {
+  initialFilter?: "monthly" | "yearly";
+}> = ({ onGetPremium, initialFilter = "monthly" }) => {
   const {
     allMembershipPackages,
     activeMembership,
@@ -128,8 +129,9 @@ export const PremiumSubsContent: React.FC<{
   const { checkoutSessions, isLoading } = useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
-  const [packageFilter, setPackageFilter] = useState("monthly"); // monthly, yearly
+  const [packageFilter, setPackageFilter] = useState(initialFilter); // monthly, yearly
   const [paySelected, setPaySelected] = useState(""); // monthly, yearly
+  const [isMobile, setIsMobile] = useState(false);
   const handleOpenContactUs = () => {
     setOpenPricing(false);
     setOpen(true);
@@ -138,10 +140,24 @@ export const PremiumSubsContent: React.FC<{
   const handleCancelSubscription = () => {
     setOpenCancel(true);
   };
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+  
   useEffect(() => {
     if (isMember) {
       scrollToAndSet(yearlyCardRef, "yearly");
     } else if (isMemberMonthly) {
+      scrollToAndSet(monthlyCardRef, "monthly");
+    } else if (initialFilter === "yearly") {
+      scrollToAndSet(yearlyCardRef, "yearly");
+    } else if (initialFilter === "monthly") {
       scrollToAndSet(monthlyCardRef, "monthly");
     }
   }, []);
@@ -211,12 +227,11 @@ export const PremiumSubsContent: React.FC<{
   // on scroll detect which card is nearest to the container center and set the filter
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || !isMobile) return;
 
     let raf = 0;
 
     const handleScroll = () => {
-      if (window.innerWidth > 425) return null;
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
@@ -246,6 +261,8 @@ export const PremiumSubsContent: React.FC<{
           }
         });
 
+        // Only update filter if it's different - this helps with button highlighting
+        // but doesn't affect which cards are shown on mobile
         if (closestKey !== null && closestKey !== packageFilter) {
           setPackageFilter(closestKey);
         }
@@ -253,19 +270,17 @@ export const PremiumSubsContent: React.FC<{
     };
 
     el.addEventListener("scroll", handleScroll, { passive: true });
-    // run once to initialize
-    handleScroll();
 
     return () => {
       el.removeEventListener("scroll", handleScroll as EventListener);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [packageFilter]);
+  }, [packageFilter, isMobile]);
 
   // helper to scroll a card into center of the container and set the packageFilter
   const scrollToAndSet = (
     ref: React.RefObject<HTMLDivElement>,
-    key: string
+    key: "monthly" | "yearly"
   ) => {
     const container = containerRef.current;
     const node = ref.current;
@@ -374,13 +389,14 @@ export const PremiumSubsContent: React.FC<{
       </div>
       <div
         ref={containerRef}
-        className={`flex max-w-full overflow-x-scroll gap-2 space-x-1 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 `}
+        className={`flex max-w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* free */}
-        {(packageFilter === "monthly" || window.innerWidth <= 425) && (
+        {(isMobile || packageFilter === "monthly") && (
           <div
             ref={freeCardRef}
-            className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none"
+            className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-50 rounded-full">
@@ -449,12 +465,12 @@ export const PremiumSubsContent: React.FC<{
           </div>
         )}
         {/* monthly */}
-        {(packageFilter === "monthly" ||
-          packageFilter === "yearly" ||
-          window.innerWidth <= 425) && (
+        {(isMobile ||
+          packageFilter === "monthly" ||
+          packageFilter === "yearly") && (
           <div
             ref={monthlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
+            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
           >
             {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
@@ -591,10 +607,10 @@ export const PremiumSubsContent: React.FC<{
         )}
 
         {/* yearly */}
-        {(packageFilter === "yearly" || window.innerWidth <= 425) && (
+        {(isMobile || packageFilter === "yearly") && (
           <div
             ref={yearlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col"
+            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
           >
             <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
@@ -623,22 +639,12 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                {/* {!(
-                  !isMember &&
-                  profile?.discountInfo?.hasActiveDiscount &&
-                  isPass > 0
-                ) ? ( */}
-                <div className="text-xl font-semibold">
-                  $79.99 <span className="text-sm font-normal">/year</span>
-                </div>
-                {/* ) : (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <PriceDiscount price={99.99} />
-                    <div className="text-xl font-semibold">
-                      $79.99 <span className="text-sm font-normal">/year</span>
-                    </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <PriceDiscount price={79.99} />
+                  <div className="text-xl font-semibold">
+                    $29.99 <span className="text-sm font-normal">/year</span>
                   </div>
-                )} */}
+                </div>
               </div>
             </div>
 
