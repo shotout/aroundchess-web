@@ -637,9 +637,9 @@ export default function PlayingPage() {
       newSquares[move.to] = {
         background:
           game.get(move.to) &&
-          game?.get(move.to)?.color !== game?.get(square)?.color
-            ? "radial-gradient(circle, rgba(99, 133, 255, 1) 30%, transparent 30%)"
-            : "radial-gradient(circle, rgba(99, 133, 255, 1) 25%, transparent 25%)",
+          game.get(move.to)?.color !== game.get(square)?.color
+            ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
+            : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
         borderRadius: "50%",
       };
       return move;
@@ -659,11 +659,12 @@ export default function PlayingPage() {
     setBestline("");
 
     if (!moveFrom) {
-      // const hasMoveOptions = getMoveOptions(square);
-      // if (hasMoveOptions) {
-      //   setPreviousSquare(square);
-      //   setMoveFrom(square);
-      // }
+      // Click-to-select with dots: show legal moves and mark current square
+      const hasMoveOptions = getMoveOptions(square);
+      if (hasMoveOptions) {
+        setPreviousSquare(square);
+        setMoveFrom(square);
+      }
       return;
     }
 
@@ -688,11 +689,12 @@ export default function PlayingPage() {
           setPreviousSquare(undefined);
           return;
         }
-        // const hasMoveOptions = getMoveOptions(square);
-        // setMoveFrom(hasMoveOptions ? square : "");
-        // if (hasMoveOptions) {
-        //   setPreviousSquare(square);
-        // }
+        // Change selected piece: update dots for the new origin square
+        const hasMoveOptions = getMoveOptions(square);
+        if (hasMoveOptions) {
+          setPreviousSquare(square);
+          setMoveFrom(square);
+        }
         return;
       }
 
@@ -739,8 +741,12 @@ export default function PlayingPage() {
       }
 
       if (move === null) {
+        // If move failed, try treating the clicked square as a new origin
         const hasMoveOptions = getMoveOptions(square);
-        if (hasMoveOptions) setMoveFrom(square);
+        if (hasMoveOptions) {
+          setPreviousSquare(square);
+          setMoveFrom(square);
+        }
         return;
       }
     }
