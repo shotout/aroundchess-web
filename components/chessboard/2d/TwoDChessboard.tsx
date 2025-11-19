@@ -76,14 +76,10 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
     return `/boards/${BoardChoosed}${boardSuffix}.png`;
   }, [BoardChoosed, orientation, playerColor]);
 
-  const handlePieceDragBegin = (piece: string, sourceSquare: string) => {
-    if (onPieceDragBegin) {
-      onPieceDragBegin(piece, sourceSquare);
-    }
-
+  const handleShowOptions = (square: Square) => {
     if (game && setOptionSquares && gameStatus === "ongoing") {
       const moves = game.moves({
-        square: sourceSquare as Square,
+        square: square as Square,
         verbose: true,
       });
 
@@ -95,13 +91,13 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             background:
               game.get(move.to) &&
               game.get(move.to)?.color !==
-                game.get(sourceSquare as Square)?.color
-                ? "radial-gradient(circle, rgba(34,26,233) 30%, transparent 30%)"
-                : "radial-gradient(circle, rgba(34,26,233) 25%, transparent 25%)",
+                game.get(square as Square)?.color
+                ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
+                : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
           };
         });
 
-        newSquares[sourceSquare] = {
+        newSquares[square] = {
           background: "#F5F682",
         };
 
@@ -110,14 +106,26 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
     }
   };
 
+  const handleHideOptions = () => {
+    if (setOptionSquares) {
+      setOptionSquares({});
+    }
+  };
+
+  const handlePieceDragBegin = (piece: string, sourceSquare: string) => {
+    if (onPieceDragBegin) {
+      onPieceDragBegin(piece, sourceSquare);
+    }
+
+    handleShowOptions(sourceSquare as Square);
+  };
+
   const handlePieceDragEnd = (piece: string, sourceSquare: string) => {
     if (onPieceDragEnd) {
       onPieceDragEnd(piece, sourceSquare);
     }
 
-    if (setOptionSquares) {
-      setOptionSquares({});
-    }
+    handleHideOptions();
   };
 
   const handlePieceDrop = (
@@ -208,29 +216,37 @@ const TwoDChessboard: React.FC<TwoDChessboardProps> = ({
             cursor: arePiecesDraggable ? "grab" : "pointer",
           }}
         >
-          <Image
-            src={`/pieces/${PieceChoosed}/${piece}.png`}
-            width={squareWidth}
-            height={squareWidth}
-            alt={piece}
-            style={{
-              position: "absolute",
-              bottom:
-                PieceChoosed == "wood"
-                  ? `${-0.1 * squareWidth}px`
-                  : PieceChoosed == "glass"
-                  ? `${0.1 * squareWidth}px`
-                  : `${0 * squareWidth}px`,
-              objectFit: "contain",
-              zIndex: isDragging ? 1000 : 100,
-              pointerEvents: "none",
-            }}
-          />
+          <div
+            onMouseDown={() => handleShowOptions(square as Square)}
+            onMouseUp={handleHideOptions}
+            onTouchStart={() => handleShowOptions(square as Square)}
+            onTouchEnd={handleHideOptions}
+            style={{ width: "100%", height: "100%" }}
+          >
+            <Image
+              src={`/pieces/${PieceChoosed}/${piece}.png`}
+              width={squareWidth}
+              height={squareWidth}
+              alt={piece}
+              style={{
+                position: "absolute",
+                bottom:
+                  PieceChoosed == "wood"
+                    ? `${-0.1 * squareWidth}px`
+                    : PieceChoosed == "glass"
+                    ? `${0.1 * squareWidth}px`
+                    : `${0 * squareWidth}px`,
+                objectFit: "contain",
+                zIndex: isDragging ? 1000 : 100,
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         </div>
       );
     });
     return pieceComponents;
-  }, [PieceChoosed, arePiecesDraggable]);
+  }, [PieceChoosed, arePiecesDraggable, game, gameStatus, setOptionSquares]);
 
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
