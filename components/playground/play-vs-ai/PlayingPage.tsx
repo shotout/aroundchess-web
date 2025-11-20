@@ -357,6 +357,8 @@ export default function PlayingPage() {
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+  const isGameInitialized = useRef(false);
+
   const { getJobByGameId, analysisJobs, clearOldJobs } =
     useBackgroundAnalysisStore();
   const { startBackgroundPolling, restorePollingJobs } = usePollingManager();
@@ -419,6 +421,8 @@ export default function PlayingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
+  const [redoStack, setRedoStack] = useState<string[]>([]);
+
   const isYourTurn = myColor === "white" ? "w" : "b";
 
   const updateFenHistory = useCallback((newFen: string) => {
@@ -428,6 +432,83 @@ export default function PlayingPage() {
       return newHistory;
     });
   }, []);
+
+  const handleUndo = () => {
+    if (game.history().length === 0) return;
+
+    const isMyTurn = game.turn() === (myColor === "white" ? "w" : "b");
+    const movesToUndo = isMyTurn ? 2 : 1;
+    const newRedoStack = [...redoStack];
+
+    for (let i = 0; i < movesToUndo; i++) {
+      const move = game.undo();
+      if (move) {
+        newRedoStack.push(game.pgn()); // Or store move details to replay
+      }
+    }
+    
+    // Ideally we want to support redo, but chess.js undo is destructive. 
+    // To support redo we would need to replay PGN.
+    // For now, per requirement "return to previous position... to move", we focus on Undo.
+    // We clear redo stack if we want strict "Takeback" behavior, or we try to manage it.
+    // Given complexity, let's just focus on getting the Board State correct for moving.
+    
+    // Rebuild history from game state
+    const newFen = game.fen();
+    setGamePosition(newFen);
+    
+    // Reconstruct fenHistory based on current game state history
+    // This is expensive but accurate. Or we can just slice the existing fenHistory.
+    setFenHistory((prev) => prev.slice(0, prev.length - movesToUndo));
+    setCurrentMoveIndex((prev) => Math.max(0, prev - movesToUndo));
+    
+    // Reset game status if it was over
+    if (statusGame !== "Ongoing") {
+      setStatusGame("Ongoing");
+      setWinnerColor("");
+      setLoserColor("");
+      setLossReason(null);
+    }
+    
+    setOptionSquares({});
+    setRightClickedSquares({});
+    setBestline("");
+    setHintClicked(false);
+    setMoveFrom("");
+    setMoveTo(null);
+  };
+
+  const handleRedo = () => {
+    // Redo logic is complex with chess.js without full PGN reload.
+    // For now, we will disable this or keep it as navigation if we didn't truncate history?
+    // But we ARE truncating history to allow moves.
+    // So Right Arrow is effectively disabled after a Takeback until a new move is made.
+  };
+
+  const handleReset = () => {
+    handleRematch();
+  };
+
+  const LOCAL_STORAGE_KEY = "vs-ai-current-game";
+
+  const saveGameState = useCallback(() => {
+    if (!isGameInitialized.current) return;
+    if (typeof window !== "undefined") {
+      const state = {
+        pgn: game.pgn(),
+        aiName: AIChoosed.opponent.name,
+        elo: AIChoosed.opponent.elo,
+        myColor: AIChoosed.color,
+        statusGame: statusGame,
+        gameId: currentGameId,
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+    }
+  }, [game, AIChoosed, statusGame, currentGameId]);
+
+  useEffect(() => {
+    saveGameState();
+  }, [gamePosition, statusGame, saveGameState]);
 
   useEffect(() => {
     clearOldJobs();
@@ -556,9 +637,9 @@ export default function PlayingPage() {
       newSquares[move.to] = {
         background:
           game.get(move.to) &&
-          game?.get(move.to)?.color !== game?.get(square)?.color
-            ? "radial-gradient(circle, rgba(34,26,233) 30%, transparent 30%)"
-            : "radial-gradient(circle, rgba(34,26,233) 25%, transparent 25%)",
+          game.get(move.to)?.color !== game.get(square)?.color
+            ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
+            : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
         borderRadius: "50%",
       };
       return move;
@@ -578,6 +659,7 @@ export default function PlayingPage() {
     setBestline("");
 
     if (!moveFrom) {
+      // Click-to-select with dots: show legal moves and mark current square
       const hasMoveOptions = getMoveOptions(square);
       if (hasMoveOptions) {
         setPreviousSquare(square);
@@ -601,8 +683,18 @@ export default function PlayingPage() {
       );
 
       if (!foundMove) {
+        if (moveFrom === square) {
+          setMoveFrom("");
+          setOptionSquares({});
+          setPreviousSquare(undefined);
+          return;
+        }
+        // Change selected piece: update dots for the new origin square
         const hasMoveOptions = getMoveOptions(square);
-        setMoveFrom(hasMoveOptions ? square : "");
+        if (hasMoveOptions) {
+          setPreviousSquare(square);
+          setMoveFrom(square);
+        }
         return;
       }
 
@@ -649,8 +741,12 @@ export default function PlayingPage() {
       }
 
       if (move === null) {
+        // If move failed, try treating the clicked square as a new origin
         const hasMoveOptions = getMoveOptions(square);
-        if (hasMoveOptions) setMoveFrom(square);
+        if (hasMoveOptions) {
+          setPreviousSquare(square);
+          setMoveFrom(square);
+        }
         return;
       }
     }
@@ -950,17 +1046,71 @@ export default function PlayingPage() {
 
   useEffect(() => {
     const timestamp = Date.now();
-    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
-    setCurrentGameId(gameId);
-
-    setMyColor(AIChoosed.color);
-    setHeaderGameStart();
-    setBeforeFen(game.fen());
-    if (AIChoosed.color === "black") {
-      setTimeout(() => {
-        findEnemyMove();
-      }, 1000);
+    
+    // Try to restore game from local storage
+    let restored = false;
+    if (typeof window !== "undefined") {
+      const savedGame = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedGame) {
+        try {
+          const parsed = JSON.parse(savedGame);
+          if (
+            parsed.aiName === AIChoosed.opponent.name &&
+            parsed.elo === AIChoosed.opponent.elo &&
+            parsed.myColor === AIChoosed.color
+          ) {
+            game.loadPgn(parsed.pgn);
+            
+            // Rebuild fen history if not saved or just to be safe
+            const tempGame = new Chess();
+            const fens = [tempGame.fen()];
+            game.history().forEach((move) => {
+              tempGame.move(move);
+              fens.push(tempGame.fen());
+            });
+            setFenHistory(fens);
+            setCurrentMoveIndex(fens.length - 1);
+            
+            setGamePosition(game.fen());
+            setStatusGame(parsed.statusGame);
+            setMyColor(parsed.myColor);
+            
+            if (parsed.gameId) {
+              setCurrentGameId(parsed.gameId);
+            } else {
+              const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+              setCurrentGameId(gameId);
+            }
+            
+            restored = true;
+          }
+        } catch (e) {
+          console.error("Error restoring game:", e);
+        }
+      }
     }
+
+    if (!restored) {
+      const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+      setCurrentGameId(gameId);
+
+      setMyColor(AIChoosed.color);
+      game.reset();
+      setHeaderGameStart();
+      setBeforeFen(game.fen());
+      setGamePosition(game.fen());
+      setFenHistory([game.fen()]);
+      setCurrentMoveIndex(0);
+      
+      if (AIChoosed.color === "black") {
+        setTimeout(() => {
+          findEnemyMove();
+        }, 1000);
+      }
+    }
+    
+    isGameInitialized.current = true;
+    
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
   }, [AIChoosed]);
@@ -1095,6 +1245,9 @@ export default function PlayingPage() {
   };
 
   const handleNewGame = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
     router.back();
   };
 
@@ -1110,7 +1263,7 @@ export default function PlayingPage() {
     console.log("game.pgn()", game.pgn());
     setIsSaving(true);
     // handleSave();
-    let res = await postVSAILogs(body);
+    const res = await postVSAILogs(body);
     handleForceRefresh();
     console.log("res postVSAILogs", res);
     setIsSaved(true);
@@ -1732,8 +1885,11 @@ export default function PlayingPage() {
               }}
             >
               {!is3DMode && (
-                <TwoDChessboard
-                  arePiecesDraggable={isAtCurrentMove}
+                  <TwoDChessboard
+                    game={game}
+                    gameStatus={statusGame.toLowerCase()}
+                    setOptionSquares={setOptionSquares}
+                    arePiecesDraggable={isAtCurrentMove}
                   onPieceDrop={onPieceDrop}
                   arePiecesClickable={
                     statusGame === "Ongoing" && isAtCurrentMove
@@ -1784,7 +1940,7 @@ export default function PlayingPage() {
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#1C16C2]" />
+                <div className="w-[14px] h-[14px] rounded-full bg-[#64646480]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Possible Move
                 </span>
@@ -1901,10 +2057,10 @@ export default function PlayingPage() {
                 {!game.isGameOver() && (
                   <div className="flex flex-row justify-center items-center gap-2 px-4">
                     <button
-                      disabled={currentMoveIndex === 0}
-                      onClick={handlePreviousMove}
+                      disabled={game.history().length === 0}
+                      onClick={handleUndo}
                       className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        currentMoveIndex === 0
+                        game.history().length === 0
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}
@@ -1912,18 +2068,14 @@ export default function PlayingPage() {
                       <ChevronLeft size={20} color="#000" />
                     </button>
                     <button
-                      disabled={currentMoveIndex >= fenHistory.length - 1}
-                      onClick={handleNextMove}
-                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        currentMoveIndex >= fenHistory.length - 1
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
                     >
                       <ChevronRight size={20} color="#000" />
                     </button>
                     <button
-                      onClick={resetToBeginning}
+                      onClick={handleReset}
                       className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
                     >
                       <RotateCw size={20} color="#000" />
@@ -2075,10 +2227,10 @@ export default function PlayingPage() {
                 {!game.isGameOver() && (
                   <div className="flex flex-row justify-center items-center gap-2 my-2">
                     <button
-                      disabled={currentMoveIndex === 0}
-                      onClick={handlePreviousMove}
+                      disabled={game.history().length === 0}
+                      onClick={handleUndo}
                       className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        currentMoveIndex === 0
+                        game.history().length === 0
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}
@@ -2086,18 +2238,14 @@ export default function PlayingPage() {
                       <ChevronLeft size={24} color="#000" />
                     </button>
                     <button
-                      disabled={currentMoveIndex >= fenHistory.length - 1}
-                      onClick={handleNextMove}
-                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        currentMoveIndex >= fenHistory.length - 1
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
                     >
                       <ChevronRight size={24} color="#000" />
                     </button>
                     <button
-                      onClick={resetToBeginning}
+                      onClick={handleReset}
                       className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
                     >
                       <RotateCw size={20} color="#000" />
