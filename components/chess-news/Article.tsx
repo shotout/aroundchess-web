@@ -155,7 +155,7 @@ export default function Article() {
                           {article.category?.name || "Uncategorized"}
                         </p>
                       </div>
-                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mb-2 leading-tight">
+                      <h2 className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold mb-2 leading-tight">
                         {article.title || "Untitled"}
                       </h2>
                     </div>
@@ -202,7 +202,7 @@ export default function Article() {
                           </span>
                         </div>
                         <div className="flex flex-row items-center justify-between">
-                          <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold leading-tight">
+                          <span className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold leading-tight">
                             {article.title}
                           </span>
                         </div>

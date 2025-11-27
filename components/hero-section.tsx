@@ -111,11 +111,11 @@ export function HeroSection() {
                 onClick={handleRegister}
                 className="w-full btn-primary rounded-full h-[44px] "
               >
-                <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+                <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
                   Create an Account
                 </span>
               </button>
-              <span className="font-bold text-[12px] text-black">Or</span>
+              <span className="font-bold text-[14px] -- text-black">Or</span>
               <motion.div
                 className="flex w-full flex-row justify-center flex gap-x-8 px-4 "
                 variants={fadeInUp}

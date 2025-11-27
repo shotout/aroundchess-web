@@ -19,7 +19,7 @@ export function Black() {
         <span>Black</span>
         {status === "promote" && currentPlayer === "black" && (
           <div className="absolute left-20 p-2 z-20 w-32 opacity-50 bg-white rounded-lg shadow-lg">
-            <span className="text-[12px] text-gray-900">Promoting pawn...</span>
+            <span className="text-[14px] -- text-gray-900">Promoting pawn...</span>
           </div>
         )}
       </div>

@@ -35,12 +35,12 @@ export const TableMovement = ({
               className={`p-2 border font-normal text-xs border-[#BDD0F9] rounded-bl-[8px]`}
             ></td>
             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
-              <span className="font-normal text-[12px]">No moves yet.</span>
+              <span className="font-normal text-[14px] --">No moves yet.</span>
             </td>
             <td
               className={`text-center align-middle p-2 border border-[#BDD0F9] rounded-br-[8px]`}
             >
-              <span className="font-normal text-[12px]">No moves yet.</span>
+              <span className="font-normal text-[14px] --">No moves yet.</span>
             </td>
           </tr>
         )}

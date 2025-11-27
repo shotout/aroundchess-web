@@ -358,7 +358,7 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
                       >
                         {item.name != selectedTheme ? (
                           <div className="flex w-full flex-col items-center justify-center gap-2 py-[8px]">
-                            <span className="font-normal text-[12px]">
+                            <span className="font-normal text-[14px] --">
                               {item.name}
                             </span>
                             <span className="font-normal text-[11px] text-[#221AE9]">

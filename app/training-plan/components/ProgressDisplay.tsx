@@ -818,7 +818,7 @@ const chartRange = React.useMemo(() => {
                 ) : (
                   <>
                     <div className="rounded-sm border overflow-x-auto md:overflow-visible">
-                      <table className="w-full border-collapse text-[12px]">
+                      <table className="w-full border-collapse text-[14px] --">
                         <thead>
                           <tr className="bg-blue-50 font-medium">
                             <th className="p-1 text-left">Date</th>
@@ -838,7 +838,7 @@ const chartRange = React.useMemo(() => {
                                 {game.date}
                               </td>
                               <td className="p-1">
-                                <div className="font-medium text-[12px] truncate max-w-[8rem]">
+                                <div className="font-medium text-[14px] -- truncate max-w-[8rem]">
                                   {game.opponent}
                                 </div>
                                 <div className="text-gray-500 text-[10px] -ml-1">

@@ -72,7 +72,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <span className="font-semibold text-[16px] lg:text-[23px]">
                 We work hard to improve AroundChess every day.
               </span>
-              <span className="font-normal text-[12px] sm:text-[10px] lg:text-[14px]">
+              <span className="font-normal text-[14px] -- sm:text-[10px] lg:text-[14px]">
                 If you have feedback, comments or might even have found a bug,
                 send us a message or contact us on Discord.
               </span>

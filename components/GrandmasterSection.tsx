@@ -28,20 +28,20 @@ export const GrandmastersSection: React.FC = () => {
 
               {/* Description Paragraphs */}
               <div className="space-y-4 text-gray-700 leading-relaxed">
-                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                   AroundChess was built with the insight and experience of
                   European chess Grandmasters. Their deep understanding of
                   strategy, training methods, and practical play helped shape
                   some of the platform's core features.
                 </p>
 
-                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                   From analyzing real game patterns to refining analysis tools,
                   their input has been invaluable and helped us to provide the
                   best results possible.
                 </p>
 
-                <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                   Thanks to their guidance, AroundChess offers not just data -
                   but real, instructive chess understanding.
                 </p>

@@ -47,6 +47,77 @@ const sidebarLinks: SidebarLink[] = [
     permission: true,
   },
   {
+    name: "Play & Practice",
+    icon: "/icons/sidebar-playground-practice-icon.png",
+    iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+    children: [
+      {
+        name: "You vs AI",
+        href: "/playground/play-vs-ai",
+        icon: "/icons/sidebar-play-vs-ai-icon.png",
+        iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
+      },
+      {
+        name: "Puzzles",
+        href: "/playground/puzzle",
+        icon: "/icons/sidebar-puzzle-icon.png",
+        iconActive: "/icons/sidebar-puzzle-icon-active.png",
+      },
+      {
+        name: "Board Vision",
+        href: "/playground/board-vision",
+        icon: "/icons/sidebar-board-vision-icon.png",
+        iconActive: "/icons/sidebar-board-vision-icon-active.png",
+      },
+      {
+        name: "Endgame Training",
+        href: "/playground/endgame-training",
+        icon: "/icons/sidebar-endgame-training-icon.png",
+        iconActive: "/icons/sidebar-endgame-training-icon-active.png",
+      },
+    ]
+  },
+  {
+    name: "Analyze Games",
+    icon: "/icons/sidebar-analyze-icon.png",
+    iconActive: "/icons/sidebar-analyze-icon-active.png",
+    children: [
+      {
+        name: "Game History",
+        href: "/my-game-history",
+        icon: "/icons/sidebar-game-history.png",
+        iconActive: "/icons/sidebar-game-history-active.png",
+      },
+      {
+        name: "Saved Mistakes",
+        href: "/feedback-log",
+        icon: "/icons/sidebar-saved-mistakes-icon.svg",
+        iconActive: "/icons/sidebar-saved-mistakes-icon-active.svg",
+      }
+    ]
+  },
+  {
+    name: "Training",
+    icon: "/icons/sidebar-training-plan-icon.png",
+    iconActive: "/icons/sidebar-training-plan-icon-active.png",
+    children: [
+      {
+        name: "Training Plan",
+        href: "/training-plan",
+        icon: "/icons/sidebar-training-plan-icon-2.svg",
+        iconActive: "/icons/sidebar-training-plan-icon-active-2.svg",
+      },
+      {
+        name: "Handbook : Chess Theory",
+        href: "/handbook",
+        icon: "/icons/sidebar-theory-icon.png",
+        iconActive: "/icons/sidebar-theory-icon-active.png",
+      }
+    ]
+  },
+
+  /*
+  {
     name: "Dashboard",
     icon: "/icons/sidebar-dashboard-icon.png",
     iconActive: "/icons/sidebar-dashboard-icon-active.png",
@@ -134,6 +205,7 @@ const sidebarLinks: SidebarLink[] = [
       },
     ],
   },
+  */
 ];
 
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {

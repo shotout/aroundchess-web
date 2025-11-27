@@ -117,7 +117,7 @@ export default function ChessFAQ() {
           value={query}
           type="text"
           placeholder="Search"
-          className="font-normal text-[12px] w-full h-full bg-[#F8F9FC] focus:border-0 focus:outline-none"
+          className="font-normal text-[14px] -- w-full h-full bg-[#F8F9FC] focus:border-0 focus:outline-none"
           onChange={handleOnSearch}
         />
       </div>
@@ -156,7 +156,7 @@ export default function ChessFAQ() {
             <div className="relative z-10 flex flex-col items-center justify-center ml-[100px] sm:ml-[110px] lg:ml-[120px] xl:ml-[140px] mr-4">
               <div className="bg-[#ffffff90] backdrop-blur-sm w-full p-[12px] min-h-[44px] max-h-[71px] rounded-[12px] flex items-center justify-center">
                 <span
-                  className={`sm:text-[12px] lg:text-[20px] font-medium text-center ${
+                  className={`sm:text-[14px] -- lg:text-[20px] font-medium text-center ${
                     activeTab === tab.label
                       ? "text-[#221AE9] font-bold"
                       : "text-gray-700"
@@ -210,7 +210,7 @@ export default function ChessFAQ() {
                 onClick={() => toggleQuestion(index)}
                 className="w-full px-[20px] py-2 text-left flex justify-between items-center"
               >
-                <span className="font-semibold text-[12px] md:text-[16px]">
+                <span className="font-semibold text-[14px] -- md:text-[16px]">
                   {faq.question}
                 </span>
                 {openQuestion === index ? (
@@ -230,13 +230,13 @@ export default function ChessFAQ() {
                           dangerouslySetInnerHTML={{
                             __html: line.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"),
                           }}
-                          className="font-normal text-[12px] md:text-[14px] text-[#585858]"
+                          className="font-normal text-[14px] -- md:text-[14px] text-[#585858]"
                         ></span>
                       ))}
                     </div>
                   ) : (
                     <span
-                      className="font-normal text-[12px] md:text-[14px] text-[#585858]"
+                      className="font-normal text-[14px] -- md:text-[14px] text-[#585858]"
                       dangerouslySetInnerHTML={{
                         __html: faq.answer.replace(
                           /\*\*(.*?)\*\*/g,

@@ -390,7 +390,7 @@ function RegisterPage() {
                         />
                       </div>
                       {emailValidation.message !== "" && (
-                        <span className="text-[#FF383C] text-[12px] mb-4 -mt-2 ml-2">
+                        <span className="text-[#FF383C] text-[14px] -- mb-4 -mt-2 ml-2">
                           {emailValidation.message}
                         </span>
                       )}
@@ -439,7 +439,7 @@ function RegisterPage() {
                     </div>
                   </div>
                   {password !== confirmPassword && (
-                    <span className="text-[#FF383C] text-[12px] mb-2 ml-2">
+                    <span className="text-[#FF383C] text-[14px] -- mb-2 ml-2">
                       Password doesn't match
                     </span>
                   )}
@@ -464,7 +464,7 @@ function RegisterPage() {
                               className="w-[16px] h-[16px]"
                             />
                             <span
-                              className={`ml-2 flex-1 font-normal text-[12px] ${
+                              className={`ml-2 flex-1 font-normal text-[14px] -- ${
                                 condition.isValid
                                   ? "text-[#34C759]"
                                   : (password.length > 0 ||

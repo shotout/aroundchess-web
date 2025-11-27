@@ -171,7 +171,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
                   height={1000}
                   className="w-[60px] h-[60px] object-contain"
                 />
-                <span className="font-normal text-[12px] text-[#121212]">
+                <span className="font-normal text-[14px] -- text-[#121212]">
                   {board.name}
                 </span>
               </div>
@@ -212,7 +212,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
                   height={1000}
                   className="w-[112px] h-[64px] object-contain"
                 />
-                <span className="font-normal text-[12px] text-[#121212]">
+                <span className="font-normal text-[14px] -- text-[#121212]">
                   {piece.name}
                 </span>
               </div>

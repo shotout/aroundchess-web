@@ -866,7 +866,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             className="flex flex-row justify-center items-center w-2/4 min-h-[40px]  px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
           >
             <RefreshCcw size={20} />
-            <span className="font-medium text-[11px] md:text-[12px] lg:text-[14px] xl:mt-1 ">
+            <span className="font-medium text-[11px] md:text-[14px] -- lg:text-[14px] xl:mt-1 ">
               Change Puzzle Topic
             </span>
           </button>
@@ -935,7 +935,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="flex flex-row justify-center items-center w-3/6 min-h-[40px] w-1/3 px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
         >
           <RefreshCcw size={20} />
-          <span className="font-medium text-[11px] md:text-[12px] lg:text-[14px] xl:mt-1 ">
+          <span className="font-medium text-[11px] md:text-[14px] -- lg:text-[14px] xl:mt-1 ">
             Change Puzzle Topic
           </span>
         </button>
@@ -1317,12 +1317,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               <tr className="bg-[#D7E3FB] ">
                 <th className="p-2 font-normal text-xs border border-[#D7E3FB] border-t-0 border-r-0"></th>
                 <th className="gap-1 p-2 font-normal text-xs border border-[#BDD0F9] border-t-0">
-                  <span className="block font-normal text-[12px]">
+                  <span className="block font-normal text-[14px] --">
                     Movement
                   </span>
                 </th>
                 <th className="gap-1 p-2 border font-normal text-xs border-[#BDD0F9] border-t-0">
-                  <span className="block font-normal text-[12px]">
+                  <span className="block font-normal text-[14px] --">
                     Movement
                   </span>
                 </th>

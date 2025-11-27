@@ -312,7 +312,7 @@ export default function MovementTable() {
                         <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                           <div className="flex flex-row items-center justify-between gap-2">
                             <div className="flex flex-row items-center gap-2">
-                              <span className="text-[8px] lg:text-[12px] font-semibold">
+                              <span className="text-[8px] lg:text-[14px] -- font-semibold">
                                 {blackMove.move || ""}
                               </span>
                               <span

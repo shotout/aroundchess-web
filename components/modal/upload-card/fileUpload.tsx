@@ -45,7 +45,7 @@ export function FileUploadCard({
             <span className="font-medium text-[14px] text-[#040404]">
               {item.name}
             </span>
-            <span className="font-normal text-[12px] text-[#585858]">
+            <span className="font-normal text-[14px] -- text-[#585858]">
               {formatFileSize(item.size, "B")}
             </span>
           </div>

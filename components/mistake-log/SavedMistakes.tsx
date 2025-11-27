@@ -240,8 +240,8 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] lg:w-[18px] lg:h-[18px]"
                         />
                         <div className="flex flex-col">
-                          <span className="text-[12px]">Mistake Type:</span>
-                          <span className="text-[12px] font-semibold">
+                          <span className="text-[14px] --">Mistake Type:</span>
+                          <span className="text-[14px] -- font-semibold">
                             {item?.mistakeLog.type}
                           </span>
                         </div>
@@ -252,15 +252,15 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           color="#221AE9"
                         />
                         <div className="flex flex-col">
-                          <span className="text-[12px]">Game Phase:</span>
-                          <span className="text-[12px] font-semibold">
+                          <span className="text-[14px] --">Game Phase:</span>
+                          <span className="text-[14px] -- font-semibold">
                             {item?.mistakeLog.gamePhase}
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-row items-center lg:justify-start gap-3">
-                      <span className="flex items-center text-[12px] font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                      <span className="flex items-center text-[14px] -- font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
                         Move {item?.mistakeLog.moveNumber} :{" "}
                         <span className="font-normal sm:text-sm md:text-md lg:text-md ">
                           {" "}

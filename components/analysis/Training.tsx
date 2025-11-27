@@ -94,7 +94,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           <div className="flex flex-row items-center gap-2">
             <span
               onClick={() => handleOnClickMovement(item)}
-              className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+              className="cursor-pointer text-[14px] -- sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
             >
               Move {item.moveNumber}:{" "}
               <span className="font-bold">{item.move}</span>

@@ -48,21 +48,21 @@ export default function About() {
       <h2 className="text-[18px] lg:text-[32px] font-semibold text-black mt-[20px] mb-[8px]">
         About AroundChess
       </h2>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
         Welcome to aroundchess.com – your ultimate destination for chess
         analysis and learning! We are passionate about helping players of all
         levels, from beginners to masters, elevate their game. Our platform
         offers in-depth analysis, interactive lessons, and cutting-edge tools
         designed to enhance your skills and strategic thinking.
       </p>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
         With powerful AI-driven analysis, 3D board features, and expert-guided
         tutorials, we aim to make learning chess both engaging and effective.
         Whether you're refining your openings, mastering endgames, or just
         starting your journey, aroundchess.com has everything you need to
         progress confidently.
       </p>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal mb-4 leading-[1.2]">
         Join our growing community of chess enthusiasts and unlock your full
         potential. Let's explore the world of chess, one move at a time!
       </p>
@@ -91,20 +91,20 @@ export default function About() {
 
                 {/* Description Paragraphs */}
                 <div className="space-y-4 text-gray-700 leading-relaxed">
-                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                  <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                     AroundChess was built with the insight and experience of
                     European chess Grandmasters. Their deep understanding of
                     strategy, training methods, and practical play helped shape
                     some of the platform's core features.
                   </p>
 
-                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                  <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                     From analyzing real game patterns to refining analysis
                     tools, their input has been invaluable and helped us to
                     provide the best results possible.
                   </p>
 
-                  <p className="text-[12px] lg:text-[18px] leading-[1.2]">
+                  <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                     Thanks to their guidance, AroundChess offers not just data -
                     but real, instructive chess understanding.
                   </p>
@@ -132,15 +132,15 @@ export default function About() {
       <h3 className="text-[18px] lg:text-[32px] font-semibold text-black mt-[20px] mb-[8px] ">
         Supported by Community
       </h3>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal leading-[1.2]">
         At aroundchess.com, we believe that chess is more than just a game –
         it's a community-driven journey.
       </p>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mt-4 leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal mt-4 leading-[1.2]">
         Our platform thrives thanks to the passion and support of players
         worldwide who share their knowledge, feedback, and love for the game.
       </p>
-      <p className="text-[12px] lg:text-[18px] text-[#364152] font-normal mt-4 leading-[1.2]">
+      <p className="text-[14px] -- lg:text-[18px] text-[#364152] font-normal mt-4 leading-[1.2]">
         Together, we're building a vibrant space where every player can learn,
         share, and grow.
       </p>

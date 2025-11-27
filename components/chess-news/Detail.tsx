@@ -208,7 +208,7 @@ export default function Detail() {
                           {article?.category?.name || "Uncategorized"}
                         </p>
                       </div>
-                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mt-2">
+                      <h2 className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold mt-2">
                         {article.title || "Untitled"}
                       </h2>
                       <h2 className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2">
@@ -262,7 +262,7 @@ export default function Detail() {
                       </span>
                     </div>
                     <div className="flex flex-row items-center justify-between max-h-[40px] ">
-                      <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold">
+                      <span className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold">
                         {article.title || "Untitled"}
                       </span>
                     </div>

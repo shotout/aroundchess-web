@@ -317,7 +317,7 @@ export function ContactUs() {
                       color={"#fff"}
                       fill="#fff"
                     />
-                    <span className="text-[12px] sm:text-[11px] lg:text-[16px]">
+                    <span className="text-[14px] -- sm:text-[11px] lg:text-[16px]">
                       Send message
                     </span>
                   </>

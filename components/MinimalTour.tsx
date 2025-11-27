@@ -505,7 +505,7 @@ export default function MinimalTour({
           </svg>
         )}
 
-        <div className="text-[#4D5255] font-normal text-[12px] mb-4">
+        <div className="text-[#4D5255] font-normal text-[14px] -- mb-4">
           {step?.content}
         </div>
         {stepFocused == 6 && (
@@ -517,7 +517,7 @@ export default function MinimalTour({
               }}
               className="cursor-pointer bg-[#81CFF3] min-w-[48%] py-[8px] px-[16px] flex justify-center rounded-full items-center"
             >
-              <span className="text-[#221AE9] font-semibold text-[12px]">
+              <span className="text-[#221AE9] font-semibold text-[14px] --">
                 Prev
               </span>
             </div>
@@ -528,7 +528,7 @@ export default function MinimalTour({
               }}
               className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center"
             >
-              <span className="text-white font-semibold text-[10px] sm:text-[12px]">
+              <span className="text-white font-semibold text-[10px] sm:text-[14px] --">
                 Start Game Analysis
               </span>
             </div>
@@ -542,7 +542,7 @@ export default function MinimalTour({
               }}
               className="bg-[#E6F7FE] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
             >
-              <span className="text-[#221AE9] font-semibold text-[12px]">
+              <span className="text-[#221AE9] font-semibold text-[14px] --">
                 Skip
               </span>
             </button>
@@ -555,7 +555,7 @@ export default function MinimalTour({
                   }}
                   className="bg-[#81CFF3] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
                 >
-                  <span className="text-[#221AE9] font-semibold text-[12px]">
+                  <span className="text-[#221AE9] font-semibold text-[14px] --">
                     Prev
                   </span>
                 </button>
@@ -568,7 +568,7 @@ export default function MinimalTour({
                 }}
                 className="cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
               >
-                <span className="text-white font-semibold text-[12px]">
+                <span className="text-white font-semibold text-[14px] --">
                   {index + 1 >= 7 ? "Done" : "Next"}
                 </span>
               </button>

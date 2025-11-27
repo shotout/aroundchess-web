@@ -305,13 +305,13 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                 <div className="flex items-center gap-[16px]">
                   <button
                     onClick={handleDashboard}
-                    className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[12px] font-medium"
+                    className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[14px] -- font-medium"
                   >
                     My Dashboard
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[12px] font-medium text-white"
+                    className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[14px] -- font-medium text-white"
                   >
                     Logout
                   </button>
@@ -381,6 +381,77 @@ function MobileNav(props: mobileProps) {
       href: "/chess-news",
       permission: true,
     },
+    {
+      name: "Play & Practice",
+      icon: "/icons/sidebar-playground-practice-icon.png",
+      iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+      children: [
+        {
+          name: "You vs AI",
+          href: "/playground/play-vs-ai",
+          icon: "/icons/sidebar-play-vs-ai-icon.png",
+          iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
+        },
+        {
+          name: "Puzzles",
+          href: "/playground/puzzle",
+          icon: "/icons/sidebar-puzzle-icon.png",
+          iconActive: "/icons/sidebar-puzzle-icon-active.png",
+        },
+        {
+          name: "Board Vision",
+          href: "/playground/board-vision",
+          icon: "/icons/sidebar-board-vision-icon.png",
+          iconActive: "/icons/sidebar-board-vision-icon-active.png",
+        },
+        {
+          name: "Endgame Training",
+          href: "/playground/endgame-training",
+          icon: "/icons/sidebar-endgame-training-icon.png",
+          iconActive: "/icons/sidebar-endgame-training-icon-active.png",
+        },
+      ]
+    },
+    {
+      name: "Analyze Games",
+      icon: "/icons/sidebar-analyze-icon.png",
+      iconActive: "/icons/sidebar-analyze-icon-active.png",
+      children: [
+        {
+          name: "Game History",
+          href: "/my-game-history",
+          icon: "/icons/sidebar-game-history.png",
+          iconActive: "/icons/sidebar-game-history-active.png",
+        },
+        {
+          name: "Saved Mistakes",
+          href: "/feedback-log",
+          icon: "/icons/sidebar-saved-mistakes-icon.svg",
+          iconActive: "/icons/sidebar-saved-mistakes-icon-active.svg",
+        }
+      ]
+    },
+    {
+      name: "Training",
+      icon: "/icons/sidebar-training-plan-icon.png",
+      iconActive: "/icons/sidebar-training-plan-icon-active.png",
+      children: [
+        {
+          name: "Training Plan",
+          href: "/training-plan",
+          icon: "/icons/sidebar-training-plan-icon-2.svg",
+          iconActive: "/icons/sidebar-training-plan-icon-active-2.svg",
+        },
+        {
+          name: "Handbook : Chess Theory",
+          href: "/handbook",
+          icon: "/icons/sidebar-theory-icon.png",
+          iconActive: "/icons/sidebar-theory-icon-active.png",
+        }
+      ]
+    },
+
+    /*
     {
       name: "Dashboard",
       icon: "/icons/sidebar-dashboard-icon.png",
@@ -468,7 +539,7 @@ function MobileNav(props: mobileProps) {
           iconActive: "/icons/sidebar-endgame-training-icon-active.png",
         },
       ],
-    },
+    }, */
   ];
 
   const handleNavigation = (href: string, hasPermission: boolean) => {
@@ -768,7 +839,7 @@ function MobileNav(props: mobileProps) {
             <p className="font-medium text-[16px] text-[#121212] line-clamp-1">
               {profile?.name != "" ? profile?.name : username}
             </p>
-            <p className="font-normal text-[#364152] text-[12px] truncate line-clamp-1">
+            <p className="font-normal text-[#364152] text-[14px] -- truncate line-clamp-1">
               {profile?.email}
             </p>
           </div>

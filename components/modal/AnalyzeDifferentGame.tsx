@@ -454,7 +454,7 @@ export function AnalyzeDifferentGame({
                       : `border-input border-2`
                   } `}
                 />
-                <span className="font-normal text-[12px] md:text-[14px]">
+                <span className="font-normal text-[14px] -- md:text-[14px]">
                   {depth.title}
                 </span>
                 <span className="font-light text-[#364152] text-center text-[10px] md:text-[11px]">
@@ -534,7 +534,7 @@ export function AnalyzeDifferentGame({
           <DialogTitle className="text-[14px] md:text-[24px] font-semibold text-start">
             Analyze your games
           </DialogTitle>
-          <DialogDescription className="text-black text-[12px] md:text-[18px] text-start">
+          <DialogDescription className="text-black text-[14px] -- md:text-[18px] text-start">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
@@ -551,11 +551,11 @@ export function AnalyzeDifferentGame({
           >
             <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
               <TabsTrigger value="auto">
-                <span className="text-[12px] md:text-xs">From Chess.com</span>
+                <span className="text-[14px] -- md:text-xs">From Chess.com</span>
               </TabsTrigger>
               <TabsTrigger value="manual">
                 <Clipboard className="mr-2 h-4 w-4" />
-                <span className="text-[12px] md:text-xs">
+                <span className="text-[14px] -- md:text-xs">
                   Paste or Upload PGN
                 </span>
               </TabsTrigger>
@@ -572,7 +572,7 @@ export function AnalyzeDifferentGame({
                     className="w-3 h-4 relative z-10"
                     priority
                   />
-                  <p className="block ml-1 text-[12px] md:text-sm text-black">
+                  <p className="block ml-1 text-[14px] -- md:text-sm text-black">
                     Chess.com Username
                   </p>
                 </div>
@@ -584,7 +584,7 @@ export function AnalyzeDifferentGame({
                     value={isTutorialPlay ? dataTutorial.username : username}
                     placeholder="Enter your Chess.com Username"
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent text-[12px] sm:text-sm h-[24px] focus:outline-none"
+                    className="w-full bg-transparent text-[14px] -- sm:text-sm h-[24px] focus:outline-none"
                   />
                   <div className="flex items-center">
                     {!isTutorialPlay && usernameStatus === "loading" && (
@@ -593,7 +593,7 @@ export function AnalyzeDifferentGame({
                     {(isTutorialPlay || usernameStatus === "found") && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
-                        <span className="text-[12px] md:text-xs">
+                        <span className="text-[14px] -- md:text-xs">
                           Username found
                         </span>
                       </div>
@@ -601,7 +601,7 @@ export function AnalyzeDifferentGame({
                     {usernameStatus === "not-found" && (
                       <div className="flex items-center text-red-500 whitespace-nowrap">
                         <X className="h-4 w-4 mr-1" />
-                        <span className="text-[12px] md:text-xs">
+                        <span className="text-[14px] -- md:text-xs">
                           Username not found
                         </span>
                       </div>
@@ -610,12 +610,12 @@ export function AnalyzeDifferentGame({
                 </div>
               </div>
               <div className="space-y-2 mx-1" data-tutorial="1">
-                <p className="hidden md:block text-[12px] md:text-sm text-black">
+                <p className="hidden md:block text-[14px] -- md:text-sm text-black">
                   Select Game
                 </p>
                 {isTutorialPlay ? (
                   <div className={"p-3 rounded-md border border-gray-200"}>
-                    <span className="text-[12px] md:text-[14px] line-clamp-1">
+                    <span className="text-[14px] -- md:text-[14px] line-clamp-1">
                       {stepFocused > 1
                         ? dataTutorial.dateSelectedGame +
                           " " +
@@ -743,7 +743,7 @@ export function AnalyzeDifferentGame({
               <div data-tutorial="3">
                 <button
                   onClick={handleAnalyzeGame}
-                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[12px] md:text-sm rounded-full py-2 my-4 ${
+                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[14px] -- md:text-sm rounded-full py-2 my-4 ${
                     (usernameStatus !== "found" &&
                       !selectedGame &&
                       !pgnText &&

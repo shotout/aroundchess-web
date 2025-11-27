@@ -65,7 +65,7 @@ const GameCard: FC<GameCardProps> = ({
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 min-h-[18px] ">
         <div className="flex flex-row items-center gap-1">
-          <span className="font-medium text-[12px]">Vs {opponent}:</span>
+          <span className="font-medium text-[14px] --">Vs {opponent}:</span>
           <Image
             src={`/images/play-vs-ai/elo-icon.png`}
             alt="icon"

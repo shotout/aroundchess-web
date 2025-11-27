@@ -53,7 +53,7 @@ export function LimitPuzzle() {
             onClick={handleOpenPaywall}
             className="w-full btn-primary rounded-full h-[44px] "
           >
-            <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+            <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
               Go Unlimited
             </span>
           </button>

@@ -329,7 +329,7 @@ export const PricingOffer: React.FC = () => {
                         className="w-[16px] h-[16px] xl:w-[24px] xl:h-[24px]"
                         color="#221AE9"
                       />
-                      <span className="text-[12px] xl:text-[18px] font-normal">
+                      <span className="text-[14px] -- xl:text-[18px] font-normal">
                         Spend 1 Analysis Token for each Analysis
                       </span>
                     </div>
@@ -544,7 +544,7 @@ export const PricingOffer: React.FC = () => {
                         </div>
 
                         <div className="text-center gap-1">
-                          <div className="font-normal text-[12px] xl:text-[14px]">
+                          <div className="font-normal text-[14px] -- xl:text-[14px]">
                             Enter Amount
                           </div>
                           <div
