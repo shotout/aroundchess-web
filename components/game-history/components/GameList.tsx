@@ -157,6 +157,8 @@ const GamesList: React.FC<GamesListProps> = ({
       const { gamesData, otherGamesData, setGamesData, setOtherGamesData } =
         state as any;
 
+      let updated = false;
+
       if (Array.isArray(gamesData)) {
         const idx = gamesData.findIndex((g: any) => g.id === id);
         // console.log("Found game index in store:", idx);
@@ -165,6 +167,7 @@ const GamesList: React.FC<GamesListProps> = ({
           newGames[idx] = { ...newGames[idx], is_analysis: true };
           // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
+          updated = true;
         }
       }
 
@@ -174,6 +177,37 @@ const GamesList: React.FC<GamesListProps> = ({
           const newOther = [...otherGamesData];
           newOther[idx2] = { ...newOther[idx2], is_analysis: true };
           setOtherGamesData(newOther);
+          updated = true;
+        }
+      }
+
+      // Fallback: for games whose background analysis job was started
+      // with a synthetic gameId (e.g. Play VS AI), try to match by PGN
+      // so that "Other Games" rows still flip to "View Results".
+      if (!updated) {
+        const job = getJobByGameId(id);
+        const jobPgn = job?.gamePgn;
+
+        if (jobPgn) {
+          if (Array.isArray(gamesData)) {
+            const idx = gamesData.findIndex((g: any) => g.pgn === jobPgn);
+            if (idx !== -1) {
+              const newGames = [...gamesData];
+              newGames[idx] = { ...newGames[idx], is_analysis: true };
+              setGamesData(newGames);
+            }
+          }
+
+          if (Array.isArray(otherGamesData)) {
+            const idx2 = otherGamesData.findIndex(
+              (g: any) => g.pgn === jobPgn
+            );
+            if (idx2 !== -1) {
+              const newOther = [...otherGamesData];
+              newOther[idx2] = { ...newOther[idx2], is_analysis: true };
+              setOtherGamesData(newOther);
+            }
+          }
         }
       }
     } catch (e) {
