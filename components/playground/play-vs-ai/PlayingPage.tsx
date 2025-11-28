@@ -1693,7 +1693,7 @@ export default function PlayingPage() {
     }
 
     return {
-      text: "Analyze",
+      text: "Analyze now",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
       onClick: () => setShowAnalyzeDialog(true),
