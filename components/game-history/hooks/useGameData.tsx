@@ -30,9 +30,6 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         return null;
       }
       const transformedOpening = formatOpening(item.opening_name);
-      if (!transformedOpening) {
-        return null;
-      }
       return {
         id: item.id,
         date: formatDate(item.date),
@@ -78,14 +75,14 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-const formatOpening = (openingName: string): string | null => {
+const formatOpening = (openingName: string): string => {
   if (
     !openingName ||
     openingName.toLowerCase() === "unknown" ||
     openingName.toLowerCase() === "unknown opening" ||
     openingName.trim() === ""
   ) {
-    return null;
+    return "Unknown Opening";
   }
   return openingName.trim();
 };
@@ -260,7 +257,7 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
       updateState(transformApiDataToComponentFormat(cachedGames));
       setIsLoading(false);
     }
-  }, [sessionId, username, type, cacheValid, cachedGames, fetchGames]);
+  }, [sessionId, username, type, cacheValid, cachedGames, fetchGames, updateState]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
