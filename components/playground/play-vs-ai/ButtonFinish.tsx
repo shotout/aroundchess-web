@@ -65,6 +65,13 @@ export const ButtonFinish = ({
     );
   };
   const renderButtonSave = () => {
+    // While auto-save is in progress, show the existing "Saving..." state.
+    // After the game has been saved (isSaved && !isSaving), replace the save button
+    // with the Analyze flow so the user can analyze this game immediately.
+    if (analysisButton && isSaved && !isSaving) {
+      return renderAnalyzeButton("w-full");
+    }
+
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
@@ -72,7 +79,7 @@ export const ButtonFinish = ({
             onClick={handleSave}
             disabled={isSaving || isSaved}
             className={` w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] ${
-              isSaved ? "bg-green-600":"btn-primary"
+              isSaved ? "bg-green-600" : "btn-primary"
             }`}
           >
             {isSaving ? (
@@ -112,7 +119,6 @@ export const ButtonFinish = ({
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
       <div className="md:hidden xl:block">
-        {/* {renderAnalyzeButton("w-full")} */}
         {username.length > 0 && renderButtonSave()}
       </div>
 
@@ -146,7 +152,6 @@ export const ButtonFinish = ({
         </button>
 
         <div className="hidden md:block xl:hidden md:w-2/4">
-          {/* {renderAnalyzeButton("w-full")} */}
           {username.length > 0 && renderButtonSave()}
         </div>
       </div>
