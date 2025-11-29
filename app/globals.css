@@ -173,6 +173,26 @@
     opacity: 0.5;
   }
 } 
+
+.bg-hero-chess {
+  background-image: url('/images/homepage/hero-banner-homepage.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media (max-with: 1024px) {
+  .bg-hero-chess {
+    background-image: url('/images/homepage/hero-banner-homepage-tablet.png');
+  }
+}
+
+@media (max-with: 572px) {
+  .bg-hero-chess {
+    background-image: url('/images/homepage/hero-banner-homepage-mobile.png');
+  }
+}
+
 span {
   font-family:'AloeveraDisplay-Regular' ;
 }

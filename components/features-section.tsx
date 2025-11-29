@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function FeaturesSection() {
   return (
-    <section className="pt-2 pb-1 sm:pt-12 lg:pt-12 bg-white rounded-t-[32px]">
+    <section className="relative pt-2 pb-1 sm:pt-12 lg:pt-12 bg-white sm:rounded-t-[32px]">
       <div className="container relative mx-auto px-4 md:px-6 lg:px-12">
         <motion.div
           className="text-center mb-2 mt-4 "
