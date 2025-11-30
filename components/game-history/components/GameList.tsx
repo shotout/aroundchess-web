@@ -299,7 +299,36 @@ const GamesList: React.FC<GamesListProps> = ({
         }
       });
     }
-  }, [analysisJobs, totalCompletedJobs, getTokenBalance, setToken]);
+  }, [
+    analysisJobs,
+    totalCompletedJobs,
+    getTokenBalance,
+    setToken,
+    getProfile,
+    everShowOffer,
+    isFromGameHistory,
+    setOpenOffer,
+    setEverShowOffer,
+    setProfile,
+  ]);
+
+  // Ensure that when games are loaded after analyses have already completed
+  // (e.g. user analyzed a game on another page, then navigates here),
+  // we still mark the corresponding games as `is_analysis` in the local store
+  // without requiring a manual "Update Games" refresh.
+  useEffect(() => {
+    if (!currentGames || currentGames.length === 0) return;
+
+    const completedJobs = Object.values(analysisJobs).filter(
+      (job) => job.status === "completed"
+    );
+
+    if (completedJobs.length === 0) return;
+
+    completedJobs.forEach((job) => {
+      markIsAnalysisInStore(job.gameId);
+    });
+  }, [currentGames, analysisJobs]);
   const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
     const job = getJobByGameId(gameId);
 
