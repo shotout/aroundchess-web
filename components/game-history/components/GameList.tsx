@@ -164,7 +164,13 @@ const GamesList: React.FC<GamesListProps> = ({
         // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
-          newGames[idx] = { ...newGames[idx], is_analysis: true };
+          newGames[idx] = {
+            ...newGames[idx],
+            // backend field
+            is_analysis: true,
+            // frontend Game type field
+            isAnalysis: true,
+          };
           // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
           updated = true;
@@ -175,7 +181,11 @@ const GamesList: React.FC<GamesListProps> = ({
         const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
         if (idx2 !== -1) {
           const newOther = [...otherGamesData];
-          newOther[idx2] = { ...newOther[idx2], is_analysis: true };
+          newOther[idx2] = {
+            ...newOther[idx2],
+            is_analysis: true,
+            isAnalysis: true,
+          };
           setOtherGamesData(newOther);
           updated = true;
         }
@@ -193,7 +203,11 @@ const GamesList: React.FC<GamesListProps> = ({
             const idx = gamesData.findIndex((g: any) => g.pgn === jobPgn);
             if (idx !== -1) {
               const newGames = [...gamesData];
-              newGames[idx] = { ...newGames[idx], is_analysis: true };
+              newGames[idx] = {
+                ...newGames[idx],
+                is_analysis: true,
+                isAnalysis: true,
+              };
               setGamesData(newGames);
             }
           }
@@ -204,7 +218,11 @@ const GamesList: React.FC<GamesListProps> = ({
             );
             if (idx2 !== -1) {
               const newOther = [...otherGamesData];
-              newOther[idx2] = { ...newOther[idx2], is_analysis: true };
+              newOther[idx2] = {
+                ...newOther[idx2],
+                is_analysis: true,
+                isAnalysis: true,
+              };
               setOtherGamesData(newOther);
             }
           }
