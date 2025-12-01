@@ -60,7 +60,7 @@ useEffect(() => {
         <Navigation>
           <div className="w-full h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
             <main className="w-full h-full xl:p-8">
-              <div className="relative mx-auto w-full h-full flex items-center justify-center rounded-xl overflow-hidden border">
+              <div className="relative bg-[#e0f6ff] mx-auto w-full h-full flex items-center justify-center md:rounded-xl overflow-hidden border">
                 {/* Premium Subscription Modal */}
                 <PremiumSubscription
                   visible={showPremiumDialog && !isLoading}
@@ -89,7 +89,7 @@ useEffect(() => {
                     />
                   </div>
                 ) : (
-                  <div className="absolute z-0 bottom-0 left-0 min-w-full">
+                  <div className="absolute z-0 bottom-0 left-0 max-w-full">
                     <Image
                       src="/board-vision/board.png"
                       alt="Background"

@@ -13,7 +13,7 @@ export function WelcomeBack() {
 
             <div className="flex flex-wrap justify-center items-center mx-[-12px]">
                 <ButtonSrc 
-                    href="/playground/play-vs-ai"
+                    href="/play-practice"
                     icon="/images/homepage/btn-play-practice-icon.svg"
                     title="Play & Practice"
                     hint="You vs AI, Puzzles, Board Vision, Endgame Training"
