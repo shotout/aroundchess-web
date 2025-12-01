@@ -127,7 +127,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
               <div className="flex flex-col">
                 <h3 className="font-semibold text-sm md:text-xl mb-2 md:mb-0">
-                  What you will get if you reach your Next Goals?
+                  Your next Goals:
+                  {/* What you will get if you reach your Next Goals? */}
                 </h3>
                 <ul className="text-blue-800 text-xs md:text-base flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
                   <li className="flex items-center gap-2">

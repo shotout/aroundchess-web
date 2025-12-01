@@ -63,7 +63,8 @@ export function BenefitsOf() {
   }, [sessionId, isSignedIn]);
   
   const handleAnalyze = () => {
-    router.push("/analysis");
+    // router.push("/analysis");
+    router.push("/register");
   };
   
   return (

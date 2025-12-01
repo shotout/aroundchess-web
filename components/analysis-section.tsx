@@ -110,12 +110,12 @@ export function AnalysisSection() {
   }, []);
 
   const handleAnalysis = useCallback(() => {
-    if (isSignedIn) {
+    // if (isSignedIn) {
       router.push("/analysis");
-    } else {
-      router.push("/register");
-    }
-  }, [isSignedIn, router]);
+    // } else {
+    //   router.push("/register");
+    // }
+  }); //[isSignedIn, router]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrent(index);

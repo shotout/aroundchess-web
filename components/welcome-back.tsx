@@ -27,7 +27,7 @@ export function WelcomeBack() {
                 />
 
                 <ButtonSrc 
-                    href="/training-plan"
+                    href="/training"
                     icon="/images/homepage/btn-training-icon.svg"
                     title="Training"
                     hint="Training Plan, <br />Handbook: Chess Theory"

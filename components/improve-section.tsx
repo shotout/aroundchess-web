@@ -52,7 +52,8 @@ export function ImproveSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const handleAnalyze = () => {
-    router.push("/analysis");
+    // router.push("/analysis");
+    router.push("/register");
   };
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">
