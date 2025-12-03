@@ -117,34 +117,34 @@ export default function GameHistoryPage() {
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Trophy className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium">Win Rate</span>
+            <span className="text-[14px] --sm font-medium">Win Rate</span>
           </div>
           <div className="mt-2 text-2xl font-bold">65%</div>
-          <p className="text-xs text-muted-foreground">+5% this month</p>
+          <p className="text-[14px] --xs text-muted-foreground">+5% this month</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Sword className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium">Total Games</span>
+            <span className="text-[14px] --sm font-medium">Total Games</span>
           </div>
           <div className="mt-2 text-2xl font-bold">1,234</div>
-          <p className="text-xs text-muted-foreground">+45 this month</p>
+          <p className="text-[14px] --xs text-muted-foreground">+45 this month</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <BarChart2 className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium">Average Rating</span>
+            <span className="text-[14px] --sm font-medium">Average Rating</span>
           </div>
           <div className="mt-2 text-2xl font-bold">1850</div>
-          <p className="text-xs text-muted-foreground">+25 points</p>
+          <p className="text-[14px] --xs text-muted-foreground">+25 points</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Swords className="h-4 w-4 text-red-600" />
-            <span className="text-sm font-medium">Best Win</span>
+            <span className="text-[14px] --sm font-medium">Best Win</span>
           </div>
           <div className="mt-2 text-2xl font-bold">2100</div>
-          <p className="text-xs text-muted-foreground">vs IM_ChessMaster</p>
+          <p className="text-[14px] --xs text-muted-foreground">vs IM_ChessMaster</p>
         </Card>
       </div>
 

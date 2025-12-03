@@ -841,7 +841,7 @@ export default function PrivacyPolicy() {
 
         {/* Footer */}
         <footer className="border-t border-gray-200 pt-6">
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-[14px] --sm text-gray-600 text-center">
             Last update of this Privacy Policy: 5 June, 2025.
           </p>
         </footer>

@@ -261,7 +261,7 @@ const AnalysisLatestGame: React.FC = () => {
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-[14px] font-medium">
+              <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-[14px] font-medium">
                 {tab.label}
               </span>
             </div>

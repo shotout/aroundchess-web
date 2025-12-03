@@ -105,10 +105,10 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               <div className="flex-1">
                 {/* Mobile layout */}
                 <div className="flex flex-col lg:hidden">
-                  <h1 className="text-xs border border-blue-base text-blue-base px-2 py-1 self-start">
+                  <h1 className="text-[14px] --xs border border-blue-base text-blue-base px-2 py-1 self-start">
                     {lesson.difficulty}
                   </h1>
-                  <h3 className="font-medium text-gray-900 text-xs h-10 line-clamp-2 mt-2">
+                  <h3 className="font-medium text-gray-900 text-[14px] --xs h-10 line-clamp-2 mt-2">
                     {lesson.title}
                   </h3>
                 </div>
@@ -124,7 +124,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               {/* Button stays at bottom */}
               <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer btn-primary">
                 <BookOpen className="h-4 w-4" />
-                <span className="text-[10px] md:text-sm">Start Learning</span>
+                <span className="text-[10px] md:text-[14px] --sm">Start Learning</span>
               </div>
             </div>
           </Card>

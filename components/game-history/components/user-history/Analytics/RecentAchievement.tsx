@@ -56,7 +56,7 @@ const RecentAchievements: React.FC<RecentAchievementsProps> = ({
                 </div>
                 <div className="space-y-1">
                   <h1 className="font-bold">{title}</h1>
-                  <p className="text-xs">{description}</p>
+                  <p className="text-[14px] --xs">{description}</p>
                 </div>
               </Card>
             );

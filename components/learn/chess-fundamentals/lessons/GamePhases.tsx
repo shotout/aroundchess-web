@@ -164,7 +164,7 @@ export function GamePhasesLesson() {
         >
           <div className="p-4 bg-white rounded-lg shadow-sm">
             <h4 className="font-semibold text-blue-600">Opening to Middlegame</h4>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-gray-600">
+            <ul className="list-disc list-inside mt-2 space-y-1 text-[14px] --sm text-gray-600">
               <li>Most pieces are developed</li>
               <li>Kings are castled</li>
               <li>Center pawns are established</li>
@@ -173,7 +173,7 @@ export function GamePhasesLesson() {
           </div>
           <div className="p-4 bg-white rounded-lg shadow-sm">
             <h4 className="font-semibold text-blue-600">Middlegame to Endgame</h4>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-gray-600">
+            <ul className="list-disc list-inside mt-2 space-y-1 text-[14px] --sm text-gray-600">
               <li>Several pieces are exchanged</li>
               <li>Queens are often traded</li>
               <li>Pawn structure becomes critical</li>
@@ -185,7 +185,7 @@ export function GamePhasesLesson() {
 
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h4 className="font-semibold text-blue-700 mb-2">Pro Tip</h4>
-        <p className="text-sm text-blue-600">
+        <p className="text-[14px] --sm text-blue-600">
           The boundaries between phases are not always clear. Be ready to adjust your strategy
           based on the position rather than strictly following phase "rules".
         </p>

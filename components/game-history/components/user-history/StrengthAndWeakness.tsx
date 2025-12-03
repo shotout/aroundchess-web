@@ -105,7 +105,7 @@ const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({
         </MobileTooltip>
       </div>
       <div className="mb-4">
-        <h1 className="text-sm font-medium mb-3">Strengths</h1>
+        <h1 className="text-[14px] --sm font-medium mb-3">Strengths</h1>
         <div className="space-y-3">
           {strengthsData.map((item, index) => (
             <StrengthCard key={index} item={item} />
@@ -114,7 +114,7 @@ const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({
       </div>
 
       <div className="mb-5">
-        <h1 className="text-sm font-medium mb-3">Areas for Improvement</h1>
+        <h1 className="text-[14px] --sm font-medium mb-3">Areas for Improvement</h1>
         <div className="space-y-3">
           {weaknessesData.map((item, index) => (
             <WeaknessCard key={index} item={item} />

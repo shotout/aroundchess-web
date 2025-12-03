@@ -10,7 +10,7 @@ interface PageHeaderProps {
 export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
   return (
     <div className="w-auto space-y-5 flex flex-col">
-      <div className=" text-sm lg:text-2xl font-bold text-gray-800">
+      <div className=" text-[14px] --sm lg:text-2xl font-bold text-gray-800">
         {activeTab === "board" ? (
           <div className="flex items-center">
             <AlertCircle className="mr-2" />
@@ -30,7 +30,7 @@ export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
         )}
       </div>
       {activeTab === "move" && viewState.view === "categories" && (
-        <div className="text-black border p-3 rounded-md text-xs md:text-sm w-auto h-[60px] xl:h-[45px] flex items-center">
+        <div className="text-black border p-3 rounded-md text-[14px] --xs md:text-[14px] --sm w-auto h-[60px] xl:h-[45px] flex items-center">
           <h1 className="">
             Challenge yourself and achieve Checkmate in a{" "}
             <span className="font-bold">specific amount of moves.</span>{" "}

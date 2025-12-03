@@ -29,7 +29,7 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
   if (!resources || resources.length === 0) {
     return (
       <div className="border rounded-lg p-4 bg-light-40">
-        <h3 className="font-semibold text-sm mb-4">{title}:</h3>
+        <h3 className="font-semibold text-[14px] --sm mb-4">{title}:</h3>
         <div className="col-span-1 md:col-span-3 text-gray-600 p-4 border bg-white rounded-lg">
           <p className="text-center">
             New Data for this lesson is coming soon,{" "}
@@ -48,17 +48,17 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
 
   return (
     <div className="border rounded-lg p-4 bg-light-40 border-[#2780f8]">
-      <h3 className="font-semibold text-sm mb-4">{title}:</h3>
+      <h3 className="font-semibold text-[14px] --sm mb-4">{title}:</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {resources.map((resource) => (
           <div
             key={resource.id}
             className="border rounded-lg p-4 flex flex-col h-[200px] bg-white"
           >
-            <h4 className="font-medium text-sm">{title}</h4>
+            <h4 className="font-medium text-[14px] --sm">{title}</h4>
             {resource.description && (
               <div className="overflow-y-auto flex-grow mt-2 pr-2">
-                <p className="text-xs text-gray-600 whitespace-pre-line">
+                <p className="text-[14px] --xs text-gray-600 whitespace-pre-line">
                   {resource.description}
                 </p>
               </div>
@@ -69,7 +69,7 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
                   href={resource.videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-base text-sm hover:underline block btn-tertiary w-1/2 rounded-full"
+                  className="text-blue-base text-[14px] --sm hover:underline block btn-tertiary w-1/2 rounded-full"
                 >
                   <h1 className="text-center text-md font-semibold flex items-center justify-center">
                     <Play className="mr-2 h-4 w-4" />
@@ -81,7 +81,7 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
                 href={resource.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-base text-sm hover:underline block btn-tertiary w-full rounded-full"
+                className="text-blue-base text-[14px] --sm hover:underline block btn-tertiary w-full rounded-full"
               >
                 <h1 className="text-center text-md font-semibold flex items-center justify-center">
                   Visit {getPlatformName(resource.url)}

@@ -15,7 +15,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   return (
     <Card className="flex gap-3 bg-[#F9FAFC] border border-gray-100 p-1 md:p-2 w-full md:max-w-96 ">
       <button
-        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-xs ${
+        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-[14px] --xs ${
           activeTab === "board"
             ? "bg-white border shadow-sm font-semibold border-gray-300 text-blue-base"
             : ""
@@ -35,7 +35,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
         <h1>Board Presentation</h1>
       </button>
       <button
-        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-xs ${
+        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-[14px] --xs ${
           activeTab === "move"
             ? "bg-white border shadow-sm font-semibold border-gray-300 text-blue-base"
             : ""

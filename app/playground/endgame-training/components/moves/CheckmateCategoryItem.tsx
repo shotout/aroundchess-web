@@ -20,7 +20,7 @@ export const CheckmateCategoryItem: React.FC<CheckmateCategoryItemProps> = ({
           </h3>
           <button
             onClick={() => onCategorySelect(movesToCheckmate)}
-            className="btn-primary text-white px-3 py-1.5 rounded-full text-sm flex items-center space-x-1  whitespace-nowrap w-fit"
+            className="btn-primary text-white px-3 py-1.5 rounded-full text-[14px] --sm flex items-center space-x-1  whitespace-nowrap w-fit"
           >
             <div className="flex space-x-2">
               <h1>Play</h1>

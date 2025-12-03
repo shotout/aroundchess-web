@@ -383,7 +383,7 @@ const PgnPlayer: React.FC = () => {
         </div> */}
 
       {/* <div className="">
-        <p className="text-sm md:text-md text-center">
+        <p className="text-[14px] --sm md:text-md text-center">
           Move: {currentMoveIndex} / {moveHistory.length}
         </p>
         {error && <p className="text-red-500 mt-2">{error}</p>}

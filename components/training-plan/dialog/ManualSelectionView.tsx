@@ -47,7 +47,7 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
       {/* Step 1: Training Plan Name */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
             1
           </div>
           <Label htmlFor="plan-name" className="font-medium">
@@ -66,7 +66,7 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
       {/* Step 2: Select Topics */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
             2
           </div>
           <Label className="font-medium">Select your Training Topics</Label>
@@ -124,7 +124,7 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
       {/* Step 3: Total Duration */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
             3
           </div>
           <Label htmlFor="total-duration" className="font-medium">

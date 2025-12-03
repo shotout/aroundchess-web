@@ -97,7 +97,7 @@ function ResetPassword() {
 
               {error && (
                 <div className="mt-4 p-3 bg-red-100/70 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600 text-center">{error}</p>
+                  <p className="text-[14px] --sm text-red-600 text-center">{error}</p>
                 </div>
               )}
             </form>

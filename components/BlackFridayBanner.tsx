@@ -131,7 +131,7 @@ export function BlackFridayBanner() {
 
           {/* Right side - Valid until text */}
           <div className="flex items-center h-full flex-shrink-0">
-            <p className="text-white text-xs md:text-sm lg:text-base font-normal whitespace-nowrap">
+            <p className="text-white text-[14px] --xs md:text-[14px] --sm lg:text-base font-normal whitespace-nowrap">
               Valid until November 30.
             </p>
           </div>

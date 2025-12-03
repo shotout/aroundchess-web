@@ -254,7 +254,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           </div>
 
           <h1 className="text-xl font-bold mb-1 text-center">Board Vision</h1>
-          <p className="text-center text-gray-800 text-sm mb-1">
+          <p className="text-center text-gray-800 text-[14px] --sm mb-1">
             Answer technical Chess Questions from positions of your previous
             Games to improve your Board Vision.
           </p>
@@ -267,7 +267,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
               <span>Chess.com Username</span>
             </div>
             <div className="w-1/2">
-              <p className="block text-base sm:text-sm text-black">
+              <p className="block text-base sm:text-[14px] --sm text-black">
                 Ask Questions from my last...
               </p>
             </div>
@@ -293,13 +293,13 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
                   {usernameStatus === "found" && (
                     <div className="flex items-center text-green-500 whitespace-nowrap">
                       <Check className="h-4 w-4 mr-1" />
-                      <span className="text-xs">Found</span>
+                      <span className="text-[14px] --xs">Found</span>
                     </div>
                   )}
                   {usernameStatus === "not-found" && (
                     <div className="flex items-center text-red-500 whitespace-nowrap">
                       <X className="h-4 w-4 mr-1" />
-                      <span className="text-xs">Not found</span>
+                      <span className="text-[14px] --xs">Not found</span>
                     </div>
                   )}
                 </div>

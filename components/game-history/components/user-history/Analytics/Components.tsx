@@ -37,7 +37,7 @@ export const RatingProgressChart: React.FC<{
         {!isCacheValid && (
           <button
             onClick={handleForceRefresh}
-            className="text-blue-500 hover:text-blue-700 flex items-center text-xs"
+            className="text-blue-500 hover:text-blue-700 flex items-center text-[14px] --xs"
             title="Refresh data"
           >
             <RefreshCw className="h-3 w-3 mr-1" />
@@ -157,7 +157,7 @@ export const OpeningStatistics: React.FC<{
           <div key={index} className="flex justify-between items-center">
             <div>
               <h1 className="font-bold">{data.name}</h1>
-              <p className="text-sm text-gray-600">{data.games} games</p>
+              <p className="text-[14px] --sm text-gray-600">{data.games} games</p>
             </div>
             <h1 className="text-green-500">{data.winrate} winrate</h1>
           </div>
@@ -176,46 +176,46 @@ export const PerformanceInsightsSection: React.FC<{
       <h1 className="text-base font-medium mb-3">Performance Insights</h1>
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Average Game Length</h1>
+          <h1 className="text-[14px] --sm font-semibold">Average Game Length</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">
                 {insights.averageGameLength} Moves
               </h1>
             </div>
-            <span className="text-xs mt-1 ">+3 moves from last month</span>
+            <span className="text-[14px] --xs mt-1 ">+3 moves from last month</span>
           </div>
         </Card>
 
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Time Management</h1>
+          <h1 className="text-[14px] --sm font-semibold">Time Management</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.timeManagement}%</h1>
             </div>
-            <span className="text-xs mt-1">Efficient time usage</span>
+            <span className="text-[14px] --xs mt-1">Efficient time usage</span>
           </div>
         </Card>
 
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Accuracy</h1>
+          <h1 className="text-[14px] --sm font-semibold">Accuracy</h1>
 
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.accuracy}%</h1>
             </div>
-            <span className="text-xs mt-1">Top moves played</span>
+            <span className="text-[14px] --xs mt-1">Top moves played</span>
           </div>
         </Card>
 
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Blunder Rate</h1>
+          <h1 className="text-[14px] --sm font-semibold">Blunder Rate</h1>
 
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.blunderRate}%</h1>
             </div>
-            <p className="text-xs mt-1">
+            <p className="text-[14px] --xs mt-1">
               <span className="text-red-400">-12% </span>
               from last month
             </p>
@@ -243,7 +243,7 @@ export const KeyStatisticsSection: React.FC<{
               />
             </div>
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500">Total Games</p>
+              <p className="text-[14px] --xs text-gray-500">Total Games</p>
               <h2 className="text-base font-semibold">
                 {stats.totalGames.toLocaleString()}
               </h2>
@@ -258,7 +258,7 @@ export const KeyStatisticsSection: React.FC<{
               <TargetIcon className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
             </div>
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500">Win Rate</p>
+              <p className="text-[14px] --xs text-gray-500">Win Rate</p>
               <h2 className="text-base font-semibold">{stats.winRate}%</h2>
               <p className="text-[10px] text-green-500">+5%</p>
             </div>
@@ -271,7 +271,7 @@ export const KeyStatisticsSection: React.FC<{
               <BrainIcon className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
             </div>
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500">Average Rating</p>
+              <p className="text-[14px] --xs text-gray-500">Average Rating</p>
               <h2 className="text-base font-semibold">{stats.averageRating}</h2>
               <p className="text-[10px] text-green-500">+25 point this month</p>
             </div>
@@ -284,7 +284,7 @@ export const KeyStatisticsSection: React.FC<{
               <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-purple-500" />
             </div>
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500">Longest Streak</p>
+              <p className="text-[14px] --xs text-gray-500">Longest Streak</p>
               <h2 className="text-base font-semibold">
                 {stats.longestStreak} wins
               </h2>
@@ -313,7 +313,7 @@ export const TimeControlPerformance: React.FC<{
           <div key={item.category} className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="font-medium text-gray-800">{item.category}</span>
-              <span className="text-gray-600 text-sm">{item.games} games</span>
+              <span className="text-gray-600 text-[14px] --sm">{item.games} games</span>
             </div>
 
             <div className="relative h-2 w-full">
@@ -325,11 +325,11 @@ export const TimeControlPerformance: React.FC<{
             </div>
 
             <div className="w-full flex justify-between">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-[14px] --sm font-medium text-gray-700">
                 Win Rate
               </span>
               <span
-                className={`ml-2 text-sm font-medium ${
+                className={`ml-2 text-[14px] --sm font-medium ${
                   item.winRate >= 60
                     ? "text-green-500"
                     : item.winRate >= 50
@@ -382,7 +382,7 @@ export const RecentAchievements: React.FC<{
                 </div>
                 <div className="space-y-1">
                   <h1 className="font-bold">{title}</h1>
-                  <p className="text-xs">{description}</p>
+                  <p className="text-[14px] --xs">{description}</p>
                 </div>
               </Card>
             );

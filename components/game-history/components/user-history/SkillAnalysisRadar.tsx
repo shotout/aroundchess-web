@@ -45,7 +45,7 @@ const SkillAnalysisRadar: React.FC<SkillAnalysisRadarProps> = ({
             <PolarGrid />
             <PolarAngleAxis
               dataKey="subject"
-              className="text-xs"
+              className="text-[14px] --xs"
             />
             <Radar
               name="Skills"

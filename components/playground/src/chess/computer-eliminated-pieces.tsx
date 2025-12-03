@@ -96,14 +96,14 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
               
               {/* Tooltip showing piece value */}
               <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover/piece:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                <div className="px-2 py-1 text-xs font-medium text-white bg-gray-800/90 rounded-md shadow-lg whitespace-nowrap">
+                <div className="px-2 py-1 text-[14px] --xs font-medium text-white bg-gray-800/90 rounded-md shadow-lg whitespace-nowrap">
                   {PIECE_VALUES[piece.toLowerCase()]} points
                 </div>
               </div>
             </div>
           ))}
           {sortedPieces.length === 0 && (
-            <div className="text-sm text-gray-400 italic px-2">
+            <div className="text-[14px] --sm text-gray-400 italic px-2">
               No pieces captured
             </div>
           )}
@@ -112,7 +112,7 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
         {/* Total points display */}
         {totalPoints > 0 && (
           <div className={`
-            px-2.5 py-1 rounded-lg text-sm font-semibold
+            px-2.5 py-1 rounded-lg text-[14px] --sm font-semibold
             ${color === 'white' 
               ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white' 
               : 'bg-gradient-to-br from-gray-700 to-slate-800 text-white'

@@ -20,10 +20,10 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   }) => {
     return (
       <div className="border border-gray-300 rounded-lg p-3 ">
-        <h3 className="font-semibold text-sm sm:text-sm md:text-md lg:text-md mb-2">
+        <h3 className="font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md mb-2">
           {title}
         </h3>
-        <ul className="list-disc list-inside text-xs sm:text-sm md:text-md lg:text-md text-gray-700">
+        <ul className="list-disc list-inside text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-gray-700">
           {content.map((item, index) => (
             <li
               className="ml-2"
@@ -83,7 +83,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           <h3 className="text-[#254B9D] font-semibold mb-2">
             Next Steps for Improvement:
           </h3>
-          <span className="text-sm md:text-md text-[#254B9D] whitespace-pre-line">
+          <span className="text-[14px] --sm md:text-md text-[#254B9D] whitespace-pre-line">
             {nextStepImprovement}
           </span>
         </div>
@@ -95,7 +95,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             height={1000}
             className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
           />
-          <span className="text-xs sm:text-md md:text-lg lg:text-md font-normal text-primary ml-4">
+          <span className="text-[14px] --xs sm:text-md md:text-lg lg:text-md font-normal text-primary ml-4">
             We have added Exercises to your Training Plan to improve your
             Strategy for the analyzed weaknesses.
           </span>
@@ -107,7 +107,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center justify-self-center w-full h-[48px] mt-2 whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -117,7 +117,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           onClick={props.next}
          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center text-[#e6f7fe] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Training
             <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>

@@ -122,15 +122,15 @@ export default function MovementTable() {
       <div className="max-h-[496px] overflow-y-auto">
         <div className="grid grid-cols-2 sm:grid-cols-[6%_47%_47%] text-center border-b border-b-[#749BBF] h-14 ">
           <div className="hidden sm:block sm:rounded-tl-sm bg-[#BDD0F9] border-r border-r-[#749BBF] py-2"></div>
-          <span className="block text-xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
+          <span className="block text-[14px] --xs font-bold rounded-tl-sm sm:rounded-none bg-[#BDD0F9] border-r border-r-[#749BBF]  py-2">
             White{" "}
-            <span className="block text-xs font-light">
+            <span className="block text-[14px] --xs font-light">
               ({whitePlayer?.username || "Player"})
             </span>
           </span>
-          <span className="block text-xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
+          <span className="block text-[14px] --xs font-bold rounded-tr-sm bg-[#BDD0F9] py-2 ">
             Black{" "}
-            <span className="block text-xs font-light">
+            <span className="block text-[14px] --xs font-light">
               ({blackPlayer?.username || "Player"})
             </span>
           </span>
@@ -141,7 +141,7 @@ export default function MovementTable() {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[8px] py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-[14px] --sm lg:text-[8px] py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
@@ -151,7 +151,7 @@ export default function MovementTable() {
             {["Movement", "Advantage", "Classification"].map((header) => (
               <span
                 key={header}
-                className="text-sm lg:text-[8px]  py-2 font-semibold border-r border-r-[#749BBF] "
+                className="text-[14px] --sm lg:text-[8px]  py-2 font-semibold border-r border-r-[#749BBF] "
               >
                 {header}
               </span>
@@ -177,7 +177,7 @@ export default function MovementTable() {
                 index % 2 != 0 ? "bg-[#EEFAFE]" : "bg-white"
               }`}
             >
-              <span className="hidden sm:block text-sm text-center font-semibold py-2 border-b border-b-[#749BBF]">
+              <span className="hidden sm:block text-[14px] --sm text-center font-semibold py-2 border-b border-b-[#749BBF]">
                 {index + 1}
               </span>
 
@@ -200,11 +200,11 @@ export default function MovementTable() {
                     <div className="max-w-[320px] flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                       <div className="flex flex-row items-center justify-between gap-2">
                         <div className="flex flex-row items-center gap-2">
-                          <span className="text-sm font-semibold">
+                          <span className="text-[14px] --sm font-semibold">
                             {move?.move || ""}
                           </span>
                           <span
-                            className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal  ${getScoreClass(
+                            className={`rounded-2xl px-3 py-[4px] border border-input text-[14px] --sm text-center font-normal  ${getScoreClass(
                               move?.classification?.toLowerCase() || ""
                             )}`}
                           >
@@ -231,14 +231,14 @@ export default function MovementTable() {
                         </div>
                       </div>
                       {move?.analysis && (
-                        <span className="text-sm text-left lg:text-md font-normal py-1">
+                        <span className="text-[14px] --sm text-left lg:text-md font-normal py-1">
                           {move.analysis}
                         </span>
                       )}
                       <div className="flex flex-row gap-1">
                         <InfoIcon size={16} color="#221AE9" />
-                        <span className="text-sm ">Type:</span>
-                        <span className="text-sm font-semibold ">
+                        <span className="text-[14px] --sm ">Type:</span>
+                        <span className="text-[14px] --sm font-semibold ">
                           {move?.gamePhase || ""}
                         </span>
                       </div>
@@ -272,7 +272,7 @@ export default function MovementTable() {
                 </Popover>
 
                 <span
-                  className={`text-xs text-center ${
+                  className={`text-[14px] --xs text-center ${
                     tabFocus === moveGamePhase ||
                     (chessMove.move === move?.move &&
                       chessMove.moveNumber === move?.moveNumber)
@@ -316,7 +316,7 @@ export default function MovementTable() {
                                 {blackMove.move || ""}
                               </span>
                               <span
-                                className={`rounded-2xl px-3 py-[4px] border border-input text-sm text-center font-normal py-2 ${getScoreClass(
+                                className={`rounded-2xl px-3 py-[4px] border border-input text-[14px] --sm text-center font-normal py-2 ${getScoreClass(
                                   blackMove.classification?.toLowerCase() || ""
                                 )}`}
                               >
@@ -325,7 +325,7 @@ export default function MovementTable() {
                             </div>
                             <div className="flex flex-row items-center gap-2">
                               <span
-                                className={`mx-1 py-1 rounded-[4px] text-xs px-2 ${getBadgeClass(
+                                className={`mx-1 py-1 rounded-[4px] text-[14px] --xs px-2 ${getBadgeClass(
                                   blackMove.classification || ""
                                 )}`}
                               >
@@ -343,14 +343,14 @@ export default function MovementTable() {
                             </div>
                           </div>
                           {blackMove.analysis && (
-                            <span className="text-sm text-left lg:text-md font-normal py-1">
+                            <span className="text-[14px] --sm text-left lg:text-md font-normal py-1">
                               {blackMove.analysis}
                             </span>
                           )}
                           <div className="flex flex-row items-center gap-1">
                             <InfoIcon size={16} color="#221AE9" />
-                            <span className="text-sm">Type:</span>
-                            <span className="text-sm font-semibold ">
+                            <span className="text-[14px] --sm">Type:</span>
+                            <span className="text-[14px] --sm font-semibold ">
                               {blackMove.gamePhase || ""}
                             </span>
                           </div>

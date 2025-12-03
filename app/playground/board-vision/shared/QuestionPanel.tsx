@@ -37,7 +37,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
             />
             <span className="font-bold text-base xl:text-xl">Board Vision</span>
           </div>
-          <div className="text-blue-base text-sm xl:text-base">
+          <div className="text-blue-base text-[14px] --sm xl:text-base">
             {`Question ${gameQuestionNumber} of ${gameMaxQuestions}`}
           </div>
         </div>

@@ -30,13 +30,13 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         }`}
     >
       {/* Player Name */}
-      <div className="text-sm sm:text-base md:text-md font-medium text-center flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
+      <div className="text-[14px] --sm sm:text-base md:text-md font-medium text-center flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
         {playerName}
       </div>
 
       {/* Material Difference */}
       {materialDifference !== 0 && (
-        <div className="text-xs sm:text-sm md:text-base font-semibold text-center flex-1">
+        <div className="text-[14px] --xs sm:text-[14px] --sm md:text-base font-semibold text-center flex-1">
           {materialDifference > 0
             ? `+${materialDifference}`
             : materialDifference}
@@ -45,7 +45,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
 
       {/* Timer */}
       {timer !== undefined && (
-        <div className="text-sm sm:text-base md:text-lg font-medium text-center flex-1">
+        <div className="text-[14px] --sm sm:text-base md:text-lg font-medium text-center flex-1">
           {`${Math.floor(timer / 60)}:${(timer % 60)
             .toString()
             .padStart(2, "0")}`}

@@ -204,7 +204,7 @@ export function SpaceAdvantageConcepts() {
           <Button onClick={previousExample} variant="outline" size="sm">
             Previous Example
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14px] --sm text-muted-foreground">
             {currentExample + 1} of {spaceAdvantageExamples.length}
           </span>
           <Button onClick={nextExample} variant="outline" size="sm">
@@ -264,7 +264,7 @@ export function SpaceAdvantageConcepts() {
                     <p className="text-gray-600 mb-4">{application.description}</p>
                     <ul className="list-disc pl-5 space-y-2">
                       {application.key_points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="text-sm text-gray-600">
+                        <li key={pointIndex} className="text-[14px] --sm text-gray-600">
                           {point}
                         </li>
                       ))}

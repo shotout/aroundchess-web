@@ -245,7 +245,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                     <div className="space-y-1">
                       <div
                         className={cn(
-                          "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                          "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                           isActive
                             ? "bg-blue-50 text-blue-600"
                             : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
@@ -279,7 +279,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                                 key={child.href}
                                 href={child.href}
                                 className={cn(
-                                  "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                                  "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                                   isChildActive
                                     ? "bg-blue-100 text-blue-600"
                                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -326,7 +326,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <motion.button
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -347,7 +347,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                     <p className="font-medium">
                       {profile?.name != "" ? profile?.name : username}
                     </p>
-                    <p className="text-xs text-gray-500">{profile?.email}</p>
+                    <p className="text-[14px] --xs text-gray-500">{profile?.email}</p>
                   </div>
                 </motion.button>
               </DropdownMenuTrigger>

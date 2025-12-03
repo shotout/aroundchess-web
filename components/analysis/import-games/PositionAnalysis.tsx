@@ -54,8 +54,8 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           <div className="space-y-2">
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">White</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.pieceActivity.white)}`}>
+                <span className="text-[14px] --sm">White</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.pieceActivity.white)}`}>
                   {metrics.pieceActivity.white}%
                 </span>
               </div>
@@ -63,8 +63,8 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
             </div>
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">Black</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.pieceActivity.black)}`}>
+                <span className="text-[14px] --sm">Black</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.pieceActivity.black)}`}>
                   {metrics.pieceActivity.black}%
                 </span>
               </div>
@@ -82,8 +82,8 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           <div className="space-y-2">
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">White</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.pawnStructure.white)}`}>
+                <span className="text-[14px] --sm">White</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.pawnStructure.white)}`}>
                   {metrics.pawnStructure.white}%
                 </span>
               </div>
@@ -91,15 +91,15 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
             </div>
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">Black</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.pawnStructure.black)}`}>
+                <span className="text-[14px] --sm">Black</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.pawnStructure.black)}`}>
                   {metrics.pawnStructure.black}%
                 </span>
               </div>
               <Progress value={metrics.pawnStructure.black} className="h-2" />
             </div>
             {metrics.pawnStructure.weaknesses.length > 0 && (
-              <div className="text-sm text-muted-foreground mt-2">
+              <div className="text-[14px] --sm text-muted-foreground mt-2">
                 Weaknesses: {metrics.pawnStructure.weaknesses.join(", ")}
               </div>
             )}
@@ -115,8 +115,8 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           <div className="space-y-2">
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">White</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.kingSafety.white)}`}>
+                <span className="text-[14px] --sm">White</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.kingSafety.white)}`}>
                   {metrics.kingSafety.white}%
                 </span>
               </div>
@@ -124,15 +124,15 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
             </div>
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">Black</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.kingSafety.black)}`}>
+                <span className="text-[14px] --sm">Black</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.kingSafety.black)}`}>
                   {metrics.kingSafety.black}%
                 </span>
               </div>
               <Progress value={metrics.kingSafety.black} className="h-2" />
             </div>
             {metrics.kingSafety.threats.length > 0 && (
-              <div className="text-sm text-red-500 mt-2">
+              <div className="text-[14px] --sm text-red-500 mt-2">
                 Threats: {metrics.kingSafety.threats.join(", ")}
               </div>
             )}
@@ -148,8 +148,8 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           <div className="space-y-2">
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">White</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.spaceAdvantage.white)}`}>
+                <span className="text-[14px] --sm">White</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.spaceAdvantage.white)}`}>
                   {metrics.spaceAdvantage.white}%
                 </span>
               </div>
@@ -157,14 +157,14 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
             </div>
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm">Black</span>
-                <span className={`text-sm font-medium ${getScoreColor(metrics.spaceAdvantage.black)}`}>
+                <span className="text-[14px] --sm">Black</span>
+                <span className={`text-[14px] --sm font-medium ${getScoreColor(metrics.spaceAdvantage.black)}`}>
                   {metrics.spaceAdvantage.black}%
                 </span>
               </div>
               <Progress value={metrics.spaceAdvantage.black} className="h-2" />
             </div>
-            <div className="text-sm text-muted-foreground mt-2">
+            <div className="text-[14px] --sm text-muted-foreground mt-2">
               Controlled squares: {metrics.spaceAdvantage.controlledSquares}
             </div>
           </div>
@@ -178,20 +178,20 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <h5 className="text-sm font-medium mb-1">Controlled</h5>
-              <p className="text-sm text-muted-foreground">
+              <h5 className="text-[14px] --sm font-medium mb-1">Controlled</h5>
+              <p className="text-[14px] --sm text-muted-foreground">
                 {metrics.keySquares.controlled.join(", ")}
               </p>
             </div>
             <div>
-              <h5 className="text-sm font-medium mb-1">Contested</h5>
-              <p className="text-sm text-muted-foreground">
+              <h5 className="text-[14px] --sm font-medium mb-1">Contested</h5>
+              <p className="text-[14px] --sm text-muted-foreground">
                 {metrics.keySquares.contested.join(", ")}
               </p>
             </div>
             <div>
-              <h5 className="text-sm font-medium mb-1">Weak</h5>
-              <p className="text-sm text-muted-foreground">
+              <h5 className="text-[14px] --sm font-medium mb-1">Weak</h5>
+              <p className="text-[14px] --sm text-muted-foreground">
                 {metrics.keySquares.weak.join(", ")}
               </p>
             </div>

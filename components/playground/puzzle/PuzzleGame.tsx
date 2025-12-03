@@ -161,10 +161,10 @@ const MobileMoveBoxes = ({
           <div className="flex flex-col gap-1 min-w-[60px]">
             <div className="h-[25px] bg-white"></div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">White</span>
+              <span className="text-[14px] --sm font-medium text-black">White</span>
             </div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">Black</span>
+              <span className="text-[14px] --sm font-medium text-black">Black</span>
             </div>
           </div>
         </div>
@@ -200,18 +200,18 @@ const MobileMoveBoxes = ({
                   className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
                   style={{ opacity }}
                 >
-                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                  <div className="text-center text-[14px] --xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
                     Move {moveNumber}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {whiteMove ? whiteMove.san : ""}
                     </span>
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {blackMove ? blackMove.san : ""}
                     </span>
                   </div>
@@ -883,7 +883,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         <div className="px-5">
           <div className="flex sm:hidden flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[18px] h-[18px]" color="#221AE9" />
-            <span className="font-medium text-sm">
+            <span className="font-medium text-[14px] --sm">
               You are {boardOrientation === "white" ? "white" : "black"}
             </span>
           </div>
@@ -1006,7 +1006,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             height={1000}
             className="max-w-[20px] max-h-[20px] md:max-w-[30px] md:max-h-[30px] object-contain m-4 mr-0"
           />
-          <span className="font-medium text-xs md:text-[14px] z-10">
+          <span className="font-medium text-[14px] --xs md:text-[14px] z-10">
             {content}
           </span>
           <div className="absolute right-0 top-0 bottom-1 h-full flex items-center justify-center">
@@ -1292,8 +1292,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <table className="w-full table-auto border-separate border-spacing-0 rounded-[8px] overflow-hidden border-[#BDD0F9]">
             <thead>
               <tr className="bg-[#D7E3FB] ">
-                <th className="p-2 border font-normal text-xs border-[#BDD0F9] border-b-0 border-r-0"></th>
-                <th className="gap-2 p-2 w-[45%] border font-normal text-xs border-[#BDD0F9]">
+                <th className="p-2 border font-normal text-[14px] --xs border-[#BDD0F9] border-b-0 border-r-0"></th>
+                <th className="gap-2 p-2 w-[45%] border font-normal text-[14px] --xs border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">White</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
                     {boardOrientation == "black"
@@ -1303,7 +1303,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       : profile?.name}
                   </span>
                 </th>
-                <th className="gap-2 p-2 w-[45%] border font-normal text-xs border-[#BDD0F9]">
+                <th className="gap-2 p-2 w-[45%] border font-normal text-[14px] --xs border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">Black</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
                     {boardOrientation != "black"
@@ -1315,13 +1315,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 </th>
               </tr>
               <tr className="bg-[#D7E3FB] ">
-                <th className="p-2 font-normal text-xs border border-[#D7E3FB] border-t-0 border-r-0"></th>
-                <th className="gap-1 p-2 font-normal text-xs border border-[#BDD0F9] border-t-0">
+                <th className="p-2 font-normal text-[14px] --xs border border-[#D7E3FB] border-t-0 border-r-0"></th>
+                <th className="gap-1 p-2 font-normal text-[14px] --xs border border-[#BDD0F9] border-t-0">
                   <span className="block font-normal text-[14px] --">
                     Movement
                   </span>
                 </th>
-                <th className="gap-1 p-2 border font-normal text-xs border-[#BDD0F9] border-t-0">
+                <th className="gap-1 p-2 border font-normal text-[14px] --xs border-[#BDD0F9] border-t-0">
                   <span className="block font-normal text-[14px] --">
                     Movement
                   </span>
@@ -1334,7 +1334,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 firstTurn.map((captured, index) => {
                   return (
                     <tr className="text-center" key={index}>
-                      <td className="p-2 border font-normal text-xs border-[#BDD0F9]">
+                      <td className="p-2 border font-normal text-[14px] --xs border-[#BDD0F9]">
                         {index + 1}
                       </td>
                       <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
@@ -1349,7 +1349,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                             />
                           )}
                         {capturedWhite[index] != null && (
-                          <span className="h-[16px] font-normal text-xs">
+                          <span className="h-[16px] font-normal text-[14px] --xs">
                             {" "}
                             {capturedWhite[index].san}
                           </span>
@@ -1367,7 +1367,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                             />
                           )}
                         {capturedBlack[index] != null && (
-                          <span className="h-[16px] font-normal text-xs">
+                          <span className="h-[16px] font-normal text-[14px] --xs">
                             {" "}
                             {capturedBlack[index].san}
                           </span>

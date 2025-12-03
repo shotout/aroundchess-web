@@ -151,7 +151,7 @@ export function PawnEndgames() {
           <Button onClick={previousExample} variant="outline" size="sm">
             Previous Example
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14px] --sm text-muted-foreground">
             {currentExample + 1} of {pawnEndgameExamples.length}
           </span>
           <Button onClick={nextExample} variant="outline" size="sm">

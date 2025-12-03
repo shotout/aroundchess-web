@@ -72,7 +72,7 @@ export function ImproveSection() {
                   <h2 className="font-bol text-md sm:text-xl lg:text-[32px] font-bold mb-1 sm:mb-2 text-white">
                     Improve your Chess Skills with AroundChess
                   </h2>
-                  <p className="text-white font-normal text-xs sm:text-[18px] text-white">
+                  <p className="text-white font-normal text-[14px] --xs sm:text-[18px] text-white">
                     Discover how our custom Training Plans can help you to
                     improve your Chess Strategy.
                   </p>
@@ -148,11 +148,11 @@ export function ImproveSection() {
                 <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6 mt-12 xl:mt-0">
                   <Button
                     onClick={handleAnalyze}
-                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-medium text-xs sm:text-[16px] text-[#221AE9] mb-3"
+                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-medium text-[14px] --xs sm:text-[16px] text-[#221AE9] mb-3"
                   >
                     Analyze your most recent Game now
                   </Button>
-                  {/* <span className="w-fill px-16 font-normal text-xs sm:text-[14px] text-white my-3">
+                  {/* <span className="w-fill px-16 font-normal text-[14px] --xs sm:text-[14px] text-white my-3">
                     No Sign-Up required
                   </span> */}
                 </div>

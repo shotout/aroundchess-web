@@ -78,7 +78,7 @@ export function ComputerHintPopup({ isOpen, onClose, onHintGenerated }: Computer
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex items-center gap-4">
-            <span className="text-sm">ELO: {elo}</span>
+            <span className="text-[14px] --sm">ELO: {elo}</span>
             <div className={currentPlayer !== playerColor ? "opacity-50 pointer-events-none" : ""}>
               <Slider
                 value={[elo]}
@@ -100,7 +100,7 @@ export function ComputerHintPopup({ isOpen, onClose, onHintGenerated }: Computer
             </Button>
             {recommendedMove && !isAnalyzing && (
               <div className="w-full p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-800 font-medium">Recommended move:</p>
+                <p className="text-[14px] --sm text-green-800 font-medium">Recommended move:</p>
                 <p className="text-lg font-mono text-center mt-2">{recommendedMove}</p>
               </div>
             )}

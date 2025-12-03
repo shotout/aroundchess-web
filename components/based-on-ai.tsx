@@ -39,7 +39,7 @@ export function BasedOnAI() {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="max-w-max border border-[#221AE9] rounded-[16px] px-[12px] py-[8px] text-xs md:text-[20px] font-normal mb-4 sm:mb-2 lg:mb-[32px] text-[#221AE9] text-center md:text-left">
+            <h2 className="max-w-max border border-[#221AE9] rounded-[16px] px-[12px] py-[8px] text-[14px] --xs md:text-[20px] font-normal mb-4 sm:mb-2 lg:mb-[32px] text-[#221AE9] text-center md:text-left">
               Powerful Analysis - based on AI, fine-tuned by Humans
             </h2>
 
@@ -65,7 +65,7 @@ export function BasedOnAI() {
                     color="#221AE9"
                     className="mr-2 h-5 w-5 sm:h-6 sm:w-6 text-green-500 flex-shrink-0"
                   />
-                  <span className="text-sm sm:text-[18px] font-normal text-[#2e2e2e]">
+                  <span className="text-[14px] --sm sm:text-[18px] font-normal text-[#2e2e2e]">
                     {feature}
                   </span>
                 </motion.li>

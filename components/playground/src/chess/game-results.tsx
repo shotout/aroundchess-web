@@ -45,7 +45,7 @@ export function GameResults() {
 
   if (!gameResults || gameResults.length === 0) {
     return (
-      <div className="p-4 text-gray-500 italic text-sm">
+      <div className="p-4 text-gray-500 italic text-[14px] --sm">
         No games completed yet
       </div>
     )
@@ -64,11 +64,11 @@ export function GameResults() {
           return (
             <div key={result.id} className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-lg p-3 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Game {gameNumber}</span>
-                <span className="text-xs text-gray-500">{new Date(result.date).toLocaleDateString()}</span>
+                <span className="text-[14px] --sm font-medium">Game {gameNumber}</span>
+                <span className="text-[14px] --xs text-gray-500">{new Date(result.date).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`px-2 py-1 rounded text-xs ${
+                <div className={`px-2 py-1 rounded text-[14px] --xs ${
                   result.winner === 'white' 
                     ? 'bg-blue-100 text-blue-700' 
                     : result.winner === 'black'
@@ -77,7 +77,7 @@ export function GameResults() {
                 }`}>
                   {result.winner === 'draw' ? 'Draw' : `${getWinnerName(result.winner)} won`}
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-[14px] --xs text-gray-600">
                   by {result.method}
                 </div>
               </div>

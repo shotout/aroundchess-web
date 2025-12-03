@@ -158,10 +158,10 @@ export default function ScotchGamePage() {
                       onClick={() => setCurrentVariation(variation)}
                     >
                       <h3 className="font-semibold mb-2">{variation.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{variation.description}</p>
+                      <p className="text-[14px] --sm text-muted-foreground mb-2">{variation.description}</p>
                       <div className="space-y-1">
                         {variation.keyIdeas.map((idea, ideaIndex) => (
-                          <div key={ideaIndex} className="text-sm flex items-center gap-2">
+                          <div key={ideaIndex} className="text-[14px] --sm flex items-center gap-2">
                             <Target className="h-4 w-4" />
                             <span>{idea}</span>
                           </div>
@@ -178,12 +178,12 @@ export default function ScotchGamePage() {
                         <Book className="h-5 w-5 mt-1" />
                         <div>
                           <h3 className="font-semibold">{resource.title}</h3>
-                          <p className="text-sm text-muted-foreground">{resource.description}</p>
+                          <p className="text-[14px] --sm text-muted-foreground">{resource.description}</p>
                           <a
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline"
+                            className="text-[14px] --sm text-primary hover:underline"
                           >
                             Visit {resource.platform}
                           </a>

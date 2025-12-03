@@ -112,7 +112,7 @@ export function StorageDialog({
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h4 className="font-medium">Storage Usage</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     {formatSize(mockStorageStats.used)} of{" "}
                     {formatSize(mockStorageStats.total)} used
                   </p>
@@ -169,7 +169,7 @@ export function StorageDialog({
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="space-y-0.5">
                   <Label>Cleanup Policy</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Automatically clean up old reports
                   </p>
                 </div>

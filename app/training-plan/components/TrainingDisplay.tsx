@@ -221,7 +221,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
                   Tactical Training
                 </h3>
               </div>
-              <div className="text-black text-xs sm:text-sm font-medium">
+              <div className="text-black text-[14px] --xs sm:text-[14px] --sm font-medium">
                 Estimated total duration per day:{" "}
                 <span className="text-blue-800 font-bold">
                   {tacticsDuration}

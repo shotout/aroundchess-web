@@ -145,7 +145,7 @@ export const DummyList = () => {
                   {(() => {
                     return (
                       <button
-                        className={`h-8 w-full rounded-3xl text-xs text-white flex justify-center items-center transition-colors duration-150 ${
+                        className={`h-8 w-full rounded-3xl text-[14px] --xs text-white flex justify-center items-center transition-colors duration-150 ${
                           !game.is_analysis
                             ? "border border-white bg-gradient-to-b from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200"
                             : "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"
@@ -229,7 +229,7 @@ export const DummyList = () => {
                 {(() => {
                   return (
                     <button
-                      className={`h-8 w-full rounded-3xl text-xs text-white flex justify-center items-center transition-colors duration-150 ${
+                      className={`h-8 w-full rounded-3xl text-[14px] --xs text-white flex justify-center items-center transition-colors duration-150 ${
                         !game.is_analysis
                           ? "border border-white bg-gradient-to-b from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200"
                           : "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"
@@ -316,7 +316,7 @@ export const DummyList = () => {
                   {(() => {
                     return (
                       <button
-                        className={`h-8 w-full rounded-3xl text-xs text-white flex justify-center items-center transition-colors duration-150 ${
+                        className={`h-8 w-full rounded-3xl text-[14px] --xs text-white flex justify-center items-center transition-colors duration-150 ${
                           !game.is_analysis
                             ? "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"
                             : "border border-white bg-gradient-to-b from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200"
@@ -400,7 +400,7 @@ export const DummyList = () => {
                 {(() => {
                   return (
                     <button
-                      className={`h-8 w-full rounded-3xl text-xs text-white flex justify-center items-center transition-colors duration-150 ${
+                      className={`h-8 w-full rounded-3xl text-[14px] --xs text-white flex justify-center items-center transition-colors duration-150 ${
                         !game.is_analysis
                           ? "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200"
                           : "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"

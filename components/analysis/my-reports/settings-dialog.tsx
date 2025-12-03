@@ -71,7 +71,7 @@ export function ReportSettingsDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Auto-save Reports</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Automatically save reports after generation
                   </p>
                 </div>
@@ -84,7 +84,7 @@ export function ReportSettingsDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Preview Mode</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Enable report preview before download
                   </p>
                 </div>
@@ -101,7 +101,7 @@ export function ReportSettingsDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Receive notifications about report updates
                   </p>
                 </div>

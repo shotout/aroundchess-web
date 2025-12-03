@@ -88,7 +88,7 @@ export function CorePrinciples() {
               <p className="text-gray-600 mb-4">{principle.description}</p>
               <ul className="list-disc pl-5 space-y-1">
                 {principle.tips.map((tip, tipIndex) => (
-                  <li key={tipIndex} className="text-sm text-gray-600">{tip}</li>
+                  <li key={tipIndex} className="text-[14px] --sm text-gray-600">{tip}</li>
                 ))}
               </ul>
             </CardContent>

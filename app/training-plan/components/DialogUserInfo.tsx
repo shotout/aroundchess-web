@@ -110,7 +110,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
         )}
         <div className="flex justify-between items-center w-full">
           <div className="font-semibold">{displayUsername}</div>
-          <div className="text-sm flex items-center">
+          <div className="text-[14px] --sm flex items-center">
             <div className="w-8 h-10 relative">
               <Image
                 src={levelImagePath}
@@ -121,7 +121,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
               />
             </div>
             <div>
-              <div className="text-xs text-black font-bold">
+              <div className="text-[14px] --xs text-black font-bold">
                 {currentLevel.title}
               </div>
               <h1>ELO {currentElo}</h1>
@@ -139,13 +139,13 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
               width={15}
               height={15}
             />
-            <div className="text-sm font-semibold text-black">
+            <div className="text-[14px] --sm font-semibold text-black">
               {isMaxLevel
                 ? "You've reached the highest level!"
                 : "Your key to reach the next Level:"}
             </div>
           </div>
-          <p className="text-sm text-black">
+          <p className="text-[14px] --sm text-black">
             {isMaxLevel
               ? "Congratulations on achieving Grand Master status!"
               : keyInfo.keyToReachNextLevel}

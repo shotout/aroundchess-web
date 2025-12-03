@@ -58,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const NavigationTabs = () => (
     <div className="hidden xl:flex xl:items-center space-x-2">
       {/* Analytics/Analyze Now button */}
-      <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+      <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
         <Link href="/analysis">
           <Button
             color="primary"
@@ -124,12 +124,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const AuthButtons = () => (
     <div className="hidden sm:flex items-center gap-5">
       <Link href="/login">
-        <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50">
           Sign-In
         </button>
       </Link>
       <Link href="/register">
-        <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700">
           Try Now
         </button>
       </Link>
@@ -160,13 +160,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         <div className="w-full flex flex-row gap-[8px]">
           <button
             onClick={() => handleOpenOffer("tokens")}
-            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 "
+            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 "
           >
             Buy Tokens
           </button>
           <button
             onClick={() => handleOpenOffer("subscription")}
-            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white "
+            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white "
           >
             Go Unlimited
           </button>
@@ -295,7 +295,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
       {pathname === "/training-plan" && !isDesktop && (
         <div className="flex justify-center items-center flex-col">
-          <h1 className="sm:hidden text-xs font-semibold">
+          <h1 className="sm:hidden text-[14px] --xs font-semibold">
             {pathname
               .replace("/", "")
               .replace("-", " ")

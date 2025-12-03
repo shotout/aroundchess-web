@@ -78,8 +78,8 @@ export function QuickReference() {
                   className="p-3 rounded-lg bg-gray-50"
                 >
                   <h4 className="font-medium text-blue-600">{term.term}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{term.definition}</p>
-                  <span className="text-xs text-gray-400 mt-2 inline-block">
+                  <p className="text-[14px] --sm text-gray-600 mt-1">{term.definition}</p>
+                  <span className="text-[14px] --xs text-gray-400 mt-2 inline-block">
                     {term.category}
                   </span>
                 </motion.div>
@@ -99,10 +99,10 @@ export function QuickReference() {
                   transition={{ delay: index * 0.1 }}
                   className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
                 >
-                  <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                  <span className="font-mono text-[14px] --sm bg-gray-100 px-2 py-1 rounded">
                     {shortcut.key}
                   </span>
-                  <span className="text-sm text-gray-600">{shortcut.action}</span>
+                  <span className="text-[14px] --sm text-gray-600">{shortcut.action}</span>
                 </motion.div>
               ))}
             </div>

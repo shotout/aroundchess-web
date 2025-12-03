@@ -100,7 +100,7 @@ export function TagsDialog({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Your Tags</h4>
+            <h4 className="text-[14px] --sm font-medium">Your Tags</h4>
             <Button
               variant="outline"
               size="sm"
@@ -161,7 +161,7 @@ export function TagsDialog({
                   />
                   <div>
                     <p className="font-medium">{tag.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[14px] --sm text-muted-foreground">
                       {tag.count} reports
                     </p>
                   </div>

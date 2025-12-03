@@ -154,7 +154,7 @@ const IndividualTrainingTopic: React.FC<
 
     return (
       <div className="block md:hidden mt-2">
-        <p className="text-xs text-gray-600 leading-tight">
+        <p className="text-[14px] --xs text-gray-600 leading-tight">
           You've played this Topic:{" "}
           {detailedCount.isLegacy ? (
             <span className="font-medium">
@@ -189,7 +189,7 @@ const IndividualTrainingTopic: React.FC<
         >
           {isRecommended && (
             <Badge
-              className={`flex text-xs items-center gap-x-2 font-bold rounded-[2px] ${
+              className={`flex text-[14px] --xs items-center gap-x-2 font-bold rounded-[2px] ${
                 disabled
                   ? "bg-[f0f0f0]"
                   : isRecommended
@@ -218,7 +218,7 @@ const IndividualTrainingTopic: React.FC<
         </div>
 
         <h2
-          className={`font-bold mt-2 text-sm ${
+          className={`font-bold mt-2 text-[14px] --sm ${
             isSelected ? "text-blue-base" : "text-black"
           }`}
         >
@@ -248,10 +248,10 @@ const IndividualTrainingTopic: React.FC<
                   >
                     <AlertCircle className="text-blue-base w-5 h-5" />
                     <div className="flex flex-col gap-y-2">
-                      <h3 className="font-semibold text-sm">
+                      <h3 className="font-semibold text-[14px] --sm">
                         You've played this opening
                       </h3>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-[14px] --xs text-gray-600">
                         {detailedCount.isLegacy ? (
                           <p>
                             {detailedCount.total}{" "}
@@ -291,7 +291,7 @@ const IndividualTrainingTopic: React.FC<
               <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
                 <AlertCircle className="text-blue-base max-w-5" />
               </div>
-              <p className="text-xs text-black">
+              <p className="text-[14px] --xs text-black">
                 Grandmasters recommend this Concept for the Training Plan of
                 your current level.
               </p>
@@ -316,10 +316,10 @@ const IndividualTrainingTopic: React.FC<
           >
             <AlertCircle className="text-blue-base w-5 h-5" />
             <div className="flex flex-col gap-y-2">
-              <h3 className="font-semibold text-sm">
+              <h3 className="font-semibold text-[14px] --sm">
                 You've played this opening
               </h3>
-              <div className="text-xs text-gray-600">
+              <div className="text-[14px] --xs text-gray-600">
                 {detailedCount.isLegacy ? (
                   <p>
                     {detailedCount.total} {formatPlayCount(detailedCount.total)}

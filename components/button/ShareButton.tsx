@@ -159,7 +159,7 @@ const ShareButton = (props: any) => {
       >
         <div className="flex items-center gap-2">
           <Share2 className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-          <span className="text-xs sm:text-sm md:text-md">
+          <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md">
             Share this article:
           </span>
         </div>

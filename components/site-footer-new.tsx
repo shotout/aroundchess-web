@@ -269,7 +269,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm text-[#364152]">
+            <p className="text-[14px] --sm text-[#364152]">
               © 2025 aroundchess. All rights reserved.
             </p>
             <div className="flex space-x-2">

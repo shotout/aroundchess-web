@@ -60,7 +60,7 @@ const GameCard: FC<GameCardProps> = ({
           />
           <span>{style.text}</span>
         </div>
-        <span className="text-gray-500 text-sm">{formatDateHistory(date)}</span>
+        <span className="text-gray-500 text-[14px] --sm">{formatDateHistory(date)}</span>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 min-h-[18px] ">

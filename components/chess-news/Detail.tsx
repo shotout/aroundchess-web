@@ -108,12 +108,12 @@ export default function Detail() {
               onClick={() => router.back()}
             >
               <ArrowLeft size={24} />
-              <span className="text-sm sm:text-sm md:text-md lg:text-md">
+              <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md">
                 {formatDateNews(localDetail?.publishedAt)}
               </span>
             </div>
             <div className="flex flex-row items-center justify-between gap-2">
-              <p className="text-sm sm:text-sm md:text-md lg:text-md min-w-[136px] text-center border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+              <p className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md min-w-[136px] text-center border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
                 {localDetail?.category?.name}
               </p>
               <div className="flex flex-row items-center gap-2">
@@ -196,7 +196,7 @@ export default function Detail() {
                       />
                     ) : (
                       <div className="w-full h-[115px] bg-gray-200 flex items-center justify-center m-2 rounded-md">
-                        <span className="text-gray-500 text-xs">No Image</span>
+                        <span className="text-gray-500 text-[14px] --xs">No Image</span>
                       </div>
                     )}
                     <CardContent className="px-2">
@@ -249,7 +249,7 @@ export default function Detail() {
                     />
                   ) : (
                     <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-[4px]">
-                      <span className="text-gray-500 text-xs">No Image</span>
+                      <span className="text-gray-500 text-[14px] --xs">No Image</span>
                     </div>
                   )}
                   <div className="flex flex-col flex-1 gap-2">

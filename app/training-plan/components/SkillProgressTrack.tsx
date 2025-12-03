@@ -225,7 +225,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const mobileLevels = getMobileDisplayLevels();
 
   const badgeClass =
-    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
+    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-[14px] --xs font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
@@ -310,7 +310,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                       >
                         <div className="flex items-center gap-x-2 p-1">
                           <AlertCircle className="text-blue-base w-5 h-5" />
-                          <div className="text-xs text-justify">
+                          <div className="text-[14px] --xs text-justify">
                             <h1>{level.description}</h1>
                           </div>
                         </div>
@@ -319,10 +319,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-sm flex items-center justify-center">
+                    <div className="font-semibold text-[14px] --sm flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
-                    <div className="text-xs text-gray-600 flex items-center justify-center">
+                    <div className="text-[14px] --xs text-gray-600 flex items-center justify-center">
                       <span className="whitespace-nowrap">ELO {level.elo}</span>
                     </div>
                   </div>
@@ -386,10 +386,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                         className="bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg rounded-md"
                       >
                         <div className="flex flex-col gap-y-1 p-2">
-                          <h3 className="font-semibold text-sm">
+                          <h3 className="font-semibold text-[14px] --sm">
                             {level.title}
                           </h3>
-                          <p className="text-xs text-gray-600">
+                          <p className="text-[14px] --xs text-gray-600">
                             ELO Requirement: {level.elo}
                           </p>
                         </div>
@@ -398,7 +398,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-xs flex items-center justify-center">
+                    <div className="font-semibold text-[14px] --xs flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
                     <div className="text-[10px] text-gray-600 flex items-center justify-center">

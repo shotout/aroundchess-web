@@ -59,7 +59,7 @@ export const ButtonPlaying = ({
                 className="w-[12px] h-[16px] sm:w-[16px] sm:h-[20px] object-contain"
               />
             )}
-            <span className="font-medium text-xs mt-1 ">Hint</span>
+            <span className="font-medium text-[14px] --xs mt-1 ">Hint</span>
           </>
         )}
       </button>
@@ -75,7 +75,7 @@ export const ButtonPlaying = ({
           className="w-[11px] h-[16px] object-contain "
         />
 
-        <span className="font-medium text-xs mt-1 text-blue-base sm:text-black ">
+        <span className="font-medium text-[14px] --xs mt-1 text-blue-base sm:text-black ">
           Resign
         </span>
       </button>
@@ -92,7 +92,7 @@ export const ButtonPlaying = ({
           height={1000}
           className="w-[16px] h-[16px] object-contain"
         />
-        <span className="font-medium text-xs mt-1 text-white sm:text-black">
+        <span className="font-medium text-[14px] --xs mt-1 text-white sm:text-black">
           New Game
         </span>
       </button>

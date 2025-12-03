@@ -74,7 +74,7 @@ export default function About() {
               <div className="lg:col-span-2 space-y-6">
                 {/* Header with Badge */}
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-sm lg:text-lg">
+                  <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-[14px] --sm lg:text-lg">
                     <Image
                       src="/images/homepage/piece.png"
                       width={50}
@@ -82,7 +82,7 @@ export default function About() {
                       className="w-3 h-3 lg:w-6 lg:h-6"
                       alt={""}
                     />
-                    <h1 className="text-sm lg:text-base">GM</h1>
+                    <h1 className="text-[14px] --sm lg:text-base">GM</h1>
                   </div>
                   <h2 className="text-[14px]  lg:text-[32px] font-semibold text-gray-800">
                     Developed with European Grandmasters
@@ -166,7 +166,7 @@ export default function About() {
                 <h3 className="text-md sm:text-lg lg:text-[24px] font-semibold text-black">
                   {value.title}
                 </h3>
-                <p className="text-xs lg:text-[18px] font-normal text-[#585858] leading-[1.2]">
+                <p className="text-[14px] --xs lg:text-[18px] font-normal text-[#585858] leading-[1.2]">
                   {value.description}
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function About() {
         <h2 className="text-[18px] lg:text-[32px] font-semibold text-black">
           Need Help?
         </h2>
-        <p className="space-y-8 text-xs lg:text-[18px] font-normal text-[#364152] mt-[8px] leading-[1.5]">
+        <p className="space-y-8 text-[14px] --xs lg:text-[18px] font-normal text-[#364152] mt-[8px] leading-[1.5]">
           If you have any questions, please{" "}
           <a href="/faq" className="text-[#3871EC] font-medium hover:underline">
             check our FAQ
@@ -199,7 +199,7 @@ export default function About() {
         <h2 className="text-[18px] lg:text-[32px] font-semibold text-black">
           Any Feedback?
         </h2>
-        <p className="space-y-8 text-xs lg:text-[18px] font-normal text-[#364152] mt-[8px] leading-[1.5]">
+        <p className="space-y-8 text-[14px] --xs lg:text-[18px] font-normal text-[#364152] mt-[8px] leading-[1.5]">
           Did you encounter any issues on our Platform, would like to give us
           Feedback or even suggest an amazing Feature that you would like to see
           on AroundChess?{" "}

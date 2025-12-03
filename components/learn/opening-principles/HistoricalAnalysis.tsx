@@ -85,26 +85,26 @@ export function HistoricalAnalysis() {
               </div>
               <div className="space-y-3 flex-grow">
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-gray-500">Players</p>
+                  <p className="text-[14px] --sm font-medium text-gray-500">Players</p>
                   <p className="text-gray-900">{game.players}</p>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-gray-500">Year</p>
+                  <p className="text-[14px] --sm font-medium text-gray-500">Year</p>
                   <p className="text-gray-900">{game.year}</p>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-gray-500">Opening</p>
+                  <p className="text-[14px] --sm font-medium text-gray-500">Opening</p>
                   <p className="text-gray-900">{game.opening}</p>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-gray-500">Description</p>
+                  <p className="text-[14px] --sm font-medium text-gray-500">Description</p>
                   <p className="text-gray-600">{game.description}</p>
                 </div>
                 <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Key Moves</h4>
+                  <h4 className="text-[14px] --sm font-medium text-gray-500 mb-2">Key Moves</h4>
                   <ul className="list-none space-y-2">
                     {game.key_moves.map((move, moveIndex) => (
-                      <li key={moveIndex} className="text-sm text-gray-600 pl-3 border-l-2 border-blue-200">{move}</li>
+                      <li key={moveIndex} className="text-[14px] --sm text-gray-600 pl-3 border-l-2 border-blue-200">{move}</li>
                     ))}
                   </ul>
                 </div>

@@ -30,7 +30,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full p-4 gap-y-3">
-              <h3 className="text-sm md:text-base font-bold">
+              <h3 className="text-[14px] --sm md:text-base font-bold">
                 Fundamental Positions
               </h3>
 
@@ -44,7 +44,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
                           className="flex items-center gap-x-2"
                         >
                           <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                          <span className="text-xs">{position.position}</span>
+                          <span className="text-[14px] --xs">{position.position}</span>
                         </li>
                       )
                     )}
@@ -52,7 +52,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
                 ) : (
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                    <span className="text-xs">
+                    <span className="text-[14px] --xs">
                       Fundamental positions coming soon
                     </span>
                   </div>
@@ -62,7 +62,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
 
             {/* Winning Techniques Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full p-4 gap-y-3">
-              <h3 className="text-sm md:text-base font-bold">
+              <h3 className="text-[14px] --sm md:text-base font-bold">
                 Winning Techniques
               </h3>
 
@@ -75,14 +75,14 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
                         className="flex items-center gap-x-2"
                       >
                         <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                        <span className="text-xs">{technique.technique}</span>
+                        <span className="text-[14px] --xs">{technique.technique}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                    <span className="text-xs">
+                    <span className="text-[14px] --xs">
                       Winning techniques coming soon
                     </span>
                   </div>
@@ -109,7 +109,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Common Patterns Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col gap-y-3 h-full p-4">
-              <h3 className="text-sm md:text-base font-bold">
+              <h3 className="text-[14px] --sm md:text-base font-bold">
                 Common Patterns
               </h3>
 
@@ -122,14 +122,14 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
                         className="flex items-center gap-2"
                       >
                         <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                        <span className="text-xs">{pattern.pattern}</span>
+                        <span className="text-[14px] --xs">{pattern.pattern}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                    <span className="text-xs">Common patterns coming soon</span>
+                    <span className="text-[14px] --xs">Common patterns coming soon</span>
                   </div>
                 )}
               </div>
@@ -137,7 +137,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
 
             {/* Tactical Motifs Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full gap-y-3 p-4">
-              <h3 className="text-sm md:text-base font-bold">
+              <h3 className="text-[14px] --sm md:text-base font-bold">
                 Tactical Motifs
               </h3>
 
@@ -150,14 +150,14 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
                         className="flex items-center gap-x-2"
                       >
                         <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                        <span className="text-xs">{motif.motif}</span>
+                        <span className="text-[14px] --xs">{motif.motif}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                    <span className="text-xs">Tactical motifs coming soon</span>
+                    <span className="text-[14px] --xs">Tactical motifs coming soon</span>
                   </div>
                 )}
               </div>
@@ -179,8 +179,8 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
       <div className="space-y-6">
         <div className="col-span-1 md:col-span-2 text-gray-600 p-4 border rounded-lg">
           <p>No pattern data was found for this lesson.</p>
-          <p className="text-xs mt-2">Pattern data availability:</p>
-          <ul className="text-xs list-disc pl-5 mt-1">
+          <p className="text-[14px] --xs mt-2">Pattern data availability:</p>
+          <ul className="text-[14px] --xs list-disc pl-5 mt-1">
             <li>Common patterns: {commonPatterns.length}</li>
             <li>Tactical motifs: {tacticalMotifs.length}</li>
             <li>Fundamental positions: {fundamentalPositions.length}</li>

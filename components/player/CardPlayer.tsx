@@ -35,7 +35,7 @@ export const CardPlayer = ({
           />
         ) : (
           <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span className="text-gray-600 text-sm font-semibold">
+            <span className="text-gray-600 text-[14px] --sm font-semibold">
               {username?.charAt(0) || "?"}
             </span>
           </div>
@@ -43,7 +43,7 @@ export const CardPlayer = ({
         <div className="flex flex-col line-clamp-1 ">
           <div className="flex flex-row items-center gap-2 line-clamp-1">
             <span
-              className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+              className={`text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                 !isWin ? "text-black" : "text-[#00B427]"
               }`}
             >

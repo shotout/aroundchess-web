@@ -55,7 +55,7 @@ export function LessonCard({
                 <CheckCircle className="h-5 w-5 text-green-500" />
               )}
             </div>
-            <p className="text-sm text-gray-500 mt-1">{description}</p>
+            <p className="text-[14px] --sm text-gray-500 mt-1">{description}</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -95,7 +95,7 @@ export function LessonCard({
 
         <div className="mt-2">
           <Progress value={progress} className="h-2" />
-          <p className="text-xs text-gray-500 mt-1">{progress}% Complete</p>
+          <p className="text-[14px] --xs text-gray-500 mt-1">{progress}% Complete</p>
         </div>
 
         <AnimatePresence>

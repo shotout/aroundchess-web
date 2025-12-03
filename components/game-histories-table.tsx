@@ -169,8 +169,8 @@ export function GameHistoriesTable() {
                 /> */}
 
                 <GamesList
-                    games={[]}
-                    // games={filteredGames}
+                    // games={[]}
+                    games={filteredGames}
                     // currentGames={paginationProps.currentGames}
                     currentGames={paginationProps.currentData}
                     isLoading={isLoading}

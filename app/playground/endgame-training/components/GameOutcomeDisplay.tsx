@@ -208,7 +208,7 @@ export default function GameOutcomeDisplay({
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-bold">{outcomeState.title}</h2>
-              <p className="text-sm">{outcomeState.subtitle}</p>
+              <p className="text-[14px] --sm">{outcomeState.subtitle}</p>
             </div>
 
             {outcomeState.description && (
@@ -229,7 +229,7 @@ export default function GameOutcomeDisplay({
 
           {showDescription && outcomeState.description && (
             <div className="p-2 bg-white bg-opacity-50 rounded-md">
-              <p className="text-xs text-gray-800">
+              <p className="text-[14px] --xs text-gray-800">
                 {outcomeState.description}
               </p>
             </div>
@@ -255,14 +255,14 @@ export default function GameOutcomeDisplay({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs">No piece configuration</p>
+                <p className="text-[14px] --xs">No piece configuration</p>
               )}
             </div>
 
             <div className="w-1/2 flex flex-col space-y-2">
               <div className="bg-blue-base w-[100px] gap-x-2 text-white rounded-md p-1 flex items-center">
                 <Clock size={16} className="text-blue-base" fill="white" />
-                <span className="text-xs font-medium">{elapsedTime}</span>
+                <span className="text-[14px] --xs font-medium">{elapsedTime}</span>
               </div>
 
               <div className="flex items-center">
@@ -273,13 +273,13 @@ export default function GameOutcomeDisplay({
                   height={30}
                   className="mr-2"
                 />
-                <span className="text-sm font-medium">
+                <span className="text-[14px] --sm font-medium">
                   {moveHistory.length} Moves
                 </span>
               </div>
 
               <div className="flex items-center">
-                <span className="text-sm font-medium truncate">
+                <span className="text-[14px] --sm font-medium truncate">
                   {subcategoryName}
                 </span>
               </div>

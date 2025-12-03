@@ -312,13 +312,13 @@ export const ChessConnectDialog = ({
               <h2 className="text-2xl font-bold text-center">
                 Welcome on Board!
               </h2>
-              <p className="text-center text-xs md:text-base text-black">
-                Enter your Chess.com Username and find your previously played
-                Games right away.
+              <p className="text-center text-[14px] --xs md:text-base text-black">
+                Enter your Chess.com Username and find your <br />
+                previously played Games right away.
               </p>
               <div className="text-blue-base border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
                 <AlertCircle className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
-                <h1 className="text-[10px] md:text-xs">
+                <h1 className="text-[10px] md:text-[14px]">
                   Enter the Chess.com Username that you would like to connect to
                   your AroundChess Account (Once you save it, it cannot be
                   changed)
@@ -334,7 +334,7 @@ export const ChessConnectDialog = ({
                   height={18}
                   alt="knight icon"
                 />
-                <p className="text-sm text-left text-gray-700">
+                <p className="text-[14px] text-left text-gray-700">
                   Chess.com Username
                 </p>
               </div>
@@ -354,7 +354,7 @@ export const ChessConnectDialog = ({
               </div>
 
               <div className="flex items-center gap-x-2">
-                <p className="text-sm text-left text-gray-700">Game Type</p>
+                <p className="text-[14px] text-left text-gray-700">Game Type</p>
               </div>
 
               <Select
@@ -387,14 +387,11 @@ export const ChessConnectDialog = ({
 
               <div className="flex items-center gap-x-2 text-blue-base">
                 <Info className="w-4 h-4 flex-shrink-0 text-blue-base" />
-                <p className="text-xs">
-                  You can still change the Game type later in the Profile
-                  Settings
-                </p>
+                <p className="text-[14px]">You can still change the Game type later in the Profile Settings</p>
               </div>
 
               {errorMessage && (
-                <p className="text-sm text-red-500">{errorMessage}</p>
+                <p className="text-[14px] text-red-500">{errorMessage}</p>
               )}
 
               <button

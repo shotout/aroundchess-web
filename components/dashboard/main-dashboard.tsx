@@ -41,7 +41,7 @@ export function MainDashboard() {
       {/* Date Range */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <div className="w-full">
-          <p className="text-sm text-muted-foreground mb-2">Start Date</p>
+          <p className="text-[14px] --sm text-muted-foreground mb-2">Start Date</p>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -66,7 +66,7 @@ export function MainDashboard() {
           </Popover>
         </div>
         <div className="w-full">
-          <p className="text-sm text-muted-foreground mb-2">End Date</p>
+          <p className="text-[14px] --sm text-muted-foreground mb-2">End Date</p>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -103,30 +103,30 @@ export function MainDashboard() {
             <div className="grid grid-cols-2 gap-4">
               {/* Total Games */}
               <div className="rounded-lg border bg-card p-4">
-                <p className="text-sm text-muted-foreground">Total Games</p>
+                <p className="text-[14px] --sm text-muted-foreground">Total Games</p>
                 <p className="text-3xl font-bold mt-2">0</p>
-                <p className="text-xs text-muted-foreground mt-1">Lifetime matches</p>
+                <p className="text-[14px] --xs text-muted-foreground mt-1">Lifetime matches</p>
               </div>
 
               {/* Win Rate */}
               <div className="rounded-lg border bg-card p-4">
-                <p className="text-sm text-muted-foreground">Win Rate</p>
+                <p className="text-[14px] --sm text-muted-foreground">Win Rate</p>
                 <p className="text-3xl font-bold text-green-500 mt-2">0.00%</p>
-                <p className="text-xs text-muted-foreground mt-1">Victory percentage</p>
+                <p className="text-[14px] --xs text-muted-foreground mt-1">Victory percentage</p>
               </div>
 
               {/* Average Rating */}
               <div className="rounded-lg border bg-card p-4">
-                <p className="text-sm text-muted-foreground">Average Rating</p>
+                <p className="text-[14px] --sm text-muted-foreground">Average Rating</p>
                 <p className="text-3xl font-bold text-blue-500 mt-2">0</p>
-                <p className="text-xs text-muted-foreground mt-1">Current performance</p>
+                <p className="text-[14px] --xs text-muted-foreground mt-1">Current performance</p>
               </div>
 
               {/* Best Rating */}
               <div className="rounded-lg border bg-card p-4">
-                <p className="text-sm text-muted-foreground">Best Rating</p>
+                <p className="text-[14px] --sm text-muted-foreground">Best Rating</p>
                 <p className="text-3xl font-bold text-purple-500 mt-2">N/A</p>
-                <p className="text-xs text-muted-foreground mt-1">Peak performance</p>
+                <p className="text-[14px] --xs text-muted-foreground mt-1">Peak performance</p>
               </div>
             </div>
           </CardContent>
@@ -179,7 +179,7 @@ export function MainDashboard() {
               <CardTitle>Recent Games</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">No recent games to display</p>
+              <p className="text-[14px] --sm text-muted-foreground">No recent games to display</p>
             </CardContent>
           </Card>
 
@@ -189,7 +189,7 @@ export function MainDashboard() {
               <CardTitle>Chess News</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">No recent news to display</p>
+              <p className="text-[14px] --sm text-muted-foreground">No recent news to display</p>
             </CardContent>
           </Card>
         </div>
@@ -202,7 +202,7 @@ export function MainDashboard() {
               <CardTitle>Tactics & Puzzles</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Tactics and puzzles statistics will be displayed here</p>
+              <p className="text-[14px] --sm text-muted-foreground">Tactics and puzzles statistics will be displayed here</p>
             </CardContent>
           </Card>
 
@@ -212,7 +212,7 @@ export function MainDashboard() {
               <CardTitle>Daily Tips</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Check here for daily chess tips and strategies</p>
+              <p className="text-[14px] --sm text-muted-foreground">Check here for daily chess tips and strategies</p>
             </CardContent>
           </Card>
         </div>
@@ -226,9 +226,9 @@ function StatCard({ title, value, icon, change }: { title: string; value: string
     <Card>
       <CardContent className="flex items-center justify-between p-6">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-[14px] --sm font-medium text-muted-foreground">{title}</p>
           <h3 className="text-2xl font-bold">{value}</h3>
-          {change && <p className={`text-sm ${change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>{change}</p>}
+          {change && <p className={`text-[14px] --sm ${change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>{change}</p>}
         </div>
         {icon}
       </CardContent>

@@ -211,7 +211,7 @@ const ChessProgressionUI: React.FC = () => {
 
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
-          My Training Plan <sub className="text-xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>
+          My Training Plan <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>
         </h1>
         <p className="xl:hidden">({displayUsername || "User"})</p>
       </div>

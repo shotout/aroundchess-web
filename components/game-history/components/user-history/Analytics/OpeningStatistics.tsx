@@ -30,7 +30,7 @@ const OpeningStatistics: React.FC<OpeningStatisticsProps> = ({
             <div key={index} className="flex justify-between items-center">
               <div>
                 <h1 className="font-bold">{data.name}</h1>
-                <p className="text-sm text-gray-600">{data.games} games</p>
+                <p className="text-[14px] --sm text-gray-600">{data.games} games</p>
               </div>
               <h1 className="text-green-500">{data.winrate} winrate</h1>
             </div>

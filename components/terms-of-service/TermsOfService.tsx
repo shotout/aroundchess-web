@@ -9,7 +9,7 @@ export default function TermsOfService() {
           <h1 className="text-3xl font-bold text-gray-900">
             TERMS AND CONDITIONS
           </h1>
-          <p className="text-sm text-gray-600 italic">
+          <p className="text-[14px] --sm text-gray-600 italic">
             last updated on 05.06.2025
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function TermsOfService() {
                   <h4 className="font-medium text-gray-900 mb-2">
                     a. Basic Free Account
                   </h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-gray-700 text-[14px] --sm leading-relaxed">
                     The basic free-of-charge subscription, which allows you to
                     access the platform and request up to 1 (one) analysis token
                     per 3 (three) days. Each game analysis token enables the
@@ -173,7 +173,7 @@ export default function TermsOfService() {
                   <h4 className="font-medium text-gray-900 mb-2">
                     b. Paid Yearly Subscription
                   </h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-gray-700 text-[14px] --sm leading-relaxed">
                     Paid yearly subscription with which the User can use up 1000
                     game analysis tokens within a year starting with the date of
                     subscription. Users on the paid yearly subscription are not
@@ -196,7 +196,7 @@ export default function TermsOfService() {
                   <h4 className="font-medium text-gray-900 mb-2">
                     c. Individual Game Analysis Tokens
                   </h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-gray-700 text-[14px] --sm leading-relaxed">
                     Game Analysis Tokens that can be purchased in individual
                     amounts by both users of the free-of-charge subscription as
                     well as the paid yearly subscription. One Game Analysis
@@ -239,7 +239,7 @@ export default function TermsOfService() {
               <p className="text-gray-700 font-medium mb-2">
                 aroundchess reserves the right to:
               </p>
-              <ul className="space-y-2 text-gray-700 text-sm">
+              <ul className="space-y-2 text-gray-700 text-[14px] --sm">
                 <li>
                   • Refuse to offer access to or use of the Website and services
                   to any User, and change its eligibility criteria at any time
@@ -256,7 +256,7 @@ export default function TermsOfService() {
                   time, without being obligated to provide prior notice
                 </li>
               </ul>
-              <p className="text-gray-700 text-sm mt-3">
+              <p className="text-gray-700 text-[14px] --sm mt-3">
                 You agree to have no claim, complaint or demand against
                 aroundchess for applying such changes or for failures incidental
                 to such changes.
@@ -468,7 +468,7 @@ export default function TermsOfService() {
               must explicitly consent to it by clicking on the button "share".
             </p>
 
-            <p className="text-gray-700 italic text-sm">
+            <p className="text-gray-700 italic text-[14px] --sm">
               For more detailed privacy provisions please refer to our Privacy
               Policy.
             </p>

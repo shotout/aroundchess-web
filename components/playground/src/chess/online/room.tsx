@@ -30,7 +30,7 @@ export default function Room() {
         <Button onClick={handleJoinRoom}>Join</Button>
       </div>
       <div className="text-center">
-        <span className="text-sm">or</span>
+        <span className="text-[14px] --sm">or</span>
       </div>
       <Button onClick={handleCreateRoom} className="w-full">
         Create New Room

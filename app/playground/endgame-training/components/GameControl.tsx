@@ -40,7 +40,7 @@ export default function GameControls({
           } gap-4 p-4 border-b border-t border-gray-200 w-full`}
         >
           <button
-            className="flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
+            className="flex gap-x-3 text-[14px] --xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
             onClick={handleHint}
           >
             <Image
@@ -54,7 +54,7 @@ export default function GameControls({
 
           {!isCheckmateMode && (
             <button
-              className={`flex gap-x-3 text-xs xl:text-base items-center justify-center p-3 rounded-md border ${
+              className={`flex gap-x-3 text-[14px] --xs xl:text-base items-center justify-center p-3 rounded-md border ${
                 isAutoSolution
                   ? "border-blue-base bg-blue-base/5 text-blue-base"
                   : "border-primary-gray text-black"
@@ -87,7 +87,7 @@ export default function GameControls({
             className="w-4 h-4"
           />
 
-          <h1 className="text-[10px] md:text-xs text-nowrap">Share PGN/FEN</h1>
+          <h1 className="text-[10px] md:text-[14px] --xs text-nowrap">Share PGN/FEN</h1>
         </button>
         <button
           onClick={resetPosition}
@@ -100,13 +100,13 @@ export default function GameControls({
             height={16}
             className="w-4 h-4 "
           />
-          <span className="text-[10px] md:text-xs">Restart</span>
+          <span className="text-[10px] md:text-[14px] --xs">Restart</span>
         </button>
         <button
           onClick={navigateNext}
           className="flex gap-x-1 2xl:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
         >
-          <span className="text-[10px] md:text-xs">Next Stage</span>
+          <span className="text-[10px] md:text-[14px] --xs">Next Stage</span>
           <Image
             src={"/endgame-training/Union.png"}
             alt="arrow right icon"

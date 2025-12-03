@@ -219,12 +219,12 @@ const template = (topic: string) => '"use client"\n\n' +
   '                        <Book className="h-5 w-5 mt-1" />\n' +
   '                        <div>\n' +
   '                          <h3 className="font-semibold">{resource.title}</h3>\n' +
-  '                          <p className="text-sm text-muted-foreground">{resource.description}</p>\n' +
+  '                          <p className="text-[14px] --sm text-muted-foreground">{resource.description}</p>\n' +
   '                          <a\n' +
   '                            href={resource.url}\n' +
   '                            target="_blank"\n' +
   '                            rel="noopener noreferrer"\n' +
-  '                            className="text-sm text-primary hover:underline"\n' +
+  '                            className="text-[14px] --sm text-primary hover:underline"\n' +
   '                          >\n' +
   '                            Visit {resource.platform}\n' +
   '                          </a>\n' +

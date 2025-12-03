@@ -35,14 +35,14 @@ export function ComputerBlackPlayer() {
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{selectedCharacter?.name || opponentName}</span>
-              <span className="text-xs text-muted-foreground">ELO {targetELO}</span>
+              <span className="text-[14px] --sm font-medium">{selectedCharacter?.name || opponentName}</span>
+              <span className="text-[14px] --xs text-muted-foreground">ELO {targetELO}</span>
             </div>
           </>
         ) : (
           <>
             <span className="inline-block w-4 h-4 bg-white border border-gray-300 rounded-full" />
-            <span className="text-sm font-medium">You</span>
+            <span className="text-[14px] --sm font-medium">You</span>
           </>
         )}
       </div>

@@ -32,7 +32,7 @@ This is useful for understanding the player's performance in each time control m
                 <span className="font-medium text-gray-800">
                   {item.category}
                 </span>
-                <span className="text-gray-600 text-sm">
+                <span className="text-gray-600 text-[14px] --sm">
                   {item.games} games
                 </span>
               </div>
@@ -46,11 +46,11 @@ This is useful for understanding the player's performance in each time control m
               </div>
 
               <div className="w-full flex justify-between">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-[14px] --sm font-medium text-gray-700">
                   Win Rate
                 </span>
                 <span
-                  className={`ml-2 text-sm font-medium ${
+                  className={`ml-2 text-[14px] --sm font-medium ${
                     item.winRate >= 60
                       ? "text-green-500"
                       : item.winRate >= 50

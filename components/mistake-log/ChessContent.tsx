@@ -445,7 +445,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs line-clamp-1 sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.blackWin && "text-[#00B427]"
                 }`}
               >
@@ -490,7 +490,7 @@ const ChessContent: React.FC = () => {
         </div>
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+          <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
             {currentMoveBlack}
           </span>
         </div>
@@ -518,7 +518,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs line-clamp-1 sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.whiteWin && "text-[#00B427]"
                 }`}
               >
@@ -563,7 +563,7 @@ const ChessContent: React.FC = () => {
         </div>
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+          <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
             {currentMoveWhite}
           </span>
         </div>

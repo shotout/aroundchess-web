@@ -23,7 +23,7 @@ export function CTASection() {
               <Link href={"/register"}>
                 <Button
                   variant="outline"
-                  className="text-[#E6F7FE] self-center text-sm sm:text-[20px] font-normal px-4 rounded-[16px] border border-[#E6F7FE]"
+                  className="text-[#E6F7FE] self-center text-[14px] --sm sm:text-[20px] font-normal px-4 rounded-[16px] border border-[#E6F7FE]"
                 >
                   Sign Up
                 </Button>
@@ -33,7 +33,7 @@ export function CTASection() {
               <h2 className="text-xl font-semibold tracking-tight text-[#E6F7FE] md:text-md lg:text-[40px]">
                 Ready to Boost Your Chess Skills?
               </h2>
-              <p className="mx-auto mt-2 sm:mt-8 leading-[1.5] max-w-xl md:max-w-3xl text-xs md:text-[20px] leading-2 text-[#C0CED4]">
+              <p className="mx-auto mt-2 sm:mt-8 leading-[1.5] max-w-xl md:max-w-3xl text-[14px] --xs md:text-[20px] leading-2 text-[#C0CED4]">
                 Join thousands of players improving their game with our
                 AI-powered chess analysis and personalized training.
               </p>
@@ -65,7 +65,7 @@ export function CTASection() {
                       </Link>
                     </Button>
                   </div>
-                  {/* <p className="text-xs sm:text-sm text-gray-400">
+                  {/* <p className="text-[14px] --xs sm:text-[14px] --sm text-gray-400">
                     No credit card required. 7-day free trial.
                   </p> */}
                 </div>

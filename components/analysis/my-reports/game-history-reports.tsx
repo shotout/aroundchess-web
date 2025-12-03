@@ -80,7 +80,7 @@ export function GameHistoryReports({ onSelect }: GameHistoryReportsProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-lg font-medium">Game History Reports</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[14px] --sm text-muted-foreground">
               Access and download your game analysis reports
             </p>
           </div>
@@ -113,7 +113,7 @@ export function GameHistoryReports({ onSelect }: GameHistoryReportsProps) {
                       <FileText className="h-4 w-4 text-blue-600" />
                       <h4 className="font-medium">{report.title}</h4>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-4 text-[14px] --sm text-muted-foreground">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-3 w-3" />
                         <span>{report.date}</span>

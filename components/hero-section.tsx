@@ -93,7 +93,7 @@ export function HeroSection() {
               <h1 className={`text-[18px] text-white sm:text-black ${!isSignedIn ? 'sm:text-[40px]' : 'sm:text-[36px]'} tracking-wide leading-[140%]`}>
                 Understand your <strong className="text-primary font-semibold">Chess</strong> Game with our <strong className="font-bold">Advanced Game Analysis</strong>
               </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-[17.3px] text-white sm:text-black leading-[140%] font-light mx-auto lg:mx-0">
+              <p className="mt-1 sm:mt-2 text-[14px] --xs sm:text-[17.3px] text-white sm:text-black leading-[140%] font-light mx-auto lg:mx-0">
                 Experience an in-depth analysis of every move with our
                 cutting-edge tools and AI-driven insights - simply by looking up
                 your Chess.com account.

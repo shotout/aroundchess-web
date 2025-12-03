@@ -11,7 +11,7 @@ const FinishedBanner: React.FC = () => {
         src={"/handbooks/check.png"}
         className="h-5 w-5 text-green-500"
       />
-      <h1 className="text-black text-xs lg:text-base font-medium">
+      <h1 className="text-black text-[14px] --xs lg:text-base font-medium">
         Great, you finished this exercise! Make sure you use your Learnings in
         your next Game.
       </h1>

@@ -140,7 +140,7 @@ export function SortingDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Remember Preference</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Save this sorting preference for future visits
               </p>
             </div>

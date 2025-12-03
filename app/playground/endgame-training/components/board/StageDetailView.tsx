@@ -121,10 +121,10 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
           <div className="flex flex-col gap-1 min-w-[60px]">
             <div className="h-[25px] bg-white"></div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">White</span>
+              <span className="text-[14px] --sm font-medium text-black">White</span>
             </div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">Black</span>
+              <span className="text-[14px] --sm font-medium text-black">Black</span>
             </div>
           </div>
         </div>
@@ -161,31 +161,31 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                   className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
                   style={{ opacity }}
                 >
-                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                  <div className="text-center text-[14px] --xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
                     Move {moveNumber}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {whiteMove ? (
                       <div className="flex items-center justify-center">
-                        <span className="text-xs font-medium truncate">
+                        <span className="text-[14px] --xs font-medium truncate">
                           {whiteMove.san}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm font-medium"></span>
+                      <span className="text-[14px] --sm font-medium"></span>
                     )}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {blackMove ? (
                       <div className="flex items-center justify-center">
-                        <span className="text-xs font-medium truncate">
+                        <span className="text-[14px] --xs font-medium truncate">
                           {blackMove.san}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm font-medium"></span>
+                      <span className="text-[14px] --sm font-medium"></span>
                     )}
                   </div>
                 </div>
@@ -804,7 +804,7 @@ export default function StageDetailView({
           {isSolved && (
             <div className="flex gap-x-1 w-full justify-between">
               <button
-                className="flex flex-1 gap-x-1 text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className="flex flex-1 gap-x-1 text-[14px] --xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                 onClick={handleShare}
               >
                 <Image
@@ -1043,7 +1043,7 @@ export default function StageDetailView({
                   <div className="flex  flex-col items-center py-1 justify-center gap-x-3 gap-y-2">
                     <div className="flex items-center">
                       <AlertCircle className="h-4 w-4 text-blue-base" />
-                      <h1 className="text-sm text-black">
+                      <h1 className="text-[14px] --sm text-black">
                         {isCheckmateMode
                           ? `Find the ${movesToCheckmate} ${
                               movesToCheckmate === 1 ? "move" : "moves"
@@ -1053,7 +1053,7 @@ export default function StageDetailView({
                           : "Black to Checkmate"}
                       </h1>
                     </div>
-                    <div className="truncate text-xs">{position}</div>
+                    <div className="truncate text-[14px] --xs">{position}</div>
                   </div>
                 </div>
               )}
@@ -1085,14 +1085,14 @@ export default function StageDetailView({
                         : "Black to Checkmate"}
                     </h1>
                   </div>
-                  <div className="bg-white text-xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
+                  <div className="bg-white text-[14px] --xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="truncate">{position}</div>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[500px] break-all">
-                          <p className="text-xs">{position}</p>
+                          <p className="text-[14px] --xs">{position}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>

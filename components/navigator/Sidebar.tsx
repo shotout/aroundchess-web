@@ -346,13 +346,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           // <div className="w-full flex flex-col gap-2">
           //   <button
           //     onClick={() => handleOpenOffer("tokens")}
-          //     className="btn-secondary w-full h-12 rounded-full border border-gray-300 px-6 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          //     className="btn-secondary w-full h-12 rounded-full border border-gray-300 px-6 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
           //   >
           //     Buy Tokens
           //   </button>
           //   <button
           //     onClick={() => handleOpenOffer("subscription")}
-          //     className="btn-primary w-full h-12 rounded-full bg-primary px-6 text-sm font-medium text-white hover:bg-blue-700"
+          //     className="btn-primary w-full h-12 rounded-full bg-primary px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
           //   >
           //     Go Unlimited
           //   </button>
@@ -407,7 +407,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         handleNavigation(section.href!, section.permission)
                       }
                       className={cn(
-                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive
                           ? "text-[#221AE9]"
                           : "hover:bg-[#221AE950] hover:text-[#221AE9]"
@@ -442,7 +442,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   ) : (
                     <div
                       className={cn(
-                        "group flex gap-x-2 items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex gap-x-2 items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive
                           ? "text-[#221AE9]"
                           : section.disabled
@@ -495,7 +495,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                                 handleNavigation(child.href, child.permission)
                               }
                               className={cn(
-                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
+                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                                 isChildActive
                                   ? "bg-[#221AE910] text-[#221AE9] border-r-4 border-[#221AE9]"
                                   : child.disabled

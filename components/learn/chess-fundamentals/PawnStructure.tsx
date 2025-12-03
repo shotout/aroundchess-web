@@ -56,7 +56,7 @@ export function PawnStructure() {
               <CardTitle className="text-lg font-semibold text-blue-600">{structure.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">{structure.description}</p>
+              <p className="text-[14px] --sm text-gray-600">{structure.description}</p>
             </CardContent>
           </Card>
         ))}

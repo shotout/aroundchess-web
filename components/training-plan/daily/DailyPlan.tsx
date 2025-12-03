@@ -135,13 +135,13 @@ const DailyPlan = () => {
         <div className="">
           {/* Header with completion status */}
           <div className="flex items-center justify-between mb-2">
-            <h1 className="font-bold text-sm">
+            <h1 className="font-bold text-[14px] --sm">
               Today's Training{" "}
               <span className="text-gray-500 font-normal text-[10px]">
                 {"(Thursday, 27 February 2025)"}
               </span>
             </h1>
-            <span className="text-blue-base font-medium text-xs">
+            <span className="text-blue-base font-medium text-[14px] --xs">
               {completionPercentage}% completed
             </span>
           </div>
@@ -172,15 +172,15 @@ const DailyPlan = () => {
                     {/* Content in the middle */}
                     <div className="flex flex-col">
                       <div className="flex items-center gap-4 mb-1">
-                        <h2 className="font-semibold text-sm">{task.title}</h2>
-                        <span className="text-xs text-blue-base border border-blue-base rounded-[2px] px-2 py-0.5">
+                        <h2 className="font-semibold text-[14px] --sm">{task.title}</h2>
+                        <span className="text-[14px] --xs text-blue-base border border-blue-base rounded-[2px] px-2 py-0.5">
                           {task.tag}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-700 mb-1">
+                      <p className="text-[14px] --xs text-gray-700 mb-1">
                         {task.description}
                       </p>
-                      <div className="flex items-center gap-1 text-gray-500 text-xs">
+                      <div className="flex items-center gap-1 text-gray-500 text-[14px] --xs">
                         <WatchIcon className="h-4 w-4" />
                         <span>{task.duration}</span>
                       </div>
@@ -208,7 +208,7 @@ const DailyPlan = () => {
         <div className="w-full">
           <div className="mb-2">
             <h1 className="font-bold text-base">Performance Metrics</h1>
-            <p className="text-xs text-gray-600">
+            <p className="text-[14px] --xs text-gray-600">
               Track your progress across different aspects
             </p>
           </div>
@@ -225,8 +225,8 @@ const DailyPlan = () => {
 
                 <div className="flex flex-col items-center justify-between w-full">
                   <div className="flex items-center justify-between w-full mb-2">
-                    <h2 className="font-semibold text-sm">{metric.title}</h2>
-                    <div className="text-xs">
+                    <h2 className="font-semibold text-[14px] --sm">{metric.title}</h2>
+                    <div className="text-[14px] --xs">
                       <span className="font-semibold">{metric.current}%</span>
                     </div>
                   </div>
@@ -236,7 +236,7 @@ const DailyPlan = () => {
                       style={{ width: `${metric.current}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between w-full mt-1 text-xs">
+                  <div className="flex justify-between w-full mt-1 text-[14px] --xs">
                     <div>
                       Current:{" "}
                       <span className="font-semibold text-green-500">
@@ -259,7 +259,7 @@ const DailyPlan = () => {
         {/* Performance Trends Section */}
         <div className="w-full">
           <h1 className="text-base font-bold mb-2">Performance Trends</h1>
-          <h1 className="text-xs mb-3">Last 7 days improvement</h1>
+          <h1 className="text-[14px] --xs mb-3">Last 7 days improvement</h1>
           <div className="grid grid-cols-2 gap-3 w-full">
             {keyStats.map((stat, index) => (
               <Card key={index} className="p-3 rounded-lg border bg-white">
@@ -269,10 +269,10 @@ const DailyPlan = () => {
                     {stat.icon}
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm text-gray-500">{stat.title}</p>
+                    <p className="text-[14px] --sm text-gray-500">{stat.title}</p>
                     <h2 className="text-xl font-semibold">{stat.value}</h2>
                     {stat.trend && (
-                      <p className={`text-sm ${stat.trendColor}`}>
+                      <p className={`text-[14px] --sm ${stat.trendColor}`}>
                         {stat.trend}
                       </p>
                     )}
@@ -299,11 +299,11 @@ const DailyPlan = () => {
                   <h2 className="text-xl font-semibold mb-1">{stat.value}</h2>
 
                   {/* Title below the value */}
-                  <p className="text-xs text-gray-500 mb-1">{stat.title}</p>
+                  <p className="text-[14px] --xs text-gray-500 mb-1">{stat.title}</p>
 
                   {/* Trend at the bottom */}
                   {stat.trend && (
-                    <p className={`text-xs font-medium ${stat.trendColor}`}>
+                    <p className={`text-[14px] --xs font-medium ${stat.trendColor}`}>
                       {stat.trend}
                     </p>
                   )}

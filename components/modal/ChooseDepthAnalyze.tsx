@@ -338,7 +338,7 @@ export function ChooseDepthAnalyze({
         {renderDepthChoose()}
         <button
           onClick={handleAnalyzeGame}
-          className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+          className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 ${
             depthChoosed == 0 ? "opacity-70 cursor-not-allowed" : ""
           }`}
           disabled={depthChoosed == 0}

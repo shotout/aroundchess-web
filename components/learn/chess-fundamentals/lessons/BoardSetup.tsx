@@ -73,7 +73,7 @@ export function BoardSetupLesson() {
           allowMoves={false}
         />
         <motion.div
-          className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-sm shadow-md"
+          className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-[14px] --sm shadow-md"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
@@ -146,7 +146,7 @@ export function BoardSetupLesson() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="mt-3 text-sm text-blue-600 italic"
+                        className="mt-3 text-[14px] --sm text-blue-600 italic"
                       >
                         {section.importance}
                       </motion.p>

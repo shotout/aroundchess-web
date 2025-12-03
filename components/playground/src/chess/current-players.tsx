@@ -49,10 +49,10 @@ export function CurrentPlayers() {
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100/50">
-        <span className="text-sm font-medium text-gray-600">Current Turn</span>
+        <span className="text-[14px] --sm font-medium text-gray-600">Current Turn</span>
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${currentPlayer === 'white' ? 'bg-white border border-gray-300' : 'bg-gray-900'}`} />
-          <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <span className="text-[14px] --sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             {currentName}
           </span>
         </div>

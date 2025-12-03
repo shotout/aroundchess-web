@@ -64,34 +64,34 @@ export default function ProgressPage() {
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Brain className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium">Overall Progress</span>
+            <span className="text-[14px] --sm font-medium">Overall Progress</span>
           </div>
           <div className="mt-2 text-2xl font-bold">75%</div>
-          <p className="text-xs text-muted-foreground">+15% this month</p>
+          <p className="text-[14px] --xs text-muted-foreground">+15% this month</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Target className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium">Goals Completed</span>
+            <span className="text-[14px] --sm font-medium">Goals Completed</span>
           </div>
           <div className="mt-2 text-2xl font-bold">12/15</div>
-          <p className="text-xs text-muted-foreground">80% completion rate</p>
+          <p className="text-[14px] --xs text-muted-foreground">80% completion rate</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <TrendingUp className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium">Rating Progress</span>
+            <span className="text-[14px] --sm font-medium">Rating Progress</span>
           </div>
           <div className="mt-2 text-2xl font-bold">+120</div>
-          <p className="text-xs text-muted-foreground">Last 30 days</p>
+          <p className="text-[14px] --xs text-muted-foreground">Last 30 days</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <GraduationCap className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium">Learning Streak</span>
+            <span className="text-[14px] --sm font-medium">Learning Streak</span>
           </div>
           <div className="mt-2 text-2xl font-bold">15 days</div>
-          <p className="text-xs text-muted-foreground">Personal best!</p>
+          <p className="text-[14px] --xs text-muted-foreground">Personal best!</p>
         </Card>
       </div>
 

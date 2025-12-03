@@ -238,7 +238,7 @@ const GameCard: React.FC<GameCardProps> = ({
             : ""
         }`}
       >
-        <div className="flex justify-between items-center mb-4 text-xs">
+        <div className="flex justify-between items-center mb-4 text-[14px] --xs">
           <div className="text-gray-500">{gameData.date}</div>
           <div className={`font-semibold ${gameData.resultColor}`}>
             {gameData.result}
@@ -249,7 +249,7 @@ const GameCard: React.FC<GameCardProps> = ({
           {infoRows.map((row, rowIndex) => (
             <div key={rowIndex} className="grid grid-cols-3 gap-2">
               {row.map((item, itemIndex) => (
-                <div key={itemIndex} className="text-xs min-w-0">
+                <div key={itemIndex} className="text-[14px] --xs min-w-0">
                   <div className="flex flex-col gap-y-1">
                     <h3 className="text-gray-500">{item.label}</h3>
                     <div className="w-full overflow-hidden">
@@ -277,13 +277,13 @@ const GameCard: React.FC<GameCardProps> = ({
               disabled={buttonContent.disabled}
             >
               {buttonContent.icon}
-              <h1 className="text-xs">{buttonContent.text}</h1>
+              <h1 className="text-[14px] --xs">{buttonContent.text}</h1>
             </Button>
           );
         })()}
 
         {/* {isNewlyImported && (
-          <span className="absolute top-2 right-2 px-2 py-0.5 bg-green-500 text-white text-xs rounded-full">
+          <span className="absolute top-2 right-2 px-2 py-0.5 bg-green-500 text-white text-[14px] --xs rounded-full">
             New
           </span>
         )} */}

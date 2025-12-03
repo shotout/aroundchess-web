@@ -472,7 +472,7 @@ const GamesList: React.FC<GamesListProps> = ({
     <div className="p-0 md:p-4 xl:p-0">
       <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
         <div
-          className="grid bg-blue-100 py-3 text-xs font-medium text-gray-700"
+          className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
           style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
         >
           <div className="px-2 text-left invisible">#</div>
@@ -488,7 +488,7 @@ const GamesList: React.FC<GamesListProps> = ({
           <div className="px-4 text-center">Actions</div>
         </div>
 
-        <div className="divide-y divide-gray-200 text-xs xl:text-sm">
+        <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
           {isOpenTutorial && isTutorialPlay && <DummyList />}
           {!isTutorialPlay &&
             !isOpenTutorial &&
@@ -579,7 +579,7 @@ const GamesList: React.FC<GamesListProps> = ({
                           } h-8 w-full rounded-3xl ${
                             btn.text === "Just one more moment..."
                               ? "text-[10px]"
-                              : "text-xs "
+                              : "text-[14px] --xs "
                           } flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
                           onClick={btn.onClick}
                           disabled={
@@ -619,7 +619,7 @@ const GamesList: React.FC<GamesListProps> = ({
       </div>
 
       <div className="lg:hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
           {isOpenTutorial && isTutorialPlay && <DummyCard />}
           {!isTutorialPlay &&
             !isOpenTutorial &&

@@ -216,7 +216,7 @@ export default function AnalysisPage() {
                         <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                       </div>
                     )}
-                    <span className="hidden xl:block text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
+                    <span className="hidden xl:block text-[14px] --xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
                       Discover a Chess.com Game Analysis.
                     </span>
                   </div>
@@ -225,7 +225,7 @@ export default function AnalysisPage() {
                     <div
                       className={`hidden lg:block ${
                         !isSignedIn ? `w-4/5` : `w-3/5`
-                      } text-xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
+                      } text-[14px] --xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] leading-normal`}
                     >
                       Our AI-powered chess analysis provides deep insights into
                       positional and tactical aspects of a game. It evaluates

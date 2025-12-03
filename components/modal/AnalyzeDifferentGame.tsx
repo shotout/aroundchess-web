@@ -551,11 +551,11 @@ export function AnalyzeDifferentGame({
           >
             <TabsList className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1">
               <TabsTrigger value="auto">
-                <span className="text-[14px] -- md:text-xs">From Chess.com</span>
+                <span className="text-[14px] -- md:text-[14px] --xs">From Chess.com</span>
               </TabsTrigger>
               <TabsTrigger value="manual">
                 <Clipboard className="mr-2 h-4 w-4" />
-                <span className="text-[14px] -- md:text-xs">
+                <span className="text-[14px] -- md:text-[14px] --xs">
                   Paste or Upload PGN
                 </span>
               </TabsTrigger>
@@ -572,7 +572,7 @@ export function AnalyzeDifferentGame({
                     className="w-3 h-4 relative z-10"
                     priority
                   />
-                  <p className="block ml-1 text-[14px] -- md:text-sm text-black">
+                  <p className="block ml-1 text-[14px] -- md:text-[14px] --sm text-black">
                     Chess.com Username
                   </p>
                 </div>
@@ -584,7 +584,7 @@ export function AnalyzeDifferentGame({
                     value={isTutorialPlay ? dataTutorial.username : username}
                     placeholder="Enter your Chess.com Username"
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent text-[14px] -- sm:text-sm h-[24px] focus:outline-none"
+                    className="w-full bg-transparent text-[14px] -- sm:text-[14px] --sm h-[24px] focus:outline-none"
                   />
                   <div className="flex items-center">
                     {!isTutorialPlay && usernameStatus === "loading" && (
@@ -593,7 +593,7 @@ export function AnalyzeDifferentGame({
                     {(isTutorialPlay || usernameStatus === "found") && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
-                        <span className="text-[14px] -- md:text-xs">
+                        <span className="text-[14px] -- md:text-[14px] --xs">
                           Username found
                         </span>
                       </div>
@@ -601,7 +601,7 @@ export function AnalyzeDifferentGame({
                     {usernameStatus === "not-found" && (
                       <div className="flex items-center text-red-500 whitespace-nowrap">
                         <X className="h-4 w-4 mr-1" />
-                        <span className="text-[14px] -- md:text-xs">
+                        <span className="text-[14px] -- md:text-[14px] --xs">
                           Username not found
                         </span>
                       </div>
@@ -610,7 +610,7 @@ export function AnalyzeDifferentGame({
                 </div>
               </div>
               <div className="space-y-2 mx-1" data-tutorial="1">
-                <p className="hidden md:block text-[14px] -- md:text-sm text-black">
+                <p className="hidden md:block text-[14px] -- md:text-[14px] --sm text-black">
                   Select Game
                 </p>
                 {isTutorialPlay ? (
@@ -671,7 +671,7 @@ export function AnalyzeDifferentGame({
                     onChange={(e) => setPgnText(e.target.value)}
                   />
                 </div>
-                <span className="flex items-center justify-center text-black text-[10px] md:text-xs text-center font-bold">
+                <span className="flex items-center justify-center text-black text-[10px] md:text-[14px] --xs text-center font-bold">
                   Or upload a .PGN file below:
                 </span>
                 <div
@@ -699,14 +699,14 @@ export function AnalyzeDifferentGame({
                       <p className="text-gray-800 font-medium mb-1">
                         {fileName}
                       </p>
-                      <p className="text-gray-500 text-[10px] md:text-sm">
+                      <p className="text-gray-500 text-[10px] md:text-[14px] --sm">
                         {(fileSize / 1024).toFixed(1)} KB
                       </p>
                     </div>
                   ) : (
                     <div className="text-center lg:h-48 flex flex-col items-center justify-center">
                       <UploadCloud className="h-10 w-10 mx-auto text-blue-600 mb-2" />
-                      <p className="block text-[10px] md:text-sm text-black-700 mb-1">
+                      <p className="block text-[10px] md:text-[14px] --sm text-black-700 mb-1">
                         Drag & drop or click to
                         <span
                           className="underline text-blue-600 font-bold cursor-pointer"
@@ -735,7 +735,7 @@ export function AnalyzeDifferentGame({
                 <div className="flex-shrink-0 w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
                   <Info className="text-blue-base" />
                 </div>
-                <p className="text-[10px] md:text-sm text-blue-base">
+                <p className="text-[10px] md:text-[14px] --sm text-blue-base">
                   If you want to analyse more, check the My Game History page
                 </p>
               </div>
@@ -743,7 +743,7 @@ export function AnalyzeDifferentGame({
               <div data-tutorial="3">
                 <button
                   onClick={handleAnalyzeGame}
-                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[14px] -- md:text-sm rounded-full py-2 my-4 ${
+                  className={`btn-primary flex flex-row justify-center items-center gap-2 w-full text-[14px] -- md:text-[14px] --sm rounded-full py-2 my-4 ${
                     (usernameStatus !== "found" &&
                       !selectedGame &&
                       !pgnText &&

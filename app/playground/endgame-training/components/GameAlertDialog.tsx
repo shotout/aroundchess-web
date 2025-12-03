@@ -176,12 +176,12 @@ const GameAlertDialog = ({
             >
               {title}
             </h1>
-            <p className="text-sm text-[#0a142f] font-medium mb-1 text-left w-full">
+            <p className="text-[14px] --sm text-[#0a142f] font-medium mb-1 text-left w-full">
               {message}
             </p>
 
             {description && (
-              <p className="text-xs text-[#0a142f] opacity-80 mb-2 text-left w-full">
+              <p className="text-[14px] --xs text-[#0a142f] opacity-80 mb-2 text-left w-full">
                 {description}
               </p>
             )}
@@ -193,7 +193,7 @@ const GameAlertDialog = ({
                   route.push("/playground/endgame-training");
                   onClose();
                 }}
-                className="flex-1 bg-[#2336f3] text-white py-1 px-2 rounded-full text-xs font-bold hover:bg-[#1a29d1] transition-colors"
+                className="flex-1 bg-[#2336f3] text-white py-1 px-2 rounded-full text-[14px] --xs font-bold hover:bg-[#1a29d1] transition-colors"
               >
                 New Game
               </button>
@@ -204,7 +204,7 @@ const GameAlertDialog = ({
                   onRematch();
                   onClose();
                 }}
-                className="flex-1 bg-[#e5f3ff] text-[#2336f3] py-1 px-2 rounded-full text-xs font-bold border border-[#d6e8fc] hover:bg-[#d6e8fc] transition-colors flex items-center justify-center"
+                className="flex-1 bg-[#e5f3ff] text-[#2336f3] py-1 px-2 rounded-full text-[14px] --xs font-bold border border-[#d6e8fc] hover:bg-[#d6e8fc] transition-colors flex items-center justify-center"
               >
                 <RotateCcw className="mr-1 h-3 w-3" />
                 Rematch

@@ -17,7 +17,7 @@ const TargetEloSection: React.FC<TargetEloSectionProps> = ({
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+        <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
           4
         </div>
         <Label htmlFor="target-elo" className="font-medium">
@@ -31,11 +31,11 @@ const TargetEloSection: React.FC<TargetEloSectionProps> = ({
           onChange={(e) => setTargetElo(e.target.value)}
           className="w-[80%] border-none bg-transparent"
         />
-        <div className="text-xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
+        <div className="text-[14px] --xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
           ELO Rating
         </div>
       </div>
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-[14px] --sm">
         <Info className="text-blue-600" />
         <span>
           Your current ELO Rating:{" "}

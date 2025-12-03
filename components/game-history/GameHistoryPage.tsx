@@ -14,6 +14,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { GameHistoriesTable } from "../game-histories-table";
+import AccountNotConnected from "./components/AccountNotConnected";
 
 const GameHistoryPage: React.FC = () => {
   const pathname = usePathname();
@@ -21,6 +22,8 @@ const GameHistoryPage: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
   const { isTutorialPlay, dataTutorial } = useTutorial();
+
+  const [openAccountConnected, setOpenAccountConnected] = useState(false);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -57,7 +60,7 @@ const GameHistoryPage: React.FC = () => {
   return (
     <>
       <main className="w-full  bg-primary-white relative">
-        <ChessAccountSetup isLoading={isLoading} />
+        <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
         <div className="p-4">
           <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
             <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
@@ -73,13 +76,13 @@ const GameHistoryPage: React.FC = () => {
 
           <div className="flex justify-between items-center xl:mb-4">
             <div className="flex flex-row items-center gap-1 md:gap-2">
-              <h1 className="text-sm md:text-2xl xl:text-[32px] font-bold">
+              <h1 className="text-[14px] --sm md:text-2xl xl:text-[32px] font-bold">
                 My Game History
 
                 {isUsernameFetching ? (
                   <LoadingDot />
                 ) : (
-                  <sub className="text-xs text-gray-500 font-normal lg:text-[18px]">
+                  <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">
                     {isTutorialPlay
                       ? dataTutorial.username
                       : username
@@ -92,6 +95,11 @@ const GameHistoryPage: React.FC = () => {
 
             <ImportDialogButton />
           </div>
+
+          {!username && 
+            <AccountNotConnected onClick={() => { 
+               setOpenAccountConnected(true);
+            }} />}
 
           <StatisticsSection username={username} />
         </div>

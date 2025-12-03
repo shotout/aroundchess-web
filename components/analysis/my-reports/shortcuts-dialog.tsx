@@ -138,7 +138,7 @@ export function ShortcutsDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Enable Keyboard Shortcuts</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Toggle all keyboard shortcuts
               </p>
             </div>
@@ -158,7 +158,7 @@ export function ShortcutsDialog({
                         key={index}
                         className="flex items-center justify-between"
                       >
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-[14px] --sm text-muted-foreground">
                           {shortcut.description}
                         </span>
                         <div className="flex items-center gap-1">
@@ -167,7 +167,7 @@ export function ShortcutsDialog({
                               key={keyIndex}
                               className={`${
                                 key.length > 1 ? "px-2" : "px-1.5"
-                              } h-6 items-center justify-center rounded border bg-muted text-sm font-medium opacity-100`}
+                              } h-6 items-center justify-center rounded border bg-muted text-[14px] --sm font-medium opacity-100`}
                             >
                               {key}
                             </kbd>

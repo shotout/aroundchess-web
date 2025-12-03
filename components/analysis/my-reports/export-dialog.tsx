@@ -116,7 +116,7 @@ export function ExportDialog({
                   />
                   <label
                     htmlFor={section.id}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-[14px] --sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     {section.label}
                   </label>
@@ -127,7 +127,7 @@ export function ExportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Include Charts</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Export with visual representations
               </div>
             </div>
@@ -140,7 +140,7 @@ export function ExportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Include Comments</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Export with discussion threads
               </div>
             </div>

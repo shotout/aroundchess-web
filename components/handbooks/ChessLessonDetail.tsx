@@ -383,7 +383,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                   {sections.map((tab) => (
                     <button
                       key={tab}
-                      className={`flex-1 p-[10px] text-xs lg:text-base font-medium text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] text-[14px] --xs lg:text-base font-medium text-center rounded-lg transition-all ${
                         sectionName === tab
                           ? "bg-white shadow-md text-black font-bold"
                           : "text-gray-600 font-normal hover:bg-gray-100"

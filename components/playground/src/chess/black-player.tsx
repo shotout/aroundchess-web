@@ -40,7 +40,7 @@ export function BlackPlayer() {
     )}>
       <div className="flex items-center gap-2">
         <div className="w-3 h-3 rounded-full bg-gray-900" />
-        <span className="text-sm font-medium">{playerName}</span>
+        <span className="text-[14px] --sm font-medium">{playerName}</span>
         <button 
           onClick={() => setIsEditing(true)}
           className="p-1 hover:bg-gray-100 rounded-full transition-colors"

@@ -71,7 +71,7 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
         >
           <input {...getInputProps()} />
           <ImagePlus className="mb-2 h-6 w-6 text-gray-400" />
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-[14px] --sm text-gray-600">
             {isDragActive
               ? "Drop the image here"
               : "Drag & drop or click to upload"}

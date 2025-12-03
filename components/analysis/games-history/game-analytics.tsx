@@ -94,7 +94,7 @@ export function GameAnalytics() {
               <div key={opening.name} className="flex items-center justify-between">
                 <div>
                   <div className="font-medium">{opening.name}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-[14px] --sm text-muted-foreground">
                     {opening.games} games
                   </div>
                 </div>
@@ -113,30 +113,30 @@ export function GameAnalytics() {
         <h3 className="text-lg font-medium mb-4">Performance Insights</h3>
         <div className="grid grid-cols-2 gap-4">
           <Card className="p-4">
-            <div className="text-sm font-medium">Average Game Length</div>
+            <div className="text-[14px] --sm font-medium">Average Game Length</div>
             <div className="text-2xl font-bold mt-1">35 moves</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[14px] --xs text-muted-foreground">
               +3 moves from last month
             </div>
           </Card>
           <Card className="p-4">
-            <div className="text-sm font-medium">Time Management</div>
+            <div className="text-[14px] --sm font-medium">Time Management</div>
             <div className="text-2xl font-bold mt-1">85%</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[14px] --xs text-muted-foreground">
               Efficient time usage
             </div>
           </Card>
           <Card className="p-4">
-            <div className="text-sm font-medium">Accuracy</div>
+            <div className="text-[14px] --sm font-medium">Accuracy</div>
             <div className="text-2xl font-bold mt-1">92%</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[14px] --xs text-muted-foreground">
               Top moves played
             </div>
           </Card>
           <Card className="p-4">
-            <div className="text-sm font-medium">Blunder Rate</div>
+            <div className="text-[14px] --sm font-medium">Blunder Rate</div>
             <div className="text-2xl font-bold mt-1">3.5%</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[14px] --xs text-muted-foreground">
               -1.2% from last month
             </div>
           </Card>

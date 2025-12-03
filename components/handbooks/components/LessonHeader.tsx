@@ -30,7 +30,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
           <div className="hidden"></div>
         </div>
 
-        <p className="text-gray-600 text-xs text-justify md:text-sm md:text-left md:mt-1 ml-8 xl:text-lg">
+        <p className="text-gray-600 text-[14px] --xs text-justify md:text-[14px] --sm md:text-left md:mt-1 ml-8 xl:text-lg">
           {description}
         </p>
       </div>

@@ -91,7 +91,7 @@ export function TournamentGames({ limit }: TournamentGamesProps) {
                   </span>
                   {getStatusBadge(game.status)}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-[14px] --sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     {format(game.date, "MMM d, yyyy")}

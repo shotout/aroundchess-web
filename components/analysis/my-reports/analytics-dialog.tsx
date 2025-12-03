@@ -74,7 +74,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-background border rounded-lg p-3 shadow-sm">
         <p className="font-medium">{label}</p>
         {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm text-muted-foreground">
+          <p key={index} className="text-[14px] --sm text-muted-foreground">
             {entry.name}: {entry.value}
           </p>
         ))}
@@ -161,7 +161,7 @@ export function ReportAnalyticsDialog({
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Views</p>
+                      <p className="text-[14px] --sm text-muted-foreground">Total Views</p>
                       <h3 className="text-2xl font-bold">355</h3>
                     </div>
                     <Eye className="h-8 w-8 text-muted-foreground" />
@@ -170,7 +170,7 @@ export function ReportAnalyticsDialog({
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Total Downloads
                       </p>
                       <h3 className="text-2xl font-bold">260</h3>
@@ -181,7 +181,7 @@ export function ReportAnalyticsDialog({
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Average Time Spent
                       </p>
                       <h3 className="text-2xl font-bold">5m 32s</h3>

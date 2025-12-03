@@ -160,7 +160,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-gray-900">
           Choose Your Color
         </h1>
-        <p className="text-xs sm:text-sm lg:text-base text-gray-600">
+        <p className="text-[14px] --xs sm:text-[14px] --sm lg:text-base text-gray-600">
           Select which color you want to play as. The computer will play as the
           opposite color.
         </p>
@@ -200,7 +200,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                 />
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-gray-900">
+                <span className="text-[14px] --xs sm:text-[14px] --sm md:text-base lg:text-lg font-medium text-gray-900">
                   {label}
                 </span>
               </div>
@@ -245,7 +245,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     />
                   </div>
                   <div
-                    className={`text-sm font-semibold ${
+                    className={`text-[14px] --sm font-semibold ${
                       difficulty === diff.key
                         ? "text-blue-700"
                         : "text-gray-900"
@@ -254,7 +254,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     {diff.label}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">{diff.range}</div>
+                <div className="text-[14px] --xs text-gray-500">{diff.range}</div>
               </div>
             </button>
           ))}
@@ -291,7 +291,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     />
                   </div>
                   <div
-                    className={`text-xs sm:text-sm font-semibold ${
+                    className={`text-[14px] --xs sm:text-[14px] --sm font-semibold ${
                       difficulty === diff.key
                         ? "text-blue-700"
                         : "text-gray-900"
@@ -300,7 +300,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     {diff.label}
                   </div>
                 </div>
-                <div className="text-[10px] sm:text-xs text-gray-500">{diff.range}</div>
+                <div className="text-[10px] sm:text-[14px] --xs text-gray-500">{diff.range}</div>
               </div>
             </button>
           ))}
@@ -343,7 +343,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                   </div>
                   <div className="text-center">
                     <div
-                      className={`text-[10px] sm:text-xs lg:text-xs font-medium ${
+                      className={`text-[10px] sm:text-[14px] --xs lg:text-[14px] --xs font-medium ${
                         selectedOpponent === opponent.id
                           ? "text-blue-base"
                           : "text-gray-900"
@@ -351,7 +351,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     >
                       {opponent.name}
                     </div>
-                    <div className="text-[9px] sm:text-xs lg:text-xs text-gray-500">
+                    <div className="text-[9px] sm:text-[14px] --xs lg:text-[14px] --xs text-gray-500">
                       ELO {ELO}
                     </div>
                   </div>
@@ -372,7 +372,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         ) : (
           <button
             onClick={handlePlayNow}
-            className="w-full py-2 sm:py-3 lg:py-3 btn-primary text-xs sm:text-base lg:text-base text-white font-semibold rounded-full transition-colors"
+            className="w-full py-2 sm:py-3 lg:py-3 btn-primary text-[14px] --xs sm:text-base lg:text-base text-white font-semibold rounded-full transition-colors"
           >
             Play Now
           </button>

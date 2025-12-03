@@ -59,12 +59,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   learningObjectives
                     .slice(0, Math.ceil(learningObjectives.length / 2))
                     .map((objective: LearningObjective, index: number) => (
-                      <li key={index} className="text-xs">
+                      <li key={index} className="text-[14px] --xs">
                         {objective.objective}
                       </li>
                     ))
                 ) : (
-                  <li className="text-xs">Learning objectives coming soon</li>
+                  <li className="text-[14px] --xs">Learning objectives coming soon</li>
                 )}
               </ul>
             </div>
@@ -74,7 +74,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   ? learningObjectives
                       .slice(Math.ceil(learningObjectives.length / 2))
                       .map((objective: LearningObjective, index: number) => (
-                        <li key={`additional-${index}`} className="text-xs">
+                        <li key={`additional-${index}`} className="text-[14px] --xs">
                           {objective.objective}
                         </li>
                       ))
@@ -93,7 +93,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 return (
                   <span
                     key={prereq.prerequisite}
-                    className="py-1 text-blue-base border px-1 border-blue-base text-sm"
+                    className="py-1 text-blue-base border px-1 border-blue-base text-[14px] --sm"
                   >
                     {prereq.prerequisite
                       .split("-")
@@ -125,12 +125,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   strategicConcepts
                     .slice(0, Math.ceil(strategicConcepts.length / 2))
                     .map((concept: StrategicConcept, index: number) => (
-                      <li key={index} className="text-xs">
+                      <li key={index} className="text-[14px] --xs">
                         {concept.concept}
                       </li>
                     ))
                 ) : (
-                  <li className="text-xs">Strategic concepts coming soon</li>
+                  <li className="text-[14px] --xs">Strategic concepts coming soon</li>
                 )}
               </ul>
             </div>
@@ -140,7 +140,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   ? strategicConcepts
                       .slice(Math.ceil(strategicConcepts.length / 2))
                       .map((concept: StrategicConcept, index: number) => (
-                        <li key={`concept-${index}`} className="text-xs">
+                        <li key={`concept-${index}`} className="text-[14px] --xs">
                           {concept.concept}
                         </li>
                       ))
@@ -162,12 +162,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   theoreticalKnowledge
                     .slice(0, Math.ceil(theoreticalKnowledge.length / 2))
                     .map((knowledge: TheoreticalKnowledge, index: number) => (
-                      <li key={index} className="text-xs">
+                      <li key={index} className="text-[14px] --xs">
                         {knowledge.knowledge}
                       </li>
                     ))
                 ) : (
-                  <li className="text-xs">Theoretical knowledge coming soon</li>
+                  <li className="text-[14px] --xs">Theoretical knowledge coming soon</li>
                 )}
               </ul>
             </div>
@@ -177,7 +177,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   ? theoreticalKnowledge
                       .slice(Math.ceil(theoreticalKnowledge.length / 2))
                       .map((knowledge: TheoreticalKnowledge, index: number) => (
-                        <li key={`knowledge-${index}`} className="text-xs">
+                        <li key={`knowledge-${index}`} className="text-[14px] --xs">
                           {knowledge.knowledge}
                         </li>
                       ))

@@ -311,7 +311,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
           </Select>
           <div className="flex items-center gap-x-1 text-blue-base mt-1">
             <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />
-            <p className="text-xs">
+            <p className="text-[14px] --xs">
               Changing your Game Type will affect the Game History and Training
               Plan
             </p>

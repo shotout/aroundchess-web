@@ -109,7 +109,7 @@ export function BoardSetup() {
                   <div className="flex-shrink-0">{step.icon}</div>
                   <div>
                     <h4 className="font-semibold text-gray-900">{step.title}</h4>
-                    <p className="text-sm text-gray-600">{step.description}</p>
+                    <p className="text-[14px] --sm text-gray-600">{step.description}</p>
                   </div>
                 </CardContent>
               </Card>

@@ -43,7 +43,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
         <div className="rounded-lg">
           <div className="">
             <h2 className="text-xl font-bold">Next Topics</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-[14px] --sm text-gray-600 mt-1">
               Discover other lessons now!
             </p>
           </div>
@@ -70,7 +70,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         </div>
 
                         {/* Status badges - positioned absolutely over the chessboard */}
-                        <span className="absolute top-5 left-5 bg-purple-500 text-white text-xs px-2 xl:px-8 py-1 rounded-md">
+                        <span className="absolute top-5 left-5 bg-purple-500 text-white text-[14px] --xs px-2 xl:px-8 py-1 rounded-md">
                           {getLessonTypeLabel()}
                         </span>
                         {!topic.readStatus ? (
@@ -94,7 +94,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         )}
 
                         {/* Title */}
-                        <h3 className="font-medium text-gray-900 text-xs mb-3">
+                        <h3 className="font-medium text-gray-900 text-[14px] --xs mb-3">
                           {topic.title}
                         </h3>
 
@@ -104,7 +104,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                           className="w-full flex items-center justify-center space-x-2 rounded-full px-4 cursor-pointer btn-secondary"
                         >
                           <BookOpen className="h-4 w-4" />
-                          <span className="text-xs md:text-sm font-semibold">
+                          <span className="text-[14px] --xs md:text-[14px] --sm font-semibold">
                             Start Learning
                           </span>
                         </div>

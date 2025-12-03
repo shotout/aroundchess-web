@@ -493,7 +493,7 @@ function RegisterPage() {
                 </form>
 
                 <div className="relative my-5 sm:my-6">
-                  <div className="relative flex justify-center text-xs uppercase">
+                  <div className="relative flex justify-center text-[14px] --xs uppercase">
                     <span className=" px-2 text-black font-medium">
                       or continue with
                     </span>

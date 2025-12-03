@@ -75,7 +75,7 @@ const EvaluationBar = ({ evaluation }: { evaluation: number | null }) => {
       <div 
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <span className="text-xs font-semibold text-[#404040] bg-white/90 px-1 rounded">
+        <span className="text-[14px] --xs font-semibold text-[#404040] bg-white/90 px-1 rounded">
           {formatEvaluation(evaluation)}
         </span>
       </div>
@@ -828,22 +828,22 @@ export default function TwoPlayerPage() {
 
                 {/* Material Advantage */}
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Material Advantage</h4>
+                  <h4 className="text-[14px] --sm font-medium text-gray-700 mb-2">Material Advantage</h4>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 bg-white border border-gray-200 rounded-full" />
-                      <span className="text-sm text-gray-600">White</span>
+                      <span className="text-[14px] --sm text-gray-600">White</span>
                     </div>
-                    <div className="font-mono text-sm">
+                    <div className="font-mono text-[14px] --sm">
                       {materialAdvantage > 0 ? `+${materialAdvantage}` : materialAdvantage}
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 bg-gray-800 rounded-full" />
-                      <span className="text-sm text-gray-600">Black</span>
+                      <span className="text-[14px] --sm text-gray-600">Black</span>
                     </div>
-                    <div className="font-mono text-sm">
+                    <div className="font-mono text-[14px] --sm">
                       {materialAdvantage < 0 ? `+${Math.abs(materialAdvantage)}` : -materialAdvantage}
                     </div>
                   </div>
@@ -851,10 +851,10 @@ export default function TwoPlayerPage() {
 
                 {/* Captured Pieces */}
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Captured Pieces</h4>
+                  <h4 className="text-[14px] --sm font-medium text-gray-700 mb-2">Captured Pieces</h4>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-sm text-gray-600 block mb-1">White captured:</span>
+                      <span className="text-[14px] --sm text-gray-600 block mb-1">White captured:</span>
                       <div className="flex flex-wrap gap-1">
                         {(() => {
                           const groupedPieces = capturedPieces.white.reduce((acc, piece) => {
@@ -889,7 +889,7 @@ export default function TwoPlayerPage() {
                       </div>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-600 block mb-1">Black captured:</span>
+                      <span className="text-[14px] --sm text-gray-600 block mb-1">Black captured:</span>
                       <div className="flex flex-wrap gap-1">
                         {(() => {
                           const groupedPieces = capturedPieces.black.reduce((acc, piece) => {
@@ -927,7 +927,7 @@ export default function TwoPlayerPage() {
                 </div>
 
                 <div className="p-4 border-t border-gray-200">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Move History</h4>
+                  <h4 className="text-[14px] --sm font-medium text-gray-700 mb-3">Move History</h4>
                   <MoveNotation />
                 </div>
               </div>
@@ -997,7 +997,7 @@ export default function TwoPlayerPage() {
                   <TabsList className="h-12 p-0 bg-transparent gap-6">
                     <TabsTrigger value="board" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none relative h-12 px-4">
                       <span className={cn(
-                        "text-sm font-medium transition-colors",
+                        "text-[14px] --sm font-medium transition-colors",
                         "data-[state=active]:text-indigo-600 data-[state=active]:before:absolute",
                         "data-[state=active]:before:bottom-0 data-[state=active]:before:left-0",
                         "data-[state=active]:before:h-0.5 data-[state=active]:before:w-full",
@@ -1008,7 +1008,7 @@ export default function TwoPlayerPage() {
                     </TabsTrigger>
                     <TabsTrigger value="time" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none relative h-12 px-4">
                       <span className={cn(
-                        "text-sm font-medium transition-colors",
+                        "text-[14px] --sm font-medium transition-colors",
                         "data-[state=active]:text-indigo-600 data-[state=active]:before:absolute",
                         "data-[state=active]:before:bottom-0 data-[state=active]:before:left-0",
                         "data-[state=active]:before:h-0.5 data-[state=active]:before:w-full",
@@ -1019,7 +1019,7 @@ export default function TwoPlayerPage() {
                     </TabsTrigger>
                     <TabsTrigger value="hint" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none relative h-12 px-4">
                       <span className={cn(
-                        "text-sm font-medium transition-colors",
+                        "text-[14px] --sm font-medium transition-colors",
                         "data-[state=active]:text-indigo-600 data-[state=active]:before:absolute",
                         "data-[state=active]:before:bottom-0 data-[state=active]:before:left-0",
                         "data-[state=active]:before:h-0.5 data-[state=active]:before:w-full",
@@ -1034,7 +1034,7 @@ export default function TwoPlayerPage() {
 
               <TabsContent value="board" className="flex-1 px-6 py-4">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                  <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                     <Palette className="w-4 h-4 text-indigo-500" />
                     Board Theme
                   </label>
@@ -1070,7 +1070,7 @@ export default function TwoPlayerPage() {
                             />
                           ))}
                         </div>
-                        <span className="text-sm font-medium text-gray-700">{theme.name}</span>
+                        <span className="text-[14px] --sm font-medium text-gray-700">{theme.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1081,12 +1081,12 @@ export default function TwoPlayerPage() {
                 <div className="space-y-6">
                   {/* Time Control Section */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                    <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                       <Clock className="w-4 h-4 text-indigo-500" />
                       Time Control
                     </label>
                     <select 
-                      className="w-full rounded-lg border border-gray-200 p-3 text-sm bg-white hover:border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none"
+                      className="w-full rounded-lg border border-gray-200 p-3 text-[14px] --sm bg-white hover:border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none"
                       value={gameTime.white}
                       onChange={(e) => {
                         const time = parseInt(e.target.value);
@@ -1102,15 +1102,15 @@ export default function TwoPlayerPage() {
 
                   {/* Timer Toggle Section */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                    <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                       <Timer className="w-4 h-4 text-indigo-500" />
                       Timer Settings
                     </label>
                     <div className="p-4 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <span className="text-sm text-gray-900">Enable Timer</span>
-                          <p className="text-sm text-gray-500">When enabled, each player has limited time to make their moves</p>
+                          <span className="text-[14px] --sm text-gray-900">Enable Timer</span>
+                          <p className="text-[14px] --sm text-gray-500">When enabled, each player has limited time to make their moves</p>
                         </div>
                         <div className="relative">
                           <button
@@ -1138,7 +1138,7 @@ export default function TwoPlayerPage() {
                 <div className="space-y-6">
                   {/* White Player Hint Settings */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                    <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                       <div className="w-3 h-3 bg-white border border-gray-300 rounded-full" />
                       White Player Hint Settings
                     </label>
@@ -1150,7 +1150,7 @@ export default function TwoPlayerPage() {
                             key={mode}
                             onClick={() => handleModeChange('white', mode as any)}
                             className={cn(
-                              "px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                              "px-3 py-2 rounded-lg text-[14px] --sm font-medium transition-all",
                               whiteMode === mode
                                 ? "bg-blue-100 text-blue-700 shadow-sm"
                                 : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -1164,8 +1164,8 @@ export default function TwoPlayerPage() {
                       {/* ELO Slider */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">ELO Rating</span>
-                          <span className="text-sm font-medium text-blue-600">{whiteElo}</span>
+                          <span className="text-[14px] --sm text-gray-600">ELO Rating</span>
+                          <span className="text-[14px] --sm font-medium text-blue-600">{whiteElo}</span>
                         </div>
                         <Slider
                           value={[whiteElo]}
@@ -1175,7 +1175,7 @@ export default function TwoPlayerPage() {
                           step={100}
                           className="w-full"
                         />
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-[14px] --xs text-gray-500">
                           <span>300</span>
                           <span>3200</span>
                         </div>
@@ -1184,8 +1184,8 @@ export default function TwoPlayerPage() {
                       {/* Auto Hint Toggle */}
                       <div className="flex items-center justify-between pt-2">
                         <div className="space-y-0.5">
-                          <span className="text-sm text-gray-900">Auto Hint</span>
-                          <p className="text-xs text-gray-500">Automatically show hints during White's turns</p>
+                          <span className="text-[14px] --sm text-gray-900">Auto Hint</span>
+                          <p className="text-[14px] --xs text-gray-500">Automatically show hints during White's turns</p>
                         </div>
                         <button
                           onClick={() => handleAutoHintWhiteChange(!autoHintWhite)}
@@ -1207,7 +1207,7 @@ export default function TwoPlayerPage() {
 
                   {/* Black Player Hint Settings */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                    <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                       <div className="w-3 h-3 bg-gray-900 rounded-full" />
                       Black Player Hint Settings
                     </label>
@@ -1219,7 +1219,7 @@ export default function TwoPlayerPage() {
                             key={mode}
                             onClick={() => handleModeChange('black', mode as any)}
                             className={cn(
-                              "px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                              "px-3 py-2 rounded-lg text-[14px] --sm font-medium transition-all",
                               blackMode === mode
                                 ? "bg-blue-100 text-blue-700 shadow-sm"
                                 : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -1233,8 +1233,8 @@ export default function TwoPlayerPage() {
                       {/* ELO Slider */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">ELO Rating</span>
-                          <span className="text-sm font-medium text-blue-600">{blackElo}</span>
+                          <span className="text-[14px] --sm text-gray-600">ELO Rating</span>
+                          <span className="text-[14px] --sm font-medium text-blue-600">{blackElo}</span>
                         </div>
                         <Slider
                           value={[blackElo]}
@@ -1244,7 +1244,7 @@ export default function TwoPlayerPage() {
                           step={100}
                           className="w-full"
                         />
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-[14px] --xs text-gray-500">
                           <span>300</span>
                           <span>3200</span>
                         </div>
@@ -1253,8 +1253,8 @@ export default function TwoPlayerPage() {
                       {/* Auto Hint Toggle */}
                       <div className="flex items-center justify-between pt-2">
                         <div className="space-y-0.5">
-                          <span className="text-sm text-gray-900">Auto Hint</span>
-                          <p className="text-xs text-gray-500">Automatically show hints during Black's turns</p>
+                          <span className="text-[14px] --sm text-gray-900">Auto Hint</span>
+                          <p className="text-[14px] --xs text-gray-500">Automatically show hints during Black's turns</p>
                         </div>
                         <button
                           onClick={() => handleAutoHintBlackChange(!autoHintBlack)}

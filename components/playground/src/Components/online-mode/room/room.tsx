@@ -119,7 +119,7 @@ export default function Room() {
                 <ShareLink roomid={roomid} />
               ) : (
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-[14px] --sm text-gray-600 dark:text-gray-400">
                     Click &quot;Create Room&quot; or enter a room ID to join.
                   </p>
                 </div>

@@ -175,7 +175,7 @@ const Statistics = () => {
         {/* Rating Progress Chart with Tooltip */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Improvement Progress</h1>
-          <p className="text-xs mb-2">
+          <p className="text-[14px] --xs mb-2">
             Your chess improvement journey this month
           </p>
           <div className="h-64 flex">
@@ -183,7 +183,7 @@ const Statistics = () => {
               <LineChart
                 data={ratingData}
                 margin={{ top: 20, right: 10, left: -20, bottom: 10 }}
-                className="text-xs"
+                className="text-[14px] --xs"
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -229,7 +229,7 @@ const Statistics = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="w-full flex justify-center items-center gap-x-5 text-xs">
+          <div className="w-full flex justify-center items-center gap-x-5 text-[14px] --xs">
             <div className="flex flex-col justify-center items-center gap-y-2 ">
               <div className="w-24 h-4 bg-[#7AA0F2] border border-blue-base"></div>
               <h1>Rating Progress</h1>
@@ -244,7 +244,7 @@ const Statistics = () => {
         {/* Training Distribution Chart */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Training Distribution</h1>
-          <p className="text-xs mb-2">Hours spent on different aspects</p>
+          <p className="text-[14px] --xs mb-2">Hours spent on different aspects</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -262,7 +262,7 @@ const Statistics = () => {
                   axisLine={true}
                   tickLine={true}
                   padding={{ left: 2, right: 2 }}
-                  className="text-xs"
+                  className="text-[14px] --xs"
                 />
                 <YAxis
                   domain={[0, 8]}
@@ -287,7 +287,7 @@ const Statistics = () => {
         {/* Training Goals Section */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Training Goals</h1>
-          <p className="text-xs mb-2">
+          <p className="text-[14px] --xs mb-2">
             Set and track your chess improvement goals
           </p>
 
@@ -303,14 +303,14 @@ const Statistics = () => {
                   >
                     <goal.Icon size={12} color="white" />
                   </div>
-                  <span className="font-semibold text-sm">{goal.title}</span>
+                  <span className="font-semibold text-[14px] --sm">{goal.title}</span>
                 </div>
-                <div className="text-blue-base border border-blue-base rounded-[3px] px-2 py-[2px] text-xs">
+                <div className="text-blue-base border border-blue-base rounded-[3px] px-2 py-[2px] text-[14px] --xs">
                   {goal.termType}
                 </div>
               </div>
 
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-[14px] --xs">
                 <p className=" mb-1">Progress</p>
                 <div className="flex gap-x-2">
                   <Check
@@ -324,7 +324,7 @@ const Statistics = () => {
                 <Progress value={goal.progress} className="h-2 bg-gray-300" />
               </div>
 
-              <div className="flex justify-between text-xs text-gray-600 mb-3">
+              <div className="flex justify-between text-[14px] --xs text-gray-600 mb-3">
                 <div className="flex items-center">
                   <Trophy size={16} className="mr-1" />
                   <span>{goal.target}</span>
@@ -336,7 +336,7 @@ const Statistics = () => {
               </div>
 
               <Button className="w-full btn-secondary rounded-full h-8">
-                <h1 className="text-xs">
+                <h1 className="text-[14px] --xs">
                   {goal.progress > 0 ? "Resume Training" : "Start Training"}
                 </h1>
               </Button>
@@ -348,7 +348,7 @@ const Statistics = () => {
         <div className=" ">
           <h1 className="text-base font-bold mb-2">
             Recent Games{" "}
-            <span className="text-xs font-light text-gray-500">
+            <span className="text-[14px] --xs font-light text-gray-500">
               (Last 5 games)
             </span>
           </h1>
@@ -356,7 +356,7 @@ const Statistics = () => {
           <div className="rounded-sm border overflow-x-hidden">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-blue-50 text-xs font-thin">
+                <tr className="bg-blue-50 text-[14px] --xs font-thin">
                   <th className="p-2 text-left">Date</th>
                   <th className="p-2 text-left">Opponent</th>
                   <th className="p-2 text-left">Result</th>
@@ -369,14 +369,14 @@ const Statistics = () => {
                   <tr key={index} className="border-b border-gray-100">
                     <td className="p-2 text-[10px] text-nowrap">{game.date}</td>
                     <td className="p-2">
-                      <div className="text-xs font-medium">{game.opponent}</div>
+                      <div className="text-[14px] --xs font-medium">{game.opponent}</div>
                       <div className="text-[10px] text-gray-500">
                         Rating: {game.rating}
                       </div>
                     </td>
                     <td className="p-2">
                       <span
-                        className={`text-xs font-medium ${
+                        className={`text-[14px] --xs font-medium ${
                           game.result === "WIN"
                             ? "text-green-500"
                             : game.result === "LOSS"
@@ -387,9 +387,9 @@ const Statistics = () => {
                         {game.result}
                       </span>
                     </td>
-                    <td className="p-2 text-xs">{game.opening}</td>
+                    <td className="p-2 text-[14px] --xs">{game.opening}</td>
                     <td className="p-2">
-                      <div className="flex flex-col space-y-2 text-xs">
+                      <div className="flex flex-col space-y-2 text-[14px] --xs">
                         <div className="flex items-center">
                           <Target className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1" />
                           <span className="text-[10px]">{game.accuracy}%</span>
@@ -410,7 +410,7 @@ const Statistics = () => {
             </table>
           </div>
 
-          <div className="flex items-center justify-between mt-3 gap-x-1 text-xs md:text-[10px]">
+          <div className="flex items-center justify-between mt-3 gap-x-1 text-[14px] --xs md:text-[10px]">
             <div className="flex items-center">
               <Trophy className="w-4 h-4 text-green-500 rounded-sm mr-1" />
               <span>Win Rate: {winRate}%</span>

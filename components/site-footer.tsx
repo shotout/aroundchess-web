@@ -19,7 +19,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
               <LayoutDashboard className="h-6 w-6" />
               <span className="font-bold">aroundchess</span>
             </Link>
-            <p className="mt-2 text-sm">
+            <p className="mt-2 text-[14px] --sm">
               Advanced chess training and analysis powered by AI
             </p>
           </div>
@@ -50,7 +50,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm">© 2024 aroundchess. All rights reserved.</p>
+            <p className="text-[14px] --sm">© 2024 aroundchess. All rights reserved.</p>
             <div className="flex space-x-6">
               <Link href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
                 <span className="sr-only">Facebook</span>

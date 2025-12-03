@@ -190,7 +190,7 @@ export function ChessTerminology() {
                   {items.map((item) => (
                     <div key={item.term} className="border-b pb-4 last:border-0 last:pb-0">
                       <h4 className="font-semibold text-gray-900">{item.term}</h4>
-                      <p className="text-gray-600 text-sm">{item.definition}</p>
+                      <p className="text-gray-600 text-[14px] --sm">{item.definition}</p>
                     </div>
                   ))}
                 </div>

@@ -20,8 +20,8 @@ const CustomTooltip = ({ active, payload, data }: any) => {
 
     return (
       <div className="bg-white p-3 border border-gray-200 rounded-lg flex gap-x-2 shadow-lg pointer-events-none">
-        <p className="text-sm text-black">{item.payload.name}</p>
-        <p className="text-sm text-black">{percentage}%</p>
+        <p className="text-[14px] --sm text-black">{item.payload.name}</p>
+        <p className="text-[14px] --sm text-black">{percentage}%</p>
       </div>
     );
   }

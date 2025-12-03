@@ -86,7 +86,7 @@ export function OpeningTraps() {
               <p className="text-gray-600">
                 {openingTraps[currentTrap].description}
               </p>
-              <div className="text-sm text-gray-500 italic">
+              <div className="text-[14px] --sm text-gray-500 italic">
                 {openingTraps[currentTrap].analysis}
               </div>
               <div className="mt-4">

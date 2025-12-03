@@ -91,7 +91,7 @@ export function TeamMatches({ limit }: TeamMatchesProps) {
                   <span className="font-medium">vs {match.opponent}</span>
                   {getStatusBadge(match.status, match.ourScore, match.opponentScore)}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 text-[14px] --sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     {format(match.date, "MMM d, yyyy")}

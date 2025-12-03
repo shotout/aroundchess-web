@@ -378,7 +378,7 @@ useEffect(() => {
                 <div className="text-right">
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-blue-base hover:text-blue-700 transition-colors"
+                    className="text-[14px] --sm text-blue-base hover:text-blue-700 transition-colors"
                   >
                     Forgot Password?
                   </Link>
@@ -394,7 +394,7 @@ useEffect(() => {
               </form>
 
               <div className="relative my-5 sm:my-6">
-                <div className="relative flex justify-center text-xs uppercase">
+                <div className="relative flex justify-center text-[14px] --xs uppercase">
                   <span className="px-2 text-black font-medium">
                     or continue with
                   </span>

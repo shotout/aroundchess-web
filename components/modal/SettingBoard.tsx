@@ -305,7 +305,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
 
         <button
           onClick={handleSave}
-          className={`btn-primary w-full text-sm rounded-full py-2 my-4 h-[48px]  `}
+          className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 h-[48px]  `}
         >
           Save
         </button>

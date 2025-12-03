@@ -78,7 +78,7 @@ const DesktopTableSkeleton = ({ rows = 10 }) => {
     <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
       {/* Header Row */}
       <div
-        className="grid bg-blue-100 py-3 text-xs font-medium text-gray-700"
+        className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
         style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
       >
         <div className="px-2 text-left invisible">#</div>

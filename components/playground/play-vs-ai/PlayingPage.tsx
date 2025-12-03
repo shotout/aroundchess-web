@@ -239,10 +239,10 @@ const MobileMoveBoxes = ({
           <div className="flex flex-col gap-1 min-w-[60px]">
             <div className="h-[25px] bg-white"></div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">White</span>
+              <span className="text-[14px] --sm font-medium text-black">White</span>
             </div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">Black</span>
+              <span className="text-[14px] --sm font-medium text-black">Black</span>
             </div>
           </div>
         </div>
@@ -278,18 +278,18 @@ const MobileMoveBoxes = ({
                   className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
                   style={{ opacity }}
                 >
-                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                  <div className="text-center text-[14px] --xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
                     Move {moveNumber}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {whiteMove ? whiteMove.san : ""}
                     </span>
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {blackMove ? blackMove.san : ""}
                     </span>
                   </div>
@@ -1752,7 +1752,7 @@ export default function PlayingPage() {
 
         <div className="hidden sm:block rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
           <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
-            <span className="text-xs font-normal">
+            <span className="text-[14px] --xs font-normal">
               Current Turn:{" "}
               <span className="text-[14px] font-medium">
                 {game.turn() === "w" ? "White" : "Black"}
@@ -2075,7 +2075,7 @@ export default function PlayingPage() {
                   className="object-contain"
                 />
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-[14px] --sm font-semibold ${
                     selectedTab === "current" ? `text-[#221AE9]` : `text-black`
                   }`}
                 >
@@ -2101,7 +2101,7 @@ export default function PlayingPage() {
                   className="object-contain"
                 />
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-[14px] --sm font-semibold ${
                     selectedTab === "past" ? `text-[#221AE9]` : `text-black`
                   }`}
                 >

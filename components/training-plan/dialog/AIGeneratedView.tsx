@@ -83,7 +83,7 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
       {/* Goal Title */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
             1
           </div>
           <Label htmlFor="goal-title" className="font-medium">
@@ -127,7 +127,7 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
       {selectedGoalType === "accuracy" && selectedDurationType === "target" && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
               4
             </div>
             <Label htmlFor="target-accuracy" className="font-medium">
@@ -141,11 +141,11 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
               onChange={(e) => setTargetAccuracy(e.target.value)}
               className="w-[80%] border-none bg-transparent"
             />
-            <div className="text-xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
+            <div className="text-[14px] --xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
               % Accuracy
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-[14px] --sm">
             <Info className="text-blue-600" />
             <span>
               Your current Accuracy:{" "}
@@ -158,7 +158,7 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
       {selectedGoalType === "puzzles" && selectedDurationType === "target" && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+            <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
               4
             </div>
             <Label htmlFor="target-puzzles" className="font-medium">
@@ -172,7 +172,7 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
               onChange={(e) => setTargetPuzzles(e.target.value)}
               className="w-[80%] border-none bg-transparent"
             />
-            <div className="text-xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
+            <div className="text-[14px] --xs border border-blue-base rounded-[4px] py-1 px-[6px] text-nowrap">
               Puzzles
             </div>
           </div>

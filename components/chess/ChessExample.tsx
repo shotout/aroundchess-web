@@ -69,8 +69,8 @@ export function ChessExample({ initialFen, title, description }: ChessExamplePro
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-sm text-gray-500 mb-2">Current FEN:</p>
-            <code className="text-xs bg-gray-100 p-2 rounded block mb-4">{currentPosition}</code>
+            <p className="text-[14px] --sm text-gray-500 mb-2">Current FEN:</p>
+            <code className="text-[14px] --xs bg-gray-100 p-2 rounded block mb-4">{currentPosition}</code>
             <Button variant="outline" onClick={resetPosition}>Reset Position</Button>
           </div>
         </div>

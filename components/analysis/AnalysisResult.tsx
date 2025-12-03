@@ -462,7 +462,7 @@ const AnalysisResult: React.FC = () => {
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-gray-600 text-sm font-semibold">
+              <span className="text-gray-600 text-[14px] --sm font-semibold">
                 {summary?.blackSide?.profileInfo.username?.charAt(0) || "?"}
               </span>
             </div>
@@ -470,7 +470,7 @@ const AnalysisResult: React.FC = () => {
           <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
                 }`}
               >
@@ -522,7 +522,7 @@ const AnalysisResult: React.FC = () => {
         {game.getComments().length > 0 && (
           <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
             <Watch size={16} />
-            <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+            <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
               {currentMoveBlack == 0 ? startTime : currentMoveBlack}
             </span>
           </div>
@@ -549,7 +549,7 @@ const AnalysisResult: React.FC = () => {
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-gray-600 text-sm font-semibold">
+              <span className="text-gray-600 text-[14px] --sm font-semibold">
                 {summary?.whiteSide?.profileInfo.username?.charAt(0) || "?"}
               </span>
             </div>
@@ -557,7 +557,7 @@ const AnalysisResult: React.FC = () => {
           <div className="flex flex-col line-clamp-1">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
                 }`}
               >
@@ -609,7 +609,7 @@ const AnalysisResult: React.FC = () => {
         {game.getComments().length > 0 && (
           <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
             <Watch size={16} />
-            <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+            <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
               {currentMoveWhite == 0 ? startTime : currentMoveWhite}
             </span>
           </div>
@@ -857,12 +857,12 @@ const AnalysisResult: React.FC = () => {
               <div className="flex flex-col gap-2 p-4 border border-primary rounded-md border-l-4">
                 <div className="flex flex-row items-center justify-between gap-2">
                   <div className="flex flex-row items-center gap-2">
-                    <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-lg font-semibold">
+                    <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-lg font-semibold">
                       {chessMove.move}
                     </span>
                     {chessMove?.evaluation && (
                       <span
-                        className={`rounded-2xl px-3 py-[4px] border border-input text-xs sm:text-sm md:text-md lg:text-md xl:text-lg text-center font-normal  ${getScoreClass(
+                        className={`rounded-2xl px-3 py-[4px] border border-input text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-lg text-center font-normal  ${getScoreClass(
                           chessMove?.classification?.toLowerCase() || ""
                         )}`}
                       >
@@ -873,7 +873,7 @@ const AnalysisResult: React.FC = () => {
                   <div className="flex flex-row items-center gap-2">
                     {chessMove?.classification && (
                       <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-[14px] --sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
                           chessMove.classification
                         )}`}
                       >
@@ -882,7 +882,7 @@ const AnalysisResult: React.FC = () => {
                     )}
                     {chessMove?.type && (
                       <span
-                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
+                        className={`mx-1 py-1 rounded-[4px] text-[11px] sm:text-[14px] --sm md:text-md lg:text-md xl:text-md px-2 ${getBadgeClass(
                           chessMove.type
                         )}`}
                       >
@@ -901,20 +901,20 @@ const AnalysisResult: React.FC = () => {
                   </div>
                 </div>
                 {chessMove?.analysis && (
-                  <span className="text-sm font-normal py-1">
+                  <span className="text-[14px] --sm font-normal py-1">
                     {chessMove?.analysis}
                   </span>
                 )}
                 {chessMove?.solution && (
-                  <span className="text-sm font-normal py-1">
+                  <span className="text-[14px] --sm font-normal py-1">
                     {chessMove?.solution}
                   </span>
                 )}
                 {chessMove?.gamePhase && (
                   <div className="flex flex-row gap-1">
                     <InfoIcon size={16} color="#221AE9" />
-                    <span className="text-sm">Type:</span>
-                    <span className="text-sm font-semibold">
+                    <span className="text-[14px] --sm">Type:</span>
+                    <span className="text-[14px] --sm font-semibold">
                       {chessMove.gamePhase}
                     </span>
                   </div>

@@ -137,7 +137,7 @@ const DeleteAccount = () => {
             {/* Warning info box inside modal */}
             <div className="flex border border-blue-500 bg-blue-50 rounded-md p-3 items-center gap-x-2 my-4">
               <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-gray-700">
+              <p className="text-[14px] --xs text-gray-700">
                 Please note that account deletion is{" "}
                 <strong>permanent and cannot be undone</strong>. Once your
                 account is deleted, all of your data, activity history,
@@ -150,7 +150,7 @@ const DeleteAccount = () => {
             {error && (
               <div className="flex border border-red-500 bg-red-50 rounded-md p-3 items-center gap-x-2 my-4">
                 <X className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-red-700">{error}</p>
+                <p className="text-[14px] --xs text-red-700">{error}</p>
               </div>
             )}
 

@@ -35,7 +35,7 @@ export function FeaturesSection() {
           <p className="md:my-2 lg:my-4 text-xl md:text-xl lg:text-[40px] font-semibold text-black">
             Your Personal Chess Lab
           </p>
-          <p className="xl:max-w-[496px] text-xs sm:text-md md:text-md lg:text-md xl:text-[20px] font-normal leading-[1.2] text-[#2e2e2e] max-w-2xl mx-auto">
+          <p className="xl:max-w-[496px] text-[14px] --xs sm:text-md md:text-md lg:text-md xl:text-[20px] font-normal leading-[1.2] text-[#2e2e2e] max-w-2xl mx-auto">
             Unlock your full potential with our comprehensive suite of Chess
             Analysis Tools and AI-based Training.
           </p>

@@ -160,7 +160,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
           {/* Center: Desktop Navigation */}
           <div className="hidden xl:flex justify-center items-center gap-6 flex-1">
             {/* Analyze Button - Outside of NavigationMenu */}
-            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
               <Button
                 onClick={handleStartAnalysis}
                 color="primary"
@@ -242,7 +242,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                 onClick={handleStartAnalysis}
                 color="primary"
                 variant="outlineprimary"
-                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-sm"
+                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-[14px] --sm"
               >
                 <BarChart2
                   className="mr-1 h-[16px] w-[16px]"
@@ -291,12 +291,12 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
               {!isSignedIn ? (
                 <div className="flex items-center gap-5">
                   <Link href="/login">
-                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 ">
+                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
                       Sign-In
                     </button>
                   </Link>
                   <Link href="/register">
-                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white ">
+                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white ">
                       Try Now
                     </button>
                   </Link>
@@ -342,8 +342,8 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <div className="text-[14px] --sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-[14px] --sm leading-snug text-muted-foreground">
             {children}
           </p>
         </Link>
@@ -572,26 +572,26 @@ function MobileNav(props: mobileProps) {
         </div>
         <div
           onClick={props.handleStartAnalysis}
-          className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg cursor-pointer hover:bg-[#221AE920]"
+          className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-[14px] --sm sm:text-lg cursor-pointer hover:bg-[#221AE920]"
         >
           <BarChart2 className="mr-2 h-4 w-4" />
           Analyze Now
         </div>
         <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6 bg-white">
           <Link href="/about-us">
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <Info className="mr-2 h-4 w-4" />
               About
             </div>
           </Link>
           <Link href="/faq">
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <HelpCircle className="mr-2 h-4 w-4" />
               FAQ
             </div>
           </Link>
           <button onClick={() => setOpenSubscribe(true)}>
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <DollarSign className="mr-2 h-4 w-4" />
               Pricing
             </div>
@@ -602,13 +602,13 @@ function MobileNav(props: mobileProps) {
           <div className="flex flex-col w-full items-center gap-5">
             <Link
               href="/login"
-              className="flex sm:h-[56px] items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Sign-In
             </Link>
             <Link
               href="/register"
-              className="flex sm:h-[56px] items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
             >
               Try Now
             </Link>
@@ -659,13 +659,13 @@ function MobileNav(props: mobileProps) {
           <div className="w-full flex flex-col items-center gap-[8px]">
             <button
               onClick={() => props.handleOpenOffer("tokens")}
-              className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Buy Tokens
             </button>
             <button
               onClick={() => props.handleOpenOffer("subscription")}
-              className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+              className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
             >
               Go Unlimited
             </button>
@@ -719,7 +719,7 @@ function MobileNav(props: mobileProps) {
                         handleNavigation(section.href, section.permission)
                       }
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive
                           ? "text-[#221AE9]"
                           : "hover:bg-[#221AE950] hover:text-[#221AE9]"
@@ -749,7 +749,7 @@ function MobileNav(props: mobileProps) {
                   ) : (
                     <div
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive ? "text-[#221AE9]" : ""
                       )}
                     >
@@ -782,7 +782,7 @@ function MobileNav(props: mobileProps) {
                                   : child.href
                               }
                               className={cn(
-                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
+                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                                 isChildActive
                                   ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4"
                                   : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"

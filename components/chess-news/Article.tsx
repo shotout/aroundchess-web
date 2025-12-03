@@ -70,7 +70,7 @@ export default function Article() {
         />
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
       </div>
-      <p className="text-gray-600 text-sm md:text-[18px] py-2 md:py-[8px]">
+      <p className="text-gray-600 text-[14px] --sm md:text-[18px] py-2 md:py-[8px]">
         Stay updated with the latest blog posts, tournaments, and player
         insights from around the world.
       </p>
@@ -89,7 +89,7 @@ export default function Article() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search topics..."
-              className="w-full text-xs sm:text-sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none"
+              className="w-full text-[14px] --xs sm:text-[14px] --sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none"
             />
           </div>
           <div className="flex items-start mt-4 w-full">
@@ -107,7 +107,7 @@ export default function Article() {
                         );
                         setQuery("");
                       }}
-                      className={`py-2 px-3 font-medium rounded-[4px] border-input border text-xs sm:text-sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
+                      className={`py-2 px-3 font-medium rounded-[4px] border-input border text-[14px] --xs sm:text-[14px] --sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
                         tab.id === selectedTab
                           ? "bg-[#81CFF3] text-black"
                           : "bg-white hover:bg-gray-50"
@@ -143,7 +143,7 @@ export default function Article() {
                       />
                     ) : (
                       <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 flex items-center justify-center rounded-md">
-                        <span className="text-gray-500 text-sm">No Image</span>
+                        <span className="text-gray-500 text-[14px] --sm">No Image</span>
                       </div>
                     )}
                     <div className="px-2 py-1">
@@ -172,7 +172,7 @@ export default function Article() {
         </div>
         {sessionId && (
           <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
-            <span className="text-sm sm:text-md font-bold mt-4 block">
+            <span className="text-[14px] --sm sm:text-md font-bold mt-4 block">
               Saved Articles
             </span>
             <div className="flex flex-col mt-2 gap-2">

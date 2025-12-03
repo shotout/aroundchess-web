@@ -27,7 +27,7 @@ const ImprovementRecommendations: React.FC<ImprovementRecommendationsProps> = ({
         {/* Short-Term Goals Card */}
         <Card className="p-3 rounded-lg md:border bg-white">
           <h1 className="font-bold mb-1">Short-Term Goals</h1>
-          <ul className="text-sm text-gray-700 list-disc px-4">
+          <ul className="text-[14px] --sm text-gray-700 list-disc px-4">
             {shortTermGoals.map((goal, index) => (
               <li key={index}>{goal}</li>
             ))}
@@ -37,7 +37,7 @@ const ImprovementRecommendations: React.FC<ImprovementRecommendationsProps> = ({
         {/* Training Focus Card */}
         <Card className="p-3 rounded-lg md:border bg-white">
           <h1 className="font-bold mb-1">Training Focus</h1>
-          <ul className="text-sm text-gray-700 list-disc px-4">
+          <ul className="text-[14px] --sm text-gray-700 list-disc px-4">
             {trainingFocus.map((focus, index) => (
               <li key={index}>{focus}</li>
             ))}

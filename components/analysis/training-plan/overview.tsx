@@ -110,7 +110,7 @@ export function Overview() {
     <div className="space-y-8">
       <div className="w-full">
         <h3 className="text-lg font-medium">Progress Overview</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Your chess improvement journey this month
         </p>
         <div className="mt-4 h-[300px] w-full">
@@ -126,7 +126,7 @@ export function Overview() {
       </div>
       <div className="w-full">
         <h3 className="text-lg font-medium">Training Distribution</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Hours spent on different aspects
         </p>
         <div className="mt-4 h-[300px] w-full">

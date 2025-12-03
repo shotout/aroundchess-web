@@ -120,7 +120,7 @@ export default function EUCompliance() {
 
           {/* Footer */}
           <footer className="border-t border-gray-200 pt-6">
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-[14px] --sm text-gray-600 text-center">
               Last updated: 05 June 2025
             </p>
           </footer>

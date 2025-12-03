@@ -37,7 +37,7 @@ export default function CookieConsent() {
   return (
     <div className="fixed flex flex-col gap-2 md:flex md:flex-row w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]">
       <div className="w-full md:max-w-[70%]">
-        <p className="text-sm">
+        <p className="text-[14px] --sm">
           We use cookies and similar technologies to enable services and
           functionality on our site and to understand your interaction with our
           service. By clicking on accept, you agree to our use of such

@@ -38,11 +38,11 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                 className="border rounded-lg shadow-sm overflow-hidden p-4 flex flex-col h-full"
               >
                 <div className="flex flex-col space-y-3">
-                  {/* <h3 className="text-xs md:text-base font-bold">
+                  {/* <h3 className="text-[14px] --xs md:text-base font-bold">
                     {variation?.name || `Variation ${index + 1}`}:
                   </h3> */}
 
-                  {/* <p className="text-xs text-gray-600">
+                  {/* <p className="text-[14px] --xs text-gray-600">
                     {variation?.description || "No description available"}
                   </p> */}
 
@@ -61,7 +61,7 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                               className="flex items-center justify-start gap-x-2"
                             >
                               <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                              <span className="text-sm">
+                              <span className="text-[14px] --sm">
                                 {keyIdea?.idea || "No idea specified"}
                               </span>
                             </li>
@@ -71,10 +71,10 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                     </div>
                   ) : (
                     <div>
-                      <h4 className="text-xs font-semibold mb-2">Key Ideas:</h4>
+                      <h4 className="text-[14px] --xs font-semibold mb-2">Key Ideas:</h4>
                       <div className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-blue-base flex-shrink-0" />
-                        <span className="text-xs">Key ideas coming soon</span>
+                        <span className="text-[14px] --xs">Key ideas coming soon</span>
                       </div>
                     </div>
                   )}
@@ -84,8 +84,8 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
           ) : (
             <div className="col-span-1 md:col-span-3 text-gray-600 p-4 border">
               <p>No variations data available for this opening.</p>
-              <p className="text-xs mt-2">This could be because:</p>
-              <ul className="text-xs list-disc pl-5 mt-1">
+              <p className="text-[14px] --xs mt-2">This could be because:</p>
+              <ul className="text-[14px] --xs list-disc pl-5 mt-1">
                 <li>This opening doesn't have variations defined</li>
                 <li>The data structure doesn't match expected format</li>
                 <li>There was an error processing the data</li>

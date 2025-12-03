@@ -105,7 +105,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 ? `absolute w-[300px] top-0 right-10 z-50 `
                 : `absolute w-[450px] xl:w-[500px] z-50 right-8 top-2 xl:right-7 xl:-top-24`
             }
-            tooltipClassName="text-[11px] md:text-xs rounded-b-md rounded-tl-md md:rounded-t-md md:rounded-bl-md md:rounded-br-none p-4 lg:p-6"
+            tooltipClassName="text-[11px] md:text-[14px] --xs rounded-b-md rounded-tl-md md:rounded-t-md md:rounded-bl-md md:rounded-br-none p-4 lg:p-6"
           />
         </div>
 
@@ -126,11 +126,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               </div>
 
               <div className="flex flex-col">
-                <h3 className="font-semibold text-sm md:text-[16px] mb-[8px] md:mb-[4px]">
+                <h3 className="font-semibold text-[14px] --sm md:text-[16px] mb-[8px] md:mb-[4px]">
                   Your next Goals:
                   {/* What you will get if you reach your Next Goals? */}
                 </h3>
-                <ul className="text-blue-800 text-xs md:text-[14px] flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
+                <ul className="text-blue-800 text-[14px] --xs md:text-[14px] flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
                   <li className="flex items-center gap-2">
                     <span className="text-blue-600 font-medium flex items-center justify-center w-5 md:w-auto">
                       <span className="md:hidden">1.</span>
@@ -152,10 +152,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
           <div className="mt-4 md:mt-0 md:flex-shrink-0 pl-16 md:pl-0">
             <div className="flex flex-col md:items-end md:justify-center">
-              <div className="text-xs md:text-[15px] text-gray-600 mb-[4px]">
+              <div className="text-[14px] --xs md:text-[15px] text-gray-600 mb-[4px]">
                 Avg. Time to Invest Daily:
               </div>
-              <div className="flex items-center gap-1 text-blue-800 text-sm md:text-[14px]">
+              <div className="flex items-center gap-1 text-blue-800 text-[14px] --sm md:text-[14px]">
                 ~{schedule?.durations?.avgMinutesDaily || 0} min
               </div>
             </div>

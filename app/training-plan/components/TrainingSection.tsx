@@ -41,7 +41,7 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
           />
           <h3 className="text-[16px] font-semibold">{title}</h3>
         </div>
-        <div className="text-black text-xs sm:text-[14px] font-medium">
+        <div className="text-black text-[14px] --xs sm:text-[14px] font-medium">
           Estimated total duration per day:{" "}
           <span className="text-blue-800 font-bold">{duration}</span>
         </div>

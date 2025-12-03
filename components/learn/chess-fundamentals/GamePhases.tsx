@@ -118,7 +118,7 @@ export function GamePhases() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-blue-600 mb-2">{phase.name}</h3>
-                    <p className="text-gray-600 text-sm">{phase.description}</p>
+                    <p className="text-gray-600 text-[14px] --sm">{phase.description}</p>
                   </div>
                 </div>
 
@@ -127,7 +127,7 @@ export function GamePhases() {
                     <h4 className="font-semibold text-gray-900">Key Principles</h4>
                     <ul className="list-disc pl-6 space-y-1 mt-2">
                       {phase.principles.map((principle, index) => (
-                        <li key={index} className="text-gray-600 text-sm">{principle}</li>
+                        <li key={index} className="text-gray-600 text-[14px] --sm">{principle}</li>
                       ))}
                     </ul>
                   </div>
@@ -136,7 +136,7 @@ export function GamePhases() {
                     <h4 className="font-semibold text-gray-900">Common Mistakes</h4>
                     <ul className="list-disc pl-6 space-y-1 mt-2">
                       {phase.common_mistakes.map((mistake, index) => (
-                        <li key={index} className="text-gray-600 text-sm">{mistake}</li>
+                        <li key={index} className="text-gray-600 text-[14px] --sm">{mistake}</li>
                       ))}
                     </ul>
                   </div>

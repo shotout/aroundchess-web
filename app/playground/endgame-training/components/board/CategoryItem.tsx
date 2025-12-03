@@ -39,7 +39,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
             </h3>
           </div>
           <div>
-            <p className="text-xs text-gray-600">
+            <p className="text-[14px] --xs text-gray-600">
               {category.name === "Basic"
                 ? "Simple Endgame Scenarios with only the King as Enemy"
                 : `Multiple Endgame Scenarios involving the ${category.name}.`}
@@ -48,7 +48,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
           <div>
             <button
               onClick={() => onCategorySelect(slug)}
-              className="btn-primary w-full xl:max-w-[100px] text-white py-1 xl:py-2 px-3 rounded-full text-sm font-medium flex items-center justify-center"
+              className="btn-primary w-full xl:max-w-[100px] text-white py-1 xl:py-2 px-3 rounded-full text-[14px] --sm font-medium flex items-center justify-center"
             >
               <span className="mr-1">Select</span>
               <ArrowRight className="w-3 h-3" />

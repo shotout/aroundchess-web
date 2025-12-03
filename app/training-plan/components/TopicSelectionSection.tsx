@@ -88,7 +88,7 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
         )}
       </div>
 
-      <p className="text-sm sm:text-base mb-3 text-gray-600 leading-relaxed">
+      <p className="text-[14px] --sm sm:text-base mb-3 text-gray-600 leading-relaxed">
         {description}
       </p>
 
@@ -114,7 +114,7 @@ const TopicSelectionSection: React.FC<UpdatedTopicSelectionSectionProps> = ({
 
             return (
               <div key={subcategory.id} className="mb-3 w-full">
-                <h4 className="font-medium mb-2 text-sm sm:text-base text-gray-800">
+                <h4 className="font-medium mb-2 text-[14px] --sm sm:text-base text-gray-800">
                   {subcategory.title}
                 </h4>
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1 hide-scrollbar">

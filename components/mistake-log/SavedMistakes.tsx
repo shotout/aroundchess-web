@@ -212,7 +212,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   } rounded-md p-2 lg:p-4`}
                 >
                   <div className="flex flex-row justify-between items-center gap-2 mb-4">
-                    <div className="flex rounded-full max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-xs lg:text-[14px]">
+                    <div className="flex rounded-full max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-[14px] --xs lg:text-[14px]">
                       {item.title}
                     </div>
                     <div
@@ -260,22 +260,22 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                       </div>
                     </div>
                     <div className="flex flex-row items-center lg:justify-start gap-3">
-                      <span className="flex items-center text-[14px] -- font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                      <span className="flex items-center text-[14px] -- font-normal min-h-[25px] sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
                         Move {item?.mistakeLog.moveNumber} :{" "}
-                        <span className="font-normal sm:text-sm md:text-md lg:text-md ">
+                        <span className="font-normal sm:text-[14px] --sm md:text-md lg:text-md ">
                           {" "}
                           {item?.mistakeLog.move}
                         </span>
                       </span>
                       <span
-                        className={`flex items-center rounded-full border border-[#DEDEDE] px-[8px] py-[4px] font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                        className={`flex items-center rounded-full border border-[#DEDEDE] px-[8px] py-[4px] font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                           item?.mistakeLog.classification
                         )}`}
                       >
                         {item?.mistakeLog.evaluation}
                       </span>
                       <span
-                        className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-sm sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
+                        className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md  ${getBadgeClass(
                           item?.mistakeLog.classification
                         )}`}
                       >
@@ -283,7 +283,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs sm:text-md md:text-md lg:text-[14px] font-normal">
+                  <span className="text-[14px] --xs sm:text-md md:text-md lg:text-[14px] font-normal">
                     <span className="font-semibold">Analysis: </span>
                     {display?.analysis ?? ""}
                   </span>
@@ -296,7 +296,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                         height={1000}
                         className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                       />
-                      <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9] truncate whitespace-nowrap flex-1">
+                      <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9] truncate whitespace-nowrap flex-1">
                         <span className="font-bold">
                           {display?.recommendation ?? ""}
                         </span>

@@ -123,7 +123,7 @@ const MobileTooltip = ({
         </button>
         {/* {isVisible && (
           <div
-            className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-b-sm rounded-tl-sm  w-72 max-w-[90vw] ${
+            className={`absolute z-50 px-3 py-2 text-[14px] --sm text-white bg-gray-800 rounded-b-sm rounded-tl-sm  w-72 max-w-[90vw] ${
               mobileSide === "left"
                 ? "right-2 top-5"
                 : mobileSide === "right"
@@ -153,7 +153,7 @@ const MobileTooltip = ({
           {children}
         </button>
       </TooltipTrigger>
-      <TooltipContent side={side} className="max-w-md text-xs xl:text-sm">
+      <TooltipContent side={side} className="max-w-md text-[14px] --xs xl:text-[14px] --sm">
         {contentArray.map((item, index) => (
           <p key={index} className={index > 0 ? "mt-1 " : ""}>
             {parseBoldText(item)}

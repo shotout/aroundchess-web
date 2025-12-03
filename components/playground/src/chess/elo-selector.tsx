@@ -43,7 +43,7 @@ export function ELOSelector() {
       <div className="space-y-6">
         <div>
           <h3 className="font-semibold text-lg text-gray-900">Computer Strength</h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-[14px] --sm text-gray-600">
             Adjust the AI difficulty level to match your skill
           </p>
         </div>
@@ -56,7 +56,7 @@ export function ELOSelector() {
             )}>
               {getELODescription(targetELO)}
             </span>
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-[14px] --sm font-medium text-gray-600">
               ELO: {targetELO}
             </span>
           </div>
@@ -70,7 +70,7 @@ export function ELOSelector() {
             className="w-full"
           />
           
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-[14px] --xs text-gray-500">
             <span>Beginner (300)</span>
             <span>Maximum (3200)</span>
           </div>

@@ -82,7 +82,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Default Report Format</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Choose the default format for downloading reports
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Auto-save Reports</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Automatically save reports while editing
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Auto Archive</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Automatically archive reports older than 30 days
                   </p>
                 </div>
@@ -134,7 +134,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Receive email notifications for new reports
                   </p>
                 </div>
@@ -192,7 +192,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Show File Size</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Display file size in report listings
                   </p>
                 </div>
@@ -202,7 +202,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Show Creation Date</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Display report creation date
                   </p>
                 </div>
@@ -212,7 +212,7 @@ export function PreferencesDialog({
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Show Tags</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Display report tags in listings
                   </p>
                 </div>

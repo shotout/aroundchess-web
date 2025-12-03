@@ -41,15 +41,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
         <div className="hidden xl:flex space-x-2">
           <div className="flex rounded-md border border-gray-200 overflow-hidden p-1">
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <button className="flex items-center px-4 py-2 text-[14px] --sm font-medium text-gray-500 hover:bg-gray-50">
               <InfoIcon className="h-4 w-4 mr-2" />
               About
             </button>
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <button className="flex items-center px-4 py-2 text-[14px] --sm font-medium text-gray-500 hover:bg-gray-50">
               <HelpCircle className="h-4 w-4 mr-2" />
               FAQ
             </button>
-            <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <button className="flex items-center px-4 py-2 text-[14px] --sm font-medium text-gray-500 hover:bg-gray-50">
               <DollarSign className="h-4 w-4 mr-2" />
               Pricing
             </button>
@@ -58,17 +58,17 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       </div>
 
       <div className="flex items-center space-x-4">
-        <button className="hidden xl:block rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="hidden xl:block rounded-md border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50">
           Sign-in
         </button>
 
-        <button className="hidden xl:block rounded-md bg-blue-600 py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="hidden xl:block rounded-md bg-blue-600 py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700">
           Try Now
         </button>
 
         {!isDesktop && (
           <div className="flex items-center space-x-3">
-            <button className="hidden md:flex xl:hidden items-center border rounded-md border-gray-200 px-4 py-2 bg-gray-50 text-sm font-medium text-gray-900 hover:border-blue-600">
+            <button className="hidden md:flex xl:hidden items-center border rounded-md border-gray-200 px-4 py-2 bg-gray-50 text-[14px] --sm font-medium text-gray-900 hover:border-blue-600">
               <BarChart2 className="h-4 w-4 mr-2" />
               Analytics
             </button>

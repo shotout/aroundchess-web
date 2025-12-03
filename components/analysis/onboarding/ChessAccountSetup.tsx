@@ -20,10 +20,15 @@ import { useApiClient } from "@/functions/api-client";
 interface ChessAccountSetupProps {
   isLoading?: boolean;
   debugMode?: boolean;
+
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
 }
 
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
+  open = false,
+  setOpen = () => {},
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
@@ -38,6 +43,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (open) {
+      setShowConnectDialog(true);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (!checkComplete || isLoading) return;
 
@@ -113,6 +125,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       <ChessConnectDialog
         open={showConnectDialog && !isLoading}
         onOpenChange={(open) => {
+          setOpen(open);
           setShowConnectDialog(open);
           if (!open) {
             handleConnectClose();

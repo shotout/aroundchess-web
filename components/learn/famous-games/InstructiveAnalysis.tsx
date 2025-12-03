@@ -473,11 +473,11 @@ export default function InstructiveAnalysis() {
                   <CardTitle className="text-lg font-semibold leading-tight">
                     {game.title}
                   </CardTitle>
-                  <span className="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded-md flex-shrink-0">
+                  <span className="text-[14px] --xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded-md flex-shrink-0">
                     {game.eco}
                   </span>
                 </div>
-                <CardDescription className="flex items-center gap-2 text-sm">
+                <CardDescription className="flex items-center gap-2 text-[14px] --sm">
                   <span className="font-medium text-gray-700">{game.event}</span>
                   <span className="text-gray-400">•</span>
                   <span className="text-gray-500">{game.date}</span>
@@ -486,12 +486,12 @@ export default function InstructiveAnalysis() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col pt-0">
-                <p className="text-sm text-gray-600 line-clamp-3 mb-auto">{game.description}</p>
+                <p className="text-[14px] --sm text-gray-600 line-clamp-3 mb-auto">{game.description}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {game.themes.slice(0, 3).map((theme) => (
                     <span
                       key={theme}
-                      className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
+                      className="text-[14px] --xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
                     >
                       {theme}
                     </span>
@@ -514,7 +514,7 @@ export default function InstructiveAnalysis() {
             <div>
               <div className="mb-6">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">{selectedGame.title}</h2>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-[14px] --sm text-gray-500">
                   <span className="font-medium text-gray-700">{selectedGame.white} vs {selectedGame.black}</span>
                   <span>•</span>
                   <span>{selectedGame.event}</span>

@@ -321,7 +321,7 @@ export function AnalyzeGameHistory({
       >
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">Analyze your games</h2>
-          <p className="text-sm text-black mt-2">
+          <p className="text-[14px] --sm text-black mt-2">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN</span> for a detailed Game Analysis.
           </p>
@@ -339,7 +339,7 @@ export function AnalyzeGameHistory({
                     className="w-3 h-4 relative z-10"
                     priority
                   />
-                  <p className="block ml-1 text-base sm:text-sm text-black">
+                  <p className="block ml-1 text-base sm:text-[14px] --sm text-black">
                     Chess.com Username
                   </p>
                 </div>
@@ -354,7 +354,7 @@ export function AnalyzeGameHistory({
                 />
               </div>
               <div className="space-y-2">
-                <p className="block text-base sm:text-sm text-black">
+                <p className="block text-base sm:text-[14px] --sm text-black">
                   Select Game
                 </p>
                 <div className="relative">
@@ -418,7 +418,7 @@ export function AnalyzeGameHistory({
                             : "border-gray-300 border-2"
                         }`}
                       />
-                      <span className="font-normal text-sm">{depth.title}</span>
+                      <span className="font-normal text-[14px] --sm">{depth.title}</span>
                       <span className="font-light text-[#364152] text-center text-[11px]">
                         {depth.description}
                       </span>
@@ -431,7 +431,7 @@ export function AnalyzeGameHistory({
           <button
             onClick={handleAnalyzeGame}
             disabled={isSubmitting}
-            className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+            className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

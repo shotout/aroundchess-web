@@ -22,7 +22,7 @@ export function TournamentHeader() {
         </div>
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Tournaments</h1>
-          <p className="text-sm text-gray-500">View and manage chess tournaments</p>
+          <p className="text-[14px] --sm text-gray-500">View and manage chess tournaments</p>
         </div>
       </div>
       <div className="flex items-center gap-3">

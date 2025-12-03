@@ -11,7 +11,7 @@ export const GrandmastersSection: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Header with Badge */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-sm lg:text-lg">
+                <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-[14px] --sm lg:text-lg">
                   <Image
                     src="/images/homepage/piece.png"
                     width={50}
@@ -19,7 +19,7 @@ export const GrandmastersSection: React.FC = () => {
                     className="w-3 h-3 lg:w-6 lg:h-6"
                     alt={""}
                   />
-                  <h1 className="text-sm lg:text-base">GM</h1>
+                  <h1 className="text-[14px] --sm lg:text-base">GM</h1>
                 </div>
                 <h2 className="text-[14px]  lg:text-[32px] font-semibold text-gray-800">
                   Developed with European Grandmasters

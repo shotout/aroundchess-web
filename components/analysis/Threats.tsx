@@ -59,7 +59,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                     <div className="flex flex-row justify-between items-center gap-2 mb-2">
                       <span
                         onClick={() => handleOnClickMovement(item)}
-                        className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
+                        className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                       >
                         Move {item?.moveNumber}:{" "}
                         {capturedWhite &&
@@ -79,15 +79,15 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                             })}
                         <span className="font-bold">{item?.move}</span>
                       </span>
-                      <span className="text-[10px] sm:text-sm md:text-md lg:text-md font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
+                      <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-md font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
                         {item?.threatType}
                       </span>
                     </div>
-                    <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal">
+                    <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal">
                     <span className="font-bold">Analysis:</span> {item?.explanation}
                     </span>
                     <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                      <span className="text-[10px] sm:text-sm md:text-md lg:text-sm font-normal text-primary">
+                      <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
                        <span className="font-bold">Recommendation:</span> {item?.solution}
                       </span>
                     </div>
@@ -123,7 +123,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Movement Details&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -133,7 +133,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
           onClick={props.next}
           className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Opening
             <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>

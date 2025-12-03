@@ -253,7 +253,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         onClick={() => setOpenDialog(true)}
       >
         <Upload className="h-[20px]" />
-        <h1 className="text-xs lg:text-sm font-primary">Import Games</h1>
+        <h1 className="text-[14px] --xs lg:text-[14px] --sm font-primary">Import Games</h1>
       </button>
 
       {openDialog && (
@@ -293,7 +293,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                 <SuccessView {...getSuccessViewProps()} />
               ) : (
                 <>
-                  <p className="text-sm text-center max-w-2xl mx-auto text-gray-700 mb-6">
+                  <p className="text-[14px] --sm text-center max-w-2xl mx-auto text-gray-700 mb-6">
                     Upload your previous Game's{" "}
                     <span className="font-bold">PGN</span> for a detailed
                     analysis. You can either paste your{" "}
@@ -303,7 +303,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
                   <Card className="flex gap-3 mt-5 bg-[#F9FAFC] border-2 border-gray-100 p-1">
                     <button
-                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-sm ${
+                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-[14px] --sm ${
                         activeTab === "paste"
                           ? "bg-white border shadow-sm border-gray-300"
                           : ""
@@ -313,7 +313,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                       <span>Paste PGN</span>
                     </button>
                     <button
-                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-sm ${
+                      className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-md text-[14px] --sm ${
                         activeTab === "upload"
                           ? "bg-white border shadow-sm border-gray-300"
                           : ""
@@ -395,7 +395,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                                 </div>
                                 <div className="flex flex-col">
                                   <div className="text-gray-800">{fileName}</div>
-                                  <div className="text-gray-500 text-sm">
+                                  <div className="text-gray-500 text-[14px] --sm">
                                     {(fileSize / 1024).toFixed(1)} KB
                                   </div>
                                 </div>
@@ -432,12 +432,12 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                                     />
                                   </svg>
                                   <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-blue-base font-semibold text-sm">
+                                    <span className="text-blue-base font-semibold text-[14px] --sm">
                                       {uploadProgress}%
                                     </span>
                                   </div>
                                 </div>
-                                <div className="text-xs text-center mt-1">
+                                <div className="text-[14px] --xs text-center mt-1">
                                   uploading file...
                                 </div>
                               </div>
@@ -452,7 +452,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                             </div>
                             <div className="flex-1">
                               <div className="text-gray-800">{fileName}</div>
-                              <div className="text-gray-500 text-sm">
+                              <div className="text-gray-500 text-[14px] --sm">
                                 {(fileSize / 1024).toFixed(1)} KB
                               </div>
                             </div>
@@ -470,11 +470,11 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                   </div>
 
                   {error && (
-                    <div className="mt-2 text-red-500 text-sm">{error}</div>
+                    <div className="mt-2 text-red-500 text-[14px] --sm">{error}</div>
                   )}
 
                   {activeTab === "upload" && (
-                    <div className="flex justify-between mt-2 text-sm">
+                    <div className="flex justify-between mt-2 text-[14px] --sm">
                       <span>
                         Supported Format: <span className="font-bold">PGN</span>
                       </span>

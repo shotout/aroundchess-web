@@ -190,12 +190,12 @@ export default function InitiativePage() {
                         <Book className="h-5 w-5 mt-1" />
                         <div>
                           <h3 className="font-semibold">{resource.title}</h3>
-                          <p className="text-sm text-muted-foreground">{resource.description}</p>
+                          <p className="text-[14px] --sm text-muted-foreground">{resource.description}</p>
                           <a
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline"
+                            className="text-[14px] --sm text-primary hover:underline"
                           >
                             Visit {resource.platform}
                           </a>

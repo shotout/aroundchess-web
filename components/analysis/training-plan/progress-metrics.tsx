@@ -95,7 +95,7 @@ export function ProgressMetrics() {
     <div className="p-6 space-y-6">
       <div>
         <h3 className="text-lg font-medium">Performance Metrics</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Track your progress across different aspects
         </p>
       </div>
@@ -111,7 +111,7 @@ export function ProgressMetrics() {
                       <metric.icon className={`h-4 w-4 text-${metric.color}-500`} />
                       <span className="font-medium">{metric.label}</span>
                     </div>
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {metric.value}%
                     </span>
                   </div>
@@ -120,7 +120,7 @@ export function ProgressMetrics() {
                       value={(metric.value / metric.target) * 100}
                       className={`h-2 bg-${metric.color}-100`}
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-[14px] --xs text-muted-foreground">
                       <span>Current</span>
                       <span>Target: {metric.target}%</span>
                     </div>
@@ -144,14 +144,14 @@ export function ProgressMetrics() {
                   >
                     <stat.icon className={`h-4 w-4 ${stat.color}`} />
                     <div>
-                      <div className="text-sm font-medium">
+                      <div className="text-[14px] --sm font-medium">
                         {stat.label}
                       </div>
                       <div className="flex items-center space-x-1">
                         <span className="text-2xl font-bold">
                           {Math.abs(stat.value)}
                         </span>
-                        <span className={`text-xs ${stat.color}`}>
+                        <span className={`text-[14px] --xs ${stat.color}`}>
                           {stat.trend}
                         </span>
                       </div>

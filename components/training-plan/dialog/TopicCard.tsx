@@ -18,10 +18,10 @@ const TopicCard: React.FC<TopicCardProps> = ({
     <div className="mb-2 border rounded-lg p-2">
       <div className="flex justify-between items-center">
         <div className="flex flex-col">
-          <span className="text-sm">{topic.name}</span>
+          <span className="text-[14px] --sm">{topic.name}</span>
           <Button
             variant="outline"
-            className="text-xs mt-1 rounded-[2px] py-1 h-auto border-blue-base text-blue-base"
+            className="text-[14px] --xs mt-1 rounded-[2px] py-1 h-auto border-blue-base text-blue-base"
           >
             {topic.difficulty}
           </Button>
