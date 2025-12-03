@@ -113,7 +113,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           <SkillProgressTrack currentElo={combinedProfile.currentElo || 0} />
         </button>
 
-        <div className="bg-gradient-to-r from-[#D7EBFF] to-[#FFFFFF00] rounded-lg p-4 border border-[#3871EC33]/30 md:flex">
+        <div className="bg-gradient-to-r from-[#D7EBFF] to-[#FFFFFF00] rounded-lg p-4 border border-[#3871EC33]/30 md:flex items-center">
           <div className="flex-1">
             <div className="flex items-start md:items-center gap-3">
               <div className="flex-shrink-0">
@@ -126,11 +126,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               </div>
 
               <div className="flex flex-col">
-                <h3 className="font-semibold text-sm md:text-xl mb-2 md:mb-0">
+                <h3 className="font-semibold text-sm md:text-[16px] mb-[8px] md:mb-[4px]">
                   Your next Goals:
                   {/* What you will get if you reach your Next Goals? */}
                 </h3>
-                <ul className="text-blue-800 text-xs md:text-base flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
+                <ul className="text-blue-800 text-xs md:text-[14px] flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
                   <li className="flex items-center gap-2">
                     <span className="text-blue-600 font-medium flex items-center justify-center w-5 md:w-auto">
                       <span className="md:hidden">1.</span>
@@ -152,10 +152,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
           <div className="mt-4 md:mt-0 md:flex-shrink-0 pl-16 md:pl-0">
             <div className="flex flex-col md:items-end md:justify-center">
-              <div className="text-xs md:text-sm text-gray-600">
+              <div className="text-xs md:text-[15px] text-gray-600 mb-[4px]">
                 Avg. Time to Invest Daily:
               </div>
-              <div className="flex items-center gap-1 text-blue-800 text-sm md:text-base font-semibold">
+              <div className="flex items-center gap-1 text-blue-800 text-sm md:text-[14px]">
                 ~{schedule?.durations?.avgMinutesDaily || 0} min
               </div>
             </div>

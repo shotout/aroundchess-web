@@ -25,7 +25,7 @@ const GoalsSection = ({ goals, duration }: GoalsSectionProps) => {
 
           {/* Goals section */}
           <div className="flex flex-col">
-            <h3 className="font-semibold text-sm md:text-xl mb-2 md:mb-0">
+            <h3 className="font-semibold text-sm md:text-[16px] mb-2 md:mb-0">
               What you will get if you reach your Next Goals?
             </h3>
             {/* Goals list - vertical on mobile, horizontal on desktop */}

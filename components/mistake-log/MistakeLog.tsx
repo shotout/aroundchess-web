@@ -22,6 +22,8 @@ import { useDataCache } from "@/app/hooks/useDataCache";
 import EmptyLog from "./EmptyLog";
 import { sha256Hex } from "@/functions/sha256";
 import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
+import Link from "next/link";
+import Image from "next/image";
 
 const MistakeLog = () => {
   const { initializeData, isFetching, hasCachedData } = useDataCache();
@@ -350,6 +352,19 @@ const MistakeLog = () => {
 
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+
+      <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
+            <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+              <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
+              <span className="font-semibold">Game History</span>
+            </Link>
+
+            <Link href={'/feedback-log'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
+              <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="invert brightness-0" />
+              <span>Saved Mistakes</span>
+            </Link>
+          </div>
+
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>

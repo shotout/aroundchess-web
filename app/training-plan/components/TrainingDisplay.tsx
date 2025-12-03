@@ -213,11 +213,11 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
                 <Image
                   src={"/training-plan/tt.png"}
                   alt="Tactical Training"
-                  width={50}
-                  height={50}
-                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px]"
+                  width={34}
+                  height={32}
+                  className="lg:w-[34px] lg:h-[32px]"
                 />
-                <h3 className="text-base sm:text-lg font-semibold">
+                <h3 className="text-[16px] font-semibold">
                   Tactical Training
                 </h3>
               </div>
@@ -229,8 +229,8 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               </div>
             </div>
 
-            <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-2 sm:p-3 rounded-lg mb-4 text-gray-800 text-sm sm:text-base">
-              For today's practice, <strong>solve 10 Puzzles</strong>.
+            <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-2 sm:p-3 rounded-lg mb-4 text-gray-800 text-[14px]">
+              For today's practice, <span className="font-semibold">solve 10 Puzzles</span>.
             </div>
 
             <PremiumSubscription
@@ -241,7 +241,7 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
             <div className="flex justify-center">
               <Button
                 onClick={handleStartPuzzle}
-                className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full text-sm sm:text-base"
+                className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full text-[14px]"
               >
                 Start Puzzles
               </Button>

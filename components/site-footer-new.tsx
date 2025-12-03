@@ -129,7 +129,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 className="block sm:hidden w-[150px] h-[96px] sm:w-[286px] sm:h-[96px] object-contain"
               />
             </div>
-            <p className="mt-2 font-normal text-lg sm:mt-2:text-[16px] text-[#364152]">
+            <p className="mt-2 font-normal text-[16px] sm:mt-2:text-[16px] text-[#364152]">
               Advanced chess training and analysis powered by AI
             </p>
           </div>
@@ -138,6 +138,30 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <h3 className="mb-8 text-lg font-semibold">Features</h3>
               <ul className="space-y-2">
                 <li>
+                  <Link
+                    href="/play-practice"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Play & Practice
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/my-game-history"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Analyze Games
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/training"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Training
+                  </Link>
+                </li>
+                {/* <li>
                   <Link
                     href="/opening-theory"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
@@ -168,7 +192,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   >
                     Playground
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
             <div>
@@ -232,7 +256,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </ul>
             </div>
           </div>
-          <div className="hidden sm:flex justify-end">
+          {/* <div className="hidden sm:flex justify-end">
             <Image
               src={"/images/switzerland.png"}
               alt="made-in-switzerland"
@@ -241,7 +265,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               height={600}
               className="w-[140px] h-[96px] sm:w-[286px] sm:h-[96px] object-contain"
             />
-          </div>
+          </div> */}
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">

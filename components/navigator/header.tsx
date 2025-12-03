@@ -138,7 +138,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const SignedInUserUI = () => (
     <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
-      <span className="hidden xl:block lg:text-[16px] w-full text-[#221AE9] font-medium">
+      <span className="hidden xl:flex gap-[4px] lg:text-[16px] w-full text-[#221AE9] font-medium">
+        <Image
+          src="/images/pricing/token-icon.png"
+          alt="icon"
+          width={20}
+          height={20}
+          className="w-[20px] h-[20px] object-contain"
+        />
         Remaining Tokens:{" "}
         <span
           className={`font-bold ${

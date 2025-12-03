@@ -16,6 +16,7 @@ import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import { useTutorial } from "@/components/TutorialProvider";
 import { BlackFridayPromoTrigger } from "@/components/modal/BlackFridayPromoTrigger";
 import { PricingOffer } from "@/components/modal/PricingOffer";
+import { FaArrowLeft } from "react-icons/fa";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -192,11 +193,13 @@ export default function AnalysisPage() {
               <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
                 <div className={`flex flex-col space-y-4`}>
                   <div className="space-y-2 pt-4">
-                    <h2 className="text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
-                      Analysis Result from{" "}
-                      <span className="text-[#4E7838] font-medium">
-                        Chess.com
-                      </span>
+                    <h2 className="flex gap-[8px] text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
+                      {!isSignedIn && (
+                        <Link href={'/'}>
+                          <FaArrowLeft className="font-normal text-[24px]" />
+                        </Link>
+                      )}
+                      Analysis Result from <span className="text-[#4E7838] font-medium">Chess.com</span>
                     </h2>
 
                     {isSignedIn && widthC <= 1024 && username && (

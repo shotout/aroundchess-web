@@ -563,10 +563,10 @@ function MobileNav(props: mobileProps) {
             <Image
               src="/icons/logo.png"
               alt="logo"
-              className="w-36 h-12"
+              width={199}
+              height={64}
               quality={100}
-              width={100}
-              height={100}
+              className="w-[125px] md:w-[199px] h-[40px] md:h-[64px] object-contain"
             />
           </Link>
         </div>
@@ -626,10 +626,10 @@ function MobileNav(props: mobileProps) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-[199px] h-[64px] object-contain"
+            width={199}
+            height={64}
             quality={100}
-            width={1000}
-            height={1000}
+            className="w-[125px] md:w-[199px] h-[40px] md:h-[64px] object-contain"
           />
         </Link>
       </div>
@@ -640,8 +640,8 @@ function MobileNav(props: mobileProps) {
           <Image
             src="/images/pricing/token-icon.png"
             alt="icon"
-            width={1000}
-            height={1000}
+            width={20}
+            height={20}
             className="w-[20px] h-[20px] object-contain"
           />
           <span className="block lg:text-[16px] text-[#221AE9] font-medium">

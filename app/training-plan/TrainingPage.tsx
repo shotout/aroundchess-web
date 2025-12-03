@@ -22,6 +22,7 @@ import {
 import { useChessProfile } from "@/components/analysis/onboarding/useChessProfile";
 import { useProfileStore } from "../store/profile";
 import { useGameTypeSync } from "./store/gameTypeSync";
+import { useTutorial } from "@/components/TutorialProvider";
 
 const ChessProgressionUI: React.FC = () => {
   const {
@@ -39,6 +40,7 @@ const ChessProgressionUI: React.FC = () => {
   const states = ["My Training Plan", "My Progress"];
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
+
   const {
     setOpeningPlayed,
     isLoading: pgnLoading,
@@ -209,7 +211,7 @@ const ChessProgressionUI: React.FC = () => {
 
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
-          My Training Plan
+          My Training Plan <sub className="text-xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>
         </h1>
         <p className="xl:hidden">({displayUsername || "User"})</p>
       </div>
