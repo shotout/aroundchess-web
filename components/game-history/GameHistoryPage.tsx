@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 import DotSpinner from "./Spinner";
-import HistoryTabs from "./components/HistoryTabs";
 import StatisticsSection from "./components/StatisticsSection";
 import ImportDialogButton from "./components/ImportDialogButton";
 import LoadingDot from "./components/LoadingDot";
@@ -14,6 +13,7 @@ import { useTutorial } from "../TutorialProvider";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { GameHistoriesTable } from "../game-histories-table";
 
 const GameHistoryPage: React.FC = () => {
   const pathname = usePathname();
@@ -95,8 +95,10 @@ const GameHistoryPage: React.FC = () => {
 
           <StatisticsSection username={username} />
         </div>
+        
+        <GameHistoriesTable />
 
-        <HistoryTabs username={username} />
+        {/* <HistoryTabs username={username} /> */}
       </main>
     </>
   );

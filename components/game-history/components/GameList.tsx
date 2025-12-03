@@ -505,11 +505,7 @@ const GamesList: React.FC<GamesListProps> = ({
               return (
                 <div
                   key={game.id}
-                  className={`grid relative transition-colors duration-150 ${
-                    isNew
-                      ? "bg-[#FFF6DB]"
-                      : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"
-                  }`}
+                  className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
                   style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
                 >
                   <AnalyzeGameHistory

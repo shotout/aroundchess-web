@@ -1,4 +1,5 @@
 import { fontFamily } from "tailwindcss/defaultTheme"
+import flowbiteReact from "flowbite-react/plugin/tailwindcss";
 
 /** @type {import('tailwindcss').Config} */
 export const content = [
@@ -6,6 +7,7 @@ export const content = [
   './components/**/*.{ts,tsx}',
   './app/**/*.{ts,tsx}',
   './src/**/*.{ts,tsx}',
+  './node_modules/react-tailwindcss-datepicker/dist/index.esm.{js,ts}',
 ]
 export const theme = {
   extend: {
@@ -114,4 +116,3 @@ export const theme = {
   },
 }
 export const plugins = [require("tailwindcss-animate")]
-

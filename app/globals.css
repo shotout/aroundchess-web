@@ -2,74 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+@source "../node_modules/flowbite-datepicker";
+
 @font-face {
-  font-family: 'AloeveraDisplay-Black';
-  src: url('/fonts/AloeveraDisplay-Black.ttf') format('truetype');
+  font-family: "AloeveraDisplay-Black";
+  src: url("/fonts/AloeveraDisplay-Black.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-Bold';
-  src: 
-  url('/fonts/AloeveraDisplay-Bold.ttf') format('truetype');
+  font-family: "AloeveraDisplay-Bold";
+  src: url("/fonts/AloeveraDisplay-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-ExtraBold';
-  src: 
-  url('/fonts/AloeveraDisplay-ExtraBold.ttf') format('truetype');
+  font-family: "AloeveraDisplay-ExtraBold";
+  src: url("/fonts/AloeveraDisplay-ExtraBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-ExtraLight';
-  src: 
-  url('/fonts/AloeveraDisplay-ExtraLight.ttf') format('truetype');
+  font-family: "AloeveraDisplay-ExtraLight";
+  src: url("/fonts/AloeveraDisplay-ExtraLight.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-Light';
-  src: 
-  url('/fonts/AloeveraDisplay-Light.ttf') format('truetype');
+  font-family: "AloeveraDisplay-Light";
+  src: url("/fonts/AloeveraDisplay-Light.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-Medium';
-  src: 
-  url('/fonts/AloeveraDisplay-Medium.ttf') format('truetype');
+  font-family: "AloeveraDisplay-Medium";
+  src: url("/fonts/AloeveraDisplay-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-Regular';
-  src: 
-  url('/fonts/AloeveraDisplay-Regular.ttf') format('truetype');
+  font-family: "AloeveraDisplay-Regular";
+  src: url("/fonts/AloeveraDisplay-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-SemiBold';
-  src: 
-  url('/fonts/AloeveraDisplay-SemiBold.ttf') format('truetype');
+  font-family: "AloeveraDisplay-SemiBold";
+  src: url("/fonts/AloeveraDisplay-SemiBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'AloeveraDisplay-Thin';
-  src: 
-  url('/fonts/AloeveraDisplay-Thin.ttf') format('truetype'),
-       ;
+  font-family: "AloeveraDisplay-Thin";
+  src: url("/fonts/AloeveraDisplay-Thin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -124,7 +117,6 @@
   z-index: 1001 !important;
 }
 
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -133,15 +125,13 @@
   scrollbar-width: none;
 }
 
-
 .recharts-wrapper {
-  margin : 0 auto;
+  margin: 0 auto;
 }
 
 * {
-  box-sizing: border-box
+  box-sizing: border-box;
 }
-
 
 @layer base {
   * {
@@ -166,16 +156,17 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
     opacity: 0.5;
   }
-} 
+}
 
 .bg-hero-chess {
-  background-image: url('/images/homepage/hero-banner-homepage.png');
+  background-image: url("/images/homepage/hero-banner-homepage.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -183,30 +174,30 @@
 
 @media (max-with: 1024px) {
   .bg-hero-chess {
-    background-image: url('/images/homepage/hero-banner-homepage-tablet.png');
+    background-image: url("/images/homepage/hero-banner-homepage-tablet.png");
   }
 }
 
 @media (max-with: 572px) {
   .bg-hero-chess {
-    background-image: url('/images/homepage/hero-banner-homepage-mobile.png');
+    background-image: url("/images/homepage/hero-banner-homepage-mobile.png");
   }
 }
 
 span {
-  font-family:'AloeveraDisplay-Regular' ;
+  font-family: "AloeveraDisplay-Regular";
 }
-h1{
-  font-family:'AloeveraDisplay-Regular' ;
+h1 {
+  font-family: "AloeveraDisplay-Regular";
 }
-h2{
-  font-family:'AloeveraDisplay-Regular' ;
+h2 {
+  font-family: "AloeveraDisplay-Regular";
 }
-div{
-  font-family:'AloeveraDisplay-Regular' ;
-};
-p{
-  font-family:'AloeveraDisplay-Regular' ;
+div {
+  font-family: "AloeveraDisplay-Regular";
+}
+p {
+  font-family: "AloeveraDisplay-Regular";
 }
 .animate-float {
   animation: float 6s ease-in-out infinite;
@@ -247,12 +238,12 @@ p{
 }
 
 .btn-primary {
-  background-color: #221AE9;
+  background-color: #221ae9;
   color: white;
-  border: 1px solid #1B14CC;
+  border: 1px solid #1b14cc;
   box-shadow: 0 0 1px 2px rgba(34, 26, 233, 0.7),
-              inset 0 0 0 2px rgba(78, 71, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7);
+    inset 0 0 0 2px rgba(78, 71, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7);
   transition: all 0.2s;
   position: relative;
 }
@@ -264,9 +255,8 @@ p{
 .btn-primary:focus {
   outline: none;
   box-shadow: 0 0 1px 2px rgba(34, 26, 233, 0.7),
-              inset 0 0 0 2px rgba(78, 71, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7),
-              0 0 0 3px rgba(34, 26, 233, 0.3);
+    inset 0 0 0 2px rgba(78, 71, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7), 0 0 0 3px rgba(34, 26, 233, 0.3);
 }
 
 /* .btn-primary:active {
@@ -275,25 +265,23 @@ p{
 
 /* Updated btn-secondary class */
 .btn-secondary {
-  background-color: #81CFF3;
-  color: #221AE9; /* or a darker color for better contrast */
-  border: 1px solid #3CA0CE;
+  background-color: #81cff3;
+  color: #221ae9; /* or a darker color for better contrast */
+  border: 1px solid #3ca0ce;
   padding: 0.5rem 1rem;
   box-shadow: 0 0 1px 2px rgba(129, 207, 243, 0.7),
-              inset 0 0 0 2px rgba(151, 222, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7);
+    inset 0 0 0 2px rgba(151, 222, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7);
   position: relative;
   transition: all 0.2s;
 }
 
-
-
 .btn-secondary:focus {
   outline: none;
   box-shadow: 0 0 1px 2px rgba(129, 207, 243, 0.7),
-              inset 0 0 0 2px rgba(151, 222, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7),
-              0 0 0 3px rgba(129, 207, 243, 0.3);
+    inset 0 0 0 2px rgba(151, 222, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(29, 144, 197, 0.7),
+    0 0 0 3px rgba(129, 207, 243, 0.3);
 }
 
 .btn-secondary:active {
@@ -301,12 +289,12 @@ p{
 }
 
 .btn-tertiary {
-  background-color: #E6F7FE;
-  border: 1px solid #C8EEFE;
+  background-color: #e6f7fe;
+  border: 1px solid #c8eefe;
   padding: 0.5rem 1rem;
   box-shadow: 0 0 1px 2px rgba(230, 247, 254, 0.7),
-              inset 0 0 0 2px rgba(255, 255, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7);
   position: relative;
   transition: all 0.2s;
   cursor: pointer;
@@ -319,23 +307,22 @@ p{
 .btn-tertiary:focus {
   outline: none;
   box-shadow: 0 0 1px 2px rgba(230, 247, 254, 0.7),
-              inset 0 0 0 2px rgba(255, 255, 255, 0.7),
-              inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7),
-              0 0 0 3px rgba(230, 247, 254, 0.3);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 2px 0 rgba(141, 215, 246, 0.7),
+    0 0 0 3px rgba(230, 247, 254, 0.3);
 }
 
 .btn-tertiary:active {
   transform: translateY(1px);
 }
 
-
 .btn-danger {
-  background-color: #C01B1B;
+  background-color: #c01b1b;
   color: white;
-  border: 1px solid #DB4646;
+  border: 1px solid #db4646;
   box-shadow: 0 0 1px 2px rgba(192, 27, 27, 0.7),
-              inset 0 0 0 2px rgba(192, 27, 27, 0.8),
-              inset 0 -2px 2px 0 rgba(192, 27, 27, 0.9);
+    inset 0 0 0 2px rgba(192, 27, 27, 0.8),
+    inset 0 -2px 2px 0 rgba(192, 27, 27, 0.9);
   transition: all 0.2s;
   position: relative;
 }
@@ -346,10 +333,9 @@ p{
 
 .btn-danger:focus {
   outline: none;
-  box-shadow:  0 0 1px 2px rgba(192, 27, 27, 0.7),
-  inset 0 0 0 2px rgba(192, 27, 27, 0.8),
-  inset 0 -2px 2px 0 rgba(192, 27, 27, 0.9),
-              0 0 0 3px rgba(192, 27, 27, 0.3);
+  box-shadow: 0 0 1px 2px rgba(192, 27, 27, 0.7),
+    inset 0 0 0 2px rgba(192, 27, 27, 0.8),
+    inset 0 -2px 2px 0 rgba(192, 27, 27, 0.9), 0 0 0 3px rgba(192, 27, 27, 0.3);
 }
 
 .btn-danger:active {
@@ -357,11 +343,17 @@ p{
 }
 
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
+.custom-datepicker input {
+  height: 32px;
+  border-radius: 8px;
+  background-color: #f8f9fc;
+  border-color: #d8dce0;
+}
