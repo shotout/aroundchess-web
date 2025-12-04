@@ -1,0 +1,33 @@
+import GamesTab from "./user-history/GamesTab";
+import Analytics from "./user-history/Analytics";
+import Performance from "./user-history/Performance";
+import { usePgnStore } from "@/app/store/zustandStore";
+
+const UserStatisticHistory: React.FC = () => {
+  const Tabs = ["Analytics", "Performance"] as const;
+  const { tab, setTab } = usePgnStore();
+
+  return (
+    <div className="w-full">
+      <div className="flex w-full p-[16px]">
+        <div className="flex rounded-[12px] items-center p-[8px] border border-[#F4F4F4] bg-[#F9FAFC]">
+          {Tabs.map((t, index) => (
+            <button
+              key={index}
+              onClick={() => setTab(t)}
+              className={`flex bg-transparent text-center py-[8px] px-[16px] rounded-[6px] text-[14px] font-semibold disabled:text-black disabled:border disabled:border-[#DEDEDE] disabled:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.1)]`}
+              disabled={tab === t}
+            >{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="xl:px-4 xl:mb-4">
+        {tab === "Analytics" && <Analytics />}
+        {tab === "Performance" && <Performance />}
+      </div>
+    </div>
+  );
+};
+
+export default UserStatisticHistory;
