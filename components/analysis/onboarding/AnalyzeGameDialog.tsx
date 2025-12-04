@@ -290,16 +290,16 @@ export function AnalyzeGameDialog({
 
   return (
     <div
-      className="fixed bg-black/50 z-50 flex items-center justify-center p-4 md:p-0"
-      style={{
-        top:
-          typeof window !== "undefined" && window.innerWidth >= 1024
-            ? headerHeightLg
-            : headerHeight,
-        left: sidebarWidth,
-        right: 0,
-        bottom: 0,
-      }}
+      className="fixed bg-black/50 z-[9999] flex items-center justify-center p-4 md:p-0 top-0 left-0 right-0 bottom-0"
+      // style={{
+      //   top:
+      //     typeof window !== "undefined" && window.innerWidth >= 1024
+      //       ? headerHeightLg
+      //       : headerHeight,
+      //   left: sidebarWidth,
+      //   right: 0,
+      //   bottom: 0,
+      // }}
       onClick={() => onOpenChange(false)}
     >
       <div

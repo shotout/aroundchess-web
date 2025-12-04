@@ -174,9 +174,8 @@ export default function Navigation({
               />
             )}
 
-            <div
-              className={`relative z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}
-            >
+            {/* <div className={`relative z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}> */}
+            <div className={`z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}>
               {children}
             </div>
 

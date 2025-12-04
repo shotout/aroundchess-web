@@ -4,8 +4,8 @@ import { usePagination } from "./pagination/hook/usePagination";
 import { useFilters } from "./game-history/hooks/useFilters";
 import { useGames } from "./game-history/hooks/useGameData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import Filters from "./game-history/components/Filters";
 import GamesList from "./game-history/components/GameList";
+import Timeframe from "./game-history/components/Timeframe";
 
 export function GameHistoriesTable() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -55,16 +55,7 @@ export function GameHistoriesTable() {
                     {/* Mobile */}
                     <div className="w-full lg:hidden">
                         <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
-                        <Datepicker
-                            theme={{
-                                root: { base: "custom-datepicker" },
-                                popup: {
-                                    root: { base: "right-0", inner: "rounded-[8px] bg-white dark:bg-white" },
-                                    header: { selectors: { button: { base: "bg-white rounded-[8px] dark:bg-white" } } },
-                                    footer: { button: { clear: "bg-white rounded-[8px] dark:bg-white" } }
-                                }
-                            }}
-                        />
+                        <Timeframe />
                     </div>
 
                     <div className="w-full lg:w-1/3">
@@ -142,16 +133,7 @@ export function GameHistoriesTable() {
                     {/* Desktop */}
                     <div className="w-1/5 hidden lg:flex flex-col">
                         <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
-                        <Datepicker
-                            theme={{
-                                root: { base: "custom-datepicker" },
-                                popup: {
-                                    root: { base: "right-0", inner: "rounded-[8px] bg-white dark:bg-white" },
-                                    header: { selectors: { button: { base: "bg-white rounded-[8px] dark:bg-white" } } },
-                                    footer: { button: { clear: "bg-white rounded-[8px] dark:bg-white" } }
-                                }
-                            }}
-                        />
+                        <Timeframe />
                     </div>
                 </div>
 

@@ -61,12 +61,12 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
-        paddingTop: headerHeight + 16,
-        paddingBottom: 16,
-        paddingRight: 16,
-      }}
+      // style={{
+      //   paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
+      //   paddingTop: headerHeight + 16,
+      //   paddingBottom: 16,
+      //   paddingRight: 16,
+      // }}
     >
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"

@@ -59,7 +59,8 @@ const GameHistoryPage: React.FC = () => {
 
   return (
     <>
-      <main className="w-full  bg-primary-white relative">
+      {/* <main className="w-full  bg-primary-white relative"> */}
+      <main className="w-full  bg-primary-white">
         <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
         <div className="p-4">
           <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
