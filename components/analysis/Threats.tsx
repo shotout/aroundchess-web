@@ -59,7 +59,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                     <div className="flex flex-row justify-between items-center gap-2 mb-2">
                       <span
                         onClick={() => handleOnClickMovement(item)}
-                        className="cursor-pointer text-[10px] flex flex-row justify-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
+                        className="cursor-pointer text-[14px] --10px flex flex-row justify-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                       >
                         Move {item?.moveNumber}:{" "}
                         {capturedWhite &&
@@ -79,15 +79,15 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                             })}
                         <span className="font-bold">{item?.move}</span>
                       </span>
-                      <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-md font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
+                      <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-center text-[#FFA459] border border-[#FFA459] rounded-[4px] p-1 sm:p-2">
                         {item?.threatType}
                       </span>
                     </div>
-                    <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal">
+                    <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal">
                     <span className="font-bold">Analysis:</span> {item?.explanation}
                     </span>
                     <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                      <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+                      <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
                        <span className="font-bold">Recommendation:</span> {item?.solution}
                       </span>
                     </div>

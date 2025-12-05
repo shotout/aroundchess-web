@@ -401,7 +401,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                     <div className="font-semibold text-[14px] --xs flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
-                    <div className="text-[10px] text-gray-600 flex items-center justify-center">
+                    <div className="text-[14px] --10px text-gray-600 flex items-center justify-center">
                       <span className="whitespace-nowrap">ELO {level.elo}</span>
                     </div>
                   </div>

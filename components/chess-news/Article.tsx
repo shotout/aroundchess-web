@@ -148,10 +148,10 @@ export default function Article() {
                     )}
                     <div className="px-2 py-1">
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500">
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px] text-gray-500">
                           {formatDateNews(article.publishedAt)}
                         </p>
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap">
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap">
                           {article.category?.name || "Uncategorized"}
                         </p>
                       </div>
@@ -194,10 +194,10 @@ export default function Article() {
                       />
                       <div className="flex flex-col flex-1 gap-1 sm:gap-2 min-w-0">
                         <div className="flex flex-row justify-between items-center gap-2">
-                          <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500 truncate">
+                          <p className="block text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px] text-gray-500 truncate">
                             {formatDateNews(article.publishedAt)}
                           </p>
-                          <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap flex-shrink-0">
+                          <span className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap flex-shrink-0">
                             {article.category.name}
                           </span>
                         </div>

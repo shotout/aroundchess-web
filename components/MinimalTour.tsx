@@ -528,7 +528,7 @@ export default function MinimalTour({
               }}
               className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center"
             >
-              <span className="text-white font-semibold text-[10px] sm:text-[14px] --">
+              <span className="text-white font-semibold text-[14px] --10px sm:text-[14px] --">
                 Start Game Analysis
               </span>
             </div>

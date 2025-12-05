@@ -196,7 +196,7 @@ const MistakeLog = () => {
                     : `border border-[#C0CED4] bg-white shadow-md font-medium `
                 }`}
               >
-                <span className="min-w-max text-[10px] sm:text-[14px] line-clamp-1">
+                <span className="min-w-max text-[14px] --10px sm:text-[14px] line-clamp-1">
                   {hist.title}
                 </span>
               </div>

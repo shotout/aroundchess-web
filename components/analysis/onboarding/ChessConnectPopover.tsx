@@ -271,7 +271,7 @@ export const ChessConnectDialog = ({
 
   return (
     <div
-      className="fixed bg-black/50 z-[9999] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
+      className="fixed bg-black/50 z-[10] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
       // style={{
       //   top: topOffset,
       //   left: sidebarWidth,
@@ -318,7 +318,7 @@ export const ChessConnectDialog = ({
               </p>
               <div className="text-blue-base border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
                 <AlertCircle className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
-                <h1 className="text-[10px] md:text-[14px]">
+                <h1 className="text-[14px] --10px md:text-[14px]">
                   Enter the Chess.com Username that you would like to connect to
                   your AroundChess Account (Once you save it, it cannot be
                   changed)

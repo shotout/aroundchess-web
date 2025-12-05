@@ -57,7 +57,7 @@ export function WhiteEliminatedPieces() {
         ))}
       </div>
       {totalPoints > 0 && (
-        <div className="mt-1 text-[10px] text-gray-600 font-medium text-center">
+        <div className="mt-1 text-[14px] --10px text-gray-600 font-medium text-center">
           {totalPoints} pts
         </div>
       )}
@@ -107,7 +107,7 @@ export function BlackEliminatedPieces() {
         ))}
       </div>
       {totalPoints > 0 && (
-        <div className="mt-1 text-[10px] text-gray-600 font-medium text-center">
+        <div className="mt-1 text-[14px] --10px text-gray-600 font-medium text-center">
           {totalPoints} pts
         </div>
       )}

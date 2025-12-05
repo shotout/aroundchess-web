@@ -9,7 +9,7 @@ const UserStatisticHistory: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="flex w-full p-[16px]">
+      <div className="hidden md:flex w-full p-[16px]">
         <div className="flex rounded-[12px] items-center p-[8px] border border-[#F4F4F4] bg-[#F9FAFC]">
           {Tabs.map((t, index) => (
             <button
@@ -20,6 +20,17 @@ const UserStatisticHistory: React.FC = () => {
             >{t}</button>
           ))}
         </div>
+      </div>
+
+      <div className="flex md:hidden w-full border-t border-b border-[#C0CED4]">
+        {Tabs.map((t, index) => (
+          <button
+            key={index}
+            onClick={() => setTab(t)}
+            className={`flex-1 bg-transparent text-center py-[8px] px-[16px] text-[14px] font-semibold disabled:text-[#221AE9] disabled:border-b-[2px] disabled:border-[#221AE9]`}
+            disabled={tab === t}
+          >{t}</button>
+        ))}
       </div>
 
       <div className="xl:px-4 xl:mb-4">

@@ -35,7 +35,7 @@ export function EliminatedPieces({
             />
             <div>
               {count > 1 && (
-                <span className="right-0.5 bottom-[0%] absolute text-[10px] font-semibold dark:text-black">
+                <span className="right-0.5 bottom-[0%] absolute text-[14px] --10px font-semibold dark:text-black">
                   {count}
                 </span>
               )}

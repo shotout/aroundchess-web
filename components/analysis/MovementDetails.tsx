@@ -278,7 +278,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                             )}
                             {whiteInsight?.recommendation && (
                               <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                                <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+                                <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
                                   <span className="font-bold">Recommendation: </span>
                                   {whiteInsight.recommendation}
                                 </span>
@@ -421,7 +421,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                                 )}
                                 {blackInsight?.recommendation && (
                                   <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                                    <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+                                    <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
                                       <span className="font-bold">Recommendation: </span>
                                       {blackInsight.recommendation}
                                     </span>

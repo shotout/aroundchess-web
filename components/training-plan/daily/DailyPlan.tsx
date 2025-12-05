@@ -137,7 +137,7 @@ const DailyPlan = () => {
           <div className="flex items-center justify-between mb-2">
             <h1 className="font-bold text-[14px] --sm">
               Today's Training{" "}
-              <span className="text-gray-500 font-normal text-[10px]">
+              <span className="text-gray-500 font-normal text-[14px] --10px">
                 {"(Thursday, 27 February 2025)"}
               </span>
             </h1>

@@ -300,7 +300,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     {diff.label}
                   </div>
                 </div>
-                <div className="text-[10px] sm:text-[14px] --xs text-gray-500">{diff.range}</div>
+                <div className="text-[14px] --10px sm:text-[14px] --xs text-gray-500">{diff.range}</div>
               </div>
             </button>
           ))}
@@ -343,7 +343,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                   </div>
                   <div className="text-center">
                     <div
-                      className={`text-[10px] sm:text-[14px] --xs lg:text-[14px] --xs font-medium ${
+                      className={`text-[14px] --10px sm:text-[14px] --xs lg:text-[14px] --xs font-medium ${
                         selectedOpponent === opponent.id
                           ? "text-blue-base"
                           : "text-gray-900"

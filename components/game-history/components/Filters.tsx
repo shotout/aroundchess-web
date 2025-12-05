@@ -220,13 +220,13 @@ const Filters: React.FC<FiltersProps> = ({
                 className="btn-secondary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
                 <Filter className="h-4 w-4" />
-                <span className="text-[14px] --xs sm:text-[10px]">Apply Filters</span>
+                <span className="text-[14px] --xs sm:text-[14px] --10px">Apply Filters</span>
               </Button>
               <Button
                 onClick={handleClearFilters}
                 className="btn-tertiary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
-                <span className="text-[14px] --xs sm:text-[10px]">Clear Filters</span>
+                <span className="text-[14px] --xs sm:text-[14px] --10px">Clear Filters</span>
               </Button>
             </div>
           </Card>

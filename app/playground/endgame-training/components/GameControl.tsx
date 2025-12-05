@@ -87,7 +87,7 @@ export default function GameControls({
             className="w-4 h-4"
           />
 
-          <h1 className="text-[10px] md:text-[14px] --xs text-nowrap">Share PGN/FEN</h1>
+          <h1 className="text-[14px] --10px md:text-[14px] --xs text-nowrap">Share PGN/FEN</h1>
         </button>
         <button
           onClick={resetPosition}
@@ -100,13 +100,13 @@ export default function GameControls({
             height={16}
             className="w-4 h-4 "
           />
-          <span className="text-[10px] md:text-[14px] --xs">Restart</span>
+          <span className="text-[14px] --10px md:text-[14px] --xs">Restart</span>
         </button>
         <button
           onClick={navigateNext}
           className="flex gap-x-1 2xl:gap-x-2 items-center justify-center p-3 btn-primary rounded-full border"
         >
-          <span className="text-[10px] md:text-[14px] --xs">Next Stage</span>
+          <span className="text-[14px] --10px md:text-[14px] --xs">Next Stage</span>
           <Image
             src={"/endgame-training/Union.png"}
             alt="arrow right icon"

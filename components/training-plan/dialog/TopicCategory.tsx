@@ -33,7 +33,7 @@ const TopicCategory: React.FC<TopicCategoryProps> = ({
         </div>
         <h3 className="text-[14px] --xs text-nowrap font-medium">{title}</h3>
         {showLimit && (
-          <span className="text-[10px] text-gray-500">(select up to 3)</span>
+          <span className="text-[14px] --10px text-gray-500">(select up to 3)</span>
         )}
       </div>
       <div className="border p-4 rounded-lg">

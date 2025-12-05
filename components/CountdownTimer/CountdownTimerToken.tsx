@@ -47,7 +47,7 @@ const DigitFlip = ({ value }: { value: number }) => {
 const TimeBox = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-col items-center space-y-1">
     <DigitFlip value={value} />
-    <span className="text-[10px] md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">
+    <span className="text-[14px] --10px md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">
       {label}
     </span>
   </div>

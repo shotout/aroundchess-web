@@ -228,7 +228,7 @@ const WeeklyPlan = () => {
                   style={{ width: `${dailyCompletionPercentages[day]}%` }}
                 ></div>
               </div>
-              <div className="text-blue-base font-medium text-[10px]">
+              <div className="text-blue-base font-medium text-[14px] --10px">
                 Progress:{" "}
                 <span className="text-green-400">
                   {dailyCompletionPercentages[day]}%
@@ -349,7 +349,7 @@ const WeeklyPlan = () => {
                     <p className="text-[14px] --xs text-gray-500">{stat.title}</p>
                     <h2 className="text-base font-semibold">{stat.value}</h2>
                     {stat.trend && (
-                      <p className={`text-[10px] ${stat.trendColor}`}>
+                      <p className={`text-[14px] --10px ${stat.trendColor}`}>
                         {stat.trend}
                       </p>
                     )}

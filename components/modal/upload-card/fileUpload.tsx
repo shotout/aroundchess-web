@@ -61,7 +61,7 @@ export function FileUploadCard({
             className="flex flex-row items-center gap-2 bg-[#FFE3E3] border border-[#FFC9C9] h-[32px] rounded-full p-[10px]"
           >
             <Trash2 size={16} color="#FD0000" />
-            <span className="font-medium text-[10px] text-[#FD0000]">
+            <span className="font-medium text-[14px] --10px text-[#FD0000]">
               Delete File
             </span>
           </button>

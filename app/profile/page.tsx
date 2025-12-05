@@ -20,6 +20,7 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
 import { usePricingOffer } from "../store/pricingOffer";
+import MyStatistics from "@/components/profile/MyStatistics";
 function Profile() {
   const { paramsPayment } = usePricingOffer();
   const searchParams = useSearchParams();
@@ -106,6 +107,7 @@ function Profile() {
               }`}
             >
               <MyAccount onLogoutStart={() => setIsLoggingOut(true)} />
+              <MyStatistics />
               <MySubscription />
               <MyRemainingAnalysisTokens />
               <MyRemainingPuzzle />

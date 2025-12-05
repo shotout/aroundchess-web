@@ -144,7 +144,7 @@ export function AnalysisSection() {
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"
@@ -192,7 +192,7 @@ export function AnalysisSection() {
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"
@@ -240,7 +240,7 @@ export function AnalysisSection() {
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"

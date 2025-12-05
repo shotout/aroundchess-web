@@ -267,7 +267,7 @@ export const PricingOffer: React.FC = () => {
               <TabsList className="flex h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
+                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[14px] --10px lg:text-[16px] rounded-[6px] ${
                     activeTab == "tokens"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"
@@ -292,7 +292,7 @@ export const PricingOffer: React.FC = () => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="subscription"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[10px] lg:text-[16px] rounded-[6px] ${
+                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[14px] --10px lg:text-[16px] rounded-[6px] ${
                     activeTab == "subscription"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"

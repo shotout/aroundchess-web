@@ -457,14 +457,14 @@ export function AnalyzeDifferentGame({
                 <span className="font-normal text-[14px] -- md:text-[14px]">
                   {depth.title}
                 </span>
-                <span className="font-light text-[#364152] text-center text-[10px] md:text-[11px]">
+                <span className="font-light text-[#364152] text-center text-[14px] --10px md:text-[11px]">
                   {depth.description}
                 </span>
                 {/* <div className="flex flex-col gap-1 items-center">
-                  <span className="font-medium text-[10px]">
+                  <span className="font-medium text-[14px] --10px">
                     Analysis can take up to:
                   </span>
-                  <span className="font-medium text-[10px]  ">{estimate}</span>
+                  <span className="font-medium text-[14px] --10px  ">{estimate}</span>
                 </div> */}
               </button>
             );
@@ -671,7 +671,7 @@ export function AnalyzeDifferentGame({
                     onChange={(e) => setPgnText(e.target.value)}
                   />
                 </div>
-                <span className="flex items-center justify-center text-black text-[10px] md:text-[14px] --xs text-center font-bold">
+                <span className="flex items-center justify-center text-black text-[14px] --10px md:text-[14px] --xs text-center font-bold">
                   Or upload a .PGN file below:
                 </span>
                 <div
@@ -699,14 +699,14 @@ export function AnalyzeDifferentGame({
                       <p className="text-gray-800 font-medium mb-1">
                         {fileName}
                       </p>
-                      <p className="text-gray-500 text-[10px] md:text-[14px] --sm">
+                      <p className="text-gray-500 text-[14px] --10px md:text-[14px] --sm">
                         {(fileSize / 1024).toFixed(1)} KB
                       </p>
                     </div>
                   ) : (
                     <div className="text-center lg:h-48 flex flex-col items-center justify-center">
                       <UploadCloud className="h-10 w-10 mx-auto text-blue-600 mb-2" />
-                      <p className="block text-[10px] md:text-[14px] --sm text-black-700 mb-1">
+                      <p className="block text-[14px] --10px md:text-[14px] --sm text-black-700 mb-1">
                         Drag & drop or click to
                         <span
                           className="underline text-blue-600 font-bold cursor-pointer"
@@ -735,7 +735,7 @@ export function AnalyzeDifferentGame({
                 <div className="flex-shrink-0 w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
                   <Info className="text-blue-base" />
                 </div>
-                <p className="text-[10px] md:text-[14px] --sm text-blue-base">
+                <p className="text-[14px] --10px md:text-[14px] --sm text-blue-base">
                   If you want to analyse more, check the My Game History page
                 </p>
               </div>

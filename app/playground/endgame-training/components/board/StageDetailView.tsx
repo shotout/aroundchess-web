@@ -742,7 +742,7 @@ export default function StageDetailView({
           {!isSolved && (
             <div className="flex gap-x-[2px] w-full justify-between sm:justify-center">
               <button
-                className="flex gap-x-1 text-[10px] items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-1 text-[14px] --10px items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                 onClick={() => setShowHint(true)}
               >
                 <Image
@@ -769,7 +769,7 @@ export default function StageDetailView({
                   width={10}
                   height={10}
                 />
-                <span className="text-[10px]">
+                <span className="text-[14px] --10px">
                   {isAutoSolution ? "Solving..." : "Show Solution"}
                 </span>
               </button>
@@ -784,14 +784,14 @@ export default function StageDetailView({
                   width={10}
                   height={10}
                 />
-                <span className="text-[10px]">Restart</span>
+                <span className="text-[14px] --10px">Restart</span>
               </button>
 
               <button
                 onClick={navigateNext}
                 className="flex gap-x-[2px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
               >
-                <span className="text-[10px]">Next Stage</span>
+                <span className="text-[14px] --10px">Next Stage</span>
                 <Image
                   src={"/endgame-training/Union.png"}
                   alt="arrow right icon"

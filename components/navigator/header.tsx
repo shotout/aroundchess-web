@@ -265,7 +265,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   return (
     <header
-      className={`fixed xl:sticky top-0 z-100 flex w-full items-center ${
+      className={`fixed xl:sticky top-0 z-10 flex w-full items-center ${
         isGuestMode ? "justify-between xl:justify-center" : "justify-between"
       } ${
         isEndgameTraining && !isDesktop ? "bg-[#E6F7FE]" : "bg-white border-b"
@@ -301,7 +301,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               .replace("-", " ")
               .replace(/\b\w/g, (l) => l.toUpperCase())}
           </h1>
-          <p className="sm:hidden text-[10px] text-gray-500">
+          <p className="sm:hidden text-[14px] --10px text-gray-500">
             ({profile?.username || "User"})
           </p>
         </div>

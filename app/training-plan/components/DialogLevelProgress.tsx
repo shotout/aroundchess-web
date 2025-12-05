@@ -255,7 +255,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
                   <div className="font-semibold text-[14px] --xs xl:text-[14px] --sm flex items-center justify-center">
                     <span className="truncate max-w-full">{level.title}</span>
                   </div>
-                  <div className="text-[10px] xl:text-[14px] --xs text-gray-600 flex items-center justify-center">
+                  <div className="text-[14px] --10px xl:text-[14px] --xs text-gray-600 flex items-center justify-center">
                     <span className="whitespace-nowrap">ELO {level.elo}</span>
                   </div>
                 </div>

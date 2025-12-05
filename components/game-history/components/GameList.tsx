@@ -578,7 +578,7 @@ const GamesList: React.FC<GamesListProps> = ({
                             "bg-gray-700"
                           } h-8 w-full rounded-3xl ${
                             btn.text === "Just one more moment..."
-                              ? "text-[10px]"
+                              ? "text-[14px] --10px"
                               : "text-[14px] --xs "
                           } flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
                           onClick={btn.onClick}

@@ -94,7 +94,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
       </span>
       {item.recommendation && (
         <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-          <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+          <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
             <span className="font-bold">Recommendation: </span>
             {item.recommendation}
           </span>
@@ -102,7 +102,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
       )}
       {item.explanation && (
         <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-          <span className="text-[10px] sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+          <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
             <span className="font-bold">Recommendation: </span>
             {item.explanation}
           </span>
@@ -168,7 +168,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                         <div className="flex flex-row gap-2 items-center">
                           <span
                             onClick={() => handleOnClickMovement(item)}
-                            className="cursor-pointer text-[10px] flex flex-row items-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
+                            className="cursor-pointer text-[14px] --10px flex flex-row items-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                           >
                             Move {item?.moveNumber}:{" "}
                             {capturedWhite &&
@@ -286,7 +286,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
                         <div className="flex flex-row gap-2 items-center">
                           <span
                             onClick={() => handleOnClickMovement(item)}
-                            className="cursor-pointer text-[10px] flex flex-row items-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
+                            className="cursor-pointer text-[14px] --10px flex flex-row items-center text-center sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1 gap-1"
                           >
                             Move {item?.moveNumber}:{" "}
                             {capturedWhite &&

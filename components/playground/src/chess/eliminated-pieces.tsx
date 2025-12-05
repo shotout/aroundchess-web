@@ -35,7 +35,7 @@ export function EliminatedPieces({ color, pieces }: EliminatedPiecesProps) {
               className="drop-shadow-md transform group-hover:scale-105 transition-transform duration-200"
             />
             {count > 1 && (
-              <div className="absolute -right-1.5 -bottom-1 bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-bold text-white rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-white/30 transform group-hover:scale-110 transition-transform duration-200">
+              <div className="absolute -right-1.5 -bottom-1 bg-gradient-to-br from-blue-500 to-indigo-600 text-[14px] --10px font-bold text-white rounded-full w-4 h-4 flex items-center justify-center shadow-lg border border-white/30 transform group-hover:scale-110 transition-transform duration-200">
                 {count}
               </div>
             )}

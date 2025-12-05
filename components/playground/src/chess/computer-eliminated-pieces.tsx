@@ -88,7 +88,7 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
                   unoptimized
                 />
                 {count > 1 && (
-                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
+                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[14px] --10px font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
                     {count}
                   </span>
                 )}

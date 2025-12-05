@@ -767,17 +767,17 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
       />
       <div className="text-center flex flex-col justify-end px-1">
         {firstPart == "Analyze Games" ? (
-          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-normal text-gray-900 leading-tight">
             Analyze <br /> Games
           </p>
         ) : (
-          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-normal text-gray-900 leading-tight">
             {firstPart}
             {hasColon ? ":" : ""}
           </p>
         )}
         {secondPart ? (
-          <p className="text-[10px] font-medium text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-medium text-gray-900 leading-tight">
             {secondPart}
           </p>
         ) : (

@@ -207,7 +207,7 @@ export const usePgnStore = create<PgnState>()(
       profileShow: {},
       setProfileShow: (profileShow) => set({ profileShow }),
 
-      tab: "Games",
+      tab: "Analytics",
       setTab: (tab: string) => set({ tab }),
 
       tabSelected: "saved",

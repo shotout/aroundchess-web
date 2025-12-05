@@ -841,7 +841,7 @@ const chartRange = React.useMemo(() => {
                                 <div className="font-medium text-[14px] -- truncate max-w-[8rem]">
                                   {game.opponent}
                                 </div>
-                                <div className="text-gray-500 text-[10px] -ml-1">
+                                <div className="text-gray-500 text-[14px] --10px -ml-1">
                                   Rating: {game.rating}
                                 </div>
                               </td>

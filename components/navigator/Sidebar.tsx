@@ -265,7 +265,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const sidebarContent = (
-    <div className="flex h-full flex-col z-100">
+    <div className="flex h-full flex-col z-10">
       {/* Logo */}
       <motion.div
         className="flex md:h-24 py-[8px] items-center px-6 md:justify-center sm:border-b mb-[16px]"

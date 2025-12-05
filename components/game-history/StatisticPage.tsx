@@ -64,7 +64,7 @@ const StatisticPage: React.FC = () => {
       {/* <main className="w-full  bg-primary-white relative"> */}
       <main className="w-full  bg-primary-white">
         <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
-        <div className="p-4">
+        <div className="p-4 bg-[#E6F7FE] lg:bg-white">
           <div className="flex justify-between items-center xl:mb-4">
             <div className="flex flex-row items-center gap-1 md:gap-2">
               <h1 className="text-[14px] --sm md:text-2xl xl:text-[32px] font-bold">

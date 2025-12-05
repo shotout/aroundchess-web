@@ -367,10 +367,10 @@ const Statistics = () => {
               <tbody>
                 {recentGames.map((game, index) => (
                   <tr key={index} className="border-b border-gray-100">
-                    <td className="p-2 text-[10px] text-nowrap">{game.date}</td>
+                    <td className="p-2 text-[14px] --10px text-nowrap">{game.date}</td>
                     <td className="p-2">
                       <div className="text-[14px] --xs font-medium">{game.opponent}</div>
-                      <div className="text-[10px] text-gray-500">
+                      <div className="text-[14px] --10px text-gray-500">
                         Rating: {game.rating}
                       </div>
                     </td>
@@ -392,15 +392,15 @@ const Statistics = () => {
                       <div className="flex flex-col space-y-2 text-[14px] --xs">
                         <div className="flex items-center">
                           <Target className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1" />
-                          <span className="text-[10px]">{game.accuracy}%</span>
+                          <span className="text-[14px] --10px">{game.accuracy}%</span>
                         </div>
                         <div className="flex items-center">
                           <TriangleAlert className="w-4 h-4 rounded-full text-yellow-500 flex items-center justify-center mr-1" />
-                          <span className="text-[10px]">{game.brilliant}</span>
+                          <span className="text-[14px] --10px">{game.brilliant}</span>
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1" />
-                          <span className="text-[10px]">{game.mistakes}</span>
+                          <span className="text-[14px] --10px">{game.mistakes}</span>
                         </div>
                       </div>
                     </td>
@@ -410,7 +410,7 @@ const Statistics = () => {
             </table>
           </div>
 
-          <div className="flex items-center justify-between mt-3 gap-x-1 text-[14px] --xs md:text-[10px]">
+          <div className="flex items-center justify-between mt-3 gap-x-1 text-[14px] --xs md:text-[14px] --10px">
             <div className="flex items-center">
               <Trophy className="w-4 h-4 text-green-500 rounded-sm mr-1" />
               <span>Win Rate: {winRate}%</span>

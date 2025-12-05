@@ -124,7 +124,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               {/* Button stays at bottom */}
               <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-4 py-2 cursor-pointer btn-primary">
                 <BookOpen className="h-4 w-4" />
-                <span className="text-[10px] md:text-[14px] --sm">Start Learning</span>
+                <span className="text-[14px] --10px md:text-[14px] --sm">Start Learning</span>
               </div>
             </div>
           </Card>

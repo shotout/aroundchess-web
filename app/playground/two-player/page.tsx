@@ -875,12 +875,12 @@ export default function TwoPlayerPage() {
                                   unoptimized
                                 />
                                 {count > 1 && (
-                                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
+                                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[14px] --10px font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
                                     {count}
                                   </span>
                                 )}
                               </div>
-                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-gray-800/90 text-white rounded px-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[14px] --10px font-medium bg-gray-800/90 text-white rounded px-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                 {getPieceValue(piece)} pts
                               </div>
                             </div>
@@ -910,12 +910,12 @@ export default function TwoPlayerPage() {
                                   unoptimized
                                 />
                                 {count > 1 && (
-                                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
+                                  <span className="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 text-[14px] --10px font-semibold rounded-full bg-indigo-500 text-white shadow-sm">
                                     {count}
                                   </span>
                                 )}
                               </div>
-                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-gray-800/90 text-white rounded px-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[14px] --10px font-medium bg-gray-800/90 text-white rounded px-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                 {getPieceValue(piece)} pts
                               </div>
                             </div>

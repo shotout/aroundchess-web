@@ -171,15 +171,15 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(whiteOpening)}
-                className="max-w-1/2 cursor-pointer text-[10px] sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
+                className="max-w-1/2 cursor-pointer text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-[14px] --xs md:text-md lg:text-md font-bold">
+                <span className="text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md font-bold">
                   {whiteOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
                   whiteOpening.classification
                 )}`}
               >
@@ -205,15 +205,15 @@ const Opening: React.FC<OpeningProps> = (props) => {
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(blackOpening)}
-                className="w-1/2 cursor-pointer text-[10px] sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
+                className="w-1/2 cursor-pointer text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-[14px] --xs md:text-md lg:text-md font-bold">
+                <span className="text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md font-bold">
                   {blackOpening.moves}
                 </span>
               </span>
               <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
                   blackOpening.classification
                 )}`}
               >

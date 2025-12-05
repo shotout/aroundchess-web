@@ -171,7 +171,7 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
             data={barData}
             margin={{ top: 10, right: 10, bottom: 5, left: -25 }}
             layout="horizontal"
-            className="text-[10px]"
+            className="text-[14px] --10px"
             {...barChartProps}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#999" />

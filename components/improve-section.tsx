@@ -121,7 +121,7 @@ export function ImproveSection() {
                                 "<b>$1</b>"
                               ),
                             }}
-                            className="text-[#ffffff] font-normal text-[10px] sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 px-4 md:-ml-6 lg:ml-0"
+                            className="text-[#ffffff] font-normal text-[14px] --10px sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 px-4 md:-ml-6 lg:ml-0"
                           ></span>
                         </div>
                       </div>

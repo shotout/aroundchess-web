@@ -201,17 +201,17 @@ export default function Detail() {
                     )}
                     <CardContent className="px-2">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px]">
                           {formatDateNews(article.publishedAt)}
                         </p>
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
                           {article?.category?.name || "Uncategorized"}
                         </p>
                       </div>
                       <h2 className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold mt-2">
                         {article.title || "Untitled"}
                       </h2>
-                      <h2 className="line-clamp-3 text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] font-normal mt-2">
+                      <h2 className="line-clamp-3 text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px] font-normal mt-2">
                         {article.title || "Untitled"}
                       </h2>
                     </CardContent>
@@ -254,10 +254,10 @@ export default function Detail() {
                   )}
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row justify-between items-center">
-                      <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px]">
+                      <p className="block text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px]">
                         {formatDateNews(article.publishedAt)}
                       </p>
-                      <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
+                      <span className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
                         {article?.category?.name || "Uncategorized"}
                       </span>
                     </div>

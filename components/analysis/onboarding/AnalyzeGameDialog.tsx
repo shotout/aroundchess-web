@@ -559,7 +559,7 @@ export function AnalyzeGameDialog({
                         </span>{" "}
                         a file
                       </p>
-                      <p className="block text-[10px] text-gray-700 mb-1">
+                      <p className="block text-[14px] --10px text-gray-700 mb-1">
                         Maximum file size: 5MB
                       </p>
                     </div>
