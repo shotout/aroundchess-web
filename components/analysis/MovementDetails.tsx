@@ -521,7 +521,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between mt-4 mx-2 mb-2">
+      <div className="flex flex-col md:flex-row justify-between gap-[8px] md:gap-[16px] mt-4 mx-2 mb-2">
         <button
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"

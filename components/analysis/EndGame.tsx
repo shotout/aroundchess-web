@@ -87,7 +87,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         {/* best moves  */}
-        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md py-3 md:px-[3]">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image
@@ -167,13 +167,22 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               {item.evaluation}
                             </span>
                           </div>
-                          <span
-                            className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
-                              item.classification
-                            )}`}
-                          >
-                            {item.classification}
-                          </span>
+
+                          <div className="flex items-center gap-[10px]">
+                            <span
+                              className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                                item.classification
+                              )}`}
+                            >
+                              {item.classification}
+                            </span>
+                            
+                            <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
+                              <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md font-normal">
                           <span className="font-bold">Analysis: </span>
@@ -217,7 +226,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
           )}
         </div>
         {/* critical mistakes moves  */}
-        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md py-3 md:px-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image
@@ -297,13 +306,22 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               {item.evaluation}
                             </span>
                           </div>
-                          <span
-                            className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
-                              item.classification
-                            )}`}
-                          >
-                            {item.classification}
-                          </span>
+
+                          <div className="flex items-center gap-[10px]">
+                            <span
+                              className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                                item.classification
+                              )}`}
+                            >
+                              {item.classification}
+                            </span>
+
+                            <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
+                              <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md font-normal">
                           <span className="font-bold">Analysis: </span>
@@ -348,7 +366,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+      <div className="flex flex-col md:flex-row justify-between gap-[8px] md:gap-[16px] mt-2 mx-2 mb-2">
         <button
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"

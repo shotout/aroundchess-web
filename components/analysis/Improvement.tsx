@@ -19,14 +19,14 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
     content,
   }) => {
     return (
-      <div className="border border-gray-300 rounded-lg p-3 ">
-        <h3 className="font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md mb-2">
+      <div className="px-[16px] py-[8px]">
+        <h3 className="font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md mb-[16px]">
           {title}
         </h3>
         <ul className="list-disc list-inside text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-gray-700">
           {content.map((item, index) => (
             <li
-              className="ml-2"
+              className="px-[16px] -indent-[16px]"
               key={index}
               dangerouslySetInnerHTML={{
                 __html: item.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"),
@@ -39,35 +39,37 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-2 bg-white px-4 bg-white p-4 rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        <div className="flex flex-row items-center gap-2">
+      <div className="flex flex-col justify-center gap-2 bg-white rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] lg:overflow-auto">
+        <div className="flex flex-row border-b p-4 items-center gap-2">
           <Image
             alt=""
             src={"/icons/improvement-recommendation-icon.png"}
-            width={1000}
-            height={1000}
-            className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:w-10"
+            width={24}
+            height={24}
+            className="w-6 h-6 sm:w-8 sm:h-[24px] md:w-[24px]"
           />
-          <h3 className="text-lg sm:text-lg md:text-xl lg:text-md  font-semibold flex items-center">
+          <h3 className="text-[16px] sm:text-[18px] md:text-xl lg:text-md  font-semibold flex items-center">
             Improvement Recommendation
           </h3>
         </div>
 
-        <Section
-          title="Current Games - Key Weaknesses:"
-          content={[
-            `**Tactical Awareness:** ${keyWeaknesses.tacticalAwareness}.`,
-            `**Opening Preparation:** ${keyWeaknesses.openingPreparation}.`,
-            `**Middlegame Technique:** ${keyWeaknesses.middleGameTechnique}.`,
-            `**Endgame Technique:** ${keyWeaknesses.endGameTechnique}.`,
-          ]}
-        />
+        <div className="border-b">
+          <Section
+            title="Key Weaknesses:"
+            content={[
+              `**<strong class="font-bold">Tactical Awareness:</strong>** <br />${keyWeaknesses.tacticalAwareness}.`,
+              `**<strong class="font-bold">Opening Preparation:</strong>** <br />${keyWeaknesses.openingPreparation}.`,
+              `**<strong class="font-bold">Middlegame Technique:</strong>** <br />${keyWeaknesses.middleGameTechnique}.`,
+              `**<strong class="font-bold">Endgame Technique:</strong>** <br />${keyWeaknesses.endGameTechnique}.`,
+            ]}
+          />
+        </div>
 
         <Section
           title="Current Game Analysis:"
           content={[
-            `**Strengths:** ${gameAnalysis.strength}`,
-            `**Weaknesses:** ${gameAnalysis.weaknesses}`,
+            `**<strong class="font-bold">Strengths:</strong>** <br />${gameAnalysis.strength}`,
+            `**<strong class="font-bold">Weaknesses:</strong>** <br />${gameAnalysis.weaknesses}`,
           ]}
         />
         {/* 
@@ -79,7 +81,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           ]}
         /> */}
 
-        <div className="border border-[#221AE9] border-l-4 rounded-lg p-3 bg-[#F6F9FF]">
+        <div className="border-[#221AE9] border-t-4 p-4 bg-[#F6F9FF]">
           <h3 className="text-[#254B9D] font-semibold mb-2">
             Next Steps for Improvement:
           </h3>
@@ -102,17 +104,24 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         </div> */}
       </div>
 
-      {/* <div className="flex flex-row mt-2 mb-2"> */}
+      <div className="flex flex-col md:flex-row gap-[8px] md:gap-[16px] mt-2 mb-2">
         <button
           onClick={props.prev}
-          className="btn-secondary flex items-center justify-center justify-self-center w-full h-[48px] mt-2 whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+          className="btn-secondary flex items-center justify-center justify-self-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
           <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Endgame&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </button>
-        <div className="w-8" />
+        <button
+          onClick={props.next}
+          className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
+        >
+          <div className="flex flex-row items-center justify-center text-white font-medium text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
+            Back to Summary
+          </div>
+        </button>
         {/* <button
           onClick={props.next}
          className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
@@ -122,7 +131,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>
         </button> */}
-      {/* </div> */}
+      </div>
     </>
   );
 };

@@ -184,7 +184,7 @@ const AnalysisLatestGame: React.FC = () => {
             }}
             next={() => {
               setUserInitiatedChange(true);
-              setFocusPage("training");
+              setFocusPage("summary");
             }}
           />
         );
@@ -255,7 +255,7 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name === "movement" &&
-                `min-w-[136px] sm:min-w-[154px] lg:min-w-[154px]`
+                `min-w-[154px] lg:min-w-[154px]`
               } p-2 ${
                 focusPage === tab.name &&
                 `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `

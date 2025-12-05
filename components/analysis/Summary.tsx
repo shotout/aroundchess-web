@@ -449,6 +449,83 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </span>
           </div>
         </div>
+        
+        {/* critical mistakes moves  */}
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+          <div className="flex flex-row items-center gap-2">
+            <Image
+              alt=""
+              src={"/icons/alert-triangle.png"}
+              width={1000}
+              height={1000}
+              className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
+            />
+            <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
+              Critical Mistakes
+            </span>
+            <div
+              className="hidden sm:block"
+              onClick={() => setOpenCriticalMoves(!openCriticalMoves)}
+            >
+              {openCriticalMoves ? (
+                <ChevronUp size={24} color="black" />
+              ) : (
+                <ChevronDown size={24} color="black" />
+              )}
+            </div>
+          </div>
+          {openCriticalMoves &&
+            criticalMistakes &&
+            criticalMistakes.length > 0 &&
+            criticalMistakes.slice(0, 5).map((item: any, index: number) => {
+              return (
+                <div className="flex flex-col gap-2 mt-2" key={index}>
+                  <div
+                    className={`border ${
+                      chessMove.move == item.move
+                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
+                        : `border-input`
+                    } rounded-md p-4`}
+                  >
+                    <div className="flex flex-row justify-between gap-2 mb-2">
+                      <span
+                        onClick={() => handleOnClickMovement(item)}
+                        className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
+                      >
+                        Move {item.moveNumber}: <span className="font-bold ml-1">{item.move}</span>
+                      </span>
+
+                      <div className="flex gap-[10px]">
+                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
+                          {item.type}
+                        </span>
+
+                        <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
+                          <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    {item.analysis && (
+                      <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal">
+                        {item.analysis}
+                      </span>
+                    )}
+                    {item.solution && (
+                      <div className="border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                        <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
+                          <span className="font-bold">Recommendation: </span>
+                          {item.solution}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+
         {/* best moves  */}
         <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center gap-2">
@@ -493,12 +570,12 @@ const Summary: React.FC<SummaryProps> = (props) => {
                         <div className="flex flex-row justify-between gap-2 mb-2">
                           <span
                             onClick={() => handleOnClickMovement(middle)}
-                            className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[8px] py-1 px-[14px]"
+                            className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
                           >
                             Move {middle.moveNumber}: <span className="font-bold ml-1">{middle.move}</span>
                           </span>
                           <div className="flex gap-[10px]">
-                            <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[8px] py-1 px-[14px]">
+                            <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
                               {middle.classification}
                             </span>
 
@@ -528,81 +605,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           )}
         </div>
-        {/* critical mistakes moves  */}
-        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
-          <div className="flex flex-row items-center gap-2">
-            <Image
-              alt=""
-              src={"/icons/alert-triangle.png"}
-              width={1000}
-              height={1000}
-              className="w-4 h-4 sm:w-5 sm:h-5 md:h-6 lg:w-7 lg:h-7 object-contain"
-            />
-            <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold w-full">
-              Critical Mistakes
-            </span>
-            <div
-              className="hidden sm:block"
-              onClick={() => setOpenCriticalMoves(!openCriticalMoves)}
-            >
-              {openCriticalMoves ? (
-                <ChevronUp size={24} color="black" />
-              ) : (
-                <ChevronDown size={24} color="black" />
-              )}
-            </div>
-          </div>
-          {openCriticalMoves &&
-            criticalMistakes &&
-            criticalMistakes.length > 0 &&
-            criticalMistakes.slice(0, 5).map((item: any, index: number) => {
-              return (
-                <div className="flex flex-col gap-2 mt-2" key={index}>
-                  <div
-                    className={`border ${
-                      chessMove.move == item.move
-                        ? `border-2 border-[#221AE9] bg-[#221AE910]`
-                        : `border-input`
-                    } rounded-md p-4`}
-                  >
-                    <div className="flex flex-row justify-between gap-2 mb-2">
-                      <span
-                        onClick={() => handleOnClickMovement(item)}
-                        className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[8px] py-1 px-[14px]"
-                      >
-                        Move {item.moveNumber}: <span className="font-bold ml-1">{item.move}</span>
-                      </span>
-
-                      <div className="flex gap-[10px]">
-                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[8px] py-1 px-[14px]">
-                          {item.type}
-                        </span>
-
-                        <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
-                          <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    {item.analysis && (
-                      <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal">
-                        {item.analysis}
-                      </span>
-                    )}
-                    {item.solution && (
-                      <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
-                        <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
-                          <span className="font-bold">Recommendation: </span>
-                          {item.solution}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-        </div>
+        
       </div>
 
       <button
@@ -611,7 +614,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
       >
         <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
           &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Movement Details
-          <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
+          <ArrowRight color="#e6f7fe" className="ml-2 h-4 sm:h-6 w-6" />
         </div>
       </button>
     </>
