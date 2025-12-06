@@ -38,7 +38,7 @@ export function StartPlayVSAI({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-1 sm:p-4"
       style={{
         paddingLeft: isDesktop ? sidebarWidth + 16 : 4,
         paddingTop: headerHeight + 16,

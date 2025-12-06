@@ -1378,32 +1378,46 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 })}
             </tbody>
           </table>
-          <div className="flex flex-row justify-center items-center gap-2 my-4">
+          <div className="flex flex-row justify-center items-center gap-[8px] my-4">
             <button
               disabled={currentMoveIndex === 0}
               onClick={handlePreviousMove}
-              className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+              className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
                 currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              <ChevronLeft size={24} color="#000" />
+              <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"></path>
+              </svg>
+              {/* <ChevronLeft size={24} color="#000" /> */}
             </button>
-            <button
+            {/* <button
               disabled={currentMoveIndex >= fenHistory.length - 1}
               onClick={handleNextMove}
-              className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+              className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
                 currentMoveIndex >= fenHistory.length - 1
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
             >
               <ChevronRight size={24} color="#000" />
-            </button>
+            </button> */}
             <button
               onClick={resetPuzzleHandler}
-              className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+              className="rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
             >
-              <RotateCw size={20} color="#000" />
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_852_113922)">
+                  <path d="M3.41941 3V7.5H8.15625" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+                <defs>
+                  <clipPath id="clip0_852_113922">
+                    <rect width="20" height="20" fill="white" transform="matrix(-1 0 0 1 20 0)"></rect>
+                  </clipPath>
+                </defs>
+              </svg>
+              {/* <RotateCw size={20} color="#000" /> */}
             </button>
           </div>
         </div>

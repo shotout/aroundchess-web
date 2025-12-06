@@ -160,7 +160,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               <span className="font-bold">{item?.move}</span>
                             </span>
                             <span
-                              className={`rounded-full border border-input px-4 py-1 font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                              className={`rounded-full border border-input px-4 py-1 text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                                 item.classification
                               )}`}
                             >
@@ -189,7 +189,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                           {item.analysis}
                         </span>
                          {item.recommendation && (
-                          <div className="border-l border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
+                          <div className="border-l-4 bg-[#F6F9FF] flex items-center border-primary rounded-md p-2 py-4 mt-2">
                             <span className="text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-[14px] --sm font-normal text-primary">
                               <span className="font-bold">
                                 Recommendation:{" "}
@@ -299,7 +299,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               <span className="font-bold">{item?.move}</span>
                             </span>
                             <span
-                              className={`rounded-full border border-input px-4 py-1 font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                              className={`rounded-full border border-input px-4 py-1 text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                                 item.classification
                               )}`}
                             >

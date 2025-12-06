@@ -272,12 +272,12 @@ export const ChessConnectDialog = ({
   return (
     <div
       className="fixed bg-black/50 z-[10] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
-      // style={{
-      //   top: topOffset,
-      //   left: sidebarWidth,
-      //   right: 0,
-      //   bottom: 0,
-      // }}
+      style={{
+        top: topOffset,
+        left: sidebarWidth,
+        right: 0,
+        bottom: 0,
+      }}
       onClick={() => onOpenChange(false)}
     >
       <div

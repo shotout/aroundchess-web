@@ -265,7 +265,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   return (
     <header
-      className={`fixed xl:sticky top-0 z-10 flex w-full items-center ${
+      className={`fixed xl:sticky top-0 z-60 flex w-full items-center ${
         isGuestMode ? "justify-between xl:justify-center" : "justify-between"
       } ${
         isEndgameTraining && !isDesktop ? "bg-[#E6F7FE]" : "bg-white border-b"

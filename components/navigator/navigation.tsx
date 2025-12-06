@@ -100,7 +100,7 @@ export default function Navigation({
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         <div className="flex flex-col w-full">
           <div
-            className="fixed top-[-1px] right-0 z-10 bg-white border-gray-200 left-0"
+            className="fixed top-[-1px] right-0 z-50 bg-white border-gray-200 left-0"
             style={{ top: "calc(var(--banner-height, 0px) - 1px)" }}
           >
             <Header onSidebarToggle={toggleSidebar} />
@@ -140,7 +140,7 @@ export default function Navigation({
               top: "var(--banner-height, 0px)",
               height: "calc(100vh - var(--banner-height, 0px))"
             }}
-            className={`fixed left-0 border-r border-gray-200 bg-white z-10`}
+            className={`fixed left-0 border-r border-gray-200 bg-white z-50`}
           >
             <Sidebar />
           </div>
@@ -152,7 +152,7 @@ export default function Navigation({
         >
           <div
             style={{ left: widthSidebar, top: "calc(var(--banner-height, 0px) - 1px)" }}
-            className={`fixed top-[-1px] right-0 z-10 bg-white border-gray-200 left-0`}
+            className={`fixed top-[-1px] right-0 z-50 bg-white border-gray-200 left-0`}
           >
             <Header onSidebarToggle={toggleSidebar} />
           </div>

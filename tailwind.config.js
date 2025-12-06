@@ -1,5 +1,4 @@
 import { fontFamily } from "tailwindcss/defaultTheme"
-import flowbiteReact from "flowbite-react/plugin/tailwindcss";
 
 /** @type {import('tailwindcss').Config} */
 export const content = [

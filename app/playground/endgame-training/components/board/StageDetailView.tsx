@@ -774,7 +774,7 @@ export default function StageDetailView({
                 </span>
               </button>
 
-              <button
+              {/* <button
                 onClick={resetPosition}
                 className="flex gap-x-[2px] items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
               >
@@ -785,7 +785,7 @@ export default function StageDetailView({
                   height={10}
                 />
                 <span className="text-[14px] --10px">Restart</span>
-              </button>
+              </button> */}
 
               <button
                 onClick={navigateNext}
@@ -816,7 +816,7 @@ export default function StageDetailView({
                 Share PGN/FEN
               </button>
 
-              <button
+              {/* <button
                 onClick={resetPosition}
                 className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
               >
@@ -827,7 +827,7 @@ export default function StageDetailView({
                   height={12}
                 />
                 <span className="text-[11px]">Rematch</span>
-              </button>
+              </button> */}
 
               <button
                 onClick={navigateNext}

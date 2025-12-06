@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@source "../node_modules/flowbite-datepicker";
-
 @font-face {
   font-family: "AloeveraDisplay-Black";
   src: url("/fonts/AloeveraDisplay-Black.ttf") format("truetype");

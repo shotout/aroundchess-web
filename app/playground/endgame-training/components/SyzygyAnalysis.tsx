@@ -26,8 +26,8 @@ const SyzygyAnalysis = ({
   const isUserToMove = currentTurn === playerColor;
 
   return (
-    <div className="w-full sm:p-4 sm:border-t border-gray-200">
-      <div className="flex flex-col items-center justify-center gap-y-2 bg-[#007AFF14]/5 border border-[#007AFF] rounded-[4px] sm:rounded-xl py-1 sm:p-4">
+    <div className="w-full sm:p-2 px-4 border-gray-200">
+      <div className="flex flex-col items-center justify-center gap-y-2 bg-[#007AFF14]/5 border border-[#007AFF] rounded-[4px] sm:rounded-xl py-1 sm:py-2 px-4">
         <p className="text-[14px] --sm xl:text-base text-center">
           {isUserToMove
             ? `You can checkmate in ${mateDistance} move${

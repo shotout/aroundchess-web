@@ -240,8 +240,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   return (
     <div className="relative">
       <TooltipProvider delayDuration={300} skipDelayDuration={100}>
-        <div className="w-full space-y-6">
-          <div className="hidden xl:grid grid-cols-6 gap-2">
+        <div className="relative w-full space-y-6 overflow-x-scroll">
+          <div className="w-[640px] lg:w-full grid grid-cols-6 gap-2">
             {skillLevels.map((level, index) => {
               const isReached = (currentElo || 0) >= level.elo;
               const isNextGoal = index === nextGoalIndex;
@@ -270,7 +270,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                       </div>
                     )}
                     {isNextGoal && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
                         <div
                           className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
                         >
@@ -331,7 +331,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             })}
           </div>
 
-          <div className="grid xl:hidden grid-cols-3 gap-2">
+          {/* <div className="hidden grid-cols-6 gap-2">
             {mobileLevels.map((level, mobileIndex) => {
               const isReached = (currentElo || 0) >= level.elo;
               const isNextGoal =
@@ -408,9 +408,9 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 </div>
               );
             })}
-          </div>
+          </div> */}
 
-          <div className="relative h-20 hidden xl:block">
+          <div className="w-[640px] lg:w-full relative h-20 block">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
                 {skillLevels.map((level, index) => {
@@ -464,7 +464,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             </div>
           </div>
 
-          <div className="relative h-20 xl:hidden">
+          {/* <div className="relative h-20 xl:hidden">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
                 {mobileLevels.map((level, index) => {
@@ -518,7 +518,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 Your current ELO
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </TooltipProvider>
     </div>

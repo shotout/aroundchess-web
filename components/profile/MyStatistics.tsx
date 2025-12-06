@@ -7,7 +7,7 @@ export default function MyStatistics() {
     const router = useRouter();
     return (
         <div className="flex justify-center mb-[8px]">
-            <div onClick={() => router.push("/my-statistics")} className="relative flex w-full items-center justify-start gap-[16px] border border-[#B8EAFF] md:w-[740px] h-[76px] lg:h-[120px] bg-[url('/images/bg-mystatistic.jpg')] bg-cover bg-left py-[16px] pl-[16px] md:pl-[120px] pr-[16px] rounded-[8px] cursor-pointer shadow-[0px_4px_8px_rgba(0,0,0,0.12)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-[8px] before:block before:md:hidden before:bg-[rgba(255,255,255,0.5)]">
+            <div onClick={() => router.push("/my-statistics")} className="relative z-0 flex w-full items-center justify-start gap-[16px] border border-[#B8EAFF] md:w-[740px] h-[76px] lg:h-[120px] bg-[url('/images/bg-mystatistic.jpg')] bg-cover bg-left py-[16px] pl-[16px] md:pl-[120px] pr-[16px] rounded-[8px] cursor-pointer shadow-[0px_4px_8px_rgba(0,0,0,0.12)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-[8px] before:block before:md:hidden before:bg-[rgba(255,255,255,0.5)]">
                 <div className="relative flex flex-col z-10">
                     <h3 className="text-[18px] md:text-[24px] leading-[150%] font-semibold">Your Statistics</h3>
                     <p className="text-[14px] md:text-[20px]">Discover your Game Statistics now.</p>

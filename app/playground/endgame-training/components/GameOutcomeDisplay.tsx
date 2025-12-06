@@ -235,7 +235,7 @@ export default function GameOutcomeDisplay({
             </div>
           )}
 
-          <div className="flex">
+          {/* <div className="flex">
             <div
               className={`w-1/2 bg-white rounded-md p-2 flex justify-center items-center border-2 ${outcomeState.borderClass} mr-3`}
             >
@@ -284,7 +284,7 @@ export default function GameOutcomeDisplay({
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="absolute right-0 top-0 pointer-events-none">

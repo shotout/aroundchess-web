@@ -1732,11 +1732,14 @@ export default function PlayingPage() {
           date: formatDatePgn(),
         }}
       />
+
       <div className="flex flex-col w-full gap-y-2 ">
-        <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
+        {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
+        <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
           <button onClick={() => router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
+
           <div className="flex flex-1 flex-row justify-center items-center gap-2">
             <Image
               src={"/images/play-vs-ai/icon-play-vs-ai.png"}
@@ -1791,24 +1794,34 @@ export default function PlayingPage() {
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-2 px-5 sm:px-0">
-            {(orientation as string) !== myColor &&
-            moveClassification !== "" &&
-            moveClassification !== "excellent-move" &&
-            moveClassification !== "neutral-move" &&
-            moveClassification !== "inaccuracy-move" ? (
-              <div className="hidden sm:block">
-                <CommentaryMove classify={moveClassification} />
-              </div>
-            ) : (
-              <div />
-            )}
-            <ButtonBoard
-              handleSwitch={handleSwitch}
-              handleThreeD={handleThreeD}
-              is3DMode={is3DMode}
-              boardSize={boardSize}
-            />
+          <div className="w-full flex justify-between md:justify-end items-center px-[16px] mt-[24px] md:mt-0 md:px-0">
+            <div className="flex items-center gap-[8px] md:hidden">
+              <button onClick={() => router.push("/playground/play-vs-ai")}>
+                <ArrowLeft color="black" size={24} />
+              </button>
+
+              <span>{username} ({orientation}) vs {AIChoosed.opponent.name.replace(/ .*/, "")}</span>
+            </div>
+            <div className="flex items-center justify-between md:mb-[16px] sm:px-0">
+              {(orientation as string) !== myColor &&
+                moveClassification !== "" &&
+                moveClassification !== "excellent-move" &&
+                moveClassification !== "neutral-move" &&
+                moveClassification !== "inaccuracy-move" ? (
+                  <div className="hidden sm:block">
+                    <CommentaryMove classify={moveClassification} />
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                <ButtonBoard
+                  handleSwitch={handleSwitch}
+                  handleThreeD={handleThreeD}
+                  is3DMode={is3DMode}
+                  boardSize={boardSize}
+                />
+            </div>
           </div>
 
           <MobileCapturedPieces
@@ -1971,14 +1984,14 @@ export default function PlayingPage() {
                       disabled={game.history().length === 0}
                       // disabled={true}
                       onClick={handleUndo}
-                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                      className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
                       {/* <ChevronLeft size={24} color="#000" /> */}
                     </button>
-                    <button
+                    {/* <button
                       disabled={true}
                       onClick={handleRedo}
                       className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
@@ -1986,11 +1999,11 @@ export default function PlayingPage() {
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
-                      {/* <ChevronRight size={24} color="#000" /> */}
-                    </button>
+                      <ChevronRight size={24} color="#000" />
+                    </button> */}
                     <button
                       onClick={handleReset}
-                      className="rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_852_113922)">
@@ -2191,6 +2204,24 @@ export default function PlayingPage() {
       </div>
 
       <div className="hidden sm:block w-full">
+        <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
+          <button onClick={() => router.push("/playground/play-vs-ai")}>
+            <ArrowLeft color="black" size={24} />
+          </button>
+
+          <div className="flex flex-row justify-center items-center gap-2">
+            <Image
+              src={"/images/play-vs-ai/icon-play-vs-ai.png"}
+              alt="icon"
+              width={22}
+              height={21}
+              className="w-[22px] h-[21px] object-contain"
+            />
+            <span className="font-semibold text-[18px]">Play VS AI</span>
+          </div>
+        </div>
+
+
         <Tabs defaultValue="current" className="w-full">
           <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
             <TabsTrigger
@@ -2269,14 +2300,14 @@ export default function PlayingPage() {
                       disabled={game.history().length === 0}
                       // disabled={true}
                       onClick={handleUndo}
-                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                      className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
                       {/* <ChevronLeft size={24} color="#000" /> */}
                     </button>
-                    <button
+                    {/* <button
                       disabled={true}
                       onClick={handleRedo}
                       className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
@@ -2284,11 +2315,11 @@ export default function PlayingPage() {
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
-                      {/* <ChevronRight size={24} color="#000" /> */}
-                    </button>
+                      <ChevronRight size={24} color="#000" />
+                    </button> */}
                     <button
                       onClick={handleReset}
-                      className="rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_852_113922)">

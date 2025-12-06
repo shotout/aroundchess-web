@@ -15,7 +15,7 @@ export const ButtonBoard = ({
 }: ButtonBoardProps) => {
   return (
     <div
-      style={{ width: boardSize }}
+      // style={{ width: boardSize }}
       className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
     >
       <button onClick={handleSwitch}>

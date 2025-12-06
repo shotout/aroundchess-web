@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { QuestionPanelProps } from "../types/default-pgn";
 import Image from "next/image";
+import Link from "next/link";
 
 const QuestionPanel: React.FC<QuestionPanelProps> = ({
   gameQuestion,
@@ -26,15 +27,29 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
     <>
       <div className="w-full">
         <div className="flex items-center justify-between border-b pb-4 p-6">
-          <div className="flex items-center">
-            {" "}
+          <div className="flex items-center gap-[14px]">
+            {/* {" "}
             <Image
               src={"/board-vision/board-vision.png"}
               alt="board vision"
               width={40}
               height={40}
               className="w-7 h-7 xl:w-10 xl:h-10 mr-2"
-            />
+            /> */}
+
+            <Link href="/playground/board-vision">
+              <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_676_276226)">
+                  <path d="M22.1788 9H1.36719" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9.03385 16.636L1.36719 8.99965L9.03385 1.36328" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_676_276226">
+                    <rect width="23" height="18" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+            </Link>
             <span className="font-bold text-base xl:text-xl">Board Vision</span>
           </div>
           <div className="text-blue-base text-[14px] --sm xl:text-base">
