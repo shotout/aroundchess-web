@@ -30,6 +30,9 @@ import { useTutorial } from "@/components/TutorialProvider";
 import { DummyCard } from "./DummyCard";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import Image from "next/image";
+import ChooseAnalysisMode from "./ChooseAnalysisMode";
+import ProcessingAnalysisMode from "./ProcessingAnalysisMode";
+import GameAnalysis from "./GameAnalysis";
 
 interface GamesListProps {
   games: Game[];
@@ -521,6 +524,10 @@ const GamesList: React.FC<GamesListProps> = ({
                       setAutoStartGameId(null);
                     }}
                   />
+
+                  <ChooseAnalysisMode open={false} onOpenChange={() => {}} />
+                  <ProcessingAnalysisMode open={false} onOpenChange={() => {}} />
+                  <GameAnalysis open={false} onOpenChange={() => { }} />
 
                   <div className="flex items-center px-2 py-3 border-r border-gray-200">
                     {/* {isNew && (

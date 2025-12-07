@@ -1,4 +1,7 @@
 import { usePgnStore } from "@/app/store/zustandStore";
+import ChooseAnalysisMode from "@/components/game-history/components/ChooseAnalysisMode";
+import GameAnalysis from "@/components/game-history/components/GameAnalysis";
+import ProcessingAnalysisMode from "@/components/game-history/components/ProcessingAnalysisMode";
 import { MobileTooltip } from "@/components/game-history/components/user-history/Analytics";
 import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
@@ -68,7 +71,20 @@ export const ButtonFinish = ({
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
-          <button
+          <button type="button" className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] bg-green-600">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Analyze Now
+          </button>
+
+          <ChooseAnalysisMode open={false} onOpenChange={() => { }} />
+          <ProcessingAnalysisMode open={false} onOpenChange={() => { }} />
+          <GameAnalysis open={false} onOpenChange={() => { }} />
+
+          {/* <button
             onClick={handleSave}
             disabled={isSaving || isSaved}
             className={` w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] ${
@@ -88,8 +104,8 @@ export const ButtonFinish = ({
                 </span>
               </div>
             )}
-          </button>
-          <MobileTooltip
+          </button> */}
+          {/* <MobileTooltip
             content={[
               `The game will be saved in the "Other Games" category of the
                   Game History. If you would like to Analyze this Game, please
@@ -101,7 +117,7 @@ export const ButtonFinish = ({
               color="#221AE9"
               className="h-[24] w-[24] text-gray-500 hover:text-gray-700"
             />
-          </MobileTooltip>
+          </MobileTooltip> */}
         </div>
       </TooltipProvider>
     );

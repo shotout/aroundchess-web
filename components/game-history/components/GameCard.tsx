@@ -14,6 +14,9 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useTutorial } from "@/components/TutorialProvider";
+import ChooseAnalysisMode from "./ChooseAnalysisMode";
+import ProcessingAnalysisMode from "./ProcessingAnalysisMode";
+import GameAnalysis from "./GameAnalysis";
 
 interface GameCardProps {
   gameData: Game;
@@ -228,6 +231,11 @@ const GameCard: React.FC<GameCardProps> = ({
         onOpenChange={setIsAnalyzeOpen}
         game={gameData}
       />
+
+      <ChooseAnalysisMode open={false} onOpenChange={() => { }} />
+      <ProcessingAnalysisMode open={false} onOpenChange={() => { }} />
+      <GameAnalysis open={false} onOpenChange={() => { }} />
+      
       <div
         className={`p-4 border md:rounded-md relative ${
           btn.text.includes("%") ||

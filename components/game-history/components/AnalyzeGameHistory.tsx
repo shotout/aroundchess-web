@@ -303,7 +303,7 @@ export function AnalyzeGameHistory({
 
   return (
     <div
-      className="fixed bg-black/25 z-50 flex items-center justify-center p-4 md:p-0"
+      className="fixed bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-0"
       style={{
         top:
           typeof window !== "undefined" && window.innerWidth >= 1024
@@ -316,20 +316,27 @@ export function AnalyzeGameHistory({
       onClick={() => onOpenChange(false)}
     >
       <div
-        className="w-full mx-auto rounded-lg max-w-sm md:max-w-xl bg-white overflow-y-auto max-h-[95%]"
+        className="relative w-full mx-auto rounded-lg max-w-sm md:max-w-[800px] bg-white overflow-y-auto max-h-[95%]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-semibold">Analyze your games</h2>
-          <p className="text-[14px] --sm text-black mt-2">
-            Select your Games from Chess.com or upload your previous Game's{" "}
-            <span className="font-bold">PGN</span> for a detailed Game Analysis.
-          </p>
+        <div className="p-[16px] lg:p-[32px] pb-[6px] lg:pb-[12px]">
+          <h2 className="text-[20px] text-center lg:text-start lg:text-[24px] font-semibold">Analyze your games</h2>
+          {/* <p className="text-[14px] --sm text-black mt-2">
+            Select your Games from Chess.com or upload your previous Game's <span className="font-bold">PGN</span> for a detailed Game Analysis.
+          </p> */}
+
+          <button type="button" onClick={() => onOpenChange(false)} className="absolute top-4 right-4">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div className="p-4">
+        <div className="p-[16px] lg:p-[32px] pt-[6px] lg:pt-[12px]">
           {activeTab === "auto" && (
             <div className="space-y-4">
-              <div className="space-y-2">
+
+              {/* <div className="space-y-2">
                 <div className="flex flex-row items-center">
                   <Image
                     src="/icons/hero-section.png"
@@ -368,8 +375,10 @@ export function AnalyzeGameHistory({
                     </option>
                   </select>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+              </div> */}
+
+              <div className="font-medium text-[16px] lg:text-[18px] -mb-[8px]">Choose your Analysis Depth</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center ">
                 {depths.map((depth, idx) => {
                   return (
                     <button
@@ -379,7 +388,7 @@ export function AnalyzeGameHistory({
                         setDepthChoosed(depth.value);
                       }}
                       disabled={depth.mustMember && (!isMember&&!isMemberMonthly)}
-                      className={`relative flex flex-col justify-around px-2 py-2 md:h-[300px] gap-2 items-center shadow-md ${
+                      className={`relative min-h-[140px] lg:min-h-[250px] flex flex-col justify-around p-[12px] items-center shadow-md ${
                         depth.mustMember && (!isMember&&!isMemberMonthly)
                           ? "bg-[#C0CED4]"
                           : "bg-white"
@@ -394,9 +403,9 @@ export function AnalyzeGameHistory({
                       <Image
                         src={depth.image}
                         alt={depth.title}
-                        width={1000}
-                        height={1000}
-                        className="w-[80px] h-[80px] object-contain relative"
+                        width={80}
+                        height={80}
+                        className="w-[40px] lg:w-[80px] h-[40px] lg:h-[80px] object-contain relative mb-[16px]"
                         priority
                       />
                       {depth.mustMember && (!isMember&&!isMemberMonthly) && (
@@ -418,8 +427,8 @@ export function AnalyzeGameHistory({
                             : "border-gray-300 border-2"
                         }`}
                       />
-                      <span className="font-normal text-[14px] --sm">{depth.title}</span>
-                      <span className="font-light text-[#364152] text-center text-[11px]">
+                      <span className="font-bold text-[16px] lg:text-[18px] --sm mb-[4px] lg:mb-[8px]">{depth.title}</span>
+                      <span className="text-[#364152] leading-[130%] text-center text-[14px]">
                         {depth.description}
                       </span>
                     </button>
@@ -428,10 +437,11 @@ export function AnalyzeGameHistory({
               </div>
             </div>
           )}
+
           <button
             onClick={handleAnalyzeGame}
             disabled={isSubmitting}
-            className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 ${
+            className={`btn-primary w-full text-[14px] --sm rounded-full py-[8px] my-4 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
