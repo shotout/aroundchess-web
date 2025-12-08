@@ -14,8 +14,6 @@ import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import { useTutorial } from "@/components/TutorialProvider";
-import { BlackFridayPromoTrigger } from "@/components/modal/BlackFridayPromoTrigger";
-import { PricingOffer } from "@/components/modal/PricingOffer";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -200,15 +198,6 @@ export default function AnalysisPage() {
                     </h2>
 
                     {isSignedIn && widthC <= 1024 && username && (
-                      // <div className="lg:hidden flex items-center justify-center my-2">
-                      //   <Link
-                      //     href="/my-game-history"
-                      //     className="w-fill px-5 py-2 btn-primary rounded-full"
-                      //     onClick={handleAnalyzeDifferentGame}
-                      //   >
-                      //     Analyze a different game
-                      //   </Link>
-                      // </div>
                       <div className="lg:hidden flex items-center justify-center my-2">
                         <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                       </div>
@@ -231,15 +220,6 @@ export default function AnalysisPage() {
                       strategic strengths and weaknesses.
                     </div>
                     <AnalyzeDifferentGame openPopup={openNewAnalysis} />
-                    {/* {isSignedIn && widthC > 1024 && username && (
-                      <Link
-                        href="/my-game-history"
-                        className="w-fill px-5 py-2 btn-primary rounded-full"
-                        onClick={handleAnalyzeDifferentGame}
-                      >
-                        Analyze a different game
-                      </Link>
-                    )} */}
                   </div>
                 </div>
 
@@ -260,8 +240,6 @@ export default function AnalysisPage() {
           </Navigation>
         </div>
       </div>
-      <PricingOffer />
-      <BlackFridayPromoTrigger />
     </div>
   );
 }
