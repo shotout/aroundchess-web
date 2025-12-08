@@ -69,7 +69,7 @@ const GameHistoryPage: React.FC = () => {
               <span className="font-semibold">Game History</span>
             </Link>
 
-            <Link href={'/feedback-log'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+            <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
               <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} />
               <span>Saved Mistakes</span>
             </Link>

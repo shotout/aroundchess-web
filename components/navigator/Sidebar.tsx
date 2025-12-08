@@ -90,7 +90,7 @@ const sidebarLinks: SidebarLink[] = [
       },
       {
         name: "Saved Mistakes",
-        href: "/feedback-log",
+        href: "/saved-mistakes",
         icon: "/icons/sidebar-saved-mistakes-icon.svg",
         iconActive: "/icons/sidebar-saved-mistakes-icon-active.svg",
       }

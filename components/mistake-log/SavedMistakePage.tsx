@@ -25,7 +25,7 @@ import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
 import Link from "next/link";
 import Image from "next/image";
 
-const MistakeLog = () => {
+const SavedMistakePage = () => {
   const { initializeData, isFetching, hasCachedData } = useDataCache();
   const { getMistakePreviousDetail, getAnalysisByPgnHash } = useApiClient();
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -175,6 +175,7 @@ const MistakeLog = () => {
       setSelectedHistory(previousAnalyses[0].id);
     }
   }, []);
+
   const renderFilters = () => {
     return (
       <>
@@ -354,20 +355,20 @@ const MistakeLog = () => {
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
 
       <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
-            <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
-              <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
-              <span className="font-semibold">Game History</span>
-            </Link>
+        <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+          <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
+          <span className="font-semibold">Game History</span>
+        </Link>
 
-            <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
-              <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="invert brightness-0" />
-              <span>Saved Mistakes</span>
-            </Link>
-          </div>
+        <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
+          <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="invert brightness-0" />
+          <span>Saved Mistakes</span>
+        </Link>
+      </div>
 
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
-          <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>
+          <h1 className="text-xl lg:text-[32px] font-semibold">Saved Mistakes</h1>
           <div className="flex justify-center items-end h-full">
             <p className="text-[14px] --xs text-gray-500 lg:text-[18px] font-normal">
               {`(${username.length>0?username:"No username set"})`}
@@ -375,7 +376,21 @@ const MistakeLog = () => {
           </div>
         </div>
       </div>
-      <Tabs
+
+      {savedMistakes.length > 0 ? (
+        <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+          <div className="lg:mt-2">
+            <ChessContent />
+          </div>
+          <div className="xl:w-3/4">
+            <SavedMistakes onClickSeePrevious={handleGoPrevious} />
+          </div>
+        </div>
+      ) : (
+        <SavedMistakes onClickSeePrevious={handleGoPrevious} />
+      )}
+
+      {/* <Tabs
         defaultValue="saved"
         className="w-full p-0"
         value={tabSelected}
@@ -468,9 +483,9 @@ const MistakeLog = () => {
             )}
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </main>
   );
 };
 
-export default MistakeLog;
+export default SavedMistakePage;

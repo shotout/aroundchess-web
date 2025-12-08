@@ -32,32 +32,30 @@ const EmptyLog: React.FC<emptyLogProps> = ({
         <span className="font-semibold text-[24px] text-[#121212]">
           {title ? title : "You have not yet saved any Mistakes"}
         </span>
-        <span className="font-meidum text-[18px] text-[#585858]">
+        {/* <span className="font-meidum text-[18px] text-[#585858]">
           {content
             ? content
             : `Go to the "Previous Analyses" Tab or analyze another Game now`}
-        </span>
+        </span> */}
       </div>
 
-    
-
       <div className="w-full">
-              <button
-              onClick={handleAnalyze}
-                className="w-full px-5 py-2 btn-primary rounded-full"
-              >
-                Analyze a different game
-              </button>
-            </div>
+        <button
+          onClick={handleAnalyze}
+          className="w-full px-5 py-2 btn-primary rounded-full"
+        >
+          Analyze Games
+        </button>
+      </div>
 
-      {!noButton && (
+      {/* {!noButton && (
         <button
           onClick={onClickSeePrevious}
           className="w-full rounded-full btn-secondary font-medium text-[16px] h-[44px]"
         >
           See Previous Analyses
         </button>
-      )}
+      )} */}
     </div>
   );
 };
