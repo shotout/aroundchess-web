@@ -82,6 +82,17 @@ export const PricingOffer: React.FC = () => {
     const resTokenPackage = await fetch("/local-data/token-package.json");
     const response = await resTokenPackage.json();
     setTokenPackage(response);
+
+    // Fallback: if API data is missing, derive display packages from local data
+    // We only want the main SKUs that have dedicated artwork: 1, 5, 10, 25, 50
+    const featuredQuantities = [1, 5, 10, 25, 50];
+    const featuredPackages = Array.isArray(response)
+      ? response.filter((pkg: any) => featuredQuantities.includes(pkg.quantity))
+      : [];
+
+    if (featuredPackages.length > 0) {
+      setTokenData(featuredPackages);
+    }
   };
   useEffect(() => {
     if (open) {
@@ -89,12 +100,20 @@ export const PricingOffer: React.FC = () => {
     }
     setMounted(true);
     setWidthC(window?.innerWidth);
-    getTokenPackage({}).then((response) => {
-      if (response.data != null) {
-        const data = response.data;
-        setTokenData(data);
-      }
-    });
+    getTokenPackage({})
+      .then((response) => {
+        if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
+          setTokenData(response.data);
+        } else {
+          // If backend doesn't return token packages, fall back to local JSON
+          fetchTokenPackageLocal();
+        }
+      })
+      .catch(() => {
+        // On any error, fall back to local JSON so the UI still shows packages
+        fetchTokenPackageLocal();
+      });
+    // Also load local data for custom amounts & interval logic
     fetchTokenPackageLocal();
     setOpen(open);
   }, [open]);

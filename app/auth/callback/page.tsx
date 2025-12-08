@@ -146,18 +146,6 @@ export default function SSOCallbackPage() {
           setPersistedCookie("token", accessToken, 365);
           setSessionId(accessToken);
 
-          // Reset Black Friday banner so it shows again after each login
-          try {
-            localStorage.removeItem("blackFridayBannerClosed");
-            // Tell the banner to show again immediately (no page refresh needed)
-            window.dispatchEvent(new Event("blackFridayBanner:reset"));
-          } catch (error) {
-            console.error("Error resetting Black Friday banner state:", error);
-          }
-
-          // Set flag to show Black Friday modal after redirect
-          sessionStorage.setItem("showBlackFridayModal", "true");
-
           try {
             const profileResponse = await fetch(`${baseUrl}/profile`, {
               headers: {

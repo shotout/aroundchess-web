@@ -123,10 +123,12 @@ export const PremiumSubsContent: React.FC<{
     profile,
     sessionId,
     isMemberMonthly,
+    setAllMembershipPackages,
   } = useProfileStore();
   const { setOpen: setOpenLogin } = useConfirmLogin();
   const { setOpen: setOpenPricing, setParamsPayment } = usePricingOffer();
-  const { checkoutSessions, isLoading } = useApiClient();
+  const { checkoutSessions, isLoading, getAllMembershipPackage } =
+    useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
   const [packageFilter, setPackageFilter] = useState(initialFilter); // monthly, yearly
@@ -161,19 +163,72 @@ export const PremiumSubsContent: React.FC<{
       scrollToAndSet(monthlyCardRef, "monthly");
     }
   }, []);
-  const free = allMembershipPackages[0];
-  const premium = allMembershipPackages[1];
-  const monthlyPremium = allMembershipPackages[2];
+
   const deadline =
     new Date(profile?.discountInfo?.startDate).getTime() +
     7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
+  // Ensure we have membership packages loaded (fallback to API if needed)
+  const resolveMembershipPackages = async () => {
+    let packagesArray: any[] = [];
+
+    if (Array.isArray(allMembershipPackages)) {
+      packagesArray = allMembershipPackages;
+    } else if (
+      allMembershipPackages &&
+      typeof allMembershipPackages === "object"
+    ) {
+      packagesArray = Object.values(allMembershipPackages);
+    }
+
+    // If nothing in store, fetch from backend
+    if (!packagesArray.length) {
+      try {
+        const response = await getAllMembershipPackage({});
+        if (response?.data && Array.isArray(response.data)) {
+          packagesArray = response.data;
+          setAllMembershipPackages(response.data);
+        }
+      } catch (e) {
+        console.error("Failed to load membership packages", e);
+      }
+    }
+
+    if (!packagesArray.length) {
+      return { free: null as any, premium: null as any, monthlyPremium: null as any };
+    }
+
+    const free = packagesArray.find((pkg: any) => pkg?.type === "FREE") ?? null;
+    const premium =
+      packagesArray.find((pkg: any) => pkg?.type === "YEARLY") ?? null;
+    const monthlyPremium =
+      packagesArray.find((pkg: any) => pkg?.type === "MONTHLY") ?? null;
+
+    return { free, premium, monthlyPremium };
+  };
+
   const handleGetPremium = async (type: string) => {
     setPaySelected(type);
-    if (sessionId.length == 0) setOpenLogin(true);
-    let isMonthly = type == "monthly" ? true : false;
-    let packages = isMonthly ? monthlyPremium : premium;
+
+    if (sessionId.length == 0) {
+      setOpenLogin(true);
+      return;
+    }
+
+    const { premium, monthlyPremium } = await resolveMembershipPackages();
+
+    const isMonthly = type == "monthly";
+    const selectedPackage = isMonthly ? monthlyPremium : premium;
+
+    if (!selectedPackage) {
+      console.error(
+        `Membership package not found for type ${isMonthly ? "MONTHLY" : "YEARLY"}`
+      );
+      setPaySelected("");
+      return;
+    }
+
     type BodyType = {
       productName: any;
       price: number;
@@ -186,20 +241,21 @@ export const PremiumSubsContent: React.FC<{
       totalPrice: any;
       couponId?: any;
     };
-    let yearlyPrice = premium.price * 100;
-    let monthlyPrice =
+
+    const yearlyPrice = (premium?.price ?? 79.99) * 100;
+    const monthlyPrice =
       profile?.discountInfo?.hasActiveDiscount && isPass > 0
         ? 699
-        : monthlyPremium.price * 100;
+        : (monthlyPremium?.price ?? 9.99) * 100;
     const body: BodyType = {
-      productName: packages.name,
+      productName: selectedPackage.name,
       price: isMonthly ? monthlyPrice : yearlyPrice,
       quantity: 1,
-      description: packages.description,
+      description: selectedPackage.description,
       type: "membership",
       idUser: profile.id,
-      membershipId: packages.id,
-      stripeProductId: packages.stripeProductId,
+      membershipId: selectedPackage.id,
+      stripeProductId: selectedPackage.stripeProductId,
       totalPrice: isMonthly ? monthlyPrice : yearlyPrice,
     };
     if (profile.discountInfo?.discountCode) {
@@ -639,11 +695,8 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                  <PriceDiscount price={79.99} />
-                  <div className="text-xl font-semibold">
-                    $29.99 <span className="text-sm font-normal">/year</span>
-                  </div>
+                <div className="text-xl font-semibold">
+                  $79.99 <span className="text-sm font-normal">/year</span>
                 </div>
               </div>
             </div>

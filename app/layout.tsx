@@ -3,7 +3,6 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { TutorialProvider } from "../components/TutorialProvider";
-import { BlackFridayBanner } from "../components/BlackFridayBanner";
 import React, { Suspense, useEffect, useState } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
@@ -39,7 +38,6 @@ export default function RootLayout({
           )}
         </head>
         <body>
-          <BlackFridayBanner />
           {setting.marketing && (
             <Script id="facebook-pixel" strategy="afterInteractive">
               {`
