@@ -93,7 +93,7 @@ const GameCard: React.FC<GameCardProps> = ({
       };
     } else if (isTutorialPlay && stepFocused == 5 && isNewlyImported) {
       return {
-        text: "View Results",
+        text: "View Analysis",
         icon: <CheckCircle className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
@@ -104,7 +104,7 @@ const GameCard: React.FC<GameCardProps> = ({
       };
     } else if (gameData.isAnalysis || (job && job.status === "completed")) {
       return {
-        text: "View Results",
+        text: "View Analysis",
         icon: <CheckCircle className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",

@@ -275,7 +275,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
     if (game.isAnalysis || (job && job.status === "completed")) {
       return {
-        text: "View Result",
+        text: "View Analysis",
         icon: <Eye className="h-4 w-4 mr-2" />,
         className:
           "border-2 border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
