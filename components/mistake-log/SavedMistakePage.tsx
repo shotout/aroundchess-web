@@ -354,14 +354,14 @@ const SavedMistakePage = () => {
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
 
-      <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
-        <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+      <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 w-[calc(100%+32px)]">
+        <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF]`}>
           <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
           <span className="font-semibold">Game History</span>
         </Link>
 
-        <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
-          <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="invert brightness-0" />
+        <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF] lg:bg-[#221AE9] lg:text-white relative text-[#221AE9] before:content-[''] before:w-full before:absolute before:bottom-4px before:left-0 border-b-[4px] border-[#221AE9]`}>
+          <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="lg:invert lg:brightness-0" />
           <span>Saved Mistakes</span>
         </Link>
       </div>
@@ -379,10 +379,10 @@ const SavedMistakePage = () => {
 
       {savedMistakes.length > 0 ? (
         <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
-          <div className="lg:mt-2">
+          {/* <div className="lg:mt-2">
             <ChessContent />
-          </div>
-          <div className="xl:w-3/4">
+          </div> */}
+          <div className="xl:w-full">
             <SavedMistakes onClickSeePrevious={handleGoPrevious} />
           </div>
         </div>

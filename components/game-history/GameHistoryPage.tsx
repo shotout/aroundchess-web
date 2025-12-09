@@ -63,20 +63,20 @@ const GameHistoryPage: React.FC = () => {
       <main className="w-full  bg-primary-white">
         <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
         <div className="p-4">
-          <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
-            <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
-              <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} className="invert brightness-0" />
+          <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 w-[calc(100%+32px)]">
+            <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF] lg:bg-[#221AE9] lg:text-white relative text-[#221AE9] before:content-[''] before:w-full before:absolute before:bottom-4px before:left-0 border-b-[4px] border-[#221AE9]`}>
+              <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} className="lg:invert lg:brightness-0" />
               <span className="font-semibold">Game History</span>
             </Link>
 
-            <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+            <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF]`}>
               <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} />
               <span>Saved Mistakes</span>
             </Link>
           </div>
 
-          <div className="flex justify-between items-center xl:mb-4">
-            <div className="flex flex-row items-center gap-1 md:gap-2">
+          <div className="flex justify-between items-center xl:mb-4 pt-[16px] lg:pt-0">
+            <div className="hidden lg:flex flex-row items-center gap-1 md:gap-2">
               <h1 className="text-[14px] --sm md:text-2xl xl:text-[32px] font-bold">
                 My Game History
 

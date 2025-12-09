@@ -246,10 +246,10 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const headerHeightLg = 96;
 
   return (
-    <div>
+    <div className="w-full lg:max-w-[200px]">
       <button
         type="button"
-        className="flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary w-[130px] md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
+        className="w-full flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
         onClick={() => setOpenDialog(true)}
       >
         <Upload className="h-[20px]" />

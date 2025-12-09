@@ -238,8 +238,8 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                         <Image
                           alt=""
                           src={"/icons/alert-triangle.png"}
-                          width={1000}
-                          height={1000}
+                          width={14}
+                          height={14}
                           className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] lg:w-[18px] lg:h-[18px]"
                         />
                         <div className="flex flex-col">
@@ -291,7 +291,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                     {display?.analysis ?? ""}
                   </span>
                   <div className="flex items-center gap-[16px]">
-                    <div className="w-[calc(100%-238px)] p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
+                    <div className="w-full lg:w-[calc(100%-238px)] p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
                       <div className="flex flex-row items-center justify-start gap-2 w-full">
                         <Image
                           alt=""
@@ -300,15 +300,13 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           height={1000}
                           className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                         />
-                        <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9] truncate whitespace-nowrap flex-1">
-                          <span className="font-bold">
-                            {display?.recommendation ?? ""}
-                          </span>
+                        <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
+                          <span className="font-bold">Recomendations: </span> {display?.recommendation ?? ""}
                         </span>
                       </div>
                     </div>
 
-                    <button type="button" className="flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34]">
+                    <button type="button" className="hidden lg:flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34]">
                       <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_866_179599)">
                           <path d="M0.664062 7.99935C0.664062 7.99935 3.33073 2.66602 7.9974 2.66602C12.6641 2.66602 15.3307 7.99935 15.3307 7.99935C15.3307 7.99935 12.6641 13.3327 7.9974 13.3327C3.33073 13.3327 0.664062 7.99935 0.664062 7.99935Z" stroke="#FAFDFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
