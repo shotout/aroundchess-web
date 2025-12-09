@@ -19,6 +19,8 @@ interface AnalyzeGameHistoryProps {
   game?: any;
   autoStart?: boolean;
   onAutoStartComplete?: () => void;
+  onAnalysisStarted?: () => void;
+  onShortAnalysisReceived?: (data: any) => void;
 }
 
 export function AnalyzeGameHistory({
@@ -27,6 +29,8 @@ export function AnalyzeGameHistory({
   game,
   autoStart = false,
   onAutoStartComplete,
+  onAnalysisStarted,
+  onShortAnalysisReceived,
 }: AnalyzeGameHistoryProps) {
   const router = useRouter();
   const { pgnToFenList } = useStockfishAnalysis();
@@ -49,28 +53,22 @@ export function AnalyzeGameHistory({
     {
       image: "/icons/board-small-analysis.png",
       value: 12,
-      title: "Basic Analysis",
-      description:
-        "Our AI quickly analyzes your chess game with a low-depth search, " +
-        "providing fast insights without long processing times.",
+      title: "Standard Analysis",
+      description: "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
       mustMember: false,
     },
     {
       image: "/icons/board-medium-analysis.png",
       value: 16,
-      title: "Standard Analysis",
-      description:
-        "Our AI analyzes your chess game with a middle-depth search, " +
-        "offering balanced insights with moderate processing time.",
+      title: "Full Analysis",
+      description: "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
       mustMember: true,
     },
     {
       image: "/icons/board-large-analysis.png",
       value: 18,
       title: "Deep Analysis",
-      description:
-        "Our AI analyzes your chess game with a high-depth search, " +
-        "providing deep insights with a longer processing time.",
+      description: "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
       mustMember: true,
     },
   ];
@@ -79,6 +77,7 @@ export function AnalyzeGameHistory({
   const [pgnText] = useState("");
   const [depthChoosed, setDepthChoosed] = useState(depth);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
 
   const handleAnalyzeGame = async () => {
     try {
@@ -189,6 +188,11 @@ export function AnalyzeGameHistory({
         }
         onOpenChange(false);
 
+        // Call callback to open ChooseAnalysisMode
+        if (onAnalysisStarted) {
+          onAnalysisStarted();
+        }
+
         if (["completed", "ready"].includes(data.status)) {
           updateJob(game.id, {
             status: "completed",
@@ -252,6 +256,57 @@ export function AnalyzeGameHistory({
       updateJob(game.id, { status: "failed", error: msg });
     } finally {
       setIsSubmitting(false);
+    }
+
+    // Call to new short-analyze endpoint
+    try {
+      console.log("📤 Calling short-analyze endpoint...");
+      console.log("Payload:", {
+        pgn: gameToAnalyze,
+        username: game.username || "",
+        depth: depthChoosed,
+      });
+
+      const { default: axios } = await import("axios");
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+
+      const shortAnalyzeRes = await axios.post(
+        `${baseUrl}/v3/analyze/short-analyze`,
+        {
+          pgn: gameToAnalyze,
+          username: game.username || "",
+          depth: depthChoosed,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+
+      console.log("✅ Short-analyze response:", shortAnalyzeRes.data);
+
+      // Simpan response ke state
+      if (shortAnalyzeRes.data) {
+        setShortAnalysisData(shortAnalyzeRes.data);
+        console.log("💾 Short-analysis data saved to state");
+
+        // Kirim data ke parent component via callback
+        if (onShortAnalysisReceived) {
+          onShortAnalysisReceived(shortAnalyzeRes.data);
+          console.log("📤 Short-analysis data sent to parent component");
+        }
+      }
+    } catch (shortAnalyzeError: any) {
+      console.error("❌ Short-analyze error:", shortAnalyzeError);
+      console.error("Error details:", {
+        message: shortAnalyzeError.message,
+        response: shortAnalyzeError.response?.data,
+        status: shortAnalyzeError.response?.status,
+      });
+      // Set null jika error
+      setShortAnalysisData(null);
     }
   };
 

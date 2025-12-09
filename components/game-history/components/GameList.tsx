@@ -198,6 +198,16 @@ const GamesList: React.FC<GamesListProps> = ({
   const [autoStartGameId, setAutoStartGameId] = useState<
     string | number | null
   >(null);
+  const [chooseAnalysisModeGameId, setChooseAnalysisModeGameId] = useState<
+    string | number | null
+  >(null);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [processingAnalysisModeGameId, setProcessingAnalysisModeGameId] = useState<
+    string | number | null
+  >(null);
+  const [gameAnalysisGameId, setGameAnalysisGameId] = useState<
+    string | number | null
+  >(null);
 
   // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
   useEffect(() => {
@@ -342,38 +352,19 @@ const GamesList: React.FC<GamesListProps> = ({
     if (job) {
       switch (job.status) {
         case "pending":
-        case "processing": {
-          const pct = job.progress > 0 ? `${job.progress}%` : "On Progress";
-          return {
-            text: pct,
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className:
-              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
-            onClick: () => {},
-          };
-        }
-        case "waiting": {
-          let text = "Just one more moment...";
-          if (job.estimatedDurationSeconds && job.startedAt) {
-            text = `${text} `;
-          }
-
-          return {
-            text,
-            icon: null,
-            className:
-              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
-            onClick: () => {},
-            disabled: true,
-          };
-        }
+        case "processing":
+        case "waiting":
         case "finalizing":
+          // Show normal "Analyze" button but open ChooseAnalysisMode instead
           return {
-            text: "Finalizing...",
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            text: "Analyze",
+            icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
             className:
-              "bg-gradient-to-b from-blue-600 to-blue-[#221AE9] border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
-            onClick: () => {},
+              "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+            onClick: () => {
+              // Open ChooseAnalysisMode to view progress
+              setChooseAnalysisModeGameId(gameId);
+            },
           };
         case "failed":
           return {
@@ -498,9 +489,6 @@ const GamesList: React.FC<GamesListProps> = ({
             currentGames.map((game, idx) => {
               const btn = getAnalysisButtonContent(game.id, game);
               const isNew =
-                autoStartGameId == game.id ||
-                btn.text.includes("%") ||
-                btn.text.includes("Processing") ||
                 (!game.hasViewedAnalysis && game.isAnalysis) ||
                 isNewlyImported(game.id);
               const indexInPage =
@@ -523,11 +511,39 @@ const GamesList: React.FC<GamesListProps> = ({
                       // clear the auto start marker once done
                       setAutoStartGameId(null);
                     }}
+                    onAnalysisStarted={() => {
+                      // Open ChooseAnalysisMode when analysis starts
+                      setChooseAnalysisModeGameId(game.id);
+                    }}
+                    onShortAnalysisReceived={(data) => {
+                      console.log("📥 GameList received short-analysis data:", data);
+                      setShortAnalysisData(data);
+                    }}
                   />
 
-                  <ChooseAnalysisMode open={false} onOpenChange={() => {}} />
-                  <ProcessingAnalysisMode open={false} onOpenChange={() => {}} />
-                  <GameAnalysis open={false} onOpenChange={() => { }} />
+                  <ChooseAnalysisMode
+                    open={chooseAnalysisModeGameId === game.id}
+                    onOpenChange={(o) => setChooseAnalysisModeGameId(o ? game.id : null)}
+                    game={game}
+                    shortAnalysisData={shortAnalysisData}
+                    onOpenProcessingMode={() => {
+                      console.log("🔄 Opening ProcessingAnalysisMode from GameList");
+                      setProcessingAnalysisModeGameId(game.id);
+                    }}
+                  />
+                  <ProcessingAnalysisMode
+                    open={processingAnalysisModeGameId === game.id}
+                    onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
+                    game={game}
+                    onOpenGameAnalysis={() => {
+                      console.log("🎯 Opening GameAnalysis from GameList");
+                      setGameAnalysisGameId(game.id);
+                    }}
+                  />
+                  <GameAnalysis
+                    open={gameAnalysisGameId === game.id}
+                    onOpenChange={(o) => setGameAnalysisGameId(o ? game.id : null)}
+                  />
 
                   <div className="flex items-center px-2 py-3 border-r border-gray-200">
                     {/* {isNew && (
@@ -580,40 +596,20 @@ const GamesList: React.FC<GamesListProps> = ({
                       const btn = getAnalysisButtonContent(game.id, game);
                       return (
                         <button
-                          className={`${btn.className} ${
-                            (disabled || autoStartGameId == game.id) &&
-                            "bg-gray-700"
-                          } h-8 w-full rounded-3xl ${
-                            btn.text === "Just one more moment..."
-                              ? "text-[14px] --10px"
-                              : "text-[14px] --xs "
-                          } flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                          className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
                           onClick={btn.onClick}
-                          disabled={
-                            autoStartGameId == game.id ||
-                            disabled ||
-                            btn.text.startsWith("In Progress") ||
-                            btn.text === "Finalizing..." ||
-                            btn.text === "Just one more moment..."
-                          }
+                          disabled={disabled && game.id == gameId}
                         >
-                          {(disabled && game.id == gameId) ||
-                          autoStartGameId == game.id ? (
+                          {disabled && game.id == gameId ? (
                             <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
                           ) : (
                             btn.icon
                           )}
                           <span className="hidden sm:block max-w-[90px]">
-                            {autoStartGameId == game.id
-                              ? "Processing"
-                              : btn.text}
+                            {btn.text}
                           </span>
                           <span className="block sm:hidden">
-                            {autoStartGameId == game.id
-                              ? "Processing"
-                              : btn.text.includes("%")
-                              ? "On Progress: " + btn.text
-                              : ""}
+                            {btn.text}
                           </span>
                         </button>
                       );

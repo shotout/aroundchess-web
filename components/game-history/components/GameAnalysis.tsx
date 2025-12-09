@@ -29,7 +29,7 @@ export default function GameAnalysis({
 
     return (
         <div
-            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-70 flex justify-center lg:py-[16px]"
+            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex justify-center lg:py-[16px]"
             style={{
                 top:
                 typeof window !== "undefined" && window.innerWidth >= 1024

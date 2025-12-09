@@ -63,6 +63,10 @@ const GameCard: React.FC<GameCardProps> = ({
   isNewlyImported = false,
 }) => {
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const router = useRouter();
   const { isTutorialPlay, stepFocused } = useTutorial();
   const { getJobByGameId } = useBackgroundAnalysisStore();
@@ -151,42 +155,20 @@ const GameCard: React.FC<GameCardProps> = ({
     if (job) {
       switch (job.status) {
         case "pending":
-        case "processing": {
-          const progressText =
-            job.progress > 0 ? `In Progress ${job.progress}%` : "In Progress";
-          return {
-            text: progressText,
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className:
-              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
-            onClick: () => {},
-            disabled: true,
-          };
-        }
-        case "waiting": {
-          // compute remaining time if possible
-          let text = "Just one more moment...";
-          if (job.estimatedDurationSeconds && job.startedAt) {
-            text = `${text} `;
-          }
-
-          return {
-            text,
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
-            className:
-              "border border-[#FFE057] bg-gradient-to-t from-[#EEC602] to-[#EE9402] hover:[#EE9402] hover:to-[#EE9402] text-white shadow-sm ring-1 ring-yellow-200",
-            onClick: () => {},
-            disabled: true,
-          };
-        }
+        case "processing":
+        case "waiting":
         case "finalizing":
+          // Show normal "Analyze" button but open ChooseAnalysisMode instead
           return {
-            text: "Finalizing...",
-            icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+            text: "Analyze",
+            icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
             className:
-              "bg-gradient-to-b from-blue-600 to-blue-[#221AE9] border border-white hover:from-blue-700 hover:to-blue-800 text-white shadow-sm ring-1 ring-blue-200",
-            onClick: () => {},
-            disabled: true,
+              "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+            onClick: () => {
+              // Open ChooseAnalysisMode to view progress
+              setIsChooseAnalysisModeOpen(true);
+            },
+            disabled: false,
           };
         case "failed":
           return {
@@ -230,16 +212,44 @@ const GameCard: React.FC<GameCardProps> = ({
         open={isAnalyzeOpen}
         onOpenChange={setIsAnalyzeOpen}
         game={gameData}
+        onAnalysisStarted={() => {
+          // Open ChooseAnalysisMode when analysis starts
+          setIsChooseAnalysisModeOpen(true);
+        }}
+        onShortAnalysisReceived={(data) => {
+          console.log("📥 GameCard received short-analysis data:", data);
+          setShortAnalysisData(data);
+        }}
       />
 
-      <ChooseAnalysisMode open={false} onOpenChange={() => { }} />
-      <ProcessingAnalysisMode open={false} onOpenChange={() => { }} />
-      <GameAnalysis open={false} onOpenChange={() => { }} />
+      <ChooseAnalysisMode
+        open={isChooseAnalysisModeOpen}
+        onOpenChange={setIsChooseAnalysisModeOpen}
+        game={gameData}
+        shortAnalysisData={shortAnalysisData}
+        onOpenProcessingMode={() => {
+          console.log("🔄 Opening ProcessingAnalysisMode from GameCard");
+          setProcessingAnalysisModeOpen(true);
+        }}
+      />
+
+      <ProcessingAnalysisMode
+        open={processingAnalysisModeOpen}
+        onOpenChange={setProcessingAnalysisModeOpen}
+        game={gameData}
+        onOpenGameAnalysis={() => {
+          console.log("🎯 Opening GameAnalysis from GameCard");
+          setGameAnalysisOpen(true);
+        }}
+      />
+
+      <GameAnalysis
+        open={gameAnalysisOpen}
+        onOpenChange={setGameAnalysisOpen}
+      />
       
       <div
         className={`p-4 border md:rounded-md relative ${
-          btn.text.includes("%") ||
-          btn.text.includes("Processing") ||
           (!gameData.hasViewedAnalysis && gameData.isAnalysis) ||
           isNewlyImported
             ? "bg-[#FFF6DB]"

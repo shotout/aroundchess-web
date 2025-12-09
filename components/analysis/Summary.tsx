@@ -4,11 +4,15 @@ import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { FamousGameCard } from "@/components/famous-game-button";
 import { CardPlayer } from "@/components/player/CardPlayer";
-import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, Bookmark } from "lucide-react";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { usePgnStore } from "../../app/store/zustandStore";
+import { useApiClient } from "@/functions/api-client";
+import DotSpinner from "../game-history/Spinner";
+import { toast } from "sonner";
 
 interface SummaryProps {
   next: () => void;
@@ -20,11 +24,17 @@ const Summary: React.FC<SummaryProps> = (props) => {
     dataAnalysis,
     capturedWhite,
     capturedBlack,
+    setSavedMistakes,
+    mistakeLogs,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
-  const { open, setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
+
+  const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
+  const [localSummaryData, setLocalSummaryData] = useState<any>(null);
 
   useEffect(() => {
     const checkSession = () => {
@@ -38,13 +48,73 @@ const Summary: React.FC<SummaryProps> = (props) => {
     checkSession();
   }, [sessionId, isSignedIn]);
 
+  // Helper function to find ID from mistakeLogs by matching move
+  const findIdFromMistakeLogs = (move: string, moveNumber: number, category: string) => {
+    if (!mistakeLogs || !mistakeLogs[category]) return null;
+
+    const matchingItem = mistakeLogs[category].find(
+      (item: any) => item.move === move && item.moveNumber === moveNumber
+    );
+
+    return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
+  };
+
+  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
+  useEffect(() => {
+    if (dataAnalysis?.summary) {
+      const mergedData = { ...dataAnalysis.summary };
+
+      // Merge criticalMistakes with IDs from mistakeLogs
+      if (mergedData.criticalMistakes && Array.isArray(mergedData.criticalMistakes)) {
+        mergedData.criticalMistakes = mergedData.criticalMistakes.map((item: any) => {
+          const id = findIdFromMistakeLogs(item.move, item.moveNumber, "criticalMistakes");
+          const mistakeLogItem = mistakeLogs?.criticalMistakes?.find(
+            (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
+          );
+
+          return {
+            ...item,
+            id: id,
+            saved: mistakeLogItem?.saved || false,
+          };
+        });
+      }
+
+      // Merge bestMoves.middleGame with IDs from mistakeLogs
+      if (mergedData.bestMoves?.middleGame && Array.isArray(mergedData.bestMoves.middleGame)) {
+        mergedData.bestMoves.middleGame = mergedData.bestMoves.middleGame.map((item: any) => {
+          // Check both in bestMoves and threats categories
+          let id = findIdFromMistakeLogs(item.move, item.moveNumber, "bestMoves");
+          if (!id) {
+            id = findIdFromMistakeLogs(item.move, item.moveNumber, "threats");
+          }
+
+          const mistakeLogItem = mistakeLogs?.threats?.find(
+            (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
+          );
+
+          return {
+            ...item,
+            id: id,
+            saved: mistakeLogItem?.saved || false,
+          };
+        });
+      }
+
+      setLocalSummaryData(mergedData);
+    }
+  }, [dataAnalysis, mistakeLogs]);
+
   const {
     whiteSide,
     blackSide,
     overallGameAssessment,
-    bestMoves,
-    criticalMistakes,
   } = dataAnalysis?.summary ?? {};
+
+  // Use local state if available, fallback to dataAnalysis
+  const bestMoves = localSummaryData?.bestMoves ?? dataAnalysis?.summary?.bestMoves;
+  const criticalMistakes = localSummaryData?.criticalMistakes ?? dataAnalysis?.summary?.criticalMistakes;
+
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
   const blackCountry = blackSide?.profileInfo?.chessAccountInfo?.country
     ? blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
@@ -55,8 +125,122 @@ const Summary: React.FC<SummaryProps> = (props) => {
     : "XX";
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(true);
+
+  // Handle save log
+  const handleSaveLog = async (id: string, arrayKey: string, index: number) => {
+    setLoadingToggle(true);
+    try {
+      const res = await saveMistakeLog({ mistakeLogId: id });
+
+      setLocalSummaryData((prev: any) => {
+        if (!prev) return prev;
+
+        // Handle nested keys like "bestMoves.middleGame"
+        if (arrayKey.includes(".")) {
+          const keys = arrayKey.split(".");
+          const parentKey = keys[0];
+          const childKey = keys[1];
+
+          const prevList: any[] = Array.isArray(prev[parentKey]?.[childKey])
+            ? prev[parentKey][childKey]
+            : [];
+          const updatedItem = {
+            ...prevList[index],
+            saved: true,
+            savedDate: res?.data?.savedDate || new Date().toString(),
+          };
+          const newList = [...prevList];
+          newList[index] = updatedItem;
+
+          return {
+            ...prev,
+            [parentKey]: {
+              ...prev[parentKey],
+              [childKey]: newList,
+            },
+          };
+        }
+
+        // Handle direct keys like "criticalMistakes"
+        const prevList: any[] = Array.isArray(prev[arrayKey]) ? prev[arrayKey] : [];
+        const updatedItem = {
+          ...prevList[index],
+          saved: true,
+          savedDate: res?.data?.savedDate || new Date().toString(),
+        };
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        return { ...prev, [arrayKey]: newList };
+      });
+
+      // Refresh saved mistakes
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      setSavedMistakes(savedData.data);
+      setLoadingToggle(false);
+    } catch (e) {
+      console.error(e);
+      setLoadingToggle(false);
+    }
+  };
+
+  // Handle unsave log
+  const handleUnsaveLog = async (id: string, arrayKey: string, index: number) => {
+    setLoadingToggle(true);
+    try {
+      const res = await unsaveMistakeLog({ mistakeLogId: id });
+
+      setLocalSummaryData((prev: any) => {
+        if (!prev) return prev;
+
+        // Handle nested keys like "bestMoves.middleGame"
+        if (arrayKey.includes(".")) {
+          const keys = arrayKey.split(".");
+          const parentKey = keys[0];
+          const childKey = keys[1];
+
+          const prevList: any[] = Array.isArray(prev[parentKey]?.[childKey])
+            ? prev[parentKey][childKey]
+            : [];
+          const updatedItem = {
+            ...prevList[index],
+            saved: false,
+            savedDate: null,
+          };
+          const newList = [...prevList];
+          newList[index] = updatedItem;
+
+          return {
+            ...prev,
+            [parentKey]: {
+              ...prev[parentKey],
+              [childKey]: newList,
+            },
+          };
+        }
+
+        // Handle direct keys like "criticalMistakes"
+        const prevList: any[] = Array.isArray(prev[arrayKey]) ? prev[arrayKey] : [];
+        const updatedItem = {
+          ...prevList[index],
+          saved: false,
+          savedDate: null,
+        };
+        const newList = [...prevList];
+        newList[index] = updatedItem;
+        return { ...prev, [arrayKey]: newList };
+      });
+
+      // Refresh saved mistakes
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      setSavedMistakes(savedData.data);
+      setLoadingToggle(false);
+    } catch (e) {
+      console.error(e);
+      setLoadingToggle(false);
+    }
+  };
+
   const handleOnClickMovement = (move: any) => {
-    // console.log(move);
     setChessMove(move);
   };
   return (
@@ -500,10 +684,38 @@ const Summary: React.FC<SummaryProps> = (props) => {
                           {item.type}
                         </span>
 
-                        <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
-                          <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const mistakeId = item?.id || item?.mistakeLogId || item?._id;
+
+                            if (!mistakeId) {
+                              toast.error("Cannot save: Mistake log ID not found");
+                              return;
+                            }
+
+                            if (item?.saved) {
+                              handleUnsaveLog(mistakeId, "criticalMistakes", index);
+                            } else {
+                              handleSaveLog(mistakeId, "criticalMistakes", index);
+                            }
+                          }}
+                          className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]"
+                        >
+                          {loadingToggle ? (
+                            <DotSpinner size={5} />
+                          ) : item?.saved ? (
+                            <BookmarkFilledIcon
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          ) : (
+                            <Bookmark
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -579,10 +791,38 @@ const Summary: React.FC<SummaryProps> = (props) => {
                               {middle.classification}
                             </span>
 
-                            <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
-                              <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const mistakeId = middle?.id || middle?.mistakeLogId || middle?._id;
+
+                                if (!mistakeId) {
+                                  console.error("No ID found for this item:", middle);
+                                  return;
+                                }
+
+                                if (middle?.saved) {
+                                  handleUnsaveLog(mistakeId, "bestMoves.middleGame", i);
+                                } else {
+                                  handleSaveLog(mistakeId, "bestMoves.middleGame", i);
+                                }
+                              }}
+                              className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]"
+                            >
+                              {loadingToggle ? (
+                                <DotSpinner size={5} />
+                              ) : middle?.saved ? (
+                                <BookmarkFilledIcon
+                                  className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                                  color="#221AE9"
+                                />
+                              ) : (
+                                <Bookmark
+                                  className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                                  color="#221AE9"
+                                />
+                              )}
                             </button>
                           </div>
                         </div>

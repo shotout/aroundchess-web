@@ -1,23 +1,93 @@
 "use client";
 
+import PgnPlayer from "@/components/analysis-loading/LoadingChess";
+import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import Image from "next/image";
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { useEffect, useState } from "react";
+import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  game?: any;
+  onOpenGameAnalysis?: () => void;
 }
 
-export default function ProcessingAnalysisMode({ 
-    open, 
-    onOpenChange 
+export default function ProcessingAnalysisMode({
+    open,
+    onOpenChange,
+    game,
+    onOpenGameAnalysis
 }: Props) {
+    const { getJobByGameId } = useBackgroundAnalysisStore();
+    const { setPgn } = usePgnStore();
+    const [progress, setProgress] = useState(0);
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
     const headerHeight = 72;
     const headerHeightLg = 96;
+
+    // Set PGN to store when modal opens to enable animation
+    useEffect(() => {
+        if (open && game?.pgn) {
+            console.log("🎬 ProcessingAnalysisMode: Setting PGN to store for animation");
+            setPgn(game.pgn);
+        }
+    }, [open, game?.pgn, setPgn]);
+
+    // Monitor job progress with polling
+    useEffect(() => {
+        if (!game || !open) {
+            setProgress(0);
+            return;
+        }
+
+        const checkJobStatus = () => {
+            const job = getJobByGameId(game.id);
+
+            if (job) {
+                if (job.status === "pending" || job.status === "processing") {
+                    setProgress(job.progress || 0);
+                } else if (job.status === "completed") {
+                    setProgress(100);
+                }
+            } else {
+                setProgress(0);
+            }
+        };
+
+        // Initial check
+        checkJobStatus();
+
+        // Poll every second while dialog is open
+        const interval = setInterval(checkJobStatus, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [game, open, getJobByGameId]);
+
+    // Handle completion: close ProcessingAnalysisMode and open GameAnalysis after 2 seconds
+    useEffect(() => {
+        if (progress === 100 && open) {
+            console.log("✅ Analysis completed! Waiting 2 seconds before opening GameAnalysis...");
+
+            const timer = setTimeout(() => {
+                console.log("🎉 Opening GameAnalysis dialog");
+                onOpenChange(false); // Close ProcessingAnalysisMode
+
+                if (onOpenGameAnalysis) {
+                    onOpenGameAnalysis(); // Open GameAnalysis
+                }
+            }, 2000); // 2 seconds delay
+
+            return () => clearTimeout(timer);
+        }
+    }, [progress, open, onOpenChange, onOpenGameAnalysis]);
 
     if (!open) return null;
 
@@ -33,10 +103,12 @@ export default function ProcessingAnalysisMode({
                 right: 0,
                 bottom: 0,
             }}
-            // onClick={() => onOpenChange(false)}
+            onClick={() => onOpenChange(false)}
         >
-            <div className="relative w-full lg:w-[560px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
-                <button type="button" className="absolute top-[16px] lg:top-[32px] right-[16px] lg:right-[32px]">
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full lg:w-[650px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
+                <button type="button" onClick={() => onOpenChange(false)} className="absolute top-[16px] lg:top-[32px] right-[16px] lg:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -47,9 +119,9 @@ export default function ProcessingAnalysisMode({
 
                 <div className="flex flex-col items-center justify-center mb-[8px]">
                     <div className="w-[100px] h-[100px]">
-                        <CircularProgressbar 
-                            value={50} 
-                            text={`${50}%`} 
+                        <CircularProgressbar
+                            value={progress}
+                            text={`${progress}%`}
                             styles={{
                                 root: {},
                                 text: {
@@ -65,9 +137,11 @@ export default function ProcessingAnalysisMode({
                                     stroke: "#DEDEDE",
                                 }
                             }} />
-                        <span className="text-[24px] lg:text-[36px] font-semibold">AI Analyzing Now...</span>
                     </div>
-                    <Image src={"/images/analysis/chessboard.png"} alt="chesboard" width={560} height={484} className="w-full" />
+                    <h4 className="text-[24px] lg:text-[36px] mb-[24px] font-semibold">AI Analyzing Now...</h4>
+                    <div className="mb-[-56px]">
+                        <PgnPlayer />
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,13 +1,18 @@
 import { usePgnStore } from "@/app/store/zustandStore";
+import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
 import ChooseAnalysisMode from "@/components/game-history/components/ChooseAnalysisMode";
 import GameAnalysis from "@/components/game-history/components/GameAnalysis";
 import ProcessingAnalysisMode from "@/components/game-history/components/ProcessingAnalysisMode";
-import { MobileTooltip } from "@/components/game-history/components/user-history/Analytics";
-import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { Info, Loader2, Plus, Save } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import Image from "next/image";
+import { useState, useMemo, useEffect } from "react";
+import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import { createPgnHash } from "@/utils/crypto-utils";
+import { useProfileStore } from "@/app/store/profile";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface ButtonFinishProps {
   handleAnalyzeGame: () => void;
@@ -18,15 +23,43 @@ interface ButtonFinishProps {
   handleSave: () => void;
   isSaving?: boolean;
   pgn: string;
-  getAnalysisButtonContent?: () => {
-    text: string;
-    icon: React.ReactNode;
-    className: string;
-    onClick: () => void;
-    disabled?: boolean;
-  };
   isSaved: boolean;
 }
+
+interface LastAnalysisResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  statusCode: number;
+}
+
+const endpoint = process.env.BASE_URL;
+
+const fetchLastAnalysis = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching last analysis:", error);
+    return null;
+  }
+};
 
 export const ButtonFinish = ({
   handleAnalyzeGame,
@@ -38,51 +71,216 @@ export const ButtonFinish = ({
   isSaving,
   isSaved,
   pgn,
-  getAnalysisButtonContent,
 }: ButtonFinishProps) => {
-  const { username } = usePgnStore();
-  const analysisButton = getAnalysisButtonContent
-    ? getAnalysisButtonContent()
-    : null;
+  const router = useRouter();
+  const { username, setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
+  const { getJobByGameId } = useBackgroundAnalysisStore();
+  const { sessionId } = useProfileStore();
 
-  const renderAnalyzeButton = (className: string) => {
-    if (!analysisButton) {
-      return <ChooseDepthAnalyze pgnParam={pgn} style={className} />;
+  const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [hasAnalysis, setHasAnalysis] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+
+  // Create game object from PGN with stable ID using useMemo
+  const gameFromPgn = useMemo(() => {
+    // Create a unique hash from the full PGN to ensure each game has a unique ID
+    const pgnHash = createPgnHash(pgn);
+    const gameId = `play-vs-ai-${pgnHash}`;
+
+    return {
+      id: gameId,
+      pgn: pgn,
+      username: username || "Unknown",
+      opponent: "AI",
+      date: new Date().toLocaleDateString(),
+      timeControl: "N/A",
+      result: "Game Finished",
+      rating: "N/A",
+      timeClass: "Play vs AI",
+      moves: "N/A",
+      opening: "N/A",
+      source: "Play vs AI",
+    };
+  }, [pgn, username]);
+
+  // Check if analysis exists for this game
+  useEffect(() => {
+    const checkAnalysis = () => {
+      const job = getJobByGameId(gameFromPgn.id);
+
+      // Ensure the job is completed, has a result, AND the PGN matches this game
+      const hasCompletedAnalysis =
+        job?.status === "completed" &&
+        !!job.result &&
+        job.pgn === gameFromPgn.pgn;
+
+      if (hasCompletedAnalysis && !hasAnalysis) {
+        console.log("✅ Analysis completed detected!");
+        console.log("📊 Job:", job);
+        console.log("🎮 Game ID:", gameFromPgn.id);
+        console.log("📋 PGN match:", job.pgn === gameFromPgn.pgn);
+      }
+
+      if (job && !hasCompletedAnalysis) {
+        console.log("⏳ Job found but not ready:", {
+          status: job.status,
+          hasResult: !!job.result,
+          pgnMatch: job.pgn === gameFromPgn.pgn,
+        });
+      }
+
+      setHasAnalysis(hasCompletedAnalysis);
+    };
+
+    checkAnalysis();
+    // Poll every second to check for completed analysis
+    const interval = setInterval(checkAnalysis, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis]);
+
+  // Handle "Show Analysis" click
+  const handleShowAnalysis = async () => {
+    console.log("🔍 ButtonFinish: handleShowAnalysis called");
+    console.log("🎮 Game ID:", gameFromPgn.id);
+    console.log("📋 PGN:", gameFromPgn.pgn?.substring(0, 100));
+
+    toast.info("Loading analysis...");
+
+    try {
+      const job = getJobByGameId(gameFromPgn.id);
+      console.log("💼 Job data:", job);
+
+      const pgnHash = createPgnHash(gameFromPgn.pgn);
+      console.log("🔑 PGN Hash:", pgnHash);
+
+      const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
+      console.log("📊 Last analysis response:", lastAnalysis);
+
+      if (lastAnalysis?.success && lastAnalysis.data) {
+        console.log("✅ Using server analysis data");
+        console.log("📈 Analysis data keys:", Object.keys(lastAnalysis.data));
+
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(lastAnalysis.data);
+        setIsFromGameHistory(true);
+
+        console.log("🚀 Navigating to /analysis with server data");
+        toast.success("Opening analysis...");
+        router.push("/analysis");
+      } else {
+        console.log("⚠️ Server analysis not available, trying job result");
+        if (job && job.result) {
+          console.log("✅ Using job result data");
+          console.log("📈 Job result keys:", Object.keys(job.result));
+
+          setPgn(gameFromPgn.pgn);
+          setDataGamesImport(gameFromPgn);
+          setDataAnalysis(job.result);
+          setIsFromGameHistory(true);
+
+          console.log("🚀 Navigating to /analysis with job data");
+          toast.success("Opening analysis...");
+          router.push("/analysis");
+        } else {
+          console.error("❌ No analysis found for this game");
+          console.log("Falling back to analyze dialog");
+          toast.error("No analysis data found. Please analyze the game first.");
+          setIsAnalyzeOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error fetching analysis:", error);
+      const job = getJobByGameId(gameFromPgn.id);
+      console.log("🔄 Attempting fallback with job:", job);
+
+      if (job && job.result) {
+        console.log("✅ Using fallback job result");
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(job.result);
+        setIsFromGameHistory(true);
+
+        console.log("🚀 Navigating to /analysis with fallback job data");
+        toast.success("Opening analysis...");
+        router.push("/analysis");
+      } else {
+        console.error("❌ No fallback data available");
+        toast.error("Failed to load analysis. Please try again.");
+      }
     }
-
-    return (
-      <button
-        onClick={analysisButton.onClick}
-        disabled={analysisButton.disabled}
-        className={`${
-          analysisButton.className
-        } ${className} rounded-full h-[40px] flex items-center justify-center transition-colors duration-150 ${
-          analysisButton.disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      >
-        <div className="flex flex-row items-center justify-center gap-2">
-          {analysisButton.icon}
-          <span className="font-medium">{analysisButton.text}</span>
-        </div>
-      </button>
-    );
   };
+
   const renderButtonSave = () => {
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
-          <button type="button" className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] bg-green-600">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Analyze Now
-          </button>
+          {hasAnalysis ? (
+            // Show "Show Analysis" button when analysis is completed
+            <button
+              type="button"
+              onClick={handleShowAnalysis}
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-2 border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"
+            >
+              <Eye className="h-4 w-4" />
+              Show Analysis
+            </button>
+          ) : (
+            // Show "Analyze Now" button when no analysis exists
+            <button
+              type="button"
+              onClick={() => setIsAnalyzeOpen(true)}
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23]"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Analyze Now
+            </button>
+          )}
 
-          <ChooseAnalysisMode open={false} onOpenChange={() => { }} />
-          <ProcessingAnalysisMode open={false} onOpenChange={() => { }} />
-          <GameAnalysis open={false} onOpenChange={() => { }} />
+          <AnalyzeGameHistory
+            open={isAnalyzeOpen}
+            onOpenChange={setIsAnalyzeOpen}
+            game={gameFromPgn}
+            onAnalysisStarted={() => {
+              // Open ChooseAnalysisMode when analysis starts
+              setIsChooseAnalysisModeOpen(true);
+            }}
+            onShortAnalysisReceived={(data) => {
+              console.log("📥 ButtonFinish received short-analysis data:", data);
+              setShortAnalysisData(data);
+            }}
+          />
+          <ChooseAnalysisMode
+            open={isChooseAnalysisModeOpen}
+            onOpenChange={setIsChooseAnalysisModeOpen}
+            game={gameFromPgn}
+            shortAnalysisData={shortAnalysisData}
+            onOpenProcessingMode={() => {
+              console.log("🔄 Opening ProcessingAnalysisMode from ButtonFinish");
+              setProcessingAnalysisModeOpen(true);
+            }}
+          />
+          <ProcessingAnalysisMode
+            open={processingAnalysisModeOpen}
+            onOpenChange={setProcessingAnalysisModeOpen}
+            game={gameFromPgn}
+            onOpenGameAnalysis={() => {
+              console.log("🎯 Opening GameAnalysis from ButtonFinish");
+              setGameAnalysisOpen(true);
+            }}
+          />
+          <GameAnalysis
+            open={gameAnalysisOpen}
+            onOpenChange={setGameAnalysisOpen}
+          />
 
           {/* <button
             onClick={handleSave}
