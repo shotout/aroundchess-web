@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { EffectCards, Navigation, Pagination } from 'swiper/modules';
 
 import 'swiper/css';
+import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useState } from "react";
@@ -14,11 +15,11 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function GameAnalysis({ 
-    open, 
-    onOpenChange 
+export default function GameAnalysis({
+    open,
+    onOpenChange
 }: Props) {
-    const [activeIndex, setActiveIndex] = useState(1);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
@@ -52,28 +53,39 @@ export default function GameAnalysis({
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">Game Analysis</h3>
 
                 <Swiper
-                    modules={[Navigation, Pagination]}
+                    modules={[EffectCards, Navigation, Pagination]}
+                    effect="cards"
+                    grabCursor={true}
+                    cardsEffect={{
+                        slideShadows: true,
+                        rotate: true,
+                        perSlideRotate: 2,
+                        perSlideOffset: 8,
+                    }}
                     navigation={{
                         nextEl: '.swiper-button-next',
                         prevEl: '.swiper-button-prev',
                     }}
-                    pagination={{ 
+                    pagination={{
                         clickable: true,
                         el: '.swiper-pagination',
                     }}
-                    slidesPerView={1}
                     onSlideChange={(swiper) => {
-                        setActiveIndex(swiper.activeIndex + 1);
+                        setActiveIndex(swiper.activeIndex);
                     }}
-                    onSwiper={(swiper) => console.log(swiper)}
+                    onSwiper={(swiper) => {
+                        setActiveIndex(swiper.activeIndex);
+                        console.log(swiper);
+                    }}
+                    className="w-full"
                 >
-                    <SwiperSlide>Slide 1</SwiperSlide>
+                    <SwiperSlide><div className="flex items-center justify-center bg-white w-full h-[627px] border border-[#221AE9] rounded-[8px]">Slide 1</div></SwiperSlide>
                     <SwiperSlide>
                         <GameAnalysisSlide />
                     </SwiperSlide>
-                    <SwiperSlide>Slide 3</SwiperSlide>
-                    <SwiperSlide>Slide 4</SwiperSlide>
-                    <SwiperSlide>Slide 5</SwiperSlide>
+                    <SwiperSlide><div className="flex items-center justify-center bg-white w-full h-[627px] border border-[#221AE9] rounded-[8px]">Slide 3</div></SwiperSlide>
+                    <SwiperSlide><div className="flex items-center justify-center bg-white w-full h-[627px] border border-[#221AE9] rounded-[8px]">Slide 4</div></SwiperSlide>
+                    <SwiperSlide><div className="flex items-center justify-center bg-white w-full h-[627px] border border-[#221AE9] rounded-[8px]">Slide 5</div></SwiperSlide>
                     <SwiperSlide>
                         <AnalysisHelpfulSlide />
                     </SwiperSlide>
@@ -93,7 +105,7 @@ export default function GameAnalysis({
                             </svg>
                         </div>
                         <div className="flex flex-col items-center justify-center gap-[8px]">
-                            <span className="font-semibold">- {activeIndex} of 6 -</span>
+                            <span className="font-semibold">- {activeIndex + 1} of 6 -</span>
                             <div className="swiper-pagination"></div>
                         </div>
                         <div className="swiper-button-next w-[42px] h-[42px] flex relative justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
