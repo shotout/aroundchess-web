@@ -4,9 +4,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
+import { useV3PollingManager } from "../hooks/useV3PollingManager";
 
 interface Props {
   open: boolean;
@@ -63,8 +65,10 @@ export default function ChooseAnalysisMode({
 }: Props) {
     const router = useRouter();
     const { getJobByGameId } = useBackgroundAnalysisStore();
+    const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
     const { sessionId } = useProfileStore();
+    const { startV3BackgroundPolling } = useV3PollingManager();
 
     const [progress, setProgress] = useState(0);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -166,7 +170,7 @@ export default function ChooseAnalysisMode({
 
     const handleQuickSummaryClick = async () => {
         console.log("🎯 Quick Summary button clicked");
-        console.log("📊 Short analysis data:", shortAnalysisData);
+        console.log("📊 Short analysis data:", JSON.stringify(shortAnalysisData, null, 2));
 
         // Check if shortAnalysisData exists and has statusUrl
         if (!shortAnalysisData?.data?.statusUrl) {
@@ -180,8 +184,50 @@ export default function ChooseAnalysisMode({
             return;
         }
 
-        const statusUrl = shortAnalysisData.data.statusUrl;
+        const v3Data = shortAnalysisData.data;
+        const statusUrl = v3Data.statusUrl;
+        const jobId = v3Data.jobId;
         console.log("🔗 StatusUrl:", statusUrl);
+        console.log("🆔 JobId:", jobId);
+        console.log("🎮 Game ID:", game.id);
+        console.log("📄 Game PGN:", game.pgn);
+
+        // Add v3 job to store
+        if (statusUrl && jobId && game?.pgn) {
+            console.log("📝 Adding v3 job to store for game:", game.id);
+            console.log("Job details:", {
+                gameId: game.id,
+                jobId: jobId,
+                statusUrl: statusUrl,
+                pgnLength: game.pgn.length,
+            });
+
+            addV3Job(
+                game.id,
+                jobId,
+                statusUrl,
+                game.pgn,
+                12 // default depth, bisa disesuaikan
+            );
+
+            console.log("✅ V3 job added to store");
+
+            // Start v3 polling
+            startV3BackgroundPolling(
+                game.id,
+                statusUrl,
+                jobId,
+                game.pgn,
+                game
+            );
+            console.log("✅ V3 polling started");
+        } else {
+            console.error("❌ Missing required data:", {
+                hasStatusUrl: !!statusUrl,
+                hasJobId: !!jobId,
+                hasGamePgn: !!game?.pgn,
+            });
+        }
 
         try {
             console.log("📤 Calling statusUrl endpoint...");
@@ -189,7 +235,7 @@ export default function ChooseAnalysisMode({
             const { default: axios } = await import("axios");
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
 
-            const response = await axios.get(`${baseUrl}${statusUrl}`, {
+            const response = await axios.get(`${baseUrl}${statusUrl}?t=${Date.now()}`, {
                 headers: {
                     Authorization: `Bearer ${sessionId}`,
                 },

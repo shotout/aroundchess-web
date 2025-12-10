@@ -208,6 +208,7 @@ const GamesList: React.FC<GamesListProps> = ({
   const [gameAnalysisGameId, setGameAnalysisGameId] = useState<
     string | number | null
   >(null);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
 
   // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
   useEffect(() => {
@@ -535,14 +536,17 @@ const GamesList: React.FC<GamesListProps> = ({
                     open={processingAnalysisModeGameId === game.id}
                     onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
                     game={game}
-                    onOpenGameAnalysis={() => {
+                    onOpenGameAnalysis={(v3Result) => {
                       console.log("🎯 Opening GameAnalysis from GameList");
+                      console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
+                      setV3AnalysisResult(v3Result);
                       setGameAnalysisGameId(game.id);
                     }}
                   />
                   <GameAnalysis
                     open={gameAnalysisGameId === game.id}
                     onOpenChange={(o) => setGameAnalysisGameId(o ? game.id : null)}
+                    v3Result={v3AnalysisResult}
                   />
 
                   <div className="flex items-center px-2 py-3 border-r border-gray-200">

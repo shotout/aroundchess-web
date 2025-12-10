@@ -6,14 +6,14 @@ import Image from "next/image";
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useEffect, useState } from "react";
-import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
+import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   game?: any;
-  onOpenGameAnalysis?: () => void;
+  onOpenGameAnalysis?: (v3Result?: any) => void;
 }
 
 export default function ProcessingAnalysisMode({
@@ -22,7 +22,7 @@ export default function ProcessingAnalysisMode({
     game,
     onOpenGameAnalysis
 }: Props) {
-    const { getJobByGameId } = useBackgroundAnalysisStore();
+    const { getJobByGameId } = useV3BackgroundAnalysisStore();
     const { setPgn } = usePgnStore();
     const [progress, setProgress] = useState(0);
 
@@ -48,14 +48,17 @@ export default function ProcessingAnalysisMode({
 
         const checkJobStatus = () => {
             const job = getJobByGameId(game.id);
+            console.log(`[ProcessingAnalysisMode] Checking job for game ${game.id}:`, job);
 
             if (job) {
+                console.log(`[ProcessingAnalysisMode] Job status: ${job.status}, Progress: ${job.progress}`);
                 if (job.status === "pending" || job.status === "processing") {
                     setProgress(job.progress || 0);
                 } else if (job.status === "completed") {
                     setProgress(100);
                 }
             } else {
+                console.log(`[ProcessingAnalysisMode] No job found for game ${game.id}`);
                 setProgress(0);
             }
         };
@@ -78,16 +81,27 @@ export default function ProcessingAnalysisMode({
 
             const timer = setTimeout(() => {
                 console.log("🎉 Opening GameAnalysis dialog");
+
+                // Get the completed job result from v3 store
+                const job = getJobByGameId(game.id);
+                console.log("📦 V3 Job result:", job?.result);
+                console.log("📦 V3 Job analysisId:", job?.analysisId);
+                console.log("📦 V3 Job full data:", JSON.stringify(job, null, 2));
+
                 onOpenChange(false); // Close ProcessingAnalysisMode
 
                 if (onOpenGameAnalysis) {
-                    onOpenGameAnalysis(); // Open GameAnalysis
+                    // Pass the v3 result with analysisId to GameAnalysis
+                    onOpenGameAnalysis({
+                        ...job?.result,
+                        analysisId: job?.analysisId
+                    });
                 }
             }, 2000); // 2 seconds delay
 
             return () => clearTimeout(timer);
         }
-    }, [progress, open, onOpenChange, onOpenGameAnalysis]);
+    }, [progress, open, onOpenChange, onOpenGameAnalysis, game, getJobByGameId]);
 
     if (!open) return null;
 

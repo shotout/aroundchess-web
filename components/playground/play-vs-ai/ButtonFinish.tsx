@@ -83,6 +83,7 @@ export const ButtonFinish = ({
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
   const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
 
   // Create game object from PGN with stable ID using useMemo
   const gameFromPgn = useMemo(() => {
@@ -272,14 +273,17 @@ export const ButtonFinish = ({
             open={processingAnalysisModeOpen}
             onOpenChange={setProcessingAnalysisModeOpen}
             game={gameFromPgn}
-            onOpenGameAnalysis={() => {
+            onOpenGameAnalysis={(v3Result) => {
               console.log("🎯 Opening GameAnalysis from ButtonFinish");
+              console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
+              setV3AnalysisResult(v3Result);
               setGameAnalysisOpen(true);
             }}
           />
           <GameAnalysis
             open={gameAnalysisOpen}
             onOpenChange={setGameAnalysisOpen}
+            v3Result={v3AnalysisResult}
           />
 
           {/* <button

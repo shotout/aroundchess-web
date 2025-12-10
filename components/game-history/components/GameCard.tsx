@@ -67,6 +67,7 @@ const GameCard: React.FC<GameCardProps> = ({
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
   const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
   const router = useRouter();
   const { isTutorialPlay, stepFocused } = useTutorial();
   const { getJobByGameId } = useBackgroundAnalysisStore();
@@ -237,8 +238,10 @@ const GameCard: React.FC<GameCardProps> = ({
         open={processingAnalysisModeOpen}
         onOpenChange={setProcessingAnalysisModeOpen}
         game={gameData}
-        onOpenGameAnalysis={() => {
+        onOpenGameAnalysis={(v3Result) => {
           console.log("🎯 Opening GameAnalysis from GameCard");
+          console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
+          setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
         }}
       />
@@ -246,6 +249,7 @@ const GameCard: React.FC<GameCardProps> = ({
       <GameAnalysis
         open={gameAnalysisOpen}
         onOpenChange={setGameAnalysisOpen}
+        v3Result={v3AnalysisResult}
       />
       
       <div

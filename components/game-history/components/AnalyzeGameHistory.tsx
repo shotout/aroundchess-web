@@ -6,10 +6,8 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
-import { Input } from "@/components/ui/input";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
 
@@ -33,7 +31,6 @@ export function AnalyzeGameHistory({
   onShortAnalysisReceived,
 }: AnalyzeGameHistoryProps) {
   const router = useRouter();
-  const { pgnToFenList } = useStockfishAnalysis();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember,isMemberMonthly, token, sessionId } = useProfileStore();
   const { addJob, updateJob, getJobByGameId } = useBackgroundAnalysisStore();
@@ -77,7 +74,6 @@ export function AnalyzeGameHistory({
   const [pgnText] = useState("");
   const [depthChoosed, setDepthChoosed] = useState(depth);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
 
   const handleAnalyzeGame = async () => {
     try {
@@ -150,11 +146,11 @@ export function AnalyzeGameHistory({
       let endpoint = "";
 
       if (depthChoosed === 12) {
-        endpoint = `${baseUrl}/v2/analyze/basic-analyze`;
+        endpoint = `${baseUrl}/v2/analyze/basic-analyze?t=${Date.now()}`;
       } else if (depthChoosed === 16) {
-        endpoint = `${baseUrl}/v2/analyze/standard-analyze`;
+        endpoint = `${baseUrl}/v2/analyze/standard-analyze?t=${Date.now()}`;
       } else {
-        endpoint = `${baseUrl}/v2/analyze/deep-analyze`;
+        endpoint = `${baseUrl}/v2/analyze/deep-analyze?t=${Date.now()}`;
       }
 
       const res = await axios.post(
@@ -271,7 +267,7 @@ export function AnalyzeGameHistory({
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
 
       const shortAnalyzeRes = await axios.post(
-        `${baseUrl}/v3/analyze/short-analyze`,
+        `${baseUrl}/v3/analyze/short-analyze?t=${Date.now()}`,
         {
           pgn: gameToAnalyze,
           username: game.username || "",
@@ -286,17 +282,22 @@ export function AnalyzeGameHistory({
       );
 
       console.log("✅ Short-analyze response:", shortAnalyzeRes.data);
+      console.log("✅ Short-analyze response data:", JSON.stringify(shortAnalyzeRes.data, null, 2));
 
-      // Simpan response ke state
-      if (shortAnalyzeRes.data) {
-        setShortAnalysisData(shortAnalyzeRes.data);
-        console.log("💾 Short-analysis data saved to state");
+      // Validate response structure
+      if (shortAnalyzeRes.data?.data) {
+        const data = shortAnalyzeRes.data.data;
+        console.log("🔍 Validating v3 response:");
+        console.log("  - Has statusUrl:", !!data.statusUrl);
+        console.log("  - Has jobId:", !!data.jobId);
+        console.log("  - StatusUrl value:", data.statusUrl);
+        console.log("  - JobId value:", data.jobId);
+      }
 
-        // Kirim data ke parent component via callback
-        if (onShortAnalysisReceived) {
-          onShortAnalysisReceived(shortAnalyzeRes.data);
-          console.log("📤 Short-analysis data sent to parent component");
-        }
+      // Kirim data ke parent component via callback
+      if (shortAnalyzeRes.data && onShortAnalysisReceived) {
+        onShortAnalysisReceived(shortAnalyzeRes.data);
+        console.log("📤 Short-analysis data sent to parent component");
       }
     } catch (shortAnalyzeError: any) {
       console.error("❌ Short-analyze error:", shortAnalyzeError);
@@ -305,8 +306,6 @@ export function AnalyzeGameHistory({
         response: shortAnalyzeError.response?.data,
         status: shortAnalyzeError.response?.status,
       });
-      // Set null jika error
-      setShortAnalysisData(null);
     }
   };
 
