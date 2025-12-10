@@ -15,6 +15,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -221,6 +222,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const { username } = usePgnStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
+  const { startTutorial } = useTutorial();
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -544,6 +546,32 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           })}
         </motion.nav>
       </ScrollArea>
+
+      {/* ========================================
+          🧪 TESTING BUTTON - EASY TO DELETE
+          Tutorial Test Button (Delete this section when done)
+          ======================================== */}
+      <motion.div
+        className="px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
+        variants={isMobile ? itemVariants : {}}
+      >
+        <button
+          onClick={() => {
+            if (!pathname.includes("/analysis")) {
+              router.replace("/analysis");
+            }
+            startTutorial();
+            if (isMobile && onClose) onClose();
+          }}
+          className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <span>🧪</span>
+          <span>Test Tutorial</span>
+        </button>
+      </motion.div>
+      {/* ========================================
+          END OF TESTING BUTTON
+          ======================================== */}
 
       {/* Profile */}
       {isSignedIn && (

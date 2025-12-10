@@ -1408,8 +1408,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_852_113922)">
-                  <path d="M3.41941 3V7.5H8.15625" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                  <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"></path>
                 </g>
                 <defs>
                   <clipPath id="clip0_852_113922">
