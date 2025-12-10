@@ -33,7 +33,11 @@ export default function MinimalTour({
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
   const step = steps[index];
-  const width = window.innerWidth;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   useEffect(() => {
     // console.log("MinimalTour stepFocused", stepFocused);
     // console.log("MinimalTour pathname", pathname);
@@ -151,7 +155,7 @@ export default function MinimalTour({
     }
   }, [index]);
 
-  if (!run || !steps || steps.length === 0) return null;
+  if (!run || !steps || steps.length === 0 || !mounted) return null;
 
   const next = () => {
     console.log("index", steps.length, stepFocused, pathname, index);
@@ -377,35 +381,81 @@ export default function MinimalTour({
         id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
-        className={`block max-w-[375px] sm:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
+        className={`block w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
         style={
           rect
             ? {
                 minWidth: window.innerWidth < 425 ? 300 : 500,
+                maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 500,
+                maxHeight: window.innerWidth < 768 ? "calc(100vh - 100px)" : "80vh",
+                overflowY: "auto",
                 position: "fixed",
-                left:
-                  step.placement === "right"
-                    ? `${rect.right + window.scrollX + 16}px`
-                    : step.placement === "left"
-                    ? `${rect.left + window.scrollX - (window.innerWidth < 425 ? 300 : 500) - 16}px`
-                    : `${left}px`,
-                top:
-                  step.placement === "bottom"
-                    ? `${top}px`
-                    : step.placement === "top"
-                    ? `${top && top - (rect.height + 200)}px`
-                    : step.placement === "left" || step.placement === "right"
-                    ? `${rect.top + window.scrollY}px`
-                    : `${top && top - (rect.height + 200)}px`,
+                left: (() => {
+                  const isMobile = window.innerWidth < 768;
+                  const tooltipWidth = window.innerWidth < 425 ? 300 : 500;
+                  const isStep4 = step.stepText === "4/5";
+
+                  // For mobile step 4, use top placement (centered)
+                  if (isMobile && isStep4) {
+                    return `${Math.max(16, (window.innerWidth - tooltipWidth) / 2)}px`;
+                  }
+
+                  // For mobile, override left/right placement to use bottom placement
+                  if (isMobile && (step.placement === "left" || step.placement === "right")) {
+                    // Center horizontally on mobile
+                    return `${Math.max(16, (window.innerWidth - tooltipWidth) / 2)}px`;
+                  }
+
+                  // Desktop placement logic
+                  if (step.placement === "right") {
+                    const calculatedLeft = rect.right + window.scrollX + 16;
+                    // Ensure it doesn't overflow right edge
+                    return `${Math.min(calculatedLeft, window.innerWidth - tooltipWidth - 16)}px`;
+                  } else if (step.placement === "left") {
+                    const calculatedLeft = rect.left + window.scrollX - tooltipWidth - 16;
+                    // Ensure it doesn't overflow left edge
+                    return `${Math.max(16, calculatedLeft)}px`;
+                  }
+
+                  return `${left}px`;
+                })(),
+                top: (() => {
+                  const isMobile = window.innerWidth < 768;
+                  const isStep4 = step.stepText === "4/5";
+
+                  // For mobile step 4, use top placement
+                  if (isMobile && isStep4) {
+                    return `${Math.max(8, rect.top + window.scrollY - 250)}px`;
+                  }
+
+                  // For mobile with left/right placement, use bottom placement instead
+                  if (isMobile && (step.placement === "left" || step.placement === "right")) {
+                    return `${Math.max(8, rect.bottom + window.scrollY + 8)}px`;
+                  }
+
+                  // Desktop placement logic
+                  if (step.placement === "bottom") {
+                    return `${top}px`;
+                  } else if (step.placement === "top") {
+                    return `${top && top - (rect.height + 200)}px`;
+                  } else if (step.placement === "left" || step.placement === "right") {
+                    return `${rect.top + window.scrollY}px`;
+                  }
+
+                  return `${top && top - (rect.height + 200)}px`;
+                })(),
                 zIndex: 1000000,
               }
             : {
                 minWidth: window.innerWidth < 425 ? 300 : 400,
+                maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 400,
                 position: "fixed",
-                right:
-                  window.innerWidth > 1024
+                left: window.innerWidth < 768 ? "16px" : undefined,
+                right: window.innerWidth < 768
+                  ? "16px"
+                  : window.innerWidth > 1024
                     ? window.innerWidth / 3
                     : window.innerWidth < 425
                     ? window.innerWidth / 8

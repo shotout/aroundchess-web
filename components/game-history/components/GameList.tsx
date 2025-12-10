@@ -208,6 +208,25 @@ const GamesList: React.FC<GamesListProps> = ({
   >(null);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
 
+  // State to detect if device is mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device on mount and window resize
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 576);
+    };
+
+    // Check on mount
+    checkIsMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIsMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
   useEffect(() => {
     // only act when flag is true, we're on my-game-history, and there is at least one game
@@ -529,177 +548,188 @@ const GamesList: React.FC<GamesListProps> = ({
 
   return (
     <div className="p-0 md:p-4 xl:p-0">
-      <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
-        <div
-          className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
-          style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
-        >
-          <div className="px-2 text-left invisible">#</div>
-          <div className="px-4 text-left">Date</div>
-          <div className="px-2 text-left">Time Control</div>
-          <div className="px-2 text-left">Result</div>
-          <div className="px-4 text-left">Opponent</div>
-          <div className="px-2 text-left">Rating</div>
-          <div className="px-2 text-left">Game Type</div>
-          <div className="px-2 text-left">Moves</div>
-          <div className="px-4 text-left">Opening</div>
-          <div className="px-2 text-left">Source</div>
-          <div className="px-4 text-center">Actions</div>
-        </div>
+      {/* Modal Components - Rendered for both mobile and desktop */}
+      {currentGames.map((game) => (
+        <React.Fragment key={`modals-${game.id}`}>
+          <AnalyzeGameHistory
+            open={openGameId === game.id}
+            onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
+            game={game}
+            autoStart={autoStartGameId === game.id}
+            onAutoStartComplete={() => {
+              setAutoStartGameId(null);
+            }}
+            onAnalysisStarted={() => {
+              setChooseAnalysisModeGameId(game.id);
+            }}
+            onShortAnalysisReceived={(data) => {
+              console.log("📥 GameList received short-analysis data:", data);
+              setShortAnalysisData(data);
+            }}
+          />
 
-        <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
-          {/* Show real games for tutorial, DummyList is no longer needed */}
-          {currentGames.map((game, idx) => {
-              const btn = getAnalysisButtonContent(game.id, game);
-              const isNew =
-                (!game.hasViewedAnalysis && game.isAnalysis) ||
-                isNewlyImported(game.id);
-              const indexInPage =
-                (paginationProps.currentPage - 1) *
-                  paginationProps.itemsPerPage +
-                idx +
-                1;
-              return (
-                <div
+          <ChooseAnalysisMode
+            open={chooseAnalysisModeGameId === game.id}
+            onOpenChange={(o) => setChooseAnalysisModeGameId(o ? game.id : null)}
+            game={game}
+            shortAnalysisData={shortAnalysisData}
+            onOpenProcessingMode={() => {
+              console.log("🔄 Opening ProcessingAnalysisMode from GameList");
+              setProcessingAnalysisModeGameId(game.id);
+            }}
+          />
+
+          <ProcessingAnalysisMode
+            open={processingAnalysisModeGameId === game.id}
+            onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
+            game={game}
+            onOpenGameAnalysis={(v3Result) => {
+              console.log("🎯 Opening GameAnalysis from GameList");
+              console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
+              setV3AnalysisResult(v3Result);
+              setGameAnalysisGameId(game.id);
+            }}
+          />
+
+          <GameAnalysis
+            open={gameAnalysisGameId === game.id}
+            onOpenChange={(o) => setGameAnalysisGameId(o ? game.id : null)}
+            v3Result={v3AnalysisResult}
+          />
+        </React.Fragment>
+      ))}
+
+      {/* Desktop View */}
+      {!isMobile && (
+        <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
+          <div
+            className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
+            style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+          >
+            <div className="px-2 text-left invisible">#</div>
+            <div className="px-4 text-left">Date</div>
+            <div className="px-2 text-left">Time Control</div>
+            <div className="px-2 text-left">Result</div>
+            <div className="px-4 text-left">Opponent</div>
+            <div className="px-2 text-left">Rating</div>
+            <div className="px-2 text-left">Game Type</div>
+            <div className="px-2 text-left">Moves</div>
+            <div className="px-4 text-left">Opening</div>
+            <div className="px-2 text-left">Source</div>
+            <div className="px-4 text-center">Actions</div>
+          </div>
+
+          <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
+            {/* Show real games for tutorial, DummyList is no longer needed */}
+            {currentGames.map((game, idx) => {
+                const btn = getAnalysisButtonContent(game.id, game);
+                const isNew =
+                  (!game.hasViewedAnalysis && game.isAnalysis) ||
+                  isNewlyImported(game.id);
+                const indexInPage =
+                  (paginationProps.currentPage - 1) *
+                    paginationProps.itemsPerPage +
+                  idx +
+                  1;
+                return (
+                  <div
+                    key={game.id}
+                    className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
+                    style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                    data-tutorial={idx === 0 ? "1" : null}
+                  >
+                    <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                      {/* {isNew && (
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                    )} */}
+                      <span className="w-6 text-center text-gray-500">
+                        {indexInPage}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center px-4 py-3">{game.date}</div>
+
+                    <div className="flex items-center px-2 py-3">
+                      {displayTimeControl(game.timeControl)}
+                    </div>
+
+                    <div className="flex items-center px-2 py-3">
+                      {(() => {
+                        const r = getResultData(game.result);
+                        return <span className={r.className}>{r.text}</span>;
+                      })()}
+                    </div>
+
+                    <div className="flex items-center px-4 py-3 truncate">
+                      {game.opponent || "Unknown Player"}
+                    </div>
+
+                    <div className="flex items-center px-2 py-3">
+                      {game.rating || "N/A"}
+                    </div>
+
+                    <div className="flex items-center px-2 py-3 truncate">
+                      {game.timeClass || "Unknown Game Type"}
+                    </div>
+
+                    <div className="flex items-center px-2 py-3">
+                      {displayMoves(game.moves)}
+                    </div>
+
+                    <div className="flex items-center px-4 py-3">
+                      {displayOpening(game.opening)}
+                    </div>
+
+                    <div className="flex items-center px-2 py-3">
+                      {game.source || "Unknown"}
+                    </div>
+
+                    <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
+                      {(() => {
+                        const btn = getAnalysisButtonContent(game.id, game);
+                        return (
+                          <button
+                            className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                            onClick={btn.onClick}
+                            disabled={disabled && game.id == gameId}
+                          >
+                            {disabled && game.id == gameId ? (
+                              <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
+                            ) : (
+                              btn.icon
+                            )}
+                            <span className="hidden sm:block max-w-[90px]">
+                              {btn.text}
+                            </span>
+                            <span className="block sm:hidden">
+                              {btn.text}
+                            </span>
+                          </button>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile View */}
+      {isMobile && (
+        <div className="lg:hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
+            {/* Show real games for tutorial on mobile too */}
+            {currentGames.map((game) => (
+                <GameCard
                   key={game.id}
-                  className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
-                  style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
-                  data-tutorial={idx === 0 ? "1" : null}
-                >
-                  <AnalyzeGameHistory
-                    open={openGameId === game.id}
-                    onOpenChange={(o) => setOpenGameId(o ? game.id : null)}
-                    game={game}
-                    autoStart={autoStartGameId === game.id}
-                    onAutoStartComplete={() => {
-                      // clear the auto start marker once done
-                      setAutoStartGameId(null);
-                    }}
-                    onAnalysisStarted={() => {
-                      // Open ChooseAnalysisMode when analysis starts
-                      setChooseAnalysisModeGameId(game.id);
-                    }}
-                    onShortAnalysisReceived={(data) => {
-                      console.log("📥 GameList received short-analysis data:", data);
-                      setShortAnalysisData(data);
-                    }}
-                  />
-
-                  <ChooseAnalysisMode
-                    open={chooseAnalysisModeGameId === game.id}
-                    onOpenChange={(o) => setChooseAnalysisModeGameId(o ? game.id : null)}
-                    game={game}
-                    shortAnalysisData={shortAnalysisData}
-                    onOpenProcessingMode={() => {
-                      console.log("🔄 Opening ProcessingAnalysisMode from GameList");
-                      setProcessingAnalysisModeGameId(game.id);
-                    }}
-                  />
-                  <ProcessingAnalysisMode
-                    open={processingAnalysisModeGameId === game.id}
-                    onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
-                    game={game}
-                    onOpenGameAnalysis={(v3Result) => {
-                      console.log("🎯 Opening GameAnalysis from GameList");
-                      console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
-                      setV3AnalysisResult(v3Result);
-                      setGameAnalysisGameId(game.id);
-                    }}
-                  />
-                  <GameAnalysis
-                    open={gameAnalysisGameId === game.id}
-                    onOpenChange={(o) => setGameAnalysisGameId(o ? game.id : null)}
-                    v3Result={v3AnalysisResult}
-                  />
-
-                  <div className="flex items-center px-2 py-3 border-r border-gray-200">
-                    {/* {isNew && (
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
-                  )} */}
-                    <span className="w-6 text-center text-gray-500">
-                      {indexInPage}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center px-4 py-3">{game.date}</div>
-
-                  <div className="flex items-center px-2 py-3">
-                    {displayTimeControl(game.timeControl)}
-                  </div>
-
-                  <div className="flex items-center px-2 py-3">
-                    {(() => {
-                      const r = getResultData(game.result);
-                      return <span className={r.className}>{r.text}</span>;
-                    })()}
-                  </div>
-
-                  <div className="flex items-center px-4 py-3 truncate">
-                    {game.opponent || "Unknown Player"}
-                  </div>
-
-                  <div className="flex items-center px-2 py-3">
-                    {game.rating || "N/A"}
-                  </div>
-
-                  <div className="flex items-center px-2 py-3 truncate">
-                    {game.timeClass || "Unknown Game Type"}
-                  </div>
-
-                  <div className="flex items-center px-2 py-3">
-                    {displayMoves(game.moves)}
-                  </div>
-
-                  <div className="flex items-center px-4 py-3">
-                    {displayOpening(game.opening)}
-                  </div>
-
-                  <div className="flex items-center px-2 py-3">
-                    {game.source || "Unknown"}
-                  </div>
-
-                  <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
-                    {(() => {
-                      const btn = getAnalysisButtonContent(game.id, game);
-                      return (
-                        <button
-                          className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
-                          onClick={btn.onClick}
-                          disabled={disabled && game.id == gameId}
-                        >
-                          {disabled && game.id == gameId ? (
-                            <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
-                          ) : (
-                            btn.icon
-                          )}
-                          <span className="hidden sm:block max-w-[90px]">
-                            {btn.text}
-                          </span>
-                          <span className="block sm:hidden">
-                            {btn.text}
-                          </span>
-                        </button>
-                      );
-                    })()}
-                  </div>
-                </div>
-              );
-            })}
+                  gameData={game}
+                  isNewlyImported={isNewlyImported(game.id)}
+                />
+              ))}
+          </div>
         </div>
-      </div>
-
-      <div className="lg:hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
-          {/* Show real games for tutorial on mobile too */}
-          {currentGames.map((game) => (
-              <GameCard
-                key={game.id}
-                gameData={game}
-                isNewlyImported={isNewlyImported(game.id)}
-              />
-            ))}
-        </div>
-      </div>
+      )}
 
       {currentGames.length > 0 && <PaginationControls {...paginationProps} />}
     </div>

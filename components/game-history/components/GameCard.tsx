@@ -259,6 +259,7 @@ const GameCard: React.FC<GameCardProps> = ({
             ? "bg-[#FFF6DB]"
             : ""
         }`}
+        data-tutorial="1"
       >
         <div className="flex justify-between items-center mb-4 text-[14px] --xs">
           <div className="text-gray-500">{gameData.date}</div>

@@ -557,11 +557,20 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       >
         <button
           onClick={() => {
+            // Close sidebar first on mobile before starting tutorial
+            if (isMobile && onClose) {
+              onClose();
+            }
+
             if (!pathname.includes("/my-game-history")) {
               router.replace("/my-game-history");
+              // Wait a bit for navigation to complete before starting tutorial
+              setTimeout(() => {
+                startTutorial();
+              }, 300);
+            } else {
+              startTutorial();
             }
-            startTutorial();
-            if (isMobile && onClose) onClose();
           }}
           className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
         >
