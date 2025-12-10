@@ -153,57 +153,39 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
   const allSteps: any[] = [
     {
       target: "[data-tutorial='1']",
-      title: "How to start a Game Analysis",
-      content: "Select the game that you want to analyze. ",
-      placement: "bottom",
-      stepText: "1/7",
+      title: "Analyze a Game",
+      content: "Select the Game that you would like to analyze.",
+      placement: "top",
+      stepText: "1/5",
     },
     {
       target: "[data-tutorial='2']",
-      title: "How to start a Game Analysis",
-      content:
-        "Choose your Analysis Depth. A deeper analysis depth considers more potential moves and will lead to a more sophisticated analysis.",
+      title: "Analyze a Game",
+      content: "Choose your Analysis Depth. A deeper analysis depth considers more potential moves and will lead to a more sophisticated analysis.",
       placement: "top",
-      stepText: "2/7",
+      stepText: "2/5",
     },
     {
       target: "[data-tutorial='3']",
-      title: "How to start a Game Analysis",
-      content:
-        "After choosing your game and analysis depth, click on this button to start the analysis.",
+      title: "Analyze a Game",
+      content: "Select “Quick Summary” for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the “Chess Master Analysis” for users with an in-depth understanding of Chess.",
       placement: "top",
-      stepText: "3/7",
+      stepText: "3/5",
     },
     {
       target: "[data-tutorial='4']",
-      title: "How to start a Game Analysis",
-      content:
-        "Your game will be analyzed in the background. You can find the game in the “My Game History” tab.",
-      placement: "top",
-      stepText: "4/7",
+      title: "Analyze a Game",
+      content: "Discover your biggest mistakes and get a suggestion how to avoid them in the future.",
+      placement: "left",
+      stepText: "4/5",
     },
     {
       target: "[data-tutorial='5']",
-      title: "How to start a Game Analysis",
-      content:
-        "You can find all of your past analyses and also start new game analyses in the “My Game History” tab.",
+      title: "Analyze a Game",
+      content: "Swipe through the recommendations and implement the learnings into your Games.",
       placement: "top",
-      stepText: "5/7",
-    },
-    {
-      target: "[data-tutorial='6']",
-      title: "How to start a Game Analysis",
-      content: "Click here to open the analysis, once it’s ready.",
-      placement: "top",
-      stepText: "6/7",
-    },
-    {
-      target: "[data-tutorial='7']",
-      title: "How to start a Game Analysis",
-      content: "That’s it, time to discover your Game Analysis!",
-      stepText: "7/7",
-      placement: "top",
-    },
+      stepText: "5/5",
+    }
   ];
   useEffect(() => {
     loadTutorialGame();

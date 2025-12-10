@@ -11,7 +11,7 @@ export type MinimalStep = {
   content: React.ReactNode;
   title?: string;
   stepText?: string;
-  placement?: "top" | "bottom";
+  placement?: "top" | "bottom" | "left" | "right";
 };
 
 export default function MinimalTour({
@@ -38,17 +38,17 @@ export default function MinimalTour({
     // console.log("MinimalTour stepFocused", stepFocused);
     // console.log("MinimalTour pathname", pathname);
     // console.log("MinimalTour index", index, steps);
-    if (pathname.includes("/my-game-history") && stepFocused == 2) {
-      setIndex(0);
-    } else if (pathname.includes("/analysis") && stepFocused == 0) {
-      setIndex(0);
-    } else if (pathname.includes("/analysis") && stepFocused == 3) {
-      setIndex(2);
-    } else if (pathname.includes("/analysis") && stepFocused == 5) {
-      setIndex(3);
-    } else if (pathname.includes("/my-game-history") && stepFocused == 6) {
-      setIndex(2);
-    }
+    // if (pathname.includes("/my-game-history") && stepFocused == 2) {
+    //   setIndex(0);
+    // } else if (pathname.includes("/analysis") && stepFocused == 0) {
+    //   setIndex(0);
+    // } else if (pathname.includes("/analysis") && stepFocused == 3) {
+    //   setIndex(2);
+    // } else if (pathname.includes("/analysis") && stepFocused == 5) {
+    //   setIndex(3);
+    // } else if (pathname.includes("/my-game-history") && stepFocused == 6) {
+    //   setIndex(2);
+    // }
   }, [pathname, stepFocused]);
   // keep rect updated on scroll/resize and observe layout changes
   useEffect(() => {
@@ -155,28 +155,30 @@ export default function MinimalTour({
 
   const next = () => {
     console.log("index", steps.length, stepFocused, pathname, index);
-    if (stepFocused == 2 && pathname.includes("/analysis")) {
-      router.replace("/my-game-history");
-      //   setIndex((i) => i + 1);
-    } else if (stepFocused == 5 && pathname.includes("/my-game-history")) {
-      setIsFromGameHistory(true);
-      router.replace("/analysis");
-      //   setIndex((i) => i + 1);
-    } else {
-      setIndex((i) => i + 1);
-    }
+    setIndex((i) => i + 1);
+    // if (stepFocused == 2 && pathname.includes("/analysis")) {
+    //   router.replace("/my-game-history");
+    //   //   setIndex((i) => i + 1);
+    // } else if (stepFocused == 5 && pathname.includes("/my-game-history")) {
+    //   setIsFromGameHistory(true);
+    //   router.replace("/analysis");
+    //   //   setIndex((i) => i + 1);
+    // } else {
+    //   setIndex((i) => i + 1);
+    // }
   };
   const prev = () => {
     console.log("index", stepFocused, pathname, index);
-    if (stepFocused == 3 && pathname.includes("/my-game-history")) {
-      router.replace("/analysis");
-      //   setIndex((i) => Math.max(0, i - 1));
-    } else if (stepFocused == 6 && pathname.includes("/analysis")) {
-      router.replace("/my-game-history");
-      //   setIndex((i) => Math.max(0, i - 1));
-    } else {
-      setIndex((i) => Math.max(0, i - 1));
-    }
+    setIndex((i) => Math.max(0, i - 1));
+    // if (stepFocused == 3 && pathname.includes("/my-game-history")) {
+    //   router.replace("/analysis");
+    //   //   setIndex((i) => Math.max(0, i - 1));
+    // } else if (stepFocused == 6 && pathname.includes("/analysis")) {
+    //   router.replace("/my-game-history");
+    //   //   setIndex((i) => Math.max(0, i - 1));
+    // } else {
+    //   setIndex((i) => Math.max(0, i - 1));
+    // }
   };
   const skip = () => {
     handleStartGameAnalysis();
@@ -351,7 +353,7 @@ export default function MinimalTour({
     stopTutorial();
     setIsFromGameHistory(false);
     setIsOpenTutorial(false);
-    window.location.href = '/analysis';
+    window.location.href = "/my-game-history";
   };
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.
@@ -383,10 +385,19 @@ export default function MinimalTour({
             ? {
                 minWidth: window.innerWidth < 425 ? 300 : 500,
                 position: "fixed",
-                left: `${left}px`,
+                left:
+                  step.placement === "right"
+                    ? `${rect.right + window.scrollX + 16}px`
+                    : step.placement === "left"
+                    ? `${rect.left + window.scrollX - (window.innerWidth < 425 ? 300 : 500) - 16}px`
+                    : `${left}px`,
                 top:
                   step.placement === "bottom"
                     ? `${top}px`
+                    : step.placement === "top"
+                    ? `${top && top - (rect.height + 200)}px`
+                    : step.placement === "left" || step.placement === "right"
+                    ? `${rect.top + window.scrollY}px`
                     : `${top && top - (rect.height + 200)}px`,
                 zIndex: 1000000,
               }
@@ -475,6 +486,7 @@ export default function MinimalTour({
             <path d="M0,12 L12,0 L24,12 Z" fill="white" filter="url(#shadow)" />
           </svg>
         )}
+
         {rect && arrowLeft != null && step.placement === "top" && (
           <svg
             aria-hidden
@@ -536,24 +548,26 @@ export default function MinimalTour({
         )}
         {stepFocused < 6 && (
           <div className="flex flex-row justify-between items-center mt-2">
-            <button
-              onClick={(e) => {
-                skip();
-              }}
-              className="bg-[#E6F7FE] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
-            >
-              <span className="text-[#221AE9] font-semibold text-[14px] --">
-                Skip
-              </span>
-            </button>
-            <div className="flex gap-2 justify-end mt-2">
+            {index < (steps.length - 1) && (
+              <button
+                onClick={(e) => {
+                  skip();
+                }}
+                className="bg-[#E6F7FE] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
+              >
+                <span className="text-[#221AE9] font-semibold text-[14px] --">
+                  Skip
+                </span>
+              </button>
+            )}
+            <div className="flex w-full gap-2 justify-end mt-2">
               {stepFocused > 0 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     prev();
                   }}
-                  className="bg-[#81CFF3] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
+                  className={`${index + 1 >= steps.length ? "flex-1" : ""} bg-[#81CFF3] min-w-[80px] py-[5px] px-[16px] rounded-full items-center`}
                 >
                   <span className="text-[#221AE9] font-semibold text-[14px] --">
                     Prev
@@ -564,12 +578,16 @@ export default function MinimalTour({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  next();
+                  if (index + 1 >= steps.length) {
+                    handleStartGameAnalysis();
+                  } else {
+                    next(); 
+                  }
                 }}
-                className="cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center"
+                className={`${index + 1 >= steps.length ? "flex-1" : ""} cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center`}
               >
                 <span className="text-white font-semibold text-[14px] --">
-                  {index + 1 >= 7 ? "Done" : "Next"}
+                  {index + 1 >= steps.length ? "Start Game Analysis" : "Next"}
                 </span>
               </button>
             </div>

@@ -25,9 +25,7 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
-import { DummyList } from "./DummyList";
 import { useTutorial } from "@/components/TutorialProvider";
-import { DummyCard } from "./DummyCard";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import Image from "next/image";
 import ChooseAnalysisMode from "./ChooseAnalysisMode";
@@ -114,7 +112,7 @@ const GamesList: React.FC<GamesListProps> = ({
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const pathname = usePathname();
-  const { isTutorialPlay, dataTutorial } = useTutorial();
+  const { isTutorialPlay, dataTutorial, stepFocused } = useTutorial();
   const { setOpenOffer } = usePricingOffer();
 
   // helper to update hasViewedAnalysis flag in the persisted store arrays
@@ -241,6 +239,72 @@ const GamesList: React.FC<GamesListProps> = ({
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  // Handle tutorial step changes - open modals automatically
+  useEffect(() => {
+    if (!isTutorialPlay || currentGames.length === 0) return;
+
+    const firstGame = currentGames[0];
+
+    // Step 1 (index 0): Close all modals, show game list
+    if (stepFocused === 0) {
+      console.log("Tutorial Step 1: Closing all modals, showing game list");
+      setOpenGameId(null);
+      setChooseAnalysisModeGameId(null);
+      setProcessingAnalysisModeGameId(null);
+      setGameAnalysisGameId(null);
+    }
+    // Step 2 (index 1): Open AnalyzeGameHistory modal
+    else if (stepFocused === 1) {
+      console.log("Tutorial Step 2: Opening AnalyzeGameHistory modal");
+      setOpenGameId(firstGame.id);
+      // Close other modals
+      setChooseAnalysisModeGameId(null);
+      setProcessingAnalysisModeGameId(null);
+      setGameAnalysisGameId(null);
+    }
+    // Step 3 (index 2): Open ChooseAnalysisMode modal
+    else if (stepFocused === 2) {
+      console.log("Tutorial Step 3: Opening ChooseAnalysisMode modal");
+      setChooseAnalysisModeGameId(firstGame.id);
+      // Close other modals
+      setOpenGameId(null);
+      setProcessingAnalysisModeGameId(null);
+      setGameAnalysisGameId(null);
+    }
+    // Step 4 (index 3): Open ProcessingAnalysisMode or GameAnalysis modal
+    else if (stepFocused === 3) {
+      console.log("Tutorial Step 4: Opening GameAnalysis modal");
+      // For tutorial, directly show GameAnalysis with dummy data
+      setGameAnalysisGameId(firstGame.id);
+      // Set dummy v3Result for tutorial
+      setV3AnalysisResult({
+        summary: {
+          criticalMistakes: [
+            {
+              moveNumber: 15,
+              move: "Nxh5",
+              analysis: "This move loses material and weakens your position significantly.",
+              solution: "Better to play Bf4, maintaining piece coordination and central control."
+            }
+          ]
+        },
+        analysisId: "tutorial-dummy-id"
+      });
+      // Close other modals
+      setOpenGameId(null);
+      setChooseAnalysisModeGameId(null);
+      setProcessingAnalysisModeGameId(null);
+    }
+    // Step 5 (index 4): Keep GameAnalysis modal open
+    else if (stepFocused === 4) {
+      console.log("Tutorial Step 5: GameAnalysis modal should be open");
+      // Keep GameAnalysis open
+      if (gameAnalysisGameId !== firstGame.id) {
+        setGameAnalysisGameId(firstGame.id);
+      }
+    }
+  }, [stepFocused, isTutorialPlay, currentGames]);
 
   useEffect(() => {
     const isCompleted = Object.values(analysisJobs).filter(
@@ -484,10 +548,8 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
 
         <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
-          {isOpenTutorial && isTutorialPlay && <DummyList />}
-          {!isTutorialPlay &&
-            !isOpenTutorial &&
-            currentGames.map((game, idx) => {
+          {/* Show real games for tutorial, DummyList is no longer needed */}
+          {currentGames.map((game, idx) => {
               const btn = getAnalysisButtonContent(game.id, game);
               const isNew =
                 (!game.hasViewedAnalysis && game.isAnalysis) ||
@@ -502,6 +564,7 @@ const GamesList: React.FC<GamesListProps> = ({
                   key={game.id}
                   className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
                   style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                  data-tutorial={idx === 0 ? "1" : null}
                 >
                   <AnalyzeGameHistory
                     open={openGameId === game.id}
@@ -627,10 +690,8 @@ const GamesList: React.FC<GamesListProps> = ({
 
       <div className="lg:hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
-          {isOpenTutorial && isTutorialPlay && <DummyCard />}
-          {!isTutorialPlay &&
-            !isOpenTutorial &&
-            currentGames.map((game) => (
+          {/* Show real games for tutorial on mobile too */}
+          {currentGames.map((game) => (
               <GameCard
                 key={game.id}
                 gameData={game}

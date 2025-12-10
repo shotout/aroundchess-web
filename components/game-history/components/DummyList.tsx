@@ -94,6 +94,7 @@ export const DummyList = () => {
                   isNew ? "bg-[#FFF6DB]" : "bg-[#FFF6DB]"
                 }`}
                 style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                data-tutorial={idx === 0 ? "1" : ""}
               >
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
                   {/* {isNew && (
@@ -265,6 +266,7 @@ export const DummyList = () => {
                   isNew ? "bg-[#FFF6DB]" : "bg-[#FFF6DB]"
                 }`}
                 style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                data-tutorial={idx === 0 ? "1" : ""}
               >
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
                   {/* {isNew && (

@@ -9,6 +9,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface Props {
   open: boolean;
@@ -69,10 +70,16 @@ export default function ChooseAnalysisMode({
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
     const { sessionId } = useProfileStore();
     const { startV3BackgroundPolling } = useV3PollingManager();
+    const { isTutorialPlay, stepFocused } = useTutorial();
 
     const [progress, setProgress] = useState(0);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
+
+    // For tutorial mode, show Chess Master as analyzing with 45% progress
+    const isTutorialStep3 = isTutorialPlay && stepFocused === 2;
+    const chessMasterProgress = isTutorialStep3 ? 45 : progress;
+    const isChessMasterAnalyzing = isTutorialStep3 || isAnalyzing;
 
     // Log short analysis data ketika diterima
     useEffect(() => {
@@ -292,7 +299,7 @@ export default function ChooseAnalysisMode({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} className="relative w-full lg:w-[560px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="3" className="relative w-full lg:w-[560px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
                 <button type="button" onClick={() => onOpenChange(false)} className="absolute top-[16px] lg:top-[32px] right-[16px] lg:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -328,10 +335,10 @@ export default function ChooseAnalysisMode({
 
                     <button
                         type="button"
-                        disabled={isAnalyzing}
+                        disabled={isChessMasterAnalyzing}
                         onClick={handleChessMasterClick}
                         className={`relative w-full rounded-[24px] p-[12px] border border-b-[5px] overflow-hidden ${
-                            isAnalyzing
+                            isChessMasterAnalyzing
                                 ? "border-[#666666] bg-gradient-to-b from-[#DEDEDE] to-[#99A5A9]"
                                 : "border-[#16A6E9] bg-gradient-to-b from-[#DAF1FB] to-[#81CFF3]"
                         }`}
@@ -341,19 +348,19 @@ export default function ChooseAnalysisMode({
                             alt="..."
                             width={240}
                             height={240}
-                            className={`bg-image absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] ${isAnalyzing ? "grayscale" : ""}`}
+                            className={`bg-image absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] ${isChessMasterAnalyzing ? "grayscale" : ""}`}
                         />
                         <div className="flex flex-col justify-center items-center">
                             <Image src={"/images/analysis/icon_chess-master.svg"} alt="..." width={60} height={60} className="" />
                             <p className="text-[24px] font-semibold text-[#040404] leading-[150%] mb-[4px]">Chess Master Analysis</p>
                             <p className="text-[16px] text-[#585858] mb-[4px]">(In-depth Analysis - understand it all)</p>
-                            {isAnalyzing ? (
+                            {isChessMasterAnalyzing ? (
                                 <div className="relative w-[300px] flex items-center justify-center h-[45px] text-[#666666] bg-white border border-[#666666] rounded-full overflow-hidden">
                                     <div
                                         className="absolute top-0 left-0 h-full bg-gradient-to-tr from-[rgba(102,102,102,.8)] to-[rgba(157,157,157,.5)] transition-all duration-300 ease-out"
-                                        style={{ width: `${progress}%` }}
+                                        style={{ width: `${chessMasterProgress}%` }}
                                     />
-                                    <span className="relative z-10">On Progress: <strong className="font-semibold">{progress}%</strong></span>
+                                    <span className="relative z-10">On Progress: <strong className="font-semibold">{chessMasterProgress}%</strong></span>
                                 </div>
                             ) : (
                                 <span className="flex items-center gap-[4px] text-[16px] leading-[20px] font-bold">

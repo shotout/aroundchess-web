@@ -557,8 +557,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       >
         <button
           onClick={() => {
-            if (!pathname.includes("/analysis")) {
-              router.replace("/analysis");
+            if (!pathname.includes("/my-game-history")) {
+              router.replace("/my-game-history");
             }
             startTutorial();
             if (isMobile && onClose) onClose();

@@ -1,36 +1,40 @@
 
-const AnalysisModalSteps: any[] = [
+const AnalyzeGameSteps: any[] = [
   {
     target: "[data-tutorial='1']",
-    title: "How to start a Game Analysis",
-    content: "Select the game that you want to analyze. ",
-    placement: "bottom",
-    stepText: "1/7",
+    title: "Analyze a Game",
+    content: "Select the Game that you would like to analyze.",
+    placement: "top",
+    stepText: "1/5",
   },
   {
     target: "[data-tutorial='2']",
-    title: "How to start a Game Analysis",
-    content:
-      "Choose your Analysis Depth. A deeper analysis depth considers more potential moves and will lead to a more sophisticated analysis.",
+    title: "Analyze a Game",
+    content: "Choose your Analysis Depth. A deeper analysis depth considers more potential moves and will lead to a more sophisticated analysis.",
     placement: "top",
-    stepText: "2/7",
+    stepText: "2/5",
   },
   {
     target: "[data-tutorial='3']",
-    title: "How to start a Game Analysis",
-    content:
-      "After choosing your game and analysis depth, click on this button to start the analysis.",
+    title: "Analyze a Game",
+    content: "Select “Quick Summary” for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the “Chess Master Analysis” for users with an in-depth understanding of Chess.",
     placement: "top",
-    stepText: "3/7",
+    stepText: "3/5",
   },
-
   {
-    target: "[data-tutorial='7']",
-    title: "How to start a Game Analysis",
-    content: "That’s it, time to discover your Game Analysis!",
-    stepText: "7/7",
-    placement: "top",
+    target: "[data-tutorial='4']",
+    title: "Analyze a Game",
+    content: "Discover your biggest mistakes and get a suggestion how to avoid them in the future.",
+    placement: "left",
+    stepText: "4/5",
   },
+  {
+    target: "[data-tutorial='5']",
+    title: "Analyze a Game",
+    content: "Swipe through the recommendations and implement the learnings into your Games.",
+    placement: "top",
+    stepText: "5/5",
+  }
 ];
 const historySteps: any[] = [
   {
@@ -59,8 +63,8 @@ const historySteps: any[] = [
 ];
 
 const tutorials: Record<string, any[]> = {
-  "/analysis": AnalysisModalSteps,
-  "/my-game-history": historySteps,
+  // "/analysis": AnalyzeGameSteps,
+  "/my-game-history": AnalyzeGameSteps,
 };
 
 export default tutorials;

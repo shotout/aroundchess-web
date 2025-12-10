@@ -372,6 +372,7 @@ export function AnalyzeGameHistory({
       <div
         className="relative w-full mx-auto rounded-lg max-w-sm md:max-w-[800px] bg-white overflow-y-auto max-h-[95%]"
         onClick={(e) => e.stopPropagation()}
+        data-tutorial="2"
       >
         <div className="p-[16px] lg:p-[32px] pb-[6px] lg:pb-[12px]">
           <h2 className="text-[20px] text-center lg:text-start lg:text-[24px] font-semibold">Analyze your games</h2>
@@ -432,7 +433,7 @@ export function AnalyzeGameHistory({
               </div> */}
 
               <div className="font-medium text-[16px] lg:text-[18px] -mb-[8px]">Choose your Analysis Depth</div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center ">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center " data-tutorial="2">
                 {depths.map((depth, idx) => {
                   return (
                     <button
