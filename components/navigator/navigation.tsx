@@ -201,7 +201,7 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 right-0 z-50 w-full bg-white border-l border-gray-200 shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-[80%] bg-white border-l border-gray-200 shadow-xl"
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"

@@ -15,7 +15,8 @@ export default function PlayVSAI() {
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(false);
-useEffect(() => {
+
+  useEffect(() => {
     trackCustomEvent("ViewPlayVSAI");
   }, []);
   useEffect(() => {
@@ -125,8 +126,9 @@ useEffect(() => {
                         onClick={handleOpenPlayVSAI}
                         disabled={isLoading}
                         className="w-full px-4 py-2 btn-primary rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                        data-tutorial="play-vs-ai-step-2"
                       >
-                        {isLoading ? "Loading..." : "Start Now"}
+                        {isLoading ? "Loading..." : "Start a Game"}
                       </button>
                     </div>
                   </div>

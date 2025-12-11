@@ -335,7 +335,7 @@ const AnalysisResult: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { /// INI DIPAHAMI
     if (chessMove.index != null) {
       const colorIndex = chessMove.type == "black" ? 1 : 0;
       let indexOf = chessMove.index * 2 + colorIndex;

@@ -24,7 +24,7 @@ export default function MinimalTour({
   onClose?: () => void;
 }) {
   const { setIsOpenTutorial, setIsFromGameHistory } = usePgnStore();
-  const { stepFocused, stopTutorial, setStepFocused, allSteps } = useTutorial();
+  const { stepFocused, stopTutorial, setStepFocused, allSteps, allStepsPlayVsAI } = useTutorial();
   const router = useRouter();
   const pathname = usePathname();
   const [index, setIndex] = useState(0);
@@ -61,14 +61,40 @@ export default function MinimalTour({
       const s = steps[index];
       if (!s) return;
       const el = document.querySelector(s.target) as HTMLElement | null;
+      console.log(`🔍 Looking for target: ${s.target}`, { found: !!el });
+
       if (el) {
-        setRect(el.getBoundingClientRect());
+        const boundingRect = el.getBoundingClientRect();
+        console.log(`📏 Element rect:`, {
+          width: boundingRect.width,
+          height: boundingRect.height,
+          top: boundingRect.top,
+          left: boundingRect.left,
+        });
+
+        // Only set rect if element has valid dimensions (fully rendered)
+        // This prevents using elements that exist in DOM but haven't laid out yet
+        if (boundingRect.width > 0 && boundingRect.height > 0) {
+          console.log("✅ Element has valid dimensions, setting rect");
+          setRect(boundingRect);
+        } else {
+          console.log("⏳ Element found but dimensions are 0, waiting for layout...");
+          setRect(null);
+        }
       } else {
+        console.log("❌ Element not found, setting rect to null");
         setRect(null);
       }
     };
 
     handle();
+
+    // Add retry logic with multiple attempts for page navigation
+    const retry1 = setTimeout(handle, 100);
+    const retry2 = setTimeout(handle, 300);
+    const retry3 = setTimeout(handle, 600);
+    const retry4 = setTimeout(handle, 1000);
+
     window.addEventListener("scroll", handle, { passive: true });
     window.addEventListener("resize", handle);
 
@@ -85,6 +111,10 @@ export default function MinimalTour({
 
     const id = window.setInterval(handle, 600);
     return () => {
+      clearTimeout(retry1);
+      clearTimeout(retry2);
+      clearTimeout(retry3);
+      clearTimeout(retry4);
       window.removeEventListener("scroll", handle);
       window.removeEventListener("resize", handle);
       if (ro && el) ro.unobserve(el);
@@ -114,10 +144,71 @@ export default function MinimalTour({
     const s = steps[index];
     if (!s) return;
     const el = document.querySelector(s.target) as HTMLElement | null;
+
     if (el) {
-      setRect(el.getBoundingClientRect());
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      console.log("🎯 [scrollIntoView useEffect] Element found, scrolling into view first...");
+
+      // FIRST: Try multiple scroll methods to ensure element is visible
+
+      // Method 1: Native scrollIntoView with instant behavior
+      el.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });
+
+      // Method 2: Manual scroll calculation as fallback
+      const scrollToElement = () => {
+        const rect = el.getBoundingClientRect();
+        const absoluteTop = rect.top + window.pageYOffset;
+        const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
+
+        console.log("📜 Manual scroll to:", {
+          elementTop: absoluteTop,
+          scrollTo: middle,
+          currentScroll: window.pageYOffset,
+        });
+
+        window.scrollTo({
+          top: middle,
+          behavior: "smooth"
+        });
+      };
+
+      scrollToElement();
+
+      // THEN: Wait for scroll animation to complete, then check dimensions
+      const checkAfterScroll = () => {
+        const boundingRect = el.getBoundingClientRect();
+        console.log("📏 [After scroll] Checking dimensions:", {
+          width: boundingRect.width,
+          height: boundingRect.height,
+          top: boundingRect.top,
+          left: boundingRect.left,
+          isInViewport: boundingRect.top >= 0 && boundingRect.top <= window.innerHeight,
+        });
+
+        // Check if element is in viewport
+        const isInViewport = boundingRect.top >= 0 &&
+                            boundingRect.top <= window.innerHeight &&
+                            boundingRect.left >= 0 &&
+                            boundingRect.left <= window.innerWidth;
+
+        // Only set rect if element has valid dimensions AND is in viewport
+        if (boundingRect.width > 0 && boundingRect.height > 0 && isInViewport) {
+          console.log("✅ [scrollIntoView useEffect] Element has valid dimensions and is in viewport");
+          setRect(boundingRect);
+        } else if (boundingRect.width > 0 && boundingRect.height > 0 && !isInViewport) {
+          console.log("⚠️ [scrollIntoView useEffect] Element has valid dimensions but NOT in viewport, scrolling again...");
+          scrollToElement();
+          // Check again after another scroll attempt
+          setTimeout(checkAfterScroll, 400);
+        } else {
+          console.log("⏳ [scrollIntoView useEffect] Element found but dimensions are 0");
+          setRect(null);
+        }
+      };
+
+      // Wait for scroll animation (smooth scroll takes ~300-500ms)
+      setTimeout(checkAfterScroll, 600);
     } else {
+      console.log("❌ [scrollIntoView useEffect] Element not found");
       setRect(null);
     }
   }, [run, index, steps]);
@@ -146,11 +237,25 @@ export default function MinimalTour({
   }, [run]);
 
   useEffect(() => {
-    if (step != null) {
-      let focusedIndex = allSteps.findIndex(
+    if (step != null && pathname.includes("/my-game-history")) {
+      const focusedIndex = allSteps.findIndex(
         (st) => st.stepText == step.stepText
       );
       // console.log("focused step", focusedIndex);
+      setStepFocused(focusedIndex);
+    }
+
+    if (step != null && pathname.includes("/playground/play-vs-ai/playing")) {
+      const focusedIndex = allStepsPlayVsAI.findIndex(
+        (st) => st.stepText == step.stepText
+      )
+      console.log("focused step", focusedIndex);
+      setStepFocused(focusedIndex);
+    } else if (step != null && pathname.includes("/playground/play-vs-ai")) {
+      const focusedIndex = allStepsPlayVsAI.findIndex(
+        (st) => st.stepText == step.stepText
+      )
+      console.log("focused step", focusedIndex);
       setStepFocused(focusedIndex);
     }
   }, [index]);
@@ -159,6 +264,10 @@ export default function MinimalTour({
 
   const next = () => {
     console.log("index", steps.length, stepFocused, pathname, index);
+    if (stepFocused == 1 && pathname.includes("/playground/play-vs-ai")) {
+      // setIndex((i) => i + 1);
+      router.replace("/playground/play-vs-ai/playing");
+    } 
     setIndex((i) => i + 1);
     // if (stepFocused == 2 && pathname.includes("/analysis")) {
     //   router.replace("/my-game-history");
@@ -173,7 +282,13 @@ export default function MinimalTour({
   };
   const prev = () => {
     console.log("index", stepFocused, pathname, index);
-    setIndex((i) => Math.max(0, i - 1));
+    
+    if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
+      router.replace("/playground/play-vs-ai");
+      //   setIndex((i) => Math.max(0, i - 1));
+    } else  {
+      setIndex((i) => Math.max(0, i - 1));
+    }
     // if (stepFocused == 3 && pathname.includes("/my-game-history")) {
     //   router.replace("/analysis");
     //   //   setIndex((i) => Math.max(0, i - 1));
@@ -231,7 +346,7 @@ export default function MinimalTour({
     : undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
   const bottom = rect ? Math.max(8, rect.top + window.scrollY + 8) : undefined;
-
+  console.log("top", top, rect);
   // overlay dims the page with a transparent hole over the target rect
   const overlay = rect ? (
     <svg
@@ -357,7 +472,12 @@ export default function MinimalTour({
     stopTutorial();
     setIsFromGameHistory(false);
     setIsOpenTutorial(false);
-    window.location.href = "/my-game-history";
+
+    if (pathname.includes("/my-game-history")) {
+      window.location.href = "/my-game-history";
+    } else {
+      window.location.href = "/playground/play-vs-ai";
+    }
   };
   // Portal content wrapped so it receives pointer events even when some
   // ancestors (like <body>) may have pointer-events disabled by the app.

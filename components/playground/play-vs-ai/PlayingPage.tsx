@@ -56,9 +56,13 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "@/components/game-history/hooks/usePollingManager";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
+import ChooseAnalysisMode from "@/components/game-history/components/ChooseAnalysisMode";
+import ProcessingAnalysisMode from "@/components/game-history/components/ProcessingAnalysisMode";
+import GameAnalysis from "@/components/game-history/components/GameAnalysis";
 import { gameHistoryApi } from "@/components/game-history/services/api";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useGames } from "@/components/game-history/hooks/useGameData";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -331,6 +335,7 @@ export default function PlayingPage() {
   const { sessionId, setToken } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { addOtherImportedGame } = usePgnStore();
+  const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
@@ -356,7 +361,27 @@ export default function PlayingPage() {
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
-  const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+
+  // Modal states for analysis dialogs
+  const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [hasAnalysis, setHasAnalysis] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+
+  // Debug: Log modal state changes
+  useEffect(() => {
+    console.log("📊 Modal States:", {
+      isAnalyzeOpen,
+      isChooseAnalysisModeOpen,
+      processingAnalysisModeOpen,
+      gameAnalysisOpen,
+      hasAnalysis,
+    });
+  }, [isAnalyzeOpen, isChooseAnalysisModeOpen, processingAnalysisModeOpen, gameAnalysisOpen, hasAnalysis]);
+
   const isGameInitialized = useRef(false);
 
   const { getJobByGameId, analysisJobs, clearOldJobs } =
@@ -506,6 +531,35 @@ export default function PlayingPage() {
     }
   }, [game, AIChoosed, statusGame, currentGameId]);
 
+  // Create game object from PGN with stable ID using useMemo
+  const gameFromPgn = useMemo(() => {
+    const pgnHash = createPgnHash(game.pgn());
+    const gameId = `play-vs-ai-${pgnHash}`;
+
+    const gameObj = {
+      id: gameId,
+      pgn: game.pgn(),
+      username: username || "Unknown",
+      opponent: "AI",
+      date: new Date().toLocaleDateString(),
+      timeControl: "N/A",
+      result: "Game Finished",
+      rating: "N/A",
+      timeClass: "Play vs AI",
+      moves: "N/A",
+      opening: "N/A",
+      source: "Play vs AI",
+    };
+
+    console.log("🎮 gameFromPgn created:", {
+      id: gameObj.id,
+      pgnLength: gameObj.pgn.length,
+      username: gameObj.username,
+    });
+
+    return gameObj;
+  }, [game, username]);
+
   useEffect(() => {
     saveGameState();
   }, [gamePosition, statusGame, saveGameState]);
@@ -514,6 +568,80 @@ export default function PlayingPage() {
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  // Check if analysis exists for this game
+  useEffect(() => {
+    const checkAnalysis = () => {
+      const job = getJobByGameId(gameFromPgn.id);
+
+      // Ensure the job is completed, has a result, AND the PGN matches this game
+      const hasCompletedAnalysis =
+        job?.status === "completed" &&
+        !!job.result &&
+        job.pgn === gameFromPgn.pgn;
+
+      if (hasCompletedAnalysis && !hasAnalysis) {
+        console.log("✅ Analysis completed detected!");
+        console.log("📊 Job:", job);
+        console.log("🎮 Game ID:", gameFromPgn.id);
+        console.log("📋 PGN match:", job.pgn === gameFromPgn.pgn);
+      }
+
+      if (job && !hasCompletedAnalysis) {
+        console.log("⏳ Job found but not ready:", {
+          status: job.status,
+          hasResult: !!job.result,
+          pgnMatch: job.pgn === gameFromPgn.pgn,
+        });
+      }
+
+      setHasAnalysis(hasCompletedAnalysis);
+    };
+
+    checkAnalysis();
+    // Poll every second to check for completed analysis
+    const interval = setInterval(checkAnalysis, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis]);
+
+  // Auto-open AnalyzeGameHistory modal when tutorial reaches step 4
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 3) {
+      console.log("📖 Tutorial Step 4: Auto-opening AnalyzeGameHistory modal");
+      setIsAnalyzeOpen(true);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  // Auto-open ChooseAnalysisMode modal when tutorial reaches step 5
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 4) {
+      console.log("📖 Tutorial Step 5: Auto-opening ChooseAnalysisMode modal");
+      setIsChooseAnalysisModeOpen(true);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  // Auto-open GameAnalysis modal when tutorial reaches step 6
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 5) {
+      console.log("📖 Tutorial Step 6: Auto-opening GameAnalysis modal");
+      // Set dummy v3Result for tutorial to prevent null errors
+      setV3AnalysisResult({
+        summary: {
+          criticalMistakes: [
+            {
+              moveNumber: 15,
+              move: "Nxh5",
+              analysis: "This move loses material and weakens your position significantly.",
+              solution: "Better to play Bf4, maintaining piece coordination and central control."
+            }
+          ]
+        },
+        analysisId: "tutorial-dummy-id"
+      });
+      setGameAnalysisOpen(true);
+    }
+  }, [isTutorialPlay, stepFocused]);
 
   const navigateToMove = (index: number) => {
     if (index < 0 || index >= fenHistory.length) {
@@ -977,8 +1105,18 @@ export default function PlayingPage() {
         });
       }
     });
-    setCapturedBlack(capturedPiecesBlack);
-    setCapturedWhite(capturedPiecesWhite);
+
+    // During tutorial mode, limit to first 3 move pairs (6 total moves) to keep button visible
+    if (isTutorialPlay) {
+      const limitedWhite = capturedPiecesWhite.slice(0, 3);
+      const limitedBlack = capturedPiecesBlack.slice(0, 3);
+      console.log("🎓 Tutorial mode: Limiting moves to 3 pairs");
+      setCapturedBlack(limitedBlack);
+      setCapturedWhite(limitedWhite);
+    } else {
+      setCapturedBlack(capturedPiecesBlack);
+      setCapturedWhite(capturedPiecesWhite);
+    }
   };
 
   const changeNameFull = (piece: string | null) => {
@@ -1528,6 +1666,80 @@ export default function PlayingPage() {
       return null;
     }
   };
+
+  // Handle "Show Analysis" click
+  const handleShowAnalysis = async () => {
+    console.log("🔍 PlayingPage: handleShowAnalysis called");
+    console.log("🎮 Game ID:", gameFromPgn.id);
+    console.log("📋 PGN:", gameFromPgn.pgn?.substring(0, 100));
+
+    toast.info("Loading analysis...");
+
+    try {
+      const job = getJobByGameId(gameFromPgn.id);
+      console.log("💼 Job data:", job);
+
+      const pgnHash = createPgnHash(gameFromPgn.pgn);
+      console.log("🔑 PGN Hash:", pgnHash);
+
+      const lastAnalysis = await fetchLastAnalysis(pgnHash);
+      console.log("📊 Last analysis response:", lastAnalysis);
+
+      if (lastAnalysis?.success && lastAnalysis.data) {
+        console.log("✅ Using server analysis data");
+        console.log("📈 Analysis data keys:", Object.keys(lastAnalysis.data));
+
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(lastAnalysis.data);
+        setIsFromGameHistory(true);
+
+        console.log("🚀 Navigating to /analysis with server data");
+        toast.success("Opening analysis...");
+        router.push("/analysis");
+      } else {
+        console.log("⚠️ Server analysis not available, trying job result");
+        if (job && job.result) {
+          console.log("✅ Using job result data");
+          console.log("📈 Job result keys:", Object.keys(job.result));
+
+          setPgn(gameFromPgn.pgn);
+          setDataGamesImport(gameFromPgn);
+          setDataAnalysis(job.result);
+          setIsFromGameHistory(true);
+
+          console.log("🚀 Navigating to /analysis with job data");
+          toast.success("Opening analysis...");
+          router.push("/analysis");
+        } else {
+          console.error("❌ No analysis found for this game");
+          console.log("Falling back to analyze dialog");
+          toast.error("No analysis data found. Please analyze the game first.");
+          setIsAnalyzeOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error fetching analysis:", error);
+      const job = getJobByGameId(gameFromPgn.id);
+      console.log("🔄 Attempting fallback with job:", job);
+
+      if (job && job.result) {
+        console.log("✅ Using fallback job result");
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(job.result);
+        setIsFromGameHistory(true);
+
+        console.log("🚀 Navigating to /analysis with fallback job data");
+        toast.success("Opening analysis...");
+        router.push("/analysis");
+      } else {
+        console.error("❌ No fallback data available");
+        toast.error("Failed to load analysis. Please try again.");
+      }
+    }
+  };
+
   useEffect(() => {
     const isCompleted = Object.values(analysisJobs).filter(
       (gameData) => gameData.status == "completed"
@@ -1617,7 +1829,7 @@ export default function PlayingPage() {
                 setDataAnalysis(job.result);
                 router.push("/analysis");
               } else {
-                setShowAnalyzeDialog(true);
+                setIsAnalyzeOpen(true);
               }
             }
           } catch (error) {
@@ -1652,7 +1864,7 @@ export default function PlayingPage() {
               setDataAnalysis(job.result);
               router.push("/analysis");
             } else {
-              setShowAnalyzeDialog(true);
+              setIsAnalyzeOpen(true);
             }
           }
         },
@@ -1686,7 +1898,7 @@ export default function PlayingPage() {
             text: "Retry",
             icon: <AlertCircle className="h-4 w-4 mr-1" />,
             className: "bg-red-600 hover:bg-red-700 text-white",
-            onClick: () => setShowAnalyzeDialog(true),
+            onClick: () => setIsAnalyzeOpen(true),
             disabled: false,
           };
       }
@@ -1696,41 +1908,55 @@ export default function PlayingPage() {
       text: "Analyze",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
-      onClick: () => setShowAnalyzeDialog(true),
+      onClick: () => setIsAnalyzeOpen(true),
       disabled: false,
     };
   };
 
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
-      <GameEndStatus gameStatus={statusGame.toLowerCase()} />
+      {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
       <AnalyzeGameHistory
-        open={showAnalyzeDialog}
-        onOpenChange={setShowAnalyzeDialog}
-        game={{
-          id: currentGameId,
-          pgn: game.pgn(),
-          username: username,
-          white: {
-            result:
-              game.header().Result === "0-1"
-                ? "lose"
-                : game.header().Result === "1-0"
-                ? "win"
-                : "draw",
-            username: game.header().White,
-          },
-          black: {
-            result:
-              game.header().Result === "1-0"
-                ? "lose"
-                : game.header().Result === "0-1"
-                ? "win"
-                : "draw",
-            username: game.header().Black,
-          },
-          date: formatDatePgn(),
+        open={isAnalyzeOpen}
+        onOpenChange={(open) => {
+          console.log("🔄 AnalyzeGameHistory onOpenChange called with:", open);
+          setIsAnalyzeOpen(open);
         }}
+        game={gameFromPgn}
+        onAnalysisStarted={() => {
+          console.log("✅ Analysis started, opening ChooseAnalysisMode");
+          setIsChooseAnalysisModeOpen(true);
+        }}
+        onShortAnalysisReceived={(data) => {
+          console.log("📥 PlayingPage received short-analysis data:", data);
+          setShortAnalysisData(data);
+        }}
+      />
+      <ChooseAnalysisMode
+        open={isChooseAnalysisModeOpen}
+        onOpenChange={setIsChooseAnalysisModeOpen}
+        game={gameFromPgn}
+        shortAnalysisData={shortAnalysisData}
+        onOpenProcessingMode={() => {
+          console.log("🔄 Opening ProcessingAnalysisMode from PlayingPage");
+          setProcessingAnalysisModeOpen(true);
+        }}
+      />
+      <ProcessingAnalysisMode
+        open={processingAnalysisModeOpen}
+        onOpenChange={setProcessingAnalysisModeOpen}
+        game={gameFromPgn}
+        onOpenGameAnalysis={(v3Result) => {
+          console.log("🎯 Opening GameAnalysis from PlayingPage");
+          console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+      <GameAnalysis
+        open={gameAnalysisOpen}
+        onOpenChange={setGameAnalysisOpen}
+        v3Result={v3AnalysisResult}
       />
 
       <div className="flex flex-col w-full gap-y-2 ">
@@ -2006,7 +2232,7 @@ export default function PlayingPage() {
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_852_113922)">
+                        <g clipPath="url(#clip0_852_113922)">
                           <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                         </g>
@@ -2068,6 +2294,12 @@ export default function PlayingPage() {
                 handleSave={handleSave}
                 isSaved={isSaved}
                 isSaving={isSaving}
+                hasAnalysis={hasAnalysis}
+                onAnalyzeClick={() => {
+                  console.log("🔵 onAnalyzeClick called in PlayingPage, setting isAnalyzeOpen to true");
+                  setIsAnalyzeOpen(true);
+                }}
+                onShowAnalysisClick={handleShowAnalysis}
               />
             )}
 
@@ -2322,7 +2554,7 @@ export default function PlayingPage() {
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_852_113922)">
+                        <g clipPath="url(#clip0_852_113922)">
                           <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                         </g>
@@ -2366,6 +2598,12 @@ export default function PlayingPage() {
                     handleSave={handleSave}
                     isSaved={isSaved}
                     isSaving={isSaving}
+                    hasAnalysis={hasAnalysis}
+                    onAnalyzeClick={() => {
+                      console.log("🔵 onAnalyzeClick called in PlayingPage (second instance), setting isAnalyzeOpen to true");
+                      setIsAnalyzeOpen(true);
+                    }}
+                    onShowAnalysisClick={handleShowAnalysis}
                   />
                 )}
               </div>

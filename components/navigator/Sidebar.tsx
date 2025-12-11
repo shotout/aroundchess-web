@@ -484,9 +484,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                           >
                             <Link
                               data-tutorial={
-                                child.name === "My Game History"
-                                  ? "5"
-                                  : undefined
+                                child.name === "You vs AI"
+                                  ? "play-vs-ai-step-1"
+                                  : null
                               }
                               href={
                                 !isSignedIn && !child.permission
@@ -562,8 +562,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               onClose();
             }
 
-            if (!pathname.includes("/my-game-history")) {
-              router.replace("/my-game-history");
+            // NEW: Play vs AI Tutorial
+            if (!pathname.includes("/playground/play-vs-ai") || pathname.includes("/playground/play-vs-ai/playing")) {
+              router.replace("/playground/play-vs-ai");
               // Wait a bit for navigation to complete before starting tutorial
               setTimeout(() => {
                 startTutorial();
@@ -571,6 +572,17 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             } else {
               startTutorial();
             }
+
+            // OLD: Analyze Game Tutorial (commented out)
+            // if (!pathname.includes("/my-game-history")) {
+            //   router.replace("/my-game-history");
+            //   // Wait a bit for navigation to complete before starting tutorial
+            //   setTimeout(() => {
+            //     startTutorial();
+            //   }, 300);
+            // } else {
+            //   startTutorial();
+            // }
           }}
           className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
         >

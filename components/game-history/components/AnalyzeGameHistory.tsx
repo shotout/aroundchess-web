@@ -433,7 +433,7 @@ export function AnalyzeGameHistory({
               </div> */}
 
               <div className="font-medium text-[16px] lg:text-[18px] -mb-[8px]">Choose your Analysis Depth</div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center " data-tutorial="2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center " data-tutorial="2 play-vs-ai-step-4">
                 {depths.map((depth, idx) => {
                   return (
                     <button

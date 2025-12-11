@@ -227,7 +227,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             arePiecesDraggable={false}
                             boardWidth={boardSize}
                             orientation={orientation}
-                            position={game.fen()}
+                            position={game.fen()} // PARSING PGN NYA DISINI PAHAMI
                             onSquareClick={function (square: Square): void {
                                 throw new Error("Function not implemented.");
                             }}
