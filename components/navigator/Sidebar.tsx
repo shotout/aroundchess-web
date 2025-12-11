@@ -552,9 +552,31 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           Tutorial Test Button (Delete this section when done)
           ======================================== */}
       <motion.div
-        className="px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
+        className="flex px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
         variants={isMobile ? itemVariants : {}}
       >
+        <button
+          onClick={() => {
+            // Close sidebar first on mobile before starting tutorial
+            if (isMobile && onClose) {
+              onClose();
+            }
+
+            if (!pathname.includes("/my-game-history")) {
+              router.replace("/my-game-history");
+              // Wait a bit for navigation to complete before starting tutorial
+              setTimeout(() => {
+                startTutorial();
+              }, 300);
+            } else {
+              startTutorial();
+            }
+          }}
+          className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-l-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <span>Tutorial 1</span>
+        </button>
+
         <button
           onClick={() => {
             // Close sidebar first on mobile before starting tutorial
@@ -572,22 +594,10 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             } else {
               startTutorial();
             }
-
-            // OLD: Analyze Game Tutorial (commented out)
-            // if (!pathname.includes("/my-game-history")) {
-            //   router.replace("/my-game-history");
-            //   // Wait a bit for navigation to complete before starting tutorial
-            //   setTimeout(() => {
-            //     startTutorial();
-            //   }, 300);
-            // } else {
-            //   startTutorial();
-            // }
           }}
-          className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-r-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
         >
-          <span>🧪</span>
-          <span>Test Tutorial</span>
+          <span>Tutorial 2</span>
         </button>
       </motion.div>
       {/* ========================================

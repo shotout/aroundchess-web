@@ -308,7 +308,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
                     <button type="button" className="hidden lg:flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34]">
                       <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_866_179599)">
+                        <g clipPath="url(#clip0_866_179599)">
                           <path d="M0.664062 7.99935C0.664062 7.99935 3.33073 2.66602 7.9974 2.66602C12.6641 2.66602 15.3307 7.99935 15.3307 7.99935C15.3307 7.99935 12.6641 13.3327 7.9974 13.3327C3.33073 13.3327 0.664062 7.99935 0.664062 7.99935Z" stroke="#FAFDFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M7.9974 9.99935C9.10197 9.99935 9.9974 9.10392 9.9974 7.99935C9.9974 6.89478 9.10197 5.99935 7.9974 5.99935C6.89283 5.99935 5.9974 6.89478 5.9974 7.99935C5.9974 9.10392 6.89283 9.99935 7.9974 9.99935Z" stroke="#FAFDFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </g>

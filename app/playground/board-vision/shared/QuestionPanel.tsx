@@ -39,7 +39,7 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
 
             <Link href="/playground/board-vision">
               <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clip-path="url(#clip0_676_276226)">
+                <g clipPath="url(#clip0_676_276226)">
                   <path d="M22.1788 9H1.36719" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M9.03385 16.636L1.36719 8.99965L9.03385 1.36328" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </g>

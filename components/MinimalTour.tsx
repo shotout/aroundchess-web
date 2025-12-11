@@ -31,6 +31,7 @@ export default function MinimalTour({
   const [rect, setRect] = useState<DOMRect | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
+  const [arrowTop, setArrowTop] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
   const step = steps[index];
   const [mounted, setMounted] = useState(false);
@@ -126,17 +127,30 @@ export default function MinimalTour({
   useEffect(() => {
     if (!rect || !tooltipRef.current) {
       setArrowLeft(null);
+      setArrowTop(null);
       return;
     }
     const tooltipRect = tooltipRef.current.getBoundingClientRect();
+
+    // For horizontal placements (top/bottom) - calculate left position
     const targetCenter = rect.left + window.scrollX + rect.width / 2;
     const leftInsideTooltip = targetCenter - tooltipRect.left;
     // ensure arrow not too close to edges
-    const clamped = Math.max(
+    const clampedLeft = Math.max(
       12,
       Math.min(leftInsideTooltip, tooltipRect.width - 12)
     );
-    setArrowLeft(clamped);
+    setArrowLeft(clampedLeft);
+
+    // For vertical placements (left/right) - calculate top position
+    const targetVerticalCenter = rect.top + window.scrollY + rect.height / 2;
+    const topInsideTooltip = targetVerticalCenter - tooltipRect.top;
+    // ensure arrow not too close to edges
+    const clampedTop = Math.max(
+      12,
+      Math.min(topInsideTooltip, tooltipRect.height - 12)
+    );
+    setArrowTop(clampedTop);
   }, [rect, index, run]);
 
   useEffect(() => {
@@ -458,10 +472,9 @@ export default function MinimalTour({
         top: rect.top + window.scrollY - 8,
         width: rect.width + 16,
         height: rect.height + 16,
-        borderRadius: 8,
-        boxShadow:
-          "0 0 0 3px rgba(255,255,255,0.6), 0 6px 24px rgba(0,0,0,0.25)",
-        border: "2px solid rgba(255,255,255,0.85)",
+        // borderRadius: 8,
+        // boxShadow: "0 0 0 3px rgba(255,255,255,0.6), 0 6px 24px rgba(0,0,0,0.25)",
+        // border: "2px solid rgba(255,255,255,0.85)",
         pointerEvents: "none",
         zIndex: 999998,
       }}
@@ -508,13 +521,13 @@ export default function MinimalTour({
           rect
             ? {
                 minWidth: window.innerWidth < 425 ? 300 : 500,
-                maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 500,
+                maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 480,
                 maxHeight: window.innerWidth < 768 ? "calc(100vh - 100px)" : "80vh",
                 overflowY: "auto",
                 position: "fixed",
                 left: (() => {
                   const isMobile = window.innerWidth < 768;
-                  const tooltipWidth = window.innerWidth < 425 ? 300 : 500;
+                  const tooltipWidth = window.innerWidth < 425 ? 300 : 480;
                   const isStep4 = step.stepText === "4/5";
 
                   // For mobile step 4, use top placement (centered)
@@ -684,6 +697,66 @@ export default function MinimalTour({
             </defs>
             {/* flipped triangle to point downward */}
             <path d="M0,0 L12,12 L24,0 Z" fill="white" filter="url(#shadow)" />
+          </svg>
+        )}
+
+        {rect && arrowTop != null && step.placement === "left" && (
+          <svg
+            aria-hidden
+            width={12}
+            height={24}
+            viewBox="0 0 12 24"
+            style={{
+              position: "absolute",
+              right: -8,
+              top: arrowTop - 12,
+              overflow: "visible",
+              pointerEvents: "none",
+              zIndex: 61,
+            }}
+          >
+            <defs>
+              <filter id="shadow-left" width="200%" height="200%">
+                <feDropShadow
+                  dx="0"
+                  dy="2"
+                  stdDeviation="3"
+                  floodOpacity="0.12"
+                />
+              </filter>
+            </defs>
+            {/* triangle pointing right */}
+            <path d="M0,0 L12,12 L0,24 Z" fill="white" filter="url(#shadow-left)" />
+          </svg>
+        )}
+
+        {rect && arrowTop != null && step.placement === "right" && (
+          <svg
+            aria-hidden
+            width={12}
+            height={24}
+            viewBox="0 0 12 24"
+            style={{
+              position: "absolute",
+              left: -8,
+              top: arrowTop - 12,
+              overflow: "visible",
+              pointerEvents: "none",
+              zIndex: 61,
+            }}
+          >
+            <defs>
+              <filter id="shadow-right" width="200%" height="200%">
+                <feDropShadow
+                  dx="0"
+                  dy="2"
+                  stdDeviation="3"
+                  floodOpacity="0.12"
+                />
+              </filter>
+            </defs>
+            {/* triangle pointing left */}
+            <path d="M12,0 L0,12 L12,24 Z" fill="white" filter="url(#shadow-right)" />
           </svg>
         )}
 
