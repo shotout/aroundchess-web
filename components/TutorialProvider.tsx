@@ -46,7 +46,8 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
   const [currentTourId, setCurrentTourId] = useState<string | undefined>(
     undefined
   );
-  const [dataTutorial, setDataTutorial] = useState<any>({
+
+  const dataTutorial = useMemo(() => ({
     username: "ChessMaster2000",
     dateSelectedGame: "13/02/2025",
     gameTitle: "ChessMaster2000 (White) vs Guest1234 (Black)",
@@ -149,9 +150,9 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
         updatedAt: "2025-10-20T04:42:15.041Z",
       },
     ],
-  });
+  }), []);
 
-  const allSteps: any[] = [
+  const allSteps: any[] = useMemo(() => [
     {
       target: "[data-tutorial='1']",
       title: "Analyze a Game",
@@ -169,7 +170,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
     {
       target: "[data-tutorial='3']",
       title: "Analyze a Game",
-      content: "Select “Quick Summary” for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the “Chess Master Analysis” for users with an in-depth understanding of Chess.",
+      content: "Select \"Quick Summary\" for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the \"Chess Master Analysis\" for users with an in-depth understanding of Chess.",
       placement: "top",
       stepText: "3/5",
     },
@@ -187,27 +188,27 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       placement: "top",
       stepText: "5/5",
     }
-  ];
+  ], []);
 
-  const allStepsPlayVsAI: any[] = [
+  const allStepsPlayVsAI: any[] = useMemo(() => [
     {
       target: "[data-tutorial='play-vs-ai-step-1']",
       title: "Play a Game and start your Analysis",
-      content: "Visit “You vs AI” to play Chess against an AI opponent.",
+      content: "Visit \"You vs AI\" to play Chess against an AI opponent.",
       placement: "right",
       stepText: "1/7",
     },
     {
       target: "[data-tutorial='play-vs-ai-step-2']",
       title: "Play a Game and start your Analysis",
-      content: "Click “Start a Game” to start playing Chess against an AI opponent.",
+      content: "Click \"Start a Game\" to start playing Chess against an AI opponent.",
       placement: "bottom",
       stepText: "2/7",
     },
     {
       target: "[data-tutorial='1']",
       title: "Play a Game and start your Analysis",
-      content: "Once your Game is finished, tap “Analyze Now”.",
+      content: "Once your Game is finished, tap \"Analyze Now\".",
       placement: "top",
       stepText: "3/7",
     },
@@ -221,7 +222,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
     {
       target: "[data-tutorial='3']",
       title: "Play a Game and start your Analysis",
-      content: "Select “Quick Summary” for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the “Chess Master Analysis” for users with an in-depth understanding of Chess.",
+      content: "Select \"Quick Summary\" for an easy to understand Analysis that explains your biggest mistakes and how to resolve them - we recommend this Analysis type for regular users. We suggest the \"Chess Master Analysis\" for users with an in-depth understanding of Chess.",
       placement: "top",
       stepText: "5/7",
     },
@@ -239,7 +240,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       placement: "top",
       stepText: "7/7",
     }
-  ];
+  ], []);
 
   useEffect(() => {
     loadTutorialGame();
@@ -309,9 +310,9 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       startTutorial,
       stopTutorial,
       isRunning,
+      dataTutorial,
       currentTourId,
       stepFocused,
-      setStepFocused,
       gameTutorial,
       allSteps,
       allStepsPlayVsAI

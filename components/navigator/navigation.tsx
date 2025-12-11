@@ -3,7 +3,7 @@
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
 import { usePathname } from "next/navigation";
@@ -31,21 +31,7 @@ export default function Navigation({
   const [widthContent, setWidthContent] = useState(0);
   const [mounted, setMounted] = useState(true);
 
-  useEffect(() => {
-    setAlreadyFetch(false);
-    setCallFetch(formatTimePgn());
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
-
-    checkIfDesktop();
-
-    window.addEventListener("resize", checkIfDesktop);
-    return () => window.removeEventListener("resize", checkIfDesktop);
-  }, [mounted]);
-
-  const checkIfDesktop = () => {
+  const checkIfDesktop = useCallback(() => {
     const sidebarW = window.innerWidth / 6;
     const contentW = window.innerWidth - sidebarW;
     setIsDesktop(window.innerWidth >= 1280);
@@ -55,7 +41,22 @@ export default function Navigation({
     } else {
       setWidthSidebar(0);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    setAlreadyFetch(false);
+    setCallFetch(formatTimePgn());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    checkIfDesktop();
+
+    window.addEventListener("resize", checkIfDesktop);
+    return () => window.removeEventListener("resize", checkIfDesktop);
+  }, [mounted, checkIfDesktop]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);

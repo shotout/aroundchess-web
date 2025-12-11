@@ -251,28 +251,31 @@ export default function MinimalTour({
   }, [run]);
 
   useEffect(() => {
-    if (step != null && pathname.includes("/my-game-history")) {
+    if (!step) return;
+
+    if (pathname.includes("/my-game-history")) {
       const focusedIndex = allSteps.findIndex(
         (st) => st.stepText == step.stepText
       );
-      // console.log("focused step", focusedIndex);
-      setStepFocused(focusedIndex);
-    }
-
-    if (step != null && pathname.includes("/playground/play-vs-ai/playing")) {
+      if (focusedIndex !== -1 && focusedIndex !== stepFocused) {
+        setStepFocused(focusedIndex);
+      }
+    } else if (pathname.includes("/playground/play-vs-ai/playing")) {
       const focusedIndex = allStepsPlayVsAI.findIndex(
         (st) => st.stepText == step.stepText
-      )
-      console.log("focused step", focusedIndex);
-      setStepFocused(focusedIndex);
-    } else if (step != null && pathname.includes("/playground/play-vs-ai")) {
+      );
+      if (focusedIndex !== -1 && focusedIndex !== stepFocused) {
+        setStepFocused(focusedIndex);
+      }
+    } else if (pathname.includes("/playground/play-vs-ai")) {
       const focusedIndex = allStepsPlayVsAI.findIndex(
         (st) => st.stepText == step.stepText
-      )
-      console.log("focused step", focusedIndex);
-      setStepFocused(focusedIndex);
+      );
+      if (focusedIndex !== -1 && focusedIndex !== stepFocused) {
+        setStepFocused(focusedIndex);
+      }
     }
-  }, [index]);
+  }, [index, pathname]);
 
   if (!run || !steps || steps.length === 0 || !mounted) return null;
 
