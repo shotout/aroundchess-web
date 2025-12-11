@@ -10,7 +10,6 @@ import { BasedOnAI } from "@/components/based-on-ai";
 import { ImproveSection } from "@/components/improve-section";
 import { BenefitsOf } from "@/components/benefits-of";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { PricingOffer } from "@/components/modal/PricingOffer";
 import { useProfileStore } from "./store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { GrandmastersSection } from "@/components/GrandmasterSection";
@@ -80,7 +79,6 @@ export default function Home() {
         </div>
       ) : (
         <div className="bg-[#e6f7fe]">
-          <PricingOffer />
           <SiteHeaderNew />
           <HeroSection />
           <FeaturesSection />

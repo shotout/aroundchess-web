@@ -159,14 +159,23 @@ const GamesList: React.FC<GamesListProps> = ({
       const { gamesData, otherGamesData, setGamesData, setOtherGamesData } =
         state as any;
 
+      let updated = false;
+
       if (Array.isArray(gamesData)) {
         const idx = gamesData.findIndex((g: any) => g.id === id);
         // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
-          newGames[idx] = { ...newGames[idx], is_analysis: true };
+          newGames[idx] = {
+            ...newGames[idx],
+            // backend field
+            is_analysis: true,
+            // frontend Game type field
+            isAnalysis: true,
+          };
           // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
+          updated = true;
         }
       }
 
@@ -174,8 +183,51 @@ const GamesList: React.FC<GamesListProps> = ({
         const idx2 = otherGamesData.findIndex((g: any) => g.id === id);
         if (idx2 !== -1) {
           const newOther = [...otherGamesData];
-          newOther[idx2] = { ...newOther[idx2], is_analysis: true };
+          newOther[idx2] = {
+            ...newOther[idx2],
+            is_analysis: true,
+            isAnalysis: true,
+          };
           setOtherGamesData(newOther);
+          updated = true;
+        }
+      }
+
+      // Fallback: for games whose background analysis job was started
+      // with a synthetic gameId (e.g. Play VS AI), try to match by PGN
+      // so that "Other Games" rows still flip to "View Results".
+      if (!updated) {
+        const job = getJobByGameId(id);
+        const jobPgn = job?.gamePgn;
+
+        if (jobPgn) {
+          if (Array.isArray(gamesData)) {
+            const idx = gamesData.findIndex((g: any) => g.pgn === jobPgn);
+            if (idx !== -1) {
+              const newGames = [...gamesData];
+              newGames[idx] = {
+                ...newGames[idx],
+                is_analysis: true,
+                isAnalysis: true,
+              };
+              setGamesData(newGames);
+            }
+          }
+
+          if (Array.isArray(otherGamesData)) {
+            const idx2 = otherGamesData.findIndex(
+              (g: any) => g.pgn === jobPgn
+            );
+            if (idx2 !== -1) {
+              const newOther = [...otherGamesData];
+              newOther[idx2] = {
+                ...newOther[idx2],
+                is_analysis: true,
+                isAnalysis: true,
+              };
+              setOtherGamesData(newOther);
+            }
+          }
         }
       }
     } catch (e) {
@@ -363,7 +415,36 @@ const GamesList: React.FC<GamesListProps> = ({
         }
       });
     }
-  }, [analysisJobs, totalCompletedJobs, getTokenBalance, setToken]);
+  }, [
+    analysisJobs,
+    totalCompletedJobs,
+    getTokenBalance,
+    setToken,
+    getProfile,
+    everShowOffer,
+    isFromGameHistory,
+    setOpenOffer,
+    setEverShowOffer,
+    setProfile,
+  ]);
+
+  // Ensure that when games are loaded after analyses have already completed
+  // (e.g. user analyzed a game on another page, then navigates here),
+  // we still mark the corresponding games as `is_analysis` in the local store
+  // without requiring a manual "Update Games" refresh.
+  useEffect(() => {
+    if (!currentGames || currentGames.length === 0) return;
+
+    const completedJobs = Object.values(analysisJobs).filter(
+      (job) => job.status === "completed"
+    );
+
+    if (completedJobs.length === 0) return;
+
+    completedJobs.forEach((job) => {
+      markIsAnalysisInStore(job.gameId);
+    });
+  }, [currentGames, analysisJobs]);
   const getAnalysisButtonContent = (gameId: string | number, game: Game) => {
     const job = getJobByGameId(gameId);
 

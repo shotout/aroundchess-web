@@ -38,6 +38,13 @@ export const ButtonFinish = ({
   const { isTutorialPlay } = useTutorial();
 
   const renderButtonSave = () => {
+    // While auto-save is in progress, show the existing "Saving..." state.
+    // After the game has been saved (isSaved && !isSaving), replace the save button
+    // with the Analyze flow so the user can analyze this game immediately.
+    if (analysisButton && isSaved && !isSaving) {
+      return renderAnalyzeButton("w-full");
+    }
+
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">

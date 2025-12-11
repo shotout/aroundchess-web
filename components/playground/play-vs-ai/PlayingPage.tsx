@@ -358,6 +358,7 @@ export default function PlayingPage() {
   const hasRun = useRef(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [analysisPgn, setAnalysisPgn] = useState<string | null>(null);
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
@@ -1402,6 +1403,19 @@ export default function PlayingPage() {
     setIsSaving(true);
     // handleSave();
     const res = await postVSAILogs(body);
+    try {
+      // Prefer the canonical PGN returned by the backend VS AI log,
+      // so that analysis uses the exact same PGN as the imported
+      // game history entry. This ensures game_histories.is_analysis
+      // can be matched reliably via PGN hash.
+      const vsAiPgn =
+        (res as any)?.data?.pgn && typeof (res as any).data.pgn === "string"
+          ? (res as any).data.pgn
+          : null;
+      setAnalysisPgn(vsAiPgn ?? game.pgn());
+    } catch {
+      setAnalysisPgn(game.pgn());
+    }
     handleForceRefresh();
     console.log("res postVSAILogs", res);
     setIsSaved(true);
@@ -1757,7 +1771,7 @@ export default function PlayingPage() {
   }, [analysisJobs]);
   const getAnalysisButtonContent = () => {
     const job = getJobByGameId(currentGameId);
-    const currentPgn = game.pgn();
+    const currentPgn = analysisPgn ?? game.pgn();
 
     if (job && job.status === "completed") {
       return {
@@ -1905,7 +1919,7 @@ export default function PlayingPage() {
     }
 
     return {
-      text: "Analyze",
+      text: "Analyze now",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
       onClick: () => setIsAnalyzeOpen(true),
