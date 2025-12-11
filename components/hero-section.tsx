@@ -50,7 +50,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="bg-[url('/images/homepage/hero-banner-homepage-mobile.png')] sm:bg-[url('/images/homepage/hero-banner-homepage-tablet.png')] lg:bg-[url('/images/homepage/hero-banner-homepage.png')] bg-bottom bg-no-repeat bg-[#e0f6fd] bg-contain sm:bg-cover flex flex-1 relative overflow-hidden py-4 lg:pb-[88px] lg:mb-[-32px] lg:pt-0 w-full">
+    <section className="bg-[url('/images/homepage/hero-banner-homepage-mobile.png')] sm:bg-[url('/images/homepage/hero-banner-homepage-tablet.png')] lg:bg-[url('/images/homepage/hero-banner-homepage.jpg')] bg-bottom bg-no-repeat bg-[#e0f6fd] bg-contain sm:bg-cover flex flex-1 relative overflow-hidden py-4 lg:pb-[88px] lg:mb-[-32px] lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-6 lg:px-12 z-10">
         <motion.div
           className="py-0 sm:pt-[22px]"
