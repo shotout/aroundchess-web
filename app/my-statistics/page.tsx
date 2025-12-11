@@ -3,7 +3,6 @@
 import { usePgnStore } from "../store/zustandStore";
 import { useEffect } from "react";
 import { trackCustomEvent } from "../utils/facebookPixel";
-import { BlackFridayPromoTrigger } from "@/components/modal/BlackFridayPromoTrigger";
 import { PricingOffer } from "@/components/modal/PricingOffer";
 import Navigation from "@/components/navigator/navigation";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
@@ -32,7 +31,6 @@ export default function Page() {
         </div>
       )}
       <PricingOffer />
-      <BlackFridayPromoTrigger />
     </>
   );
 }
