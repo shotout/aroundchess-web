@@ -115,7 +115,7 @@ export function AnalysisSection() {
     // } else {
     //   router.push("/register");
     // }
-  }); //[isSignedIn, router]);
+  }, [router]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrent(index);

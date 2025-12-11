@@ -50,9 +50,12 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
   // Helper function to find ID from mistakeLogs by matching move
   const findIdFromMistakeLogs = (move: string, moveNumber: number, category: string) => {
-    if (!mistakeLogs || !mistakeLogs[category]) return null;
+    if (!mistakeLogs || !(category in mistakeLogs)) return null;
 
-    const matchingItem = mistakeLogs[category].find(
+    const categoryData = (mistakeLogs as any)[category];
+    if (!categoryData) return null;
+
+    const matchingItem = categoryData.find(
       (item: any) => item.move === move && item.moveNumber === moveNumber
     );
 
@@ -68,7 +71,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
       if (mergedData.criticalMistakes && Array.isArray(mergedData.criticalMistakes)) {
         mergedData.criticalMistakes = mergedData.criticalMistakes.map((item: any) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "criticalMistakes");
-          const mistakeLogItem = mistakeLogs?.criticalMistakes?.find(
+          const mistakeLogItem = (mistakeLogs as any)?.criticalMistakes?.find(
             (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
           );
 
@@ -89,7 +92,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
             id = findIdFromMistakeLogs(item.move, item.moveNumber, "threats");
           }
 
-          const mistakeLogItem = mistakeLogs?.threats?.find(
+          const mistakeLogItem = (mistakeLogs as any)?.threats?.find(
             (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
           );
 

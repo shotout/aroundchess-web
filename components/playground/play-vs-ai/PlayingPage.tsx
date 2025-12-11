@@ -354,6 +354,7 @@ export default function PlayingPage() {
     setError,
     username,
     hideDiv,
+    setIsFromGameHistory,
   } = usePgnStore();
   const hasRun = useRef(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -579,20 +580,20 @@ export default function PlayingPage() {
       const hasCompletedAnalysis =
         job?.status === "completed" &&
         !!job.result &&
-        job.pgn === gameFromPgn.pgn;
+        job.gamePgn === gameFromPgn.pgn;
 
       if (hasCompletedAnalysis && !hasAnalysis) {
         console.log("✅ Analysis completed detected!");
         console.log("📊 Job:", job);
         console.log("🎮 Game ID:", gameFromPgn.id);
-        console.log("📋 PGN match:", job.pgn === gameFromPgn.pgn);
+        console.log("📋 PGN match:", job.gamePgn === gameFromPgn.pgn);
       }
 
       if (job && !hasCompletedAnalysis) {
         console.log("⏳ Job found but not ready:", {
           status: job.status,
           hasResult: !!job.result,
-          pgnMatch: job.pgn === gameFromPgn.pgn,
+          pgnMatch: job.gamePgn === gameFromPgn.pgn,
         });
       }
 
@@ -2304,7 +2305,6 @@ export default function PlayingPage() {
                 handleRematch={handleRematch}
                 handleShare={handleShare}
                 handleDownload={handleDownload}
-                getAnalysisButtonContent={getAnalysisButtonContent}
                 handleSave={handleSave}
                 isSaved={isSaved}
                 isSaving={isSaving}
@@ -2608,7 +2608,6 @@ export default function PlayingPage() {
                     handleRematch={handleRematch}
                     handleShare={handleShare}
                     handleDownload={handleDownload}
-                    getAnalysisButtonContent={getAnalysisButtonContent}
                     handleSave={handleSave}
                     isSaved={isSaved}
                     isSaving={isSaving}
