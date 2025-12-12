@@ -3,7 +3,11 @@
 import { useState } from "react";
 import TimeframeDialog from "./TimeframeDialog";
 
-export default function Timeframe() {
+interface TimeframeProps {
+    onDateChange?: (startDate: string, endDate: string) => void;
+}
+
+export default function Timeframe({ onDateChange }: TimeframeProps) {
     const [open, setOpen] = useState(false);
     const [dateRange, setDateRange] = useState<string>("All Time");
 
@@ -12,6 +16,11 @@ export default function Timeframe() {
             setDateRange(`${startDate} ~ ${endDate}`);
         } else {
             setDateRange("All Time");
+        }
+
+        // Call parent callback
+        if (onDateChange) {
+            onDateChange(startDate, endDate);
         }
     };
 

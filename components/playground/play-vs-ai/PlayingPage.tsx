@@ -345,7 +345,7 @@ export default function PlayingPage() {
   const [afterFen, setAfterFen] = useState<string>("");
   const { getVSAILogs, postVSAILogs, getTokenBalance, isLoading } =
     useApiClient();
-  const { handleForceRefresh } = useGames("other");
+  const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
   const {
     setIsLoading,
     setPgn,

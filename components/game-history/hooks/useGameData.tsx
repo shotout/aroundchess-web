@@ -158,15 +158,23 @@ const isValidCache = (
   return age < expiration;
 };
 
-export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
+export interface GameFilters {
+  sources?: string[];
+  result?: string;
+  color?: string;
+  analyzedOnly?: boolean;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  opponent?: string;
+}
+
+export function useGames(filters?: GameFilters) {
   const {
-    username,
     gamesData: cachedUserGames,
-    otherGamesData: cachedOtherGames,
     gamesLastFetched,
-    otherGamesLastFetched,
     setGamesData,
-    setOtherGamesData,
     resetFetchState,
   } = usePgnStore();
   const { sessionId } = useProfileStore();
@@ -178,16 +186,10 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const fetchRef = useRef(false);
   const lastExecutedRef = useRef<string>("");
 
-  const cachedGames =
-    type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
-  const lastFetched =
-    type === "chessdotcom" ? gamesLastFetched : otherGamesLastFetched;
-  const setInStore = type === "chessdotcom" ? setGamesData : setOtherGamesData;
-
-  const cacheValid = useMemo(
-    () => isValidCache(lastFetched, cachedGames, CACHE_EXPIRATION),
-    [lastFetched, cachedGames]
-  );
+  // Create a stable filter key for caching
+  const filterKey = useMemo(() => {
+    return JSON.stringify(filters || {});
+  }, [filters]);
 
   const updateState = useCallback(
     (processed: Game[]) => setGames(processed),
@@ -195,25 +197,8 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   );
 
   const fetchGames = useCallback(async () => {
-    const key = `${sessionId}-${username}-${type}`;
+    const key = `${sessionId}-${filterKey}`;
     if (fetchRef.current || lastExecutedRef.current === key) return;
-
-    if (!username && type === "chessdotcom") {
-      setIsLoading(false);
-      return;
-    }
-
-    if (cacheValid && cachedGames) {
-      try {
-        updateState(transformApiDataToComponentFormat(cachedGames));
-      } catch (err) {
-        console.error(`[${type.toUpperCase()}] cached processing error:`, err);
-        setError(err instanceof Error ? err : new Error("Cache error"));
-      } finally {
-        setIsLoading(false);
-      }
-      return;
-    }
 
     fetchRef.current = true;
     lastExecutedRef.current = key;
@@ -221,16 +206,16 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setError(null);
 
     try {
-      const res = await gameHistoryApi.getUserGames(sessionId ?? null, type);
+      const res = await gameHistoryApi.getUserGames(sessionId ?? null, filters);
       if (res?.data) {
-        setInStore(res.data);
+        setGamesData(res.data);
         updateState(transformApiDataToComponentFormat(res.data));
       } else {
         throw new Error("Invalid server response");
       }
     } catch (err) {
       const e = err instanceof Error ? err : new Error("Fetch unknown error");
-      console.error(`[${type}] fetch error:`, e);
+      console.error(`[GAME_HISTORY] fetch error:`, e);
       setError(e);
     } finally {
       setIsLoading(false);
@@ -238,26 +223,15 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         fetchRef.current = false;
       }, 1000);
     }
-  }, [
-    sessionId,
-    username,
-    type,
-    cacheValid,
-    cachedGames,
-    setInStore,
-    updateState,
-  ]);
+  }, [sessionId, filterKey, filters, setGamesData, updateState]);
 
   useEffect(() => {
     if (!sessionId) return;
-    const key = `${sessionId}-${username}-${type}`;
+    const key = `${sessionId}-${filterKey}`;
     if (lastExecutedRef.current !== key && !fetchRef.current) {
       fetchGames();
-    } else if (cacheValid && cachedGames) {
-      updateState(transformApiDataToComponentFormat(cachedGames));
-      setIsLoading(false);
     }
-  }, [sessionId, username, type, cacheValid, cachedGames, fetchGames, updateState]);
+  }, [sessionId, filterKey, fetchGames]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
@@ -269,20 +243,15 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const handleForceRefresh = useCallback(() => {
     fetchRef.current = false;
     lastExecutedRef.current = "";
-    if (type === "chessdotcom") {
-      usePgnStore.getState().clearGamesData();
-    } else {
-      usePgnStore.getState().clearOtherGamesData();
-    }
+    usePgnStore.getState().clearGamesData();
     resetFetchState();
     fetchGames();
-  }, [type, resetFetchState, fetchGames]);
+  }, [resetFetchState, fetchGames]);
 
   return {
     games,
     isLoading,
     error,
-    cacheValid,
     handleRetryFetch,
     handleForceRefresh,
   };

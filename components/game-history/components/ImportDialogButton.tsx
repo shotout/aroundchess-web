@@ -18,7 +18,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 }) => {
   const { sessionId } = useProfileStore();
   const { addOtherImportedGame, username } = usePgnStore();
-  const { handleForceRefresh } = useGames("other");
+  const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("paste");
