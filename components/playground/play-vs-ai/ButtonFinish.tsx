@@ -41,7 +41,7 @@ export const ButtonFinish = ({
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
-          {hasAnalysis && !isTutorialPlay ? (
+          {hasAnalysis ? (
             // Show "Show Analysis" button when analysis is completed
             <button
               type="button"

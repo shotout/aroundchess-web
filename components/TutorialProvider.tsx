@@ -206,7 +206,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       stepText: "2/7",
     },
     {
-      target: "[data-tutorial='1']",
+      target: "[data-tutorial='play-vs-ai-step-3']",
       title: "Play a Game and start your Analysis",
       content: "Once your Game is finished, tap \"Analyze Now\".",
       placement: "top",

@@ -31,7 +31,7 @@ import {
   ChartNoAxesColumn,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   CSSProperties,
   useCallback,
@@ -337,6 +337,7 @@ export default function PlayingPage() {
   const { addOtherImportedGame } = usePgnStore();
   const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
+  const pathname = usePathname();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -373,7 +374,6 @@ export default function PlayingPage() {
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
 
-  // Debug: Log modal state changes
   useEffect(() => {
     console.log("📊 Modal States:", {
       isAnalyzeOpen,
@@ -609,24 +609,30 @@ export default function PlayingPage() {
 
   // Auto-open AnalyzeGameHistory modal when tutorial reaches step 4
   useEffect(() => {
+    if (isTutorialPlay && stepFocused === 2) {
+      setIsAnalyzeOpen(false);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  useEffect(() => {
     if (isTutorialPlay && stepFocused === 3) {
-      console.log("📖 Tutorial Step 4: Auto-opening AnalyzeGameHistory modal");
       setIsAnalyzeOpen(true);
+      setIsChooseAnalysisModeOpen(false);
     }
   }, [isTutorialPlay, stepFocused]);
 
   // Auto-open ChooseAnalysisMode modal when tutorial reaches step 5
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 4) {
-      console.log("📖 Tutorial Step 5: Auto-opening ChooseAnalysisMode modal");
+      setIsAnalyzeOpen(false);
       setIsChooseAnalysisModeOpen(true);
+      setGameAnalysisOpen(false);
     }
   }, [isTutorialPlay, stepFocused]);
 
   // Auto-open GameAnalysis modal when tutorial reaches step 6
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 5) {
-      console.log("📖 Tutorial Step 6: Auto-opening GameAnalysis modal");
       // Set dummy v3Result for tutorial to prevent null errors
       setV3AnalysisResult({
         summary: {
@@ -641,6 +647,7 @@ export default function PlayingPage() {
         },
         analysisId: "tutorial-dummy-id"
       });
+      setIsChooseAnalysisModeOpen(false);
       setGameAnalysisOpen(true);
     }
   }, [isTutorialPlay, stepFocused]);
@@ -742,6 +749,15 @@ export default function PlayingPage() {
 
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
+
+  // Set dummy data when tutorial is active to show "Analyze Now" button
+  useEffect(() => {
+    if (isTutorialPlay && pathname.includes("/playground/play-vs-ai/playing")) {
+      setStatusGame("Win");
+      setWinnerColor(myColor);
+      setLoserColor(myColor === "white" ? "black" : "white");
+    }
+  }, [isTutorialPlay, pathname, myColor]);
 
   useEffect(() => {
     const moves = game.history();
@@ -1260,7 +1276,7 @@ export default function PlayingPage() {
     handleResize();
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
-  }, [mounted, hideDiv, is3DMode]);
+  }, [mounted, hideDiv, is3DMode, isTutorialPlay]);
 
   const handleResize = () => {
     const width = window.innerWidth;
@@ -1274,13 +1290,18 @@ export default function PlayingPage() {
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
-      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      // Reduce size factor during tutorial to ensure button visibility
+      const sizeFactor = isTutorialPlay
+        ? (width <= 430 ? 0.65 : 0.7)
+        : (width <= 430 ? 0.85 : 0.9);
       setBoardSize(
         Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth)
       );
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
+      // Reduce board size during tutorial to ensure button visibility
+      const heightFactor = isTutorialPlay ? 0.5 : 0.8;
+      setBoardSize(Math.min(maxSize, availableHeight * heightFactor, maxBoardWidth));
     }
   };
 
@@ -2527,7 +2548,7 @@ export default function PlayingPage() {
           <TabsContent value="current" className="gap-2">
             <div
               className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
-              style={{ height: heightBoard }}
+              style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
               <div className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
@@ -2590,7 +2611,7 @@ export default function PlayingPage() {
                     statusGame={statusGame}
                   />
                 )}
-                {statusGame === "Ongoing" ? (
+                {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={handleHint}
                     handleNewGame={handleNewGame}

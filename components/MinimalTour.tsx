@@ -277,6 +277,23 @@ export default function MinimalTour({
     }
   }, [index, pathname]);
 
+  // Sync index when stepFocused changes (e.g., from prev/next button)
+  useEffect(() => {
+    if (!run || !steps || steps.length === 0) return;
+
+    // Find the correct index in current steps array based on stepFocused
+    const targetStepText = pathname.includes("/my-game-history")
+      ? allSteps[stepFocused]?.stepText
+      : allStepsPlayVsAI[stepFocused]?.stepText;
+
+    if (targetStepText) {
+      const newIndex = steps.findIndex((st) => st.stepText === targetStepText);
+      if (newIndex !== -1 && newIndex !== index) {
+        setIndex(newIndex);
+      }
+    }
+  }, [stepFocused, pathname, steps]);
+
   if (!run || !steps || steps.length === 0 || !mounted) return null;
 
   const next = () => {
@@ -299,10 +316,10 @@ export default function MinimalTour({
   };
   const prev = () => {
     console.log("index", stepFocused, pathname, index);
-    
+
     if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
+      setStepFocused(1); // Go back to step 2/7
       router.replace("/playground/play-vs-ai");
-      //   setIndex((i) => Math.max(0, i - 1));
     } else  {
       setIndex((i) => Math.max(0, i - 1));
     }
