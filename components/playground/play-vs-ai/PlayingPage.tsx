@@ -756,6 +756,7 @@ export default function PlayingPage() {
       setStatusGame("Win");
       setWinnerColor(myColor);
       setLoserColor(myColor === "white" ? "black" : "white");
+      setHasAnalysis(false); // Ensure "Analyze Now" button shows instead of "Show Analysis"
     }
   }, [isTutorialPlay, pathname, myColor]);
 

@@ -3,6 +3,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export const CACHE_EXPIRATION = 60 * 60 * 1000;
 
@@ -178,6 +179,7 @@ export function useGames(filters?: GameFilters) {
     resetFetchState,
   } = usePgnStore();
   const { sessionId } = useProfileStore();
+  const { isTutorialPlay } = useTutorial();
 
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -226,12 +228,20 @@ export function useGames(filters?: GameFilters) {
   }, [sessionId, filterKey, filters, setGamesData, updateState]);
 
   useEffect(() => {
+    // Skip fetching games when tutorial is active - we'll use dummy data instead
+    if (isTutorialPlay) {
+      setIsLoading(false);
+      setError(null);
+      setGames([]);
+      return;
+    }
+
     if (!sessionId) return;
     const key = `${sessionId}-${filterKey}`;
     if (lastExecutedRef.current !== key && !fetchRef.current) {
       fetchGames();
     }
-  }, [sessionId, filterKey, fetchGames]);
+  }, [sessionId, filterKey, fetchGames, isTutorialPlay, setGamesData]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;

@@ -115,6 +115,11 @@ const GamesList: React.FC<GamesListProps> = ({
   const { isTutorialPlay, dataTutorial, stepFocused } = useTutorial();
   const { setOpenOffer } = usePricingOffer();
 
+  // Use tutorial dummy data when tutorial is active and no real games
+  const displayGames = isTutorialPlay && currentGames.length === 0
+    ? dataTutorial.dataHistory as Game[]
+    : currentGames;
+
   // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
@@ -313,9 +318,9 @@ const GamesList: React.FC<GamesListProps> = ({
 
   // Handle tutorial step changes - open modals automatically
   useEffect(() => {
-    if (!isTutorialPlay || currentGames.length === 0) return;
+    if (!isTutorialPlay || displayGames.length === 0) return;
 
-    const firstGame = currentGames[0];
+    const firstGame = displayGames[0];
 
     // Step 1 (index 0): Close all modals, show game list
     if (stepFocused === 0) {
@@ -375,7 +380,7 @@ const GamesList: React.FC<GamesListProps> = ({
         setGameAnalysisGameId(firstGame.id);
       }
     }
-  }, [stepFocused, isTutorialPlay, currentGames]);
+  }, [stepFocused, isTutorialPlay, displayGames]);
 
   useEffect(() => {
     const isCompleted = Object.values(analysisJobs).filter(
@@ -522,10 +527,10 @@ const GamesList: React.FC<GamesListProps> = ({
         case "finalizing":
           // Show normal "Analyze" button but open ChooseAnalysisMode instead
           return {
-            text: "Analyze",
-            icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+            text: "View Analysis",
+            icon: <Eye className="h-4 w-4 mr-2" />,
             className:
-              "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+              "border-2 border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
               // Open ChooseAnalysisMode to view progress
               setChooseAnalysisModeGameId(gameId);
@@ -559,7 +564,7 @@ const GamesList: React.FC<GamesListProps> = ({
   };
 
   const displayTimeControl = (tc: string) => {
-    if (!tc.trim()) {
+    if (!tc || !tc.trim()) {
       return (
         <span className="text-gray-400 italic flex items-center">
           <Clock className="h-3 w-3 mr-1" /> N/A
@@ -630,7 +635,7 @@ const GamesList: React.FC<GamesListProps> = ({
   return (
     <div className="p-0 md:p-4 xl:p-0">
       {/* Modal Components - Rendered for both mobile and desktop */}
-      {currentGames.map((game) => (
+      {displayGames.map((game) => (
         <React.Fragment key={`modals-${game.id}`}>
           <AnalyzeGameHistory
             open={openGameId === game.id}
@@ -702,7 +707,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
           <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
             {/* Show real games for tutorial, DummyList is no longer needed */}
-            {currentGames.map((game, idx) => {
+            {displayGames.map((game, idx) => {
                 const btn = getAnalysisButtonContent(game.id, game);
                 const isNew =
                   (!game.hasViewedAnalysis && game.isAnalysis) ||
@@ -801,7 +806,7 @@ const GamesList: React.FC<GamesListProps> = ({
         <div className="lg:hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
             {/* Show real games for tutorial on mobile too */}
-            {currentGames.map((game) => (
+            {displayGames.map((game) => (
                 <GameCard
                   key={game.id}
                   gameData={game}
@@ -812,7 +817,7 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       )}
 
-      {currentGames.length > 0 && <PaginationControls {...paginationProps} />}
+      {displayGames.length > 0 && !isTutorialPlay && <PaginationControls {...paginationProps} />}
     </div>
   );
 };

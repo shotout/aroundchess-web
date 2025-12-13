@@ -301,8 +301,13 @@ export default function MinimalTour({
     if (stepFocused == 1 && pathname.includes("/playground/play-vs-ai")) {
       // setIndex((i) => i + 1);
       router.replace("/playground/play-vs-ai/playing");
-    } 
-    setIndex((i) => i + 1);
+      setTimeout(() => {
+        setStepFocused(2);
+      }, 300)
+    } else {
+      setIndex((i) => i + 1);
+    }
+
     // if (stepFocused == 2 && pathname.includes("/analysis")) {
     //   router.replace("/my-game-history");
     //   //   setIndex((i) => i + 1);

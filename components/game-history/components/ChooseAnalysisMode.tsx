@@ -9,6 +9,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
+import { usePollingManager } from "../hooks/usePollingManager";
 import { useTutorial } from "@/components/TutorialProvider";
 
 interface Props {
@@ -70,6 +71,7 @@ export default function ChooseAnalysisMode({
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
     const { sessionId } = useProfileStore();
     const { startV3BackgroundPolling } = useV3PollingManager();
+    const { startBackgroundPolling } = usePollingManager();
     const { isTutorialPlay, stepFocused } = useTutorial();
 
     const [progress, setProgress] = useState(0);
@@ -93,6 +95,30 @@ export default function ChooseAnalysisMode({
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
     const headerHeight = 72;
     const headerHeightLg = 96;
+
+    // Restart background polling when dialog is reopened
+    useEffect(() => {
+        if (!game || !open) return;
+
+        const job = getJobByGameId(game.id);
+
+        // If job exists and is in progress, restart polling to ensure progress continues
+        if (job && ["pending", "processing", "finalizing", "waiting"].includes(job.status)) {
+            console.log("🔄 ChooseAnalysisMode opened - Restarting polling for job:", job.jobId);
+
+            // Restart polling if job has statusUrl
+            if (job.statusUrl && job.gamePgn) {
+                startBackgroundPolling(
+                    game.id,
+                    job.statusUrl,
+                    job.jobId,
+                    job.gamePgn,
+                    game,
+                    true // isRestore = true to avoid showing toast
+                );
+            }
+        }
+    }, [game, open, getJobByGameId, startBackgroundPolling]);
 
     // Monitor job progress with polling
     useEffect(() => {
@@ -287,7 +313,7 @@ export default function ChooseAnalysisMode({
 
     return (
         <div
-            className="fixed bg-[rgba(0,0,0,.5)] z-50 flex items-center justify-center p-4 md:p-0"
+            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-0"
             style={{
                 top:
                 typeof window !== "undefined" && window.innerWidth >= 1024

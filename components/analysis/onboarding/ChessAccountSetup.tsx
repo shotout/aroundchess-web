@@ -41,6 +41,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
   const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
   const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
+  const [closeConnectDialog, setCloseConnectDialog] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -79,25 +80,48 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     setShowAnalyzeFreeBanner(true);
   };
   const handleCloseFreeBanner = () => {
-    if (!pathname.includes("/analysis")) {
-      router.replace("/analysis");
-      setShowAnalyzeFreeBanner(false);
-      setIsOpenTutorial(true);
-      startTutorial();
+    setShowAnalyzeFreeBanner(false);
+
+    if (closeConnectDialog) {
+      if (!pathname.includes("/playground/play-vs-ai") 
+        || pathname.includes("/playground/play-vs-ai/playing")
+      ) {
+        router.replace("/playground/play-vs-ai");
+      }
     } else {
-      setShowAnalyzeFreeBanner(false);
+      if (!pathname.includes("/my-game-history")) {
+        router.replace("/my-game-history");
+      }
+    }
+
+    setTimeout(() => {
       setIsOpenTutorial(true);
       startTutorial();
-    }
+    }, 300);
+
+    // if (!pathname.includes("/analysis")) {
+    //   router.replace("/analysis");
+    //   setShowAnalyzeFreeBanner(false);
+    //   setIsOpenTutorial(true);
+    //   startTutorial();
+    // } else {
+    //   setShowAnalyzeFreeBanner(false);
+    //   setIsOpenTutorial(true);
+    //   startTutorial();
+    // }
   };
 
   const handleSpecialDiscount = () => {
     setShowSpecialDiscount(false);
     setShowPremiumDialog(true);
   };
+
   const handleConnectClose = () => {
     setShowConnectDialog(false);
-    setShowPremiumDialog(true);
+    // setShowPremiumDialog(true);
+
+    setCloseConnectDialog(true);
+    handleOpenAnalyzeFree();
   };
 
   const handleClosePremium = () => {

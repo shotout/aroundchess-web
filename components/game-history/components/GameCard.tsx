@@ -159,12 +159,12 @@ const GameCard: React.FC<GameCardProps> = ({
         case "processing":
         case "waiting":
         case "finalizing":
-          // Show normal "Analyze" button but open ChooseAnalysisMode instead
+          // Show "View Analysis" button (green) to indicate analysis is in progress
           return {
-            text: "Analyze",
-            icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
+            text: "View Analysis",
+            icon: <CheckCircle className="h-4 w-4 mr-2" />,
             className:
-              "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+              "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
               // Open ChooseAnalysisMode to view progress
               setIsChooseAnalysisModeOpen(true);

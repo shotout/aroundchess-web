@@ -81,6 +81,7 @@ export function AnalyzeGameHistory({
 
       if (!capacityCheck.success || !capacityCheck.data.canStart) {
         const reason = capacityCheck.data.reason || "Cannot start analysis";
+
         toast.error("Analysis Capacity Limit", {
           description: reason,
           duration: 5000,
@@ -117,15 +118,25 @@ export function AnalyzeGameHistory({
     const gameToAnalyze = game.pgn || pgnText;
     if (!gameToAnalyze) return;
 
+    // Check for existing job BEFORE adding new one
     const existing = getJobByGameId(game.id);
     if (
       existing &&
       ["pending", "processing", "finalizing"].includes(existing.status)
     ) {
+      // If job already exists and is in progress, open ChooseAnalysisMode to show progress
       toast.info("Analysis already in progress for this game.", {
         description: `Current status: ${existing.status}`,
         duration: 5000,
       });
+
+      // Open ChooseAnalysisMode to view progress
+      if (onAnalysisStarted) {
+        onAnalysisStarted();
+      }
+
+      // Close AnalyzeGameHistory
+      onOpenChange(false);
       return;
     }
     if (existing && existing.status === "completed" && existing.result) {
@@ -136,6 +147,16 @@ export function AnalyzeGameHistory({
       router.push("/analysis");
       return;
     }
+
+    // Add job to store immediately to update UI (button changes to "View Analysis")
+    const tempJobId = `temp-${Date.now()}`;
+    addJob(
+      game.id,
+      tempJobId,
+      undefined, // statusUrl will be updated after API response
+      game.pgn,
+      depthChoosed
+    );
 
     setIsSubmitting(true);
 
@@ -170,24 +191,25 @@ export function AnalyzeGameHistory({
 
       const data = res.data.data;
       if (data?.processingMode === "async") {
-        if (
-          !getJobByGameId(game.id) ||
-          getJobByGameId(game.id)?.jobId !== data.jobId
-        ) {
-          addJob(
-            game.id,
-            data.jobId,
-            data.statusUrl,
-            gameToAnalyze,
-            depthChoosed
-          );
-        }
-        onOpenChange(false);
+        // Update the existing job with actual jobId and statusUrl from API response
+        updateJob(game.id, {
+          jobId: data.jobId,
+          statusUrl: data.statusUrl,
+          gamePgn: gameToAnalyze,
+          status: data.status === "completed" ? "completed" : "pending",
+        });
 
-        // Call callback to open ChooseAnalysisMode
+        // Open ChooseAnalysisMode FIRST, then close AnalyzeGameHistory
+        // This ensures smooth transition without gap between dialogs
         if (onAnalysisStarted) {
           onAnalysisStarted();
         }
+
+        // Close AnalyzeGameHistory after ChooseAnalysisMode is triggered
+        // Small delay ensures ChooseAnalysisMode is rendered before this closes
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 50);
 
         if (["completed", "ready"].includes(data.status)) {
           updateJob(game.id, {
