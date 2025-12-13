@@ -517,7 +517,8 @@ export default function MinimalTour({
         id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
-        className={`block w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg ${
+        data-placement={step?.placement || "bottom"}
+        className={`block w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg relative ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
         style={
@@ -525,12 +526,11 @@ export default function MinimalTour({
             ? {
                 minWidth: window.innerWidth < 425 ? 300 : 500,
                 maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 480,
-                maxHeight: window.innerWidth < 768 ? "calc(100vh - 100px)" : "80vh",
-                overflowY: "auto",
+                overflow: "visible",
                 position: "fixed",
                 left: (() => {
                   const isMobile = window.innerWidth < 768;
-                  const tooltipWidth = window.innerWidth < 425 ? 300 : 480;
+                  const tooltipWidth = tooltipRef.current?.getBoundingClientRect().width ?? (window.innerWidth < 425 ? 300 : 480);
                   const isStep4 = step.stepText === "4/5";
 
                   // For mobile step 4, use top placement (centered)
@@ -545,14 +545,23 @@ export default function MinimalTour({
                   }
 
                   // Desktop placement logic
+                  const SPACING = 24; // Fixed spacing between tooltip and target
+
                   if (step.placement === "right") {
-                    const calculatedLeft = rect.right + window.scrollX + 16;
+                    const calculatedLeft = rect.right + window.scrollX + SPACING;
                     // Ensure it doesn't overflow right edge
                     return `${Math.min(calculatedLeft, window.innerWidth - tooltipWidth - 16)}px`;
                   } else if (step.placement === "left") {
-                    const calculatedLeft = rect.left + window.scrollX - tooltipWidth - 16;
+                    const calculatedLeft = rect.left + window.scrollX - tooltipWidth - SPACING;
                     // Ensure it doesn't overflow left edge
                     return `${Math.max(16, calculatedLeft)}px`;
+                  } else if (step.placement === "top" || step.placement === "bottom") {
+                    // Center horizontally for top/bottom placements
+                    const centeredLeft = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2);
+                    // Ensure it doesn't overflow viewport
+                    const minLeft = 16;
+                    const maxLeft = Math.max(minLeft, window.innerWidth - tooltipWidth - 16);
+                    return `${Math.min(Math.max(centeredLeft, minLeft), maxLeft)}px`;
                   }
 
                   return `${left}px`;
@@ -560,27 +569,34 @@ export default function MinimalTour({
                 top: (() => {
                   const isMobile = window.innerWidth < 768;
                   const isStep4 = step.stepText === "4/5";
+                  const tooltipHeight = tooltipRef.current?.getBoundingClientRect().height ?? 200;
+                  const SPACING = 20; // Fixed spacing between tooltip and target
 
                   // For mobile step 4, use top placement
                   if (isMobile && isStep4) {
-                    return `${Math.max(8, rect.top + window.scrollY - 250)}px`;
+                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
                   }
 
                   // For mobile with left/right placement, use bottom placement instead
                   if (isMobile && (step.placement === "left" || step.placement === "right")) {
-                    return `${Math.max(8, rect.bottom + window.scrollY + 8)}px`;
+                    return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
                   }
 
                   // Desktop placement logic
                   if (step.placement === "bottom") {
-                    return `${top}px`;
+                    return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
                   } else if (step.placement === "top") {
-                    return `${top && top - (rect.height + 200)}px`;
+                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
                   } else if (step.placement === "left" || step.placement === "right") {
-                    return `${rect.top + window.scrollY}px`;
+                    // Center vertically for left/right placements
+                    const centeredTop = rect.top + window.scrollY + (rect.height / 2) - (tooltipHeight / 2);
+                    // Ensure it doesn't overflow viewport
+                    const minTop = 8;
+                    const maxTop = Math.max(minTop, window.innerHeight - tooltipHeight - 8);
+                    return `${Math.min(Math.max(centeredTop, minTop), maxTop)}px`;
                   }
 
-                  return `${top && top - (rect.height + 200)}px`;
+                  return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
                 })(),
                 zIndex: 1000000,
               }
@@ -637,135 +653,82 @@ export default function MinimalTour({
           .ac-shake {
             animation: acShake 600ms ease-in-out;
           }
+
+          /* Arrow for bottom placement */
+          #box-tutorial[data-placement="bottom"]::before {
+            ${rect && arrowLeft != null ? `
+              content: '';
+              position: absolute;
+              top: -10px;
+              left: ${arrowLeft - 10}px;
+              width: 20px;
+              height: 20px;
+              background: white;
+              transform: rotate(45deg);
+              z-index: 0;
+            ` : ''}
+          }
+
+          /* Arrow for top placement */
+          #box-tutorial[data-placement="top"]::before {
+            ${rect && arrowLeft != null ? `
+              content: '';
+              position: absolute;
+              bottom: -10px;
+              left: ${arrowLeft - 10}px;
+              width: 20px;
+              height: 20px;
+              background: white;
+              transform: rotate(45deg);
+              z-index: 0;
+            ` : ''}
+          }
+
+          /* Arrow for left placement */
+          #box-tutorial[data-placement="left"]::before {
+            ${rect && arrowTop != null ? `
+              content: '';
+              position: absolute;
+              right: -10px;
+              top: ${arrowTop - 10}px;
+              width: 20px;
+              height: 20px;
+              background: white;
+              transform: rotate(45deg);
+              z-index: 0;
+            ` : ''}
+          }
+
+          /* Arrow for right placement */
+          #box-tutorial[data-placement="right"]::before {
+            ${rect && arrowTop != null ? `
+              content: '';
+              position: absolute;
+              left: -10px;
+              top: ${arrowTop - 10}px;
+              width: 20px;
+              height: 20px;
+              background: white;
+              transform: rotate(45deg);
+              z-index: 0;
+            ` : ''}
+          }
         `}</style>
-        <div className="flex flex-row justify-between items-center mb-4">
-          <span className="font-semibold text-[14px]">{step?.title}</span>
-          <span className="text-[11px] font-normal text-gray-500">
-            {step?.stepText}
-          </span>
-        </div>
-        {rect && arrowLeft != null && step.placement === "bottom" && (
-          <svg
-            aria-hidden
-            width={24}
-            height={12}
-            viewBox="0 0 24 12"
-            style={{
-              position: "absolute",
-              top: window.innerWidth > 425 ? -8 : -10,
-              left: arrowLeft - 12,
-              overflow: "visible",
-              pointerEvents: "none",
-              zIndex: 61,
-            }}
-          >
-            <defs>
-              <filter width="200%" height="200%">
-                <feDropShadow
-                  dx="0"
-                  dy="2"
-                  stdDeviation="3"
-                  floodOpacity="0.12"
-                />
-              </filter>
-            </defs>
-            <path d="M0,12 L12,0 L24,12 Z" fill="white" filter="url(#shadow)" />
-          </svg>
-        )}
-
-        {rect && arrowLeft != null && step.placement === "top" && (
-          <svg
-            aria-hidden
-            width={24}
-            height={12}
-            viewBox="0 0 24 12"
-            style={{
-              position: "absolute",
-              bottom: window.innerWidth > 425 ? -8 : -10,
-              left: arrowLeft - 16,
-              overflow: "visible",
-              pointerEvents: "none",
-              zIndex: 61,
-            }}
-          >
-            <defs>
-              <filter id="shadow" width="200%" height="200%">
-                <feDropShadow
-                  dx="0"
-                  dy="2"
-                  stdDeviation="3"
-                  floodOpacity="0.12"
-                />
-              </filter>
-            </defs>
-            {/* flipped triangle to point downward */}
-            <path d="M0,0 L12,12 L24,0 Z" fill="white" filter="url(#shadow)" />
-          </svg>
-        )}
-
-        {rect && arrowTop != null && step.placement === "left" && (
-          <svg
-            aria-hidden
-            width={12}
-            height={24}
-            viewBox="0 0 12 24"
-            style={{
-              position: "absolute",
-              right: -8,
-              top: arrowTop - 12,
-              overflow: "visible",
-              pointerEvents: "none",
-              zIndex: 61,
-            }}
-          >
-            <defs>
-              <filter id="shadow-left" width="200%" height="200%">
-                <feDropShadow
-                  dx="0"
-                  dy="2"
-                  stdDeviation="3"
-                  floodOpacity="0.12"
-                />
-              </filter>
-            </defs>
-            {/* triangle pointing right */}
-            <path d="M0,0 L12,12 L0,24 Z" fill="white" filter="url(#shadow-left)" />
-          </svg>
-        )}
-
-        {rect && arrowTop != null && step.placement === "right" && (
-          <svg
-            aria-hidden
-            width={12}
-            height={24}
-            viewBox="0 0 12 24"
-            style={{
-              position: "absolute",
-              left: -8,
-              top: arrowTop - 12,
-              overflow: "visible",
-              pointerEvents: "none",
-              zIndex: 61,
-            }}
-          >
-            <defs>
-              <filter id="shadow-right" width="200%" height="200%">
-                <feDropShadow
-                  dx="0"
-                  dy="2"
-                  stdDeviation="3"
-                  floodOpacity="0.12"
-                />
-              </filter>
-            </defs>
-            {/* triangle pointing left */}
-            <path d="M12,0 L0,12 L12,24 Z" fill="white" filter="url(#shadow-right)" />
-          </svg>
-        )}
-
-        <div className="text-[#4D5255] font-normal text-[14px] -- mb-4">
-          {step?.content}
-        </div>
+        <div
+          style={{
+            maxHeight: rect ? (window.innerWidth < 768 ? "calc(100vh - 100px)" : "80vh") : "auto",
+            overflowY: rect ? "auto" : "visible"
+          }}
+        >
+          <div className="flex flex-row justify-between items-center mb-4">
+            <span className="font-semibold text-[14px]">{step?.title}</span>
+            <span className="text-[11px] font-normal text-gray-500">
+              {step?.stepText}
+            </span>
+          </div>
+          <div className="text-[#4D5255] font-normal text-[14px] -- mb-4">
+            {step?.content}
+          </div>
         {stepFocused == 6 && (
           <div className="flex flex-row justify-between items-center mt-2">
             <div
@@ -839,6 +802,7 @@ export default function MinimalTour({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
