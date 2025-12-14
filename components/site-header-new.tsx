@@ -94,7 +94,8 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   const handleDashboard = () => {
-    router.push("/analysis");
+    // Redirect to game history instead of analysis page
+    router.push("/my-game-history");
   };
 
   const handleLogout = async () => {

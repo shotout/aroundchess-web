@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 import { ChessConnectDialog } from "@/components/analysis/onboarding/ChessConnectPopover";
 import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSubscription";
-import { AnalyzeGameDialog } from "./AnalyzeGameDialog";
 import { useChessProfile } from "./useChessProfile";
 import DialogAnalyzeFree from "@/components/modal/DialogAnalyzeFree";
 import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
@@ -47,7 +46,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   } = useTutorialStore();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-  const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
   const [showAnalyzeFreeBanner, setShowAnalyzeFreeBanner] = useState(false);
   const [showSpecialDiscount, setShowSpecialDiscount] = useState(false);
   const [closeConnectDialog, setCloseConnectDialog] = useState(false);
@@ -152,7 +150,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       console.log("✅ [ChessAccountSetup] Showing ChessAccountSetup dialog for user without username");
       setShowConnectDialog(true);
       setShowPremiumDialog(false);
-      setShowAnalyzeDialog(false);
     } else {
       console.log("❌ [ChessAccountSetup] Not showing dialog because:", {
         notSignedIn: !isSignedIn,
@@ -294,13 +291,15 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
   const handleClosePremium = () => {
     setShowPremiumDialog(false);
-    setShowAnalyzeDialog(true);
+    // Redirect to game history instead of showing AnalyzeGameDialog
+    router.push("/my-game-history");
   };
 
   const handleGetPremium = () => {
     setShowPremiumDialog(false);
-    setShowAnalyzeDialog(true);
     toast.success("Thank you for subscribing to Premium!");
+    // Redirect to game history instead of showing AnalyzeGameDialog
+    router.push("/my-game-history");
   };
 
   if (!checkComplete) {
@@ -330,11 +329,6 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
         visible={showPremiumDialog && !isLoading}
         onClose={handleClosePremium}
         onGetPremium={handleGetPremium}
-      />
-
-      <AnalyzeGameDialog
-        open={showAnalyzeDialog && !isLoading}
-        onOpenChange={setShowAnalyzeDialog}
       />
     </>
   );

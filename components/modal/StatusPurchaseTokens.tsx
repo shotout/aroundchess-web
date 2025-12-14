@@ -70,7 +70,8 @@ export function StatusPurchaseTokens() {
     router.replace("/profile");
   };
   const handleAnalyze = () => {
-    router.replace("/analysis");
+    // Redirect to game history instead of showing AnalyzeGameDialog
+    router.replace("/my-game-history");
   };
   const handleFailed = () => {
     setOpen(false);
