@@ -154,6 +154,11 @@ export const gameHistoryApi = {
       params.opponent = filters.opponent;
     }
 
+    console.log("📤 [API] getUserGames called with filters:", filters);
+    console.log("📤 [API] URL params being sent:", params);
+    console.log("📤 [API] Sources array:", filters?.sources);
+    console.log("📤 [API] Sources joined:", params.sources);
+
     return apiRequest<ApiResponse<any[]>>(
       `/v3/games/my-game-history`,
       { sessionId, params }

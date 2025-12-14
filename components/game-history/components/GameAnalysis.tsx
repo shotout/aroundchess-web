@@ -49,7 +49,7 @@ export default function GameAnalysis({
 
     return (
         <div
-            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex justify-center lg:py-[16px]"
+            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex justify-center items-center lg:py-[16px]"
             style={{
                 top:
                 typeof window !== "undefined" && window.innerWidth >= 1024
@@ -61,7 +61,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full xl:w-[480px] xxl:w-[450px] 2xl:w-[560px] max-h-[calc(100vh-64px)] xl:max-h-[86vh] overflow-x-hidden overflow-y-scroll lg:h-auto bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:p-[32px] lg:py-[14px] xxl:p-[32px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full xl:w-[480px] xxl:w-[450px] 2xl:w-[560px] max-h-min overflow-x-hidden overflow-y-scroll lg:h-auto bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:p-[32px] lg:py-[14px] xxl:p-[32px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -153,6 +153,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     const [boardSize, setBoardSize] = useState(280);
     const [orientation, setOrientation] = useState<BoardOrientation>("white");
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
+    const [customArrows, setCustomArrows] = useState<any[]>([]);
 
     const { setStyleChoosed } = useChessBoardThemeStore();
     const { chessMove, setChessMove } = useChessMoveStore();
@@ -170,8 +171,70 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     useEffect(() => {
         if (window.innerWidth < 1400) {
             setBoardSize(224);
-        } 
+        }
     }, []);
+
+    // Load FEN position from mistake when it changes
+    useEffect(() => {
+        if (mistake?.fen) {
+            console.log("🎯 [GameAnalysisSlide] Loading FEN from mistake:", mistake.fen);
+            try {
+                const newGame = new Chess();
+                newGame.load(mistake.fen);
+                setGame(newGame);
+                console.log("✅ [GameAnalysisSlide] FEN loaded successfully");
+            } catch (error) {
+                console.error("❌ [GameAnalysisSlide] Failed to load FEN:", error);
+                console.error("❌ Invalid FEN:", mistake.fen);
+            }
+        } else {
+            console.log("⚠️ [GameAnalysisSlide] No FEN found in mistake object:", mistake);
+        }
+    }, [mistake]);
+
+    // Generate arrows for badMove (red) and goodMove (green)
+    useEffect(() => {
+        const arrows: any[] = [];
+
+        console.log("🎯 [GameAnalysisSlide] Generating arrows from mistake:", mistake);
+        console.log("🎯 [GameAnalysisSlide] Arrows object:", mistake?.arrows);
+
+        // Red arrow for bad move
+        if (mistake?.arrows?.badMove) {
+            const badMove = mistake.arrows.badMove;
+            console.log("🔴 [GameAnalysisSlide] Bad move object:", badMove);
+
+            // Check if it's an object with startSquare and endSquare
+            if (badMove.startSquare && badMove.endSquare) {
+                const from = badMove.startSquare;
+                const to = badMove.endSquare;
+                arrows.push([from, to, "rgba(239, 68, 68, 0.8)"]); // Red color
+                console.log("🔴 [GameAnalysisSlide] Added bad move arrow:", from, "->", to);
+            }
+        } else {
+            console.log("⚠️ [GameAnalysisSlide] No badMove found in mistake.arrows");
+        }
+
+        // Green arrow for good move (could be goodMove or bestMove)
+        const goodMove = mistake?.arrows?.goodMove || mistake?.arrows?.bestMove;
+        if (goodMove) {
+            console.log("🟢 [GameAnalysisSlide] Good move object:", goodMove);
+
+            // Check if it's an object with startSquare and endSquare
+            if (goodMove.startSquare && goodMove.endSquare) {
+                const from = goodMove.startSquare;
+                const to = goodMove.endSquare;
+                arrows.push([from, to, "rgba(34, 197, 94, 0.8)"]); // Green color
+                console.log("🟢 [GameAnalysisSlide] Added good move arrow:", from, "->", to);
+            }
+        } else {
+            console.log("⚠️ [GameAnalysisSlide] No goodMove/bestMove found in mistake.arrows");
+        }
+
+        setCustomArrows(arrows);
+        console.log("✅ [GameAnalysisSlide] Total arrows:", arrows.length);
+        console.log("✅ [GameAnalysisSlide] Arrows array:", arrows);
+    }, [mistake]);
 
     const toggleBoardMode = () => {
         setIs3DMode((prev) => !prev);
@@ -233,7 +296,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             arePiecesDraggable={false}
                             boardWidth={boardSize}
                             orientation={orientation}
-                            position={game.fen()} // PARSING PGN NYA DISINI PAHAMI
+                            position={game.fen()}
                             onSquareClick={function (square: Square): void {
                                 throw new Error("Function not implemented.");
                             }}
@@ -249,8 +312,8 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             }}
                             promotionToSquare={null}
                             showPromotionDialog={false}
-                            customArrows={undefined}
-                            areArrowsAllowed={false}
+                            customArrows={customArrows}
+                            areArrowsAllowed={true}
                             customArrowColor={""}
                         />
                     )}
@@ -298,8 +361,8 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         }}
                         promotionToSquare={null}
                         showPromotionDialog={false}
-                        customArrows={undefined}
-                        areArrowsAllowed={false}
+                        customArrows={customArrows}
+                        areArrowsAllowed={true}
                         customArrowColor={""}
                     />
                     )}
@@ -311,7 +374,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                     <div className="flex items-center gap-[8px]">
                         <div className="flex gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
                             <Image src="/images/analysis/icon_miss.png" alt="miss" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
-                            <span className="font-semibold text-[13px]">Miss</span>
+                            <span className="font-semibold text-[13px]">{mistake.type}</span>
                         </div>
 
                         <span className="font-bold text-white text-[14px]">Move { mistake.moveNumber }: { mistake.move }</span>
@@ -341,7 +404,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
 
                     <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
                         <Image src="/images/analysis/icon_union.svg" alt="analysis" width={44} height={44} className="w-[44px] h-[44px] object-contain" />
-                        <div className="relative flex items-center h-[44px] w-full rounded-[8px] text-[14px] text-white px-[12px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
+                        <div className="relative leading-[120%] flex items-center h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                             {mistake.solution}
                         </div>
                     </div>
@@ -354,17 +417,6 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
 const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v3Result?: any }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedbackSent, setFeedbackSent] = useState(false);
-
-    // Debug: Log v3Result structure to find correct ID field
-    useEffect(() => {
-        console.log("🔍 AnalysisHelpfulSlide - v3Result:", v3Result);
-        console.log("🔍 AnalysisHelpfulSlide - analysisId:", analysisId);
-        console.log("🔍 Checking possible ID fields:");
-        console.log("  - v3Result?.id:", v3Result?.id);
-        console.log("  - v3Result?.analysisId:", v3Result?.analysisId);
-        console.log("  - v3Result?.result?.id:", v3Result?.result?.id);
-        console.log("  - v3Result?.jobId:", v3Result?.jobId);
-    }, [v3Result, analysisId]);
 
     const handleFeedback = async (helpful: boolean) => {
         console.log(`📤 Handling feedback: helpful=${helpful} for analysisId=${analysisId}`);

@@ -8,7 +8,6 @@ import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
-import { useV3PollingManager } from "../hooks/useV3PollingManager";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { useTutorial } from "@/components/TutorialProvider";
 
@@ -19,6 +18,7 @@ interface Props {
   onStartQuickSummary?: () => void;
   shortAnalysisData?: any;
   onOpenProcessingMode?: () => void;
+  onOpenGameAnalysis?: (v3Result?: any) => void;
 }
 
 interface LastAnalysisResponse {
@@ -63,20 +63,25 @@ export default function ChooseAnalysisMode({
     game,
     onStartQuickSummary,
     shortAnalysisData,
-    onOpenProcessingMode
+    onOpenProcessingMode,
+    onOpenGameAnalysis
 }: Props) {
     const router = useRouter();
     const { getJobByGameId } = useBackgroundAnalysisStore();
-    const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
+    const { getJobByGameId: getV3JobByGameId } = useV3BackgroundAnalysisStore();
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
     const { sessionId } = useProfileStore();
-    const { startV3BackgroundPolling } = useV3PollingManager();
     const { startBackgroundPolling } = usePollingManager();
     const { isTutorialPlay, stepFocused } = useTutorial();
 
     const [progress, setProgress] = useState(0);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
+
+    // V3 Quick Summary job monitoring
+    const [v3Progress, setV3Progress] = useState(0);
+    const [isV3Analyzing, setIsV3Analyzing] = useState(false);
+    const [isV3Completed, setIsV3Completed] = useState(false);
 
     // For tutorial mode, show Chess Master as analyzing with 45% progress
     const isTutorialStep3 = isTutorialPlay && stepFocused === 2;
@@ -160,6 +165,62 @@ export default function ChooseAnalysisMode({
         };
     }, [game, open, getJobByGameId]);
 
+    // Monitor V3 Quick Summary job progress
+    useEffect(() => {
+        console.log("🔄 [V3 Monitor] useEffect triggered - open:", open, "game:", game?.id);
+
+        if (!game || !open) {
+            console.log("⏸️ [V3 Monitor] Resetting state (dialog closed or no game)");
+            setIsV3Analyzing(false);
+            setV3Progress(0);
+            setIsV3Completed(false);
+            return;
+        }
+
+        const checkV3JobStatus = () => {
+            const v3Job = getV3JobByGameId(game.id);
+            console.log(`📊 [V3 Monitor] Checking V3 Job for game ${game.id}:`, {
+                exists: !!v3Job,
+                status: v3Job?.status,
+                progress: v3Job?.progress,
+                hasResult: !!v3Job?.result
+            });
+
+            if (v3Job) {
+                if (v3Job.status === "pending" || v3Job.status === "processing") {
+                    setIsV3Analyzing(true);
+                    setV3Progress(v3Job.progress || 0);
+                    setIsV3Completed(false);
+                    console.log(`⏳ [V3 Monitor] V3 Job in progress: ${v3Job.progress}%`);
+                } else if (v3Job.status === "completed") {
+                    setIsV3Analyzing(false);
+                    setV3Progress(100);
+                    setIsV3Completed(true);
+                    console.log(`✅ [V3 Monitor] V3 Job COMPLETED! Has result:`, !!v3Job.result);
+                } else {
+                    console.log(`⚠️ [V3 Monitor] Unknown status: ${v3Job.status}`);
+                }
+            } else {
+                console.log(`❌ [V3 Monitor] No V3 Job found for game ${game.id}`);
+                setIsV3Analyzing(false);
+                setV3Progress(0);
+                setIsV3Completed(false);
+            }
+        };
+
+        // Initial check
+        console.log("🚀 [V3 Monitor] Starting initial check and polling");
+        checkV3JobStatus();
+
+        // Poll every second while dialog is open
+        const interval = setInterval(checkV3JobStatus, 1000);
+
+        return () => {
+            console.log("🛑 [V3 Monitor] Cleaning up interval");
+            clearInterval(interval);
+        };
+    }, [game, open, getV3JobByGameId]);
+
     const handleChessMasterClick = async () => {
         if (isCompleted && game) {
             try {
@@ -202,73 +263,62 @@ export default function ChooseAnalysisMode({
     };
 
     const handleQuickSummaryClick = async () => {
-        console.log("🎯 Quick Summary button clicked");
-        console.log("📊 Short analysis data:", JSON.stringify(shortAnalysisData, null, 2));
+        console.log("🎯 ============ Quick Summary button clicked ============");
+        console.log("📊 Game ID:", game?.id);
+        console.log("📊 V3 Job completed (state):", isV3Completed);
+        console.log("📊 V3 Progress (state):", v3Progress);
+        console.log("📊 V3 Analyzing (state):", isV3Analyzing);
 
-        // Check if shortAnalysisData exists and has statusUrl
-        if (!shortAnalysisData?.data?.statusUrl) {
-            console.error("❌ No statusUrl found in shortAnalysisData");
-            console.log("shortAnalysisData structure:", JSON.stringify(shortAnalysisData, null, 2));
+        // Get the v3 job to check its status
+        const v3Job = getV3JobByGameId(game.id);
+        console.log("📦 V3 Job from store:", v3Job);
+        console.log("📦 V3 Job status:", v3Job?.status);
+        console.log("📦 V3 Job progress:", v3Job?.progress);
+        console.log("📦 V3 Job has result:", !!v3Job?.result);
+        console.log("📦 V3 Job analysisId:", v3Job?.analysisId);
 
-            // Fallback to old behavior if statusUrl not available
-            if (onStartQuickSummary) {
-                onStartQuickSummary();
+        // Check condition details
+        console.log("🔍 Condition check:");
+        console.log("  - isV3Completed:", isV3Completed);
+        console.log("  - v3Job exists:", !!v3Job);
+        console.log("  - v3Job.result exists:", !!v3Job?.result);
+        console.log("  - Final condition (isV3Completed && v3Job?.result):", isV3Completed && !!v3Job?.result);
+
+        // Check if v3 job is completed
+        if (isV3Completed && v3Job?.result) {
+            console.log("✅ ========== V3 Job completed with result ==========");
+            console.log("✅ Opening GameAnalysis directly");
+            console.log("📦 V3 Result structure:", JSON.stringify(v3Job.result, null, 2));
+            console.log("📦 V3 AnalysisId:", v3Job.analysisId);
+
+            // Close ChooseAnalysisMode
+            onOpenChange(false);
+
+            // Open GameAnalysis directly with the result
+            if (onOpenGameAnalysis) {
+                onOpenGameAnalysis({
+                    ...v3Job.result,
+                    analysisId: v3Job.analysisId
+                });
+                console.log("📂 GameAnalysis opened directly");
+            } else {
+                console.error("❌ onOpenGameAnalysis callback not provided!");
             }
-            return;
-        }
-
-        const v3Data = shortAnalysisData.data;
-        const statusUrl = v3Data.statusUrl;
-        const jobId = v3Data.jobId;
-        console.log("🔗 StatusUrl:", statusUrl);
-        console.log("🆔 JobId:", jobId);
-        console.log("🎮 Game ID:", game.id);
-        console.log("📄 Game PGN:", game.pgn);
-
-        // Add v3 job to store
-        if (statusUrl && jobId && game?.pgn) {
-            console.log("📝 Adding v3 job to store for game:", game.id);
-            console.log("Job details:", {
-                gameId: game.id,
-                jobId: jobId,
-                statusUrl: statusUrl,
-                pgnLength: game.pgn.length,
-            });
-
-            addV3Job(
-                game.id,
-                jobId,
-                statusUrl,
-                game.pgn,
-                12 // default depth, bisa disesuaikan
-            );
-
-            console.log("✅ V3 job added to store");
-
-            // Start v3 polling
-            startV3BackgroundPolling(
-                game.id,
-                statusUrl,
-                jobId,
-                game.pgn,
-                game
-            );
-            console.log("✅ V3 polling started");
         } else {
-            console.error("❌ Missing required data:", {
-                hasStatusUrl: !!statusUrl,
-                hasJobId: !!jobId,
-                hasGamePgn: !!game?.pgn,
-            });
-        }
+            console.log("⏳ ========== V3 Job NOT completed yet ==========");
+            console.log("⏳ Opening ProcessingAnalysisMode to show progress");
+            console.log("⏳ Current progress:", v3Job?.progress || 0);
 
-        // Close ChooseAnalysisMode immediately
-        onOpenChange(false);
+            // Close ChooseAnalysisMode
+            onOpenChange(false);
 
-        // Open ProcessingAnalysisMode immediately
-        if (onOpenProcessingMode) {
-            onOpenProcessingMode();
-            console.log("📂 ProcessingAnalysisMode opened");
+            // Open ProcessingAnalysisMode to show progress
+            if (onOpenProcessingMode) {
+                onOpenProcessingMode();
+                console.log("📂 ProcessingAnalysisMode opened");
+            } else {
+                console.error("❌ onOpenProcessingMode callback not provided!");
+            }
         }
 
         // Call old callback if exists
@@ -276,29 +326,7 @@ export default function ChooseAnalysisMode({
             onStartQuickSummary();
         }
 
-        // Make API call in background (no need to wait for response)
-        try {
-            console.log("📤 Calling statusUrl endpoint in background...");
-
-            const { default: axios } = await import("axios");
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
-
-            const response = await axios.get(`${baseUrl}${statusUrl}?t=${Date.now()}`, {
-                headers: {
-                    Authorization: `Bearer ${sessionId}`,
-                },
-            });
-
-            console.log("✅ StatusUrl response:", response.data);
-            console.log("🎉 Quick Summary request successful!");
-        } catch (error: any) {
-            console.error("❌ Error calling statusUrl:", error);
-            console.error("Error details:", {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status,
-            });
-        }
+        console.log("🎯 ============ Quick Summary handler end ============");
     };
 
     if (!open) return null;

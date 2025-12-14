@@ -6,8 +6,8 @@ import GamesList from "./game-history/components/GameList";
 import Timeframe from "./game-history/components/Timeframe";
 
 export function GameHistoriesTable() {
-    // Filter states
-    const [sources, setSources] = useState<string[]>([]);
+    // Filter states - Default: all sources checked
+    const [sources, setSources] = useState<string[]>(["chesscom", "vs_ai", "pgn_upload"]);
     const [result, setResult] = useState<string>("All Results");
     const [color, setColor] = useState<string>("All Colors");
     const [analyzedOnly, setAnalyzedOnly] = useState<boolean>(false);
@@ -61,6 +61,9 @@ export function GameHistoriesTable() {
         if (debouncedOpponent && debouncedOpponent.trim() !== "") {
             filters.opponent = debouncedOpponent.trim();
         }
+
+        console.log("📊 [GameHistoriesTable] Current sources state:", sources);
+        console.log("📊 [GameHistoriesTable] API Filters being sent:", filters);
 
         return filters;
     }, [sources, result, color, analyzedOnly, startDate, endDate, debouncedOpponent]);

@@ -663,6 +663,12 @@ const GamesList: React.FC<GamesListProps> = ({
               console.log("🔄 Opening ProcessingAnalysisMode from GameList");
               setProcessingAnalysisModeGameId(game.id);
             }}
+            onOpenGameAnalysis={(v3Result) => {
+              console.log("🎯 Opening GameAnalysis directly from ChooseAnalysisMode");
+              console.log("📦 Received v3Result:", v3Result);
+              setV3AnalysisResult(v3Result);
+              setGameAnalysisGameId(game.id);
+            }}
           />
 
           <ProcessingAnalysisMode

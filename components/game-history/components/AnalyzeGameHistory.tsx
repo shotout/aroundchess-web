@@ -10,6 +10,8 @@ import { useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
+import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
+import { useV3PollingManager } from "../hooks/useV3PollingManager";
 
 interface AnalyzeGameHistoryProps {
   open: boolean;
@@ -44,6 +46,8 @@ export function AnalyzeGameHistory({
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const { startBackgroundPolling } = usePollingManager();
+  const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
+  const { startV3BackgroundPolling } = useV3PollingManager();
   const autoStartedRef = useRef(false);
 
   const depths = [
@@ -76,6 +80,9 @@ export function AnalyzeGameHistory({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAnalyzeGame = async () => {
+    // Disable button immediately to prevent double-click
+    setIsSubmitting(true);
+
     try {
       const capacityCheck = await checkAnalysisCapacity(sessionId);
 
@@ -95,6 +102,7 @@ export function AnalyzeGameHistory({
           setOpenPricing(true);
           setTabType("tokens");
         }
+        setIsSubmitting(false); // Re-enable button on error
         return;
       }
 
@@ -107,16 +115,21 @@ export function AnalyzeGameHistory({
         description: error.message || "Failed to check analysis capacity",
         duration: 5000,
       });
+      setIsSubmitting(false); // Re-enable button on error
       return;
     }
 
     if (token.balance < 1) {
       setOpenPricing(true);
       setTabType("tokens");
+      setIsSubmitting(false); // Re-enable button
       return;
     }
     const gameToAnalyze = game.pgn || pgnText;
-    if (!gameToAnalyze) return;
+    if (!gameToAnalyze) {
+      setIsSubmitting(false); // Re-enable button
+      return;
+    }
 
     // Check for existing job BEFORE adding new one
     const existing = getJobByGameId(game.id);
@@ -137,6 +150,7 @@ export function AnalyzeGameHistory({
 
       // Close AnalyzeGameHistory
       onOpenChange(false);
+      setIsSubmitting(false); // Re-enable button
       return;
     }
     if (existing && existing.status === "completed" && existing.result) {
@@ -145,6 +159,7 @@ export function AnalyzeGameHistory({
       setDataAnalysis(existing.result);
       onOpenChange(false);
       router.push("/analysis");
+      setIsSubmitting(false); // Re-enable button
       return;
     }
 
@@ -157,8 +172,6 @@ export function AnalyzeGameHistory({
       game.pgn,
       depthChoosed
     );
-
-    setIsSubmitting(true);
 
     try {
       const { default: axios } = await import("axios");
@@ -306,14 +319,39 @@ export function AnalyzeGameHistory({
       console.log("✅ Short-analyze response:", shortAnalyzeRes.data);
       console.log("✅ Short-analyze response data:", JSON.stringify(shortAnalyzeRes.data, null, 2));
 
-      // Validate response structure
+      // Validate response structure and start polling immediately
       if (shortAnalyzeRes.data?.data) {
-        const data = shortAnalyzeRes.data.data;
+        const v3Data = shortAnalyzeRes.data.data;
         console.log("🔍 Validating v3 response:");
-        console.log("  - Has statusUrl:", !!data.statusUrl);
-        console.log("  - Has jobId:", !!data.jobId);
-        console.log("  - StatusUrl value:", data.statusUrl);
-        console.log("  - JobId value:", data.jobId);
+        console.log("  - Has statusUrl:", !!v3Data.statusUrl);
+        console.log("  - Has jobId:", !!v3Data.jobId);
+        console.log("  - StatusUrl value:", v3Data.statusUrl);
+        console.log("  - JobId value:", v3Data.jobId);
+
+        // NEW: Immediately add v3 job and start polling
+        if (v3Data.statusUrl && v3Data.jobId) {
+          console.log("🚀 Starting v3 polling immediately after short-analyze success");
+
+          // Add v3 job to store
+          addV3Job(
+            game.id,
+            v3Data.jobId,
+            v3Data.statusUrl,
+            gameToAnalyze,
+            depthChoosed
+          );
+          console.log("✅ V3 job added to store");
+
+          // Start polling immediately
+          startV3BackgroundPolling(
+            game.id,
+            v3Data.statusUrl,
+            v3Data.jobId,
+            gameToAnalyze,
+            game
+          );
+          console.log("✅ V3 polling started in background");
+        }
       }
 
       // Kirim data ke parent component via callback

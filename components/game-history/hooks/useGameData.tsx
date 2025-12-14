@@ -200,12 +200,21 @@ export function useGames(filters?: GameFilters) {
 
   const fetchGames = useCallback(async () => {
     const key = `${sessionId}-${filterKey}`;
-    if (fetchRef.current || lastExecutedRef.current === key) return;
+    console.log("🔍 [useGameData] fetchGames called, key:", key);
+    console.log("🔍 [useGameData] fetchRef.current:", fetchRef.current);
+    console.log("🔍 [useGameData] lastExecutedRef.current:", lastExecutedRef.current);
+
+    if (fetchRef.current || lastExecutedRef.current === key) {
+      console.log("⏭️ [useGameData] Skipping fetch (already in progress or same key)");
+      return;
+    }
 
     fetchRef.current = true;
     lastExecutedRef.current = key;
     setIsLoading(true);
     setError(null);
+
+    console.log("🚀 [useGameData] Starting API call to getUserGames");
 
     try {
       const res = await gameHistoryApi.getUserGames(sessionId ?? null, filters);
@@ -228,20 +237,35 @@ export function useGames(filters?: GameFilters) {
   }, [sessionId, filterKey, filters, setGamesData, updateState]);
 
   useEffect(() => {
+    console.log("🔄 [useGameData] useEffect triggered");
+    console.log("🔄 [useGameData] Dependencies:", { sessionId: !!sessionId, filterKey, isTutorialPlay });
+
     // Skip fetching games when tutorial is active - we'll use dummy data instead
     if (isTutorialPlay) {
+      console.log("🎓 [useGameData] Tutorial mode - skipping fetch");
       setIsLoading(false);
       setError(null);
       setGames([]);
       return;
     }
 
-    if (!sessionId) return;
-    const key = `${sessionId}-${filterKey}`;
-    if (lastExecutedRef.current !== key && !fetchRef.current) {
-      fetchGames();
+    if (!sessionId) {
+      console.log("⏸️ [useGameData] No sessionId - skipping fetch");
+      return;
     }
-  }, [sessionId, filterKey, fetchGames, isTutorialPlay, setGamesData]);
+
+    const key = `${sessionId}-${filterKey}`;
+    console.log("🔑 [useGameData] Checking if should fetch - key:", key);
+    console.log("🔑 [useGameData] lastExecutedRef:", lastExecutedRef.current);
+    console.log("🔑 [useGameData] fetchRef:", fetchRef.current);
+
+    if (lastExecutedRef.current !== key && !fetchRef.current) {
+      console.log("✅ [useGameData] Conditions met - calling fetchGames");
+      fetchGames();
+    } else {
+      console.log("❌ [useGameData] Skipping fetch - conditions not met");
+    }
+  }, [sessionId, filterKey, fetchGames, isTutorialPlay]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
