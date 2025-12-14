@@ -392,12 +392,12 @@ p {
 .swiper-pagination .swiper-pagination-bullet {
   background-color: #c0ced4 !important;
   opacity: 1 !important;
-  width: 10px !important;
-  height: 10px !important;
+  width: 8px !important;
+  height: 8px !important;
 }
 
 .swiper-pagination .swiper-pagination-bullet-active {
-  width: 20px !important;
+  width: 16px !important;
   background-color: #221ae9 !important;
   border-radius: 10px !important;
 }

@@ -262,8 +262,23 @@ export default function ChooseAnalysisMode({
             });
         }
 
+        // Close ChooseAnalysisMode immediately
+        onOpenChange(false);
+
+        // Open ProcessingAnalysisMode immediately
+        if (onOpenProcessingMode) {
+            onOpenProcessingMode();
+            console.log("📂 ProcessingAnalysisMode opened");
+        }
+
+        // Call old callback if exists
+        if (onStartQuickSummary) {
+            onStartQuickSummary();
+        }
+
+        // Make API call in background (no need to wait for response)
         try {
-            console.log("📤 Calling statusUrl endpoint...");
+            console.log("📤 Calling statusUrl endpoint in background...");
 
             const { default: axios } = await import("axios");
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
@@ -275,25 +290,7 @@ export default function ChooseAnalysisMode({
             });
 
             console.log("✅ StatusUrl response:", response.data);
-
-            // Check if response is successful
-            if (response.data) {
-                console.log("🎉 Quick Summary request successful!");
-
-                // Close ChooseAnalysisMode
-                onOpenChange(false);
-
-                // Open ProcessingAnalysisMode
-                if (onOpenProcessingMode) {
-                    onOpenProcessingMode();
-                    console.log("📂 ProcessingAnalysisMode opened");
-                }
-
-                // Call old callback if exists
-                if (onStartQuickSummary) {
-                    onStartQuickSummary();
-                }
-            }
+            console.log("🎉 Quick Summary request successful!");
         } catch (error: any) {
             console.error("❌ Error calling statusUrl:", error);
             console.error("Error details:", {
@@ -301,11 +298,6 @@ export default function ChooseAnalysisMode({
                 response: error.response?.data,
                 status: error.response?.status,
             });
-
-            // Fallback to old behavior on error
-            if (onStartQuickSummary) {
-                onStartQuickSummary();
-            }
         }
     };
 

@@ -61,8 +61,8 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[560px] max-h-[calc(100vh-72px)] lg:max-h-[80vh] overflow-y-scroll lg:h-auto bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:p-[32px]">
-                <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] lg:top-[32px] right-[16px] lg:right-[32px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full xl:w-[480px] xxl:w-[450px] 2xl:w-[560px] max-h-[calc(100vh-64px)] xl:max-h-[86vh] overflow-x-hidden overflow-y-scroll lg:h-auto bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:p-[32px] lg:py-[14px] xxl:p-[32px]">
+                <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -110,8 +110,8 @@ export default function GameAnalysis({
                         />
                     </SwiperSlide>
 
-                    <div data-tutorial="5" className="relative h-[50px] mt-[16px] flex items-center justify-center gap-[64px]">
-                        <div className="swiper-button-prev relative w-[42px] h-[42px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+                    <div data-tutorial="5" className="relative h-[50px] mt-[14px] xxl:mt-[20px] flex items-center justify-center gap-[64px]">
+                        <div className="swiper-button-prev relative w-[32px] h-[32px] flex justify-center items-center gap-[4px] p-[8px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clipPath="url(#clip0_1155_12540)">
                                     <path d="M15 7H0.899022" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -124,11 +124,11 @@ export default function GameAnalysis({
                                 </defs>
                             </svg>
                         </div>
-                        <div className="flex flex-col items-center justify-center gap-[8px]">
+                        <div className="flex flex-col items-center justify-center gap-[2px]">
                             <span className="font-semibold">- {activeIndex + 1} of 6 -</span>
                             <div className="swiper-pagination"></div>
                         </div>
-                        <div className="swiper-button-next w-[42px] h-[42px] flex relative justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+                        <div className="swiper-button-next w-[32px]! h-[32px]! flex relative justify-center items-center p-[8px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clipPath="url(#clip0_1155_12557)">
                                     <path d="M1 7L15.101 7" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -150,7 +150,7 @@ export default function GameAnalysis({
 
 const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     const [game, setGame] = useState(new Chess());
-    const [boardSize, setBoardSize] = useState(320);
+    const [boardSize, setBoardSize] = useState(280);
     const [orientation, setOrientation] = useState<BoardOrientation>("white");
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
 
@@ -167,6 +167,12 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
         });
     };
 
+    useEffect(() => {
+        if (window.innerWidth < 1400) {
+            setBoardSize(224);
+        } 
+    }, []);
+
     const toggleBoardMode = () => {
         setIs3DMode((prev) => !prev);
         const style = !is3DMode ? "3d" : "2d";
@@ -174,7 +180,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     };
 
     return (
-        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
+        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
                 {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
                 <div
@@ -185,8 +191,8 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         <Image
                             src={"/images/play-vs-ai/switch.png"}
                             alt="icon"
-                            width={1000}
-                            height={1000}
+                            width={20}
+                            height={20}
                             className="w-[20px] h-[20px] rounded-full object-contain"
                         />
                     </button>
@@ -197,8 +203,8 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         <Image
                             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
                             alt="icon"
-                            width={1000}
-                            height={1000}
+                            width={22}
+                            height={27}
                             className="w-[22px] h-[27px] object-contain"
                         />
                     </button>
@@ -301,37 +307,39 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
             </div>
 
             <div className="w-full border border-[#221AE9] rounded-[8px]">
-                <div className="flex items-center justify-between py-[6px] rounded-t-[7px] px-[16px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">
+                <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[16px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">
                     <div className="flex items-center gap-[8px]">
-                        <div className="flex gap-[6px] px-[10px] py-[4px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
-                            <Image src="/images/analysis/icon_miss.png" alt="miss" width={20} height={20} className="w-[20px] h-[20px] object-contain" />
-                            <span className="font-semibold">Miss</span>
+                        <div className="flex gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
+                            <Image src="/images/analysis/icon_miss.png" alt="miss" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+                            <span className="font-semibold text-[13px]">Miss</span>
                         </div>
 
-                        <span className="font-bold text-white">Move { mistake.moveNumber }: { mistake.move }</span>
+                        <span className="font-bold text-white text-[14px]">Move { mistake.moveNumber }: { mistake.move }</span>
                     </div>
 
                     <div className="flex gap-[8px] items-center">
-                        <span className="text-[#E22B32] border border-[#E22B32] text-medium text-[14px] bg-white rounded-full py-[4px] px-[10px]">-1.50</span>
+                        <span className={`${mistake.keyEvaluation < 0 ? "text-[#E22B32] border-[#E22B32]" : "text-[#00B427] border-[#00B427]"} border text-medium text-[14px] bg-white rounded-full py-[2px] px-[10px]`}>
+                            { mistake.keyEvaluation }
+                        </span>
 
-                        <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
+                        <button type="button" className="relative w-[32px] h-[32px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
                             <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <div className="p-[16px] pt-[10px]">
+                <div className="p-[10px] pt-[8px]">
                     <h3 className="flex items-center gap-[8px] mb-[4px]">
                         <Image src="/images/analysis/icon_analysis.svg" alt="analysis" width={28} height={28} className="w-[28px] h-[28px] object-contain" />
                         <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
                     </h3>
 
-                    <p className="text-[16px] text-[#585858] mb-[8px]">
+                    <p className="text-[15px] leading-[130%] text-[#585858] mb-[8px]">
                         { mistake.analysis }
                     </p>
 
-                    <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[10px] rounded-[8px]">
+                    <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
                         <Image src="/images/analysis/icon_union.svg" alt="analysis" width={44} height={44} className="w-[44px] h-[44px] object-contain" />
                         <div className="relative flex items-center h-[44px] w-full rounded-[8px] text-[14px] text-white px-[12px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                             {mistake.solution}
@@ -397,12 +405,12 @@ const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v
     };
 
     return (
-        <div className="relative bg-white border min-h-[627px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+        <div className="relative bg-white border min-h-[498px] xxl:min-h-[552px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
             <Image src={"/images/analysis/bg-big.svg"} alt="bg" width={640} height={640} className="w-full absolute top-[50%] translate-y-[-50%] lg:translate-y-0 lg:top-0 left-0 object-contain z-0" />
 
             <div className="relative mb-[-56px] lg:mb-0 w-full h-[calc(100vh-240px)] lg:h-auto flex items-center justify-center flex-col z-10">
                 <Image src="/images/analysis/icon_helpful.svg" alt="analysis" width={240} height={240} className="w-[160px] lg:w-[240px] h-[160px] lg:h-[240px] object-contain" />
-                <h3 className="font-bold text-[24px] lg:text-[28px] text-[#040404]">
+                <h3 className="font-bold text-[24px] text-[#040404]">
                     {feedbackSent ? "Thank you for your feedback!" : "Was this Analysis helpful?"}
                 </h3>
 
@@ -412,7 +420,7 @@ const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v
                             type="button"
                             onClick={() => handleFeedback(false)}
                             disabled={isSubmitting}
-                            className={`btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`btn-secondary w-[160px] h-[40px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             No
                         </button>
@@ -420,7 +428,7 @@ const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v
                             type="button"
                             onClick={() => handleFeedback(true)}
                             disabled={isSubmitting}
-                            className={`btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`btn-secondary w-[160px] h-[40px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             Yes
                         </button>
@@ -430,7 +438,7 @@ const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v
                 )}
             </div>
 
-            <button type="button" className="relative mb-[56px] lg:mb-0 w-[148px] h-[42px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+            <button type="button" className="relative mb-[56px] lg:mb-0 w-[148px] h-[32px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                 Close
             </button>
         </div>

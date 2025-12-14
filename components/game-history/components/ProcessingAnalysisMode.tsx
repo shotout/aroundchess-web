@@ -121,8 +121,8 @@ export default function ProcessingAnalysisMode({
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full lg:w-[650px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
-                <button type="button" onClick={() => onOpenChange(false)} className="absolute top-[16px] lg:top-[32px] right-[16px] lg:right-[32px]">
+                className="relative w-full lg:w-[450px] xl:w-[546px] bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] lg:rounded-[24px] p-[16px] lg:p-[32px]">
+                <button type="button" onClick={() => onOpenChange(false)} className="absolute top-[16px] right-[16px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -152,7 +152,7 @@ export default function ProcessingAnalysisMode({
                                 }
                             }} />
                     </div>
-                    <h4 className="text-[24px] lg:text-[36px] mb-[24px] font-semibold">AI Analyzing Now...</h4>
+                    <h4 className="text-[24px] lg:text-[30px] mb-[24px] font-semibold">AI Analyzing Now...</h4>
                     <div className="mb-[-56px]">
                         <PgnPlayer />
                     </div>
