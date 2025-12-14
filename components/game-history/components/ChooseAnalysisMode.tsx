@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { createPgnHash } from "@/utils/crypto-utils";
-import { useProfileStore } from "@/app/store/profile";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { useTutorial } from "@/components/TutorialProvider";
 
@@ -17,45 +15,10 @@ interface Props {
   game?: any;
   onStartQuickSummary?: () => void;
   shortAnalysisData?: any;
+  v2AnalysisData?: any;
   onOpenProcessingMode?: () => void;
   onOpenGameAnalysis?: (v3Result?: any) => void;
 }
-
-interface LastAnalysisResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-  statusCode: number;
-}
-
-const endpoint = process.env.BASE_URL;
-
-const fetchLastAnalysis = async (
-  pgnHash: string,
-  sessionId: string
-): Promise<LastAnalysisResponse | null> => {
-  try {
-    const response = await fetch(
-    //   `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
-      `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${sessionId}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch analysis: ${response.statusText}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching last analysis:", error);
-    return null;
-  }
-};
 
 export default function ChooseAnalysisMode({
     open,
@@ -63,6 +26,7 @@ export default function ChooseAnalysisMode({
     game,
     onStartQuickSummary,
     shortAnalysisData,
+    v2AnalysisData,
     onOpenProcessingMode,
     onOpenGameAnalysis
 }: Props) {
@@ -70,7 +34,6 @@ export default function ChooseAnalysisMode({
     const { getJobByGameId } = useBackgroundAnalysisStore();
     const { getJobByGameId: getV3JobByGameId } = useV3BackgroundAnalysisStore();
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
-    const { sessionId } = useProfileStore();
     const { startBackgroundPolling } = usePollingManager();
     const { isTutorialPlay, stepFocused } = useTutorial();
 
@@ -86,15 +49,22 @@ export default function ChooseAnalysisMode({
     // For tutorial mode, show Chess Master as analyzing with 45% progress
     const isTutorialStep3 = isTutorialPlay && stepFocused === 2;
     const chessMasterProgress = isTutorialStep3 ? 45 : progress;
-    const isChessMasterAnalyzing = isTutorialStep3 || isAnalyzing;
 
-    // Log short analysis data ketika diterima
+    // Chess Master is analyzing if: tutorial step 3, OR job is analyzing AND no v2 data available
+    // If v2AnalysisData is available (from View Analysis), button should be enabled
+    const isChessMasterAnalyzing = isTutorialStep3 || (isAnalyzing && !v2AnalysisData?.success);
+
+    // Log analysis data ketika diterima
     useEffect(() => {
-        if (shortAnalysisData) {
-            console.log("📊 ChooseAnalysisMode received short-analysis data:", shortAnalysisData);
-            console.log("📋 Data structure:", JSON.stringify(shortAnalysisData, null, 2));
+        if (open) {
+            console.log("📊 ChooseAnalysisMode props:");
+            console.log("  - v2AnalysisData:", v2AnalysisData);
+            console.log("  - shortAnalysisData:", shortAnalysisData);
+            console.log("  - v2 has data:", !!v2AnalysisData?.data);
+            console.log("  - v3 has data:", !!shortAnalysisData?.data);
+            console.log("  - isChessMasterAnalyzing:", isChessMasterAnalyzing);
         }
-    }, [shortAnalysisData]);
+    }, [open, v2AnalysisData, shortAnalysisData, isChessMasterAnalyzing]);
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
@@ -222,74 +192,87 @@ export default function ChooseAnalysisMode({
     }, [game, open, getV3JobByGameId]);
 
     const handleChessMasterClick = async () => {
-        if (isCompleted && game) {
-            try {
-                const job = getJobByGameId(game.id);
-                const pgnHash = createPgnHash(game.pgn);
-                const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
+        if (!game) return;
 
-                if (lastAnalysis?.success && lastAnalysis.data) {
-                    setPgn(game.pgn);
-                    setDataGamesImport(game);
-                    setDataAnalysis(lastAnalysis.data);
-                    setIsFromGameHistory(true);
-                    onOpenChange(false);
-                    router.push("/analysis");
-                } else {
-                    if (job && job.result) {
-                        setPgn(game.pgn);
-                        setDataGamesImport(game);
-                        setDataAnalysis(job.result);
-                        setIsFromGameHistory(true);
-                        onOpenChange(false);
-                        router.push("/analysis");
-                    } else {
-                        console.error("No analysis found for this game");
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching analysis:", error);
-                const job = getJobByGameId(game.id);
-                if (job && job.result) {
-                    setPgn(game.pgn);
-                    setDataGamesImport(game);
-                    setDataAnalysis(job.result);
-                    setIsFromGameHistory(true);
-                    onOpenChange(false);
-                    router.push("/analysis");
-                }
+        console.log("📤 [Chess Master] Click detected");
+        console.log("📊 v2AnalysisData:", v2AnalysisData);
+        console.log("📊 isCompleted:", isCompleted);
+
+        // Check if v2 data is available from fetch (View Analysis flow)
+        if (v2AnalysisData?.success && v2AnalysisData.data) {
+            console.log("✅ [Chess Master] Opening /analysis page with v2AnalysisData");
+            setPgn(game.pgn);
+            setDataGamesImport(game);
+            setDataAnalysis(v2AnalysisData.data);
+            setIsFromGameHistory(true);
+            onOpenChange(false);
+            router.push("/analysis");
+            return;
+        }
+
+        // Fallback: check if job is completed (Analyze Game History flow)
+        if (isCompleted) {
+            const job = getJobByGameId(game.id);
+            console.log("📦 [Chess Master] Job found:", job);
+            if (job && job.result) {
+                console.log("✅ [Chess Master] Opening /analysis page with job result");
+                setPgn(game.pgn);
+                setDataGamesImport(game);
+                setDataAnalysis(job.result);
+                setIsFromGameHistory(true);
+                onOpenChange(false);
+                router.push("/analysis");
+                return;
             }
         }
+
+        console.error("❌ [Chess Master] No analysis data available");
     };
 
     const handleQuickSummaryClick = async () => {
         console.log("🎯 ============ Quick Summary button clicked ============");
         console.log("📊 Game ID:", game?.id);
-        console.log("📊 V3 Job completed (state):", isV3Completed);
-        console.log("📊 V3 Progress (state):", v3Progress);
-        console.log("📊 V3 Analyzing (state):", isV3Analyzing);
+        console.log("📊 shortAnalysisData:", shortAnalysisData);
+        console.log("📊 isV3Completed:", isV3Completed);
 
-        // Get the v3 job to check its status
+        // Check if v3 data is available from fetch (View Analysis flow)
+        // Must have summary property to be complete analysis data
+        if (shortAnalysisData?.success && shortAnalysisData.data?.summary) {
+            console.log("✅ [Quick Summary] Opening GameAnalysis with shortAnalysisData");
+            console.log("📦 Short analysis data:", shortAnalysisData.data);
+
+            // Close ChooseAnalysisMode
+            onOpenChange(false);
+
+            // Open GameAnalysis directly with the data
+            if (onOpenGameAnalysis) {
+                onOpenGameAnalysis({
+                    ...shortAnalysisData.data,
+                    analysisId: shortAnalysisData.data.analysisId || shortAnalysisData.data.id
+                });
+                console.log("📂 GameAnalysis opened with fetched data");
+            } else {
+                console.error("❌ onOpenGameAnalysis callback not provided!");
+            }
+
+            // Call old callback if exists
+            if (onStartQuickSummary) {
+                onStartQuickSummary();
+            }
+
+            console.log("🎯 ============ Quick Summary handler end ============");
+            return;
+        }
+
+        // Fallback: check if v3 job is completed (Analyze Game History flow)
         const v3Job = getV3JobByGameId(game.id);
         console.log("📦 V3 Job from store:", v3Job);
         console.log("📦 V3 Job status:", v3Job?.status);
-        console.log("📦 V3 Job progress:", v3Job?.progress);
         console.log("📦 V3 Job has result:", !!v3Job?.result);
-        console.log("📦 V3 Job analysisId:", v3Job?.analysisId);
 
-        // Check condition details
-        console.log("🔍 Condition check:");
-        console.log("  - isV3Completed:", isV3Completed);
-        console.log("  - v3Job exists:", !!v3Job);
-        console.log("  - v3Job.result exists:", !!v3Job?.result);
-        console.log("  - Final condition (isV3Completed && v3Job?.result):", isV3Completed && !!v3Job?.result);
-
-        // Check if v3 job is completed
         if (isV3Completed && v3Job?.result) {
-            console.log("✅ ========== V3 Job completed with result ==========");
-            console.log("✅ Opening GameAnalysis directly");
+            console.log("✅ [Quick Summary] Opening GameAnalysis with v3 job result");
             console.log("📦 V3 Result structure:", JSON.stringify(v3Job.result, null, 2));
-            console.log("📦 V3 AnalysisId:", v3Job.analysisId);
 
             // Close ChooseAnalysisMode
             onOpenChange(false);
@@ -300,13 +283,12 @@ export default function ChooseAnalysisMode({
                     ...v3Job.result,
                     analysisId: v3Job.analysisId
                 });
-                console.log("📂 GameAnalysis opened directly");
+                console.log("📂 GameAnalysis opened with job result");
             } else {
                 console.error("❌ onOpenGameAnalysis callback not provided!");
             }
         } else {
-            console.log("⏳ ========== V3 Job NOT completed yet ==========");
-            console.log("⏳ Opening ProcessingAnalysisMode to show progress");
+            console.log("⏳ [Quick Summary] Job not completed yet, opening ProcessingAnalysisMode");
             console.log("⏳ Current progress:", v3Job?.progress || 0);
 
             // Close ChooseAnalysisMode

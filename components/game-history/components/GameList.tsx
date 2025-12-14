@@ -59,7 +59,7 @@ interface LastAnalysisResponse {
 
 const endpoint = process.env.BASE_URL;
 
-const fetchLastAnalysis = async (
+const fetchLastAnalysisV2 = async (
   pgnHash: string,
   sessionId: string
 ): Promise<LastAnalysisResponse | null> => {
@@ -75,12 +75,38 @@ const fetchLastAnalysis = async (
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch analysis: ${response.statusText}`);
+      throw new Error(`Failed to fetch v2 analysis: ${response.statusText}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching last analysis:", error);
+    console.error("Error fetching v2 last analysis:", error);
+    return null;
+  }
+};
+
+const fetchLastAnalysisV3 = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching v3 last analysis:", error);
     return null;
   }
 };
@@ -257,6 +283,7 @@ const GamesList: React.FC<GamesListProps> = ({
     string | number | null
   >(null);
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
   const [processingAnalysisModeGameId, setProcessingAnalysisModeGameId] = useState<
     string | number | null
   >(null);
@@ -463,16 +490,25 @@ const GamesList: React.FC<GamesListProps> = ({
           try {
             setDisabled(true);
             setGameId(gameId);
-            const pgnHash = createPgnHash(game.pgn);
-            const lastAnalysis = await fetchLastAnalysis(pgnHash, sessionId);
+            console.log("📤 [View Analysis] Fetching v2 and v3 last-analysis for game:", gameId);
 
+            const pgnHash = createPgnHash(game.pgn);
+            console.log("📤 [View Analysis] PGN Hash:", pgnHash);
+
+            // Fetch from both v2 and v3 endpoints in parallel
+            const [v2Analysis, v3Analysis] = await Promise.all([
+              fetchLastAnalysisV2(pgnHash, sessionId),
+              fetchLastAnalysisV3(pgnHash, sessionId)
+            ]);
+
+            console.log("📥 [View Analysis] V2 Response:", v2Analysis);
+            console.log("📥 [View Analysis] V3 Response:", v3Analysis);
+
+            // Mark as viewed if needed
             if (game.hasViewedAnalysis === false) {
-              // console.log("Marking analysis as viewed for game:", game.id);
+              console.log("📝 [View Analysis] Marking analysis as viewed for game:", game.id);
               const res = await viewAnalysisResult(game.id);
-              // if API reports success (or we got a 2xx), update store and local object
               if (res?.success) {
-                // update persisted store arrays
-                // also update the in-memory game object so UI updates immediately
                 try {
                   game.hasViewedAnalysis = true as any;
                 } catch (e) {
@@ -480,37 +516,42 @@ const GamesList: React.FC<GamesListProps> = ({
                 }
               }
             }
-            if (lastAnalysis?.success && lastAnalysis.data) {
+
+            // Store both v2 and v3 results
+            setV2AnalysisData(v2Analysis);
+            setShortAnalysisData(v3Analysis);
+
+            if (v3Analysis?.success && v3Analysis.data) {
+              console.log("✅ [View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
               setDisabled(false);
-              setPgn(game.pgn);
-              setDataGamesImport(game);
-              setDataAnalysis(lastAnalysis.data);
-              setIsFromGameHistory(true);
-              router.push("/analysis");
+
+              // Open ChooseAnalysisMode dialog with both v2 and v3 data
+              setChooseAnalysisModeGameId(gameId);
+
               markHasViewedAnalysisInStore(game.id);
             } else {
+              console.log("⚠️ [View Analysis] No v3 analysis found in response");
               setDisabled(false);
+
               if (job && job.result) {
-                setPgn(game.pgn);
-                setDataGamesImport(game);
-                setDataAnalysis(job.result);
-                setIsFromGameHistory(true);
-                router.push("/analysis");
+                console.log("📦 [View Analysis] Using job result as fallback");
+                setShortAnalysisData({ data: job.result });
+                setChooseAnalysisModeGameId(gameId);
                 markHasViewedAnalysisInStore(game.id);
               } else {
-                console.error("No analysis found for this game");
+                console.error("❌ [View Analysis] No analysis found for this game");
                 setOpenGameId(gameId);
               }
             }
           } catch (error) {
-            console.error("Error fetching analysis:", error);
+            console.error("❌ [View Analysis] Error fetching analysis:", error);
             setDisabled(false);
+
+            // Fallback to job result if available
             if (job && job.result) {
-              setPgn(game.pgn);
-              setDataGamesImport(game);
-              setDataAnalysis(job.result);
-              setIsFromGameHistory(true);
-              router.push("/analysis");
+              console.log("📦 [View Analysis] Using job result as error fallback");
+              setShortAnalysisData({ data: job.result });
+              setChooseAnalysisModeGameId(gameId);
             } else {
               setOpenGameId(gameId);
             }
@@ -659,6 +700,7 @@ const GamesList: React.FC<GamesListProps> = ({
             onOpenChange={(o) => setChooseAnalysisModeGameId(o ? game.id : null)}
             game={game}
             shortAnalysisData={shortAnalysisData}
+            v2AnalysisData={v2AnalysisData}
             onOpenProcessingMode={() => {
               console.log("🔄 Opening ProcessingAnalysisMode from GameList");
               setProcessingAnalysisModeGameId(game.id);
