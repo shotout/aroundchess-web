@@ -1,6 +1,6 @@
 "use client";
 
-const endpoint = process.env.BASE_URL;
+const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
 
 export interface GameTypeData {
   game_type: string;
@@ -174,6 +174,115 @@ export const ChessApiService = {
       return { isConnected: false };
     } catch (error) {
       return { isConnected: false };
+    }
+  },
+
+  async getTutorialStatus(
+    type: "chesscom" | "no-chesscom",
+    sessionId: string
+  ): Promise<any> {
+    try {
+      if (!sessionId) {
+        throw new Error("Session ID is required");
+      }
+
+      const tutorialType = type === "chesscom" ? "chesscom" : "no-chesscom";
+      const url = `${endpoint}/v3/tutorial/${tutorialType}`;
+
+      console.log("📤 [APIService] GET tutorial status:", {
+        url,
+        type: tutorialType,
+        hasSessionId: !!sessionId,
+      });
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      console.log("📥 [APIService] GET Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ [APIService] GET Error response:", errorText);
+        throw new Error(`Failed to get tutorial status: ${response.status} - ${errorText}`);
+      }
+
+      const responseText = await response.text();
+      console.log("📥 [APIService] GET Response body:", responseText);
+
+      let responseData;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        console.error("❌ [APIService] Invalid JSON response:", responseText);
+        throw new Error("Invalid JSON response from server");
+      }
+
+      console.log("✅ [APIService] Tutorial status retrieved:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("❌ [APIService] getTutorialStatus error:", error);
+      throw error;
+    }
+  },
+
+  async setTutorialStatus(
+    type: "chesscom" | "no-chesscom",
+    completed: boolean,
+    sessionId: string
+  ): Promise<any> {
+    try {
+      if (!sessionId) {
+        throw new Error("Session ID is required");
+      }
+
+      const tutorialType = type === "chesscom" ? "chesscom" : "no-chesscom";
+      const url = `${endpoint}/v3/tutorial/${tutorialType}`;
+      const payload = { completed };
+
+      console.log("📤 [APIService] POST tutorial status:", {
+        url,
+        payload,
+        hasSessionId: !!sessionId,
+      });
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("📥 [APIService] Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ [APIService] Error response:", errorText);
+        throw new Error(`Failed to set tutorial status: ${response.status} - ${errorText}`);
+      }
+
+      const responseText = await response.text();
+      console.log("📥 [APIService] Response body:", responseText);
+
+      let responseData;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        console.error("❌ [APIService] Invalid JSON response:", responseText);
+        throw new Error("Invalid JSON response from server");
+      }
+
+      console.log("✅ [APIService] Tutorial status saved successfully:", responseData);
+      return responseData;
+    } catch (error) {
+      console.error("❌ [APIService] setTutorialStatus error:", error);
+      throw error;
     }
   },
 };

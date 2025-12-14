@@ -24,10 +24,11 @@ import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 
 interface MyAccountProps {
+  handleUsernameClicked: () => void;
   onLogoutStart: () => void;
 }
 
-const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
+const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => {
   const { getProfile, logOut, isLoading } = useApiClient();
   const {
     profile,
@@ -268,7 +269,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             Default Chess.com Username
           </label>
           <Input
-            disabled={true}
+            readOnly={true}
             id="username"
             name="defaultUsername"
             type="text"
@@ -280,6 +281,12 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             } px-[16px] py-[12px]`}
             value={form.defaultUsername}
             onChange={handleOnChange}
+            onClick={() => {
+              console.log("defaultUsername", form.defaultUsername);
+              if (!form.defaultUsername) {
+                handleUsernameClicked();
+              }
+            }}
           />
         </div>
         <div className="space-y-2 w-full">

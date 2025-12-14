@@ -596,8 +596,9 @@ export default function PlayingPage() {
           pgnMatch: job.gamePgn === gameFromPgn.pgn,
         });
       }
+      
 
-      setHasAnalysis(hasCompletedAnalysis);
+      // setHasAnalysis(hasCompletedAnalysis);
     };
 
     checkAnalysis();
@@ -1404,12 +1405,14 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
     setIsSaved(false);
+    setHasAnalysis(false); // Reset analysis state for new game
   };
 
   const handleNewGame = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
+    setHasAnalysis(false); // Reset analysis state before leaving
     router.back();
   };
 

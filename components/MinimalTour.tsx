@@ -5,6 +5,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTutorial } from "./TutorialProvider";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useTutorialStore } from "@/app/store/tutorialStore";
+import { useProfileStore } from "@/app/store/profile";
+import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
+import { toast } from "sonner";
 
 export type MinimalStep = {
   target: string; // CSS selector
@@ -25,6 +29,8 @@ export default function MinimalTour({
 }) {
   const { setIsOpenTutorial, setIsFromGameHistory } = usePgnStore();
   const { stepFocused, stopTutorial, setStepFocused, allSteps, allStepsPlayVsAI } = useTutorial();
+  const { tutorialType, setHasCompletedTutorial } = useTutorialStore();
+  const { sessionId } = useProfileStore();
   const router = useRouter();
   const pathname = usePathname();
   const [index, setIndex] = useState(0);
@@ -33,6 +39,7 @@ export default function MinimalTour({
   const [arrowLeft, setArrowLeft] = useState<number | null>(null);
   const [arrowTop, setArrowTop] = useState<number | null>(null);
   const [shaking, setShaking] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const step = steps[index];
   const [mounted, setMounted] = useState(false);
 
@@ -506,7 +513,24 @@ export default function MinimalTour({
     />
   ) : null;
 
-  const handleStartGameAnalysis = () => {
+  const handleStartGameAnalysis = async () => {
+    // Post tutorial completion to API
+    if (tutorialType && sessionId) {
+      setIsSubmitting(true);
+      try {
+        await ChessApiService.setTutorialStatus(tutorialType, true, sessionId);
+        setHasCompletedTutorial(true);
+        console.log(`✅ Tutorial ${tutorialType} marked as completed`);
+        toast.success("Tutorial completed!");
+      } catch (error) {
+        console.error("Error saving tutorial status:", error);
+        // Don't block user from continuing even if API fails
+        toast.error("Failed to save tutorial progress");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+
     stopTutorial();
     setIsFromGameHistory(false);
     setIsOpenTutorial(false);
@@ -765,16 +789,18 @@ export default function MinimalTour({
               </span>
             </div>
 
-            <div
+            <button
               onClick={(e) => {
+                e.stopPropagation();
                 handleStartGameAnalysis();
               }}
-              className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center"
+              disabled={isSubmitting}
+              className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="text-white font-semibold text-[14px] --10px sm:text-[14px] --">
-                Start Game Analysis
+                {isSubmitting ? "Saving..." : "Start Game Analysis"}
               </span>
-            </div>
+            </button>
           </div>
         )}
         {stepFocused < 6 && (
@@ -812,13 +838,16 @@ export default function MinimalTour({
                   if (index + 1 >= steps.length) {
                     handleStartGameAnalysis();
                   } else {
-                    next(); 
+                    next();
                   }
                 }}
-                className={`${index + 1 >= steps.length ? "flex-1" : ""} cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center`}
+                disabled={isSubmitting && index + 1 >= steps.length}
+                className={`${index + 1 >= steps.length ? "flex-1" : ""} cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <span className="text-white font-semibold text-[14px] --">
-                  {index + 1 >= steps.length ? "Start Game Analysis" : "Next"}
+                  {index + 1 >= steps.length
+                    ? (isSubmitting ? "Saving..." : "Start Game Analysis")
+                    : "Next"}
                 </span>
               </button>
             </div>

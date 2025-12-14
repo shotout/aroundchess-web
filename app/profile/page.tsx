@@ -21,6 +21,7 @@ import { formatTimePgn } from "@/functions/format-date";
 import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
 import { usePricingOffer } from "../store/pricingOffer";
 import MyStatistics from "@/components/profile/MyStatistics";
+import AccountNotConnected from "@/components/game-history/components/AccountNotConnected";
 function Profile() {
   const { paramsPayment } = usePricingOffer();
   const searchParams = useSearchParams();
@@ -28,6 +29,10 @@ function Profile() {
   const { setCallFetch } = useProfileFetch();
   const { setAlreadyFetchProfile, setAlreadyFetch } = useProfileStore();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
+
+  const { username } = usePgnStore();
+  const [openAccountConnected, setOpenAccountConnected] = useState(false);
+
   const {
     setOpen: setOpenPurchaseStatus,
     setQuantity,
@@ -99,15 +104,24 @@ function Profile() {
       ) : (
         <Navigation>
           <ChangePassword />
-          <ChessAccountSetup isLoading={isLoading} />
+          <ChessAccountSetup 
+            isLoading={isLoading} 
+            open={openAccountConnected} 
+            setOpen={setOpenAccountConnected} 
+          />
+          
           <div className="relative">
             <div
               className={`flex flex-col z-10 p-[32px] gap-4 ${
                 isLoggingOut ? "pointer-events-none" : ""
               }`}
             >
-              <MyAccount onLogoutStart={() => setIsLoggingOut(true)} />
-              <MyStatistics />
+              <MyAccount onLogoutStart={() => setIsLoggingOut(true)} handleUsernameClicked={() => setOpenAccountConnected(true)} />
+              {!username ?
+                <AccountNotConnected onClick={() => { 
+                  setOpenAccountConnected(true);
+                }} />
+                : <MyStatistics />}
               <MySubscription />
               <MyRemainingAnalysisTokens />
               <MyRemainingPuzzle />
