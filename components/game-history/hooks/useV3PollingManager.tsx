@@ -21,15 +21,57 @@ export const useV3PollingManager = () => {
     gameData?: any,
     isRestore: boolean = false
   ) => {
-    const existing = getJobByGameId(gameId);
-    if (existing?.status === "completed") return;
+    console.log(`🚀 [V3_POLLING_START] Called for game ${gameId}:`, {
+      jobId,
+      statusUrl,
+      isRestore,
+      hasPgn: !!gamePgn
+    });
 
+    const existing = getJobByGameId(gameId);
+    if (existing?.status === "completed") {
+      console.log(`ℹ️ [V3_POLLING_START] Job already completed for game ${gameId}, skipping`);
+      return;
+    }
+
+    // Clear any existing interval first
     const storeState = useV3BackgroundAnalysisStore.getState();
     const existingInterval = storeState.pollingIntervals.get(String(gameId));
-    if (existingInterval) clearInterval(existingInterval);
+    if (existingInterval) {
+      console.log(`🗑️ [V3_POLLING_START] Clearing existing interval for game ${gameId}`);
+      clearInterval(existingInterval);
+    }
 
+    // Force stop any active polling
     forceStopPolling(gameId);
-    if (!startPolling(gameId)) return;
+    console.log(`🛑 [V3_POLLING_START] Force stopped existing polling for game ${gameId}`);
+
+    // Small delay to ensure state is updated
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Start new polling
+    const started = startPolling(gameId);
+    console.log(`🏁 [V3_POLLING_START] startPolling returned:`, started);
+    
+    if (!started) {
+      console.warn(`⚠️ [V3_POLLING_START] startPolling returned false for game ${gameId}`);
+      console.warn(`⚠️ [V3_POLLING_START] Forcing activePollingJobs.add manually...`);
+      // Manually add to activePollingJobs as a fallback
+      const state = useV3BackgroundAnalysisStore.getState();
+      const newActivePolling = new Set(state.activePollingJobs);
+      newActivePolling.add(String(gameId));
+      useV3BackgroundAnalysisStore.setState({
+        activePollingJobs: newActivePolling,
+        analysisJobs: {
+          ...state.analysisJobs,
+          [String(gameId)]: {
+            ...state.analysisJobs[String(gameId)],
+            isPolling: true,
+          },
+        },
+      });
+      console.log(`✅ [V3_POLLING_START] Manually added game ${gameId} to activePollingJobs`);
+    }
 
     const gameSize = (gamePgn.match(/\d+\./g) || []).length;
     const isSmall = gameSize <= 15;
@@ -41,14 +83,36 @@ export const useV3PollingManager = () => {
     let lastTime = 0;
     const minInterval = 2000;
 
+    console.log(`🔄 [V3_POLLING_SETUP] Setting up interval for game ${gameId}:`, {
+      pollInterval,
+      maxAttempts,
+      gameSize,
+      isSmall
+    });
+
     const poll = setInterval(async () => {
+      console.log(`🔍 [V3_POLLING_TICK] Polling tick for game ${gameId}:`, {
+        active,
+        attempts: `${attempts}/${maxAttempts}`
+      });
+
       if (!active) {
+        console.log(`🛑 [V3_POLLING_TICK] Not active, clearing interval for game ${gameId}`);
         clearInterval(poll);
         return;
       }
 
       const store = useV3BackgroundAnalysisStore.getState();
-      if (!store.activePollingJobs.has(String(gameId))) {
+      const isInActiveSet = store.activePollingJobs.has(String(gameId));
+      console.log(`🔎 [V3_POLLING_TICK] Checking activePollingJobs for game ${gameId}:`, {
+        isInActiveSet,
+        activeJobsCount: store.activePollingJobs.size,
+        activeJobs: Array.from(store.activePollingJobs)
+      });
+
+      if (!isInActiveSet) {
+        console.warn(`⚠️ [V3_POLLING_TICK] Game ${gameId} NOT in activePollingJobs! Stopping polling.`);
+        console.warn(`⚠️ [V3_POLLING_TICK] This usually means forceStopPolling was called externally`);
         active = false;
         clearInterval(poll);
         return;
@@ -100,23 +164,33 @@ export const useV3PollingManager = () => {
         if (["processing", "pending"].includes(d.status)) {
           console.log(`[V3_POLLING] Job is ${d.status}, progress: ${d.progress}`);
 
-          // compute client-side progress estimate if job has estimated duration
-          const state = useV3BackgroundAnalysisStore.getState();
-          const storeJob = state.analysisJobs[String(gameId)];
+          // Use server-reported progress directly
+          // Only use client-side calculation as fallback when server doesn't provide progress
           let computedProgress = d.progress || 0;
 
-          if (storeJob && storeJob.estimatedDurationSeconds) {
-            const elapsedSec = Math.floor((Date.now() - (storeJob.startedAt || Date.now())) / 1000);
-            const estimate = storeJob.estimatedDurationSeconds;
+          // If server doesn't provide progress AND job has estimated duration, use client-side estimate
+          if (!d.progress || d.progress === 0) {
+            const state = useV3BackgroundAnalysisStore.getState();
+            const storeJob = state.analysisJobs[String(gameId)];
 
-            // progress is elapsed / estimate, capped to 100
-            computedProgress = Math.max(0, Math.min(100, Math.round((elapsedSec / estimate) * 100)));
+            if (storeJob && storeJob.estimatedDurationSeconds) {
+              const elapsedSec = Math.floor((Date.now() - (storeJob.startedAt || Date.now())) / 1000);
+              const estimate = storeJob.estimatedDurationSeconds;
 
-            if (elapsedSec > estimate) {
-              // past estimate and still processing -> mark as waiting
-              updateJob(gameId, { status: "waiting", progress: 100 });
-              return;
+              // Calculate progress: elapsed / estimate, capped at 95% (not 100%)
+              // Never show 100% until server confirms completion
+              computedProgress = Math.max(0, Math.min(95, Math.round((elapsedSec / estimate) * 100)));
+
+              console.log(`[V3_POLLING] Client-side progress estimate: ${computedProgress}% (${elapsedSec}s / ${estimate}s)`);
+
+              // If past estimate, cap at 95% and mark as waiting (not 100%)
+              if (elapsedSec > estimate) {
+                updateJob(gameId, { status: "waiting", progress: 95 });
+                return;
+              }
             }
+          } else {
+            console.log(`[V3_POLLING] Using server-reported progress: ${d.progress}%`);
           }
 
           updateJob(gameId, { status: "processing", progress: computedProgress });

@@ -18,6 +18,7 @@ import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import { CustomChessArrows } from "./CustomChessArrows";
+import { useProfileStore } from "@/app/store/profile";
 
 interface ArrowConfig {
     from: string;
@@ -477,6 +478,7 @@ const AnalysisHelpfulSlide = (
     { analysisId, v3Result, onOpenChange }: { analysisId?: string; v3Result?: any; onOpenChange: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedbackSent, setFeedbackSent] = useState(false);
+    const { sessionId } = useProfileStore();
 
     const handleFeedback = async (helpful: boolean) => {
         onOpenChange();
@@ -487,8 +489,14 @@ const AnalysisHelpfulSlide = (
             return;
         }
 
+        if (!sessionId) {
+            console.error("❌ No sessionId available - user not authenticated");
+            return;
+        }
+
         setIsSubmitting(true);
         console.log(`📤 Sending feedback: helpful=${helpful} for analysisId=${analysisId}`);
+        console.log(`🔐 Using sessionId: ${sessionId?.substring(0, 20)}...`);
 
         try {
             const { default: axios } = await import("axios");
@@ -500,6 +508,7 @@ const AnalysisHelpfulSlide = (
                 {
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${sessionId}`,
                     },
                 }
             );

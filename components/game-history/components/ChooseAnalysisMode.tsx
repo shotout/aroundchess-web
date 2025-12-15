@@ -7,6 +7,7 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { usePollingManager } from "../hooks/usePollingManager";
+import { useV3PollingManager } from "../hooks/useV3PollingManager";
 import { useTutorial } from "@/components/TutorialProvider";
 
 interface Props {
@@ -35,6 +36,7 @@ export default function ChooseAnalysisMode({
     const { getJobByGameId: getV3JobByGameId } = useV3BackgroundAnalysisStore();
     const { setPgn, setDataAnalysis, setDataGamesImport, setIsFromGameHistory } = usePgnStore();
     const { startBackgroundPolling } = usePollingManager();
+    const { startV3BackgroundPolling } = useV3PollingManager();
     const { isTutorialPlay, stepFocused } = useTutorial();
 
     const [progress, setProgress] = useState(0);
@@ -54,7 +56,7 @@ export default function ChooseAnalysisMode({
     // If v2AnalysisData is available (from View Analysis), button should be enabled
     const isChessMasterAnalyzing = isTutorialStep3 || (isAnalyzing && !v2AnalysisData?.success);
 
-    // Log analysis data ketika diterima
+    // Log analysis data dan progress state ketika ada perubahan
     useEffect(() => {
         if (open) {
             console.log("📊 ChooseAnalysisMode props:");
@@ -63,8 +65,11 @@ export default function ChooseAnalysisMode({
             console.log("  - v2 has data:", !!v2AnalysisData?.data);
             console.log("  - v3 has data:", !!shortAnalysisData?.data);
             console.log("  - isChessMasterAnalyzing:", isChessMasterAnalyzing);
+            console.log("  - Chess Master progress:", chessMasterProgress);
+            console.log("  - isAnalyzing:", isAnalyzing);
+            console.log("  - progress:", progress);
         }
-    }, [open, v2AnalysisData, shortAnalysisData, isChessMasterAnalyzing]);
+    }, [open, v2AnalysisData, shortAnalysisData, isChessMasterAnalyzing, chessMasterProgress, isAnalyzing, progress]);
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
@@ -107,15 +112,23 @@ export default function ChooseAnalysisMode({
         const checkJobStatus = () => {
             const job = getJobByGameId(game.id);
 
+            console.log(`[Chess Master Monitor] Checking job for game ${game.id}:`, {
+                exists: !!job,
+                status: job?.status,
+                progress: job?.progress
+            });
+
             if (job) {
-                if (job.status === "pending" || job.status === "processing") {
+                if (job.status === "pending" || job.status === "processing" || job.status === "waiting" || job.status === "finalizing") {
                     setIsAnalyzing(true);
                     setProgress(job.progress || 0);
                     setIsCompleted(false);
+                    console.log(`⏳ [Chess Master] Job in progress: ${job.progress}%`);
                 } else if (job.status === "completed") {
                     setIsAnalyzing(false);
                     setProgress(100);
                     setIsCompleted(true);
+                    console.log(`✅ [Chess Master] Job COMPLETED!`);
                 }
             } else {
                 setIsAnalyzing(false);
@@ -134,6 +147,30 @@ export default function ChooseAnalysisMode({
             clearInterval(interval);
         };
     }, [game, open, getJobByGameId]);
+
+    // Restart V3 polling when dialog is reopened
+    useEffect(() => {
+        if (!game || !open) return;
+
+        const v3Job = getV3JobByGameId(game.id);
+
+        // If job exists and is in progress, restart polling to ensure progress continues
+        if (v3Job && ["pending", "processing", "waiting"].includes(v3Job.status)) {
+            console.log("🔄 [V3] ChooseAnalysisMode opened - Restarting V3 polling for job:", v3Job.jobId);
+
+            // Restart polling if job has statusUrl
+            if (v3Job.statusUrl && v3Job.gamePgn) {
+                startV3BackgroundPolling(
+                    game.id,
+                    v3Job.statusUrl,
+                    v3Job.jobId,
+                    v3Job.gamePgn,
+                    game,
+                    true // isRestore = true to avoid showing toast
+                );
+            }
+        }
+    }, [game, open, getV3JobByGameId, startV3BackgroundPolling]);
 
     // Monitor V3 Quick Summary job progress
     useEffect(() => {
@@ -157,7 +194,7 @@ export default function ChooseAnalysisMode({
             });
 
             if (v3Job) {
-                if (v3Job.status === "pending" || v3Job.status === "processing") {
+                if (v3Job.status === "pending" || v3Job.status === "processing" || v3Job.status === "waiting") {
                     setIsV3Analyzing(true);
                     setV3Progress(v3Job.progress || 0);
                     setIsV3Completed(false);
@@ -264,43 +301,56 @@ export default function ChooseAnalysisMode({
             return;
         }
 
-        // Fallback: check if v3 job is completed (Analyze Game History flow)
+        // Analyze Game History flow: check v3 job and start polling if needed
         const v3Job = getV3JobByGameId(game.id);
         console.log("📦 V3 Job from store:", v3Job);
         console.log("📦 V3 Job status:", v3Job?.status);
         console.log("📦 V3 Job has result:", !!v3Job?.result);
+        console.log("📦 V3 Job statusUrl:", v3Job?.statusUrl);
+        console.log("📦 V3 Job gamePgn:", !!v3Job?.gamePgn);
 
-        if (isV3Completed && v3Job?.result) {
-            console.log("✅ [Quick Summary] Opening GameAnalysis with v3 job result");
-            console.log("📦 V3 Result structure:", JSON.stringify(v3Job.result, null, 2));
-
-            // Close ChooseAnalysisMode
-            onOpenChange(false);
-
-            // Open GameAnalysis directly with the result
-            if (onOpenGameAnalysis) {
-                onOpenGameAnalysis({
-                    ...v3Job.result,
-                    analysisId: v3Job.analysisId
-                });
-                console.log("📂 GameAnalysis opened with job result");
+        // ALWAYS try to start/restart polling if job exists and not completed
+        // This ensures progress updates even if polling was stopped
+        if (v3Job && !isV3Completed) {
+            if (v3Job.statusUrl && (v3Job.gamePgn || game?.pgn)) {
+                console.log("🚀 [Quick Summary] Starting/Restarting V3 polling NOW");
+                console.log("   - Game ID:", game.id);
+                console.log("   - Status URL:", v3Job.statusUrl);
+                console.log("   - Job ID:", v3Job.jobId);
+                console.log("   - Has gamePgn:", !!v3Job.gamePgn);
+                
+                startV3BackgroundPolling(
+                    game.id,
+                    v3Job.statusUrl,
+                    v3Job.jobId,
+                    v3Job.gamePgn || game.pgn,
+                    game,
+                    false // isRestore = false to show toast if needed
+                );
+                console.log("✅ V3 polling started/restarted");
             } else {
-                console.error("❌ onOpenGameAnalysis callback not provided!");
+                console.warn("⚠️ [Quick Summary] Cannot start polling - missing required data:", {
+                    hasStatusUrl: !!v3Job.statusUrl,
+                    hasGamePgn: !!(v3Job.gamePgn || game?.pgn)
+                });
             }
         } else {
-            console.log("⏳ [Quick Summary] Job not completed yet, opening ProcessingAnalysisMode");
-            console.log("⏳ Current progress:", v3Job?.progress || 0);
+            console.warn("⚠️ [Quick Summary] Not starting polling:", {
+                hasJob: !!v3Job,
+                isCompleted: isV3Completed,
+                reason: !v3Job ? "No job found" : isV3Completed ? "Already completed" : "Unknown"
+            });
+        }
 
-            // Close ChooseAnalysisMode
-            onOpenChange(false);
+        // Close ChooseAnalysisMode and open ProcessingAnalysisMode
+        onOpenChange(false);
 
-            // Open ProcessingAnalysisMode to show progress
-            if (onOpenProcessingMode) {
-                onOpenProcessingMode();
-                console.log("📂 ProcessingAnalysisMode opened");
-            } else {
-                console.error("❌ onOpenProcessingMode callback not provided!");
-            }
+        // Open ProcessingAnalysisMode to show progress
+        if (onOpenProcessingMode) {
+            onOpenProcessingMode();
+            console.log("📂 ProcessingAnalysisMode opened");
+        } else {
+            console.error("❌ onOpenProcessingMode callback not provided!");
         }
 
         // Call old callback if exists

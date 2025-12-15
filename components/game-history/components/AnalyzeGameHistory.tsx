@@ -11,7 +11,6 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
-import { useV3PollingManager } from "../hooks/useV3PollingManager";
 import { createPgnHash } from "@/utils/crypto-utils";
 
 interface AnalyzeGameHistoryProps {
@@ -48,7 +47,6 @@ export function AnalyzeGameHistory({
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const { startBackgroundPolling } = usePollingManager();
   const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
-  const { startV3BackgroundPolling } = useV3PollingManager();
   const autoStartedRef = useRef(false);
 
   const depths = [
@@ -371,7 +369,7 @@ export function AnalyzeGameHistory({
       console.log("✅ Short-analyze response:", shortAnalyzeRes.data);
       console.log("✅ Short-analyze response data:", JSON.stringify(shortAnalyzeRes.data, null, 2));
 
-      // Validate response structure and start polling immediately
+      // Validate response structure and store job (but DON'T start polling yet)
       if (shortAnalyzeRes.data?.data) {
         const v3Data = shortAnalyzeRes.data.data;
         console.log("🔍 Validating v3 response:");
@@ -380,11 +378,12 @@ export function AnalyzeGameHistory({
         console.log("  - StatusUrl value:", v3Data.statusUrl);
         console.log("  - JobId value:", v3Data.jobId);
 
-        // NEW: Immediately add v3 job and start polling
+        // Store v3 job but don't start polling yet
+        // Polling will start when user clicks "Quick Summary"
         if (v3Data.statusUrl && v3Data.jobId) {
-          console.log("🚀 Starting v3 polling immediately after short-analyze success");
+          console.log("💾 Adding v3 job to store (polling will start on Quick Summary click)");
 
-          // Add v3 job to store
+          // Add v3 job to store with initial state
           addV3Job(
             game.id,
             v3Data.jobId,
@@ -393,16 +392,6 @@ export function AnalyzeGameHistory({
             depthChoosed
           );
           console.log("✅ V3 job added to store");
-
-          // Start polling immediately
-          startV3BackgroundPolling(
-            game.id,
-            v3Data.statusUrl,
-            v3Data.jobId,
-            gameToAnalyze,
-            game
-          );
-          console.log("✅ V3 polling started in background");
         }
       }
 
