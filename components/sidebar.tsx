@@ -137,7 +137,7 @@ const sidebarLinks = [
     name: "Practice",
     icon: Target,
     children: [
-      { name: "Play vs AI", href: "/dashboard/practice/ai", icon: Bot },
+      { name: "You vs AI", href: "/dashboard/practice/ai", icon: Bot },
       { name: "Puzzles", href: "/dashboard/practice/puzzles", icon: Puzzle },
       {
         name: "Board Vision",

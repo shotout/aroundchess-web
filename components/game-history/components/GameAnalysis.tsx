@@ -40,15 +40,6 @@ export default function GameAnalysis({
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
 
-    // Console log v3Result when received
-    useEffect(() => {
-        if (v3Result) {
-            console.log("🎯 GameAnalysis received v3Result:");
-            console.log("📦 V3 Result data:", JSON.stringify(v3Result, null, 2));
-            console.log("📊 V3 Result object:", v3Result);
-        }
-    }, [v3Result]);
-
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
     const headerHeight = 72;
@@ -483,20 +474,15 @@ const AnalysisHelpfulSlide = (
     const handleFeedback = async (helpful: boolean) => {
         onOpenChange();
 
-        console.log(`📤 Handling feedback: helpful=${helpful} for analysisId=${analysisId}`);
         if (!analysisId || isSubmitting || feedbackSent) {
-            console.warn("⚠️ Cannot send feedback:", { analysisId, isSubmitting, feedbackSent });
             return;
         }
 
         if (!sessionId) {
-            console.error("❌ No sessionId available - user not authenticated");
             return;
         }
 
         setIsSubmitting(true);
-        console.log(`📤 Sending feedback: helpful=${helpful} for analysisId=${analysisId}`);
-        console.log(`🔐 Using sessionId: ${sessionId?.substring(0, 20)}...`);
 
         try {
             const { default: axios } = await import("axios");
@@ -513,15 +499,9 @@ const AnalysisHelpfulSlide = (
                 }
             );
 
-            console.log("✅ Feedback sent successfully:", response.data);
             setFeedbackSent(true);
         } catch (error: any) {
-            console.error("❌ Error sending feedback:", error);
-            console.error("Error details:", {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status,
-            });
+            // Silent error handling
         } finally {
             setIsSubmitting(false);
         }

@@ -384,7 +384,7 @@ export const PremiumSubsContent: React.FC<{
             />
             <FeatureImage
               imageUrl={"/icons/sidebar-play-vs-ai-icon-active.png"}
-              label="Playground: Play VS AI"
+              label="Playground: You vs AI"
             />
             <FeatureImage
               imageUrl={"/icons/sidebar-puzzle-icon-active.png"}

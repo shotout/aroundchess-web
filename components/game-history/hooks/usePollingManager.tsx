@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useBackgroundAnalysisStore } from '@/app/store/backgroundAnaysis';
 import { useProfileStore } from '@/app/store/profile';
-import { toast } from 'sonner';
 
 export const usePollingManager = () => {
   const { sessionId } = useProfileStore();
@@ -73,9 +72,6 @@ export const usePollingManager = () => {
         clearInterval(poll);
         forceStopPolling(gameId);
         updateJob(gameId, { status: "failed", error: "Polling timeout" });
-        if (!isRestore) {
-          toast.error("Analysis polling timed out. Please try again.");
-        }
         return;
       }
 
@@ -121,9 +117,6 @@ export const usePollingManager = () => {
               status: "failed",
               error: "Analysis completed but result is incomplete",
             });
-            if (!isRestore) {
-              toast.error("Analysis completed but result is incomplete. Please try again.");
-            }
             return;
           }
 
@@ -137,16 +130,6 @@ export const usePollingManager = () => {
             result: d.result || d,
             error: undefined,
           });
-
-          toast.success(
-            isSmall
-              ? "Analysis complete! (Small games process quickly)"
-              : "Analysis complete!",
-            {
-              description: "Click 'View Results' to see your analysis.",
-              duration: 5000,
-            }
-          );
         }
       } catch (error: any) {
         console.error(`[POLLING] Error for game ${gameId}:`, error.message);
@@ -158,9 +141,6 @@ export const usePollingManager = () => {
             status: "failed",
             error: error.message || "Unknown error",
           });
-          if (!isRestore) {
-            toast.error("Analysis failed. Please try again.");
-          }
         }
       }
     }, pollInterval);

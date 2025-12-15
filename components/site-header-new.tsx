@@ -516,7 +516,7 @@ function MobileNav(props: mobileProps) {
       iconActive: "/icons/sidebar-playground-practice-icon-active.png",
       children: [
         {
-          name: "Play vs AI",
+          name: "You vs AI",
           href: "/playground/play-vs-ai",
           icon: "/icons/sidebar-play-vs-ai-icon.png",
           iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",

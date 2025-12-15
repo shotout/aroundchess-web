@@ -181,7 +181,7 @@ const sidebarLinks: SidebarLink[] = [
     iconActive: "/icons/sidebar-playground-practice-icon-active.png",
     children: [
       {
-        name: "Play vs AI",
+        name: "You vs AI",
         href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
         iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
@@ -584,7 +584,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               onClose();
             }
 
-            // NEW: Play vs AI Tutorial
+            // NEW: You vs AI Tutorial
             if (!pathname.includes("/playground/play-vs-ai") || pathname.includes("/playground/play-vs-ai/playing")) {
               router.replace("/playground/play-vs-ai");
               // Wait a bit for navigation to complete before starting tutorial
