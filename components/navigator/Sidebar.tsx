@@ -49,6 +49,7 @@ const sidebarLinks: SidebarLink[] = [
   },
   {
     name: "Play & Practice",
+    href: "/play-practice",
     icon: "/icons/sidebar-playground-practice-icon.png",
     iconActive: "/icons/sidebar-playground-practice-icon-active.png",
     children: [
@@ -80,6 +81,7 @@ const sidebarLinks: SidebarLink[] = [
   },
   {
     name: "Analyze Games",
+    href: "/my-game-history",
     icon: "/icons/sidebar-analyze-icon.png",
     iconActive: "/icons/sidebar-analyze-icon-active.png",
     children: [
@@ -99,6 +101,7 @@ const sidebarLinks: SidebarLink[] = [
   },
   {
     name: "Training",
+    href: "/training",
     icon: "/icons/sidebar-training-plan-icon.png",
     iconActive: "/icons/sidebar-training-plan-icon-active.png",
     children: [
@@ -409,7 +412,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         handleNavigation(section.href!, section.permission)
                       }
                       className={cn(
-                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
+                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200 hover:bg-transparent",
                         isActive
                           ? "text-[#221AE9]"
                           : "hover:bg-[#221AE950] hover:text-[#221AE9]"

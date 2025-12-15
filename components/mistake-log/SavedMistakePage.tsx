@@ -85,12 +85,13 @@ const SavedMistakePage = () => {
   ) => {
     try {
       setLoadingPrevious(true);
+      
       const params = reset
         ? {}
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       const dataDetail = prevDataDetail.data;
-      console.log("getMistakePreviousDetail", dataDetail);
+      
       setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
@@ -366,7 +367,7 @@ const SavedMistakePage = () => {
         </Link>
       </div>
 
-      <div className="flex justify-center lg:justify-start items-center">
+      <div className="hidden lg:flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-xl lg:text-[32px] font-semibold">Saved Mistakes</h1>
           <div className="flex justify-center items-end h-full">

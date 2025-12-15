@@ -188,7 +188,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
   return (
     <>
-      <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
+      <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
         {currentData.length == 0 && (
           <EmptyLog onClickSeePrevious={onClickSeePrevious} />
         )}
