@@ -485,7 +485,7 @@ const GamesList: React.FC<GamesListProps> = ({
         text: "View Analysis",
         icon: <Eye className="h-4 w-4 mr-1" />,
         className:
-          "border-2 text-[12px] 2xl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
+          "border-2 lg:text-[12px] xxl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
           try {
             setDisabled(true);
