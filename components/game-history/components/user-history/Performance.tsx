@@ -103,10 +103,6 @@ const Performance: React.FC = () => {
     trainingFocus = defaultTrainingFocus,
   } = data || {};
 
-
-  
-  
-
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
