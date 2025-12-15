@@ -87,7 +87,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         {/* best moves  */}
-        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md py-3 md:px-[3]">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image
@@ -160,9 +160,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               <span className="font-bold">{item?.move}</span>
                             </span>
                             <span
-                              className={`rounded-full border border-input px-4 py-1 text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                                item.classification
-                              )}`}
+                              className={`${item.evaluation >= 0 ? 'text-green-500 border-green-500' : 'text-[#FF7769] border-[#FF7769]'} border flex items-center justify-center rounded-full px-4 py-1 font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center`}
                             >
                               {item.evaluation}
                             </span>
@@ -226,7 +224,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
           )}
         </div>
         {/* critical mistakes moves  */}
-        <div className="w-full border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md py-3 md:px-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image
@@ -299,9 +297,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
                               <span className="font-bold">{item?.move}</span>
                             </span>
                             <span
-                              className={`rounded-full border border-input px-4 py-1 text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
-                                item.classification
-                              )}`}
+                              className={`${item.evaluation >= 0 ? 'text-green-500 border-green-500' : 'text-[#FF7769] border-[#FF7769]'} border flex items-center justify-center rounded-full px-4 py-1 font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center`}
                             >
                               {item.evaluation}
                             </span>
