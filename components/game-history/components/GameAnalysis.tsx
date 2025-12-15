@@ -61,7 +61,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full xl:w-[480px] xxl:w-[450px] 2xl:w-[560px] max-h-min overflow-x-hidden overflow-y-scroll lg:h-auto bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:p-[32px] lg:py-[10px] xxl:p-[32px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[680px] 2xl:h-[716px] overflow-x-hidden overflow-y-scroll bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[24px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -113,7 +113,7 @@ export default function GameAnalysis({
                         />
                     </SwiperSlide>
 
-                    <div data-tutorial="5" className="relative h-[50px] mt-[16px] lg:mt-[-16px] xxl:mt-[20px] flex items-center justify-center gap-[64px]">
+                    <div data-tutorial="5" className="relative h-[50px] mt-[16px] flex items-center justify-center gap-[64px]">
                         <div className="swiper-button-prev relative w-[32px] h-[32px] flex justify-center items-center gap-[4px] p-[8px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clipPath="url(#clip0_1155_12540)">
@@ -153,7 +153,7 @@ export default function GameAnalysis({
 
 const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     const [game, setGame] = useState(new Chess());
-    const [boardSize, setBoardSize] = useState(280);
+    const [boardSize, setBoardSize] = useState(240);
     const [orientation, setOrientation] = useState<BoardOrientation>("white");
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
     const [customArrows, setCustomArrows] = useState<ArrowConfig[]>([]);
@@ -186,8 +186,12 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     };
 
     useEffect(() => {
-        if (window.innerWidth < 1400) {
-            setBoardSize(224);
+        if (typeof window !== "undefined" && window.innerWidth < 1400) {
+            setBoardSize(170);
+        } 
+
+        if (typeof window !== "undefined" && window.innerWidth > 1600) {
+            setBoardSize(280);
         }
     }, []);
 
@@ -443,7 +447,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         </button>
                     </div>
                 </div>
-                <div className="p-[10px] pt-[8px]">
+                <div className="p-[10px] pt-[8px] overflow-y-scroll max-h-[168px]">
                     <h3 className="flex items-center gap-[8px] mb-[4px]">
                         <Image src="/images/analysis/icon_analysis.svg" alt="analysis" width={28} height={28} className="w-[28px] h-[28px] object-contain" />
                         <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
@@ -508,7 +512,7 @@ const AnalysisHelpfulSlide = (
     };
 
     return (
-        <div className="relative bg-white border min-h-[498px] xxl:min-h-[552px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+        <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[552px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
             <Image src={"/images/analysis/bg-big.svg"} alt="bg" width={640} height={640} className="w-full absolute top-[50%] translate-y-[-50%] lg:translate-y-0 lg:top-0 left-0 object-contain z-0" />
 
             <div className="relative mb-[-56px] lg:mb-0 w-full h-[calc(100vh-240px)] lg:h-auto flex items-center justify-center flex-col z-10">

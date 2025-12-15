@@ -356,6 +356,24 @@ p {
   border-color: #d8dce0;
 }
 
+@media (min-width: 1200px) {
+  .swiper-cards {
+    height: 456px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .swiper-cards {
+    height: 528px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .swiper-cards {
+    height: 564px;
+  }
+}
+
 .swiper-button-prev,
 .swiper-button-next {
   display: flex !important;
