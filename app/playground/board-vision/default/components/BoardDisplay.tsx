@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Square } from "chess.js";
 import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
+import { ArrowConfig } from "../../types/default-pgn";
 
 interface ExtendedBoardDisplayProps extends BoardDisplayProps {
   className?: string;
@@ -79,20 +81,14 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
       <div className="relative w-full flex justify-center items-center" ref={containerRef}>
         <div className="bg-white flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex justify-center items-center">
-            <div className="max-w-full" style={{ maxWidth: '100%' }}>
+            <div className="max-w-full relative" style={{ maxWidth: '100%' }}>
               <TwoDChessboard
                 boardWidth={boardSize ?? 0}
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
                 position={currentPosition.fen}
-                areArrowsAllowed={true}
+                areArrowsAllowed={false}
                 customSquareStyles={highlightedSquares}
-                customArrowColor="#221AE980"
-                customArrows={
-                  gameQuestion && gameQuestion.text.includes("legal moves")
-                    ? []
-                    : arrows
-                }
                 onPromotionPieceSelect={function (
                   piece?: PromotionPieceOption,
                   promoteFromSquare?: Square,
@@ -101,6 +97,14 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
                   throw new Error("Function not implemented.");
                 }}
               />
+              {/* Custom Arrows Overlay */}
+              {arrows && arrows.length > 0 && !gameQuestion?.text.includes("legal moves") && (
+                <CustomChessArrows
+                  arrows={arrows as ArrowConfig[]}
+                  boardSize={boardSize ?? 0}
+                  orientation="white"
+                />
+              )}
             </div>
           </div>
         </div>
