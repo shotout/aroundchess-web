@@ -53,7 +53,12 @@ export function ImproveSection() {
   }, []);
   const handleAnalyze = () => {
     // router.push("/analysis");
-    router.push("/register");
+    // router.push("/register");
+    if (isSignedIn) {
+      router.push("/my-game-history");
+    } else {
+      router.push("/register");
+    }
   };
   return (
     <section className="py-2 sm:py-1 lg:py-2 xl:py-4 bg-white flex justify-center items-center">

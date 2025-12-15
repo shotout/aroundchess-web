@@ -225,7 +225,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const mobileLevels = getMobileDisplayLevels();
 
   const badgeClass =
-    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
+    "w-max h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
@@ -281,7 +281,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                     )}
                   </div>
 
-                  <div className="relative h-[88px] flex justify-center items-end">
+                  <div className="relative h-[98px] flex justify-center items-end">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">

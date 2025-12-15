@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Share2,
   ChevronDown,
@@ -15,9 +15,30 @@ import DotSpinner from "../game-history/Spinner";
 import { toast } from "sonner";
 import { useProfileStore } from "@/app/store/profile";
 
+function useOutsideClicked(ref: any, callback: any) {
+  useEffect(() => {
+    function handleClickOutside(event: any) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        callback()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [ref])
+}
+
 const ShareButton = (props: any) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
    const { sessionId } = useProfileStore();
+
+  const wrapperRef = useRef(null);
+
+  useOutsideClicked(wrapperRef, () => {
+    setOpen(false)
+  })
 
   useEffect(() => {
     const checkSession = () => {
@@ -150,8 +171,9 @@ const ShareButton = (props: any) => {
     <div className="flex flex-row relative items-center justify-center gap-2">
       {/* Button with inner shadow */}
       <div
+        ref={wrapperRef}
         onClick={props.isFull ? () => null : () => setOpen(!open)}
-        className="flex flex-row justify-between w-full items-center gap-2 px-4 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium  "
+        className="flex flex-row justify-between w-full items-center gap-2 px-4 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium cursor-pointer "
         style={{
           boxShadow: `inset 0px -2px 2px #C6EEFE,
           inset 0px 2px 0px #FFFFFF`, // Custom inner shadow

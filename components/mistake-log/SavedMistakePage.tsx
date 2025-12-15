@@ -355,7 +355,7 @@ const SavedMistakePage = () => {
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
 
-      <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 w-[calc(100%+32px)]">
+      <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 lg:w-full w-[calc(100%+32px)]">
         <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF]`}>
           <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
           <span className="font-semibold">Game History</span>
