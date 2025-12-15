@@ -17,6 +17,14 @@ import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
+import { CustomChessArrows } from "./CustomChessArrows";
+
+interface ArrowConfig {
+    from: string;
+    to: string;
+    color: string;
+    isKnightMove: boolean;
+}
 
 interface Props {
   open: boolean;
@@ -156,10 +164,24 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     const [boardSize, setBoardSize] = useState(280);
     const [orientation, setOrientation] = useState<BoardOrientation>("white");
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
-    const [customArrows, setCustomArrows] = useState<any[]>([]);
+    const [customArrows, setCustomArrows] = useState<ArrowConfig[]>([]);
 
     const { setStyleChoosed } = useChessBoardThemeStore();
     const { chessMove, setChessMove } = useChessMoveStore();
+
+    // Helper function to detect if a move is a knight move (L-shaped)
+    const isKnightMove = (from: string, to: string): boolean => {
+        const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+        const rankFrom = parseInt(from[1]) - 1;
+        const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+        const rankTo = parseInt(to[1]) - 1;
+
+        const fileDiff = Math.abs(fileTo - fileFrom);
+        const rankDiff = Math.abs(rankTo - rankFrom);
+
+        // Knight moves: 2 squares in one direction, 1 in perpendicular
+        return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+    };
 
     const handleSwitch = () => {
         setOrientation((prev) => {
@@ -197,7 +219,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
 
     // Generate arrows for badMove (red) and goodMove (green)
     useEffect(() => {
-        const arrows: any[] = [];
+        const arrows: ArrowConfig[] = [];
 
         console.log("🎯 [GameAnalysisSlide] Generating arrows from mistake:", mistake);
         console.log("🎯 [GameAnalysisSlide] Arrows object:", mistake?.arrows);
@@ -211,8 +233,17 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
             if (badMove.startSquare && badMove.endSquare) {
                 const from = badMove.startSquare;
                 const to = badMove.endSquare;
-                arrows.push([from, to, "rgba(239, 68, 68, 0.8)"]); // Red color
-                console.log("🔴 [GameAnalysisSlide] Added bad move arrow:", from, "->", to);
+                const color = "rgba(239, 68, 68, 0.8)"; // Red color
+                const isKnight = isKnightMove(from, to);
+
+                arrows.push({
+                    from,
+                    to,
+                    color,
+                    isKnightMove: isKnight
+                });
+
+                console.log(`🔴 [GameAnalysisSlide] Added ${isKnight ? 'L-shaped' : 'straight'} bad move arrow:`, from, "->", to);
             }
         } else {
             console.log("⚠️ [GameAnalysisSlide] No badMove found in mistake.arrows");
@@ -227,8 +258,17 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
             if (goodMove.startSquare && goodMove.endSquare) {
                 const from = goodMove.startSquare;
                 const to = goodMove.endSquare;
-                arrows.push([from, to, "rgba(34, 197, 94, 0.8)"]); // Green color
-                console.log("🟢 [GameAnalysisSlide] Added good move arrow:", from, "->", to);
+                const color = "rgba(34, 197, 94, 0.8)"; // Green color
+                const isKnight = isKnightMove(from, to);
+
+                arrows.push({
+                    from,
+                    to,
+                    color,
+                    isKnightMove: isKnight
+                });
+
+                console.log(`🟢 [GameAnalysisSlide] Added ${isKnight ? 'L-shaped' : 'straight'} good move arrow:`, from, "->", to);
             }
         } else {
             console.log("⚠️ [GameAnalysisSlide] No goodMove/bestMove found in mistake.arrows");
@@ -291,34 +331,42 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         display: is3DMode ? "flex" : "none",
                         backfaceVisibility: "hidden",
                         transformStyle: "preserve-3d",
+                        position: "relative",
                     }}
                 >
                     {is3DMode && (
-                        <ThreeDBoard
-                            arePiecesClickable={false}
-                            arePiecesDraggable={false}
-                            boardWidth={boardSize}
-                            orientation={orientation}
-                            position={game.fen()}
-                            onSquareClick={function (square: Square): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                            onSquareRightClick={function (square: Square): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                            onPromotionPieceSelect={function (
-                                piece?: PromotionPieceOption,
-                                promoteFromSquare?: Square,
-                                promoteToSquare?: Square
-                            ): boolean {
-                                throw new Error("Function not implemented.");
-                            }}
-                            promotionToSquare={null}
-                            showPromotionDialog={false}
-                            customArrows={customArrows}
-                            areArrowsAllowed={true}
-                            customArrowColor={""}
-                        />
+                        <>
+                            <ThreeDBoard
+                                arePiecesClickable={false}
+                                arePiecesDraggable={false}
+                                boardWidth={boardSize}
+                                orientation={orientation}
+                                position={game.fen()}
+                                onSquareClick={function (square: Square): void {
+                                    throw new Error("Function not implemented.");
+                                }}
+                                onSquareRightClick={function (square: Square): void {
+                                    throw new Error("Function not implemented.");
+                                }}
+                                onPromotionPieceSelect={function (
+                                    piece?: PromotionPieceOption,
+                                    promoteFromSquare?: Square,
+                                    promoteToSquare?: Square
+                                ): boolean {
+                                    throw new Error("Function not implemented.");
+                                }}
+                                promotionToSquare={null}
+                                showPromotionDialog={false}
+                                customArrows={[]}
+                                areArrowsAllowed={false}
+                                customArrowColor={""}
+                            />
+                            <CustomChessArrows
+                                arrows={customArrows}
+                                boardSize={boardSize}
+                                orientation={orientation}
+                            />
+                        </>
                     )}
                 </motion.div>
 
@@ -340,34 +388,42 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                         width: boardSize,
                         display: !is3DMode ? "flex" : "none",
                         backfaceVisibility: "hidden",
+                        position: "relative",
                     }}
                 >
                     {!is3DMode && (
-                    <TwoDChessboard
-                        arePiecesClickable={false}
-                        arePiecesDraggable={false}
-                        boardWidth={boardSize}
-                        orientation={orientation}
-                        position={game.fen()}
-                        onSquareClick={function (square: Square): void {
-                            throw new Error("Function not implemented.");
-                        }}
-                        onSquareRightClick={function (square: Square): void {
-                            throw new Error("Function not implemented.");
-                        }}
-                        onPromotionPieceSelect={function (
-                        piece?: PromotionPieceOption,
-                        promoteFromSquare?: Square,
-                        promoteToSquare?: Square
-                        ): boolean {
-                            throw new Error("Function not implemented.");
-                        }}
-                        promotionToSquare={null}
-                        showPromotionDialog={false}
-                        customArrows={customArrows}
-                        areArrowsAllowed={true}
-                        customArrowColor={""}
-                    />
+                    <>
+                        <TwoDChessboard
+                            arePiecesClickable={false}
+                            arePiecesDraggable={false}
+                            boardWidth={boardSize}
+                            orientation={orientation}
+                            position={game.fen()}
+                            onSquareClick={function (square: Square): void {
+                                throw new Error("Function not implemented.");
+                            }}
+                            onSquareRightClick={function (square: Square): void {
+                                throw new Error("Function not implemented.");
+                            }}
+                            onPromotionPieceSelect={function (
+                            piece?: PromotionPieceOption,
+                            promoteFromSquare?: Square,
+                            promoteToSquare?: Square
+                            ): boolean {
+                                throw new Error("Function not implemented.");
+                            }}
+                            promotionToSquare={null}
+                            showPromotionDialog={false}
+                            customArrows={[]}
+                            areArrowsAllowed={false}
+                            customArrowColor={""}
+                        />
+                        <CustomChessArrows
+                            arrows={customArrows}
+                            boardSize={boardSize}
+                            orientation={orientation}
+                        />
+                    </>
                     )}
                 </motion.div>
             </div>
