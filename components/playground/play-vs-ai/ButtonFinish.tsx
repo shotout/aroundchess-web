@@ -46,7 +46,7 @@ export const ButtonFinish = ({
             <button
               type="button"
               onClick={onShowAnalysisClick}
-              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-2 border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200"
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23]"
             >
               <Eye className="h-4 w-4" />
               Show Analysis

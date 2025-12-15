@@ -370,6 +370,7 @@ export default function PlayingPage() {
   const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
   const [hasAnalysis, setHasAnalysis] = useState(false);
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
   const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
@@ -597,8 +598,7 @@ export default function PlayingPage() {
         });
       }
       
-
-      // setHasAnalysis(hasCompletedAnalysis);
+      setHasAnalysis(hasCompletedAnalysis);
     };
 
     checkAnalysis();
@@ -1707,6 +1707,31 @@ export default function PlayingPage() {
     }
   };
 
+  const fetchLastAnalysisV3 = async (pgnHash: string): Promise<any> => {
+    try {
+      const endpoint =
+        process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+      const response = await fetch(
+        `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching v3 last analysis:", error);
+      return null;
+    }
+  };
+
   // Handle "Show Analysis" click
   const handleShowAnalysis = async () => {
     console.log("🔍 PlayingPage: handleShowAnalysis called");
@@ -1722,16 +1747,32 @@ export default function PlayingPage() {
       const pgnHash = createPgnHash(gameFromPgn.pgn);
       console.log("🔑 PGN Hash:", pgnHash);
 
-      const lastAnalysis = await fetchLastAnalysis(pgnHash);
-      console.log("📊 Last analysis response:", lastAnalysis);
+      // Fetch from both v2 and v3 endpoints in parallel
+      const [v2Analysis, v3Analysis] = await Promise.all([
+        fetchLastAnalysis(pgnHash),
+        fetchLastAnalysisV3(pgnHash)
+      ]);
 
-      if (lastAnalysis?.success && lastAnalysis.data) {
-        console.log("✅ Using server analysis data");
-        console.log("📈 Analysis data keys:", Object.keys(lastAnalysis.data));
+      console.log("📥 V2 Analysis response:", v2Analysis);
+      console.log("📥 V3 Analysis response:", v3Analysis);
+
+      // Store both v2 and v3 results
+      setV2AnalysisData(v2Analysis);
+      setShortAnalysisData(v3Analysis);
+
+      if (v3Analysis?.success && v3Analysis.data) {
+        console.log("✅ V3 Analysis found, opening ChooseAnalysisMode");
+        toast.success("Opening analysis...");
+
+        // Open ChooseAnalysisMode dialog with both v2 and v3 data
+        setIsChooseAnalysisModeOpen(true);
+      } else if (v2Analysis?.success && v2Analysis.data) {
+        console.log("✅ Using server v2 analysis data");
+        console.log("📈 Analysis data keys:", Object.keys(v2Analysis.data));
 
         setPgn(gameFromPgn.pgn);
         setDataGamesImport(gameFromPgn);
-        setDataAnalysis(lastAnalysis.data);
+        setDataAnalysis(v2Analysis.data);
         setIsFromGameHistory(true);
 
         console.log("🚀 Navigating to /analysis with server data");
@@ -1806,10 +1847,29 @@ export default function PlayingPage() {
         className: "bg-green-600 hover:bg-green-700 text-white",
         onClick: async () => {
           try {
+            console.log("📤 [View Results] Fetching v2 and v3 last-analysis");
             const pgnHash = createPgnHash(currentPgn);
-            const lastAnalysis = await fetchLastAnalysis(pgnHash);
+            console.log("📤 [View Results] PGN Hash:", pgnHash);
 
-            if (lastAnalysis?.success && lastAnalysis.data) {
+            // Fetch from both v2 and v3 endpoints in parallel
+            const [v2Analysis, v3Analysis] = await Promise.all([
+              fetchLastAnalysis(pgnHash),
+              fetchLastAnalysisV3(pgnHash)
+            ]);
+
+            console.log("📥 [View Results] V2 Response:", v2Analysis);
+            console.log("📥 [View Results] V3 Response:", v3Analysis);
+
+            // Store both v2 and v3 results
+            setV2AnalysisData(v2Analysis);
+            setShortAnalysisData(v3Analysis);
+
+            if (v3Analysis?.success && v3Analysis.data) {
+              console.log("✅ [View Results] V3 Analysis found, opening ChooseAnalysisMode");
+              // Open ChooseAnalysisMode dialog with both v2 and v3 data
+              setIsChooseAnalysisModeOpen(true);
+            } else if (v2Analysis?.success && v2Analysis.data) {
+              console.log("✅ [View Results] Using v2 analysis data");
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
@@ -1836,10 +1896,11 @@ export default function PlayingPage() {
                 username: username,
               };
               setDataGamesImport(gameData);
-              setDataAnalysis(lastAnalysis.data);
+              setDataAnalysis(v2Analysis.data);
               router.push("/analysis");
             } else {
               if (job && job.result) {
+                console.log("📦 [View Results] Using job result as fallback");
                 setPgn(currentPgn);
                 const gameData = {
                   id: currentGameId,
@@ -1869,12 +1930,14 @@ export default function PlayingPage() {
                 setDataAnalysis(job.result);
                 router.push("/analysis");
               } else {
+                console.log("⚠️ [View Results] No analysis found, opening analyze dialog");
                 setIsAnalyzeOpen(true);
               }
             }
           } catch (error) {
-            console.error("Error fetching analysis:", error);
+            console.error("❌ [View Results] Error fetching analysis:", error);
             if (job && job.result) {
+              console.log("📦 [View Results] Using job result as error fallback");
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
@@ -1904,6 +1967,7 @@ export default function PlayingPage() {
               setDataAnalysis(job.result);
               router.push("/analysis");
             } else {
+              console.error("❌ [View Results] No fallback data available");
               setIsAnalyzeOpen(true);
             }
           }
@@ -1970,6 +2034,13 @@ export default function PlayingPage() {
         onShortAnalysisReceived={(data) => {
           console.log("📥 PlayingPage received short-analysis data:", data);
           setShortAnalysisData(data);
+
+          // Also get v2 analysis from job store if available
+          const job = getJobByGameId(gameFromPgn.id);
+          if (job && job.result) {
+            console.log("📦 [PlayingPage] Found v2 analysis in job store");
+            setV2AnalysisData({ success: true, data: job.result });
+          }
         }}
       />
       <ChooseAnalysisMode
@@ -1977,9 +2048,16 @@ export default function PlayingPage() {
         onOpenChange={setIsChooseAnalysisModeOpen}
         game={gameFromPgn}
         shortAnalysisData={shortAnalysisData}
+        v2AnalysisData={v2AnalysisData}
         onOpenProcessingMode={() => {
           console.log("🔄 Opening ProcessingAnalysisMode from PlayingPage");
           setProcessingAnalysisModeOpen(true);
+        }}
+        onOpenGameAnalysis={(v3Result) => {
+          console.log("🎯 Opening GameAnalysis directly from ChooseAnalysisMode");
+          console.log("📦 Received v3Result:", v3Result);
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
         }}
       />
       <ProcessingAnalysisMode

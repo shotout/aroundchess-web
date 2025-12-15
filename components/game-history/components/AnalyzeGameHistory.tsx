@@ -12,6 +12,7 @@ import { usePollingManager } from "../hooks/usePollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
+import { createPgnHash } from "@/utils/crypto-utils";
 
 interface AnalyzeGameHistoryProps {
   open: boolean;
@@ -78,6 +79,30 @@ export function AnalyzeGameHistory({
   const [pgnText] = useState("");
   const [depthChoosed, setDepthChoosed] = useState(depth);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchLastAnalysisV3 = async (pgnHash: string): Promise<any> => {
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+      const response = await fetch(
+        `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching v3 last analysis:", error);
+      return null;
+    }
+  };
 
   const handleAnalyzeGame = async () => {
     // Disable button immediately to prevent double-click
@@ -154,13 +179,40 @@ export function AnalyzeGameHistory({
       return;
     }
     if (existing && existing.status === "completed" && existing.result) {
-      setPgn(game.pgn);
-      setDataGamesImport(game);
-      setDataAnalysis(existing.result);
-      onOpenChange(false);
-      router.push("/analysis");
-      setIsSubmitting(false); // Re-enable button
-      return;
+      console.log("📦 [AnalyzeGameHistory] Existing completed job found, fetching v3 analysis");
+
+      try {
+        // Fetch v3 analysis to get Quick Summary data
+        const pgnHash = createPgnHash(game.pgn);
+        const v3Analysis = await fetchLastAnalysisV3(pgnHash);
+
+        console.log("📥 [AnalyzeGameHistory] V3 Analysis response:", v3Analysis);
+
+        // Send v3 analysis to parent if available
+        if (v3Analysis && onShortAnalysisReceived) {
+          onShortAnalysisReceived(v3Analysis);
+          console.log("📤 [AnalyzeGameHistory] V3 analysis data sent to parent component");
+        }
+
+        // Open ChooseAnalysisMode to show both analysis options
+        if (onAnalysisStarted) {
+          onAnalysisStarted();
+        }
+
+        // Close AnalyzeGameHistory
+        onOpenChange(false);
+        setIsSubmitting(false);
+        return;
+      } catch (error) {
+        console.error("❌ [AnalyzeGameHistory] Error fetching v3 analysis:", error);
+        // Fallback: if v3 fetch fails, just open ChooseAnalysisMode anyway
+        if (onAnalysisStarted) {
+          onAnalysisStarted();
+        }
+        onOpenChange(false);
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     // Add job to store immediately to update UI (button changes to "View Analysis")

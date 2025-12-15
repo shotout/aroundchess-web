@@ -107,6 +107,9 @@ export default function GameAnalysis({
                         <AnalysisHelpfulSlide
                             analysisId={v3Result?.analysisId}
                             v3Result={v3Result}
+                            onOpenChange={() => {
+                                onOpenChange(false);
+                            }}
                         />
                     </SwiperSlide>
 
@@ -414,11 +417,14 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
     );
 };
 
-const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v3Result?: any }) => {
+const AnalysisHelpfulSlide = (
+    { analysisId, v3Result, onOpenChange }: { analysisId?: string; v3Result?: any; onOpenChange: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedbackSent, setFeedbackSent] = useState(false);
 
     const handleFeedback = async (helpful: boolean) => {
+        onOpenChange();
+
         console.log(`📤 Handling feedback: helpful=${helpful} for analysisId=${analysisId}`);
         if (!analysisId || isSubmitting || feedbackSent) {
             console.warn("⚠️ Cannot send feedback:", { analysisId, isSubmitting, feedbackSent });
@@ -490,7 +496,7 @@ const AnalysisHelpfulSlide = ({ analysisId, v3Result }: { analysisId?: string; v
                 )}
             </div>
 
-            <button type="button" className="relative mb-[56px] lg:mb-0 w-[148px] h-[32px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+            <button type="button" onClick={onOpenChange} className="relative mb-[56px] lg:mb-0 w-[148px] h-[32px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                 Close
             </button>
         </div>

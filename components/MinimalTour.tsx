@@ -310,7 +310,7 @@ export default function MinimalTour({
       router.replace("/playground/play-vs-ai/playing");
       setTimeout(() => {
         setStepFocused(2);
-      }, 300)
+      }, 500)
     } else {
       setIndex((i) => i + 1);
     }
