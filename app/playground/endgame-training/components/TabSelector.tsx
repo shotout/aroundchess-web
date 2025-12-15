@@ -13,11 +13,11 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   onTabChange,
 }) => {
   return (
-    <Card className="flex gap-3 bg-[#F9FAFC] border border-gray-100 p-1 md:p-2 w-full md:max-w-96 ">
+    <div className="flex md:gap-3 bg-[#E6F7FE] md:bg-[#F9FAFC] md:border md:border-gray-100 p-0 md:p-[6px] w-[calc(100%+24px)] md:w-1/2 rounded-0 md:rounded-lg mx-[-24px] md:mx-0">
       <button
-        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-[14px] --xs ${
+        className={`flex-1 py-[8px] md:py-[6px] px-[6px] md:px-[10px] flex items-center justify-center gap-1 md:rounded-sm text-[13px] md:text-[14px] --xs ${
           activeTab === "board"
-            ? "bg-white border shadow-sm font-semibold border-gray-300 text-blue-base"
+            ? "md:bg-white md:border md:shadow-sm font-semibold md:border-gray-300 text-blue-base border-b-[2px] border-blue-base"
             : ""
         }`}
         onClick={() => onTabChange("board")}
@@ -31,13 +31,14 @@ const TabSelector: React.FC<TabSelectorProps> = ({
           alt="Board icon"
           width={30}
           height={30}
+          className="w-[16px] md:w-[24px] h-[16px] md:h-[24px]"
         />
         <h1>Board Presentation</h1>
       </button>
       <button
-        className={`flex-1 py-1.5 flex items-center justify-center gap-1 rounded-sm text-[14px] --xs ${
+        className={`flex-1 py-[8px] md:py-[6px] px-[6px] md:px-[10px] flex items-center justify-center gap-1 md:rounded-sm text-[13px] md:text-[14px] --xs ${
           activeTab === "move"
-            ? "bg-white border shadow-sm font-semibold border-gray-300 text-blue-base"
+            ? "md:bg-white md:border md:shadow-sm font-semibold md:border-gray-300 text-blue-base border-b-[2px] border-blue-base"
             : ""
         }`}
         onClick={() => onTabChange("move")}
@@ -51,10 +52,11 @@ const TabSelector: React.FC<TabSelectorProps> = ({
           alt="Moves icon"
           width={30}
           height={30}
+          className="w-[16px] md:w-[24px] h-[16px] md:h-[24px]"
         />
         <h1>Moves Until Checkmate</h1>
       </button>
-    </Card>
+    </div>
   );
 };
 
