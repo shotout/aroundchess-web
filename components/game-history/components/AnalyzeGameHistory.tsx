@@ -9,6 +9,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "../hooks/usePollingManager";
+import { useV3PollingManager } from "../hooks/useV3PollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { createPgnHash } from "@/utils/crypto-utils";
@@ -46,6 +47,7 @@ export function AnalyzeGameHistory({
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const { startBackgroundPolling } = usePollingManager();
+  const { startV3BackgroundPolling } = useV3PollingManager();
   const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
   const autoStartedRef = useRef(false);
 
@@ -341,13 +343,6 @@ export function AnalyzeGameHistory({
 
     // Call to new short-analyze endpoint
     try {
-      console.log("📤 Calling short-analyze endpoint...");
-      console.log("Payload:", {
-        pgn: gameToAnalyze,
-        username: game.username || "",
-        depth: depthChoosed,
-      });
-
       const { default: axios } = await import("axios");
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
 
@@ -366,24 +361,10 @@ export function AnalyzeGameHistory({
         }
       );
 
-      console.log("✅ Short-analyze response:", shortAnalyzeRes.data);
-      console.log("✅ Short-analyze response data:", JSON.stringify(shortAnalyzeRes.data, null, 2));
-
-      // Validate response structure and store job (but DON'T start polling yet)
       if (shortAnalyzeRes.data?.data) {
         const v3Data = shortAnalyzeRes.data.data;
-        console.log("🔍 Validating v3 response:");
-        console.log("  - Has statusUrl:", !!v3Data.statusUrl);
-        console.log("  - Has jobId:", !!v3Data.jobId);
-        console.log("  - StatusUrl value:", v3Data.statusUrl);
-        console.log("  - JobId value:", v3Data.jobId);
 
-        // Store v3 job but don't start polling yet
-        // Polling will start when user clicks "Quick Summary"
         if (v3Data.statusUrl && v3Data.jobId) {
-          console.log("💾 Adding v3 job to store (polling will start on Quick Summary click)");
-
-          // Add v3 job to store with initial state
           addV3Job(
             game.id,
             v3Data.jobId,
@@ -391,22 +372,24 @@ export function AnalyzeGameHistory({
             gameToAnalyze,
             depthChoosed
           );
-          console.log("✅ V3 job added to store");
+
+          // START POLLING IMMEDIATELY after getting statusUrl
+          startV3BackgroundPolling(
+            game.id,
+            v3Data.statusUrl,
+            v3Data.jobId,
+            gameToAnalyze,
+            game,
+            false
+          );
         }
       }
 
-      // Kirim data ke parent component via callback
       if (shortAnalyzeRes.data && onShortAnalysisReceived) {
         onShortAnalysisReceived(shortAnalyzeRes.data);
-        console.log("📤 Short-analysis data sent to parent component");
       }
     } catch (shortAnalyzeError: any) {
-      console.error("❌ Short-analyze error:", shortAnalyzeError);
-      console.error("Error details:", {
-        message: shortAnalyzeError.message,
-        response: shortAnalyzeError.response?.data,
-        status: shortAnalyzeError.response?.status,
-      });
+      // Silent error handling
     }
   };
 

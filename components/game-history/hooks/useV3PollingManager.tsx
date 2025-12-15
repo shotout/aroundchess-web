@@ -151,8 +151,46 @@ export const useV3PollingManager = () => {
           if (isSmall) await new Promise((r) => setTimeout(r, 2000));
 
           forceStopPolling(gameId);
+          
+          // Fetch last-analysis to get complete data including analysisId
+          try {
+            const resultPgn = d.result?.gameInfo?.pgn || d.gameInfo?.pgn || gamePgn;
+            if (resultPgn) {
+              const { createPgnHash } = await import("@/utils/crypto-utils");
+              const pgnHash = createPgnHash(resultPgn);
+              const { default: axios } = await import("axios");
+              const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+              
+              const lastAnalysisRes = await axios.get(
+                `${baseUrl}/v3/analyze/last-analysis/${pgnHash}`,
+                {
+                  headers: { Authorization: `Bearer ${sessionId}` },
+                }
+              );
+              
+              if (lastAnalysisRes.data?.data) {
+                const analysisId = lastAnalysisRes.data.data.analysisId || 
+                                 lastAnalysisRes.data.data.id || 
+                                 d.id || 
+                                 d.analysisId || 
+                                 d.result?.id;
+                
+                updateJob(gameId, {
+                  status: "completed",
+                  progress: 100,
+                  result: lastAnalysisRes.data.data,
+                  analysisId: analysisId,
+                  error: undefined,
+                });
+                return;
+              }
+            }
+          } catch (fetchError) {
+            // Fallback to original result if fetch fails
+          }
+          
+          // Fallback: use original result
           const analysisId = d.id || d.analysisId || d.result?.id;
-
           updateJob(gameId, {
             status: "completed",
             progress: 100,

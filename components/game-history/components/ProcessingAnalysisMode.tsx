@@ -8,8 +8,6 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useEffect, useState } from "react";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useProfileStore } from "@/app/store/profile";
-import { createPgnHash } from "@/utils/crypto-utils";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
 
 interface Props {
@@ -28,7 +26,6 @@ export default function ProcessingAnalysisMode({
     const { getJobByGameId } = useV3BackgroundAnalysisStore();
     const { startV3BackgroundPolling } = useV3PollingManager();
     const { setPgn } = usePgnStore();
-    const { sessionId } = useProfileStore();
     const [progress, setProgress] = useState(0);
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
@@ -90,55 +87,23 @@ export default function ProcessingAnalysisMode({
     }, [game, open, getJobByGameId]);
 
     useEffect(() => {
-        if (progress === 100 && open && game?.pgn) {
-            const fetchLastAnalysisAndOpen = async () => {
-                try {
-                    const pgnHash = createPgnHash(game.pgn);
-
-                    const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
-                    const response = await fetch(
-                        `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
-                        {
-                            method: "GET",
-                            headers: {
-                                Authorization: `Bearer ${sessionId}`,
-                            },
-                        }
-                    );
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch last-analysis: ${response.statusText}`);
-                    }
-
-                    const analysisData = await response.json();
-
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-
+        if (progress === 100 && open && game) {
+            const v3Job = getJobByGameId(game.id);
+            
+            if (v3Job?.result) {
+                setTimeout(() => {
                     onOpenChange(false);
-
-                    if (onOpenGameAnalysis && analysisData.data) {
+                    
+                    if (onOpenGameAnalysis) {
                         onOpenGameAnalysis({
-                            ...analysisData.data,
-                            analysisId: analysisData.data.analysisId
+                            ...v3Job.result,
+                            analysisId: v3Job.analysisId
                         });
                     }
-                } catch (error) {
-                    const job = getJobByGameId(game.id);
-                    if (job?.result) {
-                        onOpenChange(false);
-                        if (onOpenGameAnalysis) {
-                            onOpenGameAnalysis({
-                                ...job.result,
-                                analysisId: job.analysisId
-                            });
-                        }
-                    }
-                }
-            };
-
-            fetchLastAnalysisAndOpen();
+                }, 2000);
+            }
         }
-    }, [progress, open, game, onOpenChange, onOpenGameAnalysis, getJobByGameId, sessionId]);
+    }, [progress, open, game, onOpenChange, onOpenGameAnalysis, getJobByGameId]);
 
     if (!open) return null;
 

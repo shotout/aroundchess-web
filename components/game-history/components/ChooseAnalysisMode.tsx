@@ -211,6 +211,29 @@ export default function ChooseAnalysisMode({
     };
 
     const handleQuickSummaryClick = async () => {
+        // Check if already completed - open GameAnalysis directly
+        if (isV3Completed) {
+            const v3Job = getV3JobByGameId(game.id);
+            
+            if (v3Job && v3Job.result) {
+                onOpenChange(false);
+                
+                if (onOpenGameAnalysis) {
+                    onOpenGameAnalysis({
+                        ...v3Job.result,
+                        analysisId: v3Job.analysisId
+                    });
+                }
+                
+                if (onStartQuickSummary) {
+                    onStartQuickSummary();
+                }
+                
+                return;
+            }
+        }
+
+        // If v3 data available from fetch (View Analysis flow)
         if (shortAnalysisData?.success && shortAnalysisData.data?.summary) {
             onOpenChange(false);
 
@@ -228,21 +251,7 @@ export default function ChooseAnalysisMode({
             return;
         }
 
-        const v3Job = getV3JobByGameId(game.id);
-
-        if (v3Job && !isV3Completed) {
-            if (v3Job.statusUrl && (v3Job.gamePgn || game?.pgn)) {
-                startV3BackgroundPolling(
-                    game.id,
-                    v3Job.statusUrl,
-                    v3Job.jobId,
-                    v3Job.gamePgn || game.pgn,
-                    game,
-                    false
-                );
-            }
-        }
-
+        // Analysis not yet complete - open ProcessingAnalysisMode to show progress
         onOpenChange(false);
 
         if (onOpenProcessingMode) {
