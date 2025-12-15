@@ -225,7 +225,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const mobileLevels = getMobileDisplayLevels();
 
   const badgeClass =
-    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-[14px] --xs font-semibold";
+    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
