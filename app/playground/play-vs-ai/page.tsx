@@ -69,7 +69,7 @@ export default function PlayVSAI() {
                   onGetPremium={handleGetPremium}
                 />
 
-                {/* Play VS AI Modal */}
+                {/* You vs AI Modal */}
                 <StartPlayVSAI
                   visible={showPlayVSAIModal}
                   onClose={handleClosePlayVSAI}
@@ -114,7 +114,7 @@ export default function PlayVSAI() {
                         className="w-[188px] xl:w-[376px] h-auto"
                       />
                       <span className="font-medium text-lg xl:text-xl">
-                        Play VS AI
+                        You vs AI
                       </span>
                       <span className="font-normal text-md xl:mx-20 text-center">
                         Challenge AI to improve your accuracy and enhance your

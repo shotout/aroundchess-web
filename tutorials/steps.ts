@@ -37,7 +37,7 @@ const AnalyzeGameSteps: any[] = [
   }
 ];
 
-// New Play vs AI Tutorial Steps
+// New You vs AI Tutorial Steps
 const PlayVsAISteps: any[] = [
   {
     target: "[data-tutorial='play-vs-ai-step-1']",

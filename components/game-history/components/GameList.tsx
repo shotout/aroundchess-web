@@ -225,7 +225,7 @@ const GamesList: React.FC<GamesListProps> = ({
       }
 
       // Fallback: for games whose background analysis job was started
-      // with a synthetic gameId (e.g. Play VS AI), try to match by PGN
+      // with a synthetic gameId (e.g. You vs AI), try to match by PGN
       // so that "Other Games" rows still flip to "View Results".
       if (!updated) {
         const job = getJobByGameId(id);
@@ -664,10 +664,12 @@ const GamesList: React.FC<GamesListProps> = ({
           <p className="text-[16px] leading-[140%] text-[#585858]">Play against AI or play on Chess.com to <br />see your Games here.</p>
         </div>
         <Button
-          onClick={handleRetryFetch}
+          onClick={() => {
+            router.push("/playground/play-vs-ai");
+          }}
           className="flex md:w-[350px] relative justify-center items-center w-full gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden"
         >
-          Refresh Games
+          You vs AI
         </Button>
       </div>
     );

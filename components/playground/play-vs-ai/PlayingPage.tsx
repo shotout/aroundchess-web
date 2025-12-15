@@ -548,10 +548,10 @@ export default function PlayingPage() {
       timeControl: "N/A",
       result: "Game Finished",
       rating: "N/A",
-      timeClass: "Play vs AI",
+      timeClass: "You vs AI",
       moves: "N/A",
       opening: "N/A",
-      source: "Play vs AI",
+      source: "You vs AI",
     };
 
     console.log("🎮 gameFromPgn created:", {
@@ -1178,7 +1178,7 @@ export default function PlayingPage() {
     const blackName =
       AIChoosed.color == "white" ? AIChoosed.opponent.name + " (AI)" : username;
 
-    game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
+    game.header("Event", "You vs AI (" + AIChoosed.opponent.elo + ")");
     game.header("Site", "aroundchess.com");
     game.header("Date", date);
     game.header("White", whiteName);
@@ -2092,7 +2092,7 @@ export default function PlayingPage() {
               height={1000}
               className="w-[22px] h-[21px] object-contain"
             />
-            <span className="font-semibold text-[18px]">Play VS AI</span>
+            <span className="font-semibold text-[18px]">You vs AI</span>
           </div>
           <div className="flex " />
         </div>
@@ -2566,7 +2566,7 @@ export default function PlayingPage() {
               height={21}
               className="w-[22px] h-[21px] object-contain"
             />
-            <span className="font-semibold text-[18px]">Play VS AI</span>
+            <span className="font-semibold text-[18px]">You vs AI</span>
           </div>
         </div>
 

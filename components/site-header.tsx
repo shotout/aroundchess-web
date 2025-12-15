@@ -111,7 +111,7 @@ const navItems = {
           description: "Master essential endgame positions",
         },
         {
-          title: "Play vs AI",
+          title: "You vs AI",
           href: "/practice/ai",
           description: "Challenge our advanced chess engine",
         },
