@@ -62,10 +62,25 @@ export default function ChooseAnalysisMode({
         }
     }, [open, v2AnalysisData, shortAnalysisData, isChessMasterAnalyzing, chessMasterProgress, isAnalyzing, progress]);
 
-    const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
-    const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        if (typeof window === "undefined") return 0;
+        return window.innerWidth >= 1280 ? window.innerWidth / 6 : 0;
+    });
     const headerHeight = 72;
     const headerHeightLg = 96;
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === "undefined") return;
+            const isDesktop = window.innerWidth >= 1280;
+            setSidebarWidth(isDesktop ? window.innerWidth / 6 : 0);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     useEffect(() => {
         if (!game || !open) return;

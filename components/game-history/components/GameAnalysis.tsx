@@ -43,10 +43,25 @@ export default function GameAnalysis({
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
 
-    const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
-    const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        if (typeof window === "undefined") return 0;
+        return window.innerWidth >= 1280 ? window.innerWidth / 6 : 0;
+    });
     const headerHeight = 72;
     const headerHeightLg = 96;
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === "undefined") return;
+            const isDesktop = window.innerWidth >= 1280;
+            setSidebarWidth(isDesktop ? window.innerWidth / 6 : 0);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     if (!open) return null;
 
