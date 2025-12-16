@@ -81,43 +81,31 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
       try {
         console.log("📡 [ChessAccountSetup] Fetching tutorial status from API...");
-        // Check both tutorial types
-        const [chesscomStatus, noChesscomStatus] = await Promise.all([
-          ChessApiService.getTutorialStatus("chesscom", sessionId).catch(
-            (err) => {
-              console.log("⚠️ Chesscom tutorial status error:", err);
-              return null;
-            }
-          ),
-          ChessApiService.getTutorialStatus("no-chesscom", sessionId).catch(
-            (err) => {
-              console.log("⚠️ No-chesscom tutorial status error:", err);
-              return null;
-            }
-          ),
-        ]);
+        // Only check chesscom tutorial status
+        const chesscomStatus = await ChessApiService.getTutorialStatus("chesscom", sessionId).catch(
+          (err) => {
+            console.log("⚠️ Chesscom tutorial status error:", err);
+            return null;
+          }
+        );
 
         console.log("📊 [ChessAccountSetup] Tutorial status results:", {
           chesscomStatus,
-          noChesscomStatus,
         });
 
-        // If either tutorial is completed, mark as completed
-        // API returns: data.isChesscomTutorialComplete and data.isNoChesscomTutorialComplete
-        const isChesscomCompleted = chesscomStatus?.data?.isChesscomTutorialComplete === true;
-        const isNoChesscomCompleted = noChesscomStatus?.data?.isNoChesscomTutorialComplete === true;
+        // Check if tutorial is completed
+        // API returns: data.isChesscomTutorialComplete
+        const isCompleted = chesscomStatus?.data?.isChesscomTutorialComplete === true;
 
         console.log("🎯 [ChessAccountSetup] Tutorial completion status:", {
-          isChesscomCompleted,
-          isNoChesscomCompleted,
-          anyCompleted: isChesscomCompleted || isNoChesscomCompleted,
+          isCompleted,
         });
 
-        if (isChesscomCompleted || isNoChesscomCompleted) {
-          console.log("✅ [ChessAccountSetup] At least one tutorial completed, setting hasCompletedTutorial = true");
+        if (isCompleted) {
+          console.log("✅ [ChessAccountSetup] Tutorial completed, setting hasCompletedTutorial = true");
           setHasCompletedTutorial(true);
         } else {
-          console.log("📝 [ChessAccountSetup] No tutorials completed yet");
+          console.log("📝 [ChessAccountSetup] Tutorial not completed yet");
         }
       } catch (error) {
         console.error("❌ [ChessAccountSetup] Error checking tutorial status:", error);
@@ -171,30 +159,28 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       }
     });
 
-    // Check if user already completed chesscom tutorial from API (not local state)
-    // We MUST check API to ensure we have the latest status for THIS specific tutorial type
+    // Check if user already completed tutorial (chesscom only)
     if (sessionId) {
       try {
-        console.log("🔍 Checking chesscom tutorial status from API...");
+        console.log("🔍 Checking tutorial status from API...");
         const chesscomStatus = await ChessApiService.getTutorialStatus(
           "chesscom",
           sessionId
         );
 
-        console.log("📊 Chesscom status response:", chesscomStatus);
+        console.log("📊 Tutorial status response:", chesscomStatus);
 
         // If already completed, just close without showing tutorial
-        // API returns: data.isChesscomTutorialComplete
         if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
-          console.log("✅ Chesscom tutorial already completed, skipping tutorial");
+          console.log("✅ Tutorial already completed, skipping tutorial");
           setHasCompletedTutorial(true);
-          toast.info("You have already completed the Chess.com tutorial");
+          toast.info("You have already completed the tutorial");
           return;
         } else {
-          console.log("❌ Chesscom tutorial not completed, showing tutorial");
+          console.log("❌ Tutorial not completed, showing tutorial");
         }
       } catch (error) {
-        console.error("❌ Error checking chesscom tutorial status:", error);
+        console.error("❌ Error checking tutorial status:", error);
         // Continue to show tutorial on error to be safe
       }
     }
@@ -251,30 +237,28 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectClose = async () => {
     setShowConnectDialog(false);
 
-    // Check if user already completed no-chesscom tutorial from API (not local state)
-    // We MUST check API to ensure we have the latest status for THIS specific tutorial type
+    // Check if user already completed tutorial (chesscom only)
     if (sessionId) {
       try {
-        console.log("🔍 Checking no-chesscom tutorial status from API...");
-        const noChesscomStatus = await ChessApiService.getTutorialStatus(
-          "no-chesscom",
+        console.log("🔍 Checking tutorial status from API...");
+        const chesscomStatus = await ChessApiService.getTutorialStatus(
+          "chesscom",
           sessionId
         );
 
-        console.log("📊 No-chesscom status response:", noChesscomStatus);
+        console.log("📊 Tutorial status response:", chesscomStatus);
 
         // If already completed, just close without showing tutorial
-        // API returns: data.isNoChesscomTutorialComplete
-        if (noChesscomStatus?.data?.isNoChesscomTutorialComplete === true) {
-          console.log("✅ No-chesscom tutorial already completed, skipping tutorial");
+        if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
+          console.log("✅ Tutorial already completed, skipping tutorial");
           setHasCompletedTutorial(true);
-          toast.info("You have already completed the No Chess.com tutorial");
+          toast.info("You have already completed the tutorial");
           return;
         } else {
-          console.log("❌ No-chesscom tutorial not completed, showing tutorial");
+          console.log("❌ Tutorial not completed, showing tutorial");
         }
       } catch (error) {
-        console.error("❌ Error checking no-chesscom tutorial status:", error);
+        console.error("❌ Error checking tutorial status:", error);
         // Continue to show tutorial on error to be safe
       }
     }
