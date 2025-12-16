@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Category } from "../../types/EndgameTrainingTypes";
 import { EndgameTrainingViewProps } from "./type";
 import SubcategoriesGrid from "./SubCategoriesGrid";
@@ -17,6 +17,8 @@ export default function EndgameTrainingView({
     null
   );
   const [categoryData, setCategoryData] = useState<Category | any>(null);
+  const subCategoriesSectionRef = useRef<HTMLDivElement>(null);
+  const stagesSectionRef = useRef<HTMLDivElement>(null);
 
   const endgameCategory = useMemo<Category | null>(() => {
     if (!data?.categories) return null;
@@ -44,9 +46,20 @@ export default function EndgameTrainingView({
   }, [categoryData, selectedSubcategory]);
 
   const selectSubcategory = (subcategorySlug: string) => {
+    const isClosing = subcategorySlug === selectedSubcategory;
     setSelectedSubcategory(
-      subcategorySlug === selectedSubcategory ? null : subcategorySlug
+      isClosing ? null : subcategorySlug
     );
+
+    // Scroll to StagesSection when opening a new subcategory
+    if (!isClosing) {
+      setTimeout(() => {
+        stagesSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 100);
+    }
   };
 
   return (
@@ -70,7 +83,7 @@ export default function EndgameTrainingView({
             </div>
           </div>
         </div>
-        <div className="xl:p-4">
+        <div ref={subCategoriesSectionRef} className="xl:p-4">
           <SubcategoriesGrid
             category={categoryData}
             selectedSubcategory={selectedSubcategory}
@@ -80,13 +93,15 @@ export default function EndgameTrainingView({
       </div>
 
       {selectedSubcategory && (
-        <StagesSection
-          slug={slug}
-          selectedSubcategory={selectedSubcategory}
-          selectedSubcategoryData={selectedSubcategoryData}
-          onPositionSelect={onPositionSelect}
-          onSelectSubcategory={selectSubcategory}
-        />
+        <div ref={stagesSectionRef}>
+          <StagesSection
+            slug={slug}
+            selectedSubcategory={selectedSubcategory}
+            selectedSubcategoryData={selectedSubcategoryData}
+            onPositionSelect={onPositionSelect}
+            onSelectSubcategory={selectSubcategory}
+          />
+        </div>
       )}
     </>
   );
