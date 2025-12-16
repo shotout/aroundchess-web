@@ -57,28 +57,36 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                     } rounded-md p-4`}
                   >
                     <div className="flex flex-row justify-between items-center gap-2 mb-2">
-                      <span
-                        onClick={() => handleOnClickMovement(item)}
-                        className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
-                      >
-                        Move {item?.moveNumber}:{" "}
-                        {capturedWhite &&
-                          capturedWhite
-                            .filter((wp) => wp.san == item?.move)
-                            .map((item, index) => {
-                              return (
-                                <Image
-                                  key={index}
-                                  src={`/pieces/${PieceChoosed}/${item.captured}.png`}
-                                  alt="icon"
-                                  width={1000}
-                                  height={1000}
-                                  className="w-[12px] h-[12px] object-contain inline-block"
-                                />
-                              );
-                            })}
-                        <span className="font-bold">{item?.move}</span>
-                      </span>
+                      <div className="flex gap-[8px]">
+                        <span
+                          onClick={() => handleOnClickMovement(item)}
+                          className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
+                        >
+                          Move {item?.moveNumber}:&nbsp;
+                          {capturedWhite &&
+                            capturedWhite
+                              .filter((wp) => wp.san == item?.move)
+                              .map((item, index) => {
+                                return (
+                                  <Image
+                                    key={index}
+                                    src={`/pieces/${PieceChoosed}/${item.captured}.png`}
+                                    alt="icon"
+                                    width={1000}
+                                    height={1000}
+                                    className="w-[12px] h-[12px] object-contain inline-block"
+                                  />
+                                );
+                              })}
+                          <span className="font-bold">{item?.move}</span>
+                        </span>
+
+                        {item.evaluation && (
+                          <span className={`${item.evaluation > 0 ? 'text-green-500 border-green-500' : 'text-red-500 border-red-500'} flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border rounded-full py-1 px-[14px]`}>
+                            {item.evaluation > 0 ? '+' : ''}{item.evaluation}
+                          </span>
+                        )}
+                      </div>
 
                       <div className="flex gap-[10px]">
                         <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
