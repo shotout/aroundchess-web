@@ -241,7 +241,7 @@ const PreviousAnalysis: React.FC = () => {
                           item?.classification
                         )}`}
                       >
-                        {item?.evaluation}
+                        {item?.evaluation > 0 ? '+' : ''}{item?.evaluation}
                       </span>
                       <span
                         className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md  ${getBadgeClass(

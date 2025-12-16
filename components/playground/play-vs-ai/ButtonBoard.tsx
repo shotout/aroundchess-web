@@ -28,7 +28,7 @@ export const ButtonBoard = ({
         />
       </button>
       <SettingBoard />
-      <button onClick={handleThreeD}>
+      {/* <button onClick={handleThreeD}>
         <Image
           src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
           alt="icon"
@@ -36,7 +36,7 @@ export const ButtonBoard = ({
           height={1000}
           className="w-[22px] h-[27px] object-contain"
         />
-      </button>
+      </button> */}
     </div>
   );
 };

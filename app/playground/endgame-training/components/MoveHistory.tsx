@@ -36,8 +36,8 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
   };
 
   return (
-    <div className="flex-grow p-4">
-      <div className="max-h-[230px] rounded-md border border-[#BDD0F9] overflow-y-auto">
+    <div className="p-4">
+      <div className="h-auto rounded-md border border-[#BDD0F9] overflow-y-auto">
         <table className="w-full border-collapse table-fixed">
           <thead className="bg-blue-100 sticky top-0 z-10">
             <tr>

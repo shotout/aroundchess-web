@@ -119,7 +119,7 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
                         id={`arrowhead-${index}`}
                         markerWidth="20"
                         markerHeight="20"
-                        refX="2"
+                        refX="0.1"
                         refY="10"
                         orient="auto"
                         markerUnits="userSpaceOnUse"
@@ -147,7 +147,6 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
                         strokeLinecap="butt"
                         strokeLinejoin="miter"
                         markerEnd={`url(#arrowhead-${index})`}
-                        opacity="0.85"
                     />
                 );
             })}

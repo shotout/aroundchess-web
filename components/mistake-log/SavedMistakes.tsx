@@ -275,7 +275,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           item?.mistakeLog.classification
                         )}`}
                       >
-                        {item?.mistakeLog.evaluation}
+                        {item?.mistakeLog.evaluation > 0 ? '+' : ''}{item?.mistakeLog.evaluation}
                       </span>
                       <span
                         className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md  ${getBadgeClass(

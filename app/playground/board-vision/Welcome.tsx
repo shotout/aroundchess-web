@@ -3,10 +3,18 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Popup from "./Popup";
+import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 const Welcome: React.FC = () => {
   const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [showSetupPopup, setShowSetupPopup] = useState(false);
+
+  const { isLoading } = usePgnStore();
+
+  const [openAccountConnected, setOpenAccountConnected] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -19,7 +27,7 @@ const Welcome: React.FC = () => {
   }, []);
 
   const handleStartClick = () => {
-    route.push("/playground/board-vision/default");
+    setShowSetupPopup(true);
   };
 
   return (
@@ -52,7 +60,7 @@ const Welcome: React.FC = () => {
           </div>
         )}
 
-        <div className="relative z-20 w-full h-full flex items-center justify-center">
+        <div className="relative z-10 w-full h-full flex items-center justify-center">
           <div className="absolute inset-0 flex items-center justify-center m-4">
             <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
               <Image
@@ -79,6 +87,22 @@ const Welcome: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <Popup 
+        isOpen={showSetupPopup} 
+        onClose={() => setShowSetupPopup(false)} 
+        handleUsernameClicked={() => {
+          setOpenAccountConnected(true);
+          setShowSetupPopup(false);
+        }} />
+
+      {openAccountConnected && (
+        <ChessAccountSetup
+          isLoading={isLoading} 
+          open={openAccountConnected} 
+          setOpen={setOpenAccountConnected} 
+        />
+      )}
     </main>
   );
 };
