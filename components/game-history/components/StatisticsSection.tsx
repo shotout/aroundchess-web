@@ -42,7 +42,7 @@ const StatCard: React.FC<{
   isLoading,
 }) => (
   <Card
-    className={`p-3 h-[120px] lg:h-[147px] ${bgGradient} rounded-lg overflow-hidden relative flex flex-col justify-between`}
+    className={`p-3 h-[120px] lg:h-[147px] ${bgGradient} rounded-lg overflow-hidden relative flex flex-col gap-[8px]`}
   >
     <div className="flex items-center gap-2">
       {icon}
@@ -176,7 +176,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
         isTutorialPlay
           ? dataTutorial.averagePoint
           : statistics?.averageEloRating?.monthlyChange || 0
-      } points this month`,
+      } points compared to last month`,
       icon: <BarChart2 className="h-4 w-4 text-blue-500" />,
       bgGradient: "border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black",
       bgImage: "/my-game-history/background-b.png",

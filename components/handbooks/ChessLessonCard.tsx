@@ -87,12 +87,13 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
           <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col p-4">
             <div className="relative">
               <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
-                <div className="w-full h-full px-1 lg:p-2 2xl:p-5">
+                <div className="relative w-full h-full px-1 lg:p-2 2xl:p-5 before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:cursor-pointer before:z-10">
                   <Simple2DChess
                     id={`board-${slug}`}
                     keys={`board-${slug}`}
                     position={getFenFromMoves(lesson.moves)?.trim()}
                     arePiecesDraggable={false}
+                    className="cursor-pointer"
                   />
                 </div>
               </div>

@@ -37,6 +37,7 @@ interface Simple2DChessProps {
   id?: number | any;
   keys?: Key;
   boardWidth?: number;
+  className?: string;
 }
 
 const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
@@ -60,6 +61,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
     arePremovesAllowed,
     id,
     keys,
+    className
   }) => {
     const [boardSize, setBoardSize] = useState<number | undefined>(undefined);
     const { BoardChoosed, PieceChoosed } = useChessBoardThemeStore();
@@ -157,7 +159,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
     }
 
     return (
-      <div key={keys} id={id} className="relative w-full h-full" ref={ref}>
+      <div key={keys} id={id} className={`relative w-full h-full ${className ?? ''}`} ref={ref}>
         <div className="absolute inset-0">
           <Image
             src={`/boards/${BoardChoosed}.png`}
