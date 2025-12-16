@@ -46,6 +46,7 @@ const UserPGN: React.FC = () => {
   } = userGame;
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
+  const [openAccountConnected, setOpenAccountConnected] = useState<boolean>(false);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
   useEffect(() => {
@@ -123,6 +124,10 @@ const UserPGN: React.FC = () => {
         <Popup
           isOpen={showSetupPopup}
           onClose={() => setShowSetupPopup(false)}
+          handleUsernameClicked={() => {
+            setOpenAccountConnected(true);
+            setShowSetupPopup(false);
+          }}
         />
       </>
     );
@@ -139,6 +144,10 @@ const UserPGN: React.FC = () => {
         <Popup
           isOpen={showSetupPopup}
           onClose={() => setShowSetupPopup(false)}
+          handleUsernameClicked={() => {
+            setOpenAccountConnected(true);
+            setShowSetupPopup(false);
+          }}
         />
       </>
     );
@@ -234,7 +243,14 @@ const UserPGN: React.FC = () => {
         </motion.div>
       </main>
 
-      <Popup isOpen={showSetupPopup} onClose={() => setShowSetupPopup(false)} />
+      <Popup 
+        isOpen={showSetupPopup} 
+        onClose={() => setShowSetupPopup(false)} 
+        handleUsernameClicked={() => {
+          setOpenAccountConnected(true);
+          setShowSetupPopup(false);
+        }}
+      />
     </>
   );
 };

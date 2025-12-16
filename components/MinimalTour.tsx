@@ -514,13 +514,17 @@ export default function MinimalTour({
   ) : null;
 
   const handleStartGameAnalysis = async () => {
-    // Post tutorial completion to API
-    if (tutorialType && sessionId) {
+    // Post tutorial completion to BOTH API endpoints
+    if (sessionId) {
       setIsSubmitting(true);
       try {
-        await ChessApiService.setTutorialStatus(tutorialType, true, sessionId);
+        // Save to both chesscom and no-chesscom endpoints
+        await Promise.all([
+          ChessApiService.setTutorialStatus("chesscom", true, sessionId),
+          ChessApiService.setTutorialStatus("no-chesscom", true, sessionId),
+        ]);
         setHasCompletedTutorial(true);
-        console.log(`✅ Tutorial ${tutorialType} marked as completed`);
+        console.log(`✅ Tutorial marked as completed in both endpoints`);
         toast.success("Tutorial completed!");
       } catch (error) {
         console.error("Error saving tutorial status:", error);
