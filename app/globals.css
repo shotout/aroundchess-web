@@ -356,6 +356,10 @@ p {
   border-color: #d8dce0;
 }
 
+.swiper.swiper-cards {
+  overflow: hidden !important;
+}
+
 @media (min-width: 1200px) {
   .swiper-cards {
     height: 456px;
@@ -405,6 +409,7 @@ p {
   position: relative !important;
   top: 0 !important;
   bottom: 0 !important;
+  height: 20px;
 }
 
 .swiper-pagination .swiper-pagination-bullet {

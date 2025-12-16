@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
-import { EffectCards, Navigation, Pagination } from 'swiper/modules';
+import { EffectCards, Pagination } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Chess, Square } from "chess.js";
@@ -19,6 +19,7 @@ import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import { CustomChessArrows } from "./CustomChessArrows";
 import { useProfileStore } from "@/app/store/profile";
+import type { Swiper as SwiperType } from 'swiper';
 
 interface ArrowConfig {
     from: string;
@@ -39,6 +40,7 @@ export default function GameAnalysis({
     v3Result
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const swiperRef = useRef<SwiperType>();
 
     const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1280;
     const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
@@ -61,7 +63,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[660px] overflow-x-hidden overflow-y-scroll bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[660px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -72,7 +74,7 @@ export default function GameAnalysis({
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
                 <Swiper
-                    modules={[EffectCards, Navigation, Pagination]}
+                    modules={[EffectCards, Pagination]}
                     effect="cards"
                     grabCursor={true}
                     cardsEffect={{
@@ -80,10 +82,6 @@ export default function GameAnalysis({
                         rotate: true,
                         perSlideRotate: 2,
                         perSlideOffset: 8,
-                    }}
-                    navigation={{
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
                     }}
                     pagination={{
                         clickable: true,
@@ -93,6 +91,7 @@ export default function GameAnalysis({
                         setActiveIndex(swiper.activeIndex);
                     }}
                     onSwiper={(swiper) => {
+                        swiperRef.current = swiper;
                         setActiveIndex(swiper.activeIndex);
                         console.log(swiper);
                     }}
@@ -112,40 +111,49 @@ export default function GameAnalysis({
                             }}
                         />
                     </SwiperSlide>
+                </Swiper>
 
-                    <div data-tutorial="5" className="relative h-[50px] mt-[16px] flex items-center justify-center gap-[64px]">
-                        <div className="swiper-button-prev relative w-[32px] h-[32px] flex justify-center items-center gap-[4px] p-[8px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
-                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clipPath="url(#clip0_1155_12540)">
-                                    <path d="M15 7H0.899022" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M7.20312 0.875L0.903125 7L7.20312 13.125" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_1155_12540">
-                                        <rect width="16" height="14" fill="white" transform="matrix(-1 0 0 1 16 0)"/>
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                        </div>
-                        <div className="flex flex-col items-center justify-center gap-[2px]">
-                            <span className="font-semibold">- {activeIndex + 1} of 6 -</span>
-                            <div className="swiper-pagination"></div>
-                        </div>
-                        <div className="swiper-button-next w-[32px]! h-[32px]! flex relative justify-center items-center p-[8px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
-                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clipPath="url(#clip0_1155_12557)">
-                                    <path d="M1 7L15.101 7" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8.80469 13.125L15.1047 7L8.80469 0.875" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_1155_12557">
-                                        <rect width="16" height="14" fill="white" transform="matrix(1 1.74846e-07 1.74846e-07 -1 0 14)"/>
-                                    </clipPath>
-                                </defs>
-                            </svg>
+                <div data-tutorial="5" className="relative h-[50px] mt-[16px] flex items-center justify-center gap-[64px]">
+                    <button onClick={() => swiperRef.current?.slidePrev()} className="custom-swiper-button-prev relative w-[32px] h-[32px] flex justify-center items-center gap-[4px] p-[8px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+                        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clipPath="url(#clip0_1155_12540)">
+                                <path d="M15 7H0.899022" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M7.20312 0.875L0.903125 7L7.20312 13.125" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_1155_12540">
+                                    <rect width="16" height="14" fill="white" transform="matrix(-1 0 0 1 16 0)"/>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </button>
+                    <div className="flex flex-col items-center justify-center">
+                        <span className="font-semibold">- {activeIndex + 1} of {v3Result.summary.criticalMistakes.length + 1} -</span>
+                        <div className="swiper-pagination">
+                            <div className="swiper-pagination-bullets">
+                                {v3Result.summary.criticalMistakes.map((mistake: any, index: number) => (
+                                    <div
+                                        key={index}
+                                        className={`swiper-pagination-bullet mx-[3px] ${activeIndex === index ? 'swiper-pagination-bullet-active' : ''}`}
+                                    ></div>
+                                ))}
+                            </div>`
                         </div>
                     </div>
-                </Swiper>
+                    <button onClick={() => swiperRef.current?.slideNext()} className="custom-swiper-button-next w-[32px]! h-[32px]! flex relative justify-center items-center p-[8px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+                        <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clipPath="url(#clip0_1155_12557)">
+                                <path d="M1 7L15.101 7" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8.80469 13.125L15.1047 7L8.80469 0.875" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_1155_12557">
+                                    <rect width="16" height="14" fill="white" transform="matrix(1 1.74846e-07 1.74846e-07 -1 0 14)"/>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     );
