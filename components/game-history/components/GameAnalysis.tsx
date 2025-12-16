@@ -64,7 +64,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[660px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[660px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -314,7 +314,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                     
                     <SettingBoard />
                 
-                    <button onClick={toggleBoardMode}>
+                    {/* <button onClick={toggleBoardMode}>
                         <Image
                             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
                             alt="icon"
@@ -322,7 +322,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             height={27}
                             className="w-[22px] h-[27px] object-contain"
                         />
-                    </button>
+                    </button> */}
                 </div>
 
                 <motion.div
@@ -525,7 +525,7 @@ const AnalysisHelpfulSlide = (
     };
 
     return (
-        <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+        <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[560px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
             <Image src={"/images/analysis/bg-big.svg"} alt="bg" width={640} height={640} className="w-full absolute top-[50%] translate-y-[-50%] lg:translate-y-0 lg:top-0 left-0 object-contain z-0" />
 
             <div className="relative mb-[-56px] lg:mb-0 w-full h-[calc(100vh-240px)] lg:h-auto flex items-center justify-center flex-col z-10">
