@@ -1268,7 +1268,7 @@ export default function PlayingPage() {
     }
     
     isGameInitialized.current = true;
-    
+
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
   }, [AIChoosed]);
@@ -2629,8 +2629,8 @@ export default function PlayingPage() {
 
           <TabsContent value="current" className="gap-2">
             <div
-              className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
-              style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
+              className="lg:max-h-[625px] xxl:max-h-[675px] h-auto flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4"
+              // style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
               <div className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
