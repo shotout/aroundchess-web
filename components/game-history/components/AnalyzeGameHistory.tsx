@@ -53,21 +53,21 @@ export function AnalyzeGameHistory({
 
   const depths = [
     {
-      image: "/icons/board-small-analysis.png",
+      image: "/icons/board-small-analysis.svg",
       value: 12,
       title: "Standard Analysis",
       description: "Our AI quickly analyzes your chess game with a low-depth search, providing fast insights without long processing times.",
       mustMember: false,
     },
     {
-      image: "/icons/board-medium-analysis.png",
+      image: "/icons/board-medium-analysis.svg",
       value: 16,
       title: "Full Analysis",
       description: "Our AI analyzes your chess game with a middle-depth search, offering balanced insights with moderate processing time.",
       mustMember: true,
     },
     {
-      image: "/icons/board-large-analysis.png",
+      image: "/icons/board-large-analysis.svg",
       value: 18,
       title: "Deep Analysis",
       description: "Our AI analyzes your chess game with a high-depth search, providing deep insights with a longer processing time.",
@@ -527,7 +527,7 @@ export function AnalyzeGameHistory({
                         setDepthChoosed(depth.value);
                       }}
                       disabled={depth.mustMember && (!isMember&&!isMemberMonthly)}
-                      className={`relative min-h-[140px] lg:min-h-[250px] flex flex-col justify-around p-[12px] items-center shadow-md ${
+                      className={`relative min-h-[140px] lg:min-h-[250px] flex flex-col justify-around px-[8px] py-[12px] items-center shadow-md ${
                         depth.mustMember && (!isMember&&!isMemberMonthly)
                           ? "bg-[#C0CED4]"
                           : "bg-white"
@@ -551,8 +551,8 @@ export function AnalyzeGameHistory({
                         <Image
                           src="/icons/premium-info.png"
                           alt="premium-info"
-                          width={1000}
-                          height={1000}
+                          width={100}
+                          height={100}
                           className="w-[72px] h-[23px] object-cover absolute left-2 top-2"
                           priority
                         />
@@ -567,7 +567,7 @@ export function AnalyzeGameHistory({
                         }`}
                       />
                       <span className="font-bold text-[16px] lg:text-[18px] --sm mb-[4px] lg:mb-[8px]">{depth.title}</span>
-                      <span className="text-[#364152] leading-[130%] text-center text-[14px]">
+                      <span className="text-[#364152] leading-[130%] text-center text-[13.8px]">
                         {depth.description}
                       </span>
                     </button>
