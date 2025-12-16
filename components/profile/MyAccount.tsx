@@ -282,7 +282,6 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
             value={form.defaultUsername}
             onChange={handleOnChange}
             onClick={() => {
-              console.log("defaultUsername", form.defaultUsername);
               if (!form.defaultUsername) {
                 handleUsernameClicked();
               }
