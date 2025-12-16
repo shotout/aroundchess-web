@@ -111,7 +111,7 @@ export function AnalysisSection() {
 
   const handleAnalysis = useCallback(() => {
     // if (isSignedIn) {
-      router.push("/analysis");
+      router.push("/my-game-history");
     // } else {
     //   router.push("/register");
     // }

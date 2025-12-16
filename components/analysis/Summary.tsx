@@ -14,6 +14,7 @@ import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { toast } from "sonner";
 
+
 interface SummaryProps {
   next: () => void;
 }
@@ -69,7 +70,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       // Merge criticalMistakes with IDs from mistakeLogs
       if (mergedData.criticalMistakes && Array.isArray(mergedData.criticalMistakes)) {
-        mergedData.criticalMistakes = mergedData.criticalMistakes.map((item: any) => {
+        mergedData.criticalMistakes = mergedData.criticalMistakes.map((item: any, idx: number) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "criticalMistakes");
           const mistakeLogItem = (mistakeLogs as any)?.criticalMistakes?.find(
             (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
@@ -85,7 +86,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       // Merge bestMoves.middleGame with IDs from mistakeLogs
       if (mergedData.bestMoves?.middleGame && Array.isArray(mergedData.bestMoves.middleGame)) {
-        mergedData.bestMoves.middleGame = mergedData.bestMoves.middleGame.map((item: any) => {
+        mergedData.bestMoves.middleGame = mergedData.bestMoves.middleGame.map((item: any, idx: number) => {
           // Check both in bestMoves and threats categories
           let id = findIdFromMistakeLogs(item.move, item.moveNumber, "bestMoves");
           if (!id) {
@@ -131,6 +132,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
   // Handle save log
   const handleSaveLog = async (id: string, arrayKey: string, index: number) => {
+    if (loadingToggle) return; // Prevent multiple simultaneous requests
+    
     setLoadingToggle(true);
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
@@ -180,14 +183,16 @@ const Summary: React.FC<SummaryProps> = (props) => {
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to save bookmark");
       setLoadingToggle(false);
     }
   };
 
   // Handle unsave log
   const handleUnsaveLog = async (id: string, arrayKey: string, index: number) => {
+    if (loadingToggle) return; // Prevent multiple simultaneous requests
+    
     setLoadingToggle(true);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
@@ -237,8 +242,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       setSavedMistakes(savedData.data);
       setLoadingToggle(false);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to remove bookmark");
       setLoadingToggle(false);
     }
   };
@@ -691,6 +696,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!isSignedIn) {
+                              setOpenConfirmLogin(true);
+                            }
+
                             const mistakeId = item?.id || item?.mistakeLogId || item?._id;
 
                             if (!mistakeId) {
@@ -798,6 +807,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
+                                
+                                if (!isSignedIn) {
+                                  setOpenConfirmLogin(true);
+                                }
+
                                 const mistakeId = middle?.id || middle?.mistakeLogId || middle?._id;
 
                                 if (!mistakeId) {

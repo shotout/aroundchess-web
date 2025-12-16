@@ -63,6 +63,27 @@ const MobileTooltip = ({
     }
   }, [isMobile, isVisible]);
 
+  // Desktop: Close tooltip when clicking outside
+  useEffect(() => {
+    if (!isMobile && isVisible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element;
+        if (!target.closest("[data-radix-popper-content-wrapper]") && !target.closest("button")) {
+          setIsVisible(false);
+        }
+      };
+
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener("click", handleClickOutside);
+      };
+    }
+  }, [isMobile, isVisible]);
+
   const handleClick = (e: React.MouseEvent) => {
     if (isMobile) {
       e.preventDefault();
@@ -146,10 +167,20 @@ const MobileTooltip = ({
     );
   }
 
+  const handleDesktopClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsVisible(!isVisible);
+  };
+
   return (
-    <Tooltip>
+    <Tooltip open={isVisible} onOpenChange={setIsVisible}>
       <TooltipTrigger asChild>
-        <button className="p-1 -m-1 touch-manipulation" type="button">
+        <button 
+          className="p-1 -m-1 touch-manipulation" 
+          type="button"
+          onClick={handleDesktopClick}
+        >
           {children}
         </button>
       </TooltipTrigger>

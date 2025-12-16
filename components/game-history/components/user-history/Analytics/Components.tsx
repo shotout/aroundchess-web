@@ -159,7 +159,7 @@ export const OpeningStatistics: React.FC<{
               <h1 className="font-bold">{data.name}</h1>
               <p className="text-[14px] --sm text-gray-600">{data.games} games</p>
             </div>
-            <h1 className="text-green-500">{data.winrate} winrate</h1>
+            <h1 className="text-green-500">{data.winrate} win rate</h1>
           </div>
         ))}
       </div>

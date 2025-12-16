@@ -19,7 +19,7 @@ const OpeningStatistics: React.FC<OpeningStatisticsProps> = ({
             "**Opening Statistics**",
             "Shows your most frequently played chess openings ranked by usage, with win rate percentage and total games for each opening.",
           ]}
-          side="bottom"
+          side="left"
           >
           <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />
         </MobileTooltip>
@@ -32,7 +32,7 @@ const OpeningStatistics: React.FC<OpeningStatisticsProps> = ({
                 <h1 className="font-bold">{data.name}</h1>
                 <p className="text-[14px] --sm text-gray-600">{data.games} games</p>
               </div>
-              <h1 className="text-green-500">{data.winrate} winrate</h1>
+              <h1 className="text-green-500">{data.winrate} win rate</h1>
             </div>
           ))
         ) : (

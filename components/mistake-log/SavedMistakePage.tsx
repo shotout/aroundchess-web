@@ -85,12 +85,13 @@ const SavedMistakePage = () => {
   ) => {
     try {
       setLoadingPrevious(true);
+      
       const params = reset
         ? {}
         : { page: 1, limit: 10, phase: GamePhase, type: MistakeType };
       const prevDataDetail = await getMistakePreviousDetail(id, params);
       const dataDetail = prevDataDetail.data;
-      console.log("getMistakePreviousDetail", dataDetail);
+      
       setMistakePreviousDetail(dataDetail);
       setPgn(dataDetail.pgn);
       setTitleGame(dataDetail.title);
@@ -354,7 +355,7 @@ const SavedMistakePage = () => {
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
 
-      <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 w-[calc(100%+32px)]">
+      <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 lg:w-full w-[calc(100%+32px)]">
         <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF]`}>
           <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
           <span className="font-semibold">Game History</span>
@@ -366,7 +367,7 @@ const SavedMistakePage = () => {
         </Link>
       </div>
 
-      <div className="flex justify-center lg:justify-start items-center">
+      <div className="hidden lg:flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-xl lg:text-[32px] font-semibold">Saved Mistakes</h1>
           <div className="flex justify-center items-end h-full">

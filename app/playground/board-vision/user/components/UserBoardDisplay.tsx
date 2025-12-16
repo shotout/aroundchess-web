@@ -5,6 +5,8 @@ import { UserBoardDisplayProps } from "../../types/default-pgn";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Square } from "chess.js";
 import { PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
+import { ArrowConfig } from "../../types/default-pgn";
 
 const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   currentPosition,
@@ -86,20 +88,14 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
         <div className="bg-white flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex justify-center items-center">
             {/* Add max-width constraint and ensure the board fits within parent */}
-            <div className="max-w-full" style={{ maxWidth: '100%' }}>
+            <div className="max-w-full relative" style={{ maxWidth: '100%' }}>
               <TwoDChessboard
                 boardWidth={boardSize ?? 0}
                 arePiecesDraggable={false}
                 position={currentPosition.fen}
                 orientation={isUserPlayingWhite ? "white" : "black"}
-                areArrowsAllowed={true}
+                areArrowsAllowed={false}
                 customSquareStyles={highlightedSquares}
-                customArrowColor="#221AE980"
-                customArrows={
-                  gameQuestion && gameQuestion.text.includes("legal moves")
-                    ? []
-                    : arrows
-                }
                 onPromotionPieceSelect={function (
                   piece?: PromotionPieceOption,
                   promoteFromSquare?: Square,
@@ -108,6 +104,14 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
                   throw new Error("Function not implemented.");
                 }}
               />
+              {/* Custom Arrows Overlay */}
+              {arrows && arrows.length > 0 && !gameQuestion?.text.includes("legal moves") && (
+                <CustomChessArrows
+                  arrows={arrows as ArrowConfig[]}
+                  boardSize={boardSize ?? 0}
+                  orientation={isUserPlayingWhite ? "white" : "black"}
+                />
+              )}
             </div>
           </div>
         </div>

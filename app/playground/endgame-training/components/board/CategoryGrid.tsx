@@ -19,6 +19,8 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
     );
   }
 
+  console.log(data);
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 xl:gap-2 2xl:gap-5 w-full">
       {data.categories.map((category, index) => (

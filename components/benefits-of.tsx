@@ -64,7 +64,12 @@ export function BenefitsOf() {
   
   const handleAnalyze = () => {
     // router.push("/analysis");
-    router.push("/register");
+    // router.push("/register");
+    if (isSignedIn) {
+      router.push("/my-game-history");
+    } else {
+      router.push("/register");
+    }
   };
   
   return (

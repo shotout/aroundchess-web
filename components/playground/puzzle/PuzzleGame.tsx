@@ -34,6 +34,7 @@ import ReactCountryFlag from "react-country-flag";
 import { RelativeTooltip } from "../tooltip/RelativeTooltip";
 import { useRouter } from "next/navigation";
 import { ButtonBoard } from "../play-vs-ai/ButtonBoard";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
 
 interface PuzzleGameProps {
   color: "white" | "black";
@@ -1164,29 +1165,37 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               }}
             >
               {!is3DMode && (
-                <TwoDChessboard
-                  arePiecesClickable={true}
-                  arePiecesDraggable={true}
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  position={position}
-                  onSquareClick={handleSquareClickCallback}
-                  onSquareRightClick={handleSquareRightClick}
-                  onPromotionPieceSelect={function (
-                    piece?: PromotionPieceOption,
-                    promoteFromSquare?: Square,
-                    promoteToSquare?: Square
-                  ): boolean {
-                    throw new Error("Function not implemented.");
-                  }}
-                  onPieceDrop={handlePieceDrop}
-                  customSquareStyles={customSquareStyles}
-                  customArrowColor={arrow ? "#221AE950" : "transparent"}
-                  customArrows={arrow}
-                  areArrowsAllowed={true}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={false}
-                />
+                <>
+                  <TwoDChessboard
+                    arePiecesClickable={true}
+                    arePiecesDraggable={true}
+                    orientation={orientation}
+                    boardWidth={boardSize}
+                    position={position}
+                    onSquareClick={handleSquareClickCallback}
+                    onSquareRightClick={handleSquareRightClick}
+                    onPromotionPieceSelect={function (
+                      piece?: PromotionPieceOption,
+                      promoteFromSquare?: Square,
+                      promoteToSquare?: Square
+                    ): boolean {
+                      throw new Error("Function not implemented.");
+                    }}
+                    onPieceDrop={handlePieceDrop}
+                    customSquareStyles={customSquareStyles}
+                    areArrowsAllowed={false}
+                    promotionToSquare={moveTo}
+                    showPromotionDialog={false}
+                  />
+                  {/* Custom Arrows Overlay */}
+                  {arrow && arrow.length > 0 && (
+                    <CustomChessArrows
+                      arrows={arrow}
+                      boardSize={boardSize}
+                      orientation={orientation}
+                    />
+                  )}
+                </>
               )}
             </motion.div>
 

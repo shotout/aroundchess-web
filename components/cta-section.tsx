@@ -57,7 +57,7 @@ export function CTASection() {
                       className="w-full rounded-full whitespace-nowrap sm:mt-8 border border-[#C6EEFE] bg-[#e6f7fe] text-[#221AE9]"
                     >
                       <Link
-                        href={sessionId.length > 0 ? `/analysis` : `/register`}
+                        href={sessionId.length > 0 ? `/my-game-history` : `/register`}
                         className="text-[#221AE9]"
                       >
                         Join now for free

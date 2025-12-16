@@ -384,6 +384,7 @@ function MobileNav(props: mobileProps) {
     },
     {
       name: "Play & Practice",
+      href: "/play-practice",
       icon: "/icons/sidebar-playground-practice-icon.png",
       iconActive: "/icons/sidebar-playground-practice-icon-active.png",
       children: [
@@ -415,6 +416,7 @@ function MobileNav(props: mobileProps) {
     },
     {
       name: "Analyze Games",
+      href: "/my-game-history",
       icon: "/icons/sidebar-analyze-icon.png",
       iconActive: "/icons/sidebar-analyze-icon-active.png",
       children: [
@@ -434,6 +436,7 @@ function MobileNav(props: mobileProps) {
     },
     {
       name: "Training",
+      href: "/training",
       icon: "/icons/sidebar-training-plan-icon.png",
       iconActive: "/icons/sidebar-training-plan-icon-active.png",
       children: [

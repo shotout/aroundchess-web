@@ -161,15 +161,34 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
       setHint(fromSquare); // Set the hint to the starting square of the next move
     }
   };
+  // Helper function to detect if a move is a knight move (L-shaped)
+  const isKnightMove = (from: string, to: string): boolean => {
+    const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankFrom = parseInt(from[1]) - 1;
+    const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankTo = parseInt(to[1]) - 1;
+
+    const fileDiff = Math.abs(fileTo - fileFrom);
+    const rankDiff = Math.abs(rankTo - rankFrom);
+
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
+    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+  };
+
   const getHintArrow = () => {
     if (currentPuzzle) {
       const moves = solutionHistory;
       const nextMove = moves[currentSolutionIndex]; // Get the next move in the solution
+      const fromSquare = nextMove.substring(0, 2);
+      const toSquare = nextMove.substring(2, 4);
+      
       setArrow([
-        [
-          nextMove.substring(0, 2) as Square,
-          nextMove.substring(2, 4) as Square,
-        ],
+        {
+          from: fromSquare,
+          to: toSquare,
+          color: "rgba(34, 26, 233, 0.3)", // Purple hint color
+          isKnightMove: isKnightMove(fromSquare, toSquare)
+        },
       ]);
     }
   };

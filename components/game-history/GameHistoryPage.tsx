@@ -63,7 +63,7 @@ const GameHistoryPage: React.FC = () => {
       <main className="w-full  bg-primary-white">
         <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
         <div className="p-4">
-          <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 w-[calc(100%+32px)]">
+          <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 lg:w-full w-[calc(100%+32px)]">
             <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF] lg:bg-[#221AE9] lg:text-white relative text-[#221AE9] before:content-[''] before:w-full before:absolute before:bottom-4px before:left-0 border-b-[4px] border-[#221AE9]`}>
               <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} className="lg:invert lg:brightness-0" />
               <span className="font-semibold">Game History</span>

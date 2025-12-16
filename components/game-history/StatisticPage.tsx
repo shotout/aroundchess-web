@@ -67,20 +67,28 @@ const StatisticPage: React.FC = () => {
         <div className="p-4 bg-[#E6F7FE] lg:bg-white">
           <div className="flex justify-between items-center xl:mb-4">
             <div className="flex flex-row items-center gap-1 md:gap-2">
-              <h1 className="text-[14px] --sm md:text-2xl xl:text-[32px] font-bold">
+              <Link href="/profile" className="flex items-center gap-2">          
+                <svg width="36" height="36" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30.0846 19.0013H7.91797M7.91797 19.0013L19.0013 30.0846M7.91797 19.0013L19.0013 7.91797" stroke="#1E1E1E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+
+              <h1 className="flex items-baseline text-[14px] --sm md:text-2xl xl:text-[32px] font-bold">
                 My Statistics 
 
-                {isUsernameFetching ? (
-                  <LoadingDot />
-                ) : (
-                  <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">
-                    {isTutorialPlay
-                      ? dataTutorial.username
-                      : username
-                      ? `(${username})`
-                      : "(No username set)"}
-                  </sub>
-                )}
+                <span className="ml-[8px]">
+                  {isUsernameFetching ? (
+                    <LoadingDot />
+                  ) : (
+                    <span className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">
+                      {isTutorialPlay
+                        ? dataTutorial.username
+                        : username
+                        ? `(${username})`
+                        : "(No username set)"}
+                    </span>
+                  )}
+                </span>
               </h1>
             </div>
           </div>

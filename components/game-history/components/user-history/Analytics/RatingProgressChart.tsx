@@ -126,8 +126,8 @@ const chartRange = React.useMemo(() => {
           <h1 className="text-base font-medium">Rating Progress</h1>
           <MobileTooltip
             content={[
-            "**Rating =** represents the change in a player's average rating from month to month, which can be used to display a visual graph or performance history.",
-          ]}
+              "**Rating =** represents the change in a player's average rating from month to month, which can be used to display a visual graph or performance history.",
+            ]}
             side="left"
           >
             <Info className="h-4 w-4 text-gray-500 hover:text-gray-700" />

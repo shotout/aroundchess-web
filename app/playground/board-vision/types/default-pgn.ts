@@ -32,7 +32,14 @@ export interface GameQuestion {
   correctAnswer: number;
 }
 
-export type Arrow = [string, string];
+export interface ArrowConfig {
+  from: string;
+  to: string;
+  color: string;
+  isKnightMove: boolean;
+}
+
+export type Arrow = [string, string] | ArrowConfig;
 
 // Component Props Types
 export interface BoardDisplayProps {
