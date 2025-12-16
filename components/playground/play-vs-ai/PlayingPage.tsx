@@ -19,6 +19,7 @@ import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
 import {
   AlertCircle,
   ArrowLeft,
@@ -452,6 +453,38 @@ export default function PlayingPage() {
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
+
+  // Helper function to detect if a move is a knight move (L-shaped)
+  const isKnightMove = useCallback((from: string, to: string): boolean => {
+    const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankFrom = parseInt(from[1]) - 1;
+    const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankTo = parseInt(to[1]) - 1;
+
+    const fileDiff = Math.abs(fileTo - fileFrom);
+    const rankDiff = Math.abs(rankTo - rankFrom);
+
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
+    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+  }, []);
+
+  // Convert hint arrows to ArrowConfig format for CustomChessArrows
+  const customArrowsConfig = useMemo(() => {
+    if (!bestLine || bestLine.length === 0 || !bestLine.split(" ")?.[0] || !hintClicked) {
+      return [];
+    }
+
+    const move = bestLine.split(" ")[0];
+    const from = move.substring(0, 2);
+    const to = move.substring(2, 4);
+
+    return [{
+      from,
+      to,
+      color: "rgba(28, 22, 194, 0.5)", // Purple hint color with opacity
+      isKnightMove: isKnightMove(from, to)
+    }];
+  }, [bestLine, hintClicked, isKnightMove]);
 
   const updateFenHistory = useCallback((newFen: string) => {
     setFenHistory((prev) => {
@@ -2239,47 +2272,46 @@ export default function PlayingPage() {
                 width: boardSize,
                 display: !is3DMode ? "flex" : "none",
                 backfaceVisibility: "hidden",
+                position: "relative",
               }}
             >
               {!is3DMode && (
-                  <TwoDChessboard
-                    game={game}
-                    gameStatus={statusGame.toLowerCase()}
-                    setOptionSquares={setOptionSquares}
-                    arePiecesDraggable={isAtCurrentMove}
-                  onPieceDrop={onPieceDrop}
-                  arePiecesClickable={
-                    statusGame === "Ongoing" && isAtCurrentMove
-                  }
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  position={gamePosition}
-                  onSquareClick={
-                    game.turn() === isYourTurn ? onSquareClick : () => null
-                  }
-                  onSquareRightClick={onSquareRightClick}
-                  onPromotionPieceSelect={onPromotionPieceSelect}
-                  customSquareStyles={{
-                    ...moveSquares,
-                    ...optionSquares,
-                    ...rightClickedSquares,
-                    ...prevCurrentColor,
-                  }}
-                  areArrowsAllowed={true}
-                  customArrows={
-                    bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
-                      ? [
-                          [
-                            bestLine?.split(" ")?.[0].substring(0, 2) as Square,
-                            bestLine?.split(" ")?.[0].substring(2, 4) as Square,
-                          ],
-                        ]
-                      : null
-                  }
-                  customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={showPromotionDialog}
-                />
+                  <>
+                    <TwoDChessboard
+                      game={game}
+                      gameStatus={statusGame.toLowerCase()}
+                      setOptionSquares={setOptionSquares}
+                      arePiecesDraggable={isAtCurrentMove}
+                    onPieceDrop={onPieceDrop}
+                    arePiecesClickable={
+                      statusGame === "Ongoing" && isAtCurrentMove
+                    }
+                    orientation={orientation}
+                    boardWidth={boardSize}
+                    position={gamePosition}
+                    onSquareClick={
+                      game.turn() === isYourTurn ? onSquareClick : () => null
+                    }
+                    onSquareRightClick={onSquareRightClick}
+                    onPromotionPieceSelect={onPromotionPieceSelect}
+                    customSquareStyles={{
+                      ...moveSquares,
+                      ...optionSquares,
+                      ...rightClickedSquares,
+                      ...prevCurrentColor,
+                    }}
+                    areArrowsAllowed={false}
+                    promotionToSquare={moveTo}
+                    showPromotionDialog={showPromotionDialog}
+                  />
+                  {customArrowsConfig.length > 0 && (
+                    <CustomChessArrows
+                      arrows={customArrowsConfig}
+                      boardSize={boardSize}
+                      orientation={orientation}
+                    />
+                  )}
+                </>
               )}
             </motion.div>
 

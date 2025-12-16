@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Square } from "chess.js";
 import { motion } from "framer-motion";
 import { MoveRightIcon } from "lucide-react";
 import { ChessboardWrapperProps } from "../types/ChessboardWrapperType";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
 
 interface ChessboardWrapperPropsWithSound extends ChessboardWrapperProps {
   onMovePlay?: (move: any) => void;
@@ -44,6 +45,37 @@ export default function ChessboardWrapper({
   >({});
   const [hintClicked, setHintClicked] = useState<boolean>(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+  // Helper function to detect if a move is a knight move (L-shaped)
+  const isKnightMove = useCallback((from: string, to: string): boolean => {
+    const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankFrom = parseInt(from[1]) - 1;
+    const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankTo = parseInt(to[1]) - 1;
+
+    const fileDiff = Math.abs(fileTo - fileFrom);
+    const rankDiff = Math.abs(rankTo - rankFrom);
+
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
+    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+  }, []);
+
+  // Convert hint arrows to ArrowConfig format for CustomChessArrows
+  const customArrowsConfig = useMemo(() => {
+    if (!bestMove || !showHint || !hintClicked) {
+      return [];
+    }
+
+    const from = bestMove.substring(0, 2);
+    const to = bestMove.substring(2, 4);
+
+    return [{
+      from,
+      to,
+      color: "rgba(28, 22, 194, 0.7)", // Purple hint color with opacity
+      isKnightMove: isKnightMove(from, to)
+    }];
+  }, [bestMove, showHint, hintClicked, isKnightMove]);
 
 
   useEffect(() => {
@@ -430,34 +462,42 @@ export default function ChessboardWrapper({
           maxWidth: '100%',
           display: !is3DMode ? "flex" : "none",
           backfaceVisibility: "hidden",
+          position: "relative",
         }}
       >
         {!is3DMode && (
-          <TwoDChessboard
-            arePiecesClickable={true}
-            boardWidth={boardSize ?? 0}
-            arePiecesDraggable={true}
-            orientation={boardOrientation}
-            position={position ?? undefined}
-            onSquareClick={onSquareClick}
-            onSquareRightClick={onSquareRightClick}
-            onPromotionPieceSelect={onPromotionPieceSelect}
-            onPieceDrop={onPieceDrop}
-            customSquareStyles={{
-              ...moveSquares,
-              ...optionSquares,
-              ...rightClickedSquares,
-            }}
-            areArrowsAllowed={true}
-            customArrows={getCustomArrows()}
-            customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
-            promotionToSquare={moveTo}
-            showPromotionDialog={showPromotionDialog}
-            game={game}
-            playerColor={playerColor}
-            gameStatus={gameStatus}
-            setOptionSquares={setOptionSquares}
-          />
+          <>
+            <TwoDChessboard
+              arePiecesClickable={true}
+              boardWidth={boardSize ?? 0}
+              arePiecesDraggable={true}
+              orientation={boardOrientation}
+              position={position ?? undefined}
+              onSquareClick={onSquareClick}
+              onSquareRightClick={onSquareRightClick}
+              onPromotionPieceSelect={onPromotionPieceSelect}
+              onPieceDrop={onPieceDrop}
+              customSquareStyles={{
+                ...moveSquares,
+                ...optionSquares,
+                ...rightClickedSquares,
+              }}
+              areArrowsAllowed={false}
+              promotionToSquare={moveTo}
+              showPromotionDialog={showPromotionDialog}
+              game={game}
+              playerColor={playerColor}
+              gameStatus={gameStatus}
+              setOptionSquares={setOptionSquares}
+            />
+            {customArrowsConfig.length > 0 && (
+              <CustomChessArrows
+                arrows={customArrowsConfig}
+                boardSize={boardSize ?? 0}
+                orientation={boardOrientation}
+              />
+            )}
+          </>
         )}
       </motion.div>
 
