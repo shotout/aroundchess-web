@@ -218,7 +218,7 @@ export default function MovementTable() {
                                 move?.classification?.toLowerCase() || ""
                               )}`}
                             >
-                              {move?.evaluation || ""}
+                              {move?.evaluation > 0 ? '+' : ''}{move?.evaluation || 0}
                             </span>
                           </div>
                           <div className="flex flex-row items-center gap-2">

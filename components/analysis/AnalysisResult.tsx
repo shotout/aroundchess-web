@@ -866,7 +866,7 @@ const AnalysisResult: React.FC = () => {
                           chessMove?.classification?.toLowerCase() || ""
                         )}`}
                       >
-                        {chessMove.evaluation}
+                        {chessMove.evaluation > 0 ? '+' : ''}{chessMove.evaluation}
                       </span>
                     )}
                   </div>

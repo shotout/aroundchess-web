@@ -527,7 +527,7 @@ const chartRange = React.useMemo(() => {
                     {apiData?.accuracy?.percentage || 0}%
                   </h1>
                   <div className="text-[14px] --sm lg:text-base font-medium">
-                    +{apiData?.accuracy?.improvement || 0}% improvement
+                    {(apiData?.accuracy?.improvement || 0) > 0 ? '+' : ''}{apiData?.accuracy?.improvement || 0}% improvement
                   </div>
                   <Image
                     alt=""

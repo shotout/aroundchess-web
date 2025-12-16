@@ -105,7 +105,7 @@ const Training: React.FC<TrainingProps> = (props) => {
                 item.classification
               )}`}
             >
-              {item.evaluation}
+              {item.evaluation > 0 ? '+' : ''}{item.evaluation}
             </span>
             <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md font-semibold ">
               {phase}

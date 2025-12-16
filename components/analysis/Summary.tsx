@@ -698,6 +698,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                             e.stopPropagation();
                             if (!isSignedIn) {
                               setOpenConfirmLogin(true);
+                              return;
                             }
 
                             const mistakeId = item?.id || item?.mistakeLogId || item?._id;
@@ -810,6 +811,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                                 
                                 if (!isSignedIn) {
                                   setOpenConfirmLogin(true);
+                                  return;
                                 }
 
                                 const mistakeId = middle?.id || middle?.mistakeLogId || middle?._id;

@@ -181,7 +181,7 @@ export default function ImportGamesPage() {
                           </Badge>
                           <div className="flex items-center gap-2">
                             <span className="text-base font-medium">{move.move}</span>
-                            <Badge variant="outline" className="text-green-600">+{move.evaluation.toFixed(1)}</Badge>
+                            <Badge variant="outline" className="text-green-600">{move.evaluation > 0 ? '+' : ''}{move.evaluation.toFixed(1)}</Badge>
                           </div>
                         </div>
                         <p className="text-[14px] --sm text-muted-foreground mt-2">{move.explanation}</p>
@@ -215,7 +215,7 @@ export default function ImportGamesPage() {
                         </Badge>
                         <div className="flex items-center gap-2">
                           <span className="text-base font-medium">{move.move}</span>
-                          <Badge variant="outline" className="text-red-600">{move.evaluation.toFixed(1)}</Badge>
+                          <Badge variant="outline" className="text-red-600">{move.evaluation > 0 ? '+' : ''}{move.evaluation.toFixed(1)}</Badge>
                         </div>
                       </div>
                       <p className="text-[14px] --sm text-muted-foreground mt-2">{move.explanation}</p>
