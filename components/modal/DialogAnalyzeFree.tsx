@@ -22,8 +22,7 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
 }) => {
   const [width, setWidth] = useState<number>(0);
 
-  // const dialogOpen = open;
-  const dialogOpen = true;
+  const dialogOpen = open;
   const setDialogOpen = (v: boolean) => {
     setOpen!(v);
   };

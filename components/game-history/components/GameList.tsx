@@ -640,22 +640,22 @@ const GamesList: React.FC<GamesListProps> = ({
     return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
   }
 
-  if (error && !isTutorialPlay) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
-        <AlertCircle className="h-5 w-5 mr-2" />
-        <span>{error.message}</span>
-        <a
-          href="/login"
-          className="ml-4 bg-red-600 text-white px-3 py-1 rounded"
-        >
-          Login Again
-        </a>
-      </div>
-    );
-  }
+  // if (error && !isTutorialPlay) {
+  //   return (
+  //     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
+  //       <AlertCircle className="h-5 w-5 mr-2" />
+  //       <span>{error.message}</span>
+  //       <a
+  //         href="/login"
+  //         className="ml-4 bg-red-600 text-white px-3 py-1 rounded"
+  //       >
+  //         Login Again
+  //       </a>
+  //     </div>
+  //   );
+  // }
 
-  if (games.length === 0 && !isTutorialPlay) {
+  if (error || games.length === 0 && !isTutorialPlay) {
     return (
       <div className="w-[calc(100%+32px)] bg-[#FAFDFF] lg:bg-white lg:w-full flex flex-col items-center justify-center gap-[16px] p-[16px] lg:p-[32px] border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px] mx-[-16px] lg:mx-0">
         <Image src={"/icons/game-history-empty.svg"} alt="empty" width={132} height={120} />
