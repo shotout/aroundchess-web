@@ -315,7 +315,7 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
           />
         </div>
         <div className="absolute inset-0 flex items-center justify-center m-4">
-          <div className="w-full p-8 xl:max-w-[643px] z-10 sm:mx-7 rounded-md p-4 flex flex-col gap-2 items-center justify-center ">
+          <div className="w-full xl:max-w-[643px] z-10 sm:mx-7 rounded-md md:p-4 flex flex-col gap-2 items-center justify-center ">
             <Image
               src={"/images/puzzle/asset-puzzle.png"}
               alt="asset"
@@ -357,11 +357,11 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
                         value={item.name}
                       >
                         {item.name != selectedTheme ? (
-                          <div className="flex w-full flex-col items-center justify-center gap-[4px] py-[8px]">
+                          <div className="flex w-[70vw] md:w-full flex-col items-center justify-center gap-[4px] md:py-[8px]">
                             <span className="font-normal text-[16px] --">
                               {item.name}
                             </span>
-                            <span className="font-normal text-[14px] text-[#221AE9]">
+                            <span className="w-full text-center font-normal text-[14px] text-[#221AE9]">
                               {item.description}
                             </span>
                           </div>

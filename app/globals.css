@@ -424,3 +424,7 @@ p {
   background-color: #221ae9 !important;
   border-radius: 10px !important;
 }
+
+div[data-radix-popper-content-wrapper=""] {
+  background-color: #1b14cc !important;
+}

@@ -64,6 +64,7 @@ import { gameHistoryApi } from "@/components/game-history/services/api";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useGames } from "@/components/game-history/hooks/useGameData";
 import { useTutorial } from "@/components/TutorialProvider";
+import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -375,6 +376,9 @@ export default function PlayingPage() {
   const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+  
+  // New Game dialog state
+  const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("📊 Modal States:", {
@@ -1442,11 +1446,58 @@ export default function PlayingPage() {
   };
 
   const handleNewGame = () => {
+    // Clear localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-    setHasAnalysis(false); // Reset analysis state before leaving
-    router.back();
+    
+    // Reset game state (same as handleRematch)
+    const timestamp = Date.now();
+    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+    setCurrentGameId(gameId);
+
+    setStatusGame("Ongoing");
+    game.reset();
+    const initialFen = game.fen();
+    setGamePosition(initialFen);
+    setFenHistory([initialFen]);
+    setCurrentMoveIndex(0);
+    setHeaderGameStart();
+    setLoserColor("");
+    setWinnerColor("");
+    setPreviousSquare(undefined);
+    setCurrentSquare(undefined);
+    setIsSaved(false);
+    setHasAnalysis(false);
+    
+    // Reset additional states
+    setCapturedWhite([]);
+    setCapturedBlack([]);
+    setBestline("");
+    setMoveClassification("");
+    setPositionEvaluation(0);
+    setPossibleMate("");
+    setHintClicked(false);
+    setMoveFrom("");
+    setMoveTo(null);
+    setRightClickedSquares({});
+    setOptionSquares({});
+    
+    // Open dialog for new game selection
+    setShowPlayVSAIModal(true);
+  };
+
+  const handleClosePlayVSAI = () => {
+    setShowPlayVSAIModal(false);
+  };
+
+  const handlePlayVSAILimit = (isLimit: boolean) => {
+    if (isLimit) {
+      toast.error(
+        "You have reached your play limit. Please upgrade to premium."
+      );
+      setOpenPricing(true);
+    }
   };
 
   const handleSaveLog = async () => {
@@ -2108,6 +2159,13 @@ export default function PlayingPage() {
         open={gameAnalysisOpen}
         onOpenChange={setGameAnalysisOpen}
         v3Result={v3AnalysisResult}
+      />
+      
+      {/* New Game Dialog */}
+      <StartPlayVSAI
+        visible={showPlayVSAIModal}
+        onClose={handleClosePlayVSAI}
+        onLimit={handlePlayVSAILimit}
       />
 
       <div className="flex flex-col w-full gap-y-2 ">
