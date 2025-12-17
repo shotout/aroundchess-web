@@ -135,9 +135,24 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
   // Undo the last move
   const handleTakeBackMove = () => {
     if (isSolved || currentSolutionIndex === 0) return;
-    setFenHistory((prev) => prev.slice(0, -1));
-    setCurrentSolutionIndex((prev) => prev - 1);
-    game.undo();
+    
+    // Determine how many moves to undo
+    // If current move index is even (bot just moved), undo 2 moves (bot + player's previous move)
+    // If current move index is odd (player just moved), undo 1 move (just player's move)
+    const isBotTurn = currentSolutionIndex % 2 === 0;
+    const movesToUndo = 1; // isBotTurn ? 2 : 1;
+    
+    // Ensure we don't undo more moves than available
+    const actualMovesToUndo = Math.min(movesToUndo, currentSolutionIndex);
+    
+    // Undo the moves from the game
+    for (let i = 0; i < actualMovesToUndo; i++) {
+      game.undo();
+    }
+    
+    // Update state
+    setFenHistory((prev) => prev.slice(0, -actualMovesToUndo));
+    setCurrentSolutionIndex((prev) => prev - actualMovesToUndo);
   };
 
   // Toggle the board orientation
