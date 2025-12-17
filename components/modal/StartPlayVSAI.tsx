@@ -40,7 +40,7 @@ export function StartPlayVSAI({
     <div
       className="fixed inset-0 z-40 flex items-center justify-center p-1 sm:p-4"
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 4,
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
         paddingTop: headerHeight + 16,
         paddingBottom: 16,
         paddingRight: 16,
@@ -51,9 +51,14 @@ export function StartPlayVSAI({
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto z-10 h-full flex flex-col">
-        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="relative z-10 p-2 sm:p-4 overflow-y-auto flex-1 min-h-0">
+      <div className="relative w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto z-10 h-full flex items-center justify-center">
+        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl flex flex-col overflow-hidden">
+          <div className="relative z-10 p-[16px] sm:p-4 overflow-y-auto min-h-fit">
+            <button className="absolute right-[16px] top-[10px] sm:top-[24px] sm:right-[24px] border md:border-0 px-3 py-1 rounded-[4px]" onClick={onClose}>
+              <X className="w-[16px] md:w-[24px] h-[16px] md:h-[24px] text-[#666] hover:text-[#333]" />
+            </button>
+
+
             <StartPlayVSAIContent onClose={onClose} />
           </div>
         </div>
@@ -160,7 +165,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-gray-900">
           Choose Your Color
         </h1>
-        <p className="text-[14px] --xs sm:text-[14px] --sm lg:text-base text-gray-600">
+        <p className="mb-[16px] text-[14px] --xs sm:text-[14px] --sm lg:text-base text-gray-600">
           Select which color you want to play as. The computer will play as the
           opposite color.
         </p>
@@ -171,12 +176,12 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         {[
           {
             color: "white",
-            icon: "/images/play-vs-ai/white-king.png",
+            icon: "/images/play-vs-ai/white-king.svg",
             label: "White",
           },
           {
             color: "black",
-            icon: "/images/play-vs-ai/black-king.png",
+            icon: "/images/play-vs-ai/black-king.svg",
             label: "Black",
           },
         ].map(({ color, icon, label }) => (
@@ -310,11 +315,11 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       {/* Opponents Grid */}
       <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
         <div
-          className="grid gap-2 sm:gap-3 lg:gap-3 max-h-48 sm:max-h-80 lg:max-h-80 overflow-y-auto justify-center"
+          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] sm:max-h-80 lg:max-h-80 overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
-              ? "repeat(auto-fit, 120px)" 
-              : "repeat(auto-fit, 64px)" 
+              ? "repeat(auto-fit, 95px)" 
+              : "repeat(auto-fit, 72px)" 
           }}
         >
           {opponents.map((opponent) => {
@@ -325,7 +330,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
               <button
                 key={opponent.id}
                 onClick={() => setSelectedOpponent(opponent.id)}
-                className={`p-1 rounded-md lg:rounded-lg border transition-all w-12 sm:w-16 md:w-16 lg:w-24 lg:h-auto ${
+                className={`p-1 rounded-md lg:rounded-lg border transition-all w-full sm:w-16 md:w-16 lg:w-24 lg:h-auto ${
                   selectedOpponent === opponent.id
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-transparent hover:border-gray-200 text-gray-700"

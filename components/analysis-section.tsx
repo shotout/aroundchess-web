@@ -216,7 +216,7 @@ export function AnalysisSection() {
                                     "<b>$1</b>"
                                   ),
                                 }}
-                                className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
+                                className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
                               />
                             </div>
 
@@ -224,7 +224,7 @@ export function AnalysisSection() {
                               <span className="text-[#FA402D] text-[14px] --sm sm:text-md font-bold">
                                 Problem
                               </span>
-                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
                                 {analysis[current].problem}
                               </span>
                             </div>
@@ -233,7 +233,7 @@ export function AnalysisSection() {
                               <span className="text-[#27C2A3] text-[14px] --sm sm:text-md font-bold">
                                 Solution
                               </span>
-                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
                                 {analysis[current].solution}
                               </span>
                             </div>

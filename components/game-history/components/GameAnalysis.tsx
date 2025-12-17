@@ -21,6 +21,11 @@ import { CustomChessArrows } from "./CustomChessArrows";
 import { useProfileStore } from "@/app/store/profile";
 import type { Swiper as SwiperType } from 'swiper';
 import Link from "next/link";
+import { Bookmark } from "lucide-react";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
+import { useApiClient } from "@/functions/api-client";
+import { toast } from "sonner";
+import DotSpinner from "../Spinner";
 
 interface ArrowConfig {
     from: string;
@@ -42,6 +47,10 @@ export default function GameAnalysis({
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
+    const [loadingBookmark, setLoadingBookmark] = useState<boolean>(false);
+    const [localMistakes, setLocalMistakes] = useState<any[]>([]);
+    const { saveMistakeLog, unsaveMistakeLog } = useApiClient();
+    const { sessionId } = useProfileStore();
 
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
@@ -62,6 +71,97 @@ export default function GameAnalysis({
             window.removeEventListener("resize", handleResize);
         };
     }, []);
+
+    // Initialize local mistakes from v3Result
+    useEffect(() => {
+        if (v3Result?.summary?.criticalMistakes) {
+            setLocalMistakes(v3Result.summary.criticalMistakes);
+        }
+    }, [v3Result]);
+
+    // Handle save bookmark
+    const handleSaveLog = async (index: number) => {
+        if (loadingBookmark) return;
+        
+        const mistake = localMistakes[index];
+        const mistakeId = mistake?.mistakeLogId || mistake?.id || mistake?._id;
+
+        if (!mistakeId) {
+            toast.error("Cannot save: Mistake log ID not found");
+            console.error("Missing mistakeLogId for mistake:", mistake);
+            return;
+        }
+
+        if (!sessionId) {
+            toast.error("Please login to save bookmarks");
+            return;
+        }
+
+        setLoadingBookmark(true);
+        try {
+            const res = await saveMistakeLog({ mistakeLogId: mistakeId });
+            
+            // Update local state
+            setLocalMistakes(prev => {
+                const newList = [...prev];
+                newList[index] = {
+                    ...newList[index],
+                    saved: true,
+                    savedDate: res?.data?.savedDate || new Date().toString(),
+                };
+                return newList;
+            });
+            
+            toast.success("Bookmark saved!");
+        } catch (error: any) {
+            console.error("Error saving bookmark:", error);
+            toast.error(error?.message || "Failed to save bookmark");
+        } finally {
+            setLoadingBookmark(false);
+        }
+    };
+
+    // Handle unsave bookmark
+    const handleUnsaveLog = async (index: number) => {
+        if (loadingBookmark) return;
+        
+        const mistake = localMistakes[index];
+        const mistakeId = mistake?.mistakeLogId || mistake?.id || mistake?._id;
+
+        if (!mistakeId) {
+            toast.error("Cannot unsave: Mistake log ID not found");
+            console.error("Missing mistakeLogId for mistake:", mistake);
+            return;
+        }
+
+        if (!sessionId) {
+            toast.error("Please login to manage bookmarks");
+            return;
+        }
+
+        setLoadingBookmark(true);
+        try {
+            const res = await unsaveMistakeLog({ mistakeLogId: mistakeId });
+            
+            // Update local state
+            setLocalMistakes(prev => {
+                const newList = [...prev];
+                newList[index] = {
+                    ...newList[index],
+                    saved: false,
+                    savedDate: null,
+                };
+                return newList;
+            });
+            
+            toast.success("Bookmark removed!");
+        } catch (error: any) {
+            console.error("Error removing bookmark:", error);
+            toast.error(error?.message || "Failed to remove bookmark");
+        } finally {
+            setLoadingBookmark(false);
+        }
+    };
 
     if (!open) return null;
 
@@ -89,7 +189,7 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {v3Result.summary.criticalMistakes.length > 0 ? (
+                {v3Result.summary.criticalMistakes.length > 0 && v3Result.summary.criticalMistakes[0].fen ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}
@@ -115,9 +215,9 @@ export default function GameAnalysis({
                             }}
                             className="w-full"
                         >
-                            {v3Result.summary.criticalMistakes.map((mistake: any, index: number) => (
+                            {localMistakes.map((mistake: any, index: number) => (
                                 <SwiperSlide key={index}>
-                                    <GameAnalysisSlide mistake={mistake} />
+                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} />
                                 </SwiperSlide>
                             ))}
                             <SwiperSlide>
@@ -155,7 +255,7 @@ export default function GameAnalysis({
                                                 className={`swiper-pagination-bullet mx-[3px] ${activeIndex === index ? 'swiper-pagination-bullet-active' : ''}`}
                                             ></div>
                                         ))}
-                                    </div>`
+                                    </div>
                                 </div>
                             </div>
                             <button onClick={() => swiperRef.current?.slideNext()} className="custom-swiper-button-next w-[32px]! h-[32px]! flex relative justify-center items-center p-[8px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
@@ -179,7 +279,19 @@ export default function GameAnalysis({
     );
 }
 
-const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
+const GameAnalysisSlide = ({
+    mistake,
+    index,
+    onSaveBookmark,
+    onUnsaveBookmark,
+    loadingBookmark
+} : {
+    mistake: any;
+    index: number;
+    onSaveBookmark: (index: number) => void;
+    onUnsaveBookmark: (index: number) => void;
+    loadingBookmark: boolean;
+}) => {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(240);
     const [orientation, setOrientation] = useState<BoardOrientation>("white");
@@ -329,7 +441,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                     
                     <SettingBoard />
                 
-                    {/* <button onClick={toggleBoardMode}>
+                    <button onClick={toggleBoardMode}>
                         <Image
                             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
                             alt="icon"
@@ -337,7 +449,7 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             height={27}
                             className="w-[22px] h-[27px] object-contain"
                         />
-                    </button> */}
+                    </button>
                 </div>
 
                 <motion.div
@@ -468,14 +580,35 @@ const GameAnalysisSlide = ({mistake} : {mistake: any}) => {
                             { mistake.keyEvaluation }
                         </span>
 
-                        <button type="button" className="relative w-[32px] h-[32px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
-                            <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                            </svg>
+                        <button 
+                            type="button" 
+                            onClick={() => {
+                                if (mistake?.saved) {
+                                    onUnsaveBookmark(index);
+                                } else {
+                                    onSaveBookmark(index);
+                                }
+                            }}
+                            disabled={loadingBookmark}
+                            className="relative w-[32px] h-[32px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loadingBookmark ? (
+                                <DotSpinner size={5} />
+                            ) : mistake?.saved ? (
+                                <BookmarkFilledIcon
+                                    className="w-[14px] h-[14px]"
+                                    color="#221AE9"
+                                />
+                            ) : (
+                                <Bookmark
+                                    className="w-[14px] h-[14px]"
+                                    color="#221AE9"
+                                />
+                            )}
                         </button>
                     </div>
                 </div>
-                <div className="p-[10px] pt-[8px] overflow-y-scroll max-h-[168px]">
+                <div className="p-[10px] pt-[8px] overflow-y-scroll max-h-[166px]">
                     <h3 className="flex items-center gap-[8px] mb-[4px]">
                         <Image src="/images/analysis/icon_analysis.svg" alt="analysis" width={28} height={28} className="w-[28px] h-[28px] object-contain" />
                         <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
@@ -583,7 +716,7 @@ const AnalysisHelpfulSlide = (
 const AnalysisEmptyState = ({ handleClose }: { handleClose: () => void }) => {
     return (
         <>
-            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
                 <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="mb-[16px]" />
                 <div className="relative mb-[24px]">
                     <h3 className="text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>

@@ -4,7 +4,7 @@ import Performance from "./user-history/Performance";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 const UserHistory: React.FC = () => {
-  const Tabs = ["Games", "Analytics", "Performance"] as const;
+  const Tabs = ["Analytics", "Performance"] as const;
   const { tab, setTab } = usePgnStore();
 
   return (

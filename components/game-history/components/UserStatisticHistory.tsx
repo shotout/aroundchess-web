@@ -15,8 +15,11 @@ const UserStatisticHistory: React.FC = () => {
             <button
               key={index}
               onClick={() => setTab(t)}
-              className={`flex bg-transparent text-center py-[8px] px-[16px] rounded-[6px] text-[14px] font-semibold disabled:text-black disabled:border disabled:border-[#DEDEDE] disabled:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.1)]`}
-              disabled={tab === t}
+              className={`flex text-center py-[8px] px-[16px] rounded-[6px] text-[14px] font-semibold transition-all ${
+                tab === t
+                  ? 'bg-white text-black border border-[#DEDEDE] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.1)]'
+                  : 'bg-transparent text-gray-600 hover:text-black'
+              }`}
             >{t}</button>
           ))}
         </div>
@@ -27,8 +30,11 @@ const UserStatisticHistory: React.FC = () => {
           <button
             key={index}
             onClick={() => setTab(t)}
-            className={`flex-1 bg-transparent text-center py-[8px] px-[16px] text-[14px] font-semibold disabled:text-[#221AE9] disabled:border-b-[2px] disabled:border-[#221AE9]`}
-            disabled={tab === t}
+            className={`flex-1 text-center py-[8px] px-[16px] text-[14px] font-semibold transition-all ${
+              tab === t
+                ? 'text-[#221AE9] border-b-[2px] border-[#221AE9]'
+                : 'bg-transparent text-gray-600'
+            }`}
           >{t}</button>
         ))}
       </div>

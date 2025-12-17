@@ -38,7 +38,7 @@ const fetchLastAnalysisV2 = async (
 ): Promise<LastAnalysisResponse | null> => {
   try {
     const response = await fetch(
-      `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+      `${endpoint}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
       {
         method: "GET",
         headers: {
@@ -64,7 +64,7 @@ const fetchLastAnalysisV3 = async (
 ): Promise<LastAnalysisResponse | null> => {
   try {
     const response = await fetch(
-      `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+      `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
       {
         method: "GET",
         headers: {

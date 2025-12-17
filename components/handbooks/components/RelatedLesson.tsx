@@ -56,10 +56,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
 
                 return (
                   <div key={index} className="cursor-pointer w-full xl:mx-auto">
-                    <Card className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
+                    <Card onClick={() => handleLessonNavigation(topicSlug)} className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
                       <div className="relative p-3 flex flex-col">
                         {/* Chessboard */}
-                        <div className="aspect-square bg-white flex items-center justify-center overflow-hidden mb-2">
+                        <div className="relative aspect-square bg-white flex items-center justify-center overflow-hidden mb-2 before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:cursor-pointer before:z-10">
                           <div className="w-full h-full">
                             <Simple2DChess
                               id={`next-topic-${topicSlug}`}

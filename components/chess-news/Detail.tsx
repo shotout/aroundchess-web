@@ -13,6 +13,7 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { ScrollArea } from "../ui/scroll-area";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import moment from "moment";
 
 const CACHE_DURATION_MS = 60 * 60 * 1000;
 
@@ -108,8 +109,8 @@ export default function Detail() {
               onClick={() => router.back()}
             >
               <ArrowLeft size={24} />
-              <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md">
-                {formatDateNews(localDetail?.publishedAt)}
+              <span className="text-[14px] --sm sm:text-[15px] --sm md:text-[16px] lg:text-[16px]">
+                {moment(localDetail?.publishedAt).format("MMM DD, YYYY")}
               </span>
             </div>
             <div className="flex flex-row items-center justify-between gap-2">
@@ -201,17 +202,17 @@ export default function Detail() {
                     )}
                     <CardContent className="px-2">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px]">
-                          {formatDateNews(article.publishedAt)}
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px">
+                          {moment(article.publishedAt).format("MMM DD, YYYY")}
                         </p>
-                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9]">
+                        <p className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] rounded-[4px] px-1 py-[1px] text-[#221AE9]">
                           {article?.category?.name || "Uncategorized"}
                         </p>
                       </div>
-                      <h2 className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold mt-2">
+                      <h2 className="line-clamp-2 text-[15px] mt-2">
                         {article.title || "Untitled"}
                       </h2>
-                      <h2 className="line-clamp-3 text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px] font-normal mt-2">
+                      <h2 className="line-clamp-3 text-[15px]">
                         {article.title || "Untitled"}
                       </h2>
                     </CardContent>
@@ -221,7 +222,7 @@ export default function Detail() {
           </div>
         </div>
         <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3 xl:sticky xl:top-4 xl:h-fit">
-          <span className="text-md font-semibold mt-4">Most Read Articles</span>
+          <span className="text-md font-semibold text-[18px] mt-4">Most Read Articles</span>
           <div className="flex flex-col mt-2 gap-2">
             {localMostReads.length === 0 && (
               <div className="flex justify-center items-center">
@@ -233,7 +234,7 @@ export default function Detail() {
                 <div
                   onClick={() => router.push("/chess-blog/" + article.slug)}
                   key={article.id}
-                  className="cursor-pointer bg-white mt-2 flex shadow-md rounded-sm border border-input gap-2 p-3"
+                  className="cursor-pointer items-center bg-white mt-2 flex shadow-md rounded-sm border border-input gap-2 p-3"
                 >
                   {article.imageUrl && article.imageUrl.trim() !== "" ? (
                     <ImageWithFallback
@@ -252,17 +253,17 @@ export default function Detail() {
                       <span className="text-gray-500 text-[14px] --xs">No Image</span>
                     </div>
                   )}
-                  <div className="flex flex-col flex-1 gap-2">
+                  <div className="flex flex-col flex-1 gap-2 mt-[4px]">
                     <div className="flex flex-row justify-between items-center">
-                      <p className="block text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[11px]">
-                        {formatDateNews(article.publishedAt)}
+                      <p className="block text-[14px]">
+                        {moment(article.publishedAt).format("MMM DD, YYYY")}
                       </p>
-                      <span className="text-[8px] sm:text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-primary">
+                      <span className="text-[14px] border border-[#221AE9] rounded-[4px] px-1 py-[1px] text-primary">
                         {article?.category?.name || "Uncategorized"}
                       </span>
                     </div>
-                    <div className="flex flex-row items-center justify-between max-h-[40px] ">
-                      <span className="line-clamp-2 text-[9px] sm:text-[14px] -- md:text-[14px] -- lg:text-[14px] -- font-semibold">
+                    <div className="flex flex-row items-center justify-between">
+                      <span className="line-clamp-3 text-[15px]">
                         {article.title || "Untitled"}
                       </span>
                     </div>

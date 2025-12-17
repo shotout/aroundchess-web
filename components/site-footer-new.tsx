@@ -82,7 +82,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2"
                 >
                   <FaDiscord className="w-[26px] h-[20px]" color={"#000"} />
-                  <span className="text-[11px] lg:text-[16px]">
+                  <span className="text-[14px] lg:text-[16px]">
                     Contact us on Discord
                   </span>
                 </button>
@@ -95,7 +95,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                     color={"#fff"}
                     fill="#fff"
                   />
-                  <span className="text-[11px] lg:text-[16px]">
+                  <span className="text-[14px] lg:text-[16px]">
                     Send us a message
                   </span>
                 </button>

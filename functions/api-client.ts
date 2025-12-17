@@ -664,7 +664,7 @@ export function useApiClient() {
     (pgnHash: string) => {
       return apiRequest({
         method: "GET",
-        path: `${process.env.BASE_URL}/v2/analyze/last-analysis/${pgnHash}`,
+        path: `${process.env.BASE_URL}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
       });
     },
     [apiRequest]
