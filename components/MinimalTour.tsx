@@ -802,7 +802,7 @@ export default function MinimalTour({
               className="cursor-pointer bg-[#221AE9] min-w-[48%] py-[8px] px-[16px] rounded-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="text-white font-semibold text-[14px] --10px sm:text-[14px] --">
-                {isSubmitting ? "Saving..." : "Start Game Analysis"}
+                {isSubmitting ? "Saving..." : "Play Now"}
               </span>
             </button>
           </div>
@@ -850,7 +850,7 @@ export default function MinimalTour({
               >
                 <span className="text-white font-semibold text-[14px] --">
                   {index + 1 >= steps.length
-                    ? (isSubmitting ? "Saving..." : "Start Game Analysis")
+                    ? (isSubmitting ? "Saving..." : "Play Now")
                     : "Next"}
                 </span>
               </button>

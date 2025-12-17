@@ -64,6 +64,7 @@ import { gameHistoryApi } from "@/components/game-history/services/api";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useGames } from "@/components/game-history/hooks/useGameData";
 import { useTutorial } from "@/components/TutorialProvider";
+import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -375,6 +376,9 @@ export default function PlayingPage() {
   const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+  
+  // New Game dialog state
+  const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("📊 Modal States:", {
@@ -819,13 +823,13 @@ export default function PlayingPage() {
         background:
           game.get(move.to) &&
           game.get(move.to)?.color !== game.get(square)?.color
-            ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
-            : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
+            ? window.innerWidth > 768 ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)" : "radial-gradient(circle, transparent 55%, rgba(33, 26, 233, 0.5) 55%, rgba(33, 26, 233, 0.5) 70%, transparent 70%)"
+            : window.innerWidth > 768 ? `radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)` : `radial-gradient(circle, rgba(33, 26, 233, 0.5) 25%, transparent 25%)`,
         borderRadius: "50%",
       };
       return move;
     });
-    newSquares[square] = { background: "#F5F682" };
+    newSquares[square] = { background: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" };
     setOptionSquares(newSquares);
     return true;
   };
@@ -1034,10 +1038,10 @@ export default function PlayingPage() {
 
   const prevCurrentColor = {
     ...(previousSquare && {
-      [previousSquare]: { backgroundColor: "#B9CA43" },
+      [previousSquare]: { backgroundColor: window.innerWidth > 768 ? "#B9CA43" : "#C0CED4" },
     }),
     ...(currentSquare && {
-      [currentSquare]: { backgroundColor: "#F5F682" },
+      [currentSquare]: { backgroundColor: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" },
     }),
   };
 
@@ -1442,11 +1446,58 @@ export default function PlayingPage() {
   };
 
   const handleNewGame = () => {
+    // Clear localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-    setHasAnalysis(false); // Reset analysis state before leaving
-    router.back();
+    
+    // Reset game state (same as handleRematch)
+    const timestamp = Date.now();
+    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+    setCurrentGameId(gameId);
+
+    setStatusGame("Ongoing");
+    game.reset();
+    const initialFen = game.fen();
+    setGamePosition(initialFen);
+    setFenHistory([initialFen]);
+    setCurrentMoveIndex(0);
+    setHeaderGameStart();
+    setLoserColor("");
+    setWinnerColor("");
+    setPreviousSquare(undefined);
+    setCurrentSquare(undefined);
+    setIsSaved(false);
+    setHasAnalysis(false);
+    
+    // Reset additional states
+    setCapturedWhite([]);
+    setCapturedBlack([]);
+    setBestline("");
+    setMoveClassification("");
+    setPositionEvaluation(0);
+    setPossibleMate("");
+    setHintClicked(false);
+    setMoveFrom("");
+    setMoveTo(null);
+    setRightClickedSquares({});
+    setOptionSquares({});
+    
+    // Open dialog for new game selection
+    setShowPlayVSAIModal(true);
+  };
+
+  const handleClosePlayVSAI = () => {
+    setShowPlayVSAIModal(false);
+  };
+
+  const handlePlayVSAILimit = (isLimit: boolean) => {
+    if (isLimit) {
+      toast.error(
+        "You have reached your play limit. Please upgrade to premium."
+      );
+      setOpenPricing(true);
+    }
   };
 
   const handleSaveLog = async () => {
@@ -1720,7 +1771,7 @@ export default function PlayingPage() {
       const endpoint =
         process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       const response = await fetch(
-        `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+        `${endpoint}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
         {
           method: "GET",
           headers: {
@@ -1745,7 +1796,7 @@ export default function PlayingPage() {
       const endpoint =
         process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       const response = await fetch(
-        `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+        `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
         {
           method: "GET",
           headers: {
@@ -2109,6 +2160,13 @@ export default function PlayingPage() {
         onOpenChange={setGameAnalysisOpen}
         v3Result={v3AnalysisResult}
       />
+      
+      {/* New Game Dialog */}
+      <StartPlayVSAI
+        visible={showPlayVSAIModal}
+        onClose={handleClosePlayVSAI}
+        onLimit={handlePlayVSAILimit}
+      />
 
       <div className="flex flex-col w-full gap-y-2 ">
         {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
@@ -2317,19 +2375,19 @@ export default function PlayingPage() {
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
+                <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Previous Place
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#F5F682]" />
+                <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Current Place
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#64646480]" />
+                <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Possible Move
                 </span>

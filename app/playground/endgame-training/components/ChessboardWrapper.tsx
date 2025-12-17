@@ -503,13 +503,13 @@ export default function ChessboardWrapper({
 
       <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
         <div className="flex flex-row items-center justify-center gap-1">
-          <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
+          <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
           <span className="h-[14px] font-normal text-[11px]">
             Previous Place
           </span>
         </div>
         <div className="flex flex-row items-center justify-center gap-1">
-          <div className="w-[14px] h-[14px] bg-[#F5F682]" />
+          <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
           <span className="h-[14px] font-normal text-[11px]">
             Current Place
           </span>

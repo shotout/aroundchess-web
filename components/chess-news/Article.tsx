@@ -64,8 +64,8 @@ export default function Article() {
         <Image
           alt=""
           src="/icons/sidebar-news-icon.png"
-          width={1000}
-          height={1000}
+          width={100}
+          height={100}
           className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9"
         />
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
@@ -129,9 +129,8 @@ export default function Article() {
               <NoData>News is empty</NoData>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-3 sm:gap-4 mt-6">
               {currentData.map((article) => {
-                console.log("currentData article", article);
                 return (
                   <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
                     <div className="rounded-[8px] p-[10px] border border-[#DEDEDE] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.12)] transition-shadow duration-200 hover:shadow-lg">
@@ -158,7 +157,7 @@ export default function Article() {
                         </span>
                       </div>
 
-                      <h3 className="text-[16px] line-clamp-1 font-semibold leading-[140%] mb-[8px]">
+                      <h3 className="text-[16px] min-h-[45px] flex items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
                         {article.title}
                       </h3>
 
@@ -177,7 +176,7 @@ export default function Article() {
         </div>
         {sessionId && (
           <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
-            <span className="text-[14px] --sm sm:text-md font-bold mt-4 block">
+            <span className="text-[18px] --sm sm:text-md font-bold mt-4 block">
               Saved Articles
             </span>
             <div className="flex flex-col mt-2 gap-2">
@@ -207,7 +206,7 @@ export default function Article() {
                           </span>
                         </div>
                     
-                        <h3 className="block line-clamp-2 text-[14px] font-semibold leading-[140%]">
+                        <h3 className="block line-clamp-3 text-[15px] leading-[140%]">
                           {article.title}
                         </h3>
                       </div>

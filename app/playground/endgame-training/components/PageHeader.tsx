@@ -18,20 +18,21 @@ export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
             <h1>Choose your board presentation :</h1>
           </div>
         ) : (
-          <div className="flex items-center">
+          <div className="flex justify-center md:justify-start items-center">
             <Image
               src="/endgame-training/check.png"
               width={20}
               height={20}
               alt="Checkmate icon"
-              className="mr-2"
+              className="w-[16px] h-[16px] md:w-[20px] md:h-[20px] mr-2"
             />
-            <h1>Checkmate in...</h1>
+            <h3 className="text-center md:text-left text-[15px] font-normal md:font-semibold md:text-[24px]">Checkmate in...</h3>
           </div>
         )}
       </div>
+
       {activeTab === "move" && viewState.view === "categories" && (
-        <div className="text-black border p-3 rounded-md text-[14px] --xs md:text-[14px] --sm w-auto h-[60px] xl:h-[45px] flex items-center">
+        <div className="text-black border p-3 bg-[rgba(0,0,0,.02)] rounded-[8px] text-[14px] md:text-[14px] w-auto md:h-[45px] flex items-center">
           <h1 className="">
             Challenge yourself and achieve Checkmate in a{" "}
             <span className="font-bold">specific amount of moves.</span>{" "}

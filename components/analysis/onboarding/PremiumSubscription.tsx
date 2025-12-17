@@ -695,12 +695,15 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                <div className="text-xl font-semibold">
+                  $79.99 <span className="text-[14px] --sm font-normal">/year</span>
+                </div>
+                {/* <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                   <PriceDiscount price={79.99} />
                   <div className="text-xl font-semibold">
                     $29.99 <span className="text-[14px] --sm font-normal">/year</span>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 

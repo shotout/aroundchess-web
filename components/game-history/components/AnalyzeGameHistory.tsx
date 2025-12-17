@@ -84,7 +84,7 @@ export function AnalyzeGameHistory({
     try {
       const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       const response = await fetch(
-        `${endpoint}/v3/analyze/last-analysis/${pgnHash}`,
+        `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
         {
           method: "GET",
           headers: {

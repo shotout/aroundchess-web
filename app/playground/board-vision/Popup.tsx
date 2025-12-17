@@ -264,20 +264,12 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
         </div>
 
         <div className="space-y-3">
-          <div className="flex justify-between space-x-4">
-            <div className="flex items-center space-x-2 w-1/2">
-              <span className="text-blue-700">♞</span>
-              <span>Chess.com Username</span>
-            </div>
-            <div className="w-1/2">
-              <p className="block text-base sm:text-[14px] --sm text-black">
-                Ask Questions from my last...
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-between space-x-4">
-            <div className="w-1/2">
+          <div className="flex gap-[16px] mb-[20px] flex-col md:flex-row justify-between space-x-4">
+            <div className="w-full md:w-1/2">
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-700">♞</span>
+                <span>Chess.com Username</span>
+              </div>
               <div 
                 onClick={() => {
                   console.log("Username clicked", usernameInput);
@@ -318,7 +310,11 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
               </div>
             </div>
 
-            <div className="w-1/2">
+            <div className="w-full md:w-1/2 !mx-0">
+              <p className="block text-base sm:text-[14px] --sm text-black">
+                Ask Questions from my last...
+              </p>
+
               <Select
                 name="gameCount"
                 value={gameCount}

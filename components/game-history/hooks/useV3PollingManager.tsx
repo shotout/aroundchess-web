@@ -162,7 +162,7 @@ export const useV3PollingManager = () => {
               const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
               
               const lastAnalysisRes = await axios.get(
-                `${baseUrl}/v3/analyze/last-analysis/${pgnHash}`,
+                `${baseUrl}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
                 {
                   headers: { Authorization: `Bearer ${sessionId}` },
                 }

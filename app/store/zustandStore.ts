@@ -472,7 +472,7 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
-          tab: "Games",
+          tab: "Analytics",
           tabSelected: "saved",
           activeState: "My Training Plan",
           activeUser: "user",
