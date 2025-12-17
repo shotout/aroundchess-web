@@ -166,14 +166,14 @@ export default function SSOCallbackPage() {
               if (userUsername && userUsername.trim() !== "") {
                 router.push("/my-game-history");
               } else {
-                router.push("/analysis");
+                router.push("/my-game-history");
               }
             } else {
-              router.push("/analysis");
+              router.push("/my-game-history");
             }
           } catch (profileError) {
             console.error("Error fetching profile:", profileError);
-            router.push("/analysis");
+            router.push("/my-game-history");
           }
         } else {
           showAlert(

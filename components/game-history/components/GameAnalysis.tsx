@@ -424,7 +424,7 @@ const GameAnalysisSlide = ({
     };
 
     return (
-        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
+        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
                 {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
                 <div

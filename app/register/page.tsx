@@ -172,7 +172,7 @@ function RegisterPage() {
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { email });
-                      router.push("/analysis");
+        router.push("/my-game-history");
 
       } else if (data.token) {
         setSessionId(data.token);
@@ -180,7 +180,7 @@ function RegisterPage() {
         trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
-                      router.push("/analysis");
+        router.push("/my-game-history");
 
       } else {
         toast.error("No authentication token received");
