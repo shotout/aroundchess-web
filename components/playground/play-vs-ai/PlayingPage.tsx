@@ -819,13 +819,13 @@ export default function PlayingPage() {
         background:
           game.get(move.to) &&
           game.get(move.to)?.color !== game.get(square)?.color
-            ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
-            : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
+            ? window.innerWidth > 768 ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)" : "radial-gradient(circle, transparent 55%, rgba(33, 26, 233, 0.5) 55%, rgba(33, 26, 233, 0.5) 70%, transparent 70%)"
+            : window.innerWidth > 768 ? `radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)` : `radial-gradient(circle, rgba(33, 26, 233, 0.5) 25%, transparent 25%)`,
         borderRadius: "50%",
       };
       return move;
     });
-    newSquares[square] = { background: "#F5F682" };
+    newSquares[square] = { background: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" };
     setOptionSquares(newSquares);
     return true;
   };
@@ -1034,10 +1034,10 @@ export default function PlayingPage() {
 
   const prevCurrentColor = {
     ...(previousSquare && {
-      [previousSquare]: { backgroundColor: "#B9CA43" },
+      [previousSquare]: { backgroundColor: window.innerWidth > 768 ? "#B9CA43" : "#C0CED4" },
     }),
     ...(currentSquare && {
-      [currentSquare]: { backgroundColor: "#F5F682" },
+      [currentSquare]: { backgroundColor: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" },
     }),
   };
 
@@ -2317,19 +2317,19 @@ export default function PlayingPage() {
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
+                <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Previous Place
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#F5F682]" />
+                <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Current Place
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#64646480]" />
+                <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
                 <span className="h-[14px] font-normal text-[11px]">
                   Possible Move
                 </span>
