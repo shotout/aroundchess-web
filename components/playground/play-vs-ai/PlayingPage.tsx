@@ -671,15 +671,59 @@ export default function PlayingPage() {
   // Auto-open GameAnalysis modal when tutorial reaches step 6
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 5) {
-      // Set dummy v3Result for tutorial to prevent null errors
+      // Set dummy v3Result for tutorial with complete data including FEN and arrows
       setV3AnalysisResult({
         summary: {
           criticalMistakes: [
             {
+              fen: "6k1/pp4pp/6P1/6KB/3r3q/7P/3p4/8 w - - 3 36",
+              move: "Kf5",
+              type: "Blunder",
+              arrows: {
+                badMove: {
+                  piece: "K",
+                  startSquare: "g5",
+                  endSquare: "f5"
+                },
+                goodMove: {
+                  piece: "K",
+                  startSquare: "g5",
+                  endSquare: "h6"
+                }
+              },
+              analysis: "A big mistake — it gives your opponent a huge chance and makes the position very hard to defend.",
+              fenAfter: "6k1/pp4pp/6P1/5K1B/3r3q/7P/3p4/8 b - - 4 36",
+              solution: "Teachers highlight that moving the King to h6 would have been a safer option!",
+              moveNumber: 36,
+              keyEvaluation: -100,
+              mistakeLogId: "3fa00dfd-ca78-4c88-bcc6-5050ab88bd9f",
+              saved: false,
+              savedDate: null
+            },
+            {
+              fen: "r2qk2r/pp3ppp/3p1b2/4P3/2Bp4/8/PP3PPP/n1B2RK1 w kq - 0 15",
+              move: "Bf4",
+              type: "Mistake",
+              arrows: {
+                badMove: {
+                  piece: "B",
+                  startSquare: "c1",
+                  endSquare: "f4"
+                },
+                goodMove: {
+                  piece: "P",
+                  startSquare: "e5",
+                  endSquare: "f6"
+                }
+              },
+              analysis: "This choice weakens your position quite a bit and hands your opponent more chances.",
+              fenAfter: "r2qk2r/pp3ppp/3p1b2/4P3/2Bp1B2/8/PP3PPP/n4RK1 b kq - 1 15",
+              solution: "Grandmasters themselves have chosen e5 to f6 in similar positions!",
               moveNumber: 15,
-              move: "Nxh5",
-              analysis: "This move loses material and weakens your position significantly.",
-              solution: "Better to play Bf4, maintaining piece coordination and central control."
+              keyEvaluation: -7.69,
+              mistakeLogId: "b1749799-a974-41e5-b0df-12475fc4d925",
+              saved: false,
+              savedDate: null
             }
           ]
         },
@@ -2164,6 +2208,7 @@ export default function PlayingPage() {
         open={gameAnalysisOpen}
         onOpenChange={setGameAnalysisOpen}
         v3Result={v3AnalysisResult}
+        isTutorialPlay={isTutorialPlay}
       />
       
       {/* New Game Dialog */}
