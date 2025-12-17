@@ -1483,6 +1483,10 @@ export default function PlayingPage() {
     setRightClickedSquares({});
     setOptionSquares({});
     
+    // Reset to 2D mode
+    setIs3DMode(false);
+    setStyleChoosed("2d");
+    
     // Open dialog for new game selection
     setShowPlayVSAIModal(true);
   };
@@ -1762,9 +1766,10 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
-    const is3D = StyleChoosed === "3d";
-    setIs3DMode(is3D);
-  }, [StyleChoosed]);
+    // Always default to 2D mode for Play vs AI
+    setIs3DMode(false);
+    setStyleChoosed("2d");
+  }, []);
 
   const fetchLastAnalysis = async (pgnHash: string): Promise<any> => {
     try {

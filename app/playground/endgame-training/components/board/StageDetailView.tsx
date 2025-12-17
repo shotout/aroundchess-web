@@ -762,6 +762,15 @@ export default function StageDetailView({
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
+  // Toggle 3D/2D mode and sync with global store
+  const handleToggle3DMode = useCallback(() => {
+    const newMode = !is3DMode;
+    setIs3DMode(newMode);
+    
+    const { setStyleChoosed } = useChessBoardThemeStore.getState();
+    setStyleChoosed(newMode ? "3d" : "2d");
+  }, [is3DMode]);
+
   // Mobile button renderers
   const renderMobileButtons = () => {
     return (
@@ -1016,7 +1025,7 @@ export default function StageDetailView({
               </button>
               <SettingBoard />
 
-              <button onClick={() => setIs3DMode(!is3DMode)}>
+              <button onClick={handleToggle3DMode}>
                 <Image
                   src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
                   alt="icon"
