@@ -53,11 +53,11 @@ const ResourceSection: React.FC<ResourceSectionProps> = ({
         {resources.map((resource) => (
           <div
             key={resource.id}
-            className="border rounded-lg p-4 flex flex-col h-[200px] bg-white"
+            className="border rounded-lg p-4 flex flex-col md:h-[200px] bg-white"
           >
             <h4 className="font-medium text-[14px] --sm">{title}</h4>
             {resource.description && (
-              <div className="overflow-y-auto flex-grow mt-2 pr-2">
+              <div className="overflow-y-auto flex-grow mt-2 md:pr-2">
                 <p className="text-[14px] --xs text-gray-600 whitespace-pre-line">
                   {resource.description}
                 </p>

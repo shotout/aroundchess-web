@@ -59,7 +59,7 @@ export default function PlayVSAI() {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+          <div className="w-full h-[64vh] md:h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
             <main className="w-full h-full xl:p-8">
               <div className="relative bg-[#e0f6ff] mx-auto w-full h-full flex items-center justify-center md:rounded-xl overflow-hidden border">
                 {/* Premium Subscription Modal */}
@@ -79,7 +79,7 @@ export default function PlayVSAI() {
                 {isMobile ? (
                   <div className="absolute inset-0 z-0">
                     <Image
-                      src="/board-vision/board.png"
+                      src="/board-vision/board-mobile.png"
                       alt="Background"
                       priority
                       fill
