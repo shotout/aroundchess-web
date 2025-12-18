@@ -647,7 +647,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         </div>
         
         {/* critical mistakes moves  */}
-        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
               alt=""
@@ -687,7 +687,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       <div className="flex gap-[8px]">
                         <span
                           onClick={() => handleOnClickMovement(item)}
-                          className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
+                          className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[8px] md:px-[14px]"
                         >
                           Move {item.moveNumber}: <span className="font-bold ml-1">{item.move}</span>
                         </span>
@@ -700,7 +700,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                       </div>
 
                       <div className="flex gap-[10px]">
-                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
+                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[8px] md:px-[14px]">
                           {item.type}
                         </span>
 
@@ -764,7 +764,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
         </div>
 
         {/* best moves  */}
-        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
               alt=""
@@ -808,7 +808,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                           <div className="flex gap-[8px]">
                             <span
                               onClick={() => handleOnClickMovement(middle)}
-                              className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
+                              className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[8px] md:px-[14px]"
                             >
                               Move {middle.moveNumber}: <span className="font-bold ml-1">{middle.move}</span>
                             </span>
@@ -818,7 +818,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                             </span>
                           </div>
                           <div className="flex gap-[10px]">
-                            <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
+                            <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[8px] md:px-[14px]">
                               {middle.classification}
                             </span>
 

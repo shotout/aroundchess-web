@@ -181,7 +181,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[678px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100vh] top-[-20px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -191,7 +191,8 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {(!isTutorialPlay || (v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0]?.fen)) ? (
+                {/* {(!isTutorialPlay || (v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0]?.fen)) ? ( */}
+                {(!isTutorialPlay && v3Result?.summary?.criticalMistakes?.length > 0) ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}

@@ -445,14 +445,14 @@ export const PremiumSubsContent: React.FC<{
       </div>
       <div
         ref={containerRef}
-        className={`flex max-w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
+        className={`flex w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* free */}
         {(isMobile || packageFilter === "monthly") && (
           <div
             ref={freeCardRef}
-            className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
+            className="w-full md:min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-50 rounded-full">
@@ -526,7 +526,7 @@ export const PremiumSubsContent: React.FC<{
           packageFilter === "yearly") && (
           <div
             ref={monthlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
+            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
           >
             {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
@@ -666,7 +666,7 @@ export const PremiumSubsContent: React.FC<{
         {(isMobile || packageFilter === "yearly") && (
           <div
             ref={yearlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
+            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
           >
             <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">

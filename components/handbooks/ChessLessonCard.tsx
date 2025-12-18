@@ -106,10 +106,10 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               <div className="flex-1">
                 {/* Mobile layout */}
                 <div className="flex flex-col lg:hidden">
-                  <h1 className="text-[14px] --xs border border-blue-base text-blue-base px-2 py-1 self-start">
+                  {/* <h1 className="text-[14px] --xs border border-blue-base text-blue-base px-2 py-1 self-start">
                     {lesson.difficulty}
-                  </h1>
-                  <h3 className="font-medium text-gray-900 text-[14px] --xs h-10 line-clamp-2 mt-2">
+                  </h1> */}
+                  <h3 className="flex items-center font-medium text-gray-900 text-[14px] --xs h-[42px] line-clamp-2 mb-[8px]">
                     {lesson.title}
                   </h3>
                 </div>

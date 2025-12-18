@@ -26,17 +26,17 @@ export const processPerformanceData = (
       fullMark: 100,
     },
     {
-      subject: "Positional",
+      subject: "Positional Play",
       A: apiData.skillAnalysis?.positional || 0,
       fullMark: 100,
     },
     {
-      subject: "Tactical",
+      subject: "Tactical Vision",
       A: apiData.skillAnalysis?.tactical || 0,
       fullMark: 100,
     },
     {
-      subject: "Endgame",
+      subject: "Endgame Technique",
       A: apiData.skillAnalysis?.endgame || 0,
       fullMark: 100,
     },

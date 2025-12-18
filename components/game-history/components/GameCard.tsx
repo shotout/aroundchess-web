@@ -274,6 +274,12 @@ const GameCard: React.FC<GameCardProps> = ({
           console.log("🔄 Opening ProcessingAnalysisMode from GameCard");
           setProcessingAnalysisModeOpen(true);
         }}
+        onOpenGameAnalysis={(v3Result) => {
+          console.log("🎯 Opening GameAnalysis from ChooseAnalysisMode (Quick Summary)");
+          console.log("📦 Received v3Result:", v3Result);
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
       />
 
       <ProcessingAnalysisMode

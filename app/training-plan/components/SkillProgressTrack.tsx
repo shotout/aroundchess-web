@@ -224,6 +224,11 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
+  // Calculate positions for triangle and badge separately
+  const MAX_BADGE_POSITION = 85; // Maximum safe position for badge (to prevent cutoff)
+  const trianglePosition = currentEloPercentage * 0.8333 + 8.33; // Actual triangle position
+  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
+
   const badgeClass =
     "w-max h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
 
@@ -448,16 +453,20 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               </div>
             </div>
 
+            {/* Badge container - stops at safe position to prevent cutoff */}
             <div
               className="absolute -translate-x-1/2 top-8"
               style={{
-                left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+                left: `${badgePosition}%`,
                 bottom: 0,
               }}
             >
-              <div className="w-4 h-4 -z-[1]  bg-[#26E279]  rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+              {/* Green triangle indicator - centered on badge */}
+              <div className="w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+
+              {/* Badge text */}
               <div
-                className={`${badgeClass}  bg-gradient-to-b from-[#26E279] to-[#029A46]  text-white`}
+                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
               >
                 Your current ELO
               </div>
