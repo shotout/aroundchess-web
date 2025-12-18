@@ -10,7 +10,7 @@ import { useProfileStore } from "@/app/store/profile";
 const improveData = [
   {
     label:
-      "AroundChess <b>examines your weaknesses</b> by analyzing your past Chess.com Games.",
+      "AroundChess <b class='font-semibold'>examines your weaknesses</b> by analyzing your past Chess.com Games.",
     image: "/images/homepage/flow-1-icon.png",
     number: "1",
   },
@@ -95,13 +95,13 @@ export function ImproveSection() {
                   priority
                 />
               </div>
-              <div className="flex flex-col w-full sm:w-full rounded-b-lg px-8 sm:px-4 lg:px-12 py-2">
+              <div className="flex flex-col w-full sm:w-full rounded-b-lg px-[14px] sm:px-4 lg:px-12 py-2">
                 <div className="flex w-full flex-col sm:flex-row sm:w-full">
                   {improveData.map((item, index) => {
                     return (
                       <div
                         key={index}
-                        className={`relative w-1/2 md:w-1/3 flex flex-col ${
+                        className={`relative w-[200px] md:w-1/3 flex flex-col ${
                           index == 1 ? `self-end` : `self-start`
                         } h-[100px] sm:h-[145px]`}
                       >
@@ -115,7 +115,7 @@ export function ImproveSection() {
                             priority
                           />
                         </div>
-                        <div className="flex flex-col sm:flex-row justify-center mt-2 sm:mt-8">
+                        <div className="flex flex-row justify-center mt-2 sm:mt-8">
                           <span className="text-[#ffffff70] sm:text-[#ffffff20] font-normal text-3xl sm:text-[80px]">
                             {item.number}
                           </span>
@@ -126,7 +126,7 @@ export function ImproveSection() {
                                 "<b>$1</b>"
                               ),
                             }}
-                            className="text-[#ffffff] font-normal text-[14px] --10px sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 px-4 md:-ml-6 lg:ml-0"
+                            className="text-[#ffffff] font-normal text-[13px] text-center sm:text-left --10px sm:text-md md:text-[11px] lg:text-lg 2xl:text-xl sm:mt-0 pl-4 md:-ml-6 lg:ml-0"
                           ></span>
                         </div>
                       </div>
@@ -134,7 +134,7 @@ export function ImproveSection() {
                   })}
 
                   <Image
-                    className="sm:hidden w-[92px] h-[90px] absolute left-44"
+                    className="sm:hidden w-[92px] h-[90px] absolute left-[56vw] md:left-44"
                     src={"/images/homepage/arrow-1.png"}
                     width={900}
                     height={900}
@@ -142,15 +142,15 @@ export function ImproveSection() {
                   />
 
                   <Image
-                    className="sm:hidden w-[92px] h-[90px] absolute right-52 mt-32"
+                    className="sm:hidden w-[86px] h-[86px] md:w-[92px] md:h-[90px] absolute right-[62vw] mt-[30vw] md:mt-32"
                     src={"/images/homepage/arrow-2.png"}
-                    width={900}
-                    height={900}
+                    width={875}
+                    height={875}
                     alt=""
                   />
                 </div>
 
-                <div className="flex flex-col items-center justify-center pt-6 sm:pt-2 md:pt-6 mt-12 xl:mt-0">
+                <div className="flex flex-col items-center justify-center pt-[16px] md:pt-6 sm:pt-2 sm:mt-12 xl:mt-0">
                   <Button
                     onClick={handleAnalyze}
                     className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-medium text-[14px] --xs sm:text-[16px] text-[#221AE9] mb-3"
