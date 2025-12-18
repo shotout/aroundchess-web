@@ -33,7 +33,7 @@ export async function middleware(req: NextRequest) {
     token != undefined &&
     token != ""
   ) {
-    return NextResponse.redirect(new URL("/analysis", req.url));
+    return NextResponse.redirect(new URL("/my-game-history", req.url));
   }
 
   if (pathname === "/auth/callback") {

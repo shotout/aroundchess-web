@@ -9,14 +9,15 @@ interface PageHeaderProps {
 
 export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
   return (
-    <div className="w-auto space-y-5 flex flex-col">
+    <div className={`w-auto ${activeTab !== "board" ? "space-y-5" : ""} flex flex-col`}>
       <div className=" text-[14px] --sm lg:text-2xl font-bold text-gray-800">
         {activeTab === "board" ? (
-          <div className="flex justify-center md:justify-start items-center">
-            <Image src={"/images/choose-board.svg"} alt="Choose board icon" width={24} height={24} className="md:hidden mr-2" />
-            <AlertCircle className="mr-2 hidden md:block" />
-            <h1>Choose your board presentation :</h1>
-          </div>
+          <></>
+          // <div className="flex justify-center md:justify-start items-center">
+          //   <Image src={"/images/choose-board.svg"} alt="Choose board icon" width={24} height={24} className="md:hidden mr-2" />
+          //   <AlertCircle className="mr-2 hidden md:block" />
+          //   <h1>Choose your board presentation :</h1>
+          // </div>
         ) : (
           <div className="flex justify-center md:justify-start items-center">
             <Image
@@ -32,7 +33,7 @@ export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
       </div>
 
       {activeTab === "move" && viewState.view === "categories" && (
-        <div className="text-black border p-3 bg-[rgba(0,0,0,.02)] rounded-[8px] text-[14px] md:text-[14px] w-auto md:h-[45px] flex items-center">
+        <div className="text-black border p-[5px] bg-[rgba(0,0,0,.02)] rounded-[8px] text-[13px] md:text-[14px] leading-[130%] w-auto md:h-[45px] flex items-center">
           <h1 className="">
             Challenge yourself and achieve Checkmate in a{" "}
             <span className="font-bold">specific amount of moves.</span>{" "}

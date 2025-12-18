@@ -38,7 +38,7 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
           alt="vs"
           width={vsWidth}
           height={vsHeight}
-          style={{ display: "inline-block" }}
+          className={`inline-block w-[${60}px] h-[${60}px] md:w-[${100}px] md:h-[${100}px] object-contain`}
         />
       </div>
     );
@@ -181,6 +181,64 @@ export interface PieceConfig {
 export const getPieceConfig = (subcategoryName: string): PieceConfig => {
   const parsedPieces = parsePiece(subcategoryName);
 
+  const configs: Record<string, PieceConfig> = {
+    "Queen": { // "Queen and King": {
+      text: "Queen, King <span class='font-bold'>VS</span> King",
+      pieces: [
+        { type: "queen", color: "text-blue-500" },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Rook": { // "Rook and King": {
+      text: "Rook, King <span class='font-bold'>VS</span> King",
+      pieces: [
+        { type: "rook", color: "text-blue-500" },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Two Rooks": { // "Two Rooks and King": {
+      text: "Rook, Rook, King <span class='font-bold'>VS</span> King",
+      pieces: [
+        { type: "rook", color: "text-blue-500", count: 2 },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Queen and Pawn vs King": {
+      text: "Queen, Pawn, King <span class='font-bold'>VS</span> King",
+      pieces: [
+        { type: "queen", color: "text-blue-500" },
+        { type: "pawn", color: "text-blue-500" },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    "Bishop and Knight vs King": {
+      text: "Bishop, Knight, King <span class='font-bold'>VS</span> King",
+      pieces: [
+        { type: "bishop", color: "text-blue-500" },
+        { type: "knight", color: "text-blue-500" },
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+    default: {
+      text: subcategoryName,
+      pieces: [
+        { type: "king", color: "text-blue-500" },
+        { type: "vs", color: "text-blue-500" },
+        { type: "king", color: "text-indigo-700" },
+      ],
+    },
+  };
+
   if (parsedPieces.length > 0) {
     const vsIndex = parsedPieces.findIndex((p) => p.type === "vs");
 
@@ -235,68 +293,10 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
     }
 
     return {
-      text: subcategoryName,
+      text: configs[subcategoryName]?.text || subcategoryName,
       pieces: finalPieces,
     };
   }
-
-  const configs: Record<string, PieceConfig> = {
-    "Queen and King": {
-      text: "Queen, King VS King",
-      pieces: [
-        { type: "queen", color: "text-blue-500" },
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-    "Rook and King": {
-      text: "Rook, King VS King",
-      pieces: [
-        { type: "rook", color: "text-blue-500" },
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-    "Two Rooks and King": {
-      text: "Rook, Rook, King VS King",
-      pieces: [
-        { type: "rook", color: "text-blue-500", count: 2 },
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-    "Queen and Pawn vs King": {
-      text: "Queen, Pawn, King VS King",
-      pieces: [
-        { type: "queen", color: "text-blue-500" },
-        { type: "pawn", color: "text-blue-500" },
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-    "Bishop and Knight vs King": {
-      text: "Bishop, Knight, King VS King",
-      pieces: [
-        { type: "bishop", color: "text-blue-500" },
-        { type: "knight", color: "text-blue-500" },
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-    default: {
-      text: subcategoryName,
-      pieces: [
-        { type: "king", color: "text-blue-500" },
-        { type: "vs", color: "text-blue-500" },
-        { type: "king", color: "text-indigo-700" },
-      ],
-    },
-  };
 
   return configs[subcategoryName] || configs.default;
 };

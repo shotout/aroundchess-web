@@ -77,7 +77,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             <SelectItem value="50">50</SelectItem>
           </SelectContent>
         </Select>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
+        {/* <ChevronRight className="h-4 w-4 text-gray-400" /> */}
       </div>
 
       <div className="flex items-center justify-center">

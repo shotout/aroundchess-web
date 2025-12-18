@@ -8,12 +8,12 @@ export default function SubcategoriesGrid({
   onSelectSubcategory,
 }: SubcategoriesGridProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 xl:gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 xl:gap-5">
       {category?.subcategories?.map((subcategory, index) => {
         const subcategorySlug = subcategory.name
           .toLowerCase()
           .replace(/\s+/g, "-");
-
+          
         const config = getPieceConfig(subcategory.name);
         const isSelected = selectedSubcategory === subcategorySlug;
 
@@ -27,9 +27,9 @@ export default function SubcategoriesGrid({
               isSelected ? "bg-blue-base/5" : "bg-white"
             } rounded-lg overflow-hidden hover:shadow-md transition-all cursor-pointer`}
           >
-            <div className=" flex justify-center items-center py-4 px-2">
+            <div className=" flex justify-center items-center p-[8px] md:py-4 md:px-2">
               <div
-                className="flex p-4 rounded-md space-x-3 items-end border bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
+                className="w-full flex items-center justify-center p-[8px] md:p-4 rounded-[8px] space-x-3 md:items-end border bg-gradient-to-b from-[#E7F1F6] to-[#FFFFFF]"
                 style={{ display: "inline-flex", alignItems: "flex-end" }}
               >
                 {config.pieces.map((piece, i) => (
@@ -42,8 +42,8 @@ export default function SubcategoriesGrid({
                 ))}
               </div>
             </div>
-            <div className="p-4 text-center">
-              <h3 className="text-lg font-medium">{config.text}</h3>
+            <div className="md:p-2 text-center">
+              <h3 className="text-lg" dangerouslySetInnerHTML={{ __html: config.text }} />
             </div>
           </div>
         );

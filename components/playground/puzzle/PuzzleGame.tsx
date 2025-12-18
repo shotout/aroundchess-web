@@ -265,6 +265,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   hint,
   clearHint,
   navigateToMove,
+  onTakeBackMove,
   onGetHint,
   arrow,
   onChangeTopic,
@@ -360,8 +361,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [fenHistory, currentMoveIndex]);
 
   const isAtCurrentMove = useMemo(
-    () => position === fenHistory[fenHistory.length - 1],
-    [position, fenHistory]
+    () => {
+      // Allow moves when viewing the current position that matches the fenHistory at currentMoveIndex
+      // This allows the player to make moves after undoing
+      return currentMoveIndex >= 0 && currentMoveIndex < fenHistory.length;
+    },
+    [currentMoveIndex, fenHistory]
   );
 
   useEffect(() => {
@@ -665,6 +670,35 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     navigateToMove(Math.max(currentMoveIndex - 1, 0));
   const handleNextMove = () =>
     navigateToMove(Math.min(currentMoveIndex + 1, fenHistory.length - 1));
+
+  // Wrapper for undo that also resets bot state and captured pieces
+  const handleUndoMove = useCallback(() => {
+    // Don't allow undo when game is over
+    if (isGameOver) return;
+    
+    // Determine how many moves will be undone
+    // If current move index is even (bot just moved), undo 2 moves
+    // If current move index is odd (player just moved), undo 1 move
+    const isBotTurn = currentMoveIndex % 2 === 0;
+    const movesToUndo = isBotTurn ? 2 : 1;
+    const actualMovesToUndo = Math.min(movesToUndo, currentMoveIndex);
+    
+    // Remove captured pieces for the undone moves
+    if (actualMovesToUndo > 0) {
+      setCapturedWhite((prev) => prev.slice(0, -Math.floor(actualMovesToUndo)));
+      setCapturedBlack((prev) => prev.slice(0, -Math.floor(actualMovesToUndo)));
+    }
+    
+    // Reset moveProcessed to allow bot to move again
+    setMoveProcessed(false);
+    
+    // Clear selection and hints
+    setSelectedSquare(null);
+    setPossibleMoves([]);
+    
+    // Call the original undo function
+    onTakeBackMove();
+  }, [currentMoveIndex, isGameOver, onTakeBackMove]);
 
   const fillMovement = (move: any) => {
     const capturedPiecesBlack = [...capturedBlack];
@@ -1230,10 +1264,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           {/* Mobile navigation buttons */}
           <div className="lg:hidden px-5 flex flex-row justify-center items-center gap-2">
             <button
-              disabled={currentMoveIndex === 0}
-              onClick={handlePreviousMove}
+              disabled={currentMoveIndex === 0 || isGameOver}
+              onClick={handleUndoMove}
               className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+                currentMoveIndex === 0 || isGameOver ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1401,10 +1435,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </table>
           <div className="flex flex-row justify-center items-center gap-[8px] my-4">
             <button
-              disabled={currentMoveIndex === 0}
-              onClick={handlePreviousMove}
+              disabled={currentMoveIndex === 0 || isGameOver}
+              onClick={handleUndoMove}
               className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+                currentMoveIndex === 0 || isGameOver ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -38,12 +38,14 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   v3Result?: any;
+  isTutorialPlay?: boolean;
 }
 
 export default function GameAnalysis({
     open,
     onOpenChange,
-    v3Result
+    v3Result,
+    isTutorialPlay = false
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
@@ -77,7 +79,7 @@ export default function GameAnalysis({
         if (v3Result?.summary?.criticalMistakes) {
             setLocalMistakes(v3Result.summary.criticalMistakes);
         }
-    }, [v3Result]);
+    }, [v3Result, isTutorialPlay]);
 
     // Handle save bookmark
     const handleSaveLog = async (index: number) => {
@@ -179,7 +181,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[660px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] lg:h-[580px] xxl:h-[678px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -189,7 +191,7 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {v3Result.summary.criticalMistakes.length > 0 && v3Result.summary.criticalMistakes[0].fen ? (
+                {(!isTutorialPlay || (v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0]?.fen)) ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}
@@ -246,10 +248,10 @@ export default function GameAnalysis({
                                 </svg>
                             </button>
                             <div className="flex flex-col items-center justify-center">
-                                <span className="font-semibold">- {activeIndex + 1} of {v3Result.summary.criticalMistakes.length + 1} -</span>
+                                <span className="font-semibold">- {activeIndex + 1} of {(v3Result?.summary?.criticalMistakes?.length || 0) + 1} -</span>
                                 <div className="swiper-pagination">
                                     <div className="swiper-pagination-bullets">
-                                        {v3Result.summary.criticalMistakes.map((mistake: any, index: number) => (
+                                        {(v3Result?.summary?.criticalMistakes || []).map((mistake: any, index: number) => (
                                             <div
                                                 key={index}
                                                 className={`swiper-pagination-bullet mx-[3px] ${activeIndex === index ? 'swiper-pagination-bullet-active' : ''}`}
@@ -422,7 +424,7 @@ const GameAnalysisSlide = ({
     };
 
     return (
-        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
+        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
                 {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
                 <div

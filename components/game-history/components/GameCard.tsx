@@ -295,7 +295,7 @@ const GameCard: React.FC<GameCardProps> = ({
       />
       
       <div
-        className={`p-4 border md:rounded-md relative ${
+        className={`px-[16px] py-[8px] md:p-4 border-t border-b mx-[-16px] md:rounded-md relative ${
           (!gameData.hasViewedAnalysis && gameData.isAnalysis) ||
           isNewlyImported
             ? "bg-[#FFF6DB]"

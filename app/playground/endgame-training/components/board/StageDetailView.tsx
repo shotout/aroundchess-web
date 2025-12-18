@@ -762,16 +762,30 @@ export default function StageDetailView({
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
+  // Toggle 3D/2D mode and sync with global store
+  const handleToggle3DMode = useCallback(() => {
+    const newMode = !is3DMode;
+    setIs3DMode(newMode);
+
+    const { setStyleChoosed } = useChessBoardThemeStore.getState();
+    setStyleChoosed(newMode ? "3d" : "2d");
+  }, [is3DMode]);
+
   // Mobile button renderers
   const renderMobileButtons = () => {
     return (
       <div className="sm:hidden px-4 py-2 border-b">
+        {/* Mobile navigation buttons */}
+        <div className="sm:hidden">
+          {renderMobileNavigation()}
+        </div>
+
         {/* Game control buttons */}
         <div className="space-y-2">
           {!isSolved && (
-            <div className="flex gap-x-[2px] w-full justify-between sm:justify-center">
+            <div className="flex gap-x-[6px] w-full justify-center">
               <button
-                className="flex gap-x-1 text-[14px] --10px items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-1 text-[14px] --10px items-center justify-center px-[20px] py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                 onClick={() => setShowHint(true)}
               >
                 <Image
@@ -784,7 +798,7 @@ export default function StageDetailView({
               </button>
 
               <button
-                className={`flex gap-x-[2px]  items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
+                className={`flex gap-x-[2px] items-center justify-center px-[20px] py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
                   isAutoSolution
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-primary-gray text-black"
@@ -795,8 +809,8 @@ export default function StageDetailView({
                 <Image
                   src={"/endgame-training/show-solution.png"}
                   alt="solution icon"
-                  width={10}
-                  height={10}
+                  width={16}
+                  height={16}
                 />
                 <span className="text-[14px] --10px">
                   {isAutoSolution ? "Solving..." : "Show Solution"}
@@ -818,15 +832,20 @@ export default function StageDetailView({
 
               <button
                 onClick={navigateNext}
-                className="flex gap-x-[2px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-[4px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
               >
                 <span className="text-[14px] --10px">Next Stage</span>
-                <Image
-                  src={"/endgame-training/Union.png"}
-                  alt="arrow right icon"
-                  width={10}
-                  height={10}
-                />
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_681_310758)">
+                    <path d="M0.875 6H13.2134" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7.69531 0.75L13.2078 6L7.69531 11.25" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_681_310758">
+                    <rect width="14" height="12" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
               </button>
             </div>
           )}
@@ -879,7 +898,7 @@ export default function StageDetailView({
 
   const renderMobileNavigation = () => {
     return (
-      <div className="px-4 py-3 flex flex-1 flex-row justify-center items-center gap-2">
+      <div className="px-4 mb-3 flex flex-row justify-center items-center gap-2">
         <button
           disabled={moveHistory.length === 0}
           onClick={handleUndo}
@@ -1016,7 +1035,7 @@ export default function StageDetailView({
               </button>
               <SettingBoard />
 
-              <button onClick={() => setIs3DMode(!is3DMode)}>
+              <button onClick={handleToggle3DMode}>
                 <Image
                   src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
                   alt="icon"
@@ -1077,15 +1096,16 @@ export default function StageDetailView({
 
             {/* Mobile controls below board */}
             {renderMobileButtons()}
+            
             <div className="px-4 py-2 flex flex-col gap-y-1">
-              <div className="sm:hidden">
+              {/* <div className="sm:hidden">
                 <SyzygyAnalysis
                   mateDistance={syzygyMateDistance}
                   playerColor={playerColor}
                   currentTurn={game.turn()}
                   isLoading={isSyzygyLoading}
                 />
-              </div>
+              </div> */}
               {!isSolved && (
                 <div className="flex sm:hidden flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-[4px] p-0">
                   <div className="flex  flex-col items-center py-1 justify-center gap-x-3 gap-y-2">
@@ -1110,11 +1130,6 @@ export default function StageDetailView({
             {/* Mobile move history */}
             <div className="sm:hidden px-4 py-3">
               <MobileMoveBoxes moveHistory={moveHistory} />
-            </div>
-
-            {/* Mobile navigation buttons */}
-            <div className="sm:hidden">
-              {renderMobileNavigation()}
             </div>
           </div>
 
