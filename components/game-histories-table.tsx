@@ -75,8 +75,6 @@ export function GameHistoriesTable() {
 
     // Handle source checkbox changes
     const handleSourceToggle = (source: string) => {
-        console.log("🔄 [GameHistoriesTable] Toggling source:", source, "isLoading:", isLoading);
-        
         setSources(prev => {
             const newSources = prev.includes(source)
                 ? prev.filter(s => s !== source)
@@ -88,7 +86,6 @@ export function GameHistoriesTable() {
         
         // If currently loading, force refresh to cancel previous request and fetch with new filter
         if (isLoading) {
-            console.log("⚡ [GameHistoriesTable] Filter changed while loading - forcing refresh");
             setTimeout(() => {
                 handleForceRefresh();
             }, 100);
@@ -115,11 +112,11 @@ export function GameHistoriesTable() {
                         placeholder="Search Opponent"
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
-                        className="w-full pl-[34px] py-[12px] pr-[12px] border border-[#C0CED4] bg-[#F2FBFE] rounded-[8px]"
+                        className="w-full pl-[34px] py-[8px] md:py-[12px] pr-[12px] border border-[#C0CED4] bg-[#F2FBFE] rounded-[8px]"
                     />
                 </div>
 
-                <div className="flex flex-wrap lg:flex-nowrap items-start justify-between gap-[8px] lg:gap-[32px] mb-[32px]">
+                <div className="flex flex-wrap lg:flex-nowrap items-start justify-between gap-[8px] lg:gap-[32px] mb-[16px] md:mb-[32px]">
                     {/* Mobile */}
                     <div className="w-full lg:hidden">
                         <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
@@ -187,7 +184,7 @@ export function GameHistoriesTable() {
                                 onValueChange={setResult}
                                 defaultValue="All Results"
                             >
-                                <SelectTrigger className="w-full h-[32px] bg-[#F8F9FC] border border-[#D8DCE0] rounded-[8px] text-[#717375]">
+                                <SelectTrigger className="w-full h-[42px] md:h-[32px] bg-[#F8F9FC] border border-[#D8DCE0] rounded-[8px] text-[#717375]">
                                     <SelectValue placeholder="All Results" />
                                 </SelectTrigger>
 
@@ -203,7 +200,7 @@ export function GameHistoriesTable() {
 
                     <div className="w-[calc(50%-8px)] lg:w-1/5">
                         <label htmlFor="analyzed-games" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Analyzed Games</label>
-                        <div className="h-[32px] flex items-center gap-[32px]">
+                        <div className="h-[42px] md:h-[32px] flex items-center gap-[32px]">
                             <div className="flex items-center gap-[8px]">
                                 <label htmlFor="analyzed-games-only" className="relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] cursor-pointer has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]">
                                     <svg width="10" height="10" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">

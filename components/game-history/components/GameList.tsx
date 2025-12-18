@@ -855,7 +855,7 @@ const GamesList: React.FC<GamesListProps> = ({
       {/* Mobile View */}
       {isMobile && (
         <div className="lg:hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] md:gap-2 text-[14px] --xs">
+          <div className="grid md:grid-cols-2 md:gap-2 text-[14px] --xs">
             {/* Show real games for tutorial on mobile too */}
             {displayGames.map((game) => (
                 <GameCard
