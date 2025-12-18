@@ -301,12 +301,7 @@ const GameCard: React.FC<GameCardProps> = ({
       />
       
       <div
-        className={`px-[16px] py-[8px] md:p-4 border-t border-b mx-[-16px] md:rounded-md relative ${
-          (!gameData.hasViewedAnalysis && gameData.isAnalysis) ||
-          isNewlyImported
-            ? "bg-[#FFF6DB]"
-            : ""
-        }`}
+        className={`px-[16px] py-[8px] md:p-4 border-t border-b mx-[-16px] md:rounded-md relative`}
         data-tutorial="1"
       >
         <div className="flex justify-between items-center mb-4 text-[14px] --xs">

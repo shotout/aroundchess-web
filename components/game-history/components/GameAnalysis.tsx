@@ -329,12 +329,16 @@ const GameAnalysisSlide = ({
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined" && window.innerWidth < 1400) {
-            setBoardSize(170);
-        } 
-
         if (typeof window !== "undefined" && window.innerWidth > 1600) {
             setBoardSize(280);
+        }
+
+        if (typeof window !== "undefined" && window.innerWidth < 1400) {
+            setBoardSize(170);
+        }
+
+        if (typeof window !== "undefined" && window.innerWidth < 568) {
+            setBoardSize(210);
         }
     }, []);
 
@@ -623,7 +627,7 @@ const GameAnalysisSlide = ({
 
                     <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
                         <Image src="/images/analysis/icon_union.svg" alt="analysis" width={44} height={44} className="w-[44px] h-[44px] object-contain" />
-                        <div className="relative leading-[120%] flex items-center h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
+                        <div className="relative leading-[120%] flex items-center min-h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                             {mistake.solution}
                         </div>
                     </div>
