@@ -39,7 +39,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-2 bg-white rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] lg:overflow-auto">
+      <div className="flex flex-col justify-center gap-2 bg-white rounded-xl shadow-md border border-t-4 border-[#221AE9] lg:justify-start xl:max-h-[800px] overflow-auto">
         <div className="flex flex-row border-b p-4 items-center gap-2">
           <Image
             alt=""
@@ -81,7 +81,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
           ]}
         /> */}
 
-        <div className="border-[#221AE9] border-t-4 p-4 bg-[#F6F9FF]">
+        <div className="border-[#221AE9] border-t-4 p-4 bg-[#F6F9FF] rounded-b-lg">
           <h3 className="text-[#254B9D] font-semibold mb-2">
             Next Steps for Improvement:
           </h3>
@@ -104,7 +104,7 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
         </div> */}
       </div>
 
-      <div className="flex flex-col md:flex-row gap-[8px] md:gap-[16px] mt-2 mb-2">
+      <div className="flex flex-col md:flex-row gap-[8px] md:gap-[16px] mt-2 mb-2 px-[4px]">
         <button
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center justify-self-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
