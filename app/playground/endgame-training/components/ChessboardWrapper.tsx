@@ -520,7 +520,7 @@ export default function ChessboardWrapper({
             Possible Move
           </span>
         </div>
-        <div className="flex flex-row items-center justify-center gap-1">
+        <div className="hidden md:flex flex-row items-center justify-center gap-1">
           <MoveRightIcon color="#221AE950" size={16} />
           <span className="h-[14px] font-normal text-[11px]">
             Move Recommendation

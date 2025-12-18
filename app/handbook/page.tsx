@@ -11,7 +11,7 @@ export default function Handbook() {
               <div className="flex flex-col overflow-y-auto w-full">
                 <Navigation>
                     {/* <div className="w-full flex items-center bg-[url(/images/handbook/bg.jpg)] bg-cover bg-center min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)] p-[16px] pt-[32px] md:pt-[16px]"> */}
-                    <div className="w-full flex items-center bg-[url(/images/handbook/bg.jpg)] bg-cover bg-center min-h-[300px] xl:min-h-[500px] p-[16px] pt-[32px] lg:py-[32px]">
+                    <div className="w-full flex items-center bg-[url(/images/handbook/bg.jpg)] bg-cover bg-center min-h-[300px] lg:min-h-[calc(100vh-600px)] p-[16px] pt-[32px] lg:py-[32px]">
                         <div className="w-full flex flex-col items-center justify-center gap-[16px]">
                             <div className="flex flex-col items-center justify-center gap-[12px] w-full md:w-[640px] bg-[rgba(255,255,255,.65)] backdrop-blur-[8px] border-[2px] border-[#FAFDFF] rounded-[16px] px-[12px] py-[32px]">
                                 <Image src="/images/handbook/icon-opening-theory.svg" alt="opening theory" width={50} height={48} />

@@ -275,10 +275,15 @@ export function useGames(filters?: GameFilters) {
   }, [resetFetchState, fetchGames]);
 
   const handleForceRefresh = useCallback(() => {
+    console.log("⚡ [useGameData] handleForceRefresh called - canceling previous fetch");
+    console.log("🗑️ [useGameData] Before reset - fetchRef:", fetchRef.current, "lastExecutedRef:", lastExecutedRef.current);
+    
     fetchRef.current = false;
     lastExecutedRef.current = "";
     usePgnStore.getState().clearGamesData();
     resetFetchState();
+    
+    console.log("✅ [useGameData] Reset complete - triggering new fetch");
     fetchGames();
   }, [resetFetchState, fetchGames]);
 

@@ -518,7 +518,8 @@ export function AnalyzeDifferentGame({
       <button 
         onClick={() => { 
           if (sessionId) {
-            setOpen(!open);
+            // setOpen(!open);
+            router.push("/my-game-history");
           } else {
             setOpenConfirmLogin(true);
           }

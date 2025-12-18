@@ -75,13 +75,24 @@ export function GameHistoriesTable() {
 
     // Handle source checkbox changes
     const handleSourceToggle = (source: string) => {
+        console.log("🔄 [GameHistoriesTable] Toggling source:", source, "isLoading:", isLoading);
+        
         setSources(prev => {
-            if (prev.includes(source)) {
-                return prev.filter(s => s !== source);
-            } else {
-                return [...prev, source];
-            }
+            const newSources = prev.includes(source)
+                ? prev.filter(s => s !== source)
+                : [...prev, source];
+            
+            console.log("📊 [GameHistoriesTable] Sources updated:", prev, "->", newSources);
+            return newSources;
         });
+        
+        // If currently loading, force refresh to cancel previous request and fetch with new filter
+        if (isLoading) {
+            console.log("⚡ [GameHistoriesTable] Filter changed while loading - forcing refresh");
+            setTimeout(() => {
+                handleForceRefresh();
+            }, 100);
+        }
     };
 
     // Handle date range change from Timeframe component
