@@ -20,7 +20,7 @@ const LessonHeader: React.FC<LessonHeaderProps> = ({
         <div className="flex">
           <div className="flex items-center">
             <button
-              onClick={() => router.push(basePath)}
+              onClick={() => router.push('/opening-theory')}
               className="flex-shrink-0"
             >
               <ArrowLeft className="h-6 w-6 mr-2 font-bold" />
