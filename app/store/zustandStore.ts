@@ -278,7 +278,7 @@ export const usePgnStore = create<PgnState>()(
 
       lastFetchTime: null,
       isFetching: false,
-      cacheExpiryTime: 10000,
+      cacheExpiryTime: 5 * 60 * 1000, // 5 minutes instead of 10 seconds
 
       setLastFetchTime: (time: number) => set({ lastFetchTime: time }),
       setIsFetching: (fetching: boolean) => set({ isFetching: fetching }),

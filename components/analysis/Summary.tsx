@@ -181,7 +181,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
-      setSavedMistakes(savedData.data);
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
       setLoadingToggle(false);
     } catch (e: any) {
       toast.error(e?.message || "Failed to save bookmark");
@@ -240,7 +242,9 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
       // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
-      setSavedMistakes(savedData.data);
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
       setLoadingToggle(false);
     } catch (e: any) {
       toast.error(e?.message || "Failed to remove bookmark");
