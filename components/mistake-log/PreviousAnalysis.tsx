@@ -79,7 +79,9 @@ const PreviousAnalysis: React.FC = () => {
         return next;
       });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
-      setSavedMistakes(savedData.data);
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
       setLoadingToggle(false);
     } catch (e) {
       console.error(e);
@@ -105,7 +107,9 @@ const PreviousAnalysis: React.FC = () => {
         return next;
       });
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
-      setSavedMistakes(savedData.data);
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
       setLoadingToggle(false);
     } catch (e) {
       console.error(e);

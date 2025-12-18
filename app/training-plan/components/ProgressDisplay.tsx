@@ -776,7 +776,7 @@ const chartRange = React.useMemo(() => {
             )}
           </div>
 
-          <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
+          <div className="md:col-span-2 flex flex-col rounded-md md:border md:p-4 gap-6 mt-6 md:mt-0">
             {/* Recent Games */}
             {isLoadingProgress ? (
               <RecentGamesSkeleton />
@@ -959,7 +959,7 @@ const chartRange = React.useMemo(() => {
                       return (
                         <Card
                           key={index}
-                          className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
+                          className="p-[8px] md:p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
                         >
                           <div className="flex items-center">
                             <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
@@ -1029,10 +1029,18 @@ export default ProgressDisplay;
 const getChangeColorAndPrefix = (change: number, title: string) => {
   const isNegative = change < 0;
 
-  if (title === "Games Won")
-    return { color: "text-green-600", value: `${change.toString() + "%"}` };
+  if (!isNegative) {
+    if (title === "Games Won")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+    if (title === "Blunders")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+    if (title === "Mistakes")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+  }
 
   if (isNegative) {
+    if (title === "Games Won")
+      return { color: "text-red-500", value: `${change.toString() + "%"}` };
     if (title === "Mistakes")
       return { color: "text-yellow-500", value: `${change.toString() + "%"}` };
     if (title === "Blunders")
@@ -1041,6 +1049,6 @@ const getChangeColorAndPrefix = (change: number, title: string) => {
 
   return {
     color: "text-green-600",
-    value: `${change >= 0 ? "+" : ""}${change}`,
+    value: `${change > 0 ? "+" : ""}${change}`,
   };
 };

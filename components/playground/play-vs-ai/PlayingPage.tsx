@@ -676,7 +676,7 @@ export default function PlayingPage() {
         summary: {
           criticalMistakes: [
             {
-              fen: "6k1/pp4pp/6P1/6KB/3r3q/7P/3p4/8 w - - 3 36",
+              fen: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
               move: "Kf5",
               type: "Blunder",
               arrows: {
@@ -692,7 +692,7 @@ export default function PlayingPage() {
                 }
               },
               analysis: "A big mistake — it gives your opponent a huge chance and makes the position very hard to defend.",
-              fenAfter: "6k1/pp4pp/6P1/5K1B/3r3q/7P/3p4/8 b - - 4 36",
+              fenAfter: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
               solution: "Teachers highlight that moving the King to h6 would have been a safer option!",
               moveNumber: 36,
               keyEvaluation: -100,
@@ -701,7 +701,7 @@ export default function PlayingPage() {
               savedDate: null
             },
             {
-              fen: "r2qk2r/pp3ppp/3p1b2/4P3/2Bp4/8/PP3PPP/n1B2RK1 w kq - 0 15",
+              fen: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
               move: "Bf4",
               type: "Mistake",
               arrows: {
@@ -717,7 +717,7 @@ export default function PlayingPage() {
                 }
               },
               analysis: "This choice weakens your position quite a bit and hands your opponent more chances.",
-              fenAfter: "r2qk2r/pp3ppp/3p1b2/4P3/2Bp1B2/8/PP3PPP/n4RK1 b kq - 1 15",
+              fenAfter: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
               solution: "Grandmasters themselves have chosen e5 to f6 in similar positions!",
               moveNumber: 15,
               keyEvaluation: -7.69,

@@ -47,10 +47,10 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
 
   const renderSafeList = (items: string[]): React.ReactNode => {
     if (!items || items.length === 0) {
-      return <li className="text-[14px] --xs">Content coming soon</li>;
+      return <li className="text-[15px] --xs">Content coming soon</li>;
     }
     return items.map((item, index) => (
-      <li key={index} className="text-[14px] --xs">
+      <li key={index} className="text-[15px] --xs">
         {item}
       </li>
     ));
@@ -68,10 +68,10 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-[14px] --sm">{getPrimaryLabel()}</CardTitle>
+            <CardTitle className="text-[18px] p-[8px] md:p-[0px] md:pb-[8px] --sm">{getPrimaryLabel()}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 list-disc pl-4">
@@ -82,7 +82,7 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
 
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-[14px] --sm">{getSecondaryLabel()}</CardTitle>
+            <CardTitle className="text-[18px] p-[8px] md:p-[0px] md:pb-[8px] --sm">{getSecondaryLabel()}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 list-disc pl-4">

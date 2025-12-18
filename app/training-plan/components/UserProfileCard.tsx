@@ -152,7 +152,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
           <div className="mt-4 md:mt-0 md:flex-shrink-0 pl-16 md:pl-0">
             <div className="flex flex-col md:items-end md:justify-center">
-              <div className="text-[14px] --xs md:text-[15px] text-gray-600 mb-[4px] font-medium">
+              <div className="text-[14px] --xs md:text-[15px] text-gray-600 mb-[4px] font-semibold">
                 Avg. Time to Invest Daily:
               </div>
               <div className="flex items-center gap-1 text-blue-800 text-[14px] --sm md:text-[14px]">

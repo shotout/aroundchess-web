@@ -60,7 +60,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                       <div className="flex gap-[8px]">
                         <span
                           onClick={() => handleOnClickMovement(item)}
-                          className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[14px]"
+                          className="flex items-center justify-center cursor-pointer text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] py-1 px-[8px] md:px-[14px]"
                         >
                           Move {item?.moveNumber}:&nbsp;
                           {capturedWhite &&
@@ -89,7 +89,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                       </div>
 
                       <div className="flex gap-[10px]">
-                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[14px]">
+                        <span className="flex items-center justify-center text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md font-normal text-[#FFA459] border border-[#FFA459] rounded-[4px] py-1 px-[8px] md:px-[14px]">
                           {item?.threatType}
                         </span>
 

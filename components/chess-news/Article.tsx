@@ -157,7 +157,7 @@ export default function Article() {
                         </span>
                       </div>
 
-                      <h3 className="text-[16px] min-h-[45px] flex items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
+                      <h3 className="text-[16px] min-h-[45px] items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
                         {article.title}
                       </h3>
 

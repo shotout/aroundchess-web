@@ -114,7 +114,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image
@@ -238,7 +238,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
           )}
         </div>
 
-        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md p-3">
+        <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
               <Image

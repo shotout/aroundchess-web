@@ -48,7 +48,7 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 mt-4">
+          <div className="flex overflow-x-auto md:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-[8px] md:gap-4 mt-4">
             {relatedLessons.length > 0 ? (
               relatedLessons.map((topic, index) => {
                 const topicSlug = getSlugFromId(topic.id, lessonType);
@@ -56,8 +56,8 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
 
                 return (
                   <div key={index} className="cursor-pointer w-full xl:mx-auto">
-                    <Card onClick={() => handleLessonNavigation(topicSlug)} className="border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
-                      <div className="relative p-3 flex flex-col">
+                    <Card onClick={() => handleLessonNavigation(topicSlug)} className="w-[172px] md:w-auto border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
+                      <div className="relative p-[8px] md:p-3 flex flex-col">
                         {/* Chessboard */}
                         <div className="relative aspect-square bg-white flex items-center justify-center overflow-hidden mb-2 before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:cursor-pointer before:z-10">
                           <div className="w-full h-full">
@@ -101,10 +101,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                         {/* Button */}
                         <div
                           onClick={() => handleLessonNavigation(topicSlug)}
-                          className="w-full flex items-center justify-center space-x-2 rounded-full px-4 cursor-pointer btn-secondary"
+                          className="w-full flex items-center justify-center space-x-2 rounded-full px-[8px] md:px-4 cursor-pointer btn-secondary"
                         >
                           <BookOpen className="h-4 w-4" />
-                          <span className="text-[14px] --xs md:text-[14px] --sm font-semibold">
+                          <span className="text-[14px] --xs md:text-[14px] --sm">
                             Start Learning
                           </span>
                         </div>
