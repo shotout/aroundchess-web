@@ -112,7 +112,7 @@ function Profile() {
           
           <div className="relative">
             <div
-              className={`flex flex-col z-10 px-[16px] md:p-[32px] gap-4 ${
+              className={`flex flex-col z-10 p-[16px] md:p-[32px] gap-4 ${
                 isLoggingOut ? "pointer-events-none" : ""
               }`}
             >
