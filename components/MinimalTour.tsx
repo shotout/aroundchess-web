@@ -850,7 +850,7 @@ export default function MinimalTour({
               >
                 <span className="text-white font-semibold text-[14px] --">
                   {index + 1 >= steps.length
-                    ? (isSubmitting ? "Saving..." : "Play Now")
+                    ? (isSubmitting ? "Saving..." : (steps.length === 7 ? "Play Now" : "Start Game Analysis"))
                     : "Next"}
                 </span>
               </button>
