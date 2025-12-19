@@ -417,7 +417,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
           <div className="w-[640px] lg:w-full relative h-20 block">
             <div className="relative w-full mt-6">
-              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-[5]">
                 {skillLevels.map((level, index) => {
                   const isReached = (currentElo || 0) >= level.elo;
                   return (

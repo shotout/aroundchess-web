@@ -202,7 +202,7 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {(v3Result?.summary?.criticalMistakes?.length > 0) ? (
+                {(v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0].fen) ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}

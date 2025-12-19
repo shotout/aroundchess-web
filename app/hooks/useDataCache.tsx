@@ -33,18 +33,21 @@ export const useDataCache = () => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchAllData = useCallback(async () => {
+  const fetchAllData = useCallback(async (skipSavedMistakes = false) => {
     if (isFetching) return;
 
     setIsFetching(true);
 
     try {
-      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
-      // Only update if we got valid data, otherwise keep cached data
-      if (savedData?.data && Array.isArray(savedData.data)) {
-        setSavedMistakes(savedData.data);
-        if (savedData.data.length > 0) {
-          setPreviousAnalysesDetail(savedData.data[0]);
+      // Only fetch savedMistakes if not skipped AND no cached data exists
+      if (!skipSavedMistakes) {
+        const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+        // Only update if we got valid data, otherwise keep cached data
+        if (savedData?.data && Array.isArray(savedData.data)) {
+          setSavedMistakes(savedData.data);
+          if (savedData.data.length > 0) {
+            setPreviousAnalysesDetail(savedData.data[0]);
+          }
         }
       }
 
@@ -99,6 +102,7 @@ export const useDataCache = () => {
     if (!hydrated) return;
 
     const hasCachedData = savedMistakes.length > 0 || previousAnalyses.length > 0;
+    const hasSavedMistakes = savedMistakes.length > 0;
 
     // Only fetch if no cached data, OR if we have cached data but it's expired (not on initial load)
     if (!hasCachedData) {
@@ -106,7 +110,8 @@ export const useDataCache = () => {
       await fetchAllData();
     } else if (lastFetchTime && shouldRefetch()) {
       // Has cached data AND cache is expired (lastFetchTime exists) - refetch
-      await fetchAllData();
+      // Skip fetching savedMistakes if they already exist to preserve all bookmarks
+      await fetchAllData(hasSavedMistakes);
     }
     // If hasCachedData and no lastFetchTime (initial load), just use cached data
   }, [hydrated, shouldRefetch, fetchAllData, savedMistakes.length, previousAnalyses.length, lastFetchTime]);
