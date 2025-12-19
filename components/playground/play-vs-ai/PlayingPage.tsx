@@ -671,60 +671,36 @@ export default function PlayingPage() {
   // Auto-open GameAnalysis modal when tutorial reaches step 6
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 5) {
+      console.log("setV3AnalysisResult: from tutorial 2");
       // Set dummy v3Result for tutorial with complete data including FEN and arrows
       setV3AnalysisResult({
         summary: {
           criticalMistakes: [
             {
-              fen: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
-              move: "Kf5",
-              type: "Blunder",
-              arrows: {
-                badMove: {
-                  piece: "K",
-                  startSquare: "g5",
-                  endSquare: "f5"
+              "fen": "r4rk1/ppp2pbp/2npbqp1/4p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 b - - 0 10",
+              "move": "b5",
+              "type": "Inaccuracy",
+              "arrows": {
+                "badMove": {
+                  "piece": "p",
+                  "endSquare": "b5",
+                  "startSquare": "b7"
                 },
-                goodMove: {
-                  piece: "K",
-                  startSquare: "g5",
-                  endSquare: "h6"
+                "goodMove": {
+                  "piece": "n",
+                  "endSquare": "d4",
+                  "startSquare": "c6"
                 }
               },
-              analysis: "A big mistake — it gives your opponent a huge chance and makes the position very hard to defend.",
-              fenAfter: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
-              solution: "Teachers highlight that moving the King to h6 would have been a safer option!",
-              moveNumber: 36,
-              keyEvaluation: -100,
-              mistakeLogId: "3fa00dfd-ca78-4c88-bcc6-5050ab88bd9f",
-              saved: false,
-              savedDate: null
+              "analysis": "A tiny step off the best path — your plan still works, but your edge is smaller now.",
+              "fenAfter": "r4rk1/p1p2pbp/2npbqp1/1p2p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 w - - 0 11",
+              "solution": "Many players look at c6 to d4 to keep a small edge.",
+              "moveNumber": 10,
+              "keyEvaluation": -0.66,
+              "mistakeLogId": "212adc63-f76f-4aba-b659-ec425134fb2b",
+              "saved": false,
+              "savedDate": null
             },
-            {
-              fen: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
-              move: "Bf4",
-              type: "Mistake",
-              arrows: {
-                badMove: {
-                  piece: "B",
-                  startSquare: "c1",
-                  endSquare: "f4"
-                },
-                goodMove: {
-                  piece: "P",
-                  startSquare: "e5",
-                  endSquare: "f6"
-                }
-              },
-              analysis: "This choice weakens your position quite a bit and hands your opponent more chances.",
-              fenAfter: "rnbqkbnr/pppppppp/2n2n2/2B5/3PP3/2N5/P1P2PPP/R1BQKBNR w KQkq - 0 1",
-              solution: "Grandmasters themselves have chosen e5 to f6 in similar positions!",
-              moveNumber: 15,
-              keyEvaluation: -7.69,
-              mistakeLogId: "b1749799-a974-41e5-b0df-12475fc4d925",
-              saved: false,
-              savedDate: null
-            }
           ]
         },
         analysisId: "tutorial-dummy-id"

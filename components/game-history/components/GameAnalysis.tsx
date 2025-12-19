@@ -192,7 +192,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100vh] top-[-20px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100vh] top-[-20px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[724px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -202,8 +202,7 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {/* {(!isTutorialPlay || (v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0]?.fen)) ? ( */}
-                {(!isTutorialPlay && v3Result?.summary?.criticalMistakes?.length > 0) ? (
+                {(v3Result?.summary?.criticalMistakes?.length > 0) ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}
@@ -734,18 +733,18 @@ const AnalysisHelpfulSlide = (
 const AnalysisEmptyState = ({ handleClose }: { handleClose: () => void }) => {
     return (
         <>
-            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
-                <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="mb-[16px]" />
+            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[16px] xxl:p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+                <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="w-[150px] h-[150px] xxl:w-[160px] xxl:h-[165px] object-contain mb-[16px]" />
                 <div className="relative mb-[24px]">
-                    <h3 className="text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>
-                    <p className="text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training. Check the Chess Master Analysis for an in-depth analysis.</p>
+                    <h3 className="text-[15px] xxl:text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>
+                    <p className="text-[14px] xxl:text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training. Check the Chess Master Analysis for an in-depth analysis.</p>
                 </div>
 
-                <Link href="/analysis" className="flex items-center justify-center btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white mb-[16px]">
+                <Link href="/analysis" className="flex items-center justify-center btn-primary w-full h-[42px] xxl:h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white mb-[16px]">
                     Visit Chess Master Analysis
                 </Link>
 
-                <button onClick={handleClose} type="button" className="btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
+                <button onClick={handleClose} type="button" className="btn-secondary w-full h-[42px] xxl:h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
                     Close
                 </button>
             </div>

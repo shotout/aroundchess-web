@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember, isMemberMonthly, sessionId } = useProfileStore();
-  const { profile, fetchUserProfile } = useUserStore();
+  const { profile } = useUserStore();
   const { isLoading } = useApiClient();
 
   const isSignedIn = sessionId.length > 0;
@@ -45,13 +45,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
-
-  // Fetch user profile when sessionId is available
-  useEffect(() => {
-    if (sessionId && sessionId.length > 0) {
-      fetchUserProfile(sessionId);
-    }
-  }, [sessionId, fetchUserProfile]);
 
   const handleOpenOffer = (type: string) => {
     setOpenSubscribe(true);
