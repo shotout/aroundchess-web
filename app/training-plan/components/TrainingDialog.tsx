@@ -336,7 +336,6 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-[90vw] lg:max-w-6xl rounded-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
           <DialogHeader className="flex flex-row items-center justify-between">
-            <div></div>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <Image
                 src={"/training-plan/check-small.png"}

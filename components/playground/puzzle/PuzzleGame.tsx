@@ -898,7 +898,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </button>
           <button
             onClick={onChangeTopic}
-            className="flex flex-row justify-center items-center md:w-2/4  md:min-h-[40px]  px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
+            className="flex flex-row justify-center items-center md:w-2/4  md:min-h-[40px]  px-4 py-1 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1 "
           >
             <RefreshCcw size={18} />
             <span className="font-medium text-[11px] md:text-[14px] -- lg:text-[14px] xl:mt-1 ">
@@ -907,7 +907,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           </button>
           <button
             onClick={getNextPuzzleHandler}
-            className="flex flex-row items-center justify-center md:w-1/4 min-h-[40px] px-[8px] sm:px-4 py-2 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
+            className="flex flex-row items-center justify-center md:w-1/4 min-h-[40px] px-[8px] sm:px-4 py-1 border border-[#DEDEDE] rounded-[8px] hover:bg-gray-100 gap-1"
           >
             <span className="font-medium text-[11px] lg:text-[14px] xl:mt-1">
               Next Puzzle
@@ -1237,13 +1237,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               <div className="flex flex-row items-center justify-center gap-1">
                 <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
                 <span className="h-[14px] font-normal text-[11px]">
-                  Previous Place
+                  Previous Position
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
                 <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
                 <span className="h-[14px] font-normal text-[11px]">
-                  Current Place
+                  Current Position
                 </span>
               </div>
               <div className="flex flex-row items-center justify-center gap-1">
