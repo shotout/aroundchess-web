@@ -385,11 +385,30 @@ const GamesList: React.FC<GamesListProps> = ({
         summary: {
           criticalMistakes: [
             {
-              moveNumber: 15,
-              move: "Nxh5",
-              analysis: "This move loses material and weakens your position significantly.",
-              solution: "Better to play Bf4, maintaining piece coordination and central control."
-            }
+              "fen": "r4rk1/ppp2pbp/2npbqp1/4p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 b - - 0 10",
+              "move": "b5",
+              "type": "Inaccuracy",
+              "arrows": {
+                "badMove": {
+                  "piece": "p",
+                  "endSquare": "b5",
+                  "startSquare": "b7"
+                },
+                "goodMove": {
+                  "piece": "n",
+                  "endSquare": "d4",
+                  "startSquare": "c6"
+                }
+              },
+              "analysis": "A tiny step off the best path — your plan still works, but your edge is smaller now.",
+              "fenAfter": "r4rk1/p1p2pbp/2npbqp1/1p2p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 w - - 0 11",
+              "solution": "Many players look at c6 to d4 to keep a small edge.",
+              "moveNumber": 10,
+              "keyEvaluation": -0.66,
+              "mistakeLogId": "212adc63-f76f-4aba-b659-ec425134fb2b",
+              "saved": false,
+              "savedDate": null
+            },
           ]
         },
         analysisId: "tutorial-dummy-id"

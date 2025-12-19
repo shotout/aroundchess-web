@@ -263,11 +263,10 @@ export const PricingOffer: React.FC = () => {
             backgroundSize: "cover",
             backgroundPosition: "center",
             height: activeTab == "tokens" ? "auto" : "auto",
-            width: "100%",
           }}
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
         >
-          <div className="text-center py-2 z-2 px-8">
+          <div className="text-center py-2 z-2 md:px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
               Become a Chess Master
             </DialogTitle>
@@ -278,15 +277,16 @@ export const PricingOffer: React.FC = () => {
               or buy Analysis Tokens for access to more Analyses
             </DialogDescription>
           </div>
+
           {/* {activeTab == "tokens" && !isMember && token.balance == 0 && (
             <CountdownTimerToken />
           )} */}
+          
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div>
-              <TabsList className="flex h-[62px] min-w-[326px] sm:min-w-[608px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
+              <TabsList className="flex h-[62px] md:min-w-[326px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE]">
                 <TabsTrigger
                   value="tokens"
-                  className={`flex-1 w-[155px] sm:min-w-[296px] lg:w-full py-2 text-[14px] --10px lg:text-[16px] rounded-[6px] ${
+                  className={`flex-1 md:min-w-[296px] lg:w-full py-2 text-[14px] --10px lg:text-[16px] rounded-[6px] ${
                     activeTab == "tokens"
                       ? "font-semibold border border-[#C0CED4]"
                       : "font-normal"
@@ -304,7 +304,7 @@ export const PricingOffer: React.FC = () => {
                     <span className="block leading-tight text-center">
                       <span className="block sm:inline">Unlock More</span>
                       <span className="block sm:inline sm:ml-1">
-                        Analyses
+                        Analysis
                       </span>
                     </span>
                   </div>
@@ -338,6 +338,7 @@ export const PricingOffer: React.FC = () => {
                   </div>
                 </TabsTrigger>
               </TabsList>
+              
               <TabsContent value="tokens">
                   <div className="gap-[16px] flex flex-col">
                     <span className="text-center text-[18px] xl:text-[32px] font-semibold text-[#17119b]">
@@ -631,7 +632,7 @@ export const PricingOffer: React.FC = () => {
                       )}
                     </div>
                   </div>
-                </TabsContent>
+              </TabsContent>
 
               <TabsContent
                 value="subscription"
@@ -639,7 +640,6 @@ export const PricingOffer: React.FC = () => {
               >
                 <PremiumSubsContent onGetPremium={handleGetPremium} initialFilter={subscriptionFilter} />
               </TabsContent>
-            </div>
           </Tabs>
         </DialogContent>
       </DialogPortal>

@@ -84,7 +84,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
     return (
       <Link href={`${basePath}/${slug}`}>
         <div className="opacity-100 scale-100 transition-all duration-200 hover:shadow-md">
-          <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col p-4">
+          <Card className="border rounded-lg overflow-hidden shadow-sm h-full flex flex-col p-[8px] md:p-4">
             <div className="relative">
               <div className="aspect-square bg-white flex items-center justify-center overflow-hidden">
                 <div className="relative w-full h-full px-1 lg:p-2 2xl:p-5 before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:cursor-pointer before:z-10">
@@ -125,7 +125,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
               {/* Button stays at bottom */}
               <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-2 py-2 cursor-pointer btn-primary">
                 <BookOpen className="h-4 w-4" />
-                <span className="text-[14px] --10px md:text-[14px] --sm">Start Learning</span>
+                <span className="text-[3.6vw] --10px md:text-[14px] --sm">Start Learning</span>
               </div>
             </div>
           </Card>

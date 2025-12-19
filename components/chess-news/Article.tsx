@@ -97,7 +97,7 @@ export default function Article() {
               {categories.length === 0 ? (
                 <CategorySkeleton count={5} />
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
+                <div className="flex overflow-x-auto pb-[8px] md:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
                   {categories.map((tab) => (
                     <button
                       key={tab.id}
@@ -129,7 +129,7 @@ export default function Article() {
               <NoData>News is empty</NoData>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-3 sm:gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-3 sm:gap-4 mt-[8px] md:mt-6">
               {currentData.map((article) => {
                 return (
                   <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
@@ -157,7 +157,7 @@ export default function Article() {
                         </span>
                       </div>
 
-                      <h3 className="text-[16px] min-h-[45px] items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
+                      <h3 className="text-[16px] md:min-h-[45px] items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
                         {article.title}
                       </h3>
 

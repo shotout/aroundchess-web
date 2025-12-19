@@ -27,6 +27,17 @@ import { useApiClient } from "@/functions/api-client";
 import { toast } from "sonner";
 import DotSpinner from "../Spinner";
 
+// Utility function to format camelCase/PascalCase to spaced words
+const formatMistakeType = (text: string): string => {
+    if (!text) return text;
+    // Add space before capital letters and trim
+    return text
+        .replace(/([A-Z])/g, ' $1')
+        .trim()
+        // Capitalize first letter
+        .replace(/^./, str => str.toUpperCase());
+};
+
 interface ArrowConfig {
     from: string;
     to: string;
@@ -181,7 +192,7 @@ export default function GameAnalysis({
             }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100vh] top-[-20px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[714px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="relative w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100vh] top-[-20px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[724px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -191,8 +202,7 @@ export default function GameAnalysis({
 
                 <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px] lg:mb-[10px] xxl:mb-[16px]">Game Analysis</h3>
 
-                {/* {(!isTutorialPlay || (v3Result?.summary?.criticalMistakes?.length > 0 && v3Result?.summary?.criticalMistakes[0]?.fen)) ? ( */}
-                {(!isTutorialPlay && v3Result?.summary?.criticalMistakes?.length > 0) ? (
+                {(v3Result?.summary?.criticalMistakes?.length > 0) ? (
                     <>
                         <Swiper
                             modules={[EffectCards, Pagination]}
@@ -329,12 +339,16 @@ const GameAnalysisSlide = ({
     };
 
     useEffect(() => {
-        if (typeof window !== "undefined" && window.innerWidth < 1400) {
-            setBoardSize(170);
-        } 
-
         if (typeof window !== "undefined" && window.innerWidth > 1600) {
             setBoardSize(280);
+        }
+
+        if (typeof window !== "undefined" && window.innerWidth < 1400) {
+            setBoardSize(170);
+        }
+
+        if (typeof window !== "undefined" && window.innerWidth < 568) {
+            setBoardSize(210);
         }
     }, []);
 
@@ -572,7 +586,7 @@ const GameAnalysisSlide = ({
                     <div className="flex items-center gap-[8px]">
                         <div className="flex gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
                             <Image src="/images/analysis/icon_miss.png" alt="miss" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
-                            <span className="font-semibold text-[13px]">{mistake.type}</span>
+                            <span className="font-semibold text-[13px]">{formatMistakeType(mistake.type)}</span>
                         </div>
 
                         <span className="font-bold text-white text-[14px]">Move { mistake.moveNumber }: { mistake.move }</span>
@@ -623,7 +637,7 @@ const GameAnalysisSlide = ({
 
                     <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
                         <Image src="/images/analysis/icon_union.svg" alt="analysis" width={44} height={44} className="w-[44px] h-[44px] object-contain" />
-                        <div className="relative leading-[120%] flex items-center h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
+                        <div className="relative leading-[120%] flex items-center min-h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                             {mistake.solution}
                         </div>
                     </div>
@@ -719,18 +733,18 @@ const AnalysisHelpfulSlide = (
 const AnalysisEmptyState = ({ handleClose }: { handleClose: () => void }) => {
     return (
         <>
-            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
-                <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="mb-[16px]" />
+            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[16px] xxl:p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+                <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="w-[150px] h-[150px] xxl:w-[160px] xxl:h-[165px] object-contain mb-[16px]" />
                 <div className="relative mb-[24px]">
-                    <h3 className="text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>
-                    <p className="text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training. Check the Chess Master Analysis for an in-depth analysis.</p>
+                    <h3 className="text-[15px] xxl:text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>
+                    <p className="text-[14px] xxl:text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training. Check the Chess Master Analysis for an in-depth analysis.</p>
                 </div>
 
-                <Link href="/analysis" className="flex items-center justify-center btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white mb-[16px]">
+                <Link href="/analysis" className="flex items-center justify-center btn-primary w-full h-[42px] xxl:h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white mb-[16px]">
                     Visit Chess Master Analysis
                 </Link>
 
-                <button onClick={handleClose} type="button" className="btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
+                <button onClick={handleClose} type="button" className="btn-secondary w-full h-[42px] xxl:h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
                     Close
                 </button>
             </div>

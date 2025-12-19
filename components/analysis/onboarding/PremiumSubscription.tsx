@@ -401,6 +401,7 @@ export const PremiumSubsContent: React.FC<{
           </div>
         </div>
       </div>
+
       <div className="flex flex-row items-center justify-between">
         <div
           className={`${
@@ -443,6 +444,7 @@ export const PremiumSubsContent: React.FC<{
           </span>
         </div>
       </div>
+      
       <div
         ref={containerRef}
         className={`flex w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
@@ -520,14 +522,12 @@ export const PremiumSubsContent: React.FC<{
             )}
           </div>
         )}
+        
         {/* monthly */}
         {(isMobile ||
           packageFilter === "monthly" ||
           packageFilter === "yearly") && (
-          <div
-            ref={monthlyCardRef}
-            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
-          >
+          <div ref={monthlyCardRef} className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
@@ -664,10 +664,8 @@ export const PremiumSubsContent: React.FC<{
 
         {/* yearly */}
         {(isMobile || packageFilter === "yearly") && (
-          <div
-            ref={yearlyCardRef}
-            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
-          >
+          <div ref={yearlyCardRef}
+            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
@@ -675,21 +673,16 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {/* {!isMember &&
-              profile?.discountInfo?.hasActiveDiscount &&
-              isPass > 0 && (
-                <div className="flex justify-center items-center my-2">
-                  <CountdownTimerDiscount />
-                </div>
-              )} */}
+            profile?.discountInfo?.hasActiveDiscount &&
+            isPass > 0 && (
+            <div className="flex justify-center items-center my-2">
+              <CountdownTimerDiscount />
+            </div>
+            )} */}
 
             <div className="flex items-center gap-3 mb-3 pt-1">
               <div className="p-1 rounded-full">
-                <Image
-                  src="/onboarding/premium.png"
-                  alt="Premium Icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/onboarding/premium.png" alt="Premium Icon" width={48} height={48} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
@@ -712,14 +705,8 @@ export const PremiumSubsContent: React.FC<{
             </p>
 
             <div className="space-y-2 flex-grow">
-              <BenefitItem
-                text="1,000 Analyses per year (meaning $0.08 per Analysis)"
-                light
-              />
-              <BenefitItem
-                text="Full Access to the Feedback Log and Game History"
-                light
-              />
+              <BenefitItem text="1,000 Analyses per year (meaning $0.08 per Analysis)" light />
+              <BenefitItem text="Full Access to the Feedback Log and Game History" light />
               <BenefitItem text="Unlimited Puzzles" light />
               <BenefitItem text="Play vs. AI" light />
               <BenefitItem text="Board Vision Training" light />
@@ -730,61 +717,47 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {!isMember && !isMemberMonthly && (
-              <button
-                disabled={isLoading}
-                onClick={() => handleGetPremium("yearly")}
-                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-[14px] --sm"
+            <button disabled={isLoading} onClick={()=> handleGetPremium("yearly")}
+              className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors
+              text-[14px] --sm"
               >
-                {isLoading && paySelected == "yearly" ? (
-                  <DotSpinner size={8} />
-                ) : (
-                  "Get Premium"
-                )}
-              </button>
+              {isLoading && paySelected == "yearly" ? (
+              <DotSpinner size={8} />
+              ) : (
+              "Get Premium"
+              )}
+            </button>
             )}
 
             {isMember && (
-              <>
-                <motion.div
-                  variants={fadeInUp}
-                  className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
-                >
-                  <div className="flex h-12 flex-row items-center rounded-lg gap-2">
-                    <Image
-                      src="/icons/onboarding-popup.png"
-                      alt="icon"
-                      width={32}
-                      height={32}
-                      className="object-contain m-3 mr-0"
-                    />
-                    <span className="font-medium text-[14px] --xs text-black z-10">
-                      {`You are on this Package. ${
-                        activeMembership.autoRenew
-                          ? ` The Subscription automatically renews on ` +
-                            formatDateHistory(activeMembership.endDate) +
-                            "."
-                          : ``
-                      }`}
-                    </span>
-                    <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
-                      <Image
-                        src="/icons/sparks-member.png"
-                        alt="icon"
-                        width={48}
-                        height={48}
-                        className="object-cover"
-                      />
-                    </div>
+            <>
+              <motion.div variants={fadeInUp}
+                className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]">
+                <div className="flex h-12 flex-row items-center rounded-lg gap-2">
+                  <Image src="/icons/onboarding-popup.png" alt="icon" width={32} height={32}
+                    className="object-contain m-3 mr-0" />
+                  <span className="font-medium text-[14px] --xs text-black z-10">
+                    {`You are on this Package. ${
+                    activeMembership.autoRenew
+                    ? ` The Subscription automatically renews on ` +
+                    formatDateHistory(activeMembership.endDate) +
+                    "."
+                    : ``
+                    }`}
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
+                    <Image src="/icons/sparks-member.png" alt="icon" width={48} height={48} className="object-cover" />
                   </div>
-                </motion.div>
-                {activeMembership.autoRenew && (
-                  <button className="mt-3" onClick={handleCancelSubscription}>
-                    <span className="font-medium text-[14px] --sm text-white">
-                      Cancel Subscription
-                    </span>
-                  </button>
-                )}
-              </>
+                </div>
+              </motion.div>
+              {activeMembership.autoRenew && (
+              <button className="mt-3" onClick={handleCancelSubscription}>
+                <span className="font-medium text-[14px] --sm text-white">
+                  Cancel Subscription
+                </span>
+              </button>
+              )}
+            </>
             )}
           </div>
         )}

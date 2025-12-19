@@ -169,13 +169,17 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={barData}
-            margin={{ top: 10, right: 10, bottom: 5, left: -25 }}
+            margin={{ top: 10, right: 10, bottom: 30, left: -25 }}
             layout="horizontal"
             className="text-[14px] --10px"
             {...barChartProps}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#999" />
-            <XAxis dataKey="name" tick={{ textAnchor: "middle" }} />
+            <XAxis
+              dataKey="name"
+              tick={{ textAnchor: "middle" }}
+              height={60}
+            />
             <YAxis
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}

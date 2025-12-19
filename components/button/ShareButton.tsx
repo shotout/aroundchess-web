@@ -130,7 +130,7 @@ const ShareButton = (props: any) => {
   ]);
   const renderIconRow = () => {
     return (
-      <div className="flex flex-row items-end gap-4">
+      <div className="ml-[3.5vw] flex flex-row items-end gap-3 md:gap-4">
         {icon.map((item: any, index: number) => {
           return (
             <button onClick={item.onPress} key={index}>
@@ -173,7 +173,7 @@ const ShareButton = (props: any) => {
       <div
         ref={wrapperRef}
         onClick={props.isFull ? () => null : () => setOpen(!open)}
-        className="flex flex-row justify-between w-full items-center gap-2 px-4 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium cursor-pointer "
+        className="flex flex-row justify-between w-full items-center gap-1 md:gap-2 px-[4px] md:px-4 py-2 rounded-xl border border-[#C6EEFE] bg-[#E6F7FE] text-black font-medium cursor-pointer "
         style={{
           boxShadow: `inset 0px -2px 2px #C6EEFE,
           inset 0px 2px 0px #FFFFFF`, // Custom inner shadow
@@ -181,7 +181,7 @@ const ShareButton = (props: any) => {
       >
         <div className="flex items-center gap-2">
           <Share2 className="w-4 h-4 sm:w-5 sm:h-5  object-contain" />
-          <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md">
+          <span className="text-[3vw] --xs sm:text-[14px] --sm md:text-md">
             Share this article:
           </span>
         </div>

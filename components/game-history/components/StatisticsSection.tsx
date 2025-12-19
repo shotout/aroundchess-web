@@ -203,7 +203,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
 
   return (
     <div className={`${isTutorialPlay ? `hidden xl:block `:`xl:block `} xl:p-3 xl:border xl:border-primary-gray xl:rounded-md bg-transparent xl:bg-white xl:shadow-card`}>
-      <div className="font-semibold text-[14px] --sm py-2 lg:text-xl">
+      <div className="font-semibold text-[18px] md:text-[14px] --sm py-2 lg:text-xl">
         Overall Statistics
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

@@ -107,7 +107,7 @@ export default function Navigation({
             <Header onSidebarToggle={toggleSidebar} />
           </div>
           <main
-            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}
@@ -159,7 +159,7 @@ export default function Navigation({
           </div>
 
           <main
-            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}
@@ -202,7 +202,7 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 right-0 z-50 w-[80%] bg-white border-l border-gray-200 shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-[82%] bg-white border-l border-gray-200 shadow-xl"
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"

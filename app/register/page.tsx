@@ -34,6 +34,7 @@ function RegisterPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
   const { setSessionId } = useProfileStore();
@@ -380,6 +381,7 @@ function RegisterPage() {
                           id="email"
                           value={email ?? ""}
                           onChange={(e) => setEmail(e.target.value)}
+                          onBlur={() => setEmailTouched(true)}
                           placeholder="Enter your Email Address"
                           type="email"
                           autoCapitalize="none"
@@ -389,7 +391,7 @@ function RegisterPage() {
                           className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
                         />
                       </div>
-                      {emailValidation.message !== "" && (
+                      {emailTouched && emailValidation.message !== "" && (
                         <span className="text-[#FF383C] text-[14px] -- mb-4 -mt-2 ml-2">
                           {emailValidation.message}
                         </span>
@@ -438,7 +440,7 @@ function RegisterPage() {
                       </div>
                     </div>
                   </div>
-                  {password !== confirmPassword && (
+                  {confirmPassword !== "" && password !== confirmPassword && (
                     <span className="text-[#FF383C] text-[14px] -- mb-2 ml-2">
                       Password doesn't match
                     </span>
@@ -446,7 +448,7 @@ function RegisterPage() {
                   <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
                     <div className="flex flex-row flex-wrap">
                       {validatedConditions.map((condition, index) => (
-                        <div key={condition.id} className="w-1/2">
+                        <div key={condition.id} className="w-full md:w-1/2">
                           <div className="flex flex-row items-center">
                             <Image
                               alt=""

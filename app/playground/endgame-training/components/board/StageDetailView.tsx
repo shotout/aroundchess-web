@@ -66,19 +66,29 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
 
   const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
 
+  const [containerWidth, setContainerWidth] = useState(0);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     setScrollLeft(e.currentTarget.scrollLeft);
   };
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const scrollWidth = container.scrollWidth;
-      const clientWidth = container.clientWidth;
-      const isOverflowing = scrollWidth > clientWidth;
+    const updateContainerDimensions = () => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const scrollWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+        const isOverflowing = scrollWidth > clientWidth;
 
-      setShouldUseProximity(isOverflowing);
-    }
+        setShouldUseProximity(isOverflowing);
+        setContainerWidth(clientWidth);
+      }
+    };
+
+    updateContainerDimensions();
+
+    window.addEventListener('resize', updateContainerDimensions);
+    return () => window.removeEventListener('resize', updateContainerDimensions);
   }, [maxMoves]);
 
   const autoScrollToLatest = useCallback(() => {
@@ -147,11 +157,22 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnPosition = index * columnWidth;
                 const fixedColumnWidth = 70;
                 const relativePosition = columnPosition - scrollLeft;
+                const fadeZone = 80;
 
+                // Fade effect untuk sebelah kiri (di bawah label White/Black)
                 if (relativePosition < fixedColumnWidth) {
                   const overlap = fixedColumnWidth - relativePosition;
-                  const fadeZone = 80;
                   opacity = Math.max(0.2, 1 - overlap / fadeZone);
+                }
+
+                // Fade effect untuk sebelah kanan saat scroll
+                const rightEdge = scrollLeft + containerWidth;
+                const columnRightEdge = columnPosition + columnWidth;
+                const distanceFromRight = rightEdge - columnRightEdge;
+
+                if (distanceFromRight < fadeZone && distanceFromRight > 0) {
+                  const rightOpacity = Math.max(0.2, distanceFromRight / fadeZone);
+                  opacity = Math.min(opacity, rightOpacity);
                 }
               }
 
@@ -785,7 +806,7 @@ export default function StageDetailView({
           {!isSolved && (
             <div className="flex gap-x-[6px] w-full justify-center">
               <button
-                className="flex gap-x-1 text-[14px] --10px items-center justify-center px-[20px] py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className={`${showHint ? 'text-blue-base' : 'text-[#2E3133]'} flex gap-x-1 text-[14px] --10px items-center justify-center px-[20px] py-2 rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0`}
                 onClick={() => setShowHint(true)}
               >
                 <Image
@@ -793,6 +814,7 @@ export default function StageDetailView({
                   alt="hint icon"
                   width={10}
                   height={10}
+                  className={showHint ? "" : "grayscale"}
                 />
                 Hint
               </button>

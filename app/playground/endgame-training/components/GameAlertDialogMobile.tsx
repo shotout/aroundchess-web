@@ -175,7 +175,7 @@ const GameAlertDialogMobile = ({
               className="fixed bottom-0 left-0 right-0 z-50"
             >
               <div
-                className={`${colorStyles.background} border-t-4 ${colorStyles.border} rounded-t-3xl mb-2 p-6 relative overflow-hidden`}
+                className={`${colorStyles.background} border-t-4 ${colorStyles.border} rounded-t-3xl md:mb-2 p-6 relative overflow-hidden`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {image && (

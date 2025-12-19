@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { DateRange, DayPicker } from "react-day-picker";
 
@@ -16,6 +16,8 @@ export default function TimeframeDialog({ open, setOpen, onSave }: Props) {
     const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
     const [activeButton, setActiveButton] = useState<string>("all");
     const [isMobile, setIsMobile] = useState(false);
+    const [displayMonth, setDisplayMonth] = useState<Date>(subMonths(new Date(), 1));
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -28,35 +30,54 @@ export default function TimeframeDialog({ open, setOpen, onSave }: Props) {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    useEffect(() => {
+        if (open && isMobile && scrollContainerRef.current) {
+            // Delay scroll to ensure content is rendered
+            setTimeout(() => {
+                if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+                }
+            }, 100);
+        }
+    }, [open, isMobile]);
+
     const handleQuickSelect = (type: string) => {
         const today = new Date();
         let newRange: DateRange | undefined;
+        let monthToDisplay: Date = subMonths(today, 1);
 
         switch (type) {
             case "all":
                 newRange = undefined;
+                monthToDisplay = subMonths(today, 1);
                 break;
             case "yesterday":
                 const yesterday = subDays(today, 1);
                 newRange = { from: yesterday, to: yesterday };
+                monthToDisplay = yesterday;
                 break;
             case "last7":
                 newRange = { from: subDays(today, 6), to: today };
+                monthToDisplay = subDays(today, 6);
                 break;
             case "last30":
                 newRange = { from: subDays(today, 29), to: today };
+                monthToDisplay = subDays(today, 29);
                 break;
             case "thisMonth":
                 newRange = { from: startOfMonth(today), to: endOfMonth(today) };
+                monthToDisplay = startOfMonth(today);
                 break;
             case "lastMonth":
                 const lastMonth = subMonths(today, 1);
                 newRange = { from: startOfMonth(lastMonth), to: endOfMonth(lastMonth) };
+                monthToDisplay = startOfMonth(lastMonth);
                 break;
         }
 
         setSelectedRange(newRange);
         setActiveButton(type);
+        setDisplayMonth(monthToDisplay);
     };
 
     const handleDateRangeChange = (range: DateRange | undefined) => {
@@ -120,22 +141,22 @@ export default function TimeframeDialog({ open, setOpen, onSave }: Props) {
 
                     <div className="flex flex-wrap items-center py-[8px] lg:py-[16px] -mx-4px">
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("all")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "all"}>All Time</button>
+                            <button type="button" onClick={() => handleQuickSelect("all")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "all"}>All Time</button>
                         </div>
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("yesterday")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "yesterday"}>Yesterday</button>
+                            <button type="button" onClick={() => handleQuickSelect("yesterday")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "yesterday"}>Yesterday</button>
                         </div>
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("last7")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "last7"}>Last 7 days</button>
+                            <button type="button" onClick={() => handleQuickSelect("last7")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "last7"}>Last 7 days</button>
                         </div>
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("last30")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "last30"}>Last 30 days</button>
+                            <button type="button" onClick={() => handleQuickSelect("last30")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "last30"}>Last 30 days</button>
                         </div>
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("thisMonth")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "thisMonth"}>This Month</button>
+                            <button type="button" onClick={() => handleQuickSelect("thisMonth")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "thisMonth"}>This Month</button>
                         </div>
                         <div className="w-1/3 px-[4px] mb-[8px]">
-                            <button type="button" onClick={() => handleQuickSelect("lastMonth")} className="w-full bg-[#EEF3F5] text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "lastMonth"}>Last Month</button>
+                            <button type="button" onClick={() => handleQuickSelect("lastMonth")} className="w-full bg-[#EEF3F5] text-[3.2vw] md:text-[14px] rounded-[6px] p-[8px] disabled:bg-white disabled:border disabled:border-[#221AE9]" disabled={activeButton === "lastMonth"}>Last Month</button>
                         </div>
                     </div>
 
@@ -174,17 +195,19 @@ export default function TimeframeDialog({ open, setOpen, onSave }: Props) {
                             </div>
                         </div>
                     )}
-                    <div className={isMobile ? "max-h-[400px] overflow-y-auto scrollbar-thin" : ""}>
+                    <div ref={scrollContainerRef} className={isMobile ? "max-h-[40vh] overflow-y-auto scrollbar-thin" : ""}>
                         <DayPicker
                             navLayout="around"
-                            numberOfMonths={isMobile ? 1 : 2}
-                            hideWeekdays={true}
+                            numberOfMonths={2}
+                            hideWeekdays={isMobile}
                             mode="range"
                             selected={selectedRange}
                             onSelect={handleDateRangeChange}
-                            defaultMonth={isMobile ? subMonths(new Date(), 0) : subMonths(new Date(), 1)}
+                            month={displayMonth}
+                            onMonthChange={setDisplayMonth}
                             classNames={{
                                 month: "text-[16px]",
+                                months: isMobile ? "flex flex-col gap-4" : "flex flex-row gap-4",
                                 weekday: "uppercase text-[14px] font-medium pb-[8px] w-[50px]",
                                 weekdays: "border-b border-[#DEDEDE]",
                                 day: 'w-[50px]'
