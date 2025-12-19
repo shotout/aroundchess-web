@@ -381,13 +381,7 @@ export default function PlayingPage() {
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("📊 Modal States:", {
-      isAnalyzeOpen,
-      isChooseAnalysisModeOpen,
-      processingAnalysisModeOpen,
-      gameAnalysisOpen,
-      hasAnalysis,
-    });
+    // Track modal states
   }, [isAnalyzeOpen, isChooseAnalysisModeOpen, processingAnalysisModeOpen, gameAnalysisOpen, hasAnalysis]);
 
   const isGameInitialized = useRef(false);
@@ -400,7 +394,9 @@ export default function PlayingPage() {
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [orientation, setOrientation] = useState<BoardOrientation>(
+    AIChoosed.color as BoardOrientation
+  );
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
@@ -1365,12 +1361,12 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
-    if (AIChoosed.color === "black") {
+    if (myColor === "black") {
       setOrientation("black");
     } else {
       setOrientation("white");
     }
-  }, []);
+  }, [myColor]);
 
   const handleSwitch = () => {
     setOrientation((prev) => {
@@ -2185,6 +2181,7 @@ export default function PlayingPage() {
         onOpenChange={setGameAnalysisOpen}
         v3Result={v3AnalysisResult}
         isTutorialPlay={isTutorialPlay}
+        playerColor={myColor as "white" | "black"}
       />
       
       {/* New Game Dialog */}

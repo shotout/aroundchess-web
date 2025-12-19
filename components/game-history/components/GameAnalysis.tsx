@@ -8,7 +8,7 @@ import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Chess, Square } from "chess.js";
@@ -26,6 +26,7 @@ import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { useApiClient } from "@/functions/api-client";
 import { toast } from "sonner";
 import DotSpinner from "../Spinner";
+import { useTutorial } from "@/components/TutorialProvider";
 
 // Utility function to format camelCase/PascalCase to spaced words
 const formatMistakeType = (text: string): string => {
@@ -50,13 +51,15 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   v3Result?: any;
   isTutorialPlay?: boolean;
+  playerColor?: "white" | "black";
 }
 
 export default function GameAnalysis({
     open,
     onOpenChange,
     v3Result,
-    isTutorialPlay = false
+    isTutorialPlay: isTutorialPlayProp,
+    playerColor
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
@@ -64,6 +67,49 @@ export default function GameAnalysis({
     const [localMistakes, setLocalMistakes] = useState<any[]>([]);
     const { saveMistakeLog, unsaveMistakeLog } = useApiClient();
     const { sessionId } = useProfileStore();
+
+    // Get isTutorialPlay from useTutorial hook (prioritize this over prop)
+    const { isTutorialPlay: isTutorialPlayFromHook } = useTutorial();
+    const isTutorialPlay = isTutorialPlayFromHook ?? isTutorialPlayProp ?? false;
+
+    // Determine player color from props or v3Result
+    const detectedPlayerColor: "white" | "black" = useMemo(() => {
+        if (playerColor) {
+            return playerColor;
+        }
+
+        // Check gameInfo.isPlayerWhite first (primary source)
+        if (v3Result?.gameInfo?.isPlayerWhite !== undefined) {
+            const color = v3Result.gameInfo.isPlayerWhite ? "white" : "black";
+            return color;
+        }
+
+        // Try to detect from v3Result metadata if available
+        if (v3Result?.playerColor) {
+            return v3Result.playerColor;
+        }
+        if (v3Result?.metadata?.playerColor) {
+            return v3Result.metadata.playerColor;
+        }
+
+        // Try to detect from PGN headers if available
+        if (v3Result?.pgn) {
+            try {
+                const pgnHeaders = v3Result.pgn.match(/\[Black\s+"([^"]+)"\]/i);
+                if (pgnHeaders && pgnHeaders[1]) {
+                    const blackPlayer = pgnHeaders[1].toLowerCase();
+                    if (blackPlayer === "you" || blackPlayer.includes("you")) {
+                        return "black";
+                    }
+                }
+            } catch (error) {
+                // Silent error handling
+            }
+        }
+
+        // Default to white if cannot detect
+        return "white";
+    }, [playerColor, v3Result]);
 
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
@@ -224,13 +270,12 @@ export default function GameAnalysis({
                             onSwiper={(swiper) => {
                                 swiperRef.current = swiper;
                                 setActiveIndex(swiper.activeIndex);
-                                console.log(swiper);
                             }}
                             className="w-full"
                         >
                             {localMistakes.map((mistake: any, index: number) => (
                                 <SwiperSlide key={index}>
-                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} isTutorialPlay={isTutorialPlay} />
+                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} isTutorialPlay={isTutorialPlay} playerColor={detectedPlayerColor} />
                                 </SwiperSlide>
                             ))}
                             <SwiperSlide>
@@ -298,7 +343,8 @@ const GameAnalysisSlide = ({
     onSaveBookmark,
     onUnsaveBookmark,
     loadingBookmark,
-    isTutorialPlay
+    isTutorialPlay,
+    playerColor = "white"
 } : {
     mistake: any;
     index: number;
@@ -306,15 +352,22 @@ const GameAnalysisSlide = ({
     onUnsaveBookmark: (index: number) => void;
     loadingBookmark: boolean;
     isTutorialPlay: boolean;
+    playerColor?: "white" | "black";
 }) => {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(240);
-    const [orientation, setOrientation] = useState<BoardOrientation>("white");
+    // Set initial orientation based on player color
+    const [orientation, setOrientation] = useState<BoardOrientation>(playerColor);
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
     const [customArrows, setCustomArrows] = useState<ArrowConfig[]>([]);
 
     const { setStyleChoosed } = useChessBoardThemeStore();
     const { chessMove, setChessMove } = useChessMoveStore();
+
+    // Update orientation when playerColor changes
+    useEffect(() => {
+        setOrientation(playerColor);
+    }, [playerColor]);
 
     // Helper function to detect if a move is a knight move (L-shaped)
     const isKnightMove = (from: string, to: string): boolean => {
@@ -349,6 +402,10 @@ const GameAnalysisSlide = ({
             setBoardSize(170);
         }
 
+        if (typeof window !== "undefined" && window.innerWidth < 1280) {
+            setBoardSize(150);
+        }
+
         if (typeof window !== "undefined" && window.innerWidth < 568) {
             setBoardSize(210);
         }
@@ -357,18 +414,13 @@ const GameAnalysisSlide = ({
     // Load FEN position from mistake when it changes
     useEffect(() => {
         if (mistake?.fen) {
-            console.log("🎯 [GameAnalysisSlide] Loading FEN from mistake:", mistake.fen);
             try {
                 const newGame = new Chess();
                 newGame.load(mistake.fen);
                 setGame(newGame);
-                console.log("✅ [GameAnalysisSlide] FEN loaded successfully");
             } catch (error) {
-                console.error("❌ [GameAnalysisSlide] Failed to load FEN:", error);
-                console.error("❌ Invalid FEN:", mistake.fen);
             }
         } else {
-            console.log("⚠️ [GameAnalysisSlide] No FEN found in mistake object:", mistake);
         }
     }, [mistake]);
 
@@ -376,13 +428,9 @@ const GameAnalysisSlide = ({
     useEffect(() => {
         const arrows: ArrowConfig[] = [];
 
-        console.log("🎯 [GameAnalysisSlide] Generating arrows from mistake:", mistake);
-        console.log("🎯 [GameAnalysisSlide] Arrows object:", mistake?.arrows);
-
         // Red arrow for bad move
         if (mistake?.arrows?.badMove) {
             const badMove = mistake.arrows.badMove;
-            console.log("🔴 [GameAnalysisSlide] Bad move object:", badMove);
 
             // Check if it's an object with startSquare and endSquare
             if (badMove.startSquare && badMove.endSquare) {
@@ -397,18 +445,13 @@ const GameAnalysisSlide = ({
                     color,
                     isKnightMove: isKnight
                 });
-
-                console.log(`🔴 [GameAnalysisSlide] Added ${isKnight ? 'L-shaped' : 'straight'} bad move arrow:`, from, "->", to);
             }
         } else {
-            console.log("⚠️ [GameAnalysisSlide] No badMove found in mistake.arrows");
         }
 
         // Green arrow for good move (could be goodMove or bestMove)
         const goodMove = mistake?.arrows?.goodMove || mistake?.arrows?.bestMove;
         if (goodMove) {
-            console.log("🟢 [GameAnalysisSlide] Good move object:", goodMove);
-
             // Check if it's an object with startSquare and endSquare
             if (goodMove.startSquare && goodMove.endSquare) {
                 const from = goodMove.startSquare;
@@ -422,16 +465,10 @@ const GameAnalysisSlide = ({
                     color,
                     isKnightMove: isKnight
                 });
-
-                console.log(`🟢 [GameAnalysisSlide] Added ${isKnight ? 'L-shaped' : 'straight'} good move arrow:`, from, "->", to);
             }
         } else {
-            console.log("⚠️ [GameAnalysisSlide] No goodMove/bestMove found in mistake.arrows");
         }
-
         setCustomArrows(arrows);
-        console.log("✅ [GameAnalysisSlide] Total arrows:", arrows.length);
-        console.log("✅ [GameAnalysisSlide] Arrows array:", arrows);
     }, [mistake]);
 
     const toggleBoardMode = () => {
@@ -443,12 +480,14 @@ const GameAnalysisSlide = ({
     return (
         <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             {isTutorialPlay === true ? (
-                <Image src={"/images/chessboard.png"}
-                    alt="chessboard"
-                    width={boardSize}
-                    height={boardSize}
-                    className="mb-[10px]"
-                />
+                <div className="flex items-center justify-center">
+                    <Image src={"/images/chessboard.png"}
+                        alt="chessboard"
+                        width={boardSize}
+                        height={boardSize}
+                        className="w-auto mb-[16px] md:h-[200px] xxl:h-[270px] 2xl:h-[320px]"
+                    />
+                </div>
             ) : (
                 <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
                     {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
@@ -561,6 +600,7 @@ const GameAnalysisSlide = ({
                                 arePiecesDraggable={false}
                                 boardWidth={boardSize}
                                 orientation={orientation}
+                                // orientation={"black"}
                                 position={game.fen()}
                                 onSquareClick={function (square: Square): void {
                                     throw new Error("Function not implemented.");
@@ -585,6 +625,7 @@ const GameAnalysisSlide = ({
                                 arrows={customArrows}
                                 boardSize={boardSize}
                                 orientation={orientation}
+                                // orientation={"black"}
                             />
                         </>
                         )}

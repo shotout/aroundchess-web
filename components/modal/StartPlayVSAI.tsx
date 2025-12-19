@@ -318,7 +318,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
           className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[18vw] overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
-              ? "repeat(auto-fit, 94px)" 
+              ? "repeat(auto-fit, 92px)" // "repeat(auto-fit, 94px)" 
               : "repeat(auto-fit, 72px)" 
           }}
         >

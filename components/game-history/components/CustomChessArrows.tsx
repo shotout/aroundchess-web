@@ -18,8 +18,9 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
     boardSize,
     orientation
 }) => {
-    const padding = Math.round(boardSize / 16.5);
-    const actualBoardSize = boardSize - (padding * 2);
+    // Match the calculation from TwoDChessboard: boardWidth - boardWidth / 8.2
+    const actualBoardSize = Math.round(boardSize - boardSize / 8.2);
+    const padding = (boardSize - actualBoardSize) / 2;
     const actualSquareSize = actualBoardSize / 8;
 
     // Convert chess notation to coordinates
@@ -36,6 +37,7 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
             y = rank * actualSquareSize + actualSquareSize / 2 + padding;
         }
 
+        console.log(`🎯 [squareToCoords] square:${square} file:${file} rank:${rank} orientation:${orientation} -> x:${x} y:${y}`);
         return { x, y };
     };
 

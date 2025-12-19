@@ -84,7 +84,8 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
       setHint(null); // Reset hint when loading a new puzzle
 
       const startingSide = puzzle.FEN.split(" ")[1];
-      setBoardOrientation(startingSide === "b" ? "white" : "black");
+      // Set board orientation so the player (who makes the move) is always at the bottom
+      setBoardOrientation(startingSide === "b" ? "black" : "white");
 
       // console.log('Loaded Puzzle:', puzzle)
     }

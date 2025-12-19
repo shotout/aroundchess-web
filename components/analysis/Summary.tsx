@@ -253,7 +253,38 @@ const Summary: React.FC<SummaryProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any) => {
-    setChessMove(move);
+    // Determine player color based on moveNumber
+    // Move number is the full move number (e.g., move 1 = white's first move and black's first move)
+    // We need to check if this move exists in white or black movementDetails
+    const movementDetails = dataAnalysis?.movementDetails;
+
+    let playerType = "white"; // default
+
+    if (movementDetails) {
+      // Check if the move exists in white's moves
+      const whiteMove = movementDetails.white?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      // Check if the move exists in black's moves
+      const blackMove = movementDetails.black?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      if (blackMove) {
+        playerType = "black";
+      } else if (whiteMove) {
+        playerType = "white";
+      }
+    }
+
+    // Enrich the move object with the player type
+    const enrichedMove = {
+      ...move,
+      type: playerType,
+    };
+
+    setChessMove(enrichedMove);
   };
   return (
     <>

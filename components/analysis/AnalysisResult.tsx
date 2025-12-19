@@ -104,8 +104,14 @@ const AnalysisResult: React.FC = () => {
     if (summary && username) {
       // Set default orientation to user's color so they start at bottom
       setOrientation(defaultUserOrientation);
+      setBoardOrientation(defaultUserOrientation);
     }
   }, [summary, username, defaultUserOrientation]);
+
+  // Sync orientation with boardOrientation so player is always at bottom
+  useEffect(() => {
+    setOrientation(boardOrientation);
+  }, [boardOrientation]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;

@@ -201,7 +201,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const badMoves = localBadMoves.length > 0 ? localBadMoves : (dataAnalysis?.middleGame?.badMoves ?? []);
 
   useEffect(() => {
-    console.log("dataAnalysis?.middleGame", dataAnalysis?.middleGame);
+    // Data analysis middleGame initialized
   }, [dataAnalysis]);
 
   const getBadgeClass = (type: string) => {
@@ -249,7 +249,36 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any) => {
-    setChessMove(move);
+    // Determine player color based on moveNumber
+    const movementDetails = dataAnalysis?.movementDetails;
+
+    let playerType = "white"; // default
+
+    if (movementDetails) {
+      // Check if the move exists in white's moves
+      const whiteMove = movementDetails.white?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      // Check if the move exists in black's moves
+      const blackMove = movementDetails.black?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      if (blackMove) {
+        playerType = "black";
+      } else if (whiteMove) {
+        playerType = "white";
+      }
+    }
+
+    // Enrich the move object with the player type
+    const enrichedMove = {
+      ...move,
+      type: playerType,
+    };
+
+    setChessMove(enrichedMove);
   };
 
   const renderMoveAnalysis = (item: any) => (
