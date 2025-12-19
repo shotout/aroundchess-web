@@ -27,6 +27,17 @@ import { useApiClient } from "@/functions/api-client";
 import { toast } from "sonner";
 import DotSpinner from "../Spinner";
 
+// Utility function to format camelCase/PascalCase to spaced words
+const formatMistakeType = (text: string): string => {
+    if (!text) return text;
+    // Add space before capital letters and trim
+    return text
+        .replace(/([A-Z])/g, ' $1')
+        .trim()
+        // Capitalize first letter
+        .replace(/^./, str => str.toUpperCase());
+};
+
 interface ArrowConfig {
     from: string;
     to: string;
@@ -576,7 +587,7 @@ const GameAnalysisSlide = ({
                     <div className="flex items-center gap-[8px]">
                         <div className="flex gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
                             <Image src="/images/analysis/icon_miss.png" alt="miss" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
-                            <span className="font-semibold text-[13px]">{mistake.type}</span>
+                            <span className="font-semibold text-[13px]">{formatMistakeType(mistake.type)}</span>
                         </div>
 
                         <span className="font-bold text-white text-[14px]">Move { mistake.moveNumber }: { mistake.move }</span>
