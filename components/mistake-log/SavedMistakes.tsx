@@ -53,7 +53,6 @@ const fetchLastAnalysisV2 = async (
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching v2 last analysis:", error);
     return null;
   }
 };
@@ -458,12 +457,9 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
         shortAnalysisData={shortAnalysisData}
         v2AnalysisData={v2AnalysisData}
         onOpenProcessingMode={() => {
-          console.log("🔄 Opening ProcessingAnalysisMode from SavedMistakes");
           setProcessingAnalysisModeOpen(true);
         }}
         onOpenGameAnalysis={(v3Result) => {
-          console.log("🎯 Opening GameAnalysis from ChooseAnalysisMode (Quick Summary)");
-          console.log("📦 Received v3Result:", v3Result);
           setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
         }}
@@ -474,8 +470,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
         onOpenChange={setProcessingAnalysisModeOpen}
         game={selectedGame}
         onOpenGameAnalysis={(v3Result) => {
-          console.log("🎯 Opening GameAnalysis from ProcessingAnalysisMode");
-          console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
           setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
         }}

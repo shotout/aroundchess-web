@@ -678,8 +678,8 @@ export default function PlayingPage() {
           criticalMistakes: [
             {
               "fen": "r4rk1/ppp2pbp/2npbqp1/4p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 b - - 0 10",
-              "move": "b5",
-              "type": "Inaccuracy",
+              "move": "Nc3",
+              "type": "Miss",
               "arrows": {
                 "badMove": {
                   "piece": "p",
@@ -692,11 +692,11 @@ export default function PlayingPage() {
                   "startSquare": "c6"
                 }
               },
-              "analysis": "A tiny step off the best path — your plan still works, but your edge is smaller now.",
+              "analysis": "This choice weakens your position quite a bit and hands your opponent more chances.",
               "fenAfter": "r4rk1/p1p2pbp/2npbqp1/1p2p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 w - - 0 11",
-              "solution": "Many players look at c6 to d4 to keep a small edge.",
-              "moveNumber": 10,
-              "keyEvaluation": -0.66,
+              "solution": "Here, d5 would keep the position much healthier.",
+              "moveNumber": 44,
+              "keyEvaluation": -1.50,
               "mistakeLogId": "212adc63-f76f-4aba-b659-ec425134fb2b",
               "saved": false,
               "savedDate": null

@@ -14,48 +14,98 @@ export function GameHistoriesTable() {
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
     const [searchInput, setSearchInput] = useState<string>("");
+    const [isFilterDisabled, setIsFilterDisabled] = useState<boolean>(false);
+
+    // Debounced states for all filters
+    const [debouncedSources, setDebouncedSources] = useState<string[]>(["chesscom", "vs_ai", "pgn_upload"]);
+    const [debouncedResult, setDebouncedResult] = useState<string>("All Results");
+    const [debouncedColor, setDebouncedColor] = useState<string>("All Colors");
+    const [debouncedAnalyzedOnly, setDebouncedAnalyzedOnly] = useState<boolean>(false);
+    const [debouncedStartDate, setDebouncedStartDate] = useState<string>("");
+    const [debouncedEndDate, setDebouncedEndDate] = useState<string>("");
     const [debouncedOpponent, setDebouncedOpponent] = useState<string>("");
 
-    // Debounce search input
+    // Debounce all filters with 500ms delay
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSources(sources);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [sources]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedResult(result);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [result]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedColor(color);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [color]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedAnalyzedOnly(analyzedOnly);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [analyzedOnly]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedStartDate(startDate);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [startDate]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedEndDate(endDate);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [endDate]);
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedOpponent(searchInput);
-        }, 500); // 500ms debounce
-
+        }, 500);
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Build filters object for API
+    // Build filters object for API using debounced values
     const apiFilters = useMemo<GameFilters>(() => {
         const filters: GameFilters = {};
 
-        if (sources.length > 0) {
-            filters.sources = sources;
+        if (debouncedSources.length > 0) {
+            filters.sources = debouncedSources;
         }
 
-        if (result !== "All Results") {
+        if (debouncedResult !== "All Results") {
             const resultMap: Record<string, string> = {
                 "Wins": "win",
                 "Losses": "loss",
                 "Draws": "draw",
             };
-            filters.result = resultMap[result];
+            filters.result = resultMap[debouncedResult];
         }
 
-        if (color !== "All Colors") {
-            filters.color = color.toLowerCase();
+        if (debouncedColor !== "All Colors") {
+            filters.color = debouncedColor.toLowerCase();
         }
 
-        if (analyzedOnly) {
+        if (debouncedAnalyzedOnly) {
             filters.analyzedOnly = true;
         }
 
-        if (startDate) {
-            filters.startDate = startDate;
+        if (debouncedStartDate) {
+            filters.startDate = debouncedStartDate;
         }
 
-        if (endDate) {
-            filters.endDate = endDate;
+        if (debouncedEndDate) {
+            filters.endDate = debouncedEndDate;
         }
 
         if (debouncedOpponent && debouncedOpponent.trim() !== "") {
@@ -63,15 +113,28 @@ export function GameHistoriesTable() {
         }
 
         console.log("📊 [GameHistoriesTable] Current sources state:", sources);
+        console.log("📊 [GameHistoriesTable] Debounced sources:", debouncedSources);
         console.log("📊 [GameHistoriesTable] API Filters being sent:", filters);
 
         return filters;
-    }, [sources, result, color, analyzedOnly, startDate, endDate, debouncedOpponent]);
+    }, [debouncedSources, debouncedResult, debouncedColor, debouncedAnalyzedOnly, debouncedStartDate, debouncedEndDate, debouncedOpponent, sources]);
 
     const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
         useGames(apiFilters);
 
     const paginationProps = usePagination(games);
+
+    // Add 300ms delay after loading finishes before enabling filters
+    useEffect(() => {
+        if (isLoading) {
+            setIsFilterDisabled(true);
+        } else {
+            const timer = setTimeout(() => {
+                setIsFilterDisabled(false);
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoading]);
 
     // Handle source checkbox changes
     const handleSourceToggle = (source: string) => {
@@ -92,10 +155,53 @@ export function GameHistoriesTable() {
         }
     };
 
+    // Handle result filter change
+    const handleResultChange = (value: string) => {
+        setResult(value);
+
+        // If currently loading, force refresh to cancel previous request and fetch with new filter
+        if (isLoading) {
+            setTimeout(() => {
+                handleForceRefresh();
+            }, 100);
+        }
+    };
+
+    // Handle color filter change
+    const handleColorChange = (value: string) => {
+        setColor(value);
+
+        // If currently loading, force refresh to cancel previous request and fetch with new filter
+        if (isLoading) {
+            setTimeout(() => {
+                handleForceRefresh();
+            }, 100);
+        }
+    };
+
+    // Handle analyzed only filter change
+    const handleAnalyzedOnlyChange = (checked: boolean) => {
+        setAnalyzedOnly(checked);
+
+        // If currently loading, force refresh to cancel previous request and fetch with new filter
+        if (isLoading) {
+            setTimeout(() => {
+                handleForceRefresh();
+            }, 100);
+        }
+    };
+
     // Handle date range change from Timeframe component
     const handleDateRangeChange = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
+
+        // If currently loading, force refresh to cancel previous request and fetch with new filter
+        if (isLoading) {
+            setTimeout(() => {
+                handleForceRefresh();
+            }, 100);
+        }
     };
 
     return (
@@ -120,14 +226,14 @@ export function GameHistoriesTable() {
                     {/* Mobile */}
                     <div className="w-full lg:hidden">
                         <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
-                        <Timeframe onDateChange={handleDateRangeChange} />
+                        <Timeframe onDateChange={handleDateRangeChange} disabled={isFilterDisabled} />
                     </div>
 
                     <div className="w-full lg:w-1/3">
                         <label htmlFor="games" className="block font-semibold text-[16px] leading-[150%] lg:mb-[4px]">Games</label>
                         <div className="h-[32px] flex items-center justify-between lg:justify-start gap-[16px]">
                             <div className="flex items-center gap-[8px]">
-                                <label htmlFor="games-chessdotcom" className="relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] cursor-pointer has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]">
+                                <label htmlFor="games-chessdotcom" className={`relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]`}>
                                     <svg width="10" height="10" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M8.22426 0.175736C8.45858 0.410051 8.45858 0.78995 8.22426 1.02426L3.42426 5.82426C3.18995 6.05858 2.81005 6.05858 2.57574 5.82426L0.175736 3.42426C-0.0585787 3.18995 -0.0585787 2.81005 0.175736 2.57574C0.41005 2.34142 0.789949 2.34142 1.02426 2.57574L3 4.55147L7.37574 0.175736C7.61005 -0.0585787 7.98995 -0.0585787 8.22426 0.175736Z" fill="#FCFCFD"/>
                                     </svg>
@@ -136,14 +242,15 @@ export function GameHistoriesTable() {
                                         type="checkbox"
                                         checked={sources.includes("chesscom")}
                                         onChange={() => handleSourceToggle("chesscom")}
+                                        disabled={isFilterDisabled}
                                         className="peer hidden"
                                     />
                                 </label>
-                                <label htmlFor="games-chessdotcom" className="w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] cursor-pointer">Chess.com</label>
+                                <label htmlFor="games-chessdotcom" className={`w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>Chess.com</label>
                             </div>
 
                             <div className="flex items-center gap-[8px]">
-                                <label htmlFor="games-youvsai" className="relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] cursor-pointer has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]">
+                                <label htmlFor="games-youvsai" className={`relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]`}>
                                     <svg width="10" height="10" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M8.22426 0.175736C8.45858 0.410051 8.45858 0.78995 8.22426 1.02426L3.42426 5.82426C3.18995 6.05858 2.81005 6.05858 2.57574 5.82426L0.175736 3.42426C-0.0585787 3.18995 -0.0585787 2.81005 0.175736 2.57574C0.41005 2.34142 0.789949 2.34142 1.02426 2.57574L3 4.55147L7.37574 0.175736C7.61005 -0.0585787 7.98995 -0.0585787 8.22426 0.175736Z" fill="#FCFCFD"/>
                                     </svg>
@@ -152,14 +259,15 @@ export function GameHistoriesTable() {
                                         type="checkbox"
                                         checked={sources.includes("vs_ai")}
                                         onChange={() => handleSourceToggle("vs_ai")}
+                                        disabled={isFilterDisabled}
                                         className="peer hidden"
                                     />
                                 </label>
-                                <label htmlFor="games-youvsai" className="w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] cursor-pointer">You vs AI</label>
+                                <label htmlFor="games-youvsai" className={`w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>You vs AI</label>
                             </div>
 
                             <div className="flex items-center gap-[8px]">
-                                <label htmlFor="games-pgnupload" className="relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] cursor-pointer has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]">
+                                <label htmlFor="games-pgnupload" className={`relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]`}>
                                     <svg width="10" height="10" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M8.22426 0.175736C8.45858 0.410051 8.45858 0.78995 8.22426 1.02426L3.42426 5.82426C3.18995 6.05858 2.81005 6.05858 2.57574 5.82426L0.175736 3.42426C-0.0585787 3.18995 -0.0585787 2.81005 0.175736 2.57574C0.41005 2.34142 0.789949 2.34142 1.02426 2.57574L3 4.55147L7.37574 0.175736C7.61005 -0.0585787 7.98995 -0.0585787 8.22426 0.175736Z" fill="#FCFCFD"/>
                                     </svg>
@@ -168,10 +276,11 @@ export function GameHistoriesTable() {
                                         type="checkbox"
                                         checked={sources.includes("pgn_upload")}
                                         onChange={() => handleSourceToggle("pgn_upload")}
+                                        disabled={isFilterDisabled}
                                         className="peer hidden"
                                     />
                                 </label>
-                                <label htmlFor="games-pgnupload" className="w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] cursor-pointer">PGN Upload</label>
+                                <label htmlFor="games-pgnupload" className={`w-[calc(100%-24px)] leading-[16px] text-[14px] mt-[2px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>PGN Upload</label>
                             </div>
                         </div>
                     </div>
@@ -181,8 +290,9 @@ export function GameHistoriesTable() {
                         <div className="flex items-center gap-[32px]">
                             <Select
                                 value={result}
-                                onValueChange={setResult}
+                                onValueChange={handleResultChange}
                                 defaultValue="All Results"
+                                disabled={isFilterDisabled}
                             >
                                 <SelectTrigger className="w-full h-[42px] md:h-[32px] bg-[#F8F9FC] border border-[#D8DCE0] rounded-[8px] text-[#717375]">
                                     <SelectValue placeholder="All Results" />
@@ -202,7 +312,7 @@ export function GameHistoriesTable() {
                         <label htmlFor="analyzed-games" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Analyzed Games</label>
                         <div className="h-[42px] md:h-[32px] flex items-center gap-[32px]">
                             <div className="flex items-center gap-[8px]">
-                                <label htmlFor="analyzed-games-only" className="relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] cursor-pointer has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]">
+                                <label htmlFor="analyzed-games-only" className={`relative flex items-center justify-center w-[16px] h-[16px] border border-[#C0CED4] bg-white rounded-[4px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} has-[.peer:checked]:bg-[#221AE9] has-[.peer:checked]:border-[#221AE9] has-[.peer:checked]:outline-[2px] has-[.peer:checked]:outline-[rgba(34,26,233,.16)] has-[.peer:checked]`}>
                                     <svg width="10" height="10" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M8.22426 0.175736C8.45858 0.410051 8.45858 0.78995 8.22426 1.02426L3.42426 5.82426C3.18995 6.05858 2.81005 6.05858 2.57574 5.82426L0.175736 3.42426C-0.0585787 3.18995 -0.0585787 2.81005 0.175736 2.57574C0.41005 2.34142 0.789949 2.34142 1.02426 2.57574L3 4.55147L7.37574 0.175736C7.61005 -0.0585787 7.98995 -0.0585787 8.22426 0.175736Z" fill="#FCFCFD"/>
                                     </svg>
@@ -210,11 +320,12 @@ export function GameHistoriesTable() {
                                         id="analyzed-games-only"
                                         type="checkbox"
                                         checked={analyzedOnly}
-                                        onChange={(e) => setAnalyzedOnly(e.target.checked)}
+                                        onChange={(e) => handleAnalyzedOnlyChange(e.target.checked)}
+                                        disabled={isFilterDisabled}
                                         className="peer hidden"
                                     />
                                 </label>
-                                <label htmlFor="analyzed-games-only" className="leading-[16px] text-[14px] mt-[2px] cursor-pointer">Analyzed Games only</label>
+                                <label htmlFor="analyzed-games-only" className={`leading-[16px] text-[14px] mt-[2px] ${isFilterDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>Analyzed Games only</label>
                             </div>
                         </div>
                     </div>
@@ -222,7 +333,7 @@ export function GameHistoriesTable() {
                     {/* Desktop */}
                     <div className="w-1/5 hidden lg:flex flex-col">
                         <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
-                        <Timeframe onDateChange={handleDateRangeChange} />
+                        <Timeframe onDateChange={handleDateRangeChange} disabled={isFilterDisabled} />
                     </div>
                 </div>
 

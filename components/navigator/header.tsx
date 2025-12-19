@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     <div className="hidden xl:flex xl:items-center space-x-2">
       {/* Analytics/Analyze Now button */}
       <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
-        <Link href="/analysis">
+        <Link href={isSignedIn ? "/my-game-history" : "/analysis"}>
           <Button
             color="primary"
             variant="outlineprimary"

@@ -230,7 +230,7 @@ export default function GameAnalysis({
                         >
                             {localMistakes.map((mistake: any, index: number) => (
                                 <SwiperSlide key={index}>
-                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} />
+                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} isTutorialPlay={isTutorialPlay} />
                                 </SwiperSlide>
                             ))}
                             <SwiperSlide>
@@ -297,13 +297,15 @@ const GameAnalysisSlide = ({
     index,
     onSaveBookmark,
     onUnsaveBookmark,
-    loadingBookmark
+    loadingBookmark,
+    isTutorialPlay
 } : {
     mistake: any;
     index: number;
     onSaveBookmark: (index: number) => void;
     onUnsaveBookmark: (index: number) => void;
     loadingBookmark: boolean;
+    isTutorialPlay: boolean;
 }) => {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(240);
@@ -440,56 +442,121 @@ const GameAnalysisSlide = ({
 
     return (
         <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
-            <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
-                {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
-                <div
-                    style={{ width: boardSize }}
-                    className="flex flex-row self-end sm:self-center justify-end items-center gap-3"
-                >
-                    <button onClick={handleSwitch}>
-                        <Image
-                            src={"/images/play-vs-ai/switch.png"}
-                            alt="icon"
-                            width={20}
-                            height={20}
-                            className="w-[20px] h-[20px] rounded-full object-contain"
-                        />
-                    </button>
+            {isTutorialPlay === true ? (
+                <Image src={"/images/chessboard.png"}
+                    alt="chessboard"
+                    width={boardSize}
+                    height={boardSize}
+                    className="mb-[10px]"
+                />
+            ) : (
+                <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
+                    {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
+                    <div
+                        style={{ width: boardSize }}
+                        className="flex flex-row self-end sm:self-center justify-end items-center gap-3"
+                    >
+                        <button onClick={handleSwitch}>
+                            <Image
+                                src={"/images/play-vs-ai/switch.png"}
+                                alt="icon"
+                                width={20}
+                                height={20}
+                                className="w-[20px] h-[20px] rounded-full object-contain"
+                            />
+                        </button>
+                        
+                        <SettingBoard />
                     
-                    <SettingBoard />
-                
-                    <button onClick={toggleBoardMode}>
-                        <Image
-                            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
-                            alt="icon"
-                            width={22}
-                            height={27}
-                            className="w-[22px] h-[27px] object-contain"
-                        />
-                    </button>
-                </div>
+                        {/* <button onClick={toggleBoardMode}>
+                            <Image
+                                src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
+                                alt="icon"
+                                width={22}
+                                height={27}
+                                className="w-[22px] h-[27px] object-contain"
+                            />
+                        </button> */}
+                    </div>
 
-                <motion.div
-                    initial={{ rotateX: 180 }}
-                    animate={!is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }}
-                    transition={{
-                        duration: 0.6,
-                        stiffness: 500,
-                        damping: 30,
-                        ease: [0.4, 0.0, 0.2, 1],
-                        type: "tween",
-                    }}
-                    style={{
-                        width: boardSize,
-                        display: is3DMode ? "flex" : "none",
-                        backfaceVisibility: "hidden",
-                        transformStyle: "preserve-3d",
-                        position: "relative",
-                    }}
-                >
-                    {is3DMode && (
+                    <motion.div
+                        initial={{ rotateX: 180 }}
+                        animate={!is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }}
+                        transition={{
+                            duration: 0.6,
+                            stiffness: 500,
+                            damping: 30,
+                            ease: [0.4, 0.0, 0.2, 1],
+                            type: "tween",
+                        }}
+                        style={{
+                            width: boardSize,
+                            display: is3DMode ? "flex" : "none",
+                            backfaceVisibility: "hidden",
+                            transformStyle: "preserve-3d",
+                            position: "relative",
+                        }}
+                    >
+                        {is3DMode && (
+                            <>
+                                <ThreeDBoard
+                                    arePiecesClickable={false}
+                                    arePiecesDraggable={false}
+                                    boardWidth={boardSize}
+                                    orientation={orientation}
+                                    position={game.fen()}
+                                    onSquareClick={function (square: Square): void {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    onSquareRightClick={function (square: Square): void {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    onPromotionPieceSelect={function (
+                                        piece?: PromotionPieceOption,
+                                        promoteFromSquare?: Square,
+                                        promoteToSquare?: Square
+                                    ): boolean {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    promotionToSquare={null}
+                                    showPromotionDialog={false}
+                                    customArrows={[]}
+                                    areArrowsAllowed={false}
+                                    customArrowColor={""}
+                                />
+                                <CustomChessArrows
+                                    arrows={customArrows}
+                                    boardSize={boardSize}
+                                    orientation={orientation}
+                                />
+                            </>
+                        )}
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ rotateX: 180 }}
+                        animate={
+                        is3DMode
+                            ? { opacity: 0, display: "none" }
+                            : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
+                        }
+                        transition={{
+                            duration: 0.5,
+                            stiffness: 500,
+                            damping: 35,
+                            ease: [0.4, 0.0, 0.2, 1],
+                            type: "tween",
+                        }}
+                        style={{
+                            width: boardSize,
+                            display: !is3DMode ? "flex" : "none",
+                            backfaceVisibility: "hidden",
+                            position: "relative",
+                        }}
+                    >
+                        {!is3DMode && (
                         <>
-                            <ThreeDBoard
+                            <TwoDChessboard
                                 arePiecesClickable={false}
                                 arePiecesDraggable={false}
                                 boardWidth={boardSize}
@@ -502,9 +569,9 @@ const GameAnalysisSlide = ({
                                     throw new Error("Function not implemented.");
                                 }}
                                 onPromotionPieceSelect={function (
-                                    piece?: PromotionPieceOption,
-                                    promoteFromSquare?: Square,
-                                    promoteToSquare?: Square
+                                piece?: PromotionPieceOption,
+                                promoteFromSquare?: Square,
+                                promoteToSquare?: Square
                                 ): boolean {
                                     throw new Error("Function not implemented.");
                                 }}
@@ -520,66 +587,10 @@ const GameAnalysisSlide = ({
                                 orientation={orientation}
                             />
                         </>
-                    )}
-                </motion.div>
-
-                <motion.div
-                    initial={{ rotateX: 180 }}
-                    animate={
-                    is3DMode
-                        ? { opacity: 0, display: "none" }
-                        : { opacity: 1, rotateX: is3DMode ? 180 : 360 }
-                    }
-                    transition={{
-                        duration: 0.5,
-                        stiffness: 500,
-                        damping: 35,
-                        ease: [0.4, 0.0, 0.2, 1],
-                        type: "tween",
-                    }}
-                    style={{
-                        width: boardSize,
-                        display: !is3DMode ? "flex" : "none",
-                        backfaceVisibility: "hidden",
-                        position: "relative",
-                    }}
-                >
-                    {!is3DMode && (
-                    <>
-                        <TwoDChessboard
-                            arePiecesClickable={false}
-                            arePiecesDraggable={false}
-                            boardWidth={boardSize}
-                            orientation={orientation}
-                            position={game.fen()}
-                            onSquareClick={function (square: Square): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                            onSquareRightClick={function (square: Square): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                            onPromotionPieceSelect={function (
-                            piece?: PromotionPieceOption,
-                            promoteFromSquare?: Square,
-                            promoteToSquare?: Square
-                            ): boolean {
-                                throw new Error("Function not implemented.");
-                            }}
-                            promotionToSquare={null}
-                            showPromotionDialog={false}
-                            customArrows={[]}
-                            areArrowsAllowed={false}
-                            customArrowColor={""}
-                        />
-                        <CustomChessArrows
-                            arrows={customArrows}
-                            boardSize={boardSize}
-                            orientation={orientation}
-                        />
-                    </>
-                    )}
-                </motion.div>
-            </div>
+                        )}
+                    </motion.div>
+                </div>
+            )}
 
             <div className="w-full border border-[#221AE9] rounded-[8px]">
                 <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[16px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">

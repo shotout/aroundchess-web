@@ -230,7 +230,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
 
   const badgeClass =
-    "w-max h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
+    "w-max h-7 rounded-full flex justify-center items-center text-[12px] md:text-[14px] --xs px-[16px] font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
@@ -466,7 +466,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
               {/* Badge text */}
               <div
-                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
+                className={`${badgeClass} bg-gradient-to-b px-[8px] from-[#26E279] to-[#029A46] text-white`}
               >
                 Your current ELO
               </div>

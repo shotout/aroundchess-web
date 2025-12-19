@@ -195,7 +195,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
             }`}
           >
             <div className="flex flex-col items-center space-y-1 sm:space-y-2 lg:space-y-4">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 lg:w-20 lg:h-20 flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 flex items-center justify-center">
                 <Image
                   src={icon}
                   alt={color}
@@ -204,7 +204,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                   className="max-w-full max-h-full object-contain"
                 />
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center !mt-[8px]">
                 <span className="text-[14px] --xs sm:text-[14px] --sm md:text-base lg:text-lg font-medium text-gray-900">
                   {label}
                 </span>
@@ -315,10 +315,10 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       {/* Opponents Grid */}
       <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
         <div
-          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] sm:max-h-80 lg:max-h-80 overflow-y-auto justify-center"
+          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[18vw] overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
-              ? "repeat(auto-fit, 95px)" 
+              ? "repeat(auto-fit, 94px)" 
               : "repeat(auto-fit, 72px)" 
           }}
         >

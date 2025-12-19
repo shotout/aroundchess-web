@@ -597,7 +597,7 @@ const ChessContent: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        <button onClick={toggleBoardMode}>
+        {/* <button onClick={toggleBoardMode}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -605,7 +605,7 @@ const ChessContent: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };
