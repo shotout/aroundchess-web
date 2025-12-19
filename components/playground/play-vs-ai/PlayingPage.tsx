@@ -448,6 +448,7 @@ export default function PlayingPage() {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
@@ -824,6 +825,13 @@ export default function PlayingPage() {
       setGamePosition(initialFen);
     }
   }, [game.history().length === 0]);
+
+  // Auto-scroll Movement Details to bottom when new moves are added
+  useEffect(() => {
+    if (movementDetailsRef.current) {
+      movementDetailsRef.current.scrollTop = movementDetailsRef.current.scrollHeight;
+    }
+  }, [capturedWhite, capturedBlack]);
 
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({ square, verbose: true });
@@ -2745,7 +2753,7 @@ export default function PlayingPage() {
               className="lg:max-h-[625px] xxl:max-h-[675px] h-auto flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4"
               // style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
-              <div className="flex flex-col px-4 w-full overflow-y-auto ">
+              <div ref={movementDetailsRef} className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
                   Movement Details
                 </span>
