@@ -157,7 +157,7 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnPosition = index * columnWidth;
                 const fixedColumnWidth = 70;
                 const relativePosition = columnPosition - scrollLeft;
-                const fadeZone = 80;
+                const fadeZone = 120;
 
                 // Fade effect untuk sebelah kiri (di bawah label White/Black)
                 if (relativePosition < fixedColumnWidth) {
@@ -170,9 +170,11 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnRightEdge = columnPosition + columnWidth;
                 const distanceFromRight = rightEdge - columnRightEdge;
 
-                if (distanceFromRight < fadeZone && distanceFromRight > 0) {
+                console.log("distanceFromRight", distanceFromRight, fadeZone);
+
+                if (distanceFromRight < (fadeZone / 2) && distanceFromRight > 0) {
                   const rightOpacity = Math.max(0.2, distanceFromRight / fadeZone);
-                  opacity = Math.min(opacity, rightOpacity);
+                  opacity = Math.min(0.2, rightOpacity);
                 }
               }
 

@@ -28,8 +28,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const [isDesktop, setIsDesktop] = useState(false);
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
-  const { token: tokenBalance, isMember, isMemberMonthly, sessionId } = useProfileStore();
-  const { profile } = useUserStore();
+  const { token: tokenBalance, isMember, isMemberMonthly, sessionId, profile } = useProfileStore();
+  // const { profile } = useUserStore();
   const { isLoading } = useApiClient();
 
   const isSignedIn = sessionId.length > 0;
@@ -262,6 +262,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
       )}
     </div>
   );
+
+  console.log("isEndgameTraining", profile);
 
   return (
     <header
