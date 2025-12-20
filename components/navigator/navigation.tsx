@@ -62,6 +62,31 @@ export default function Navigation({
     setSidebarOpen(!isSidebarOpen);
   };
 
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!isDesktop && isSidebarOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+
+      // Prevent body scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        // Restore body scroll
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isSidebarOpen, isDesktop]);
+
   const sidebarVariants = {
     hidden: {
       x: "100%",
@@ -202,13 +227,13 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 right-0 z-50 w-[82%] bg-white border-l border-gray-200 shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-[82%] bg-white border-l border-gray-200 shadow-xl overflow-hidden"
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
               >
-                <Sidebar onClose={() => setSidebarOpen(false)} />
+                <Sidebar onClose={() => setSidebarOpen(false)} isMobile={true} />
               </motion.div>
             </>
           )}
