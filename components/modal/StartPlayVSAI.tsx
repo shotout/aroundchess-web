@@ -318,7 +318,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       {/* Opponents Grid */}
       <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
         <div
-          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[18vw] overflow-y-auto justify-center"
+          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[21vh] 2xl:max-h-[18vw] overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
               ? "repeat(auto-fit, 92px)" // "repeat(auto-fit, 94px)" 
