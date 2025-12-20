@@ -48,30 +48,30 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const handleStartAnalysis = async () => {
     try {
       // Set loading state immediately
-      setIsLoading(true);
-      setEstimateMinute(0);
-      setEstimateSecond(4);
-      setError(null);
+      // setIsLoading(true);
+      // setEstimateMinute(0);
+      // setEstimateSecond(4);
+      // setError(null);
 
       // Navigate to analysis page first
-      router.push("/analysis");
+      router.push("/my-game-history");
 
       // Load the data in background
-      const [resFamousGame, resAnalysis] = await Promise.all([
-        fetch("/local-data/famous-game.txt"),
-        fetch("/local-data/analysis.json"),
-      ]);
+      // const [resFamousGame, resAnalysis] = await Promise.all([
+      //   fetch("/local-data/famous-game.txt"),
+      //   fetch("/local-data/analysis.json"),
+      // ]);
 
-      const pgnLocal = await resFamousGame.text();
-      const responseAnalysis = await resAnalysis.json();
+      // const pgnLocal = await resFamousGame.text();
+      // const responseAnalysis = await resAnalysis.json();
 
-      setPgn(pgnLocal);
-      setDataAnalysis(responseAnalysis);
+      // setPgn(pgnLocal);
+      // setDataAnalysis(responseAnalysis);
 
-      // Keep loading for exactly 4 seconds
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 4000);
+      // // Keep loading for exactly 4 seconds
+      // setTimeout(() => {
+      //   setIsLoading(false);
+      // }, 4000);
     } catch (err) {
       setIsLoading(false);
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
