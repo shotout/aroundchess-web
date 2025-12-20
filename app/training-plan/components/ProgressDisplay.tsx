@@ -996,7 +996,7 @@ const chartRange = React.useMemo(() => {
                               <h2 className="text-2xl font-bold">
                                 {stat.value}
                               </h2>
-                              <div className={`text-[14px] --sm font-bold ${color}`}>
+                              <div className={`text-[14px] --sm font-bold ${stat.icon === "alert-red" ? "text-[#FD0000]" : stat.icon === "alert-yellow" ? "text-[#FAC933]" : color}`}>
                                 {value}
                               </div>
                             </div>

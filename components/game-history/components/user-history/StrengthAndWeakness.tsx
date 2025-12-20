@@ -92,6 +92,7 @@ const getIconForSkillType = (iconType: string) => {
 // Strength card component
 const StrengthCard: React.FC<{ item: SkillStrengthItem }> = ({ item }) => {
   const icon = getIconForSkillType(item.name);
+  const name = item.name === "Opening Preparation" ? "Opening Knowledge" : item.name;
   
   return (
     <Card className="bg-white rounded-lg p-3 flex items-center">
@@ -101,7 +102,7 @@ const StrengthCard: React.FC<{ item: SkillStrengthItem }> = ({ item }) => {
 
       <div className="flex flex-col items-center justify-between mb-2 w-full">
         <div className="flex items-center justify-between w-full mb-2">
-          <h1 className="font-semibold">{item.name}</h1>
+          <h1 className="font-semibold">{name}</h1>
           <h1 className="font-extralight">{item.value}%</h1>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2.5">

@@ -104,8 +104,14 @@ const AnalysisResult: React.FC = () => {
     if (summary && username) {
       // Set default orientation to user's color so they start at bottom
       setOrientation(defaultUserOrientation);
+      setBoardOrientation(defaultUserOrientation);
     }
   }, [summary, username, defaultUserOrientation]);
+
+  // Sync orientation with boardOrientation so player is always at bottom
+  useEffect(() => {
+    setOrientation(boardOrientation);
+  }, [boardOrientation]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -644,7 +650,7 @@ const AnalysisResult: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        <button onClick={toggleBoardMode}>
+        {/* <button onClick={toggleBoardMode}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -652,7 +658,7 @@ const AnalysisResult: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };

@@ -103,7 +103,7 @@ export default function GameControls({
         ) : (
           <>
             <button
-              className="flex items-center text-[14px] --xs justify-center gap-[8px] p-2 px-[24px] text-blue-base rounded-full border border-primary-gray"
+              className={`flex items-center text-[14px] --xs justify-center gap-[8px] p-2 px-[24px] rounded-full border border-primary-gray`}
               onClick={handleHint}
             >
               <Image
@@ -111,13 +111,13 @@ export default function GameControls({
                 alt="hint icon"
                 width={15}
                 height={15}
-              />{" "}
+              />
               Hint
             </button>
 
             {!isCheckmateMode && (
               <button
-                className={`flex gap-x-3 text-[14px] --xs items-center justify-center p-2 px-[24px] rounded-full border ${
+                className={`flex gap-x-3 text-[14px] --xs items-center justify-center p-2 px-[24px] md:px-2 rounded-full border ${
                   isAutoSolution
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-primary-gray text-black"
@@ -138,7 +138,7 @@ export default function GameControls({
         )}
         <button
           onClick={navigateNext}
-          className={`flex gap-x-1 2xl:gap-x-2 items-center justify-center p-2 px-[32px] btn-primary rounded-full border`}
+          className={`flex gap-x-1 2xl:gap-x-2 items-center justify-center p-2 px-[32px] md:px-[8px] btn-primary rounded-full border`}
         >
           <span className="text-[14px] --10px md:text-[14px] --xs">Next Stage</span>
           <Image
@@ -146,7 +146,7 @@ export default function GameControls({
             alt="arrow right icon"
             width={16}
             height={16}
-            className="w-4 h-4 "
+            className="w-[24px] h-[16px]"
           />
         </button>
       </div>

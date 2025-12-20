@@ -360,6 +360,10 @@ p {
   overflow: hidden !important;
 }
 
+.swiper-cards {
+  height: 500px;
+}
+
 @media (min-width: 1200px) {
   .swiper-cards {
     height: 456px;

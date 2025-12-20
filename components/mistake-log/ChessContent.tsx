@@ -66,19 +66,24 @@ const ChessContent: React.FC = () => {
   const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
+    "white"
+  );
+  const [orientation, setOrientation] = useState<BoardOrientation>(boardOrientation);
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<string>("0:10:00");
   const [currentMoveBlack, setCurrentMoveBlack] = useState<string>("0:10:00");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
-    "white"
-  );
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync orientation with boardOrientation so player is always at bottom
+  useEffect(() => {
+    setOrientation(boardOrientation);
+  }, [boardOrientation]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -597,7 +602,7 @@ const ChessContent: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        <button onClick={toggleBoardMode}>
+        {/* <button onClick={toggleBoardMode}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -605,7 +610,7 @@ const ChessContent: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };

@@ -37,6 +37,7 @@ const ChessProgressionUI: React.FC = () => {
   const [dialogMode, setDialogMode] = useState<"create" | "adjust">("create");
   const [hasPlan, setHasPlan] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const [showConnectAccount, setShowConnectAccount] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
@@ -149,10 +150,21 @@ const ChessProgressionUI: React.FC = () => {
   }, [dialogOpen, resetExpiredStatus]);
 
   const handleCreatePlan = useCallback(() => {
+    console.log("handleCreatePlan", username, "isSignedIn:", isSignedIn);
+
+    // Check if user is connected and has username
+    if (!isSignedIn || !username) {
+      console.log("handleCreatePlan: User not connected or no username, showing Connect Account dialog");
+      setShowConnectAccount(true);
+      return;
+    }
+
+    // User is connected and has username, proceed with creating plan
+    console.log("handleCreatePlan: User connected, proceeding to create plan");
     setDialogMode("create");
     setAdjustMode(false);
     setDialogOpen(true);
-  }, [setAdjustMode]);
+  }, [username, isSignedIn, setAdjustMode]);
 
   const handleAdjustPlan = useCallback(() => {
     setDialogMode("adjust");
@@ -207,7 +219,11 @@ const ChessProgressionUI: React.FC = () => {
 
   return (
     <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
-      <ChessAccountSetup isLoading={profileLoading || pgnLoading} />
+      <ChessAccountSetup
+        isLoading={profileLoading || pgnLoading}
+        open={showConnectAccount}
+        setOpen={setShowConnectAccount}
+      />
 
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">

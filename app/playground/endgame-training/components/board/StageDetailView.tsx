@@ -157,7 +157,7 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnPosition = index * columnWidth;
                 const fixedColumnWidth = 70;
                 const relativePosition = columnPosition - scrollLeft;
-                const fadeZone = 80;
+                const fadeZone = 120;
 
                 // Fade effect untuk sebelah kiri (di bawah label White/Black)
                 if (relativePosition < fixedColumnWidth) {
@@ -170,9 +170,11 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnRightEdge = columnPosition + columnWidth;
                 const distanceFromRight = rightEdge - columnRightEdge;
 
-                if (distanceFromRight < fadeZone && distanceFromRight > 0) {
+                console.log("distanceFromRight", distanceFromRight, fadeZone);
+
+                if (distanceFromRight < (fadeZone / 2) && distanceFromRight > 0) {
                   const rightOpacity = Math.max(0.2, distanceFromRight / fadeZone);
-                  opacity = Math.min(opacity, rightOpacity);
+                  opacity = Math.min(0.2, rightOpacity);
                 }
               }
 
@@ -1067,7 +1069,7 @@ export default function StageDetailView({
                 />
               </button>
             </div>
-            <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
+            <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
                 <div className=" flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden">
                   <ChessboardWrapper

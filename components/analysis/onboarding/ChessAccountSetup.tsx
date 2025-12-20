@@ -128,21 +128,15 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     });
 
     if (!checkComplete || isLoading) {
-      console.log("⏳ [ChessAccountSetup] Waiting for profile check to complete or loading...");
       return;
     }
 
     // Show ChessAccountSetup for ALL users without username
     // Tutorial completion only affects whether we show tutorial AFTER they interact with the dialog
     if (isSignedIn && !hasUsername) {
-      console.log("✅ [ChessAccountSetup] Showing ChessAccountSetup dialog for user without username");
       setShowConnectDialog(true);
       setShowPremiumDialog(false);
     } else {
-      console.log("❌ [ChessAccountSetup] Not showing dialog because:", {
-        notSignedIn: !isSignedIn,
-        alreadyHasUsername: hasUsername,
-      });
       setShowConnectDialog(false);
     }
   }, [isSignedIn, hasUsername, checkComplete, isLoading]);
@@ -162,34 +156,21 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     // Check if user already completed tutorial (chesscom only)
     if (sessionId) {
       try {
-        console.log("🔍 Checking tutorial status from API...");
         const chesscomStatus = await ChessApiService.getTutorialStatus(
           "chesscom",
           sessionId
         );
 
-        console.log("📊 Tutorial status response:", chesscomStatus);
-
         // If already completed, just close without showing tutorial
         if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
-          console.log("✅ Tutorial already completed, skipping tutorial");
           setHasCompletedTutorial(true);
-          toast.info("You have already completed the tutorial");
           return;
-        } else {
-          console.log("❌ Tutorial not completed, showing tutorial");
-        }
-      } catch (error) {
-        console.error("❌ Error checking tutorial status:", error);
-        // Continue to show tutorial on error to be safe
-      }
+        } 
+      } catch (error) { }
     }
 
     // Set tutorial type to chesscom since user entered username
     setTutorialType("chesscom");
-    console.log("📝 Set tutorial type to: chesscom");
-    console.log("🎯 Opening DialogAnalyzeFree for chesscom tutorial");
-
     // Show DialogAnalyzeFree to start the tutorial
     handleOpenAnalyzeFree();
   };
@@ -197,25 +178,20 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleOpenAnalyzeFree = () => {
     setShowAnalyzeFreeBanner(true);
   };
-  const handleCloseFreeBanner = () => {
-    setShowAnalyzeFreeBanner(false);
+
+  const handleCloseFreeBanner = async () => {
+    await setShowAnalyzeFreeBanner(false);
 
     if (closeConnectDialog) {
-      if (!pathname.includes("/playground/play-vs-ai") 
-        || pathname.includes("/playground/play-vs-ai/playing")
-      ) {
-        router.replace("/playground/play-vs-ai");
-      }
+      await router.replace("/playground/play-vs-ai");
     } else {
-      if (!pathname.includes("/my-game-history")) {
-        router.replace("/my-game-history");
-      }
+      await router.replace("/my-game-history");
     }
 
-    setTimeout(() => {
-      setIsOpenTutorial(true);
-      startTutorial();
-    }, 300);
+    await setTimeout(async () => {
+      await setIsOpenTutorial(true);
+      await startTutorial();
+    }, 1000);
 
     // if (!pathname.includes("/analysis")) {
     //   router.replace("/analysis");

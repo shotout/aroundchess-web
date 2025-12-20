@@ -98,33 +98,39 @@ export function useApiClient() {
 
           if (!response.ok) {
             const errorData = await response.json();
-            if (errorData.statusCode != 401 && errorData.statusCode != 404) {
-              toast.error(errorData.message || "API request failed");
+
+            // Handle 401 Unauthorized - Session expired
+            if (errorData.statusCode === 401 || response.status === 401) {
+              handleSignOut();
+              throw new Error("Session expired");
+            }
+
+            // Handle other errors (except 404)
+            if (errorData.statusCode != 404) {
               // console.log("errorData", url, errorData, response);
               throw new Error(errorData.message || "API request failed");
             }
-            const originalRequest = errorData.config;
 
+            // OLD CODE - refresh token approach (commented out)
+            // const originalRequest = errorData.config;
             // kalau 401 (unauthorized), coba refresh token
-            if (errorData.response?.status === 401 && !originalRequest._retry) {
-              originalRequest._retry = true;
-
-              const { data, error: refreshError } =
-                await supabase.auth.refreshSession();
-              console.log("refreshError", refreshError);
-              if (refreshError) {
-                console.error("Refresh token gagal:", refreshError.message);
-                // bisa redirect ke login page
-                handleSignOut();
-                return Promise.reject(error);
-              }
-
-              const newAccessToken = data.session?.access_token;
-              if (newAccessToken) {
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-                return apiRequest(originalRequest); // ulangi request dengan token baru
-              }
-            }
+            // if (errorData.response?.status === 401 && !originalRequest._retry) {
+            //   originalRequest._retry = true;
+            //   const { data, error: refreshError } =
+            //     await supabase.auth.refreshSession();
+            //   console.log("refreshError", refreshError);
+            //   if (refreshError) {
+            //     console.error("Refresh token gagal:", refreshError.message);
+            //     // bisa redirect ke login page
+            //     handleSignOut();
+            //     return Promise.reject(error);
+            //   }
+            //   const newAccessToken = data.session?.access_token;
+            //   if (newAccessToken) {
+            //     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            //     return apiRequest(originalRequest); // ulangi request dengan token baru
+            //   }
+            // }
           }
 
           const responseData = await response.json();

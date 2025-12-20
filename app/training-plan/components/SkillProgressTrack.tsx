@@ -230,7 +230,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
 
   const badgeClass =
-    "w-max h-7 rounded-full flex justify-center items-center text-[14px] --xs px-[16px] font-semibold";
+    "w-max h-6 md:h-7 rounded-full flex justify-center items-center text-[11.6px] md:text-[14px] --xs px-[10px] md:px-[16px] font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
@@ -417,7 +417,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
           <div className="w-[640px] lg:w-full relative h-20 block">
             <div className="relative w-full mt-6">
-              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-[5]">
                 {skillLevels.map((level, index) => {
                   const isReached = (currentElo || 0) >= level.elo;
                   return (

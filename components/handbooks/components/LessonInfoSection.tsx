@@ -50,7 +50,11 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
       return <li className="text-[15px] --xs">Content coming soon</li>;
     }
     return items.map((item, index) => (
-      <li key={index} className="text-[15px] --xs">
+      <li key={index} className="relative text-[15px] --xs">  
+        <svg width="10" height="16" className="absolute left-[-20px] top-[4px] md:hidden" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" clipRule="evenodd" d="M7.086 11.8236C7.21204 11.8236 7.31419 11.9257 7.31419 12.0516V13.5994C7.31419 13.7253 7.21204 13.8279 7.086 13.8279H6.56094C6.42416 14.6397 5.71931 15.2594 4.86812 15.2594C4.01751 15.2594 3.31266 14.6397 3.17587 13.8279H2.65081C2.52478 13.8279 2.42263 13.7253 2.42263 13.5994V12.0516C2.42263 11.9257 2.52478 11.8236 2.65081 11.8236H7.086ZM5.09688 0.00535386C8.04233 0.137006 10.348 2.96985 9.59061 6.05208C9.41499 6.74039 9.07751 7.38049 8.64325 7.9424C8.08594 8.66027 7.70066 9.35384 7.46113 10.0716L7.36375 10.3597C7.31477 10.5014 7.18755 10.5944 7.0412 10.5944H2.69382C2.54747 10.5944 2.42025 10.5014 2.37186 10.3597L2.27389 10.0716C2.03436 9.33902 1.62937 8.62115 1.04817 7.87849C0.242366 6.85776 -0.114242 5.60277 0.0321047 4.28392C0.130067 3.42442 0.466973 2.59395 0.999196 1.90995C2.0051 0.615887 3.50499 -0.0680582 5.09688 0.00535386ZM8.34518 5.23649C8.44314 4.35214 8.20839 3.50739 7.67139 2.78426C7.13857 2.07116 6.3716 1.58751 5.52159 1.42629C5.25817 1.37767 4.99952 1.54844 4.95054 1.81216C4.90156 2.0812 5.07239 2.33495 5.33641 2.38363C5.95167 2.50095 6.5036 2.85248 6.88948 3.37048C7.27535 3.88801 7.4468 4.49854 7.3781 5.13392C7.34884 5.40248 7.53938 5.64142 7.80758 5.67099H7.86134C8.11042 5.67099 8.32069 5.48546 8.34518 5.23649Z" fill="#2780F8"/>
+        </svg>
+
         {item}
       </li>
     ));
@@ -74,7 +78,7 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
             <CardTitle className="text-[18px] p-[8px] md:p-[0px] md:pb-[8px] --sm">{getPrimaryLabel()}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2 list-disc pl-4">
+            <ul className="space-y-2 md:list-disc pl-4">
               {renderSafeList(primaryItems)}
             </ul>
           </CardContent>

@@ -353,7 +353,7 @@ const SavedMistakePage = () => {
   if (!hydrated || (isFetching && !hasCachedData)) return <DotSpinner />;
 
   return (
-    <main className="w-full p-4 md:pt-4 pt-0 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+    <main className="w-full lg:min-h-[calc(100vh-500px)] p-4 md:pt-4 pt-0 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
 
       <div className="flex items-center justify-left lg:gap-[4px] lg:mb-[32px] mx-[-16px] lg:mx-0 lg:w-full w-[calc(100%+32px)]">
         <Link href={'/my-game-history'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF]`}>

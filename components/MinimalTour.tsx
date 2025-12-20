@@ -69,28 +69,18 @@ export default function MinimalTour({
       const s = steps[index];
       if (!s) return;
       const el = document.querySelector(s.target) as HTMLElement | null;
-      console.log(`🔍 Looking for target: ${s.target}`, { found: !!el });
 
       if (el) {
         const boundingRect = el.getBoundingClientRect();
-        console.log(`📏 Element rect:`, {
-          width: boundingRect.width,
-          height: boundingRect.height,
-          top: boundingRect.top,
-          left: boundingRect.left,
-        });
 
         // Only set rect if element has valid dimensions (fully rendered)
         // This prevents using elements that exist in DOM but haven't laid out yet
         if (boundingRect.width > 0 && boundingRect.height > 0) {
-          console.log("✅ Element has valid dimensions, setting rect");
           setRect(boundingRect);
         } else {
-          console.log("⏳ Element found but dimensions are 0, waiting for layout...");
           setRect(null);
         }
       } else {
-        console.log("❌ Element not found, setting rect to null");
         setRect(null);
       }
     };
@@ -167,8 +157,6 @@ export default function MinimalTour({
     const el = document.querySelector(s.target) as HTMLElement | null;
 
     if (el) {
-      console.log("🎯 [scrollIntoView useEffect] Element found, scrolling into view first...");
-
       // FIRST: Try multiple scroll methods to ensure element is visible
 
       // Method 1: Native scrollIntoView with instant behavior
@@ -179,12 +167,6 @@ export default function MinimalTour({
         const rect = el.getBoundingClientRect();
         const absoluteTop = rect.top + window.pageYOffset;
         const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
-
-        console.log("📜 Manual scroll to:", {
-          elementTop: absoluteTop,
-          scrollTo: middle,
-          currentScroll: window.pageYOffset,
-        });
 
         window.scrollTo({
           top: middle,
@@ -197,13 +179,6 @@ export default function MinimalTour({
       // THEN: Wait for scroll animation to complete, then check dimensions
       const checkAfterScroll = () => {
         const boundingRect = el.getBoundingClientRect();
-        console.log("📏 [After scroll] Checking dimensions:", {
-          width: boundingRect.width,
-          height: boundingRect.height,
-          top: boundingRect.top,
-          left: boundingRect.left,
-          isInViewport: boundingRect.top >= 0 && boundingRect.top <= window.innerHeight,
-        });
 
         // Check if element is in viewport
         const isInViewport = boundingRect.top >= 0 &&
@@ -213,15 +188,12 @@ export default function MinimalTour({
 
         // Only set rect if element has valid dimensions AND is in viewport
         if (boundingRect.width > 0 && boundingRect.height > 0 && isInViewport) {
-          console.log("✅ [scrollIntoView useEffect] Element has valid dimensions and is in viewport");
           setRect(boundingRect);
         } else if (boundingRect.width > 0 && boundingRect.height > 0 && !isInViewport) {
-          console.log("⚠️ [scrollIntoView useEffect] Element has valid dimensions but NOT in viewport, scrolling again...");
           scrollToElement();
           // Check again after another scroll attempt
           setTimeout(checkAfterScroll, 400);
         } else {
-          console.log("⏳ [scrollIntoView useEffect] Element found but dimensions are 0");
           setRect(null);
         }
       };
@@ -229,7 +201,6 @@ export default function MinimalTour({
       // Wait for scroll animation (smooth scroll takes ~300-500ms)
       setTimeout(checkAfterScroll, 600);
     } else {
-      console.log("❌ [scrollIntoView useEffect] Element not found");
       setRect(null);
     }
   }, [run, index, steps]);
@@ -304,7 +275,6 @@ export default function MinimalTour({
   if (!run || !steps || steps.length === 0 || !mounted) return null;
 
   const next = () => {
-    console.log("index", steps.length, stepFocused, pathname, index);
     if (stepFocused == 1 && pathname.includes("/playground/play-vs-ai")) {
       // setIndex((i) => i + 1);
       router.replace("/playground/play-vs-ai/playing");
@@ -327,8 +297,6 @@ export default function MinimalTour({
     // }
   };
   const prev = () => {
-    console.log("index", stepFocused, pathname, index);
-
     if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
       setStepFocused(1); // Go back to step 2/7
       router.replace("/playground/play-vs-ai");
@@ -392,7 +360,6 @@ export default function MinimalTour({
     : undefined;
   const top = rect ? Math.max(8, rect.bottom + window.scrollY + 8) : undefined;
   const bottom = rect ? Math.max(8, rect.top + window.scrollY + 8) : undefined;
-  console.log("top", top, rect);
   // overlay dims the page with a transparent hole over the target rect
   const overlay = rect ? (
     <svg
@@ -524,7 +491,6 @@ export default function MinimalTour({
           ChessApiService.setTutorialStatus("no-chesscom", true, sessionId),
         ]);
         setHasCompletedTutorial(true);
-        console.log(`✅ Tutorial marked as completed in both endpoints`);
         toast.success("Tutorial completed!");
       } catch (error) {
         console.error("Error saving tutorial status:", error);

@@ -1,12 +1,18 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark } from "lucide-react";
+import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import NoData from "@/components/NoData/NoData";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+import { useApiClient } from "@/functions/api-client";
+import { useProfileStore } from "@/app/store/profile";
+import { useConfirmLogin } from "@/app/store/confirmLogin";
+import DotSpinner from "../game-history/Spinner";
+import { toast } from "sonner";
 
 interface ThreatsProps {
   next: () => void;
@@ -14,17 +20,157 @@ interface ThreatsProps {
 }
 
 const Threats: React.FC<ThreatsProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis, capturedWhite } = usePgnStore();
+  const { pgn: storePgn, dataAnalysis, capturedWhite, mistakeLogs, setSavedMistakes } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { PieceChoosed } = useChessBoardThemeStore();
+  const { sessionId } = useProfileStore();
+  const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
+  const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
+
   const [showAllThreats, setShowAllThreats] = useState<boolean>(false);
+  const [loadingToggle, setLoadingToggle] = useState<string | null>(null);
+  const [localThreatsData, setLocalThreatsData] = useState<any[]>([]);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
   const ITEMS_TO_SHOW = 5;
-  // Safe destructuring with defaults
-  const { threats = [] } = dataAnalysis ?? {};
+
+  useEffect(() => {
+    const checkSession = () => {
+      if (sessionId != "") {
+        setIsSignedIn(true);
+      } else {
+        setIsSignedIn(false);
+      }
+    };
+
+    checkSession();
+  }, [sessionId, isSignedIn]);
+
+  // Helper function to find ID from mistakeLogs
+  const findIdFromMistakeLogs = (move: string, moveNumber: number) => {
+    if (!mistakeLogs || !mistakeLogs.threats) return null;
+
+    const matchingItem = mistakeLogs.threats.find(
+      (item: any) => item.move === move && item.moveNumber === moveNumber
+    );
+
+    return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
+  };
+
+  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
+  useEffect(() => {
+    if (dataAnalysis?.threats) {
+      const mergedData = dataAnalysis.threats.map((item: any) => {
+        const id = findIdFromMistakeLogs(item.move, item.moveNumber);
+        const mistakeLogItem = mistakeLogs?.threats?.find(
+          (logItem: any) => logItem.move === item.move && logItem.moveNumber === item.moveNumber
+        );
+
+        return {
+          ...item,
+          id: id,
+          saved: mistakeLogItem?.saved || false,
+        };
+      });
+
+      setLocalThreatsData(mergedData);
+    }
+  }, [dataAnalysis, mistakeLogs]);
+
+  // Handle save log
+  const handleSaveLog = async (id: string, index: number) => {
+    if (loadingToggle) return;
+
+    setLoadingToggle(id);
+    try {
+      const res = await saveMistakeLog({ mistakeLogId: id });
+
+      setLocalThreatsData((prev: any[]) => {
+        const newList = [...prev];
+        newList[index] = {
+          ...newList[index],
+          saved: true,
+          savedDate: res?.data?.savedDate || new Date().toString(),
+        };
+        return newList;
+      });
+
+      // Refresh saved mistakes
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
+      setLoadingToggle(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to save bookmark");
+      setLoadingToggle(null);
+    }
+  };
+
+  // Handle unsave log
+  const handleUnsaveLog = async (id: string, index: number) => {
+    if (loadingToggle) return;
+
+    setLoadingToggle(id);
+    try {
+      const res = await unsaveMistakeLog({ mistakeLogId: id });
+
+      setLocalThreatsData((prev: any[]) => {
+        const newList = [...prev];
+        newList[index] = {
+          ...newList[index],
+          saved: false,
+          savedDate: null,
+        };
+        return newList;
+      });
+
+      // Refresh saved mistakes
+      const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+      if (savedData?.data && Array.isArray(savedData.data)) {
+        setSavedMistakes(savedData.data);
+      }
+      setLoadingToggle(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to remove bookmark");
+      setLoadingToggle(null);
+    }
+  };
+
+  // Use local data if available, fallback to dataAnalysis
+  const threats = localThreatsData.length > 0 ? localThreatsData : (dataAnalysis?.threats ?? []);
 
   const handleOnClickMovement = (move: any) => {
-    console.log("move", move);
-    setChessMove(move);
+    // Determine player color based on moveNumber
+    const movementDetails = dataAnalysis?.movementDetails;
+
+    let playerType = "white"; // default
+
+    if (movementDetails) {
+      // Check if the move exists in white's moves
+      const whiteMove = movementDetails.white?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      // Check if the move exists in black's moves
+      const blackMove = movementDetails.black?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      if (blackMove) {
+        playerType = "black";
+      } else if (whiteMove) {
+        playerType = "white";
+      }
+    }
+
+    // Enrich the move object with the player type
+    const enrichedMove = {
+      ...move,
+      type: playerType,
+    };
+
+    setChessMove(enrichedMove);
   };
 
   return (
@@ -93,10 +239,43 @@ const Threats: React.FC<ThreatsProps> = (props) => {
                           {item?.threatType}
                         </span>
 
-                        <button type="button" className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]">
-                          <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.4167 15.75L6.58333 11.5833L0.75 15.75V2.41667C0.75 1.97464 0.925595 1.55072 1.23816 1.23816C1.55072 0.925595 1.97464 0.75 2.41667 0.75H10.75C11.192 0.75 11.616 0.925595 11.9285 1.23816C12.2411 1.55072 12.4167 1.97464 12.4167 2.41667V15.75Z" stroke="#221AE9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isSignedIn) {
+                              setOpenConfirmLogin(true);
+                              return;
+                            }
+
+                            const mistakeId = item?.id || item?.mistakeLogId || item?._id;
+
+                            if (!mistakeId) {
+                              toast.error("Cannot save: Mistake log ID not found");
+                              return;
+                            }
+
+                            if (item?.saved) {
+                              handleUnsaveLog(mistakeId, index);
+                            } else {
+                              handleSaveLog(mistakeId, index);
+                            }
+                          }}
+                          className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]"
+                        >
+                          {loadingToggle === (item?.id || item?.mistakeLogId || item?._id) ? (
+                            <DotSpinner size={5} />
+                          ) : item?.saved ? (
+                            <BookmarkFilledIcon
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          ) : (
+                            <Bookmark
+                              className="w-[12px] h-[12px] lg:w-[20px] lg:h-[20px]"
+                              color="#221AE9"
+                            />
+                          )}
                         </button>
                       </div>
                     </div>

@@ -104,7 +104,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
         </div>
 
-        <div className="grid gap-9 lg:grid-cols-3 sm:mb-8">
+        <div className="grid items-center gap-[16px] lg:grid-cols-3 sm:mb-8">
           <div>
             <div className="flex flex-row justify-between items-center">
               <Link
@@ -133,10 +133,10 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               Advanced chess training and analysis powered by AI
             </p>
           </div>
-          <div className="md:grid md:gap-9 md:grid-cols-3">
+          <div className="md:grid md:gap-[16px] md:grid-cols-3">
             <div>
               <h3 className="mb-8 text-lg font-semibold">Features</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
                     href="/play-practice"
@@ -199,7 +199,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">
                 Company
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
                     href="/about-us"
@@ -228,7 +228,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             </div>
             <div>
               <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">Legal</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
                     href="/privacy-policy"
@@ -256,6 +256,16 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </ul>
             </div>
           </div>
+          <div className="flex justify-center">
+            <Image
+                src={"/images/switzerland.png"}
+                alt="made-in-switzerland"
+                quality={100}
+                width={600}
+                height={600}
+                className="hidden md:block w-[320px] object-contain"
+              />
+          </div>
           {/* <div className="hidden sm:flex justify-end">
             <Image
               src={"/images/switzerland.png"}
@@ -267,6 +277,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             />
           </div> */}
         </div>
+        
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <p className="text-[14px] --sm text-[#364152]">

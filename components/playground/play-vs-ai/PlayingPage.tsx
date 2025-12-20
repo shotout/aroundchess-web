@@ -381,13 +381,7 @@ export default function PlayingPage() {
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("📊 Modal States:", {
-      isAnalyzeOpen,
-      isChooseAnalysisModeOpen,
-      processingAnalysisModeOpen,
-      gameAnalysisOpen,
-      hasAnalysis,
-    });
+    // Track modal states
   }, [isAnalyzeOpen, isChooseAnalysisModeOpen, processingAnalysisModeOpen, gameAnalysisOpen, hasAnalysis]);
 
   const isGameInitialized = useRef(false);
@@ -400,7 +394,9 @@ export default function PlayingPage() {
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [orientation, setOrientation] = useState<BoardOrientation>(
+    AIChoosed.color as BoardOrientation
+  );
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
@@ -452,6 +448,7 @@ export default function PlayingPage() {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
@@ -590,13 +587,6 @@ export default function PlayingPage() {
       opening: "N/A",
       source: "You vs AI",
     };
-
-    console.log("🎮 gameFromPgn created:", {
-      id: gameObj.id,
-      pgnLength: gameObj.pgn.length,
-      username: gameObj.username,
-    });
-
     return gameObj;
   }, [game, username]);
 
@@ -619,21 +609,6 @@ export default function PlayingPage() {
         job?.status === "completed" &&
         !!job.result &&
         job.gamePgn === gameFromPgn.pgn;
-
-      if (hasCompletedAnalysis && !hasAnalysis) {
-        console.log("✅ Analysis completed detected!");
-        console.log("📊 Job:", job);
-        console.log("🎮 Game ID:", gameFromPgn.id);
-        console.log("📋 PGN match:", job.gamePgn === gameFromPgn.pgn);
-      }
-
-      if (job && !hasCompletedAnalysis) {
-        console.log("⏳ Job found but not ready:", {
-          status: job.status,
-          hasResult: !!job.result,
-          pgnMatch: job.gamePgn === gameFromPgn.pgn,
-        });
-      }
       
       setHasAnalysis(hasCompletedAnalysis);
     };
@@ -671,15 +646,14 @@ export default function PlayingPage() {
   // Auto-open GameAnalysis modal when tutorial reaches step 6
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 5) {
-      console.log("setV3AnalysisResult: from tutorial 2");
       // Set dummy v3Result for tutorial with complete data including FEN and arrows
       setV3AnalysisResult({
         summary: {
           criticalMistakes: [
             {
               "fen": "r4rk1/ppp2pbp/2npbqp1/4p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 b - - 0 10",
-              "move": "b5",
-              "type": "Inaccuracy",
+              "move": "Nc3",
+              "type": "Miss",
               "arrows": {
                 "badMove": {
                   "piece": "p",
@@ -692,11 +666,11 @@ export default function PlayingPage() {
                   "startSquare": "c6"
                 }
               },
-              "analysis": "A tiny step off the best path — your plan still works, but your edge is smaller now.",
+              "analysis": "This choice weakens your position quite a bit and hands your opponent more chances.",
               "fenAfter": "r4rk1/p1p2pbp/2npbqp1/1p2p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 w - - 0 11",
-              "solution": "Many players look at c6 to d4 to keep a small edge.",
-              "moveNumber": 10,
-              "keyEvaluation": -0.66,
+              "solution": "Here, d5 would keep the position much healthier.",
+              "moveNumber": 44,
+              "keyEvaluation": -1.50,
               "mistakeLogId": "212adc63-f76f-4aba-b659-ec425134fb2b",
               "saved": false,
               "savedDate": null
@@ -828,6 +802,13 @@ export default function PlayingPage() {
       setGamePosition(initialFen);
     }
   }, [game.history().length === 0]);
+
+  // Auto-scroll Movement Details to bottom when new moves are added
+  useEffect(() => {
+    if (movementDetailsRef.current) {
+      movementDetailsRef.current.scrollTop = movementDetailsRef.current.scrollHeight;
+    }
+  }, [capturedWhite, capturedBlack]);
 
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({ square, verbose: true });
@@ -1187,7 +1168,6 @@ export default function PlayingPage() {
     if (isTutorialPlay) {
       const limitedWhite = capturedPiecesWhite.slice(0, 3);
       const limitedBlack = capturedPiecesBlack.slice(0, 3);
-      console.log("🎓 Tutorial mode: Limiting moves to 3 pairs");
       setCapturedBlack(limitedBlack);
       setCapturedWhite(limitedWhite);
     } else {
@@ -1248,7 +1228,6 @@ export default function PlayingPage() {
   const setHeaderGameFinish = (winnerColor: string) => {
     const date = formatDatePgn();
     const time = formatTimePgn();
-    console.log(statusGame);
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
     const winResult =
@@ -1261,7 +1240,7 @@ export default function PlayingPage() {
 
   useEffect(() => {
     const timestamp = Date.now();
-    
+
     // Try to restore game from local storage
     let restored = false;
     if (typeof window !== "undefined") {
@@ -1269,13 +1248,33 @@ export default function PlayingPage() {
       if (savedGame) {
         try {
           const parsed = JSON.parse(savedGame);
-          if (
+
+          // Check if the saved game has ended (Win/Loss/Draw)
+          const gameHasEnded = parsed.statusGame === "Win" || parsed.statusGame === "Loss" || parsed.statusGame === "Draw";
+
+          if (gameHasEnded) {
+            console.log("🔄 [DEBUG] Saved game has ended, clearing localStorage and showing New Game dialog");
+
+            // Clear the saved game from localStorage
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+
+            // Close any open dialogs
+            setOpenGameStatus(false);
+
+            // Show New Game dialog instead of restoring the ended game
+            setShowPlayVSAIModal(true);
+
+            // Don't restore the game, let it initialize as a new game below
+            restored = false;
+          } else if (
             parsed.aiName === AIChoosed.opponent.name &&
             parsed.elo === AIChoosed.opponent.elo &&
             parsed.myColor === AIChoosed.color
           ) {
+            console.log("🔄 [DEBUG] Restoring ongoing game from localStorage");
+
             game.loadPgn(parsed.pgn);
-            
+
             // Rebuild fen history if not saved or just to be safe
             const tempGame = new Chess();
             const fens = [tempGame.fen()];
@@ -1285,18 +1284,18 @@ export default function PlayingPage() {
             });
             setFenHistory(fens);
             setCurrentMoveIndex(fens.length - 1);
-            
+
             setGamePosition(game.fen());
             setStatusGame(parsed.statusGame);
             setMyColor(parsed.myColor);
-            
+
             if (parsed.gameId) {
               setCurrentGameId(parsed.gameId);
             } else {
               const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
               setCurrentGameId(gameId);
             }
-            
+
             restored = true;
           }
         } catch (e) {
@@ -1365,12 +1364,12 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
-    if (AIChoosed.color === "black") {
+    if (myColor === "black") {
       setOrientation("black");
     } else {
       setOrientation("white");
     }
-  }, []);
+  }, [myColor]);
 
   const handleSwitch = () => {
     setOrientation((prev) => {
@@ -1450,6 +1449,9 @@ export default function PlayingPage() {
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
 
+    // Close game end status dialog
+    setOpenGameStatus(false);
+
     setStatusGame("Ongoing");
     game.reset();
     const initialFen = game.fen();
@@ -1470,7 +1472,10 @@ export default function PlayingPage() {
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-    
+
+    // Close game end status dialog
+    setOpenGameStatus(false);
+
     // Reset game state (same as handleRematch)
     const timestamp = Date.now();
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
@@ -1533,7 +1538,6 @@ export default function PlayingPage() {
       status: statusGame,
       pgn: game.pgn(),
     };
-    console.log("game.pgn()", game.pgn());
     setIsSaving(true);
     // handleSave();
     const res = await postVSAILogs(body);
@@ -1551,9 +1555,7 @@ export default function PlayingPage() {
       setAnalysisPgn(game.pgn());
     }
     handleForceRefresh();
-    console.log("res postVSAILogs", res);
     setIsSaved(true);
-    toast.success("Game saved successfully!");
     setIsSaving(false);
     loadLogs();
   };
@@ -1563,7 +1565,6 @@ export default function PlayingPage() {
       const formData = new FormData();
       const currentPgn = game.pgn();
       const totalMoves = Math.ceil(game.history().length / 2);
-      console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
@@ -1577,9 +1578,7 @@ export default function PlayingPage() {
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
-      console.log("newGame", newGame);
       setIsSaved(true);
-      toast.success("Game saved successfully!");
       setIsSaving(false);
     } catch (err: any) {
     } finally {
@@ -1592,6 +1591,7 @@ export default function PlayingPage() {
       const winnerColorLocal = loserColorLocal === "w" ? "black" : "white";
       const losserColorLocal = loserColorLocal !== "w" ? "black" : "white";
       const isUserWin = myColor === winnerColorLocal;
+
       setWinnerColor(winnerColorLocal);
       setLoserColor(losserColorLocal);
 
@@ -1843,89 +1843,50 @@ export default function PlayingPage() {
 
   // Handle "Show Analysis" click
   const handleShowAnalysis = async () => {
-    console.log("🔍 PlayingPage: handleShowAnalysis called");
-    console.log("🎮 Game ID:", gameFromPgn.id);
-    console.log("📋 PGN:", gameFromPgn.pgn?.substring(0, 100));
-
-    toast.info("Loading analysis...");
-
     try {
       const job = getJobByGameId(gameFromPgn.id);
-      console.log("💼 Job data:", job);
-
       const pgnHash = createPgnHash(gameFromPgn.pgn);
-      console.log("🔑 PGN Hash:", pgnHash);
-
       // Fetch from both v2 and v3 endpoints in parallel
       const [v2Analysis, v3Analysis] = await Promise.all([
         fetchLastAnalysis(pgnHash),
         fetchLastAnalysisV3(pgnHash)
       ]);
 
-      console.log("📥 V2 Analysis response:", v2Analysis);
-      console.log("📥 V3 Analysis response:", v3Analysis);
-
       // Store both v2 and v3 results
       setV2AnalysisData(v2Analysis);
       setShortAnalysisData(v3Analysis);
 
       if (v3Analysis?.success && v3Analysis.data) {
-        console.log("✅ V3 Analysis found, opening ChooseAnalysisMode");
-        toast.success("Opening analysis...");
-
         // Open ChooseAnalysisMode dialog with both v2 and v3 data
         setIsChooseAnalysisModeOpen(true);
       } else if (v2Analysis?.success && v2Analysis.data) {
-        console.log("✅ Using server v2 analysis data");
-        console.log("📈 Analysis data keys:", Object.keys(v2Analysis.data));
-
         setPgn(gameFromPgn.pgn);
         setDataGamesImport(gameFromPgn);
         setDataAnalysis(v2Analysis.data);
         setIsFromGameHistory(true);
 
-        console.log("🚀 Navigating to /analysis with server data");
-        toast.success("Opening analysis...");
         router.push("/analysis");
       } else {
-        console.log("⚠️ Server analysis not available, trying job result");
         if (job && job.result) {
-          console.log("✅ Using job result data");
-          console.log("📈 Job result keys:", Object.keys(job.result));
-
           setPgn(gameFromPgn.pgn);
           setDataGamesImport(gameFromPgn);
           setDataAnalysis(job.result);
           setIsFromGameHistory(true);
 
-          console.log("🚀 Navigating to /analysis with job data");
-          toast.success("Opening analysis...");
           router.push("/analysis");
         } else {
-          console.error("❌ No analysis found for this game");
-          console.log("Falling back to analyze dialog");
-          toast.error("No analysis data found. Please analyze the game first.");
           setIsAnalyzeOpen(true);
         }
       }
     } catch (error) {
-      console.error("❌ Error fetching analysis:", error);
       const job = getJobByGameId(gameFromPgn.id);
-      console.log("🔄 Attempting fallback with job:", job);
-
+      
       if (job && job.result) {
-        console.log("✅ Using fallback job result");
         setPgn(gameFromPgn.pgn);
         setDataGamesImport(gameFromPgn);
         setDataAnalysis(job.result);
         setIsFromGameHistory(true);
-
-        console.log("🚀 Navigating to /analysis with fallback job data");
-        toast.success("Opening analysis...");
         router.push("/analysis");
-      } else {
-        console.error("❌ No fallback data available");
-        toast.error("Failed to load analysis. Please try again.");
       }
     }
   };
@@ -1956,29 +1917,22 @@ export default function PlayingPage() {
         className: "bg-green-600 hover:bg-green-700 text-white",
         onClick: async () => {
           try {
-            console.log("📤 [View Results] Fetching v2 and v3 last-analysis");
             const pgnHash = createPgnHash(currentPgn);
-            console.log("📤 [View Results] PGN Hash:", pgnHash);
-
+            
             // Fetch from both v2 and v3 endpoints in parallel
             const [v2Analysis, v3Analysis] = await Promise.all([
               fetchLastAnalysis(pgnHash),
               fetchLastAnalysisV3(pgnHash)
             ]);
 
-            console.log("📥 [View Results] V2 Response:", v2Analysis);
-            console.log("📥 [View Results] V3 Response:", v3Analysis);
-
             // Store both v2 and v3 results
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
             if (v3Analysis?.success && v3Analysis.data) {
-              console.log("✅ [View Results] V3 Analysis found, opening ChooseAnalysisMode");
               // Open ChooseAnalysisMode dialog with both v2 and v3 data
               setIsChooseAnalysisModeOpen(true);
             } else if (v2Analysis?.success && v2Analysis.data) {
-              console.log("✅ [View Results] Using v2 analysis data");
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
@@ -2009,7 +1963,6 @@ export default function PlayingPage() {
               router.push("/analysis");
             } else {
               if (job && job.result) {
-                console.log("📦 [View Results] Using job result as fallback");
                 setPgn(currentPgn);
                 const gameData = {
                   id: currentGameId,
@@ -2039,14 +1992,11 @@ export default function PlayingPage() {
                 setDataAnalysis(job.result);
                 router.push("/analysis");
               } else {
-                console.log("⚠️ [View Results] No analysis found, opening analyze dialog");
                 setIsAnalyzeOpen(true);
               }
             }
           } catch (error) {
-            console.error("❌ [View Results] Error fetching analysis:", error);
             if (job && job.result) {
-              console.log("📦 [View Results] Using job result as error fallback");
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
@@ -2076,7 +2026,6 @@ export default function PlayingPage() {
               setDataAnalysis(job.result);
               router.push("/analysis");
             } else {
-              console.error("❌ [View Results] No fallback data available");
               setIsAnalyzeOpen(true);
             }
           }
@@ -2132,22 +2081,18 @@ export default function PlayingPage() {
       <AnalyzeGameHistory
         open={isAnalyzeOpen}
         onOpenChange={(open) => {
-          console.log("🔄 AnalyzeGameHistory onOpenChange called with:", open);
           setIsAnalyzeOpen(open);
         }}
         game={gameFromPgn}
         onAnalysisStarted={() => {
-          console.log("✅ Analysis started, opening ChooseAnalysisMode");
           setIsChooseAnalysisModeOpen(true);
         }}
         onShortAnalysisReceived={(data) => {
-          console.log("📥 PlayingPage received short-analysis data:", data);
           setShortAnalysisData(data);
 
           // Also get v2 analysis from job store if available
           const job = getJobByGameId(gameFromPgn.id);
           if (job && job.result) {
-            console.log("📦 [PlayingPage] Found v2 analysis in job store");
             setV2AnalysisData({ success: true, data: job.result });
           }
         }}
@@ -2159,12 +2104,9 @@ export default function PlayingPage() {
         shortAnalysisData={shortAnalysisData}
         v2AnalysisData={v2AnalysisData}
         onOpenProcessingMode={() => {
-          console.log("🔄 Opening ProcessingAnalysisMode from PlayingPage");
           setProcessingAnalysisModeOpen(true);
         }}
         onOpenGameAnalysis={(v3Result) => {
-          console.log("🎯 Opening GameAnalysis directly from ChooseAnalysisMode");
-          console.log("📦 Received v3Result:", v3Result);
           setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
         }}
@@ -2174,8 +2116,6 @@ export default function PlayingPage() {
         onOpenChange={setProcessingAnalysisModeOpen}
         game={gameFromPgn}
         onOpenGameAnalysis={(v3Result) => {
-          console.log("🎯 Opening GameAnalysis from PlayingPage");
-          console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
           setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
         }}
@@ -2185,6 +2125,7 @@ export default function PlayingPage() {
         onOpenChange={setGameAnalysisOpen}
         v3Result={v3AnalysisResult}
         isTutorialPlay={isTutorialPlay}
+        playerColor={myColor as "white" | "black"}
       />
       
       {/* New Game Dialog */}
@@ -2529,7 +2470,6 @@ export default function PlayingPage() {
                 isSaving={isSaving}
                 hasAnalysis={hasAnalysis}
                 onAnalyzeClick={() => {
-                  console.log("🔵 onAnalyzeClick called in PlayingPage, setting isAnalyzeOpen to true");
                   setIsAnalyzeOpen(true);
                 }}
                 onShowAnalysisClick={handleShowAnalysis}
@@ -2748,7 +2688,7 @@ export default function PlayingPage() {
               className="lg:max-h-[625px] xxl:max-h-[675px] h-auto flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4"
               // style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
-              <div className="flex flex-col px-4 w-full overflow-y-auto ">
+              <div ref={movementDetailsRef} className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
                   Movement Details
                 </span>
@@ -2832,7 +2772,6 @@ export default function PlayingPage() {
                     isSaving={isSaving}
                     hasAnalysis={hasAnalysis}
                     onAnalyzeClick={() => {
-                      console.log("🔵 onAnalyzeClick called in PlayingPage (second instance), setting isAnalyzeOpen to true");
                       setIsAnalyzeOpen(true);
                     }}
                     onShowAnalysisClick={handleShowAnalysis}

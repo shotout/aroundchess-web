@@ -34,7 +34,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
 
-  const [loadingToggle, setLoadingToggle] = useState<boolean>(false);
+  const [loadingToggle, setLoadingToggle] = useState<string | null>(null);
   const [localSummaryData, setLocalSummaryData] = useState<any>(null);
 
   useEffect(() => {
@@ -133,8 +133,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
   // Handle save log
   const handleSaveLog = async (id: string, arrayKey: string, index: number) => {
     if (loadingToggle) return; // Prevent multiple simultaneous requests
-    
-    setLoadingToggle(true);
+
+    setLoadingToggle(id);
     try {
       const res = await saveMistakeLog({ mistakeLogId: id });
 
@@ -184,18 +184,18 @@ const Summary: React.FC<SummaryProps> = (props) => {
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
       }
-      setLoadingToggle(false);
+      setLoadingToggle(null);
     } catch (e: any) {
       toast.error(e?.message || "Failed to save bookmark");
-      setLoadingToggle(false);
+      setLoadingToggle(null);
     }
   };
 
   // Handle unsave log
   const handleUnsaveLog = async (id: string, arrayKey: string, index: number) => {
     if (loadingToggle) return; // Prevent multiple simultaneous requests
-    
-    setLoadingToggle(true);
+
+    setLoadingToggle(id);
     try {
       const res = await unsaveMistakeLog({ mistakeLogId: id });
 
@@ -245,15 +245,46 @@ const Summary: React.FC<SummaryProps> = (props) => {
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
       }
-      setLoadingToggle(false);
+      setLoadingToggle(null);
     } catch (e: any) {
       toast.error(e?.message || "Failed to remove bookmark");
-      setLoadingToggle(false);
+      setLoadingToggle(null);
     }
   };
 
   const handleOnClickMovement = (move: any) => {
-    setChessMove(move);
+    // Determine player color based on moveNumber
+    // Move number is the full move number (e.g., move 1 = white's first move and black's first move)
+    // We need to check if this move exists in white or black movementDetails
+    const movementDetails = dataAnalysis?.movementDetails;
+
+    let playerType = "white"; // default
+
+    if (movementDetails) {
+      // Check if the move exists in white's moves
+      const whiteMove = movementDetails.white?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      // Check if the move exists in black's moves
+      const blackMove = movementDetails.black?.find(
+        (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
+      );
+
+      if (blackMove) {
+        playerType = "black";
+      } else if (whiteMove) {
+        playerType = "white";
+      }
+    }
+
+    // Enrich the move object with the player type
+    const enrichedMove = {
+      ...move,
+      type: playerType,
+    };
+
+    setChessMove(enrichedMove);
   };
   return (
     <>
@@ -728,7 +759,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                           }}
                           className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]"
                         >
-                          {loadingToggle ? (
+                          {loadingToggle === (item?.id || item?.mistakeLogId || item?._id) ? (
                             <DotSpinner size={5} />
                           ) : item?.saved ? (
                             <BookmarkFilledIcon
@@ -846,7 +877,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
                               }}
                               className="relative w-[36px] h-[36px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] shadow-[0px_0px_1px_2px_rgba(230,247,254,.2)] rounded-[8px] before:content-[''] before:w-[calc(100%-2px)] before:h-[calc(100%-2px)] before:absolute before:top-[1px] before:left-[1px] before:shadow-inset before:rounded-[6px] before:shadow-[0px_0px_0px_1px_rgba(255,255,255,1)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-[6px] after:shadow-[inset_0px_-2px_2px_0px_rgba(141,215,246,1)]"
                             >
-                              {loadingToggle ? (
+                              {loadingToggle === (middle?.id || middle?.mistakeLogId || middle?._id) ? (
                                 <DotSpinner size={5} />
                               ) : middle?.saved ? (
                                 <BookmarkFilledIcon

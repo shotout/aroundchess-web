@@ -16,10 +16,72 @@ import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
 import ChooseAnalysisMode from "../game-history/components/ChooseAnalysisMode";
 import ProcessingAnalysisMode from "../game-history/components/ProcessingAnalysisMode";
 import GameAnalysis from "../game-history/components/GameAnalysis";
+import { createPgnHash } from "@/utils/crypto-utils";
+import { useProfileStore } from "@/app/store/profile";
 
 interface savedProps {
   onClickSeePrevious?: () => void;
 }
+
+interface LastAnalysisResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  statusCode: number;
+}
+
+const endpoint = process.env.BASE_URL;
+
+const fetchLastAnalysisV2 = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch v2 analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
+
+const fetchLastAnalysisV3 = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching v3 last analysis:", error);
+    return null;
+  }
+};
 
 const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -36,9 +98,19 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   
   const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
   const { currentData } = usePagination(savedMistakes);
+  const { sessionId } = useProfileStore();
   const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [sectionsByHash, setSectionsByHash] = useState<Record<string, any>>({});
+
+  // Dialog states for View Analysis flow
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   useEffect(() => {
     if (savedMistakes.length > 0) {
@@ -170,9 +242,51 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       const updatedData = savedMistakes.filter((item) => item.mistakeLog.id !== id);
       setSavedMistakes(updatedData);
     } catch (error) {
-      
+
     } finally {
       setLoadingUnsave(false);
+    }
+  };
+
+  const handleViewAnalysis = async (item: any) => {
+    try {
+      console.log("📤 [SavedMistakes - View Analysis] Starting analysis fetch");
+      console.log("📦 [SavedMistakes - View Analysis] Item data:", item);
+
+      const pgnHash = createPgnHash(item.pgn);
+      console.log("📤 [SavedMistakes - View Analysis] PGN Hash:", pgnHash);
+
+      // Store selected game for dialog components
+      setSelectedGame({
+        id: item.id || item._id,
+        pgn: item.pgn,
+        title: item.title,
+        playerInfo: item.playerInfo,
+        movementDetail: item.movementDetail,
+      });
+
+      // Fetch from both v2 and v3 endpoints in parallel
+      const [v2Analysis, v3Analysis] = await Promise.all([
+        fetchLastAnalysisV2(pgnHash, sessionId),
+        fetchLastAnalysisV3(pgnHash, sessionId)
+      ]);
+
+      console.log("📥 [SavedMistakes - View Analysis] V2 Response:", v2Analysis);
+      console.log("📥 [SavedMistakes - View Analysis] V3 Response:", v3Analysis);
+
+      // Store both v2 and v3 results
+      setV2AnalysisData(v2Analysis);
+      setShortAnalysisData(v3Analysis);
+
+      if (v3Analysis?.success && v3Analysis.data) {
+        console.log("✅ [SavedMistakes - View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
+        // Open ChooseAnalysisMode dialog with both v2 and v3 data
+        setIsChooseAnalysisModeOpen(true);
+      } else {
+        console.log("⚠️ [SavedMistakes - View Analysis] No v3 analysis found");
+      }
+    } catch (error) {
+      console.error("❌ [SavedMistakes - View Analysis] Error fetching analysis:", error);
     }
   };
 
@@ -306,7 +420,14 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                       </div>
                     </div>
 
-                    <button type="button" className="hidden lg:flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34]">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewAnalysis(item);
+                      }}
+                      className="hidden lg:flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34] cursor-pointer"
+                    >
                       <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clipPath="url(#clip0_866_179599)">
                           <path d="M0.664062 7.99935C0.664062 7.99935 3.33073 2.66602 7.9974 2.66602C12.6641 2.66602 15.3307 7.99935 15.3307 7.99935C15.3307 7.99935 12.6641 13.3327 7.9974 13.3327C3.33073 13.3327 0.664062 7.99935 0.664062 7.99935Z" stroke="#FAFDFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -322,15 +443,43 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                     </button>
                   </div>
                 </div>
-
-                <ChooseAnalysisMode open={false} onOpenChange={() => { }} />
-                <ProcessingAnalysisMode open={false} onOpenChange={() => { }} />
-                <GameAnalysis open={false} onOpenChange={() => { }} />
               </div>
             );
           })}
       </div>
       {currentData.length > 0 && <Pagination data={currentData} />}
+
+      {/* Dialog components for View Analysis flow */}
+      <ChooseAnalysisMode
+        open={isChooseAnalysisModeOpen}
+        onOpenChange={setIsChooseAnalysisModeOpen}
+        game={selectedGame}
+        shortAnalysisData={shortAnalysisData}
+        v2AnalysisData={v2AnalysisData}
+        onOpenProcessingMode={() => {
+          setProcessingAnalysisModeOpen(true);
+        }}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+
+      <ProcessingAnalysisMode
+        open={processingAnalysisModeOpen}
+        onOpenChange={setProcessingAnalysisModeOpen}
+        game={selectedGame}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+
+      <GameAnalysis
+        open={gameAnalysisOpen}
+        onOpenChange={setGameAnalysisOpen}
+        v3Result={v3AnalysisResult}
+      />
     </>
   );
 };
