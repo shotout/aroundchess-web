@@ -160,7 +160,7 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const fadeZone = 120;
 
                 // Fade effect untuk sebelah kiri (di bawah label White/Black)
-                if (relativePosition < fixedColumnWidth) {
+                if (scrollLeft > 0 && relativePosition < fixedColumnWidth) {
                   const overlap = fixedColumnWidth - relativePosition;
                   opacity = Math.max(0.2, 1 - overlap / fadeZone);
                 }

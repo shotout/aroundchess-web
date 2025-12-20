@@ -17,6 +17,10 @@ import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -60,12 +64,12 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-2 sm:p-4"
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
-        paddingTop: headerHeight + 16,
-        paddingBottom: 16,
-        paddingRight: 16,
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 8,
+        paddingTop: isDesktop ? headerHeight + 16 : 80,
+        paddingBottom: isDesktop ? 16 : 8,
+        paddingRight: isDesktop ? 16 : 8,
       }}
     >
       <div
@@ -73,8 +77,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-6xl mx-auto z-10 h-full flex flex-col">
-        <div className="relative bg-blue-50 border border-blue-100 rounded-xl shadow-lg flex-1 min-h-0 flex flex-col">
+      <div className="relative w-full max-w-6xl mx-auto z-10 h-full flex flex-col max-h-[calc(100vh-88px)] sm:max-h-full">
+        <div className="relative bg-blue-50 border border-blue-100 rounded-xl shadow-lg flex-1 min-h-0 flex flex-col overflow-hidden">
           <div className="absolute inset-0 z-0 opacity-55">
             <Image
               src="/my-game-history/pattern.png"
@@ -88,18 +92,18 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 p-1 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 transition-colors z-20"
+            className="absolute right-2 top-2 sm:right-4 sm:top-4 p-1 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 transition-colors z-20"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="relative z-10 p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+          <div className="relative z-10 p-3 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-1 min-h-0">
             <div className="text-center space-y-1">
-              <h2 className="text-2xl font-semibold text-black">
+              <h2 className="text-xl sm:text-2xl font-semibold text-black">
                 Go Premium now
               </h2>
-              <p className="text-xl text-black font-semibold">
+              <p className="text-base sm:text-xl text-black font-semibold">
                 for unlimited access and become a Chess Master
               </p>
             </div>
@@ -447,14 +451,14 @@ export const PremiumSubsContent: React.FC<{
       
       <div
         ref={containerRef}
-        className={`flex w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
+        className={`flex w-[84vw] mx-auto overflow-x-scroll gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* free */}
         {(isMobile || packageFilter === "monthly") && (
           <div
             ref={freeCardRef}
-            className="w-full md:min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
+            className="w-[84vw] md:min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-50 rounded-full">
@@ -527,7 +531,7 @@ export const PremiumSubsContent: React.FC<{
         {(isMobile ||
           packageFilter === "monthly" ||
           packageFilter === "yearly") && (
-          <div ref={monthlyCardRef} className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
+          <div ref={monthlyCardRef} className="w-[84vw] md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
@@ -665,7 +669,7 @@ export const PremiumSubsContent: React.FC<{
         {/* yearly */}
         {(isMobile || packageFilter === "yearly") && (
           <div ref={yearlyCardRef}
-            className="w-full md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
+            className="w-[84vw] md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             <div className="absolute -top-2 left-0 right-0 flex justify-center">
               <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
