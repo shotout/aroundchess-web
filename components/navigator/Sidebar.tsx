@@ -636,21 +636,17 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={isMobile ? itemVariants : {}}
       >
         <button
-          onClick={() => {
+          onClick={async () => {
             // Close sidebar first on mobile before starting tutorial
             if (isMobile && onClose) {
-              onClose();
+              await onClose();
             }
 
-            if (!pathname.includes("/my-game-history")) {
-              router.replace("/my-game-history");
+            await router.replace("/my-game-history");
               // Wait a bit for navigation to complete before starting tutorial
-              setTimeout(() => {
-                startTutorial();
-              }, 300);
-            } else {
+            await setTimeout(() => {
               startTutorial();
-            }
+            }, 300);
           }}
           className="w-full text-[14px] px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-l-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
         >
@@ -658,22 +654,18 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         </button>
 
         <button
-          onClick={() => {
+          onClick={async () => {
             // Close sidebar first on mobile before starting tutorial
             if (isMobile && onClose) {
-              onClose();
+              await onClose();
             }
 
             // NEW: You vs AI Tutorial
-            if (!pathname.includes("/playground/play-vs-ai") || pathname.includes("/playground/play-vs-ai/playing")) {
-              router.replace("/playground/play-vs-ai");
-              // Wait a bit for navigation to complete before starting tutorial
-              setTimeout(() => {
-                startTutorial();
-              }, 300);
-            } else {
+            router.replace("/playground/play-vs-ai");
+            // Wait a bit for navigation to complete before starting tutorial
+            await setTimeout(() => {
               startTutorial();
-            }
+            }, 300);
           }}
           className="w-full text-[14px] px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-r-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
         >

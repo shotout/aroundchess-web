@@ -351,7 +351,6 @@ const GamesList: React.FC<GamesListProps> = ({
 
     // Step 1 (index 0): Close all modals, show game list
     if (stepFocused === 0) {
-      console.log("Tutorial Step 1: Closing all modals, showing game list");
       setOpenGameId(null);
       setChooseAnalysisModeGameId(null);
       setProcessingAnalysisModeGameId(null);
@@ -359,7 +358,6 @@ const GamesList: React.FC<GamesListProps> = ({
     }
     // Step 2 (index 1): Open AnalyzeGameHistory modal
     else if (stepFocused === 1) {
-      console.log("Tutorial Step 2: Opening AnalyzeGameHistory modal");
       setOpenGameId(firstGame.id);
       // Close other modals
       setChooseAnalysisModeGameId(null);
@@ -368,7 +366,6 @@ const GamesList: React.FC<GamesListProps> = ({
     }
     // Step 3 (index 2): Open ChooseAnalysisMode modal
     else if (stepFocused === 2) {
-      console.log("Tutorial Step 3: Opening ChooseAnalysisMode modal");
       setChooseAnalysisModeGameId(firstGame.id);
       // Close other modals
       setOpenGameId(null);
@@ -377,7 +374,6 @@ const GamesList: React.FC<GamesListProps> = ({
     }
     // Step 4 (index 3): Open ProcessingAnalysisMode or GameAnalysis modal
     else if (stepFocused === 3) {
-      console.log("Tutorial Step 4: Opening GameAnalysis modal");
       // For tutorial, directly show GameAnalysis with dummy data
       setGameAnalysisGameId(firstGame.id);
       // Set dummy v3Result for tutorial
@@ -740,8 +736,6 @@ const GamesList: React.FC<GamesListProps> = ({
             onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
             game={game}
             onOpenGameAnalysis={(v3Result) => {
-              console.log("🎯 Opening GameAnalysis from GameList");
-              console.log("📦 Received v3Result from ProcessingAnalysisMode:", v3Result);
               setV3AnalysisResult(v3Result);
               setGameAnalysisGameId(game.id);
             }}
@@ -777,96 +771,103 @@ const GamesList: React.FC<GamesListProps> = ({
 
           <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
             {/* Show real games for tutorial, DummyList is no longer needed */}
-            {displayGames.map((game, idx) => {
-                const btn = getAnalysisButtonContent(game.id, game);
-                const isNew =
-                  (!game.hasViewedAnalysis && game.isAnalysis) ||
-                  isNewlyImported(game.id);
-                const indexInPage =
-                  (paginationProps.currentPage - 1) *
-                    paginationProps.itemsPerPage +
-                  idx +
-                  1;
-                return (
-                  <div
-                    key={game.id}
-                    className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
-                    style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
-                    data-tutorial={idx === 0 ? "1" : null}
-                  >
-                    <div className="flex items-center px-2 py-3 border-r border-gray-200">
-                      {/* {isNew && (
-                      <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
-                    )} */}
-                      <span className="w-6 text-center text-gray-500">
-                        {indexInPage}
-                      </span>
-                    </div>
+            {/* {true ? ( */}
+            {isTutorialPlay ? (
+              <DummyGameList />
+            ) : (
+              <>
+                {displayGames.map((game, idx) => {
+                    const btn = getAnalysisButtonContent(game.id, game);
+                    const isNew =
+                      (!game.hasViewedAnalysis && game.isAnalysis) ||
+                      isNewlyImported(game.id);
+                    const indexInPage =
+                      (paginationProps.currentPage - 1) *
+                        paginationProps.itemsPerPage +
+                      idx +
+                      1;
+                    return (
+                      <div
+                        key={game.id}
+                        className={`grid relative transition-colors duration-150 ${isNew ? "" : "even:bg-blue-50 odd:bg-white hover:bg-blue-50"}`}
+                        style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+                        data-tutorial={idx === 0 ? "1" : null}
+                      >
+                        <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                          {/* {isNew && (
+                          <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                        )} */}
+                          <span className="w-6 text-center text-gray-500">
+                            {indexInPage}
+                          </span>
+                        </div>
 
-                    <div className="flex items-center px-4 py-3">{game.date}</div>
+                        <div className="flex items-center px-4 py-3">{game.date}</div>
 
-                    <div className="flex items-center px-2 py-3">
-                      {displayTimeControl(game.timeControl)}
-                    </div>
+                        <div className="flex items-center px-2 py-3">
+                          {displayTimeControl(game.timeControl)}
+                        </div>
 
-                    <div className="flex items-center px-2 py-3">
-                      {(() => {
-                        const r = getResultData(game.result);
-                        return <span className={r.className}>{r.text}</span>;
-                      })()}
-                    </div>
+                        <div className="flex items-center px-2 py-3">
+                          {(() => {
+                            const r = getResultData(game.result);
+                            return <span className={r.className}>{r.text}</span>;
+                          })()}
+                        </div>
 
-                    <div className="flex items-center px-4 py-3 truncate">
-                      {game.opponent || "Unknown Player"}
-                    </div>
+                        <div className="flex items-center px-4 py-3 truncate">
+                          {game.opponent || "Unknown Player"}
+                        </div>
 
-                    <div className="flex items-center px-2 py-3">
-                      {game.rating || "N/A"}
-                    </div>
+                        <div className="flex items-center px-2 py-3">
+                          {game.rating || "N/A"}
+                        </div>
 
-                    <div className="flex items-center px-2 py-3 truncate">
-                      {game.timeClass || "Unknown Game Type"}
-                    </div>
+                        <div className="flex items-center px-2 py-3 truncate">
+                          {game.timeClass || "Unknown Game Type"}
+                        </div>
 
-                    <div className="flex items-center px-2 py-3">
-                      {displayMoves(game.moves)}
-                    </div>
+                        <div className="flex items-center px-2 py-3">
+                          {displayMoves(game.moves)}
+                        </div>
 
-                    <div className="flex items-center px-4 py-3">
-                      {displayOpening(game.opening)}
-                    </div>
+                        <div className="flex items-center px-4 py-3">
+                          {displayOpening(game.opening)}
+                        </div>
 
-                    <div className="flex items-center px-2 py-3">
-                      {game.source || "Unknown"}
-                    </div>
+                        <div className="flex items-center px-2 py-3">
+                          {game.source || "Unknown"}
+                        </div>
 
-                    <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
-                      {(() => {
-                        const btn = getAnalysisButtonContent(game.id, game);
-                        return (
-                          <button
-                            className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
-                            onClick={btn.onClick}
-                            disabled={disabled && game.id == gameId}
-                          >
-                            {disabled && game.id == gameId ? (
-                              <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
-                            ) : (
-                              btn.icon
-                            )}
-                            <span className="hidden sm:block max-w-[90px]">
-                              {btn.text}
-                            </span>
-                            <span className="block sm:hidden">
-                              {btn.text}
-                            </span>
-                          </button>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                );
-              })}
+                        <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
+                          {(() => {
+                            const btn = getAnalysisButtonContent(game.id, game);
+                            return (
+                              <button
+                                className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                                onClick={btn.onClick}
+                                disabled={disabled && game.id == gameId}
+                              >
+                                {disabled && game.id == gameId ? (
+                                  <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
+                                ) : (
+                                  btn.icon
+                                )}
+                                <span className="hidden sm:block max-w-[90px]">
+                                  {btn.text}
+                                </span>
+                                <span className="block sm:hidden">
+                                  {btn.text}
+                                </span>
+                              </button>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
+            )}
           </div>
         </div>
       )}
@@ -893,3 +894,252 @@ const GamesList: React.FC<GamesListProps> = ({
 };
 
 export default GamesList;
+
+const DummyGameList = () => {
+  const dummyList = [
+    {
+      id: "d4c02ecd-7fd2-4aa0-b206-8deb3ef59473",
+      userId: "96f24676-c1e8-40f2-b052-0bf0166df14f",
+      username: "ainaatub",
+      pgn: '[Event "Live Chess"]\n[Site "Chess.com"]\n[Date "2025.10.11"]\n[Round "-"]\n[White "a2thedeep"]\n[Black "ainaatub"]\n[Result "0-1"]\n[CurrentPosition "3k1b1r/p1N1pppp/1p6/7N/5B2/2P2b2/PP2nP1P/R4RK1 w - - 1 17"]\n[Timezone "UTC"]\n[ECO "B01"]\n[ECOUrl "https://www.chess.com/openings/Scandinavian-Defense-Mieses-Kotrc-Variation-3.Nc3-Qe5"]\n[UTCDate "2025.10.11"]\n[UTCTime "14:13:39"]\n[WhiteElo "732"]\n[BlackElo "684"]\n[TimeControl "900+10"]\n[Termination "ainaatub won by checkmate"]\n[StartTime "14:13:39"]\n[EndDate "2025.10.11"]\n[EndTime "14:18:32"]\n[Link "https://www.chess.com/game/live/144167582998"]\n\n1. e4 {[%clk 0:15:09.9]} 1... d5 {[%clk 0:15:06.2]} 2. exd5 {[%clk 0:15:15.1]} 2... Qxd5 {[%clk 0:15:14.7]} 3. Nc3 {[%clk 0:15:24.5]} 3... Qe5+ {[%clk 0:15:21.6]} 4. Nge2 {[%clk 0:15:30.9]} 4... Nf6 {[%clk 0:15:29.4]} 5. d4 {[%clk 0:15:40.1]} 5... Qe6 {[%clk 0:15:34.6]} 6. g4 {[%clk 0:15:37.6]} 6... Qc6 {[%clk 0:15:34.2]} 7. Ng3 {[%clk 0:15:33.1]} 7... Bxg4 {[%clk 0:15:33.1]} 8. Bb5 {[%clk 0:15:26.1]} 8... Qxb5 {[%clk 0:14:58.5]} 9. Nxb5 {[%clk 0:15:23.1]} 9... Bxd1 {[%clk 0:15:05.2]} 10. Nxc7+ {[%clk 0:15:32.9]} 10... Kd8 {[%clk 0:15:05.2]} 11. Nxa8 {[%clk 0:15:41.7]} 11... Bf3 {[%clk 0:15:10.9]} 12. O-O {[%clk 0:15:38.7]} 12... b6 {[%clk 0:15:17.9]} 13. Bf4 {[%clk 0:15:35.7]} 13... Nc6 {[%clk 0:15:15.7]} 14. Nc7 {[%clk 0:15:35.5]} 14... Nh5 {[%clk 0:15:05]} 15. Nxh5 {[%clk 0:15:38]} 15... Nxd4 {[%clk 0:15:08.6]} 16. c3 {[%clk 0:15:24.6]} 16... Ne2# {[%clk 0:15:14.6]} 0-1\n',
+      date: "2025-04-13",
+      time_control: "10 + 0",
+      timeControl: "10 + 0",
+      result: "WIN",
+      opponent: "Guest1234",
+      rating: 1950,
+      elo_change: +12,
+      eloChange: +12,
+      moves: 45,
+      opening_eco: "B00",
+      opening_name: "Sicilian Defense",
+      opening: "Sicilian Defense",
+      opening_moves: "1. e4",
+      source: "PDN Upload",
+      archive_url: "https://api.chess.com/pub/player/ainaatub/games/2025/10",
+      color: "Black",
+      playerColor: "Black",
+      remaining_time: 914,
+      time_class: "rapid",
+      timeClass: "rapid",
+      rated: true,
+      termination: "ainaatub won by checkmate",
+      accuracies_white: 60.56,
+      accuracies_black: 60.56,
+      end_time: 1760192312,
+      is_analysis: false,
+      isAnalysis: false,
+      hasViewedAnalysis: false,
+      createdAt: "2025-10-13T02:59:31.810Z",
+      updatedAt: "2025-10-20T04:42:15.041Z",
+    },
+    {
+      id: "d4c02ecd-7fd2-4aa0-b206-8deb3ef59473",
+      userId: "96f24676-c1e8-40f2-b052-0bf0166df14f",
+      username: "ainaatub",
+      pgn: '[Event "Live Chess"]\n[Site "Chess.com"]\n[Date "2025.10.11"]\n[Round "-"]\n[White "a2thedeep"]\n[Black "ainaatub"]\n[Result "0-1"]\n[CurrentPosition "3k1b1r/p1N1pppp/1p6/7N/5B2/2P2b2/PP2nP1P/R4RK1 w - - 1 17"]\n[Timezone "UTC"]\n[ECO "B01"]\n[ECOUrl "https://www.chess.com/openings/Scandinavian-Defense-Mieses-Kotrc-Variation-3.Nc3-Qe5"]\n[UTCDate "2025.10.11"]\n[UTCTime "14:13:39"]\n[WhiteElo "732"]\n[BlackElo "684"]\n[TimeControl "900+10"]\n[Termination "ainaatub won by checkmate"]\n[StartTime "14:13:39"]\n[EndDate "2025.10.11"]\n[EndTime "14:18:32"]\n[Link "https://www.chess.com/game/live/144167582998"]\n\n1. e4 {[%clk 0:15:09.9]} 1... d5 {[%clk 0:15:06.2]} 2. exd5 {[%clk 0:15:15.1]} 2... Qxd5 {[%clk 0:15:14.7]} 3. Nc3 {[%clk 0:15:24.5]} 3... Qe5+ {[%clk 0:15:21.6]} 4. Nge2 {[%clk 0:15:30.9]} 4... Nf6 {[%clk 0:15:29.4]} 5. d4 {[%clk 0:15:40.1]} 5... Qe6 {[%clk 0:15:34.6]} 6. g4 {[%clk 0:15:37.6]} 6... Qc6 {[%clk 0:15:34.2]} 7. Ng3 {[%clk 0:15:33.1]} 7... Bxg4 {[%clk 0:15:33.1]} 8. Bb5 {[%clk 0:15:26.1]} 8... Qxb5 {[%clk 0:14:58.5]} 9. Nxb5 {[%clk 0:15:23.1]} 9... Bxd1 {[%clk 0:15:05.2]} 10. Nxc7+ {[%clk 0:15:32.9]} 10... Kd8 {[%clk 0:15:05.2]} 11. Nxa8 {[%clk 0:15:41.7]} 11... Bf3 {[%clk 0:15:10.9]} 12. O-O {[%clk 0:15:38.7]} 12... b6 {[%clk 0:15:17.9]} 13. Bf4 {[%clk 0:15:35.7]} 13... Nc6 {[%clk 0:15:15.7]} 14. Nc7 {[%clk 0:15:35.5]} 14... Nh5 {[%clk 0:15:05]} 15. Nxh5 {[%clk 0:15:38]} 15... Nxd4 {[%clk 0:15:08.6]} 16. c3 {[%clk 0:15:24.6]} 16... Ne2# {[%clk 0:15:14.6]} 0-1\n',
+      date: "2024-03-20",
+      time_control: "10 + 0",
+      timeControl: "10 + 0",
+      result: "LOSS",
+      opponent: "GrandMaster123",
+      rating: 1950,
+      elo_change: -8,
+      eloChange: -8,
+      moves: 32,
+      opening_eco: "B00",
+      opening_name: "Queen's Gambit",
+      opening: "Queen's Gambit",
+      opening_moves: "1. e4",
+      source: "Chess.com",
+      archive_url: "https://api.chess.com/pub/player/ainaatub/games/2025/10",
+      color: "Black",
+      playerColor: "Black",
+      remaining_time: 914,
+      time_class: "rapid",
+      timeClass: "rapid",
+      rated: true,
+      termination: "ainaatub won by checkmate",
+      accuracies_white: 60.56,
+      accuracies_black: 60.56,
+      end_time: 1760192312,
+      is_analysis: true,
+      isAnalysis: true,
+      hasViewedAnalysis: false,
+      createdAt: "2025-10-13T02:59:31.810Z",
+      updatedAt: "2025-10-20T04:42:15.041Z",
+    },
+    {
+      id: "d4c02ecd-7fd2-4aa0-b206-8deb3ef59474",
+      userId: "96f24676-c1e8-40f2-b052-0bf0166df14f",
+      username: "ainaatub",
+      pgn: '[Event "Live Chess"]\n[Site "Chess.com"]\n[Date "2025.10.11"]\n[Round "-"]\n[White "a2thedeep"]\n[Black "ainaatub"]\n[Result "0-1"]\n[CurrentPosition "3k1b1r/p1N1pppp/1p6/7N/5B2/2P2b2/PP2nP1P/R4RK1 w - - 1 17"]\n[Timezone "UTC"]\n[ECO "B01"]\n[ECOUrl "https://www.chess.com/openings/Scandinavian-Defense-Mieses-Kotrc-Variation-3.Nc3-Qe5"]\n[UTCDate "2025.10.11"]\n[UTCTime "14:13:39"]\n[WhiteElo "732"]\n[BlackElo "684"]\n[TimeControl "900+10"]\n[Termination "ainaatub won by checkmate"]\n[StartTime "14:13:39"]\n[EndDate "2025.10.11"]\n[EndTime "14:18:32"]\n[Link "https://www.chess.com/game/live/144167582998"]\n\n1. e4 {[%clk 0:15:09.9]} 1... d5 {[%clk 0:15:06.2]} 2. exd5 {[%clk 0:15:15.1]} 2... Qxd5 {[%clk 0:15:14.7]} 3. Nc3 {[%clk 0:15:24.5]} 3... Qe5+ {[%clk 0:15:21.6]} 4. Nge2 {[%clk 0:15:30.9]} 4... Nf6 {[%clk 0:15:29.4]} 5. d4 {[%clk 0:15:40.1]} 5... Qe6 {[%clk 0:15:34.6]} 6. g4 {[%clk 0:15:37.6]} 6... Qc6 {[%clk 0:15:34.2]} 7. Ng3 {[%clk 0:15:33.1]} 7... Bxg4 {[%clk 0:15:33.1]} 8. Bb5 {[%clk 0:15:26.1]} 8... Qxb5 {[%clk 0:14:58.5]} 9. Nxb5 {[%clk 0:15:23.1]} 9... Bxd1 {[%clk 0:15:05.2]} 10. Nxc7+ {[%clk 0:15:32.9]} 10... Kd8 {[%clk 0:15:05.2]} 11. Nxa8 {[%clk 0:15:41.7]} 11... Bf3 {[%clk 0:15:10.9]} 12. O-O {[%clk 0:15:38.7]} 12... b6 {[%clk 0:15:17.9]} 13. Bf4 {[%clk 0:15:35.7]} 13... Nc6 {[%clk 0:15:15.7]} 14. Nc7 {[%clk 0:15:35.5]} 14... Nh5 {[%clk 0:15:05]} 15. Nxh5 {[%clk 0:15:38]} 15... Nxd4 {[%clk 0:15:08.6]} 16. c3 {[%clk 0:15:24.6]} 16... Ne2# {[%clk 0:15:14.6]} 0-1\n',
+      date: "2024-03-21",
+      time_control: "15 + 5",
+      timeControl: "15 + 5",
+      result: "WIN",
+      opponent: "Guest1234",
+      rating: 1962,
+      elo_change: 12,
+      eloChange: 12,
+      moves: 45,
+      opening_eco: "B00",
+      opening_name: "Sicilian Defense",
+      opening: "Sicilian Defense",
+      opening_moves: "1. e4",
+      source: "Chess.com",
+      archive_url: "https://api.chess.com/pub/player/ainaatub/games/2025/10",
+      color: "Black",
+      playerColor: "Black",
+      remaining_time: 914,
+      time_class: "rapid",
+      timeClass: "rapid",
+      rated: true,
+      termination: "ainaatub won by checkmate",
+      accuracies_white: 60.56,
+      accuracies_black: 60.56,
+      end_time: 1760192312,
+      is_analysis: false,
+      isAnalysis: false,
+      hasViewedAnalysis: false,
+      createdAt: "2025-10-13T02:59:31.810Z",
+      updatedAt: "2025-10-20T04:42:15.041Z",
+    },
+    {
+      id: "d4c02ecd-7fd2-4aa0-b206-8deb3ef59475",
+      userId: "96f24676-c1e8-40f2-b052-0bf0166df14f",
+      username: "ainaatub",
+      pgn: '[Event "Live Chess"]\n[Site "Chess.com"]\n[Date "2025.10.11"]\n[Round "-"]\n[White "a2thedeep"]\n[Black "ainaatub"]\n[Result "0-1"]\n[CurrentPosition "3k1b1r/p1N1pppp/1p6/7N/5B2/2P2b2/PP2nP1P/R4RK1 w - - 1 17"]\n[Timezone "UTC"]\n[ECO "B01"]\n[ECOUrl "https://www.chess.com/openings/Scandinavian-Defense-Mieses-Kotrc-Variation-3.Nc3-Qe5"]\n[UTCDate "2025.10.11"]\n[UTCTime "14:13:39"]\n[WhiteElo "732"]\n[BlackElo "684"]\n[TimeControl "900+10"]\n[Termination "ainaatub won by checkmate"]\n[StartTime "14:13:39"]\n[EndDate "2025.10.11"]\n[EndTime "14:18:32"]\n[Link "https://www.chess.com/game/live/144167582998"]\n\n1. e4 {[%clk 0:15:09.9]} 1... d5 {[%clk 0:15:06.2]} 2. exd5 {[%clk 0:15:15.1]} 2... Qxd5 {[%clk 0:15:14.7]} 3. Nc3 {[%clk 0:15:24.5]} 3... Qe5+ {[%clk 0:15:21.6]} 4. Nge2 {[%clk 0:15:30.9]} 4... Nf6 {[%clk 0:15:29.4]} 5. d4 {[%clk 0:15:40.1]} 5... Qe6 {[%clk 0:15:34.6]} 6. g4 {[%clk 0:15:37.6]} 6... Qc6 {[%clk 0:15:34.2]} 7. Ng3 {[%clk 0:15:33.1]} 7... Bxg4 {[%clk 0:15:33.1]} 8. Bb5 {[%clk 0:15:26.1]} 8... Qxb5 {[%clk 0:14:58.5]} 9. Nxb5 {[%clk 0:15:23.1]} 9... Bxd1 {[%clk 0:15:05.2]} 10. Nxc7+ {[%clk 0:15:32.9]} 10... Kd8 {[%clk 0:15:05.2]} 11. Nxa8 {[%clk 0:15:41.7]} 11... Bf3 {[%clk 0:15:10.9]} 12. O-O {[%clk 0:15:38.7]} 12... b6 {[%clk 0:15:17.9]} 13. Bf4 {[%clk 0:15:35.7]} 13... Nc6 {[%clk 0:15:15.7]} 14. Nc7 {[%clk 0:15:35.5]} 14... Nh5 {[%clk 0:15:05]} 15. Nxh5 {[%clk 0:15:38]} 15... Nxd4 {[%clk 0:15:08.6]} 16. c3 {[%clk 0:15:24.6]} 16... Ne2# {[%clk 0:15:14.6]} 0-1\n',
+      date: "2024-03-22",
+      time_control: "5 + 0",
+      timeControl: "5 + 0",
+      result: "DRAW",
+      opponent: "ProChess99",
+      rating: 1938,
+      elo_change: -12,
+      eloChange: -12,
+      moves: 55,
+      opening_eco: "B00",
+      opening_name: "French Defense",
+      opening: "French Defense",
+      opening_moves: "1. e4",
+      source: "Chess.com",        
+      archive_url: "https://api.chess.com/pub/player/ainaatub/games/2025/10",
+      color: "White",
+      playerColor: "White",
+      remaining_time: 914,
+      time_class: "blitz",
+      timeClass: "blitz",
+      rated: true,
+      termination: "Game drawn by agreement",
+      accuracies_white: 60.56,
+      accuracies_black: 60.56,
+      end_time: 1760192312,
+      is_analysis: false,
+      isAnalysis: false,
+      hasViewedAnalysis: false,
+      createdAt: "2025-10-13T02:59:31.810Z",
+      updatedAt: "2025-10-20T04:42:15.041Z",
+    },
+  ];
+
+  const displayTimeControl = (tc: string) => {
+    if (!tc || !tc.trim()) {
+      return (
+        <span className="text-gray-400 italic flex items-center">
+          <Clock className="h-3 w-3 mr-1" /> N/A
+        </span>
+      );
+    }
+    return tc;
+  };
+
+  const displayMoves = (moves: number | string) => {
+    if (!moves || moves === "N/A") {
+      return "N/A";
+    }
+
+    const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
+
+    return numMoves;
+  };
+
+  const displayOpening = (op: string) => {
+    if (!op || op.toLowerCase().includes("unknown")) {
+      return (
+        <span className="text-gray-400 italic flex items-center">
+          <BookOpen className="h-3 w-3 mr-1" /> Not Available
+        </span>
+      );
+    }
+    return op;
+  };
+
+  return (
+    <>
+      {dummyList.map((game, index) => (
+        <div
+          key={game.id}
+          className={`grid relative transition-colors duration-150 even:bg-blue-50 odd:bg-white hover:bg-blue-50`}
+          style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
+          data-tutorial={index === 0 ? "1" : null}
+        >
+          <div className="flex items-center px-2 py-3 border-r border-gray-200">
+            <span className="w-6 text-center text-gray-500">
+              {index + 1}
+            </span>
+          </div>
+          <div className="flex items-center px-4 py-3">{game.date}</div>
+          <div className="flex items-center px-2 py-3">
+            {displayTimeControl(game.timeControl)}
+          </div>
+          
+          <div className="flex items-center px-2 py-3">
+            {(() => {
+              const r = getResultData(game.result);
+              return <span className={r.className}>{r.text}</span>;
+            })()}
+          </div>
+          
+          <div className="flex items-center px-4 py-3 truncate">
+            {game.opponent || "Unknown Player"}
+          </div>
+          
+          <div className="flex items-center px-2 py-3">
+            {game.rating || "N/A"}
+          </div>
+          
+          <div className="flex items-center px-2 py-3 truncate">
+            {game.timeClass || "Unknown Game Type"}
+          </div>
+          
+          <div className="flex items-center px-2 py-3">
+            {displayMoves(game.moves)}
+          </div>
+          
+          <div className="flex items-center px-4 py-3">
+            {displayOpening(game.opening)}
+          </div>
+          
+          <div className="flex items-center px-2 py-3">
+            {game.source || "Unknown"}
+          </div>
+          
+          <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
+            {game.is_analysis ? (
+              <button type="button" className="border-2 lg:text-[12px] xxl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200 h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]">
+                <Eye className="h-4 w-4 mr-1" />
+                <span>View Analysis</span>
+              </button>
+            ) : (
+              <button type="button" className="border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]">
+                <ChartNoAxesColumn className="h-4 w-4 mr-2" />
+                <span>Analyze</span>
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};
