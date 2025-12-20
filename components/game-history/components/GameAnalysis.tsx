@@ -481,7 +481,7 @@ const GameAnalysisSlide = ({
         <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             {isTutorialPlay === true ? (
                 <div className="flex items-center justify-center">
-                    <Image src={"/images/chessboard.png"}
+                    <Image src={"/images/chessboard2d.png"}
                         alt="chessboard"
                         width={boardSize}
                         height={boardSize}
