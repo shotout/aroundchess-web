@@ -118,7 +118,7 @@ interface PgnState {
   historyGame: any[];
   capturedWhite: any[];
   capturedBlack: any[];
-  mistakeLogs: any[];
+  mistakeLogs: any;
   movementDetails: any;
   playerInfo: any;
   titleGame: string;
@@ -161,7 +161,7 @@ interface PgnState {
   setHistoryGame: (historyGame: any[]) => void;
   setCapturedWhite: (capturedWhite: any[]) => void;
   setCapturedBlack: (capturedBlack: any[]) => void;
-  setMistakeLogs: (mistakeLogs: any[]) => void;
+  setMistakeLogs: (mistakeLogs: any) => void;
   setSavedMistakes: (savedMistakes: any[]) => void;
   setPreviousAnalyses: (previousAnalyses: any[]) => void;
   setPreviousAnalysesDetail: (previousAnalysesDetail: any) => void;
@@ -261,7 +261,7 @@ export const usePgnStore = create<PgnState>()(
       historyGame: [],
       capturedWhite: [],
       capturedBlack: [],
-      mistakeLogs: [],
+      mistakeLogs: {},
       movementDetails: [],
       playerInfo: [],
       titleGame: "",
@@ -368,7 +368,7 @@ export const usePgnStore = create<PgnState>()(
       setCapturedWhite: (capturedWhite: any[]) => set({ capturedWhite }),
 
       setCapturedBlack: (capturedBlack: any[]) => set({ capturedBlack }),
-      setMistakeLogs: (mistakeLogs: any[]) => set({ mistakeLogs }),
+      setMistakeLogs: (mistakeLogs: any) => set({ mistakeLogs }),
       setMovementDetails: (movementDetails: any[]) => set({ movementDetails }),
       setPlayerInfo: (playerInfo: any[]) => set({ playerInfo }),
       setTitleGame: (titleGame: string) => set({ titleGame }),
@@ -512,7 +512,7 @@ export const usePgnStore = create<PgnState>()(
           previousAnalyses: [],
           previousAnalysesDetail: null,
           historyGame: [],
-          mistakeLogs: [],
+          mistakeLogs: {},
           movementDetails: null,
           playerInfo: null,
           profileShow: null,
