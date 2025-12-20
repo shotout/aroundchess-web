@@ -115,7 +115,9 @@ const GameHistoryPage: React.FC = () => {
                setOpenAccountConnected(true);
             }} />}
 
-          <StatisticsSection username={username} />
+          {!isTutorialPlay && (
+            <StatisticsSection username={username} />
+          )}
         </div>
         
         <GameHistoriesTable />
