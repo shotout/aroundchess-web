@@ -39,7 +39,7 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
     <Dialog open={openOffer}>
       <DialogPortal>
         <DialogContent
-          className={`pt-4 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
+          className={`pt-10 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
         >
           <DialogTitle className="">
             <span className="text-[16px] font-semibold">
