@@ -16,8 +16,7 @@ export function GameHistoriesTable() {
     const [searchInput, setSearchInput] = useState<string>("");
     const [isFilterDisabled, setIsFilterDisabled] = useState<boolean>(false);
 
-    // Debounced states for all filters
-    const [debouncedSources, setDebouncedSources] = useState<string[]>(["chesscom", "vs_ai", "pgn_upload"]);
+    // Debounced states for filters (except sources - sources filter has no debounce)
     const [debouncedResult, setDebouncedResult] = useState<string>("All Results");
     const [debouncedColor, setDebouncedColor] = useState<string>("All Colors");
     const [debouncedAnalyzedOnly, setDebouncedAnalyzedOnly] = useState<boolean>(false);
@@ -25,13 +24,7 @@ export function GameHistoriesTable() {
     const [debouncedEndDate, setDebouncedEndDate] = useState<string>("");
     const [debouncedOpponent, setDebouncedOpponent] = useState<string>("");
 
-    // Debounce all filters with 500ms delay
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSources(sources);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [sources]);
+    // Debounce filters with 500ms delay (sources filter excluded - no debounce)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -75,12 +68,13 @@ export function GameHistoriesTable() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Build filters object for API using debounced values
+    // Build filters object for API (sources uses immediate value, others use debounced)
     const apiFilters = useMemo<GameFilters>(() => {
         const filters: GameFilters = {};
 
-        if (debouncedSources.length > 0) {
-            filters.sources = debouncedSources;
+        // Sources filter - NO debounce, use immediate value
+        if (sources.length > 0) {
+            filters.sources = sources;
         }
 
         if (debouncedResult !== "All Results") {
@@ -113,46 +107,39 @@ export function GameHistoriesTable() {
         }
 
         console.log("📊 [GameHistoriesTable] Current sources state:", sources);
-        console.log("📊 [GameHistoriesTable] Debounced sources:", debouncedSources);
         console.log("📊 [GameHistoriesTable] API Filters being sent:", filters);
 
         return filters;
-    }, [debouncedSources, debouncedResult, debouncedColor, debouncedAnalyzedOnly, debouncedStartDate, debouncedEndDate, debouncedOpponent, sources]);
+    }, [sources, debouncedResult, debouncedColor, debouncedAnalyzedOnly, debouncedStartDate, debouncedEndDate, debouncedOpponent]);
 
     const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
         useGames(apiFilters);
 
     const paginationProps = usePagination(games);
 
-    // Add 300ms delay after loading finishes before enabling filters
+    // Add 1000ms delay after loading finishes before enabling filters
     useEffect(() => {
         if (isLoading) {
             setIsFilterDisabled(true);
         } else {
             const timer = setTimeout(() => {
                 setIsFilterDisabled(false);
-            }, 300);
+            }, 500);
             return () => clearTimeout(timer);
         }
     }, [isLoading]);
 
-    // Handle source checkbox changes
+    // Handle source checkbox changes (no debounce - immediate request)
     const handleSourceToggle = (source: string) => {
         setSources(prev => {
             const newSources = prev.includes(source)
                 ? prev.filter(s => s !== source)
                 : [...prev, source];
-            
+
             console.log("📊 [GameHistoriesTable] Sources updated:", prev, "->", newSources);
             return newSources;
         });
-        
-        // If currently loading, force refresh to cancel previous request and fetch with new filter
-        if (isLoading) {
-            setTimeout(() => {
-                handleForceRefresh();
-            }, 100);
-        }
+        // Request will be sent immediately due to useMemo dependency on sources
     };
 
     // Handle result filter change

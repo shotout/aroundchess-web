@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import DotSpinner from "../game-history/Spinner";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export interface StartPlayVSAIProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export function StartPlayVSAI({
   onLimit,
 }: StartPlayVSAIProps) {
   const [isDesktop, setIsDesktop] = useState(false);
+  const { isTutorialPlay } = useTutorial();
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -31,7 +33,8 @@ export function StartPlayVSAI({
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
 
-  if (!visible) return null;
+  // Don't show dialog during tutorial
+  if (!visible || isTutorialPlay) return null;
 
   const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
   const headerHeight = window.innerWidth >= 1024 ? 96 : 72;
