@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { usePagination } from "./pagination/hook/usePagination";
 import { useGames, GameFilters } from "./game-history/hooks/useGameData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -16,51 +16,10 @@ export function GameHistoriesTable() {
     const [searchInput, setSearchInput] = useState<string>("");
     const [isFilterDisabled, setIsFilterDisabled] = useState<boolean>(false);
 
-    // Debounced states for filters (except sources - sources filter has no debounce)
-    const [debouncedResult, setDebouncedResult] = useState<string>("All Results");
-    const [debouncedColor, setDebouncedColor] = useState<string>("All Colors");
-    const [debouncedAnalyzedOnly, setDebouncedAnalyzedOnly] = useState<boolean>(false);
-    const [debouncedStartDate, setDebouncedStartDate] = useState<string>("");
-    const [debouncedEndDate, setDebouncedEndDate] = useState<string>("");
+    // Debounced state - ONLY for Search Opponent (500ms delay)
     const [debouncedOpponent, setDebouncedOpponent] = useState<string>("");
 
-    // Debounce filters with 500ms delay (sources filter excluded - no debounce)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedResult(result);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [result]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedColor(color);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [color]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedAnalyzedOnly(analyzedOnly);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [analyzedOnly]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedStartDate(startDate);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [startDate]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedEndDate(endDate);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [endDate]);
-
+    // Debounce Search Opponent with 500ms delay
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedOpponent(searchInput);
@@ -68,49 +27,53 @@ export function GameHistoriesTable() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Build filters object for API (sources uses immediate value, others use debounced)
+    // Build filters object for API - NO debounce except Search Opponent
     const apiFilters = useMemo<GameFilters>(() => {
         const filters: GameFilters = {};
 
-        // Sources filter - NO debounce, use immediate value
+        // Sources filter - immediate value
         if (sources.length > 0) {
             filters.sources = sources;
         }
 
-        if (debouncedResult !== "All Results") {
+        // Game Results filter - immediate value
+        if (result !== "All Results") {
             const resultMap: Record<string, string> = {
                 "Wins": "win",
                 "Losses": "loss",
                 "Draws": "draw",
             };
-            filters.result = resultMap[debouncedResult];
+            filters.result = resultMap[result];
         }
 
-        if (debouncedColor !== "All Colors") {
-            filters.color = debouncedColor.toLowerCase();
+        // Color filter - immediate value
+        if (color !== "All Colors") {
+            filters.color = color.toLowerCase();
         }
 
-        if (debouncedAnalyzedOnly) {
+        // Analyzed Only filter - immediate value
+        if (analyzedOnly) {
             filters.analyzedOnly = true;
         }
 
-        if (debouncedStartDate) {
-            filters.startDate = debouncedStartDate;
+        // Date filters - immediate value
+        if (startDate) {
+            filters.startDate = startDate;
         }
 
-        if (debouncedEndDate) {
-            filters.endDate = debouncedEndDate;
+        if (endDate) {
+            filters.endDate = endDate;
         }
 
+        // Search Opponent - DEBOUNCED (500ms delay)
         if (debouncedOpponent && debouncedOpponent.trim() !== "") {
             filters.opponent = debouncedOpponent.trim();
         }
 
-        console.log("📊 [GameHistoriesTable] Current sources state:", sources);
         console.log("📊 [GameHistoriesTable] API Filters being sent:", filters);
 
         return filters;
-    }, [sources, debouncedResult, debouncedColor, debouncedAnalyzedOnly, debouncedStartDate, debouncedEndDate, debouncedOpponent]);
+    }, [sources, result, color, analyzedOnly, startDate, endDate, debouncedOpponent]);
 
     const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
         useGames(apiFilters);
@@ -142,53 +105,23 @@ export function GameHistoriesTable() {
         // Request will be sent immediately due to useMemo dependency on sources
     };
 
-    // Handle result filter change
+    // Handle result filter change (no debounce - immediate request)
     const handleResultChange = (value: string) => {
         setResult(value);
-
-        // If currently loading, force refresh to cancel previous request and fetch with new filter
-        if (isLoading) {
-            setTimeout(() => {
-                handleForceRefresh();
-            }, 100);
-        }
+        // Request will be sent immediately due to useMemo dependency on result
     };
 
-    // Handle color filter change
-    const handleColorChange = (value: string) => {
-        setColor(value);
-
-        // If currently loading, force refresh to cancel previous request and fetch with new filter
-        if (isLoading) {
-            setTimeout(() => {
-                handleForceRefresh();
-            }, 100);
-        }
-    };
-
-    // Handle analyzed only filter change
+    // Handle analyzed only filter change (no debounce - immediate request)
     const handleAnalyzedOnlyChange = (checked: boolean) => {
         setAnalyzedOnly(checked);
-
-        // If currently loading, force refresh to cancel previous request and fetch with new filter
-        if (isLoading) {
-            setTimeout(() => {
-                handleForceRefresh();
-            }, 100);
-        }
+        // Request will be sent immediately due to useMemo dependency on analyzedOnly
     };
 
-    // Handle date range change from Timeframe component
+    // Handle date range change from Timeframe component (no debounce - immediate request)
     const handleDateRangeChange = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
-
-        // If currently loading, force refresh to cancel previous request and fetch with new filter
-        if (isLoading) {
-            setTimeout(() => {
-                handleForceRefresh();
-            }, 100);
-        }
+        // Request will be sent immediately due to useMemo dependency on startDate/endDate
     };
 
     return (
