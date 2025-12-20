@@ -384,7 +384,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       </motion.div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-3">
+      <ScrollArea className="flex-1 py-3" style={{ WebkitOverflowScrolling: 'touch' }}>
         <motion.nav
           className="space-y-5 px-2"
           variants={isMobile ? containerVariants : {}}
@@ -714,7 +714,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="h-full"
+        className="h-full overflow-hidden flex flex-col"
       >
         {sidebarContent}
       </motion.div>
