@@ -570,12 +570,14 @@ export default function PlayingPage() {
 
   // Create game object from PGN with stable ID using useMemo
   const gameFromPgn = useMemo(() => {
-    const pgnHash = createPgnHash(game.pgn());
+    // Use canonical PGN from backend if available (after save), otherwise use local PGN
+    const currentPgn = analysisPgn ?? game.pgn();
+    const pgnHash = createPgnHash(currentPgn);
     const gameId = `play-vs-ai-${pgnHash}`;
 
     const gameObj = {
       id: gameId,
-      pgn: game.pgn(),
+      pgn: currentPgn,
       username: username || "Unknown",
       opponent: "AI",
       date: new Date().toLocaleDateString(),
@@ -588,7 +590,7 @@ export default function PlayingPage() {
       source: "You vs AI",
     };
     return gameObj;
-  }, [game, username]);
+  }, [game, username, analysisPgn]);
 
   useEffect(() => {
     saveGameState();
