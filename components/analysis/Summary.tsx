@@ -4,7 +4,7 @@ import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { FamousGameCard } from "@/components/famous-game-button";
 import { CardPlayer } from "@/components/player/CardPlayer";
-import { ArrowRight, ChevronDown, ChevronUp, Bookmark } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, Bookmark, Watch } from "lucide-react";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -13,6 +13,11 @@ import { usePgnStore } from "../../app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import ReactCountryFlag from "react-country-flag";
+import { Chess } from "chess.js";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
 
 
 interface SummaryProps {
@@ -33,9 +38,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const { sessionId } = useProfileStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
+  const { PieceChoosed } = useChessBoardThemeStore();
 
   const [loadingToggle, setLoadingToggle] = useState<string | null>(null);
   const [localSummaryData, setLocalSummaryData] = useState<any>(null);
+  const [game] = useState(new Chess());
+  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [currentMoveWhite, setCurrentMoveWhite] = useState<string | number>(0);
+  const [currentMoveBlack, setCurrentMoveBlack] = useState<string | number>(0);
+  const [startTime] = useState("0:10:00:0");
 
   useEffect(() => {
     const checkSession = () => {
@@ -120,6 +131,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const criticalMistakes = localSummaryData?.criticalMistakes ?? dataAnalysis?.summary?.criticalMistakes;
 
   const { whiteWin, blackWin } = dataAnalysis?.gameInfo ?? {};
+  const gameInfo = dataAnalysis?.gameInfo;
+  const summary = dataAnalysis?.summary;
   const blackCountry = blackSide?.profileInfo?.chessAccountInfo?.country
     ? blackSide?.profileInfo?.chessAccountInfo?.country.substr(-2)
     : "XX";
@@ -286,30 +299,195 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
     setChessMove(enrichedMove);
   };
+
+  const renderTopAvatar = () => {
+    return orientation === "white" ? renderBlackAvatar() : renderWhiteAvatar();
+  };
+
+  const renderBottomAvatar = () => {
+    return orientation === "white" ? renderWhiteAvatar() : renderBlackAvatar();
+  };
+
+  const renderBlackAvatar = () => {
+    return (
+      <div
+        className={`w-full border ${
+          gameInfo?.blackWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+        } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+      >
+        <div className="flex flex-row items-center gap-2">
+          {summary?.blackSide?.profileInfo.photo ? (
+            <Image
+              alt="avatar"
+              src={summary.blackSide.profileInfo.photo}
+              className="w-10 h-10 rounded-full object-cover"
+              width={40}
+              height={40}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-600 text-[14px] --sm font-semibold">
+                {summary?.blackSide?.profileInfo.username?.charAt(0) || "?"}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col line-clamp-1">
+            <div className="flex flex-row items-center gap-2">
+              <span
+                className={`text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
+                  gameInfo?.whiteWin ? "text-black" : "text-[#00B427]"
+                }`}
+              >
+                {summary?.blackSide?.profileInfo.username}
+              </span>
+
+              {blackCountry && blackCountry !== "XX" && (
+                <ReactCountryFlag
+                  countryCode={blackCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                  title={blackCountry}
+                />
+              )}
+            </div>
+
+            <div className="flex flex-row gap-1">
+              {capturedBlack &&
+                capturedBlack.length > 0 &&
+                capturedBlack
+                  .sort((a: any, b: any) =>
+                    a.captured.localeCompare(b.captured)
+                  )
+                  .map((captured: any, index: number) => {
+                    const icon = captured.captured;
+                    const nextIcon = capturedBlack[index + 1]
+                      ? capturedBlack[index + 1].captured
+                      : "";
+                    return (
+                      <div
+                        key={index}
+                        className={`${icon == nextIcon ? "-mr-3" : ""}`}
+                      >
+                        {icon && (
+                          <Image
+                            src={`/pieces/${PieceChoosed}/${icon}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-3 h-4 sm:w-4 sm:h-5 lg:w-4 lg:h-5 object-contain inline-block"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+            </div>
+          </div>
+        </div>
+        {game.getComments().length > 0 && (
+          <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+            <Watch size={16} />
+            <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
+              {currentMoveBlack == 0 ? startTime : currentMoveBlack}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderWhiteAvatar = () => {
+    return (
+      <div
+        className={`w-full border ${
+          gameInfo?.whiteWin ? "border-[#00B427] bg-[#D3FFDD]" : "bg-white"
+        } p-1 rounded-md flex flex-row justify-between items-center gap-2`}
+      >
+        <div className="flex flex-row items-center gap-2">
+          {summary?.whiteSide?.profileInfo.photo ? (
+            <Image
+              alt="avatar"
+              src={summary.whiteSide.profileInfo.photo}
+              className="w-10 h-10 rounded-full object-cover"
+              width={40}
+              height={40}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-600 text-[14px] --sm font-semibold">
+                {summary?.whiteSide?.profileInfo.username?.charAt(0) || "?"}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col line-clamp-1">
+            <div className="flex flex-row items-center gap-2">
+              <span
+                className={`text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
+                  gameInfo?.blackWin ? "text-black" : "text-[#00B427]"
+                }`}
+              >
+                {summary?.whiteSide?.profileInfo.username}
+              </span>
+
+              {whiteCountry && whiteCountry !== "XX" && (
+                <ReactCountryFlag
+                  countryCode={whiteCountry}
+                  svg
+                  className="w-[20px] h-[15px] sm:w-[24px] sm:h-[18px] lg:w-[28px] lg:h-[21px]"
+                  title={whiteCountry}
+                />
+              )}
+            </div>
+
+            <div className="flex flex-row gap-1">
+              {capturedWhite &&
+                capturedWhite.length > 0 &&
+                capturedWhite
+                  .sort((a: any, b: any) =>
+                    a.captured.localeCompare(b.captured)
+                  )
+                  .map((captured: any, index: number) => {
+                    const icon = captured.captured;
+                    const nextIcon = capturedWhite[index + 1]
+                      ? capturedWhite[index + 1].captured
+                      : "";
+                    return (
+                      <div
+                        key={index}
+                        className={`${icon == nextIcon ? "-mr-3" : ""}`}
+                      >
+                        {icon && (
+                          <Image
+                            src={`/pieces/${PieceChoosed}/${icon}.png`}
+                            alt="icon"
+                            width={1000}
+                            height={1000}
+                            className="w-3 h-4 sm:w-4 sm:h-5 lg:w-4 lg:h-5 object-contain inline-block"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+            </div>
+          </div>
+        </div>
+        {game.getComments().length > 0 && (
+          <div className="border border-input xl:min-w-28 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
+            <Watch size={16} />
+            <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
+              {currentMoveWhite == 0 ? startTime : currentMoveWhite}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
         <div className="flex flex-col gap-2 w-full py-2 border-b border-b-input">
-          <span className="text-[14px] --xs sm:hidden text-center line-clamp-1">
-            <span
-              className={`text-[14px] --xs ${
-                whiteWin ? `text-[#00B427]` : `text-black`
-              } `}
-            >
-              {whiteSide?.profileInfo.username}
-            </span>{" "}
-            (White) vs{" "}
-            <span
-              className={`text-[14px] --xs ${
-                blackWin ? `text-[#00B427]` : `text-black`
-              }`}
-            >
-              {blackSide?.profileInfo.username}{" "}
-            </span>
-            (Black)
-          </span>
           {isSignedIn ? (
-            <div className="hidden sm:flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4">
               <CardPlayer
                 isWin={whiteWin}
                 profilePhoto={whiteSide?.profileInfo.photo}

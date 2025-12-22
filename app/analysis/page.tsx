@@ -3,7 +3,7 @@
 import Navigation from "@/components/navigator/navigation";
 import AnalysisLatestGame from "../../components/analysis/AnalysisLatestGame";
 import AnalysisResult from "../../components/analysis/AnalysisResult";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePgnStore } from "../store/zustandStore";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import { useApiClient } from "@/functions/api-client";
@@ -16,6 +16,8 @@ import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import { useTutorial } from "@/components/TutorialProvider";
 import { PricingOffer } from "@/components/modal/PricingOffer";
 import { FaArrowLeft } from "react-icons/fa";
+import AnalysisResultMobile from "@/components/analysis/AnalysisResultMobile";
+import { set } from "lodash";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);
@@ -181,18 +183,20 @@ export default function AnalysisPage() {
     clearGameHistoryData();
   };
 
+  const [hightWrap, setHightWrap] = useState(0);
+
   return (
     <div className="min-h-screen">
-      <div className="flex overflow-hidden bg-primary-white">
+      <div className="flex bg-primary-white">
         <div className="flex flex-col overflow-y-auto w-full">
           <Navigation>
             <div className="w-full space-y-4">
               <ChessAccountSetup isLoading={false} />
 
-              <div className="flex flex-col overflow-y-auto relative bg-white px-4 lg:px-8">
-                <div className={`flex flex-col space-y-4`}>
+              <div className="flex flex-col relative bg-white px-4 lg:px-8">
+                <div className={`hidden md:flex flex-col space-y-4`}>
                   <div className="space-y-2 pt-4">
-                    <h2 className="flex gap-[8px] text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
+                    <h2 className="hidden md:flex gap-[8px] text-md text-center xl:text-left sm:text-lg md:text-[32px] lg:text-[32px] font-medium">
                       {!isSignedIn && (
                         <Link href={'/'}>
                           <FaArrowLeft className="font-normal text-[24px]" />
@@ -202,16 +206,16 @@ export default function AnalysisPage() {
                     </h2>
 
                     {isSignedIn && widthC <= 1024 && username && (
-                      <div className="lg:hidden flex items-center justify-center my-2">
+                      <div className="hidden lg:hidden md:flex items-center justify-center my-2">
                         <AnalyzeDifferentGame openPopup={openNewAnalysis} />
                       </div>
                     )}
-                    <span className="hidden xl:block text-[14px] --xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
+                    <span className="hidden md:block text-[14px] --xs sm:text-[18px] md:text-[18px] lg:text-[18px] line-height-[20px] text-center xl:text-left">
                       Discover a Chess.com Game Analysis.
                     </span>
                   </div>
 
-                  <div className="hidden xl:flex flex-row items-center justify-between space-x-4">
+                  <div className="hidden md:flex flex-row items-center justify-between space-x-4">
                     <div
                       className={`hidden lg:block ${
                         !isSignedIn ? `w-4/5` : `w-3/5`
@@ -230,11 +234,18 @@ export default function AnalysisPage() {
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (
-                  <div className="flex flex-col xl:flex-row-reverse gap-4 xl:gap-x-6 justify-center py-4 max-w-full overflow-hidden">
+                  <div className="flex flex-col xl:flex-row-reverse gap-4 xl:gap-x-6 justify-center py-4 max-w-full">
                     <div className="flex-shrink-0">
-                      <AnalysisResult />
+                      <div className="hidden md:block">
+                        <AnalysisResult />
+                      </div>
+                      <div className="md:hidden">
+                        <AnalysisResultMobile handleHeightChange={(height: number) => {
+                          setHightWrap(height);
+                        }} />
+                      </div>
                     </div>
-                    <div className="flex-shrink-1 min-w-0">
+                    <div className={`flex-shrink-1 min-w-0 mt-[${hightWrap}px] md:mt-0`}>
                       <AnalysisLatestGame />
                     </div>
                   </div>
