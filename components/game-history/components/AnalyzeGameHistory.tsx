@@ -150,7 +150,7 @@ export function AnalyzeGameHistory({
       setIsSubmitting(false); // Re-enable button
       return;
     }
-    const gameToAnalyze = game.pgn || pgnText;
+    let gameToAnalyze = game.pgn || pgnText;
     if (!gameToAnalyze) {
       setIsSubmitting(false); // Re-enable button
       return;
@@ -239,6 +239,7 @@ export function AnalyzeGameHistory({
         endpoint = `${baseUrl}/v2/analyze/deep-analyze?t=${Date.now()}`;
       }
 
+      gameToAnalyze = gameToAnalyze.replace("*", "1-0");
       const res = await axios.post(
         endpoint,
         {

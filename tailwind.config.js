@@ -12,7 +12,7 @@ export const theme = {
   extend: {
     screens : {
       '3xl': '1920px',
-      'xxl': '1400px'
+      'xxl': '1400px',
     },
     fontFamily: {
       "black": ["AloeveraDisplay-Black", ...fontFamily.sans],

@@ -314,7 +314,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
             return (
               <div
                 key={index}
-                className="flex flex-col gap-2 lg:mt-2 cursor-pointer"
+                className="flex flex-col gap-2 lg:mt-2 cursor-pointer 3xl:max-w-[1820px]"
                 onClick={() => {
                   handleOnClickMovement(display);
                   setPreviousAnalysesDetail(item);

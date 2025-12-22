@@ -488,53 +488,59 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame;
       const pieceAtSquare = game.get(square);
 
-      if (selectedSquare) {
-        const fromSquare = selectedSquare;
-
-        if (
-          pieceAtSquare &&
-          pieceAtSquare.color === game.turn() &&
-          !isComputerTurn
-        ) {
-          setSelectedSquare(square);
-          getPossibleMoves(square);
-          return;
+      // Use state updater function to ensure we're working with latest state
+      setSelectedSquare((currentSelected) => {
+        // If clicking the same square that's currently selected - toggle off (cancel)
+        if (currentSelected === square) {
+          setPossibleMoves([]);
+          return null;
         }
 
-        if (fromSquare === square) {
-          handleClearSelection();
-          return;
+        // If there's a currently selected square (and it's different from clicked square)
+        if (currentSelected) {
+          const fromSquare = currentSelected;
+
+          // Check if clicking another piece of the same color - switch selection
+          if (
+            pieceAtSquare &&
+            pieceAtSquare.color === game.turn() &&
+            !isComputerTurn
+          ) {
+            getPossibleMoves(square);
+            return square;
+          }
+
+          // Attempt to make a move
+          const toSquare = square;
+          const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
+          if (moveSuccessful) {
+            setPossibleMoves([]);
+            return null;
+          }
+
+          // Move failed, keep current selection
+          return currentSelected;
         }
 
-        const toSquare = square;
-        const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
-        if (moveSuccessful) {
-          handleClearSelection();
+        // No piece currently selected - try to select if valid
+        if (pieceAtSquare) {
+          if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
+            getPossibleMoves(square);
+            return square;
+          }
         }
 
-        return;
-      }
-
-      if (pieceAtSquare) {
-        if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
-          setSelectedSquare(square);
-          getPossibleMoves(square);
-        } else {
-          handleClearSelection();
-        }
-      } else {
-        handleClearSelection();
-      }
+        // Can't select, return null
+        return null;
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       chessGame,
-      selectedSquare,
-      setSelectedSquare,
       getPossibleMoves,
-      handleClearSelection,
       makeMoveCallback,
       isAtCurrentMove,
+      isComputerTurn,
     ]
   );
 
