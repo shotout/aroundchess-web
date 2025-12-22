@@ -17,6 +17,8 @@ import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useTutorial } from "@/components/TutorialProvider";
 
+import { headers } from 'next/headers';
+
 interface SidebarProps {
   onClose?: () => void;
   isMobile?: boolean;
@@ -268,6 +270,26 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       transition: { duration: 0.3, ease: "easeOut" },
     },
   };
+
+  const [isIphone, setIsIPhone] = useState(false);
+  
+  useEffect(() => {
+    // Check if window is defined (client-side only)
+    if (typeof window !== 'undefined') {
+      const userAgent = navigator.userAgent;
+      // Use the 'platform' property for a potentially more reliable check (less easily faked)
+      const platform = navigator.platform; 
+
+      // Check for iPhone/iPod in userAgent or platform
+      const isIphone = /iPhone|iPod/i.test(userAgent) || /(iPhone|iPod)/i.test(platform);
+      
+      // Note: Modern iPads often use a desktop user agent, so checking 'iPad' might be less reliable.
+      // For general "mobile device" detection, you might include other mobile regex.
+
+      console.log("isIphone", isIphone);
+      setIsIPhone(isIphone);
+    }
+  }, []);
 
   const sidebarContent = (
     <div className="flex h-dvh flex-col z-10">
@@ -551,7 +573,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         {isSignedIn && (
           <motion.div
-            className="md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px]"
+            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-[182px]' : ''}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: isMobile ? 0.4 : 0.3 }}
