@@ -27,6 +27,7 @@ import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
 import moment from "moment";
 
@@ -65,6 +66,7 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
   const { tabFocus } = useTabFocusStore();
   const { StyleChoosed, setStyleChoosed, PieceChoosed } =
     useChessBoardThemeStore();
+  const { setChessboardRef } = useChessboardRefStore();
   const { gameInfo, summary } = dataAnalysis ?? {};
 
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
@@ -668,10 +670,19 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
     }
   }, [handleHeightChange, refWrap]);
 
+  // Set chessboard ref in store for scroll functionality
+  useEffect(() => {
+    if (refWrap.current) {
+      setChessboardRef(refWrap.current);
+    }
+    return () => setChessboardRef(null);
+  }, [setChessboardRef]);
+
   return (
     <div
+      id="chessboard-container"
       ref={refWrap}
-      className={`fixed flex justify-center gap-4 bg-[#E6F7FE] py-4 px-4 mt-[-16px] ml-[-16px] z-10`}
+      className={`flex justify-center gap-4 bg-[#E6F7FE] py-4 px-4 mt-[-16px] ml-[-16px] z-10 w-[calc(100vw)]`}
       // className={`${
       //   hideDiv &&
       //   "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"

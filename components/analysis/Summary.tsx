@@ -10,6 +10,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import { useApiClient } from "@/functions/api-client";
 import DotSpinner from "../game-history/Spinner";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
     mistakeLogs,
   } = usePgnStore(); // Get PGN from the Zustand store
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { sessionId } = useProfileStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
@@ -298,6 +300,11 @@ const Summary: React.FC<SummaryProps> = (props) => {
     };
 
     setChessMove(enrichedMove);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
 
   const renderTopAvatar = () => {

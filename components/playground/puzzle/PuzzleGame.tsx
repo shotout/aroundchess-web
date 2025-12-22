@@ -818,9 +818,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
   const cardPlayer = () => {
     return (
-      <div
-        className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
-      >
+      <div className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}>
         <div className="flex flex-row items-center gap-2">
           <>
             {chessComAvatar && chessComAvatar.length > 0 ? (

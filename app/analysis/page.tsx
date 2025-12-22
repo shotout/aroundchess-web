@@ -234,7 +234,7 @@ export default function AnalysisPage() {
                 {isLastAnalysisLoading ? (
                   <AnalysisSkeleton />
                 ) : (
-                  <div className="flex flex-col xl:flex-row-reverse gap-4 xl:gap-x-6 justify-center py-4 max-w-full">
+                  <div className="flex flex-col xl:flex-row-reverse md:gap-4 xl:gap-x-6 justify-center py-4 max-w-full">
                     <div className="flex-shrink-0">
                       <div className="hidden md:block">
                         <AnalysisResult />
@@ -246,8 +246,7 @@ export default function AnalysisPage() {
                       </div>
                     </div>
                     <div 
-                      className={`flex-shrink-1 min-w-0 md:mt-0`}
-                      style={{marginTop: `${hightWrap}px` }}>
+                      className={`flex-shrink-1 min-w-0 md:mt-0`}>
                       <AnalysisLatestGame />
                     </div>
                   </div>

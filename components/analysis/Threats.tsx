@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import NoData from "@/components/NoData/NoData";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useApiClient } from "@/functions/api-client";
@@ -22,6 +23,7 @@ interface ThreatsProps {
 const Threats: React.FC<ThreatsProps> = (props) => {
   const { pgn: storePgn, dataAnalysis, capturedWhite, mistakeLogs, setSavedMistakes } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const { PieceChoosed } = useChessBoardThemeStore();
   const { sessionId } = useProfileStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
@@ -171,6 +173,11 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     };
 
     setChessMove(enrichedMove);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
 
   return (

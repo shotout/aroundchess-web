@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
@@ -24,6 +25,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
@@ -96,6 +98,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
       move.type = "black";
     }
     setChessMove(move);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
   return (
     <>
