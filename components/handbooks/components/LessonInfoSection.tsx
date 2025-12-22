@@ -107,7 +107,7 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
 };
 
 const Accordion = ({key, title, content}: {key: string, title: string, content: React.ReactNode}) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
 
   const handleClicked = () => {
     setOpen(!open);  

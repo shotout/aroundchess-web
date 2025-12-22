@@ -714,7 +714,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="h-full overflow-hidden flex flex-col"
+        className="h-full flex flex-col"
       >
         {sidebarContent}
       </motion.div>
