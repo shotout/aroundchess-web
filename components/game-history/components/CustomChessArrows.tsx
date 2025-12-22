@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ArrowConfig {
     from: string;
@@ -18,6 +18,33 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
     boardSize,
     orientation
 }) => {
+    const [arrowWidth, setArrowWidth] = useState(7);
+    const [arrowheadSize, setArrowheadSize] = useState({ width: 20, height: 20, pathSize: 14 });
+
+    useEffect(() => {
+        const updateArrowWidth = () => {
+            if (window.innerWidth > 2000) {
+                setArrowWidth(15);
+                setArrowheadSize({ width: 30, height: 30, pathSize: 21 });
+            }
+            else if (window.innerWidth > 1500) {
+                setArrowWidth(12);
+                setArrowheadSize({ width: 25, height: 25, pathSize: 21 });
+            } 
+            else if (window.innerWidth > 1300) {
+                setArrowWidth(10);
+                setArrowheadSize({ width: 24, height: 24, pathSize: 21 });
+            } else {
+                setArrowWidth(8);
+                setArrowheadSize({ width: 20, height: 20, pathSize: 14 });
+            }
+        };
+
+        updateArrowWidth();
+        window.addEventListener('resize', updateArrowWidth);
+        return () => window.removeEventListener('resize', updateArrowWidth);
+    }, []);
+
     // Match the calculation from TwoDChessboard: boardWidth - boardWidth / 8.2
     const actualBoardSize = Math.round(boardSize - boardSize / 8.2);
     const padding = (boardSize - actualBoardSize) / 2;
@@ -119,15 +146,15 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
                     <marker
                         key={`arrowhead-${index}`}
                         id={`arrowhead-${index}`}
-                        markerWidth="20"
-                        markerHeight="20"
+                        markerWidth={arrowheadSize.width}
+                        markerHeight={arrowheadSize.height}
                         refX="0.1"
-                        refY="10"
+                        refY={arrowheadSize.height / 2}
                         orient="auto"
                         markerUnits="userSpaceOnUse"
                     >
                         <path
-                            d="M0,0 L0,20 L14,10 z"
+                            d={`M0,0 L0,${arrowheadSize.height} L${arrowheadSize.pathSize},${arrowheadSize.height / 2} z`}
                             fill={arrow.color}
                         />
                     </marker>
@@ -144,7 +171,7 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
                         key={`arrow-${index}`}
                         d={path}
                         stroke={arrow.color}
-                        strokeWidth="6"
+                        strokeWidth={arrowWidth}
                         fill="none"
                         strokeLinecap="butt"
                         strokeLinejoin="miter"
