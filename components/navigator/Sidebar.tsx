@@ -631,7 +631,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           🧪 TESTING BUTTON - EASY TO DELETE
           Tutorial Test Button (Delete this section when done)
           ======================================== */}
-      <motion.div
+      {/* <motion.div
         className="flex px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
         variants={isMobile ? itemVariants : {}}
       >
@@ -655,7 +655,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         <button
           onClick={async () => {
-            // Close sidebar first on mobile before starting tutorial
             if (isMobile && onClose) {
               await onClose();
             }
@@ -671,7 +670,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         >
           <span>Tutorial 2</span>
         </button>
-      </motion.div>
+      </motion.div> */}
       {/* ========================================
           END OF TESTING BUTTON
           ======================================== */}
