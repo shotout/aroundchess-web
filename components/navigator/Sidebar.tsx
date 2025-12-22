@@ -384,7 +384,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       </motion.div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <ScrollArea className="flex-1 py-3 h-dvh" style={{ WebkitOverflowScrolling: 'touch' }}>
         <motion.nav
           className="space-y-5 px-2"
           variants={isMobile ? containerVariants : {}}
