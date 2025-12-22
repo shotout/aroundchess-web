@@ -245,7 +245,9 @@ export default function AnalysisPage() {
                         }} />
                       </div>
                     </div>
-                    <div className={`flex-shrink-1 min-w-0 mt-[${hightWrap}px] md:mt-0`}>
+                    <div 
+                      className={`flex-shrink-1 min-w-0 md:mt-0`}
+                      style={{marginTop: `${hightWrap}px` }}>
                       <AnalysisLatestGame />
                     </div>
                   </div>

@@ -138,8 +138,8 @@ export default function Article() {
                         <ImageWithFallback
                           src={article.imageUrl}
                           alt={article.imageCaption || article.title || "Image"}
-                          width={100}
-                          height={100}
+                          width={1000}
+                          height={1000}
                           className="w-full h-[180px] object-cover rounded-[8px] mb-[8px]"
                         />
                       ) : (

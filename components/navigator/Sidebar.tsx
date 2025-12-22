@@ -270,7 +270,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const sidebarContent = (
-    <div className="flex h-full flex-col z-10">
+    <div className="flex h-dvh flex-col z-10">
       {/* Logo */}
       <motion.div
         className="flex md:h-24 py-[8px] items-center px-6 md:justify-center sm:border-b mb-[8px] md:mb-[16px]"
@@ -631,7 +631,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           🧪 TESTING BUTTON - EASY TO DELETE
           Tutorial Test Button (Delete this section when done)
           ======================================== */}
-      <motion.div
+      {/* <motion.div
         className="flex px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
         variants={isMobile ? itemVariants : {}}
       >
@@ -655,7 +655,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         <button
           onClick={async () => {
-            // Close sidebar first on mobile before starting tutorial
             if (isMobile && onClose) {
               await onClose();
             }
@@ -671,7 +670,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         >
           <span>Tutorial 2</span>
         </button>
-      </motion.div>
+      </motion.div> */}
       {/* ========================================
           END OF TESTING BUTTON
           ======================================== */}
@@ -714,7 +713,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="h-full flex flex-col"
+        className="h-dvh flex flex-col"
       >
         {sidebarContent}
       </motion.div>
