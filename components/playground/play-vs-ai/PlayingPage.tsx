@@ -1263,8 +1263,13 @@ export default function PlayingPage() {
             // Close any open dialogs
             setOpenGameStatus(false);
 
-            // Show New Game dialog instead of restoring the ended game
-            setShowPlayVSAIModal(true);
+            // Show New Game dialog ONLY if not coming from /playground/play-vs-ai page
+            // (to avoid showing modal twice when redirected from that page)
+            const fromPlayVsAIPage = document.referrer.includes('/playground/play-vs-ai') &&
+                                      !document.referrer.includes('/playground/play-vs-ai/playing');
+            if (!fromPlayVsAIPage) {
+              setShowPlayVSAIModal(true);
+            }
 
             // Don't restore the game, let it initialize as a new game below
             restored = false;
