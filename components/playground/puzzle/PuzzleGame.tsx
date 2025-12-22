@@ -251,6 +251,7 @@ const MobileMoveBoxes = ({
 };
 
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({
+  color,
   boardOrientation,
   onGameOver,
   isGameOver,
@@ -919,7 +920,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <div className="flex sm:hidden flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[18px] h-[18px]" color="#221AE9" />
             <span className="font-medium text-[14px] --sm">
-              You are {boardOrientation === "white" ? "white" : "black"}
+              You are {color === "white" ? "white" : "black"}
             </span>
           </div>
         </div>
@@ -1339,7 +1340,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <div className="p-[16px] shadow-md flex flex-row items-center justify-center rounded-[8px] bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[24px] h-[24px]" color="#221AE9" />
             <span className="font-medium text-[16px]">
-              You are {boardOrientation === "white" ? "white" : "black"}
+              You are {color === "white" ? "black" : "white"}
             </span>
           </div>
         </div>
@@ -1351,7 +1352,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <th className="gap-2 p-2 w-[45%] border font-normal text-[14px] --xs border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">White</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
-                    {boardOrientation == "black"
+                    {color === "black"
                       ? "(Bot)"
                       : username
                       ? username
@@ -1361,7 +1362,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <th className="gap-2 p-2 w-[45%] border font-normal text-[14px] --xs border-[#BDD0F9]">
                   <span className="block font-semibold text-[14px]">Black</span>
                   <span className="block font-normal text-[11px] text-[#364152]">
-                    {boardOrientation != "black"
+                    {color === "white"
                       ? "(Bot)"
                       : username
                       ? username
