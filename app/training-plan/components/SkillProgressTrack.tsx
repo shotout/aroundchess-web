@@ -287,7 +287,18 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="relative h-[98px] flex justify-center items-end">
-                    <Tooltip>
+                    <div className="inline-flex items-end h-full">
+                      <div className="relative w-fit h-fit flex items-end">
+                        <Image
+                          src={imagePath}
+                          alt={level.title}
+                          width={regularWidth}
+                          height={regularHeight}
+                          className="object-contain align-bottom"
+                        />
+                      </div>
+                    </div>
+                    {/* <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">
                           <div className="relative w-fit h-fit flex items-end">
@@ -320,7 +331,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                           </div>
                         </div>
                       </TooltipContent>
-                    </Tooltip>
+                    </Tooltip> */}
                   </div>
 
                   <div className="text-center w-full space-y-1">

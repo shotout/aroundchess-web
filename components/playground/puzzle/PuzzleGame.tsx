@@ -1126,7 +1126,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          <div className="hidden lg:block">{cardPlayer()}</div>
+          {/* <div className="hidden lg:block">{cardPlayer()}</div> */}
           <div className="flex items-center justify-end px-5 lg:px-0 mb-2">
             <ButtonBoard
               handleSwitch={handleSwitch}
@@ -1161,7 +1161,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <ThreeDBoard
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={orientation}
+                  orientation={orientation == "white" ? "black" : "white"}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -1208,7 +1208,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   <TwoDChessboard
                     arePiecesClickable={true}
                     arePiecesDraggable={true}
-                    orientation={orientation}
+                    // orientation={orientation}
+                    orientation={orientation == "white" ? "black" : "white"}
                     boardWidth={boardSize}
                     position={position}
                     onSquareClick={handleSquareClickCallback}
@@ -1231,7 +1232,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                     <CustomChessArrows
                       arrows={arrow}
                       boardSize={boardSize}
-                      orientation={orientation}
+                      // orientation={orientation}
+                      orientation={orientation == "white" ? "black" : "white"}
                     />
                   )}
                 </>
@@ -1265,6 +1267,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               </div>
             </div>
           </div>
+
+          <div className="hidden lg:block mt-[16px]">{cardPlayer()}</div>
 
           {/* Mobile navigation buttons */}
           <div className="lg:hidden px-5 flex flex-row justify-center items-center gap-2">

@@ -45,6 +45,7 @@ export interface GoalsSectionProps {
 export interface TrainingPlanCardProps {
   onCreatePlan: () => void;
   hasPlan: boolean;
+  disabled: boolean;
 }
 
 export interface IndividualTrainingTopicProps {

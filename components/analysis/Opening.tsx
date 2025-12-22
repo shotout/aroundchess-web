@@ -138,7 +138,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </p>
             <div className="flex flex-row justify-end sm:justify-start items-center gap-2 mt-1">
               <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600">
-                {openings.white.name}
+                {openings?.white.name}
               </span>
               {whiteOpening.classification && (
                 <Image
@@ -179,7 +179,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               </p>
               <div className="flex flex-row flex-wrap justify-start sm:justify-start items-center">
                 <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600 underline">
-                  {openings.white.name}
+                  {openings?.white.name}
                 </span>
                 <span className="flex items-center gap-[8px]">
                   {whiteOpening.classification && (
