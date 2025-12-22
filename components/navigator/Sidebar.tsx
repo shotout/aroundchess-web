@@ -270,7 +270,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const sidebarContent = (
-    <div className="flex h-full flex-col z-10">
+    <div className="flex h-dvh flex-col z-10">
       {/* Logo */}
       <motion.div
         className="flex md:h-24 py-[8px] items-center px-6 md:justify-center sm:border-b mb-[8px] md:mb-[16px]"
@@ -713,7 +713,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="h-full flex flex-col"
+        className="h-dvh flex flex-col"
       >
         {sidebarContent}
       </motion.div>
