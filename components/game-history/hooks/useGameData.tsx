@@ -254,12 +254,45 @@ export function useGames(filters?: GameFilters) {
     fetchGames();
   }, [resetFetchState, fetchGames]);
 
-  const handleForceRefresh = useCallback(() => {
+  const handleForceRefresh = useCallback(async () => {
     fetchRef.current = false;
     lastExecutedRef.current = "";
     usePgnStore.getState().resetGamesState();
-    fetchGames();
-  }, [fetchGames]);
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Call both endpoints in parallel
+      const [chessComResponse, otherGamesResponse] = await Promise.all([
+        gameHistoryApi.getChessComGames(sessionId),
+        gameHistoryApi.getUserGames(sessionId, {
+          sources: ['vs_ai', 'pgn_upload']
+        })
+      ]);
+
+      // Merge the results
+      const chessComGames = chessComResponse?.data || [];
+      const otherGames = otherGamesResponse?.data || [];
+      const allGames = [...chessComGames, ...otherGames];
+
+      // Update store and state with merged data
+      setGamesData(allGames);
+      updateState(transformApiDataToComponentFormat(allGames));
+
+      console.log("✅ [Force Refresh] Successfully updated games from both endpoints");
+      console.log("📊 Chess.com games:", chessComGames.length);
+      console.log("📊 Other games (vs_ai, pgn_upload):", otherGames.length);
+      console.log("📊 Total games:", allGames.length);
+    } catch (err) {
+      const e = err instanceof Error ? err : new Error("Force refresh failed");
+      setError(e);
+      console.error("❌ [Force Refresh] Error:", e.message);
+    } finally {
+      setIsLoading(false);
+      fetchRef.current = false;
+    }
+  }, [sessionId, setGamesData, updateState]);
 
   return {
     games,
