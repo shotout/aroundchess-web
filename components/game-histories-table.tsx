@@ -127,7 +127,18 @@ export function GameHistoriesTable() {
     return (
         <div className="lg:px-[16px] mb-[32px]">
             <div className="border border-[#dedede] bg-[#FAFDFF] lg:bg-whhite lg:rounded-[16px] pt-[16px] px-[16px]">
-                <h3 className="text-[24px] font-bold leading-[140%] mb-[12px]">Your Games</h3>
+                <div className="flex items-center justify-between mb-[12px]">
+                    <h3 className="text-[24px] font-bold leading-[140%]">Your Games</h3>
+
+                    <button
+                        type="button"
+                        onClick={handleForceRefresh}
+                        disabled={isLoading}
+                        className={`btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium ${isLoading ? 'opacity-50 cursor-not-allowed' : 'text-gray-700'}`}
+                    >
+                        <span>Update Games</span>
+                    </button>
+                </div>
                 
                 <div className="w-full relative flex items-center mb-[12px]">
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[12px]">

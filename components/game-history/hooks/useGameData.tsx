@@ -257,10 +257,9 @@ export function useGames(filters?: GameFilters) {
   const handleForceRefresh = useCallback(() => {
     fetchRef.current = false;
     lastExecutedRef.current = "";
-    usePgnStore.getState().clearGamesData();
-    resetFetchState();
+    usePgnStore.getState().resetGamesState();
     fetchGames();
-  }, [resetFetchState, fetchGames]);
+  }, [fetchGames]);
 
   return {
     games,

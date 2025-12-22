@@ -15,6 +15,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { GameHistoriesTable } from "../game-histories-table";
 import AccountNotConnected from "./components/AccountNotConnected";
+import HistoryTabs from "./components/HistoryTabs";
 
 const GameHistoryPage: React.FC = () => {
   const pathname = usePathname();
