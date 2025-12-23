@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
 import { useGames } from "../hooks/useGameData";
+import { useTutorial } from "@/components/TutorialProvider";
 
 interface ImportDialogButtonProps {
   onSuccess?: () => void;
@@ -19,6 +20,8 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const { sessionId } = useProfileStore();
   const { addOtherImportedGame, username } = usePgnStore();
   const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
+
+  const { isTutorialPlay } = useTutorial();
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("paste");
@@ -247,14 +250,16 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
   return (
     <div className="w-full lg:max-w-[200px]">
-      <button
-        type="button"
-        className="w-full flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
-        onClick={() => setOpenDialog(true)}
-      >
-        <Upload className="h-[20px]" />
-        <h1 className="text-[14px] --xs lg:text-[14px] --sm font-primary">Import Games</h1>
-      </button>
+      {!isTutorialPlay && (
+        <button
+          type="button"
+          className="w-full flex justify-center items-center gap-1 lg:gap-2 py-[20px] px-1 rounded-3xl btn-primary md:w-[140px] h-[36px] lg:w-[200px] lg:h-[48px] font-primary"
+          onClick={() => setOpenDialog(true)}
+        >
+          <Upload className="h-[20px]" />
+          <h1 className="text-[14px] --xs lg:text-[14px] --sm font-primary">Import Games</h1>
+        </button>
+      )}
 
       {openDialog && (
         <div

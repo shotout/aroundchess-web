@@ -93,7 +93,9 @@ const StatisticPage: React.FC = () => {
             </div>
           </div>
 
-          <StatisticsSection username={username} />
+          {!isTutorialPlay && (
+            <StatisticsSection username={username} />
+          )}
         </div>
         
         <HistoryStatisticTabs username={username} />
