@@ -137,7 +137,7 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
 
   const badgeClass =
-    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-[14px] --xs font-semibold px-[8px] md:px-[16px]";
+    "min-w-[125px] h-7 rounded-full flex justify-center items-center text-[14px] --xs font-semibold px-[8px] md:px-[10px]";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (

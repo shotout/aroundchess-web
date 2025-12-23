@@ -81,7 +81,7 @@ export const ButtonFinish = ({
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
       <div className="md:hidden xl:block">
-        {(username.length > 0 || isTutorialPlay) && renderButtonSave()}
+        {renderButtonSave()}
       </div>
 
       <div className="flex w-full gap-2">
