@@ -349,42 +349,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             Buy More
           </button>
         </div>
-        {!isMember && !isMemberMonthly && token.balance === 0 ? (
-          <motion.div
-            variants={fadeInUp}
-            className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#f7fdff,_#E6F7FE,_#f7fdff)] outline-dashed outline-[2px] outline-[#C0CED4] -outline-offset-[2px]"
-          >
-            <div className="flex flex-col justify-center items-center bg-[url(/images/asset-icon-_member.svg)] bg-contain bg-no-repeat bg-right h-[64px] rounded-[8px] px-[16px]">
-              <div className="flex items-center gap-[8px] text-[14px]">
-                <Image 
-                  src="/images/asset-icon-_member2.svg"
-                  alt="icon"
-                  width={24}
-                  height={24}
-                  className="w-[24px] h-[24px] object-contain"
-                />
-                <span className="mt-1">You are on the Free Package.</span>
-              </div>
-              <button type="button" className="font-semibold text-[16px] text-[#221AE9] leading-[140%] underline" onClick={() => handleOpenOffer("subscription")}>
-                Get the Unlimited Package now.
-              </button>
-            </div>
-          </motion.div>
-          // <div className="w-full flex flex-col gap-2">
-          //   <button
-          //     onClick={() => handleOpenOffer("tokens")}
-          //     className="btn-secondary w-full h-12 rounded-full border border-gray-300 px-6 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
-          //   >
-          //     Buy Tokens
-          //   </button>
-          //   <button
-          //     onClick={() => handleOpenOffer("subscription")}
-          //     className="btn-primary w-full h-12 rounded-full bg-primary px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
-          //   >
-          //     Go Unlimited
-          //   </button>
-          // </div>
-        ) : (
+        {/* Show Premium if user is a member (yearly or monthly) */}
+        {(isMember || isMemberMonthly) && token.balance > 0 ? (
           <motion.div
             variants={fadeInUp}
             className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#B2E8F9)] outline-dashed outline-[2px] outline-white -outline-offset-[2px]"
@@ -400,6 +366,27 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               <span className="font-semibold text-[4vw] text-[#17119B]">
                 Premium package active!
               </span>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            variants={fadeInUp}
+            className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#f7fdff,_#E6F7FE,_#f7fdff)] outline-dashed outline-[2px] outline-[#C0CED4] -outline-offset-[2px]"
+          >
+            <div className="flex flex-col justify-center items-center bg-[url(/images/asset-icon-_member.svg)] bg-contain bg-no-repeat bg-right h-[64px] rounded-[8px] px-[16px]">
+              <div className="flex items-center gap-[8px] text-[14px]">
+                <Image
+                  src="/images/asset-icon-_member2.svg"
+                  alt="icon"
+                  width={24}
+                  height={24}
+                  className="w-[24px] h-[24px] object-contain"
+                />
+                <span className="mt-1">You are on the Free Package.</span>
+              </div>
+              <button type="button" className="font-semibold text-[16px] text-[#221AE9] leading-[140%] underline" onClick={() => handleOpenOffer("subscription")}>
+                Get the Unlimited Package now.
+              </button>
             </div>
           </motion.div>
         )}
@@ -573,7 +560,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         {isSignedIn && (
           <motion.div
-            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-[8px]' : ''}`}
+            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-0' : ''}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: isMobile ? 0.4 : 0.3 }}
