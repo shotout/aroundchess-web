@@ -2231,35 +2231,36 @@ export default function PlayingPage() {
             </div>
           )}
 
-          <div className="w-full flex justify-between md:justify-end items-center px-[16px] mt-[24px] md:mt-0 md:px-0">
-            <div className="flex items-center gap-[8px] md:hidden">
-              <button onClick={() => router.push("/playground/play-vs-ai")}>
-                <ArrowLeft color="black" size={24} />
-              </button>
+          
+            <div className="w-full flex justify-between md:justify-end items-center px-[16px] mt-[24px] md:mt-0 md:px-0">
+              <div className="flex items-center gap-[8px] md:hidden">
+                <button onClick={() => router.push("/playground/play-vs-ai")}>
+                  <ArrowLeft color="black" size={24} />
+                </button>
 
-              <span>{username} ({orientation}) vs {AIChoosed.opponent.name.replace(/ .*/, "")}</span>
-            </div>
-            <div className="flex items-center justify-between md:mb-[16px] sm:px-0">
-              {(orientation as string) !== myColor &&
-                moveClassification !== "" &&
-                moveClassification !== "excellent-move" &&
-                moveClassification !== "neutral-move" &&
-                moveClassification !== "inaccuracy-move" ? (
-                  <div className="hidden sm:block">
-                    <CommentaryMove classify={moveClassification} />
-                  </div>
-                ) : (
-                  <div />
-                )}
+                <span>{username} ({orientation}) vs {AIChoosed.opponent.name.replace(/ .*/, "")}</span>
+              </div>
+              <div className="flex items-center justify-between md:mb-[16px] sm:px-0">
+                {(orientation as string) !== myColor &&
+                  moveClassification !== "" &&
+                  moveClassification !== "excellent-move" &&
+                  moveClassification !== "neutral-move" &&
+                  moveClassification !== "inaccuracy-move" ? (
+                    <div className="hidden sm:block">
+                      <CommentaryMove classify={moveClassification} />
+                    </div>
+                  ) : (
+                    <div />
+                  )}
 
-                <ButtonBoard
-                  handleSwitch={handleSwitch}
-                  handleThreeD={handleThreeD}
-                  is3DMode={is3DMode}
-                  boardSize={boardSize}
-                />
+                  <ButtonBoard
+                    handleSwitch={handleSwitch}
+                    handleThreeD={handleThreeD}
+                    is3DMode={is3DMode}
+                    boardSize={boardSize}
+                  />
+              </div>
             </div>
-          </div>
 
           <MobileCapturedPieces
             capturedWhite={capturedWhite}
@@ -2268,7 +2269,7 @@ export default function PlayingPage() {
           />
 
           <div className="flex flex-col justify-center items-center gap-3">
-            <motion.div
+            {/* <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 !is3DMode
@@ -2325,82 +2326,88 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            </motion.div>
+            </motion.div> */}
 
-            <motion.div
-              style={{
-                width: boardSize,
-                display: !is3DMode ? "flex" : "none",
-                backfaceVisibility: "hidden",
-                position: "relative",
-              }}
-            >
-              {!is3DMode && (
-                  <>
-                    <TwoDChessboard
-                      game={game}
-                      gameStatus={statusGame.toLowerCase()}
-                      setOptionSquares={setOptionSquares}
-                      arePiecesDraggable={isAtCurrentMove}
-                    onPieceDrop={onPieceDrop}
-                    arePiecesClickable={
-                      statusGame === "Ongoing" && isAtCurrentMove
-                    }
-                    orientation={orientation}
-                    boardWidth={boardSize}
-                    position={gamePosition}
-                    onSquareClick={
-                      game.turn() === isYourTurn ? onSquareClick : () => null
-                    }
-                    onSquareRightClick={onSquareRightClick}
-                    onPromotionPieceSelect={onPromotionPieceSelect}
-                    customSquareStyles={{
-                      ...moveSquares,
-                      ...optionSquares,
-                      ...rightClickedSquares,
-                      ...prevCurrentColor,
-                    }}
-                    areArrowsAllowed={false}
-                    promotionToSquare={moveTo}
-                    showPromotionDialog={showPromotionDialog}
-                  />
-                  {customArrowsConfig.length > 0 && (
-                    <CustomChessArrows
-                      arrows={customArrowsConfig}
-                      boardSize={boardSize}
-                      orientation={orientation}
-                    />
-                  )}
-                </>
-              )}
-            </motion.div>
+            {isTutorialPlay ? (
+              <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-full" />
+            ) : (
+              <>
+                <motion.div
+                  style={{
+                    width: boardSize,
+                    display: !is3DMode ? "flex" : "none",
+                    backfaceVisibility: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  {/* {!is3DMode && (
+                      <> */}
+                        <TwoDChessboard
+                          game={game}
+                          gameStatus={statusGame.toLowerCase()}
+                          setOptionSquares={setOptionSquares}
+                          arePiecesDraggable={isAtCurrentMove}
+                        onPieceDrop={onPieceDrop}
+                        arePiecesClickable={
+                          statusGame === "Ongoing" && isAtCurrentMove
+                        }
+                        orientation={orientation}
+                        boardWidth={boardSize}
+                        position={gamePosition}
+                        onSquareClick={
+                          game.turn() === isYourTurn ? onSquareClick : () => null
+                        }
+                        onSquareRightClick={onSquareRightClick}
+                        onPromotionPieceSelect={onPromotionPieceSelect}
+                        customSquareStyles={{
+                          ...moveSquares,
+                          ...optionSquares,
+                          ...rightClickedSquares,
+                          ...prevCurrentColor,
+                        }}
+                        areArrowsAllowed={false}
+                        promotionToSquare={moveTo}
+                        showPromotionDialog={showPromotionDialog}
+                      />
+                      {customArrowsConfig.length > 0 && (
+                        <CustomChessArrows
+                          arrows={customArrowsConfig}
+                          boardSize={boardSize}
+                          orientation={orientation}
+                        />
+                      )}
+                    {/* </>
+                  )} */}
+                </motion.div>
+              </>
+            )}
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Previous Place
-                </span>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Current Place
-                </span>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Possible Move
-                </span>
-              </div>
-              <div className="hidden sm:flex flex-row items-center justify-center gap-1">
-                <ArrowRight color="#221AE950" size={16} />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Move Recommendation
-                </span>
-              </div>
-            </div>
+                    <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Previous Place
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-1">
+                    <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Current Place
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-1">
+                    <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Possible Move
+                    </span>
+                  </div>
+                  <div className="hidden sm:flex flex-row items-center justify-center gap-1">
+                    <ArrowRight color="#221AE950" size={16} />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Move Recommendation
+                    </span>
+                  </div>
+                </div>
           </div>
 
           <div className="sm:hidden flex flex-col gap-4 mt-4">

@@ -1,6 +1,7 @@
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
+import { useTutorial } from "@/components/TutorialProvider";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 interface WhitePlayerProps {
@@ -29,6 +30,8 @@ export const WhitePlayer = ({
   const { username } = usePgnStore();
   const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
 
+  const { isTutorialPlay } = useTutorial();
+
   useEffect(() => {
     if (myColor === "white" && username) {
       fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
@@ -41,7 +44,15 @@ export const WhitePlayer = ({
         .catch(() => {});
     }
   }, [myColor, username]);
-  return (
+  return isTutorialPlay ? (
+    <div className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border border-[#FD0000] bg-[rgb(253,0,0,.16)] px-[16px]`}>
+      <div className="flex item-center gap-[10px] md:gap-[16px]">
+        <span className="text-[#FD0000] flex items-center text-[14px] md:text-[16px]">AI</span>
+      </div>
+    
+      <Image src={"/images/avatar-black-chess.png"} alt="..." width={220} height={44} />
+    </div>
+  ) : (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
         isWin

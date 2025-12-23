@@ -1,6 +1,7 @@
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
+import { useTutorial } from "@/components/TutorialProvider";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -30,6 +31,8 @@ export const BlackPlayer = ({
   const isLoss = loserColor == "black";
   const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
 
+  const { isTutorialPlay } = useTutorial();
+
   useEffect(() => {
     if (myColor === "white" && username) {
       fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
@@ -42,7 +45,16 @@ export const BlackPlayer = ({
         .catch(() => {});
     }
   }, [myColor, username]);
-  return (
+  return isTutorialPlay ? (
+    <div className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border "border-[#00B427] bg-[#00B42716] px-[16px]`}>
+      <div className="flex item-center gap-[10px] md:gap-[16px]">
+        <Image src={"/images/avatar.svg"} alt="icon" width={48} height={48} className="w-[48px] h-[48px]" />
+        <span className="text-[#34C759] flex items-center text-[14px] md:text-[16px]">ChessMaster2000</span>
+      </div>
+
+      <Image src={"/images/avatar-white-chess.png"} alt="..." width={220} height={44} />
+    </div>
+  ) : (
     <div
       className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border ${
         isWin
