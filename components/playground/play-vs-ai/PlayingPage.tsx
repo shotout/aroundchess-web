@@ -2329,7 +2329,7 @@ export default function PlayingPage() {
             </motion.div> */}
 
             {isTutorialPlay ? (
-              <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-full" />
+              <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-[80%]" />
             ) : (
               <>
                 <motion.div
