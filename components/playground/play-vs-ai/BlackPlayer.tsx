@@ -48,6 +48,7 @@ export const BlackPlayer = ({
   return isTutorialPlay ? (
     <div className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border border-[#FD0000] bg-[rgb(253,0,0,.16)] px-[16px]`}>
       <div className="flex item-center gap-[10px] md:gap-[16px]">
+        <InitialAvatar name={username || "Anonymous"} className="bg-white" textColor="text-black" />
         <span className="text-[#FD0000] flex items-center text-[14px] md:text-[16px]">AI</span>
       </div>
     
