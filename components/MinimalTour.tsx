@@ -65,6 +65,86 @@ export default function MinimalTour({
   // keep rect updated on scroll/resize and observe layout changes
   useEffect(() => {
     if (!run) return;
+    
+    // Check if this is PlayVsAI tutorial (tutorial 2)
+    const isPlayVsAITutorial = pathname.includes('/playground/play-vs-ai') || tutorialType === 'no-chesscom';
+    
+    // Special handling for step 1 of play-vs-ai tutorial on mobile
+    const isStep1PlayVsAI = steps[index]?.target === "[data-tutorial='play-vs-ai-step-1']";
+    const isMobile = window.innerWidth < 1024; // xl breakpoint
+    
+    if (isStep1PlayVsAI && isMobile && isPlayVsAITutorial) {
+      // Try to open sidebar on mobile for step 1
+      const sidebarToggleButton = document.querySelector('[aria-label="Toggle sidebar menu"]') as HTMLElement;
+      const sidebar = document.querySelector('[role="dialog"]') as HTMLElement;
+      
+      // Check if sidebar is not already open
+      if (sidebarToggleButton && !sidebar) {
+        sidebarToggleButton.click();
+        // Wait for sidebar animation to complete before positioning tooltip
+        setTimeout(() => {
+          const handle = () => {
+            const s = steps[index];
+            if (!s) return;
+            const el = document.querySelector(s.target) as HTMLElement | null;
+
+            if (el) {
+              const boundingRect = el.getBoundingClientRect();
+
+              if (boundingRect.width > 0 && boundingRect.height > 0) {
+                setRect(boundingRect);
+              } else {
+                setRect(null);
+              }
+            } else {
+              setRect(null);
+            }
+          };
+          handle();
+        }, 400); // Wait for sidebar animation
+        return; // Exit early, let the setTimeout handle it
+      }
+    }
+    
+    // Special handling for step 2 of play-vs-ai tutorial on mobile - ensure sidebar is closed
+    const isStep2PlayVsAI = steps[index]?.target === "[data-tutorial='play-vs-ai-step-2']";
+    if (isStep2PlayVsAI && isMobile && isPlayVsAITutorial) {
+      // Use the global closeSidebar function to properly close sidebar and update state
+      if (typeof window !== 'undefined' && (window as any).closeSidebar) {
+        (window as any).closeSidebar();
+        // Wait for sidebar animation to complete before positioning tooltip
+        setTimeout(() => {
+          const handle = () => {
+            const s = steps[index];
+            if (!s) return;
+            const el = document.querySelector(s.target) as HTMLElement | null;
+
+            if (el) {
+              const boundingRect = el.getBoundingClientRect();
+
+              if (boundingRect.width > 0 && boundingRect.height > 0) {
+                setRect(boundingRect);
+              } else {
+                setRect(null);
+              }
+            } else {
+              setRect(null);
+            }
+          };
+          handle();
+        }, 400); // Wait for sidebar animation
+        return; // Exit early, let the setTimeout handle it
+      }
+    }
+    
+    // For all other steps (not step 1) in PlayVsAI tutorial only, ensure sidebar is closed on mobile
+    if (!isStep1PlayVsAI && isMobile && isPlayVsAITutorial) {
+      const sidebar = document.querySelector('[role="dialog"]') as HTMLElement;
+      if (sidebar && typeof window !== 'undefined' && (window as any).closeSidebar) {
+        (window as any).closeSidebar();
+      }
+    }
+    
     const handle = () => {
       const s = steps[index];
       if (!s) return;
@@ -118,7 +198,7 @@ export default function MinimalTour({
       if (ro && el) ro.unobserve(el);
       clearInterval(id);
     };
-  }, [run, index, steps]);
+  }, [run, index, steps, pathname]); // Add pathname to trigger re-run when page changes
 
   // compute arrow position inside tooltip whenever rect or tooltip position changes
   useEffect(() => {
@@ -148,7 +228,7 @@ export default function MinimalTour({
       Math.min(topInsideTooltip, tooltipRect.height - 12)
     );
     setArrowTop(clampedTop);
-  }, [rect, index, run]);
+  }, [rect, index, run, step]); // Add step to trigger re-computation when step changes
 
   useEffect(() => {
     if (!run) return;
@@ -267,15 +347,54 @@ export default function MinimalTour({
     if (targetStepText) {
       const newIndex = steps.findIndex((st) => st.stepText === targetStepText);
       if (newIndex !== -1 && newIndex !== index) {
-        setIndex(newIndex);
+        // Special handling for step transitions
+        const previousStep = steps[index];
+        const nextStep = steps[newIndex];
+        
+        // If moving from step 1 to step 2 in play-vs-ai tutorial, close sidebar
+        const isFromStep1PlayVsAI = previousStep?.target === "[data-tutorial='play-vs-ai-step-1']" && previousStep?.stepText === "1/7";
+        const isToStep2PlayVsAI = nextStep?.target === "[data-tutorial='play-vs-ai-step-2']" && nextStep?.stepText === "2/7";
+        
+        if (isFromStep1PlayVsAI && isToStep2PlayVsAI) {
+          // Use the global closeSidebar function
+          if (typeof window !== 'undefined' && (window as any).closeSidebar) {
+            console.log('📱 Closing sidebar for step 2 on mobile');
+            (window as any).closeSidebar();
+            // Wait for sidebar animation before proceeding
+            setTimeout(() => {
+              setIndex(newIndex);
+            }, 400);
+          } else {
+            setIndex(newIndex);
+          }
+        } else {
+          setIndex(newIndex);
+        }
       }
     }
-  }, [stepFocused, pathname, steps]);
+  }, [stepFocused, pathname, steps, run]); // Add run to dependency array
 
   if (!run || !steps || steps.length === 0 || !mounted) return null;
 
   const next = () => {
-    if (stepFocused == 1 && pathname.includes("/playground/play-vs-ai")) {
+    // Check if we're moving from step 1 to step 2 in play-vs-ai tutorial
+    const isFromStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']" && step.stepText === "1/7";
+    const nextStep = steps[index + 1];
+    const isToStep2PlayVsAI = nextStep?.target === "[data-tutorial='play-vs-ai-step-2']" && nextStep?.stepText === "2/7";
+    
+    if (isFromStep1PlayVsAI && isToStep2PlayVsAI) {
+      // Use the global closeSidebar function to properly close sidebar
+      if (typeof window !== 'undefined' && (window as any).closeSidebar) {
+        console.log('📱 Closing sidebar for step 2 on mobile via next()');
+        (window as any).closeSidebar();
+        // Wait for sidebar animation before proceeding
+        setTimeout(() => {
+          setIndex((i) => i + 1);
+        }, 400);
+      } else {
+        setIndex((i) => i + 1);
+      }
+    } else if (stepFocused == 1 && pathname.includes("/playground/play-vs-ai")) {
       // setIndex((i) => i + 1);
       router.replace("/playground/play-vs-ai/playing");
       setTimeout(() => {
@@ -297,7 +416,28 @@ export default function MinimalTour({
     // }
   };
   const prev = () => {
-    if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
+    // Check if we're moving from step 2 to step 1 in play-vs-ai tutorial
+    const isFromStep2PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-2']" && step.stepText === "2/7";
+    const prevStep = steps[index - 1];
+    const isToStep1PlayVsAI = prevStep?.target === "[data-tutorial='play-vs-ai-step-1']" && prevStep?.stepText === "1/7";
+    
+    if (isFromStep2PlayVsAI && isToStep1PlayVsAI) {
+      // Try to open sidebar when moving back to step 1
+      const sidebarToggleButton = document.querySelector('[aria-label="Toggle sidebar menu"]') as HTMLElement;
+      const sidebar = document.querySelector('[role="dialog"]') as HTMLElement;
+      
+      // Check if sidebar is not already open
+      if (sidebarToggleButton && !sidebar) {
+        console.log('📱 Opening sidebar for step 1 on mobile via prev()');
+        sidebarToggleButton.click();
+        // Wait for sidebar animation before proceeding
+        setTimeout(() => {
+          setIndex((i) => Math.max(0, i - 1));
+        }, 400);
+      } else {
+        setIndex((i) => Math.max(0, i - 1));
+      }
+    } else if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
       setStepFocused(1); // Go back to step 2/7
       router.replace("/playground/play-vs-ai");
     } else  {
@@ -533,7 +673,17 @@ export default function MinimalTour({
         id="box-tutorial"
         ref={tooltipRef}
         role="dialog"
-        data-placement={step?.placement || "bottom"}
+        data-placement={(() => {
+          const isMobile = window.innerWidth < 1024;
+          const isStep1PlayVsAI = step?.target === "[data-tutorial='play-vs-ai-step-1']";
+          
+          // Override placement for step 1 of play-vs-ai on mobile
+          if (isStep1PlayVsAI && isMobile) {
+            return "top";
+          }
+          
+          return step?.placement || "bottom";
+        })()}
         className={`block w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg relative ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
@@ -546,8 +696,15 @@ export default function MinimalTour({
                 position: "fixed",
                 left: (() => {
                   const isMobile = window.innerWidth < 768;
+                  const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
                   const tooltipWidth = tooltipRef.current?.getBoundingClientRect().width ?? (window.innerWidth < 425 ? 300 : 480);
                   const isStep4 = step.stepText === "4/5";
+                  const isStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']";
+                  
+                  // Special handling for step 1 play-vs-ai on mobile - use top placement (centered)
+                  if ((isMobile || isTablet) && isStep1PlayVsAI) {
+                    return `${Math.max(16, (window.innerWidth - tooltipWidth) / 2)}px`;
+                  }
 
                   // For mobile step 4, use top placement (centered)
                   if (isMobile && isStep4) {
@@ -584,9 +741,16 @@ export default function MinimalTour({
                 })(),
                 top: (() => {
                   const isMobile = window.innerWidth < 768;
+                  const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
                   const isStep4 = step.stepText === "4/5";
+                  const isStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']";
                   const tooltipHeight = tooltipRef.current?.getBoundingClientRect().height ?? 200;
                   const SPACING = 20; // Fixed spacing between tooltip and target
+                  
+                  // Special handling for step 1 play-vs-ai on mobile/tablet - use top placement
+                  if ((isMobile || isTablet) && isStep1PlayVsAI) {
+                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                  }
 
                   // For mobile step 4, use top placement
                   if (isMobile && isStep4) {

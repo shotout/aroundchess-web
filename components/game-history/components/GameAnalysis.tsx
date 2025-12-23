@@ -436,7 +436,7 @@ const GameAnalysisSlide = ({
             if (badMove.startSquare && badMove.endSquare) {
                 const from = badMove.startSquare;
                 const to = badMove.endSquare;
-                const color = "rgba(239, 68, 68, 0.8)"; // Red color
+                const color = "rgba(239, 68, 68, 0.5)"; // Red color with 50% opacity
                 const isKnight = isKnightMove(from, to);
 
                 arrows.push({
@@ -456,7 +456,7 @@ const GameAnalysisSlide = ({
             if (goodMove.startSquare && goodMove.endSquare) {
                 const from = goodMove.startSquare;
                 const to = goodMove.endSquare;
-                const color = "rgba(34, 197, 94, 0.8)"; // Green color
+                const color = "rgba(34, 197, 94, 0.5)"; // Green color with 50% opacity
                 const isKnight = isKnightMove(from, to);
 
                 arrows.push({

@@ -80,7 +80,8 @@ export const ButtonFinish = ({
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
-      <div className="md:hidden xl:block">
+      {/* During tutorial, always show the button. Otherwise use responsive classes */}
+      <div className={isTutorialPlay ? "block" : "md:hidden xl:block"}>
         {renderButtonSave()}
       </div>
 
@@ -92,7 +93,7 @@ export const ButtonFinish = ({
           <div className="flex flex-row items-center justify-center gap-2">
             <Image
               alt="clipboard"
-              src={"/images/play-vs-ai/clipboard.png"}
+              src="/images/play-vs-ai/clipboard.png"
               width={1000}
               height={1000}
               className="h-[20px] w-[20px]"
@@ -113,8 +114,9 @@ export const ButtonFinish = ({
           </div>
         </button>
 
-        <div className="hidden md:block xl:hidden md:w-2/4">
-          {(username.length > 0 || isTutorialPlay) && renderButtonSave()}
+        {/* During tutorial, hide this duplicate button. Otherwise show on md screens only */}
+        <div className={isTutorialPlay ? "hidden" : "hidden md:block xl:hidden md:w-2/4"}>
+          {renderButtonSave()}
         </div>
       </div>
     </motion.div>

@@ -603,6 +603,11 @@ export default function PlayingPage() {
 
   // Check if analysis exists for this game
   useEffect(() => {
+    // Skip analysis check during tutorial
+    if (isTutorialPlay) {
+      return;
+    }
+    
     const checkAnalysis = () => {
       const job = getJobByGameId(gameFromPgn.id);
 
@@ -620,7 +625,7 @@ export default function PlayingPage() {
     const interval = setInterval(checkAnalysis, 1000);
 
     return () => clearInterval(interval);
-  }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis]);
+  }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis, isTutorialPlay]);
 
   // Auto-open AnalyzeGameHistory modal when tutorial reaches step 4
   useEffect(() => {
@@ -2411,13 +2416,41 @@ export default function PlayingPage() {
           </div>
 
           <div className="sm:hidden flex flex-col gap-4 mt-4">
-            {statusGame !== "Ongoing" && (
+            {isTutorialPlay || statusGame !== "Ongoing" && (
               <div className="flex justify-center items-center">
                 <CommentarGame
                   statusGame={statusGame}
                   lossReason={lossReason}
                 />
               </div>
+            )}
+
+            {isTutorialPlay && (
+              <>
+                <div className="flex justify-center items-center">
+                  <CommentarGame
+                    statusGame={"Win"}
+                    lossReason={"checkmate"}
+                  />
+                </div>
+                <ButtonFinish
+                  pgn={game.pgn()}
+                  handleAnalyzeGame={handleAnalyzeGame}
+                  handleNewGame={handleNewGame}
+                  handleRematch={handleRematch}
+                  handleShare={handleShare}
+                  handleDownload={handleDownload}
+                  handleSave={handleSave}
+                  isSaved={isSaved}
+                  isSaving={isSaving}
+                  hasAnalysis={hasAnalysis}
+                  onAnalyzeClick={() => {
+                    setIsAnalyzeOpen(true);
+                  }}
+                  onShowAnalysisClick={handleShowAnalysis}
+                />
+              </>
+              
             )}
 
             {!game.isGameOver() && (
