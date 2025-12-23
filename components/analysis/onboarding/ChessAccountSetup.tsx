@@ -36,7 +36,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const { setToken, sessionId } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
   const { getTokenBalance } = useApiClient();
-  const { startTutorial } = useTutorial();
+  const { startTutorial, isTutorialPlay } = useTutorial();
   const {
     tutorialType,
     hasCompletedTutorial,
@@ -228,7 +228,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
         if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
           console.log("✅ Tutorial already completed, skipping tutorial");
           setHasCompletedTutorial(true);
-          toast.info("You have already completed the tutorial");
+          if (isTutorialPlay) {
+            toast.info("You have already completed the tutorial"); 
+          }
           return;
         } else {
           console.log("❌ Tutorial not completed, showing tutorial");
