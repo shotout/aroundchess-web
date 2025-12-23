@@ -111,7 +111,7 @@ const GameHistoryPage: React.FC = () => {
             <ImportDialogButton />
           </div>
 
-          {!username && 
+          {!isTutorialPlay && !username && 
             <AccountNotConnected onClick={() => { 
                setOpenAccountConnected(true);
             }} />}
