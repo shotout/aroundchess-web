@@ -19,20 +19,20 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
     orientation
 }) => {
     const [arrowWidth, setArrowWidth] = useState(7);
-    const [arrowheadSize, setArrowheadSize] = useState({ width: 20, height: 20, pathSize: 14 });
+    const [arrowheadSize, setArrowheadSize] = useState({ width: 14, height: 14, pathSize: 10 });
 
     useEffect(() => {
         const updateArrowWidth = () => {
             if (window.innerWidth > 2000) {
-                setArrowWidth(15);
-                setArrowheadSize({ width: 30, height: 30, pathSize: 21 });
+                setArrowWidth(12);
+                setArrowheadSize({ width: 24, height: 24, pathSize: 16 });
             }
             else if (window.innerWidth > 1500) {
-                setArrowWidth(10);
-                setArrowheadSize({ width: 24, height: 24, pathSize: 21 });
+                setArrowWidth(8);
+                setArrowheadSize({ width: 16, height: 16, pathSize: 12 });
             } else {
-                setArrowWidth(5);
-                setArrowheadSize({ width: 16, height: 16, pathSize: 14 });
+                setArrowWidth(4);
+                setArrowheadSize({ width: 14, height: 14, pathSize: 10 });
             }
         };
 
@@ -60,7 +60,6 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
             y = rank * actualSquareSize + actualSquareSize / 2 + padding;
         }
 
-        console.log(`🎯 [squareToCoords] square:${square} file:${file} rank:${rank} orientation:${orientation} -> x:${x} y:${y}`);
         return { x, y };
     };
 

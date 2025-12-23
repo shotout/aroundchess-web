@@ -287,7 +287,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="relative h-[98px] flex justify-center items-end">
-                    <div className="inline-flex items-end h-full">
+                    {/* <div className="inline-flex items-end h-full">
                       <div className="relative w-fit h-fit flex items-end">
                         <Image
                           src={imagePath}
@@ -297,8 +297,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                           className="object-contain align-bottom"
                         />
                       </div>
-                    </div>
-                    {/* <Tooltip>
+                    </div> */}
+                    <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">
                           <div className="relative w-fit h-fit flex items-end">
@@ -318,20 +318,20 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                         align="start"
                         sideOffset={20}
                         alignOffset={10}
-                        className={`bg-blue-base/5 w-[350px] backdrop-blur-3xl border border-blue-base shadow-lg rounded-none rounded-t-md ${
+                        className={`!bg-[#ECEBFF] overflow-hidden w-[250px] border border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E] rounded-[8px] ${
                           level.id === "grandmaster"
-                            ? "rounded-bl-md rounded-br-none"
-                            : "rounded-br-md"
+                            ? "!rounded-br-[0px]"
+                            : "!rounded-bl-[0px]"
                         }`}
                       >
                         <div className="flex items-center gap-x-2 p-1">
-                          <AlertCircle className="text-blue-base w-5 h-5" />
+                          <AlertCircle className="text-blue-base w-[24px] h-[24px]" />
                           <div className="text-[14px] --xs text-justify">
                             <h1>{level.description}</h1>
                           </div>
                         </div>
                       </TooltipContent>
-                    </Tooltip> */}
+                    </Tooltip>
                   </div>
 
                   <div className="text-center w-full space-y-1">

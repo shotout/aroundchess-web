@@ -62,6 +62,22 @@ export default function Navigation({
     setSidebarOpen(!isSidebarOpen);
   };
 
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
+  // Expose closeSidebar to window for tutorial access
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).closeSidebar = closeSidebar;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).closeSidebar;
+      }
+    };
+  }, []);
+
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (!isDesktop && isSidebarOpen) {

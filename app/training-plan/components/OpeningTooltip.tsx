@@ -319,7 +319,7 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
       <PopoverContent
         side="top"
         align="start"
-        className="p-3 sm:p-4 bg-blue-base/15 backdrop-blur-3xl border border-blue-base w-auto rounded-none rounded-t-md rounded-br-md"
+        className="!bg-[#ECEBFF] w-auto overflow-hidden border border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E] rounded-[8px]"
         sideOffset={10}
         alignOffset={10}
         onMouseEnter={handleMouseEnter}
