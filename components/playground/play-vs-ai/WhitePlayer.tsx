@@ -76,7 +76,18 @@ export const WhitePlayer = ({
                 className="w-[48px] h-[48px] rounded-full object-contain"
               />
             ) : (
-              <InitialAvatar name={username} size="sm" />
+              <div className="flex items-center gap-[8px]">
+                <InitialAvatar name={username || "Anonymous"} />
+                <span className={`font-semibold ${
+                  isWin
+                    ? "text-[#00B427] "
+                    : isDraw
+                    ? "text-[#221AE9] "
+                    : isLoss
+                    ? "text-[#FD0000]  "
+                    : "text-[#040404]"
+                }`}>You</span>
+              </div>
             )}
           </>
         ) : (
