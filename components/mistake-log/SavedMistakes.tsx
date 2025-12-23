@@ -197,13 +197,23 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const buildDisplayMistakeLog = (item: any) => {
     const moveItem = item?.mistakeLog;
     if (!moveItem) return null;
+    
     // Hide Opening phase entirely
     if (moveItem?.gamePhase === "Opening") return null;
+    
     const pgn = item?.pgn || "";
     const hash = (item as any).__hash as string | undefined;
-    const sections =
-      (hash && sectionsByHash[hash]) || undefined;
-    if (!sections) return { ...moveItem, analysis: "-", recommendation: "-" };
+    const sections = (hash && sectionsByHash[hash]) || undefined;
+    
+    // If sections not loaded yet, return basic moveItem (use existing analysis/recommendation if available)
+    if (!sections) {
+      return { 
+        ...moveItem, 
+        analysis: moveItem.analysis || "-", 
+        recommendation: moveItem.recommendation || "-" 
+      };
+    }
+    
     const enriched = enrichMistakeLogsWithAnalyzeSections(
       {
         criticalMistakes: [],
@@ -213,12 +223,23 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       },
       sections
     );
+    
     const merged =
       (enriched.threats && enriched.threats[0]) ||
       (enriched.badMoves && enriched.badMoves[0]) ||
       (enriched.criticalMistakes && enriched.criticalMistakes[0]) ||
       (enriched.weaknessIdentification && enriched.weaknessIdentification[0]) ||
       null;
+    
+    // If enrichment fails, fallback to basic moveItem (use existing analysis/recommendation)
+    if (!merged) {
+      return { 
+        ...moveItem, 
+        analysis: moveItem.analysis || "-", 
+        recommendation: moveItem.recommendation || "-" 
+      };
+    }
+    
     return merged;
   };
 
@@ -310,7 +331,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
         {currentData.length > 0 &&
           currentData.map((item: any, index: number) => {
             const display = buildDisplayMistakeLog(item);
-            if (!display) return null;
+            
             return (
               <div
                 key={index}
@@ -402,7 +423,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   </div>
                   <span className="text-[14px] --xs sm:text-md md:text-md lg:text-[14px] font-normal">
                     <span className="font-semibold">Analysis: </span>
-                    {display?.analysis ?? ""}
+                    {display?.analysis ?? "-"}
                   </span>
                   <div className="flex items-center gap-[16px]">
                     <div className="w-full lg:w-[calc(100%-238px)] p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
@@ -415,7 +436,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
                         />
                         <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
-                          <span className="font-bold">Recomendations: </span> {display?.recommendation ?? ""}
+                          <span className="font-bold">Recomendations: </span> {display?.recommendation ?? "-"}
                         </span>
                       </div>
                     </div>
