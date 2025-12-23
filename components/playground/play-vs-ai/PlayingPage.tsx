@@ -1853,28 +1853,51 @@ export default function PlayingPage() {
     try {
       const job = getJobByGameId(gameFromPgn.id);
       const pgnHash = createPgnHash(gameFromPgn.pgn);
+
+      console.log("🔍 [handleShowAnalysis] Starting analysis fetch for game:", gameFromPgn.id);
+      console.log("🔍 [handleShowAnalysis] Job from store:", job);
+
       // Fetch from both v2 and v3 endpoints in parallel
       const [v2Analysis, v3Analysis] = await Promise.all([
         fetchLastAnalysis(pgnHash),
         fetchLastAnalysisV3(pgnHash)
       ]);
 
+      console.log("📥 [handleShowAnalysis] V2 Analysis response:", v2Analysis);
+      console.log("📥 [handleShowAnalysis] V3 Analysis response:", v3Analysis);
+
+      // Prioritize job result over API response for v2 analysis
+      let finalV2Data = v2Analysis;
+      if (job && job.result && job.status === "completed") {
+        console.log("✅ [handleShowAnalysis] Using job result for v2 analysis data");
+        finalV2Data = {
+          success: true,
+          data: job.result
+        };
+      }
+
       // Store both v2 and v3 results
-      setV2AnalysisData(v2Analysis);
+      setV2AnalysisData(finalV2Data);
       setShortAnalysisData(v3Analysis);
 
+      console.log("💾 [handleShowAnalysis] Final V2 data set:", finalV2Data);
+      console.log("💾 [handleShowAnalysis] V3 data set:", v3Analysis);
+
       if (v3Analysis?.success && v3Analysis.data) {
+        console.log("✅ [handleShowAnalysis] V3 analysis found, opening ChooseAnalysisMode");
         // Open ChooseAnalysisMode dialog with both v2 and v3 data
         setIsChooseAnalysisModeOpen(true);
-      } else if (v2Analysis?.success && v2Analysis.data) {
+      } else if (finalV2Data?.success && finalV2Data.data) {
+        console.log("✅ [handleShowAnalysis] Only V2 analysis found, navigating directly to /analysis");
         setPgn(gameFromPgn.pgn);
         setDataGamesImport(gameFromPgn);
-        setDataAnalysis(v2Analysis.data);
+        setDataAnalysis(finalV2Data.data);
         setIsFromGameHistory(true);
 
         router.push("/analysis");
       } else {
         if (job && job.result) {
+          console.log("✅ [handleShowAnalysis] Using job result as fallback");
           setPgn(gameFromPgn.pgn);
           setDataGamesImport(gameFromPgn);
           setDataAnalysis(job.result);
@@ -1882,18 +1905,23 @@ export default function PlayingPage() {
 
           router.push("/analysis");
         } else {
+          console.log("⚠️ [handleShowAnalysis] No analysis data found, opening analyze dialog");
           setIsAnalyzeOpen(true);
         }
       }
     } catch (error) {
+      console.error("❌ [handleShowAnalysis] Error:", error);
       const job = getJobByGameId(gameFromPgn.id);
-      
+
       if (job && job.result) {
+        console.log("📦 [handleShowAnalysis] Using job result as error fallback");
         setPgn(gameFromPgn.pgn);
         setDataGamesImport(gameFromPgn);
         setDataAnalysis(job.result);
         setIsFromGameHistory(true);
         router.push("/analysis");
+      } else {
+        console.error("❌ [handleShowAnalysis] No fallback data available");
       }
     }
   };
