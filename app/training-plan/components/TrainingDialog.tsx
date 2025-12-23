@@ -315,6 +315,37 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     onPlanCreated,
   ]);
 
+  // Check if all requirements are met to enable the Create button
+  const isRequirementsMet = useCallback(() => {
+    if (!config?.requirements) return false;
+
+    const requirements = config.requirements;
+
+    // Check Opening requirements (exact count)
+    const whiteOpeningMet = selectedWhiteOpenings.length === requirements.opening?.white;
+    const blackOpeningMet = selectedBlackOpenings.length === requirements.opening?.black;
+
+    // Check Middlegame requirements (between min and max)
+    const middlegameCount = selectedMiddlegames.length;
+    const middlegameMet = 
+      middlegameCount >= (requirements.middlegame?.min || 0) && 
+      middlegameCount <= (requirements.middlegame?.max || Infinity);
+
+    // Check Endgame requirements (between min and max)
+    const endgameCount = selectedEndgames.length;
+    const endgameMet = 
+      endgameCount >= (requirements.endgame?.min || 0) && 
+      endgameCount <= (requirements.endgame?.max || Infinity);
+
+    return whiteOpeningMet && blackOpeningMet && middlegameMet && endgameMet;
+  }, [
+    config,
+    selectedWhiteOpenings,
+    selectedBlackOpenings,
+    selectedMiddlegames,
+    selectedEndgames,
+  ]);
+
   const displayUserProfile = storeUserProfile || userProfile;
   const keyInfo = {
     keyToReachNextLevel: config?.eloRange
@@ -486,9 +517,13 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             </div>
             <div className="mt-6 flex justify-center">
               <button
-                className="btn-primary rounded-full px-8 py-2 h-12 w-full sm:w-96 text-lg flex justify-center items-center"
+                className={`rounded-full px-8 py-2 h-12 w-full sm:w-96 text-lg flex justify-center items-center ${
+                  isLoading || isCreatingPlan || !isRequirementsMet()
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "btn-primary"
+                }`}
                 onClick={handleCreatePlan}
-                disabled={isLoading || isCreatingPlan}
+                disabled={isLoading || isCreatingPlan || !isRequirementsMet()}
               >
                 <div className="min-h-6 min-w-52 flex justify-center items-center">
                   {isCreatingPlan ? <WhiteSpinner size={10} /> : buttonText}

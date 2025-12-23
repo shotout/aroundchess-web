@@ -416,6 +416,21 @@ export default function MinimalTour({
     // }
   };
   const prev = () => {
+    const isAtStep3ByTarget = step?.target === "[data-tutorial='play-vs-ai-step-3']";
+    const isAtStep3ByStepText = step?.stepText === "3/7";
+    const isAtStep3ByFocused = stepFocused === 2; // index 2 = step 3/7
+    const isOnPlayingPage = pathname.includes("/playground/play-vs-ai/playing");
+    
+    // If ANY indicator shows we're at step 3 AND we're on playing page, redirect back
+    if (isOnPlayingPage && (isAtStep3ByTarget || isAtStep3ByStepText || isAtStep3ByFocused)) {
+      console.log('🔙 Going back from step 3 to play-vs-ai page');
+      router.replace("/playground/play-vs-ai");
+      setTimeout(() => {
+        setStepFocused(1); // This will be step 2/7
+      }, 500);
+      return;
+    }
+    
     // Check if we're moving from step 2 to step 1 in play-vs-ai tutorial
     const isFromStep2PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-2']" && step.stepText === "2/7";
     const prevStep = steps[index - 1];
@@ -437,10 +452,7 @@ export default function MinimalTour({
       } else {
         setIndex((i) => Math.max(0, i - 1));
       }
-    } else if (stepFocused == 2 && pathname.includes("/playground/play-vs-ai/playing")) {
-      setStepFocused(1); // Go back to step 2/7
-      router.replace("/playground/play-vs-ai");
-    } else  {
+    } else {
       setIndex((i) => Math.max(0, i - 1));
     }
     // if (stepFocused == 3 && pathname.includes("/my-game-history")) {
@@ -676,9 +688,16 @@ export default function MinimalTour({
         data-placement={(() => {
           const isMobile = window.innerWidth < 1024;
           const isStep1PlayVsAI = step?.target === "[data-tutorial='play-vs-ai-step-1']";
+          const isStep4Tutorial1 = step?.stepText === "4/5"; // Tutorial 1 step 4
+          const isStep6Tutorial2 = step?.stepText === "6/7"; // Tutorial 2 step 6 (same element)
           
           // Override placement for step 1 of play-vs-ai on mobile
           if (isStep1PlayVsAI && isMobile) {
+            return "top";
+          }
+          
+          // Override placement for step 4 (tutorial 1) or step 6 (tutorial 2) on mobile - left becomes top
+          if (isMobile && (isStep4Tutorial1 || isStep6Tutorial2)) {
             return "top";
           }
           
@@ -698,7 +717,8 @@ export default function MinimalTour({
                   const isMobile = window.innerWidth < 768;
                   const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
                   const tooltipWidth = tooltipRef.current?.getBoundingClientRect().width ?? (window.innerWidth < 425 ? 300 : 480);
-                  const isStep4 = step.stepText === "4/5";
+                  const isStep4Tutorial1 = step.stepText === "4/5"; // Tutorial 1 step 4
+                  const isStep6Tutorial2 = step.stepText === "6/7"; // Tutorial 2 step 6
                   const isStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']";
                   
                   // Special handling for step 1 play-vs-ai on mobile - use top placement (centered)
@@ -706,8 +726,8 @@ export default function MinimalTour({
                     return `${Math.max(16, (window.innerWidth - tooltipWidth) / 2)}px`;
                   }
 
-                  // For mobile step 4, use top placement (centered)
-                  if (isMobile && isStep4) {
+                  // For mobile step 4 (tutorial 1) or step 6 (tutorial 2), use top placement (centered)
+                  if (isMobile && (isStep4Tutorial1 || isStep6Tutorial2)) {
                     return `${Math.max(16, (window.innerWidth - tooltipWidth) / 2)}px`;
                   }
 
@@ -742,7 +762,8 @@ export default function MinimalTour({
                 top: (() => {
                   const isMobile = window.innerWidth < 768;
                   const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
-                  const isStep4 = step.stepText === "4/5";
+                  const isStep4Tutorial1 = step.stepText === "4/5"; // Tutorial 1 step 4
+                  const isStep6Tutorial2 = step.stepText === "6/7"; // Tutorial 2 step 6
                   const isStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']";
                   const tooltipHeight = tooltipRef.current?.getBoundingClientRect().height ?? 200;
                   const SPACING = 20; // Fixed spacing between tooltip and target
@@ -752,8 +773,8 @@ export default function MinimalTour({
                     return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
                   }
 
-                  // For mobile step 4, use top placement
-                  if (isMobile && isStep4) {
+                  // For mobile step 4 (tutorial 1) or step 6 (tutorial 2), use top placement
+                  if (isMobile && (isStep4Tutorial1 || isStep6Tutorial2)) {
                     return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
                   }
 

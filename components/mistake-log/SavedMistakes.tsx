@@ -350,7 +350,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   } rounded-md p-2 lg:p-4`}
                 >
                   <div className="flex flex-row justify-between items-center gap-2 mb-4">
-                    <div className="flex rounded-full max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-[14px] --xs lg:text-[14px]">
+                    <div className="flex rounded-full md:max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-[14px] --xs lg:text-[14px]">
                       {item.title}
                     </div>
                     <div
