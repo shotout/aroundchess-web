@@ -244,7 +244,7 @@ const IndividualTrainingTopic: React.FC<
                     align="start"
                     sideOffset={20}
                     alignOffset={100}
-                    className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+                    className="max-w-[320px] rounded-none rounded-t-[8px] rounded-br-[8px] flex items-center gap-x-3 !bg-[#ECEBFF] backdrop-blur-3xl border !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)]"
                   >
                     <AlertCircle className="text-blue-base w-5 h-5" />
                     <div className="flex flex-col gap-y-2">
@@ -285,7 +285,7 @@ const IndividualTrainingTopic: React.FC<
             align="center"
             sideOffset={5}
             alignOffset={5}
-            className="max-w-[230px] rounded-none rounded-t-md rounded-br-md bg-blue-base/5 backdrop-blur-3xl border border-blue-base "
+            className="max-w-[230px] rounded-t-[8px] rounded-br-[8px] !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] !bg-[#ECEBFF] text-[#0B094E] rounded-[8px] border border- "
           >
             <div className="flex items-center gap-x-2 p-1">
               <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
@@ -312,7 +312,7 @@ const IndividualTrainingTopic: React.FC<
             align="start"
             sideOffset={20}
             alignOffset={100}
-            className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+            className="max-w-[300px] rounded-[8px] rounded-t-md rounded-br-md flex items-center gap-x-3 !bg-[#ECEBFF] backdrop-blur-3xl border !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E]"
           >
             <AlertCircle className="text-blue-base w-5 h-5" />
             <div className="flex flex-col gap-y-2">
