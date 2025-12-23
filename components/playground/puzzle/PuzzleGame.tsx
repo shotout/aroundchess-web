@@ -1136,7 +1136,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             />
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
-            <motion.div
+            {/* <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 !is3DMode
@@ -1193,7 +1193,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   }}
                 />
               )}
-            </motion.div>
+            </motion.div> */}
 
             <motion.div
               style={{
@@ -1203,8 +1203,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 position: "relative",
               }}
             >
-              {!is3DMode && (
-                <>
+              {/* {!is3DMode && (
+                <> */}
                   <TwoDChessboard
                     arePiecesClickable={true}
                     arePiecesDraggable={true}
@@ -1236,8 +1236,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                       orientation={orientation == "white" ? "black" : "white"}
                     />
                   )}
-                </>
-              )}
+                {/* </>
+              )} */}
             </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">

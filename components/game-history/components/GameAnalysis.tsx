@@ -518,7 +518,7 @@ const GameAnalysisSlide = ({
                         </button> */}
                     </div>
 
-                    <motion.div
+                    {/* <motion.div
                         initial={{ rotateX: 180 }}
                         animate={!is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }}
                         transition={{
@@ -570,7 +570,7 @@ const GameAnalysisSlide = ({
                                 />
                             </>
                         )}
-                    </motion.div>
+                    </motion.div> */}
 
                     <motion.div
                         initial={{ rotateX: 180 }}
@@ -593,8 +593,8 @@ const GameAnalysisSlide = ({
                             position: "relative",
                         }}
                     >
-                        {!is3DMode && (
-                        <>
+                        {/* {!is3DMode && (
+                        <> */}
                             <TwoDChessboard
                                 arePiecesClickable={false}
                                 arePiecesDraggable={false}
@@ -627,8 +627,8 @@ const GameAnalysisSlide = ({
                                 orientation={orientation}
                                 // orientation={"black"}
                             />
-                        </>
-                        )}
+                        {/* </>
+                        )} */}
                     </motion.div>
                 </div>
             )}

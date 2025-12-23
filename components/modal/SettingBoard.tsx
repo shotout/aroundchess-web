@@ -254,7 +254,8 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
             </div>
           </div>
           <div className="w-full p-[8px] bg-[#F9FAFC] border border-[#f4f4f4] rounded-[12px]">
-            <Tabs
+            {content(boardsTwoD, piecesTwoD, "2d")}
+            {/* <Tabs
               defaultValue="auto"
               className="w-full"
               value={StyleChoosed}
@@ -299,7 +300,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
               <TabsContent value="3d" className="space-y-4">
                 {content(boardsThreeD, piecesThreeD, "3d")}
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
           </div>
         </ScrollArea>
 
