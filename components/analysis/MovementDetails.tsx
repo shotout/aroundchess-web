@@ -14,6 +14,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 
 interface MovementDetailsProps {
   next: () => void;
@@ -31,6 +32,7 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
 
   const { PieceChoosed } = useChessBoardThemeStore();
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const {
     gameInfo,
     summary,
@@ -141,6 +143,11 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
       type,
     };
     setChessMove(enrichedMove);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
 
   return (

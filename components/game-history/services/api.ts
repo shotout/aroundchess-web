@@ -165,6 +165,20 @@ export const gameHistoryApi = {
     );
   },
 
+  getChessComGames: async (sessionId: string | null) => {
+    const params: Record<string, string | number | boolean> = {
+      sources: 'chesscom'
+    };
+
+    console.log("📤 [API] getChessComGames called");
+    console.log("📤 [API] URL params being sent:", params);
+
+    return apiRequest<ApiResponse<any[]>>(
+      `/games/my-game-history`,
+      { sessionId, params }
+    );
+  },
+
   getPerformanceData: async (sessionId: string | null) => {
     return apiRequest<ApiResponse<any>>(
       "/analytic-games/my-game-performance-history",

@@ -27,6 +27,7 @@ import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
 import { useTabFocusStore } from "../../app/store/tabAnalysisStore";
 import { usePgnStore } from "../../app/store/zustandStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import ThreeDBoard from "../chessboard/3d/ThreeDChessboard";
 
 interface ParsedMove {
@@ -64,7 +65,9 @@ const AnalysisResult: React.FC = () => {
   const { tabFocus } = useTabFocusStore();
   const { StyleChoosed, setStyleChoosed, PieceChoosed } =
     useChessBoardThemeStore();
+  const { setChessboardRef } = useChessboardRefStore();
   const { gameInfo, summary } = dataAnalysis ?? {};
+  const chessboardContainerRef = useRef<HTMLDivElement>(null);
 
   const blackCountry = summary?.blackSide?.profileInfo?.chessAccountInfo
     ?.country
@@ -112,6 +115,14 @@ const AnalysisResult: React.FC = () => {
   useEffect(() => {
     setOrientation(boardOrientation);
   }, [boardOrientation]);
+
+  // Set chessboard ref in store for scroll functionality
+  useEffect(() => {
+    if (chessboardContainerRef.current) {
+      setChessboardRef(chessboardContainerRef.current);
+    }
+    return () => setChessboardRef(null);
+  }, [setChessboardRef]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -673,6 +684,8 @@ const AnalysisResult: React.FC = () => {
 
   return (
     <div
+      ref={chessboardContainerRef}
+      id="chessboard-container"
       className={`flex justify-center gap-4 bg-white pb-4`}
       // className={`${
       //   hideDiv &&

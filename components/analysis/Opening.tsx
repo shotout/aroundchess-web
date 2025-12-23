@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
@@ -24,6 +25,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
@@ -96,6 +98,11 @@ const Opening: React.FC<OpeningProps> = (props) => {
       move.type = "black";
     }
     setChessMove(move);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
   return (
     <>
@@ -131,7 +138,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </p>
             <div className="flex flex-row justify-end sm:justify-start items-center gap-2 mt-1">
               <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600">
-                {openings.white.name}
+                {openings?.white.name}
               </span>
               {whiteOpening.classification && (
                 <Image
@@ -172,7 +179,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
               </p>
               <div className="flex flex-row flex-wrap justify-start sm:justify-start items-center">
                 <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600 underline">
-                  {openings.white.name}
+                  {openings?.white.name}
                 </span>
                 <span className="flex items-center gap-[8px]">
                   {whiteOpening.classification && (

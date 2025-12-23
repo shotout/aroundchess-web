@@ -488,53 +488,59 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame;
       const pieceAtSquare = game.get(square);
 
-      if (selectedSquare) {
-        const fromSquare = selectedSquare;
-
-        if (
-          pieceAtSquare &&
-          pieceAtSquare.color === game.turn() &&
-          !isComputerTurn
-        ) {
-          setSelectedSquare(square);
-          getPossibleMoves(square);
-          return;
+      // Use state updater function to ensure we're working with latest state
+      setSelectedSquare((currentSelected) => {
+        // If clicking the same square that's currently selected - toggle off (cancel)
+        if (currentSelected === square) {
+          setPossibleMoves([]);
+          return null;
         }
 
-        if (fromSquare === square) {
-          handleClearSelection();
-          return;
+        // If there's a currently selected square (and it's different from clicked square)
+        if (currentSelected) {
+          const fromSquare = currentSelected;
+
+          // Check if clicking another piece of the same color - switch selection
+          if (
+            pieceAtSquare &&
+            pieceAtSquare.color === game.turn() &&
+            !isComputerTurn
+          ) {
+            getPossibleMoves(square);
+            return square;
+          }
+
+          // Attempt to make a move
+          const toSquare = square;
+          const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
+          if (moveSuccessful) {
+            setPossibleMoves([]);
+            return null;
+          }
+
+          // Move failed, keep current selection
+          return currentSelected;
         }
 
-        const toSquare = square;
-        const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
-        if (moveSuccessful) {
-          handleClearSelection();
+        // No piece currently selected - try to select if valid
+        if (pieceAtSquare) {
+          if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
+            getPossibleMoves(square);
+            return square;
+          }
         }
 
-        return;
-      }
-
-      if (pieceAtSquare) {
-        if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
-          setSelectedSquare(square);
-          getPossibleMoves(square);
-        } else {
-          handleClearSelection();
-        }
-      } else {
-        handleClearSelection();
-      }
+        // Can't select, return null
+        return null;
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       chessGame,
-      selectedSquare,
-      setSelectedSquare,
       getPossibleMoves,
-      handleClearSelection,
       makeMoveCallback,
       isAtCurrentMove,
+      isComputerTurn,
     ]
   );
 
@@ -812,9 +818,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
   const cardPlayer = () => {
     return (
-      <div
-        className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}
-      >
+      <div className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}>
         <div className="flex flex-row items-center gap-2">
           <>
             {chessComAvatar && chessComAvatar.length > 0 ? (
@@ -1122,7 +1126,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          <div className="hidden lg:block">{cardPlayer()}</div>
+          {/* <div className="hidden lg:block">{cardPlayer()}</div> */}
           <div className="flex items-center justify-end px-5 lg:px-0 mb-2">
             <ButtonBoard
               handleSwitch={handleSwitch}
@@ -1157,7 +1161,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 <ThreeDBoard
                   onPieceDrop={handlePieceDrop}
                   position={position}
-                  orientation={orientation}
+                  orientation={orientation == "white" ? "black" : "white"}
                   boardWidth={boardSize}
                   onSquareClick={
                     !isComputerTurn && gameEnded
@@ -1204,7 +1208,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   <TwoDChessboard
                     arePiecesClickable={true}
                     arePiecesDraggable={true}
-                    orientation={orientation}
+                    // orientation={orientation}
+                    orientation={orientation == "white" ? "black" : "white"}
                     boardWidth={boardSize}
                     position={position}
                     onSquareClick={handleSquareClickCallback}
@@ -1227,7 +1232,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                     <CustomChessArrows
                       arrows={arrow}
                       boardSize={boardSize}
-                      orientation={orientation}
+                      // orientation={orientation}
+                      orientation={orientation == "white" ? "black" : "white"}
                     />
                   )}
                 </>
@@ -1261,6 +1267,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
               </div>
             </div>
           </div>
+
+          <div className="hidden lg:block mt-[16px]">{cardPlayer()}</div>
 
           {/* Mobile navigation buttons */}
           <div className="lg:hidden px-5 flex flex-row justify-center items-center gap-2">

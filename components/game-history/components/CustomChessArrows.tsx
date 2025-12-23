@@ -28,15 +28,11 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
                 setArrowheadSize({ width: 30, height: 30, pathSize: 21 });
             }
             else if (window.innerWidth > 1500) {
-                setArrowWidth(12);
-                setArrowheadSize({ width: 25, height: 25, pathSize: 21 });
-            } 
-            else if (window.innerWidth > 1300) {
                 setArrowWidth(10);
                 setArrowheadSize({ width: 24, height: 24, pathSize: 21 });
             } else {
-                setArrowWidth(8);
-                setArrowheadSize({ width: 20, height: 20, pathSize: 14 });
+                setArrowWidth(5);
+                setArrowheadSize({ width: 16, height: 16, pathSize: 14 });
             }
         };
 

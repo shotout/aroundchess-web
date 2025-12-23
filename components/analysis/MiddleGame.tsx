@@ -13,6 +13,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import NoData from "@/components/NoData/NoData";
 import { useChessBoardThemeStore } from "../../app/store/chessBoardTheme";
 import { useApiClient } from "@/functions/api-client";
@@ -29,6 +30,7 @@ interface MiddleGameProps {
 const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   const { dataAnalysis, capturedWhite, mistakeLogs, setSavedMistakes } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const { PieceChoosed } = useChessBoardThemeStore();
   const { sessionId } = useProfileStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
@@ -279,6 +281,11 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     };
 
     setChessMove(enrichedMove);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
 
   const renderMoveAnalysis = (item: any) => (

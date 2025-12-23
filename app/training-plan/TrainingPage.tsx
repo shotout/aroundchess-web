@@ -150,17 +150,13 @@ const ChessProgressionUI: React.FC = () => {
   }, [dialogOpen, resetExpiredStatus]);
 
   const handleCreatePlan = useCallback(() => {
-    console.log("handleCreatePlan", username, "isSignedIn:", isSignedIn);
-
     // Check if user is connected and has username
     if (!isSignedIn || !username) {
-      console.log("handleCreatePlan: User not connected or no username, showing Connect Account dialog");
       setShowConnectAccount(true);
       return;
     }
 
     // User is connected and has username, proceed with creating plan
-    console.log("handleCreatePlan: User connected, proceeding to create plan");
     setDialogMode("create");
     setAdjustMode(false);
     setDialogOpen(true);
@@ -263,7 +259,7 @@ const ChessProgressionUI: React.FC = () => {
         {isLoadingSchedule ? (
           <PlanCheckSkeleton />
         ) : shouldShowCreatePlan ? (
-          <TrainingPlanCard onCreatePlan={handleCreatePlan} hasPlan={false} />
+          <TrainingPlanCard onCreatePlan={handleCreatePlan} disabled={!isSignedIn || !username} hasPlan={false} />
         ) : (
           <>
             <div className="flex w-full justify-center lg:justify-between px-4 py-1 lg:p-0">
