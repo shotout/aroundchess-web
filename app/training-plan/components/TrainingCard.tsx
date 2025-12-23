@@ -31,7 +31,7 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
           create your Training Plan.
         </span>
         <button
-          className="btn-primary w-full p-2 rounded-full disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary w-full p-2 rounded-full disabled:cursor-not-allowed disabled:opacity-60"
           onClick={onCreatePlan}
           disabled={disabled}
         >
