@@ -410,7 +410,7 @@ export default function ChessboardWrapper({
 
   return (
     <div ref={containerRef} className="flex flex-col justify-center items-center gap-3 mt-6 sm:mt-0">
-      <motion.div
+      {/* <motion.div
         initial={{ rotateX: 180 }}
         animate={
           !is3DMode
@@ -454,7 +454,7 @@ export default function ChessboardWrapper({
             showPromotionDialog={showPromotionDialog}
           />
         )}
-      </motion.div>
+      </motion.div> */}
 
       <motion.div
        className="max-w-full"
@@ -465,8 +465,8 @@ export default function ChessboardWrapper({
           position: "relative",
         }}
       >
-        {!is3DMode && (
-          <>
+        {/* {!is3DMode && (
+          <> */}
             <TwoDChessboard
               arePiecesClickable={true}
               boardWidth={boardSize ?? 0}
@@ -497,8 +497,8 @@ export default function ChessboardWrapper({
                 orientation={boardOrientation}
               />
             )}
-          </>
-        )}
+          {/* </>
+        )} */}
       </motion.div>
 
       <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">

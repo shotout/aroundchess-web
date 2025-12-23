@@ -1059,7 +1059,7 @@ export default function StageDetailView({
               </button>
               <SettingBoard />
 
-              <button onClick={handleToggle3DMode}>
+              {/* <button onClick={handleToggle3DMode}>
                 <Image
                   src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
                   alt="icon"
@@ -1067,7 +1067,7 @@ export default function StageDetailView({
                   height={is3DMode ? 15 : 20}
                   className="object-contain"
                 />
-              </button>
+              </button> */}
             </div>
             <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">

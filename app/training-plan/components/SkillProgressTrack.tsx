@@ -226,7 +226,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
 
   // Calculate positions for triangle and badge separately
   const MAX_BADGE_POSITION = 85; // Maximum safe position for badge (to prevent cutoff)
-  const trianglePosition = currentEloPercentage * 0.8333 + 8.33; // Actual triangle position
+  const trianglePosition = currentEloPercentage * 0.8333 + 9; // Actual triangle position
   const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
 
   const badgeClass =
@@ -473,7 +473,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               }}
             >
               {/* Green triangle indicator - centered on badge */}
-              <div className="w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+              <div className={`${badgePosition < 10 ? 'left-[calc(50%-4px)]' : 'left-1/2'} w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute top-0 -translate-x-1/2 -translate-y-1/2`}></div>
 
               {/* Badge text */}
               <div
