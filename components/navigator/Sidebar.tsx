@@ -573,7 +573,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         {isSignedIn && (
           <motion.div
-            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-[182px]' : ''}`}
+            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-[8px]' : ''}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: isMobile ? 0.4 : 0.3 }}
