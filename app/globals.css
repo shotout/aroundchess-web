@@ -430,5 +430,5 @@ p {
 }
 
 div[data-radix-popper-content-wrapper=""] {
-  background-color: #1b14cc !important;
+  background-color: transparent !important;
 }

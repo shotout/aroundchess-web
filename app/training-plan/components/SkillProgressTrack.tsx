@@ -326,8 +326,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                       >
                         <div className="flex items-center gap-x-2 p-1">
                           <AlertCircle className="text-blue-base w-[24px] h-[24px]" />
-                          <div className="text-[14px] --xs text-justify">
-                            <h1>{level.description}</h1>
+                          <div className="w-[calc(100%-26px)] text-[14px] leading-[130%] --xs text-left">
+                            {level.description}
                           </div>
                         </div>
                       </TooltipContent>
