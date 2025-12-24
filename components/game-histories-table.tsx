@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import GamesList from "./game-history/components/GameList";
 import Timeframe from "./game-history/components/Timeframe";
 import { useTutorial } from "./TutorialProvider";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 export function GameHistoriesTable() {
     // Filter states - Default: all sources checked
@@ -126,6 +127,7 @@ export function GameHistoriesTable() {
     };
 
     const { isTutorialPlay } = useTutorial();
+    const { username } = usePgnStore();
 
     return (
         <div className="lg:px-[16px] mb-[32px]">
@@ -133,14 +135,16 @@ export function GameHistoriesTable() {
                 <div className="flex items-center justify-between mb-[12px]">
                     <h3 className="text-[24px] font-bold leading-[140%]">Your Games</h3>
 
-                    <button
-                        type="button"
-                        onClick={handleForceRefresh}
-                        disabled={isLoading}
-                        className={`btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium ${isLoading ? 'opacity-50 cursor-not-allowed' : 'text-gray-700'}`}
-                    >
-                        <span>Update Games</span>
-                    </button>
+                    {username && (
+                        <button
+                            type="button"
+                            onClick={handleForceRefresh}
+                            disabled={isLoading}
+                            className={`btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium ${isLoading ? 'opacity-50 cursor-not-allowed' : 'text-gray-700'}`}
+                        >
+                            <span>Update Games</span>
+                        </button>
+                    )}
                 </div>
                 
                 <div className="w-full relative flex items-center mb-[12px]">
