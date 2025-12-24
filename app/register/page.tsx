@@ -661,7 +661,7 @@ function RegisterPage() {
                             autoCapitalize="none"
                             autoCorrect="off"
                             maxLength={1}
-                            className="bg-white/40 border-white/40 rounded-md h-14 w-14 text-black text-center text-xl font-medium"
+                            className="bg-white/40 border-white/40 rounded-md w-[11.5vw] h-[11.5vw] sm:h-14 sm:w-14 text-black text-center text-xl font-medium"
                           />
                         ))}
                       </div>
