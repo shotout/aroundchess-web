@@ -19,6 +19,7 @@ import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
 import { useChessMoveStore } from "@/app/store/chessMoveStore";
 import { CustomChessArrows } from "./CustomChessArrows";
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
 import type { Swiper as SwiperType } from 'swiper';
 import Link from "next/link";
 import { Bookmark } from "lucide-react";
@@ -65,8 +66,9 @@ export default function GameAnalysis({
     const swiperRef = useRef<SwiperType>();
     const [loadingBookmark, setLoadingBookmark] = useState<boolean>(false);
     const [localMistakes, setLocalMistakes] = useState<any[]>([]);
-    const { saveMistakeLog, unsaveMistakeLog } = useApiClient();
+    const { saveMistakeLog, unsaveMistakeLog, getMistakeSaved } = useApiClient();
     const { sessionId } = useProfileStore();
+    const { setSavedMistakes } = usePgnStore();
 
     // Get isTutorialPlay from useTutorial hook (prioritize this over prop)
     const { isTutorialPlay: isTutorialPlayFromHook } = useTutorial();
@@ -171,6 +173,12 @@ export default function GameAnalysis({
                 return newList;
             });
             
+            // Refresh saved mistakes in global store
+            const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+            if (savedData?.data && Array.isArray(savedData.data)) {
+                setSavedMistakes(savedData.data);
+            }
+            
             toast.success("Bookmark saved!");
         } catch (error: any) {
             console.error("Error saving bookmark:", error);
@@ -212,6 +220,12 @@ export default function GameAnalysis({
                 };
                 return newList;
             });
+            
+            // Refresh saved mistakes in global store
+            const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+            if (savedData?.data && Array.isArray(savedData.data)) {
+                setSavedMistakes(savedData.data);
+            }
             
             toast.success("Bookmark removed!");
         } catch (error: any) {
@@ -809,4 +823,4 @@ const AnalysisEmptyState = ({ handleClose }: { handleClose: () => void }) => {
             </div>
         </>
     );
-} 
+}
