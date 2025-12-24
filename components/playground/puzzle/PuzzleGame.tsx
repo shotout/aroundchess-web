@@ -924,7 +924,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           <div className="flex sm:hidden flex-row items-center justify-center py-1 rounded-sm  bg-[#221AE910] border border-[#221AE9] gap-2">
             <Info className="w-[18px] h-[18px]" color="#221AE9" />
             <span className="font-medium text-[14px] --sm">
-              You are {color === "white" ? "white" : "black"}
+              You are {color === "white" ? "black" : "white"}
             </span>
           </div>
         </div>
