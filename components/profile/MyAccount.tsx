@@ -258,14 +258,14 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
             htmlFor="username"
             className="flex flex-row gap-2 text-[14px] font-normal"
           >
-            <Image
+            {/* <Image
               src="/icons/hero-section.png"
               alt="chess"
               width={100}
               height={100}
               className="w-[16px] h-[20px] relative z-10"
               priority
-            />{" "}
+            />{" "} */}
             Default Chess.com Username
           </label>
           <Input

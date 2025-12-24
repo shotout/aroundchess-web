@@ -123,7 +123,44 @@ export const usePollingManager = () => {
           if (isSmall) await new Promise((r) => setTimeout(r, 2000));
 
           forceStopPolling(gameId);
-          // override any waiting/finalizing state and mark completed
+          
+          // Fetch last-analysis to get complete data
+          try {
+            const resultPgn = d.result?.pgn || gamePgn;
+            if (resultPgn) {
+              const { createPgnHash } = await import("@/utils/crypto-utils");
+              const pgnHash = createPgnHash(resultPgn);
+              const { default: axios } = await import("axios");
+              const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+              
+              console.log("🔄 [V2 Polling] Fetching last-analysis for pgnHash:", pgnHash);
+              
+              const lastAnalysisRes = await axios.get(
+                `${baseUrl}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+                {
+                  headers: { Authorization: `Bearer ${sessionId}` },
+                }
+              );
+              
+              console.log("📥 [V2 Polling] Last-analysis response:", lastAnalysisRes.data);
+              
+              if (lastAnalysisRes.data?.success && lastAnalysisRes.data?.data) {
+                // Use data from last-analysis as it's more complete
+                updateJob(gameId, {
+                  status: "completed",
+                  progress: 100,
+                  result: lastAnalysisRes.data.data,
+                  error: undefined,
+                });
+                console.log("✅ [V2 Polling] Job updated with last-analysis data");
+                return;
+              }
+            }
+          } catch (lastAnalysisError: any) {
+            console.warn("⚠️ [V2 Polling] Failed to fetch last-analysis, using status result:", lastAnalysisError.message);
+          }
+          
+          // Fallback: use result from status if last-analysis fails
           updateJob(gameId, {
             status: "completed",
             progress: 100,
