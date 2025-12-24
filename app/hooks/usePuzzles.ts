@@ -202,7 +202,7 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
         {
           from: fromSquare,
           to: toSquare,
-          color: "rgba(34, 26, 233, 0.5)", // Purple hint color
+          color: "rgba(34, 26, 233, 0.7)", // Purple hint color
           isKnightMove: isKnightMove(fromSquare, toSquare)
         },
       ]);
