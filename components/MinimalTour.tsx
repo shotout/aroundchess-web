@@ -703,7 +703,7 @@ export default function MinimalTour({
           
           return step?.placement || "bottom";
         })()}
-        className={`block w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg relative ${
+        className={`block w-[90vw] md:w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg relative ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
         style={

@@ -52,7 +52,11 @@ export const BlackPlayer = ({
         <span className="text-[#FD0000] flex items-center text-[14px] md:text-[16px]">AI</span>
       </div>
     
-      <Image src={"/images/avatar-black-chess.png"} alt="..." width={220} height={44} />
+      {myColor === "white" ? (
+        <Image src={"/images/tutorial-black-chess.png"} alt="..." width={220} height={44} />
+      ) : (
+        <Image src={"/images/tutorial-white-chess.png"} alt="..." width={220} height={44} />
+      )}
     </div>
   ) : (
     <div

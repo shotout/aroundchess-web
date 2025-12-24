@@ -50,8 +50,12 @@ export const WhitePlayer = ({
         <Image src={"/images/avatar.svg"} alt="icon" width={48} height={48} className="w-[48px] h-[48px]" />
         <span className="text-[#34C759] flex items-center text-[14px] md:text-[16px]">You</span>
       </div>
-    
-      <Image src={"/images/avatar-white-chess.png"} alt="..." width={220} height={44} />
+
+      {myColor !== "white" ? (
+        <Image src={"/images/tutorial-black-chess.png"} alt="..." width={220} height={44} />
+      ) : (
+        <Image src={"/images/tutorial-white-chess.png"} alt="..." width={220} height={44} />
+      )}
     </div>  
   ) : (
     <div
