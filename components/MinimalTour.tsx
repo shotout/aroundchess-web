@@ -997,9 +997,9 @@ export default function MinimalTour({
                   }
                 }}
                 disabled={isSubmitting && index + 1 >= steps.length}
-                className={`${index + 1 >= steps.length ? "flex-1" : ""} cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[16px] rounded-full items-center disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`${index + 1 >= steps.length ? "flex-1" : ""} cursor-pointer bg-[#221AE9] min-w-[80px] py-[5px] px-[8px] rounded-full items-center disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <span className="text-white font-semibold text-[14px] --">
+                <span className="text-white font-semibold text-[3.2vw] sm:text-[14px] --">
                   {index + 1 >= steps.length
                     ? (isSubmitting ? "Saving..." : (steps.length === 7 ? "Play Now" : "Start Game Analysis"))
                     : "Next"}
