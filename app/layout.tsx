@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { TutorialProvider } from "../components/TutorialProvider";
+import DebugWidthBar from "../components/DebugWidthBar";
 import React, { Suspense, useEffect, useState } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
@@ -74,6 +75,7 @@ export default function RootLayout({
             <TutorialProvider>
               {children}
               <Toaster />
+              <DebugWidthBar />
             </TutorialProvider>
           </AuthProvider>
           {/* </React.StrictMode> */}
