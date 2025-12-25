@@ -42,9 +42,18 @@ export default function MinimalTour({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const step = steps[index];
   const [mounted, setMounted] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
 
   useEffect(() => {
     setMounted(true);
+    setWindowWidth(window.innerWidth);
+
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   useEffect(() => {
     // console.log("MinimalTour stepFocused", stepFocused);
@@ -710,7 +719,7 @@ export default function MinimalTour({
         style={
           rect
             ? {
-                minWidth: window.innerWidth < 425 ? 300 : 500,
+                minWidth: window.innerWidth < 768 ? Math.min(300, window.innerWidth - 32) : 500,
                 maxWidth: window.innerWidth < 768 ? window.innerWidth - 32 : 480,
                 overflow: "visible",
                 position: "fixed",
