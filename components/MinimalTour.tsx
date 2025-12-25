@@ -706,6 +706,7 @@ export default function MinimalTour({
         className={`block w-[85vw] md:w-full sm:max-w-[375px] md:min-w-[420px] mt-2 bg-white text-gray-900 p-3 rounded-lg shadow-lg relative ${
           rect ? "" : "fixed right-3 bottom-1"
         } ${shaking ? "ac-shake" : ""}`}
+        data-is-iphone={/iPhone/.test(navigator.userAgent)}
         style={
           rect
             ? {
@@ -767,37 +768,51 @@ export default function MinimalTour({
                   const isStep1PlayVsAI = step.target === "[data-tutorial='play-vs-ai-step-1']";
                   const tooltipHeight = tooltipRef.current?.getBoundingClientRect().height ?? 200;
                   const SPACING = 20; // Fixed spacing between tooltip and target
-                  
+
+                  // iPhone safe area - extra padding for notch/dynamic island
+                  const isIPhone = /iPhone/.test(navigator.userAgent);
+                  const topSafeArea = isIPhone ? 60 : 16; // More padding for iPhone
+                  const bottomSafeArea = isIPhone ? 40 : 16;
+
                   // Special handling for step 1 play-vs-ai on mobile/tablet - use top placement
                   if ((isMobile || isTablet) && isStep1PlayVsAI) {
-                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                    const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
+                    return `${Math.max(topSafeArea, calculatedTop)}px`;
                   }
 
                   // For mobile step 4 (tutorial 1) or step 6 (tutorial 2), use top placement
                   if (isMobile && (isStep4Tutorial1 || isStep6Tutorial2)) {
-                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                    const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
+                    return `${Math.max(topSafeArea, calculatedTop)}px`;
                   }
 
                   // For mobile with left/right placement, use bottom placement instead
                   if (isMobile && (step.placement === "left" || step.placement === "right")) {
-                    return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
+                    const calculatedBottom = rect.bottom + window.scrollY + SPACING;
+                    const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
+                    return `${Math.min(calculatedBottom, maxBottom)}px`;
                   }
 
                   // Desktop placement logic
                   if (step.placement === "bottom") {
-                    return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
+                    const calculatedBottom = rect.bottom + window.scrollY + SPACING;
+                    const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
+                    return `${Math.min(Math.max(topSafeArea, calculatedBottom), maxBottom)}px`;
                   } else if (step.placement === "top") {
-                    return `${Math.max(8, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                    const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
+                    return `${Math.max(topSafeArea, calculatedTop)}px`;
                   } else if (step.placement === "left" || step.placement === "right") {
                     // Center vertically for left/right placements
                     const centeredTop = rect.top + window.scrollY + (rect.height / 2) - (tooltipHeight / 2);
-                    // Ensure it doesn't overflow viewport
-                    const minTop = 8;
-                    const maxTop = Math.max(minTop, window.innerHeight - tooltipHeight - 8);
+                    // Ensure it doesn't overflow viewport with safe areas
+                    const minTop = topSafeArea;
+                    const maxTop = Math.max(minTop, window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea);
                     return `${Math.min(Math.max(centeredTop, minTop), maxTop)}px`;
                   }
 
-                  return `${Math.max(8, rect.bottom + window.scrollY + SPACING)}px`;
+                  const calculatedBottom = rect.bottom + window.scrollY + SPACING;
+                  const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
+                  return `${Math.min(Math.max(topSafeArea, calculatedBottom), maxBottom)}px`;
                 })(),
                 zIndex: 1000000,
               }
@@ -853,6 +868,16 @@ export default function MinimalTour({
           }
           .ac-shake {
             animation: acShake 600ms ease-in-out;
+          }
+
+          /* iPhone safe area support */
+          @supports (padding: env(safe-area-inset-top)) {
+            #box-tutorial[data-is-iphone="true"] {
+              padding-top: max(12px, env(safe-area-inset-top));
+              padding-bottom: max(12px, env(safe-area-inset-bottom));
+              padding-left: max(12px, env(safe-area-inset-left));
+              padding-right: max(12px, env(safe-area-inset-right));
+            }
           }
 
           /* Arrow for bottom placement */
@@ -917,7 +942,7 @@ export default function MinimalTour({
         `}</style>
         <div
           style={{
-            maxHeight: rect ? (window.innerWidth < 768 ? "calc(100vh - 100px)" : "80vh") : "auto",
+            maxHeight: rect ? (window.innerWidth < 768 ? "calc(100dvh - 120px)" : "80vh") : "auto",
             overflowY: rect ? "auto" : "visible"
           }}
         >
