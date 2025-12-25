@@ -769,50 +769,62 @@ export default function MinimalTour({
                   const tooltipHeight = tooltipRef.current?.getBoundingClientRect().height ?? 200;
                   const SPACING = 20; // Fixed spacing between tooltip and target
 
-                  // iPhone safe area - extra padding for notch/dynamic island
-                  const isIPhone = /iPhone/.test(navigator.userAgent);
-                  const topSafeArea = isIPhone ? 60 : 16; // More padding for iPhone
-                  const bottomSafeArea = isIPhone ? 40 : 16;
-
                   // Special handling for step 1 play-vs-ai on mobile/tablet - use top placement
                   if ((isMobile || isTablet) && isStep1PlayVsAI) {
                     const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
-                    return `${Math.max(topSafeArea, calculatedTop)}px`;
+                    // Ensure modal doesn't go off top of screen - minimum 80px from top for iPhone notch
+                    return `${Math.max(80, calculatedTop)}px`;
                   }
 
                   // For mobile step 4 (tutorial 1) or step 6 (tutorial 2), use top placement
                   if (isMobile && (isStep4Tutorial1 || isStep6Tutorial2)) {
                     const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
-                    return `${Math.max(topSafeArea, calculatedTop)}px`;
+                    return `${Math.max(80, calculatedTop)}px`;
                   }
 
                   // For mobile with left/right placement, use bottom placement instead
                   if (isMobile && (step.placement === "left" || step.placement === "right")) {
                     const calculatedBottom = rect.bottom + window.scrollY + SPACING;
-                    const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
-                    return `${Math.min(calculatedBottom, maxBottom)}px`;
+                    // Ensure it fits within viewport
+                    const viewportBottom = window.scrollY + window.innerHeight - 40; // 40px for iPhone home bar
+                    const wouldOverflow = calculatedBottom + tooltipHeight > viewportBottom;
+                    if (wouldOverflow) {
+                      // Place above target instead
+                      return `${Math.max(80, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                    }
+                    return `${calculatedBottom}px`;
                   }
 
                   // Desktop placement logic
                   if (step.placement === "bottom") {
                     const calculatedBottom = rect.bottom + window.scrollY + SPACING;
-                    const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
-                    return `${Math.min(Math.max(topSafeArea, calculatedBottom), maxBottom)}px`;
+                    // Check if it would overflow viewport
+                    const viewportBottom = window.scrollY + window.innerHeight - 40;
+                    const wouldOverflow = calculatedBottom + tooltipHeight > viewportBottom;
+                    if (wouldOverflow && isMobile) {
+                      // Place above target instead on mobile
+                      return `${Math.max(80, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                    }
+                    return `${Math.max(8, calculatedBottom)}px`;
                   } else if (step.placement === "top") {
                     const calculatedTop = rect.top + window.scrollY - tooltipHeight - SPACING;
-                    return `${Math.max(topSafeArea, calculatedTop)}px`;
+                    return `${Math.max(isMobile ? 80 : 8, calculatedTop)}px`;
                   } else if (step.placement === "left" || step.placement === "right") {
                     // Center vertically for left/right placements
                     const centeredTop = rect.top + window.scrollY + (rect.height / 2) - (tooltipHeight / 2);
-                    // Ensure it doesn't overflow viewport with safe areas
-                    const minTop = topSafeArea;
-                    const maxTop = Math.max(minTop, window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea);
+                    // Ensure it doesn't overflow viewport
+                    const minTop = isMobile ? 80 : 8;
+                    const maxTop = window.scrollY + window.innerHeight - tooltipHeight - (isMobile ? 40 : 8);
                     return `${Math.min(Math.max(centeredTop, minTop), maxTop)}px`;
                   }
 
                   const calculatedBottom = rect.bottom + window.scrollY + SPACING;
-                  const maxBottom = window.innerHeight + window.scrollY - tooltipHeight - bottomSafeArea;
-                  return `${Math.min(Math.max(topSafeArea, calculatedBottom), maxBottom)}px`;
+                  const viewportBottom = window.scrollY + window.innerHeight - 40;
+                  const wouldOverflow = calculatedBottom + tooltipHeight > viewportBottom;
+                  if (wouldOverflow && isMobile) {
+                    return `${Math.max(80, rect.top + window.scrollY - tooltipHeight - SPACING)}px`;
+                  }
+                  return `${Math.max(8, calculatedBottom)}px`;
                 })(),
                 zIndex: 1000000,
               }
@@ -870,15 +882,7 @@ export default function MinimalTour({
             animation: acShake 600ms ease-in-out;
           }
 
-          /* iPhone safe area support */
-          @supports (padding: env(safe-area-inset-top)) {
-            #box-tutorial[data-is-iphone="true"] {
-              padding-top: max(12px, env(safe-area-inset-top));
-              padding-bottom: max(12px, env(safe-area-inset-bottom));
-              padding-left: max(12px, env(safe-area-inset-left));
-              padding-right: max(12px, env(safe-area-inset-right));
-            }
-          }
+          /* Remove extra iPhone safe area padding that causes overflow */
 
           /* Arrow for bottom placement */
           #box-tutorial[data-placement="bottom"]::before {
@@ -942,7 +946,7 @@ export default function MinimalTour({
         `}</style>
         <div
           style={{
-            maxHeight: rect ? (window.innerWidth < 768 ? "calc(100dvh - 120px)" : "80vh") : "auto",
+            maxHeight: rect ? (window.innerWidth < 768 ? "calc(100vh - 160px)" : "80vh") : "auto",
             overflowY: rect ? "auto" : "visible"
           }}
         >
