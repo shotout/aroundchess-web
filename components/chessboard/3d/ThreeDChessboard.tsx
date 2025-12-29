@@ -203,7 +203,7 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center"
+      className="relative flex flex-col items-center justify-center w-full h-full"
       style={{
         width: boardWidth,
         height: boardWidth,

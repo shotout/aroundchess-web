@@ -830,15 +830,19 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 className="w-[48px] h-[48px] rounded-full object-contain"
               />
             ) : (
-              <InitialAvatar
-                name={username}
-                size="sm"
-              />
+              <div className="flex items-center gap-[8px]">
+                <InitialAvatar
+                  name={username || "Anonymous"}
+                  className="w-[40px] h-[40px]"
+                />
+                <span className={`font-semibold`}>You</span>
+              </div>
             )}
           </>
           <span className={`text-[17.23px] font-medium text-[#040404]`}>
             {username}
           </span>
+
           {profile?.country && (
             <ReactCountryFlag
               countryCode={profile?.country.substr(-2)}
