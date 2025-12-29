@@ -103,7 +103,7 @@ export function AccessibilityDialog({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Color Blind Mode</Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Optimize colors for color vision deficiencies
                       </p>
                     </div>
@@ -121,7 +121,7 @@ export function AccessibilityDialog({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Reduce Motion</Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Minimize animations and transitions
                       </p>
                     </div>
@@ -139,7 +139,7 @@ export function AccessibilityDialog({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Keyboard Navigation Mode</Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Enhanced keyboard controls and focus indicators
                       </p>
                     </div>
@@ -157,7 +157,7 @@ export function AccessibilityDialog({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Screen Reader Optimization</Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         Improve compatibility with screen readers
                       </p>
                     </div>

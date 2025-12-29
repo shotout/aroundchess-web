@@ -146,7 +146,7 @@ export function BulkActionsDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Include Comments</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] --sm text-muted-foreground">
                   Export with discussion threads
                 </p>
               </div>
@@ -159,7 +159,7 @@ export function BulkActionsDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Notify on Complete</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] --sm text-muted-foreground">
                   Get notified when bulk action is completed
                 </p>
               </div>

@@ -48,34 +48,34 @@ export default function TrainingPlanPage() {
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Brain className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium">Current Rating</span>
+                <span className="text-[14px] --sm font-medium">Current Rating</span>
               </div>
               <div className="mt-2 text-2xl font-bold">1850</div>
-              <p className="text-xs text-muted-foreground">+25 this month</p>
+              <p className="text-[14px] --xs text-muted-foreground">+25 this month</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium">Training Days</span>
+                <span className="text-[14px] --sm font-medium">Training Days</span>
               </div>
               <div className="mt-2 text-2xl font-bold">15/30</div>
-              <p className="text-xs text-muted-foreground">50% completion</p>
+              <p className="text-[14px] --xs text-muted-foreground">50% completion</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <BarChart2 className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium">Accuracy</span>
+                <span className="text-[14px] --sm font-medium">Accuracy</span>
               </div>
               <div className="mt-2 text-2xl font-bold">85%</div>
-              <p className="text-xs text-muted-foreground">+5% improvement</p>
+              <p className="text-[14px] --xs text-muted-foreground">+5% improvement</p>
             </Card>
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Target className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium">Goals Met</span>
+                <span className="text-[14px] --sm font-medium">Goals Met</span>
               </div>
               <div className="mt-2 text-2xl font-bold">8/10</div>
-              <p className="text-xs text-muted-foreground">80% success rate</p>
+              <p className="text-[14px] --xs text-muted-foreground">80% success rate</p>
             </Card>
           </div>
 

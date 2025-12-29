@@ -17,7 +17,7 @@ const DifficultyFilter: React.FC<DifficultyFilterProps> = ({
     <div className={`flex gap-2 mb-4 ${className || "border-b pb-4"}`}>
       <Button
         variant={activeFilter === "Beginner" ? "default" : "outline"}
-        className={`rounded-md text-xs ${
+        className={`rounded-md text-[14px] --xs ${
           activeFilter === "Beginner" ? "bg-blue-600" : ""
         }`}
         onClick={() =>
@@ -28,7 +28,7 @@ const DifficultyFilter: React.FC<DifficultyFilterProps> = ({
       </Button>
       <Button
         variant={activeFilter === "Intermediate" ? "default" : "outline"}
-        className={`rounded-md text-xs ${
+        className={`rounded-md text-[14px] --xs ${
           activeFilter === "Intermediate" ? "bg-blue-600" : ""
         }`}
         onClick={() =>
@@ -41,7 +41,7 @@ const DifficultyFilter: React.FC<DifficultyFilterProps> = ({
       </Button>
       <Button
         variant={activeFilter === "Advanced" ? "default" : "outline"}
-        className={`rounded-md text-xs ${
+        className={`rounded-md text-[14px] --xs ${
           activeFilter === "Advanced" ? "bg-blue-600" : ""
         }`}
         onClick={() =>
@@ -52,7 +52,7 @@ const DifficultyFilter: React.FC<DifficultyFilterProps> = ({
       </Button>
       <Button
         variant={activeFilter === "Expert" ? "default" : "outline"}
-        className={`rounded-md text-xs ${
+        className={`rounded-md text-[14px] --xs ${
           activeFilter === "Expert" ? "bg-blue-600" : ""
         }`}
         onClick={() =>

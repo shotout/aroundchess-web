@@ -151,7 +151,7 @@ export function ShareReportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Notify on Download</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Get notified when someone downloads the report
               </div>
             </div>

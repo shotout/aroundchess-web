@@ -118,7 +118,7 @@ interface PgnState {
   historyGame: any[];
   capturedWhite: any[];
   capturedBlack: any[];
-  mistakeLogs: any[];
+  mistakeLogs: any;
   movementDetails: any;
   playerInfo: any;
   titleGame: string;
@@ -161,7 +161,7 @@ interface PgnState {
   setHistoryGame: (historyGame: any[]) => void;
   setCapturedWhite: (capturedWhite: any[]) => void;
   setCapturedBlack: (capturedBlack: any[]) => void;
-  setMistakeLogs: (mistakeLogs: any[]) => void;
+  setMistakeLogs: (mistakeLogs: any) => void;
   setSavedMistakes: (savedMistakes: any[]) => void;
   setPreviousAnalyses: (previousAnalyses: any[]) => void;
   setPreviousAnalysesDetail: (previousAnalysesDetail: any) => void;
@@ -175,6 +175,7 @@ interface PgnState {
   appendOtherGamesData: (games: Game[]) => void;
   clearGamesData: () => void;
   clearOtherGamesData: () => void;
+  resetGamesState: () => void;
 
   setGamesPagination: (pagination: PaginationState) => void;
   setOtherGamesPagination: (pagination: PaginationState) => void;
@@ -207,7 +208,7 @@ export const usePgnStore = create<PgnState>()(
       profileShow: {},
       setProfileShow: (profileShow) => set({ profileShow }),
 
-      tab: "Games",
+      tab: "Analytics",
       setTab: (tab: string) => set({ tab }),
 
       tabSelected: "saved",
@@ -261,7 +262,7 @@ export const usePgnStore = create<PgnState>()(
       historyGame: [],
       capturedWhite: [],
       capturedBlack: [],
-      mistakeLogs: [],
+      mistakeLogs: {},
       movementDetails: [],
       playerInfo: [],
       titleGame: "",
@@ -278,7 +279,7 @@ export const usePgnStore = create<PgnState>()(
 
       lastFetchTime: null,
       isFetching: false,
-      cacheExpiryTime: 10000,
+      cacheExpiryTime: 5 * 60 * 1000, // 5 minutes instead of 10 seconds
 
       setLastFetchTime: (time: number) => set({ lastFetchTime: time }),
       setIsFetching: (fetching: boolean) => set({ isFetching: fetching }),
@@ -368,7 +369,7 @@ export const usePgnStore = create<PgnState>()(
       setCapturedWhite: (capturedWhite: any[]) => set({ capturedWhite }),
 
       setCapturedBlack: (capturedBlack: any[]) => set({ capturedBlack }),
-      setMistakeLogs: (mistakeLogs: any[]) => set({ mistakeLogs }),
+      setMistakeLogs: (mistakeLogs: any) => set({ mistakeLogs }),
       setMovementDetails: (movementDetails: any[]) => set({ movementDetails }),
       setPlayerInfo: (playerInfo: any[]) => set({ playerInfo }),
       setTitleGame: (titleGame: string) => set({ titleGame }),
@@ -416,6 +417,13 @@ export const usePgnStore = create<PgnState>()(
           otherGamesData: [],
           otherGamesLastFetched: null,
           otherGamesPagination: defaultPaginationState,
+        }),
+
+      resetGamesState: () =>
+        set({
+          gamesData: [],
+          gamesLastFetched: null,
+          gamesPagination: defaultPaginationState,
         }),
 
       setGamesPagination: (pagination: PaginationState) =>
@@ -472,7 +480,7 @@ export const usePgnStore = create<PgnState>()(
 
       clearAll: () =>
         set({
-          tab: "Games",
+          tab: "Analytics",
           tabSelected: "saved",
           activeState: "My Training Plan",
           activeUser: "user",
@@ -512,7 +520,7 @@ export const usePgnStore = create<PgnState>()(
           previousAnalyses: [],
           previousAnalysesDetail: null,
           historyGame: [],
-          mistakeLogs: [],
+          mistakeLogs: {},
           movementDetails: null,
           playerInfo: null,
           profileShow: null,

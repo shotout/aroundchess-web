@@ -117,7 +117,7 @@ const Filters: React.FC<FiltersProps> = ({
             className="
               btn-primary text-white
               flex-1 h-12 rounded-full
-              text-[11px] lg:text-sm
+              text-[11px] lg:text-[14px] --sm
               flex items-center justify-center gap-2
             "
           >
@@ -131,7 +131,7 @@ const Filters: React.FC<FiltersProps> = ({
               btn-tertiary bg-blue-50 text-blue-600
               border border-blue-100
               flex-1 h-12 rounded-full
-              text-[11px] lg:text-sm
+              text-[11px] lg:text-[14px] --sm
               flex items-center justify-center
             "
           >
@@ -143,7 +143,7 @@ const Filters: React.FC<FiltersProps> = ({
             className="
               btn-secondary text-white
               flex-1 h-12 rounded-full
-              text-[11px] lg:text-sm
+              text-[11px] lg:text-[14px] --sm
               flex items-center justify-center gap-2
             "
           >
@@ -170,7 +170,7 @@ const Filters: React.FC<FiltersProps> = ({
                   <span
                     className="
                       inline-flex items-center justify-center
-                      w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full
+                      w-5 h-5 ml-1 bg-blue-base text-white text-[14px] --xs rounded-full
                     "
                   >
                     {activeFiltersCount}
@@ -191,7 +191,7 @@ const Filters: React.FC<FiltersProps> = ({
                 onValueChange={setFilters.setColor}
               >
                 <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
-                  <SelectValue className="text-xs" placeholder="Both Colors" />
+                  <SelectValue className="text-[14px] --xs" placeholder="Both Colors" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="All Colors">Both Colors</SelectItem>
@@ -204,7 +204,7 @@ const Filters: React.FC<FiltersProps> = ({
                 onValueChange={setFilters.setResults}
               >
                 <SelectTrigger className="w-[140px] h-8 border rounded-md bg-gray-50">
-                  <SelectValue className="text-xs" placeholder="All Results" />
+                  <SelectValue className="text-[14px] --xs" placeholder="All Results" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="All Results">All Results</SelectItem>
@@ -220,13 +220,13 @@ const Filters: React.FC<FiltersProps> = ({
                 className="btn-secondary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
                 <Filter className="h-4 w-4" />
-                <span className="text-xs sm:text-[10px]">Apply Filters</span>
+                <span className="text-[14px] --xs sm:text-[14px] --10px">Apply Filters</span>
               </Button>
               <Button
                 onClick={handleClearFilters}
                 className="btn-tertiary flex-1 h-10 rounded-3xl flex items-center justify-center gap-2"
               >
-                <span className="text-xs sm:text-[10px]">Clear Filters</span>
+                <span className="text-[14px] --xs sm:text-[14px] --10px">Clear Filters</span>
               </Button>
             </div>
           </Card>

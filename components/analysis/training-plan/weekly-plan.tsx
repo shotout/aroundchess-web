@@ -133,7 +133,7 @@ export function WeeklyPlan() {
     <div className="p-6 space-y-6">
       <div>
         <h3 className="text-lg font-medium">Weekly Training Schedule</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Your training plan for this week
         </p>
       </div>
@@ -162,14 +162,14 @@ export function WeeklyPlan() {
                           <activity.icon className="h-4 w-4 text-blue-500" />
                           <div>
                             <div className="flex items-center space-x-2">
-                              <span className="font-medium text-sm">
+                              <span className="font-medium text-[14px] --sm">
                                 {activity.title}
                               </span>
                               <Badge variant={activity.completed ? "default" : "secondary"}>
                                 {activity.type}
                               </Badge>
                             </div>
-                            <div className="flex items-center text-sm text-muted-foreground">
+                            <div className="flex items-center text-[14px] --sm text-muted-foreground">
                               <Clock className="h-3 w-3 mr-1" />
                               <span>{activity.duration} min</span>
                             </div>
@@ -185,7 +185,7 @@ export function WeeklyPlan() {
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <Progress value={day.progress} className="w-[60px]" />
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {day.progress}%
                     </span>
                   </div>

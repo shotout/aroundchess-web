@@ -22,7 +22,7 @@ const DaySelector: React.FC<DaySelectorProps> = ({
       disabled={disabled}
     >
       <div
-        className={`font-bold text-sm ${
+        className={`font-bold text-[14px] --sm ${
           isActive
             ? "text-white bg-blue-base rounded-full w-8 h-8 flex items-center justify-center"
             : ""
@@ -30,7 +30,7 @@ const DaySelector: React.FC<DaySelectorProps> = ({
       >
         {day.date}
       </div>
-      <div className="text-sm mt-2">{day.name}</div>
+      <div className="text-[14px] --sm mt-2">{day.name}</div>
     </button>
   );
 };

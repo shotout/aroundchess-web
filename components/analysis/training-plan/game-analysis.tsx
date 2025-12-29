@@ -177,7 +177,7 @@ export function GameAnalysis() {
                 {lesson.type === 'endgame' && <Swords className="h-5 w-5 text-purple-500" />}
                 <div>
                   <h5 className="font-medium">{lesson.topic}</h5>
-                  <p className="text-sm text-muted-foreground">{lesson.reason}</p>
+                  <p className="text-[14px] --sm text-muted-foreground">{lesson.reason}</p>
                 </div>
               </div>
             </CardContent>
@@ -201,10 +201,10 @@ export function GameAnalysis() {
                   <Badge variant={mistake.blunder ? "destructive" : "secondary"}>
                     {mistake.blunder ? "Blunder" : "Mistake"}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">Move: {mistake.move}</span>
+                  <span className="text-[14px] --sm text-muted-foreground">Move: {mistake.move}</span>
                 </div>
-                <p className="text-sm">{mistake.explanation}</p>
-                <p className="text-sm text-blue-500">{mistake.improvement}</p>
+                <p className="text-[14px] --sm">{mistake.explanation}</p>
+                <p className="text-[14px] --sm text-blue-500">{mistake.improvement}</p>
               </div>
             </CardContent>
           </Card>
@@ -291,7 +291,7 @@ export function GameAnalysis() {
                 />
               </div>
               {error && (
-                <div className="text-sm text-red-500">
+                <div className="text-[14px] --sm text-red-500">
                   {error}
                 </div>
               )}
@@ -328,7 +328,7 @@ export function GameAnalysis() {
               {isAnalyzing ? (
                 <div className="flex flex-col items-center justify-center py-8 space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-                  <p className="text-sm text-muted-foreground">Analyzing your game...</p>
+                  <p className="text-[14px] --sm text-muted-foreground">Analyzing your game...</p>
                 </div>
               ) : error ? (
                 <div className="text-center py-8 text-red-500">
@@ -350,19 +350,19 @@ export function GameAnalysis() {
                     <TabsContent value="summary" className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <span className="text-sm text-muted-foreground">Accuracy</span>
+                          <span className="text-[14px] --sm text-muted-foreground">Accuracy</span>
                           <div className="text-2xl font-bold">
                             {analysis.summary.averageAccuracy.toFixed(1)}%
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-sm text-muted-foreground">Mistakes</span>
+                          <span className="text-[14px] --sm text-muted-foreground">Mistakes</span>
                           <div className="text-2xl font-bold text-yellow-500">
                             {analysis.summary.mistakes}
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-sm text-muted-foreground">Blunders</span>
+                          <span className="text-[14px] --sm text-muted-foreground">Blunders</span>
                           <div className="text-2xl font-bold text-red-500">
                             {analysis.summary.blunders}
                           </div>
@@ -380,8 +380,8 @@ export function GameAnalysis() {
                             <Card key={index}>
                               <CardContent className="p-4">
                                 <div className="space-y-2">
-                                  <p className="text-sm font-medium">Move {move.move}</p>
-                                  <p className="text-sm text-red-500">
+                                  <p className="text-[14px] --sm font-medium">Move {move.move}</p>
+                                  <p className="text-[14px] --sm text-red-500">
                                     Missed threat: {move.explanation}
                                   </p>
                                 </div>
@@ -400,8 +400,8 @@ export function GameAnalysis() {
                             <Card key={index}>
                               <CardContent className="p-4">
                                 <div className="space-y-2">
-                                  <p className="text-sm font-medium">Move {move.move}</p>
-                                  <p className="text-sm text-green-500">
+                                  <p className="text-[14px] --sm font-medium">Move {move.move}</p>
+                                  <p className="text-[14px] --sm text-green-500">
                                     Good move: Maintains positional advantage
                                   </p>
                                 </div>
@@ -420,7 +420,7 @@ export function GameAnalysis() {
                             <CardContent className="p-4">
                               <div className="space-y-2">
                                 <h5 className="font-medium">{lesson.topic}</h5>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-[14px] --sm text-muted-foreground">
                                   {lesson.reason}
                                 </p>
                               </div>
@@ -433,7 +433,7 @@ export function GameAnalysis() {
                     <TabsContent value="functionality" className="space-y-4">
                       <div className="space-y-4">
                         <h4 className="text-lg font-medium">Piece Functionality</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[14px] --sm text-muted-foreground">
                           Analysis of how effectively your pieces were used throughout the game.
                         </p>
                       </div>
@@ -442,7 +442,7 @@ export function GameAnalysis() {
                     <TabsContent value="concepts" className="space-y-4">
                       <div className="space-y-4">
                         <h4 className="text-lg font-medium">Key Chess Concepts</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[14px] --sm text-muted-foreground">
                           Important chess principles and concepts from your game.
                         </p>
                       </div>

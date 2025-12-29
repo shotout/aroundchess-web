@@ -171,7 +171,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
                   height={1000}
                   className="w-[60px] h-[60px] object-contain"
                 />
-                <span className="font-normal text-[12px] text-[#121212]">
+                <span className="font-normal text-[14px] -- text-[#121212]">
                   {board.name}
                 </span>
               </div>
@@ -212,7 +212,7 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
                   height={1000}
                   className="w-[112px] h-[64px] object-contain"
                 />
-                <span className="font-normal text-[12px] text-[#121212]">
+                <span className="font-normal text-[14px] -- text-[#121212]">
                   {piece.name}
                 </span>
               </div>
@@ -254,7 +254,8 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
             </div>
           </div>
           <div className="w-full p-[8px] bg-[#F9FAFC] border border-[#f4f4f4] rounded-[12px]">
-            <Tabs
+            {content(boardsTwoD, piecesTwoD, "2d")}
+            {/* <Tabs
               defaultValue="auto"
               className="w-full"
               value={StyleChoosed}
@@ -299,13 +300,13 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
               <TabsContent value="3d" className="space-y-4">
                 {content(boardsThreeD, piecesThreeD, "3d")}
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
           </div>
         </ScrollArea>
 
         <button
           onClick={handleSave}
-          className={`btn-primary w-full text-sm rounded-full py-2 my-4 h-[48px]  `}
+          className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 h-[48px]  `}
         >
           Save
         </button>

@@ -31,9 +31,10 @@ const endpoint = process.env.BASE_URL;
 interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
+  handleUsernameClicked: (value: boolean) => void;
 }
 
-const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
+const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked }) => {
   const { sessionId } = useProfileStore();
   const { username: globalUsername } = usePgnStore();
 
@@ -83,8 +84,8 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         setUsernameInput(globalUsername);
         setDebouncedQuery("");
       } else if (username && username.trim() !== "") {
-        setUsernameInput(username);
-        setDebouncedQuery("");
+        // setUsernameInput(username);
+        // setDebouncedQuery("");
       } else {
         setUsernameInput("");
         setDebouncedQuery("");
@@ -185,8 +186,8 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         try {
           await loadUserPositions(selectedGames, usernameInput);
 
-          router.push("/playground/board-vision/user");
           onClose();
+          router.push("/playground/board-vision/user");
         } catch (error) {
           console.error("Error loading user positions:", error);
           setShowErrorModal(true);
@@ -223,14 +224,16 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       }}
     >
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
         <div className="flex items-center justify-between mb-4">
           <button
-            onClick={() => router.push("/playground/board-vision")}
+            onClick={() => router.push("/play-practice")}
             className="flex items-center"
           >
             <ChevronLeft className="h-6 w-6 text-black" />
           </button>
+
           <button
             className="rounded-full p-1 hover:bg-gray-100"
             onClick={onClose}
@@ -254,28 +257,28 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
           </div>
 
           <h1 className="text-xl font-bold mb-1 text-center">Board Vision</h1>
-          <p className="text-center text-gray-800 text-sm mb-1">
+          <p className="text-center text-gray-800 text-[14px] --sm mb-1">
             Answer technical Chess Questions from positions of your previous
             Games to improve your Board Vision.
           </p>
         </div>
 
         <div className="space-y-3">
-          <div className="flex justify-between space-x-4">
-            <div className="flex items-center space-x-2 w-1/2">
-              <span className="text-blue-700">♞</span>
-              <span>Chess.com Username</span>
-            </div>
-            <div className="w-1/2">
-              <p className="block text-base sm:text-sm text-black">
-                Ask Questions from my last...
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-between space-x-4">
-            <div className="w-1/2">
-              <div className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm ">
+          <div className="flex gap-[16px] mb-[20px] flex-col md:flex-row justify-between space-x-4">
+            <div className="w-full md:w-1/2">
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-700">♞</span>
+                <span>Chess.com Username</span>
+              </div>
+              <div 
+                onClick={() => {
+                  console.log("Username clicked", usernameInput);
+                  if (!usernameInput) {
+                    handleUsernameClicked(true);
+                  }
+                }} 
+                className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm cursor-pointer"
+              >
                 <input
                   type="text"
                   id="username"
@@ -285,6 +288,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
                   }
                   onChange={handleUsernameChange}
                   className="w-full bg-transparent h-[24px] focus:outline-none"
+                  readOnly
                 />
                 <div className="flex items-center">
                   {usernameStatus === "loading" && (
@@ -293,20 +297,24 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
                   {usernameStatus === "found" && (
                     <div className="flex items-center text-green-500 whitespace-nowrap">
                       <Check className="h-4 w-4 mr-1" />
-                      <span className="text-xs">Found</span>
+                      <span className="text-[14px] --xs">Found</span>
                     </div>
                   )}
                   {usernameStatus === "not-found" && (
                     <div className="flex items-center text-red-500 whitespace-nowrap">
                       <X className="h-4 w-4 mr-1" />
-                      <span className="text-xs">Not found</span>
+                      <span className="text-[14px] --xs">Not found</span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="w-1/2">
+            <div className="w-full md:w-1/2 !mx-0">
+              <p className="block text-base sm:text-[14px] --sm text-black">
+                Ask Questions from my last...
+              </p>
+
               <Select
                 name="gameCount"
                 value={gameCount}

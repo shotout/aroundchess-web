@@ -24,10 +24,11 @@ import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 
 interface MyAccountProps {
+  handleUsernameClicked: () => void;
   onLogoutStart: () => void;
 }
 
-const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
+const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => {
   const { getProfile, logOut, isLoading } = useApiClient();
   const {
     profile,
@@ -257,18 +258,18 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             htmlFor="username"
             className="flex flex-row gap-2 text-[14px] font-normal"
           >
-            <Image
+            {/* <Image
               src="/icons/hero-section.png"
               alt="chess"
               width={100}
               height={100}
               className="w-[16px] h-[20px] relative z-10"
               priority
-            />{" "}
+            />{" "} */}
             Default Chess.com Username
           </label>
           <Input
-            disabled={true}
+            readOnly={true}
             id="username"
             name="defaultUsername"
             type="text"
@@ -280,6 +281,11 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
             } px-[16px] py-[12px]`}
             value={form.defaultUsername}
             onChange={handleOnChange}
+            onClick={() => {
+              if (!form.defaultUsername) {
+                handleUsernameClicked();
+              }
+            }}
           />
         </div>
         <div className="space-y-2 w-full">
@@ -311,7 +317,7 @@ const MyAccount = ({ onLogoutStart }: MyAccountProps) => {
           </Select>
           <div className="flex items-center gap-x-1 text-blue-base mt-1">
             <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />
-            <p className="text-xs">
+            <p className="text-[14px] --xs">
               Changing your Game Type will affect the Game History and Training
               Plan
             </p>

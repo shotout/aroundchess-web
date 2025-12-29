@@ -105,7 +105,7 @@ export function GoalSetting() {
     <div className="p-6 space-y-6">
       <div>
         <h3 className="text-lg font-medium">Training Goals</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Set and track your chess improvement goals
         </p>
       </div>
@@ -170,14 +170,14 @@ export function GoalSetting() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-[14px] --sm">
                   <span>Progress</span>
                   <span>{goal.progress}%</span>
                 </div>
                 <Progress value={goal.progress} />
               </div>
 
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center justify-between text-[14px] --sm text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Trophy className="h-3 w-3" />
                   <span>{goal.target}</span>
@@ -191,7 +191,7 @@ export function GoalSetting() {
               {goal.completed && (
                 <div className="flex items-center justify-center text-green-500">
                   <CheckCircle2 className="h-4 w-4 mr-1" />
-                  <span className="text-sm font-medium">Completed</span>
+                  <span className="text-[14px] --sm font-medium">Completed</span>
                 </div>
               )}
             </div>

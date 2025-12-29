@@ -28,11 +28,11 @@ function Statistic({ title, value, icon, trend }: StatisticProps) {
     <div className="flex items-center space-x-4">
       <div className="p-2 bg-muted rounded-lg">{icon}</div>
       <div className="flex-1">
-        <div className="text-sm font-medium text-muted-foreground">{title}</div>
+        <div className="text-[14px] --sm font-medium text-muted-foreground">{title}</div>
         <div className="text-2xl font-bold">{value}</div>
         {trend && (
           <div
-            className={`text-sm flex items-center ${
+            className={`text-[14px] --sm flex items-center ${
               trend.isPositive ? "text-green-600" : "text-red-600"
             }`}
           >
@@ -93,12 +93,12 @@ export function GameStatistics() {
         <div className="space-y-4">
           {timeControlStats.map((stat) => (
             <div key={stat.type} className="space-y-2">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-[14px] --sm">
                 <span className="font-medium">{stat.type}</span>
                 <span className="text-muted-foreground">{stat.games} games</span>
               </div>
               <Progress value={stat.winRate} className="h-2" />
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-[14px] --sm">
                 <span className="text-muted-foreground">Win Rate</span>
                 <span className="font-medium text-green-600">
                   {stat.winRate}%
@@ -119,7 +119,7 @@ export function GameStatistics() {
               </div>
               <div>
                 <div className="font-medium">First Classical Win</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-[14px] --sm text-muted-foreground">
                   Won against 2000+ rated player
                 </div>
               </div>
@@ -132,7 +132,7 @@ export function GameStatistics() {
               </div>
               <div>
                 <div className="font-medium">Winning Streak</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-[14px] --sm text-muted-foreground">
                   8 consecutive wins in Blitz
                 </div>
               </div>
@@ -145,7 +145,7 @@ export function GameStatistics() {
               </div>
               <div>
                 <div className="font-medium">Time Management</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-[14px] --sm text-muted-foreground">
                   90% time efficiency in last 10 games
                 </div>
               </div>

@@ -55,7 +55,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                   }
                   className="h-5 w-5 text-green-500"
                 />
-                <h1 className="text-white font-medium">
+                <h1 className="text-white font-medium relative z-10">
                   {isCorrect ? "Correct!" : "Incorrect!"} The answer is{" "}
                   {gameQuestion?.correctAnswer}.
                 </h1>
@@ -66,7 +66,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                     height={200}
                     alt="sparks"
                     src={"/handbooks/sparks.png"}
-                    className="absolute top-0 -right-12 w-[200px] lg:right-[10%] lg:top-0  "
+                    className="absolute top-0 -right-12 w-[200px] lg:right-[10%] lg:top-0 z-0 opacity-70"
                   />
                 ) : (
                   <Image
@@ -74,7 +74,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({
                     height={200}
                     alt="sparks"
                     src={"/board-vision/wrong.png"}
-                    className="absolute top-0 -right-10 w-[200px] lg:right-[10%] lg:top-0  "
+                    className="absolute top-0 -right-10 w-[200px] lg:right-[10%] lg:top-0  z-0 opacity-70"
                   />
                 )}
               </div>

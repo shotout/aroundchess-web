@@ -117,7 +117,7 @@ export const FamousGameButton = () => {
         </div>
       </div>
       <button
-        className="btn-secondary mt-2 w-full text-xs px-2 py-2 rounded-full"
+        className="btn-secondary mt-2 w-full px-2 py-2 rounded-full text-[14px]"
         onClick={handleStartAnalysis}
       >
         Start Analysis

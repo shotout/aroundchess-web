@@ -278,10 +278,10 @@ export function ContactUs() {
                 </div>
                 
                 <div className="flex flex-row justify-between items-center">
-                  <span className="font-normal text-xs lg:text-[16px] text-[#585858]">
+                  <span className="font-normal text-[14px] --xs lg:text-[16px] text-[#585858]">
                     Supported Format: PNG, JPG, PDF
                   </span>
-                  <span className="font-normal text-xs lg:text-[16px] text-[#585858]">
+                  <span className="font-normal text-[14px] --xs lg:text-[16px] text-[#585858]">
                     Max Size: {formatFileSize(20971520, "B")}
                   </span>
                 </div>
@@ -317,7 +317,7 @@ export function ContactUs() {
                       color={"#fff"}
                       fill="#fff"
                     />
-                    <span className="text-[12px] sm:text-[11px] lg:text-[16px]">
+                    <span className="text-[14px] -- sm:text-[11px] lg:text-[16px]">
                       Send message
                     </span>
                   </>

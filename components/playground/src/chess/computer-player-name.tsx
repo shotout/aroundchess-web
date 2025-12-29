@@ -99,7 +99,7 @@ export function ComputerPlayerName({ className }: ComputerPlayerNameProps) {
             defaultValue={playerName}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className="w-full bg-transparent text-white text-sm font-medium text-center focus:outline-none"
+            className="w-full bg-transparent text-white text-[14px] --sm font-medium text-center focus:outline-none"
             maxLength={20}
           />
         ) : (
@@ -107,7 +107,7 @@ export function ComputerPlayerName({ className }: ComputerPlayerNameProps) {
             className="w-full flex items-center justify-center"
             onDoubleClick={handleDoubleClick}
           >
-            <span className="text-white text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+            <span className="text-white text-[14px] --sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
               {playerName}
             </span>
           </div>

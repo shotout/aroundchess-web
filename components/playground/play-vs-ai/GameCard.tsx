@@ -60,12 +60,12 @@ const GameCard: FC<GameCardProps> = ({
           />
           <span>{style.text}</span>
         </div>
-        <span className="text-gray-500 text-sm">{formatDateHistory(date)}</span>
+        <span className="text-gray-500 text-[14px] --sm">{formatDateHistory(date)}</span>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-3 min-h-[18px] ">
         <div className="flex flex-row items-center gap-1">
-          <span className="font-medium text-[12px]">Vs {opponent}:</span>
+          <span className="font-medium text-[14px] --">Vs {opponent}:</span>
           <Image
             src={`/images/play-vs-ai/elo-icon.png`}
             alt="icon"

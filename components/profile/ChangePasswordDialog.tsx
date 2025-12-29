@@ -137,7 +137,7 @@ const ChangePasswordDialog = ({
           <DialogTitle className="text-xl font-semibold text-center">
             Change your Password
           </DialogTitle>
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-center text-[14px] --xs text-muted-foreground">
             Enter a new Password to login to AroundChess
           </p>
         </DialogHeader>
@@ -145,7 +145,7 @@ const ChangePasswordDialog = ({
         <div className="space-y-4">
           {/* Current Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none flex items-center gap-2">
+            <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> Current Password
             </label>
             <div className="relative">
@@ -173,7 +173,7 @@ const ChangePasswordDialog = ({
 
           {/* New Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none flex items-center gap-2">
+            <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> New Password
             </label>
             <div className="relative">
@@ -201,7 +201,7 @@ const ChangePasswordDialog = ({
 
           {/* Confirm Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none flex items-center gap-2">
+            <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> Confirm Password
             </label>
             <div className="relative">
@@ -228,11 +228,11 @@ const ChangePasswordDialog = ({
           </div>
 
           {error && (
-            <div className="text-sm text-destructive font-medium">{error}</div>
+            <div className="text-[14px] --sm text-destructive font-medium">{error}</div>
           )}
 
           {success && (
-            <div className="text-sm text-green-600 font-medium">
+            <div className="text-[14px] --sm text-green-600 font-medium">
               Password changed successfully!
             </div>
           )}

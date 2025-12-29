@@ -189,10 +189,10 @@ export function ChessNotation() {
         <CardContent>
           <p className="text-gray-600 mb-4">Here's how a famous game opening might be notated:</p>
           <div className="font-mono bg-gray-100 p-4 rounded border">
-            <p className="text-sm">1. e4 e5</p>
-            <p className="text-sm">2. Nf3 Nc6</p>
-            <p className="text-sm">3. Bb5 a6</p>
-            <p className="text-sm text-gray-500 mt-2">{"// This is the start of the Ruy Lopez opening"}</p>
+            <p className="text-[14px] --sm">1. e4 e5</p>
+            <p className="text-[14px] --sm">2. Nf3 Nc6</p>
+            <p className="text-[14px] --sm">3. Bb5 a6</p>
+            <p className="text-[14px] --sm text-gray-500 mt-2">{"// This is the start of the Ruy Lopez opening"}</p>
           </div>
         </CardContent>
       </Card>

@@ -45,7 +45,7 @@ const DurationTypeSelector: React.FC<DurationTypeSelectorProps> = ({
             >
               <DynamicIcon name={type.iconName} className="w-full h-full" />
             </div>
-            <span className="text-sm">{type.name}</span>
+            <span className="text-[14px] --sm">{type.name}</span>
             {selectedDurationType === type.id && (
               <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-blue-600"></div>
             )}

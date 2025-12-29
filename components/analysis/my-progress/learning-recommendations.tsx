@@ -69,7 +69,7 @@ function RecommendationCard({ recommendation }: { recommendation: typeof recomme
             </div>
             <div>
               <h4 className="font-medium">{recommendation.title}</h4>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 {recommendation.category} • {recommendation.difficulty}
               </p>
             </div>
@@ -79,12 +79,12 @@ function RecommendationCard({ recommendation }: { recommendation: typeof recomme
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           {recommendation.description}
         </p>
 
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             Est. Time: {recommendation.timeEstimate}
           </p>
           <div className="flex space-x-2">
@@ -109,7 +109,7 @@ export function LearningRecommendations() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Personalized Recommendations</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             Tailored suggestions to improve your game
           </p>
         </div>

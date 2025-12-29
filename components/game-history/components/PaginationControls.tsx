@@ -60,7 +60,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   return (
     <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
+      <div className="flex items-center gap-2 text-[14px] --sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
         <span>Games per Page</span>
         <Select
           value={String(itemsPerPage)}
@@ -68,7 +68,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           defaultValue="10"
         >
           <SelectTrigger className="w-16 h-8 border rounded-md bg-white">
-            <SelectValue className="text-sm" />
+            <SelectValue className="text-[14px] --sm" />
           </SelectTrigger>
           <SelectContent className="bg-white">
             <SelectItem value="5">5</SelectItem>
@@ -77,7 +77,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             <SelectItem value="50">50</SelectItem>
           </SelectContent>
         </Select>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
+        {/* <ChevronRight className="h-4 w-4 text-gray-400" /> */}
       </div>
 
       <div className="flex items-center justify-center">

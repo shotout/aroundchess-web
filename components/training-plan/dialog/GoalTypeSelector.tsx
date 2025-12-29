@@ -18,7 +18,7 @@ const GoalTypeSelector: React.FC<GoalTypeSelectorProps> = ({
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-2">
-        <Target className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs" />
+        <Target className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs" />
         <Label className="font-medium">Choose your Goal Type</Label>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -39,7 +39,7 @@ const GoalTypeSelector: React.FC<GoalTypeSelectorProps> = ({
             >
               <DynamicIcon name={type.iconName} className="w-full h-full" />
             </div>
-            <span className="text-sm font-medium">{type.name}</span>
+            <span className="text-[14px] --sm font-medium">{type.name}</span>
             {selectedGoalType === type.id && (
               <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-blue-600"></div>
             )}

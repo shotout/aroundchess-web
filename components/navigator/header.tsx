@@ -28,8 +28,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const [isDesktop, setIsDesktop] = useState(false);
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
-  const { token: tokenBalance, isMember, isMemberMonthly, sessionId } = useProfileStore();
-  const { profile } = useUserStore();
+  const { token: tokenBalance, isMember, isMemberMonthly, sessionId, profile } = useProfileStore();
+  // const { profile } = useUserStore();
   const { isLoading } = useApiClient();
 
   const isSignedIn = sessionId.length > 0;
@@ -58,8 +58,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const NavigationTabs = () => (
     <div className="hidden xl:flex xl:items-center space-x-2">
       {/* Analytics/Analyze Now button */}
-      <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
-        <Link href="/analysis">
+      <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
+        <Link href={isSignedIn ? "/my-game-history" : "/analysis"}>
           <Button
             color="primary"
             variant="outlineprimary"
@@ -124,12 +124,12 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const AuthButtons = () => (
     <div className="hidden sm:flex items-center gap-5">
       <Link href="/login">
-        <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="hidden xl:block btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50">
           Sign-In
         </button>
       </Link>
       <Link href="/register">
-        <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700">
+        <button className="hidden xl:block btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700">
           Try Now
         </button>
       </Link>
@@ -138,7 +138,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const SignedInUserUI = () => (
     <div className="hidden lg:flex flex-row w-full items-center gap-[8px]">
-      <span className="hidden xl:block lg:text-[16px] w-full text-[#221AE9] font-medium">
+      <span className="hidden xl:flex gap-[4px] lg:text-[16px] w-full text-[#221AE9] font-medium">
+        <Image
+          src="/images/pricing/token-icon.png"
+          alt="icon"
+          width={20}
+          height={20}
+          className="w-[20px] h-[20px] object-contain"
+        />
         Remaining Tokens:{" "}
         <span
           className={`font-bold ${
@@ -153,13 +160,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         <div className="w-full flex flex-row gap-[8px]">
           <button
             onClick={() => handleOpenOffer("tokens")}
-            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 "
+            className="hidden xl:block btn-secondary w-[160px] h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 "
           >
             Buy Tokens
           </button>
           <button
             onClick={() => handleOpenOffer("subscription")}
-            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white "
+            className="hidden xl:block btn-primary w-[160px] h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white "
           >
             Go Unlimited
           </button>
@@ -256,9 +263,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     </div>
   );
 
+  console.log("isEndgameTraining", profile);
+
   return (
     <header
-      className={`fixed xl:sticky top-0 z-100 flex w-full items-center ${
+      className={`fixed xl:sticky top-0 z-60 flex w-full items-center ${
         isGuestMode ? "justify-between xl:justify-center" : "justify-between"
       } ${
         isEndgameTraining && !isDesktop ? "bg-[#E6F7FE]" : "bg-white border-b"
@@ -288,13 +297,13 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
       {pathname === "/training-plan" && !isDesktop && (
         <div className="flex justify-center items-center flex-col">
-          <h1 className="sm:hidden text-xs font-semibold">
+          <h1 className="sm:hidden text-[14px] --xs font-semibold">
             {pathname
               .replace("/", "")
               .replace("-", " ")
               .replace(/\b\w/g, (l) => l.toUpperCase())}
           </h1>
-          <p className="sm:hidden text-[10px] text-gray-500">
+          <p className="sm:hidden text-[14px] --10px text-gray-500">
             ({profile?.username || "User"})
           </p>
         </div>

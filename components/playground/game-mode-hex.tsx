@@ -73,7 +73,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
               {title}
             </h3>
             
-            <p className="text-xs sm:text-xs md:text-sm leading-relaxed
+            <p className="text-[14px] --xs sm:text-[14px] --xs md:text-[14px] --sm leading-relaxed
                        text-white/80 group-hover:text-white/90
                        transition-colors duration-300">
               {description}
@@ -84,7 +84,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
                           opacity-0 group-hover:opacity-100
                           transform group-hover:translate-y-1
                           transition-all duration-300">
-              <span className="text-sm font-medium text-white/90">Click to Play</span>
+              <span className="text-[14px] --sm font-medium text-white/90">Click to Play</span>
             </div>
           </div>
 

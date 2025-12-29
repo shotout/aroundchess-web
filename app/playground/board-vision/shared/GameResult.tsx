@@ -41,7 +41,7 @@ const GameResult: React.FC<GameResultProps> = ({ gameCorrects, isGameEnd }) => {
     } else {
       return {
         label: "Needs Improvement",
-        description: `You have ${gameCorrects} correct answers. Let's practice a bit more to improve your Score!`,
+        description: `You have ${gameCorrects} correct ${gameCorrects == 1 ? "answer" : "answers"}. Let's practice a bit more to improve your Score!`,
         icon: (
           <Image
             src="/board-vision/improve.png"

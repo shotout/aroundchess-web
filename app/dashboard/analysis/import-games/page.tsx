@@ -126,7 +126,7 @@ export default function ImportGamesPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-blue-600" />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     Game accuracy: <span className="font-medium text-foreground">{analysis.summary?.accuracy?.toFixed(1)}%</span>
                   </p>
                 </div>
@@ -181,13 +181,13 @@ export default function ImportGamesPage() {
                           </Badge>
                           <div className="flex items-center gap-2">
                             <span className="text-base font-medium">{move.move}</span>
-                            <Badge variant="outline" className="text-green-600">+{move.evaluation.toFixed(1)}</Badge>
+                            <Badge variant="outline" className="text-green-600">{move.evaluation > 0 ? '+' : ''}{move.evaluation.toFixed(1)}</Badge>
                           </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2">{move.explanation}</p>
+                        <p className="text-[14px] --sm text-muted-foreground mt-2">{move.explanation}</p>
                         <div className="flex items-center gap-1 mt-2">
                           <Info className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">Type: {move.lessonType.charAt(0).toUpperCase() + move.lessonType.slice(1)}</span>
+                          <span className="text-[14px] --sm text-muted-foreground">Type: {move.lessonType.charAt(0).toUpperCase() + move.lessonType.slice(1)}</span>
                         </div>
                       </div>
                     ))}
@@ -215,18 +215,18 @@ export default function ImportGamesPage() {
                         </Badge>
                         <div className="flex items-center gap-2">
                           <span className="text-base font-medium">{move.move}</span>
-                          <Badge variant="outline" className="text-red-600">{move.evaluation.toFixed(1)}</Badge>
+                          <Badge variant="outline" className="text-red-600">{move.evaluation > 0 ? '+' : ''}{move.evaluation.toFixed(1)}</Badge>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2">{move.explanation}</p>
+                      <p className="text-[14px] --sm text-muted-foreground mt-2">{move.explanation}</p>
                       <div className="mt-3 p-3 bg-blue-50 rounded-md border-l-2 border-blue-600">
-                        <p className="text-sm text-blue-600">
+                        <p className="text-[14px] --sm text-blue-600">
                           Better move: {move.improvement}
                         </p>
                       </div>
                       <div className="flex items-center gap-1 mt-2">
                         <Info className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Type: {move.lessonType.charAt(0).toUpperCase() + move.lessonType.slice(1)}</span>
+                        <span className="text-[14px] --sm text-muted-foreground">Type: {move.lessonType.charAt(0).toUpperCase() + move.lessonType.slice(1)}</span>
                       </div>
                     </div>
                   ))}
@@ -282,13 +282,13 @@ export default function ImportGamesPage() {
                             }>
                               {threat.type.charAt(0).toUpperCase() + threat.type.slice(1)}
                             </Badge>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-[14px] --sm text-muted-foreground">
                               Move {Math.floor(threat.moveNumber / 2) + 1}
                               {threat.moveNumber % 2 === 0 ? ' (Black)' : ' (White)'}
                             </span>
                           </div>
-                          <p className="text-sm mb-3">{pieceName} {cleanDescription}</p>
-                          <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md border-l-2 border-blue-600">
+                          <p className="text-[14px] --sm mb-3">{pieceName} {cleanDescription}</p>
+                          <div className="text-[14px] --sm text-blue-600 bg-blue-50 p-3 rounded-md border-l-2 border-blue-600">
                             How to improve: Carefully evaluate the position and consider defensive moves that protect your {pieceName} on {threat.square}.
                           </div>
                         </div>
@@ -377,7 +377,7 @@ export default function ImportGamesPage() {
                   <div className="space-y-4">
                     <Textarea
                       placeholder="Paste your PGN text here..."
-                      className="min-h-[400px] font-mono text-sm"
+                      className="min-h-[400px] font-mono text-[14px] --sm"
                       value={pgnText}
                       onChange={(e) => setPgnText(e.target.value)}
                     />

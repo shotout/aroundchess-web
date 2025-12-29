@@ -307,7 +307,7 @@ export function ComputerCharacterSelector() {
             )}
           >
             <div className="font-medium">{category.name}</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[14px] --xs text-muted-foreground">
               {category.range[0]}-{category.range[1]} ELO
             </div>
           </button>
@@ -341,12 +341,12 @@ export function ComputerCharacterSelector() {
                 </div>
                 <div className="text-center">
                   <p className={cn(
-                    "text-sm font-medium leading-tight",
+                    "text-[14px] --sm font-medium leading-tight",
                     isSelected ? "text-blue-600" : "text-gray-900"
                   )}>
                     {character.name}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-[14px] --xs text-gray-500 mt-0.5">
                     ELO {character.elo}
                   </p>
                 </div>

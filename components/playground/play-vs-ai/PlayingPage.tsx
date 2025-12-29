@@ -19,6 +19,7 @@ import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
 import { Chess, Square } from "chess.js";
+import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
 import {
   AlertCircle,
   ArrowLeft,
@@ -31,7 +32,7 @@ import {
   ChartNoAxesColumn,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   CSSProperties,
   useCallback,
@@ -56,9 +57,14 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "@/components/game-history/hooks/usePollingManager";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
+import ChooseAnalysisMode from "@/components/game-history/components/ChooseAnalysisMode";
+import ProcessingAnalysisMode from "@/components/game-history/components/ProcessingAnalysisMode";
+import GameAnalysis from "@/components/game-history/components/GameAnalysis";
 import { gameHistoryApi } from "@/components/game-history/services/api";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useGames } from "@/components/game-history/hooks/useGameData";
+import { useTutorial } from "@/components/TutorialProvider";
+import { StartPlayVSAI } from "@/components/modal/StartPlayVSAI";
 
 interface MobileCapturedPiecesProps {
   capturedWhite: Array<{
@@ -239,10 +245,10 @@ const MobileMoveBoxes = ({
           <div className="flex flex-col gap-1 min-w-[60px]">
             <div className="h-[25px] bg-white"></div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">White</span>
+              <span className="text-[14px] --sm font-medium text-black">White</span>
             </div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">Black</span>
+              <span className="text-[14px] --sm font-medium text-black">Black</span>
             </div>
           </div>
         </div>
@@ -278,18 +284,18 @@ const MobileMoveBoxes = ({
                   className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
                   style={{ opacity }}
                 >
-                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                  <div className="text-center text-[14px] --xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
                     Move {moveNumber}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {whiteMove ? whiteMove.san : ""}
                     </span>
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                    <span className="text-[14px] --sm font-medium">
                       {blackMove ? blackMove.san : ""}
                     </span>
                   </div>
@@ -331,7 +337,9 @@ export default function PlayingPage() {
   const { sessionId, setToken } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { addOtherImportedGame } = usePgnStore();
+  const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
+  const pathname = usePathname();
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -340,7 +348,7 @@ export default function PlayingPage() {
   const [afterFen, setAfterFen] = useState<string>("");
   const { getVSAILogs, postVSAILogs, getTokenBalance, isLoading } =
     useApiClient();
-  const { handleForceRefresh } = useGames("other");
+  const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
   const {
     setIsLoading,
     setPgn,
@@ -349,6 +357,7 @@ export default function PlayingPage() {
     setError,
     username,
     hideDiv,
+    setIsFromGameHistory,
   } = usePgnStore();
   const hasRun = useRef(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -357,7 +366,24 @@ export default function PlayingPage() {
   const [depthLevel] = useState(14);
   const { AIChoosed } = usePlayVSAIStore();
   const { setOpen: setOpenGameStatus } = useGameEndStatus();
-  const [showAnalyzeDialog, setShowAnalyzeDialog] = useState(false);
+
+  // Modal states for analysis dialogs
+  const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [hasAnalysis, setHasAnalysis] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+  
+  // New Game dialog state
+  const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Track modal states
+  }, [isAnalyzeOpen, isChooseAnalysisModeOpen, processingAnalysisModeOpen, gameAnalysisOpen, hasAnalysis]);
+
   const isGameInitialized = useRef(false);
 
   const { getJobByGameId, analysisJobs, clearOldJobs } =
@@ -368,7 +394,9 @@ export default function PlayingPage() {
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [orientation, setOrientation] = useState<BoardOrientation>(
+    AIChoosed.color as BoardOrientation
+  );
   const [myColor, setMyColor] = useState<string>(AIChoosed.color);
   const [currentTurn, setCurrentTurn] = useState<string>("White");
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
@@ -420,11 +448,44 @@ export default function PlayingPage() {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
   const isYourTurn = myColor === "white" ? "w" : "b";
+
+  // Helper function to detect if a move is a knight move (L-shaped)
+  const isKnightMove = useCallback((from: string, to: string): boolean => {
+    const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankFrom = parseInt(from[1]) - 1;
+    const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankTo = parseInt(to[1]) - 1;
+
+    const fileDiff = Math.abs(fileTo - fileFrom);
+    const rankDiff = Math.abs(rankTo - rankFrom);
+
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
+    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+  }, []);
+
+  // Convert hint arrows to ArrowConfig format for CustomChessArrows
+  const customArrowsConfig = useMemo(() => {
+    if (!bestLine || bestLine.length === 0 || !bestLine.split(" ")?.[0] || !hintClicked) {
+      return [];
+    }
+
+    const move = bestLine.split(" ")[0];
+    const from = move.substring(0, 2);
+    const to = move.substring(2, 4);
+
+    return [{
+      from,
+      to,
+      color: "rgba(28, 22, 194, 0.5)", // Purple hint color with opacity
+      isKnightMove: isKnightMove(from, to)
+    }];
+  }, [bestLine, hintClicked, isKnightMove]);
 
   const updateFenHistory = useCallback((newFen: string) => {
     setFenHistory((prev) => {
@@ -507,6 +568,30 @@ export default function PlayingPage() {
     }
   }, [game, AIChoosed, statusGame, currentGameId]);
 
+  // Create game object from PGN with stable ID using useMemo
+  const gameFromPgn = useMemo(() => {
+    // Use canonical PGN from backend if available (after save), otherwise use local PGN
+    const currentPgn = analysisPgn ?? game.pgn();
+    const pgnHash = createPgnHash(currentPgn);
+    const gameId = `play-vs-ai-${pgnHash}`;
+
+    const gameObj = {
+      id: gameId,
+      pgn: currentPgn,
+      username: username || "Unknown",
+      opponent: "AI",
+      date: new Date().toLocaleDateString(),
+      timeControl: "N/A",
+      result: "Game Finished",
+      rating: "N/A",
+      timeClass: "You vs AI",
+      moves: "N/A",
+      opening: "N/A",
+      source: "You vs AI",
+    };
+    return gameObj;
+  }, [game, username, analysisPgn]);
+
   useEffect(() => {
     saveGameState();
   }, [gamePosition, statusGame, saveGameState]);
@@ -515,6 +600,96 @@ export default function PlayingPage() {
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  // Check if analysis exists for this game
+  useEffect(() => {
+    // Skip analysis check during tutorial
+    if (isTutorialPlay) {
+      return;
+    }
+    
+    const checkAnalysis = () => {
+      const job = getJobByGameId(gameFromPgn.id);
+
+      // Ensure the job is completed, has a result, AND the PGN matches this game
+      const hasCompletedAnalysis =
+        job?.status === "completed" &&
+        !!job.result &&
+        job.gamePgn === gameFromPgn.pgn;
+      
+      setHasAnalysis(hasCompletedAnalysis);
+    };
+
+    checkAnalysis();
+    // Poll every second to check for completed analysis
+    const interval = setInterval(checkAnalysis, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis, isTutorialPlay]);
+
+  // Auto-open AnalyzeGameHistory modal when tutorial reaches step 4
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 2) {
+      setIsAnalyzeOpen(false);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 3) {
+      setIsAnalyzeOpen(true);
+      setIsChooseAnalysisModeOpen(false);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  // Auto-open ChooseAnalysisMode modal when tutorial reaches step 5
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 4) {
+      setIsAnalyzeOpen(false);
+      setIsChooseAnalysisModeOpen(true);
+      setGameAnalysisOpen(false);
+    }
+  }, [isTutorialPlay, stepFocused]);
+
+  // Auto-open GameAnalysis modal when tutorial reaches step 6
+  useEffect(() => {
+    if (isTutorialPlay && stepFocused === 5) {
+      // Set dummy v3Result for tutorial with complete data including FEN and arrows
+      setV3AnalysisResult({
+        summary: {
+          criticalMistakes: [
+            {
+              "fen": "r4rk1/ppp2pbp/2npbqp1/4p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 b - - 0 10",
+              "move": "Nc3",
+              "type": "Miss",
+              "arrows": {
+                "badMove": {
+                  "piece": "p",
+                  "endSquare": "b5",
+                  "startSquare": "b7"
+                },
+                "goodMove": {
+                  "piece": "n",
+                  "endSquare": "d4",
+                  "startSquare": "c6"
+                }
+              },
+              "analysis": "This choice weakens your position quite a bit and hands your opponent more chances.",
+              "fenAfter": "r4rk1/p1p2pbp/2npbqp1/1p2p3/1P2P3/P1NP1N2/2P1BPPP/R2Q1RK1 w - - 0 11",
+              "solution": "Here, d5 would keep the position much healthier.",
+              "moveNumber": 44,
+              "keyEvaluation": -1.50,
+              "mistakeLogId": "212adc63-f76f-4aba-b659-ec425134fb2b",
+              "saved": false,
+              "savedDate": null
+            },
+          ]
+        },
+        analysisId: "tutorial-dummy-id"
+      });
+      setIsChooseAnalysisModeOpen(false);
+      setGameAnalysisOpen(true);
+    }
+  }, [isTutorialPlay, stepFocused]);
 
   const navigateToMove = (index: number) => {
     if (index < 0 || index >= fenHistory.length) {
@@ -614,6 +789,16 @@ export default function PlayingPage() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
+  // Set dummy data when tutorial is active to show "Analyze Now" button
+  useEffect(() => {
+    if (isTutorialPlay && pathname.includes("/playground/play-vs-ai/playing")) {
+      setStatusGame("Win");
+      setWinnerColor(myColor);
+      setLoserColor(myColor === "white" ? "black" : "white");
+      setHasAnalysis(false); // Ensure "Analyze Now" button shows instead of "Show Analysis"
+    }
+  }, [isTutorialPlay, pathname, myColor]);
+
   useEffect(() => {
     const moves = game.history();
 
@@ -624,6 +809,13 @@ export default function PlayingPage() {
       setGamePosition(initialFen);
     }
   }, [game.history().length === 0]);
+
+  // Auto-scroll Movement Details to bottom when new moves are added
+  useEffect(() => {
+    if (movementDetailsRef.current) {
+      movementDetailsRef.current.scrollTop = movementDetailsRef.current.scrollHeight;
+    }
+  }, [capturedWhite, capturedBlack]);
 
   const getMoveOptions = (square: Square) => {
     const moves = game.moves({ square, verbose: true });
@@ -639,13 +831,13 @@ export default function PlayingPage() {
         background:
           game.get(move.to) &&
           game.get(move.to)?.color !== game.get(square)?.color
-            ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)"
-            : "radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)",
+            ? window.innerWidth > 768 ? "radial-gradient(circle, transparent 55%, rgba(100, 100, 100, 0.5) 55%, rgba(100, 100, 100, 0.5) 70%, transparent 70%)" : "radial-gradient(circle, transparent 55%, rgba(33, 26, 233, 0.5) 55%, rgba(33, 26, 233, 0.5) 70%, transparent 70%)"
+            : window.innerWidth > 768 ? `radial-gradient(circle, rgba(100, 100, 100, 0.5) 25%, transparent 25%)` : `radial-gradient(circle, rgba(33, 26, 233, 0.5) 25%, transparent 25%)`,
         borderRadius: "50%",
       };
       return move;
     });
-    newSquares[square] = { background: "#F5F682" };
+    newSquares[square] = { background: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" };
     setOptionSquares(newSquares);
     return true;
   };
@@ -854,10 +1046,10 @@ export default function PlayingPage() {
 
   const prevCurrentColor = {
     ...(previousSquare && {
-      [previousSquare]: { backgroundColor: "#B9CA43" },
+      [previousSquare]: { backgroundColor: window.innerWidth > 768 ? "#B9CA43" : "#C0CED4" },
     }),
     ...(currentSquare && {
-      [currentSquare]: { backgroundColor: "#F5F682" },
+      [currentSquare]: { backgroundColor: window.innerWidth > 768 ? "#F5F682" : "#25CEDA" },
     }),
   };
 
@@ -978,8 +1170,17 @@ export default function PlayingPage() {
         });
       }
     });
-    setCapturedBlack(capturedPiecesBlack);
-    setCapturedWhite(capturedPiecesWhite);
+
+    // During tutorial mode, limit to first 3 move pairs (6 total moves) to keep button visible
+    if (isTutorialPlay) {
+      const limitedWhite = capturedPiecesWhite.slice(0, 3);
+      const limitedBlack = capturedPiecesBlack.slice(0, 3);
+      setCapturedBlack(limitedBlack);
+      setCapturedWhite(limitedWhite);
+    } else {
+      setCapturedBlack(capturedPiecesBlack);
+      setCapturedWhite(capturedPiecesWhite);
+    }
   };
 
   const changeNameFull = (piece: string | null) => {
@@ -1021,7 +1222,7 @@ export default function PlayingPage() {
     const blackName =
       AIChoosed.color == "white" ? AIChoosed.opponent.name + " (AI)" : username;
 
-    game.header("Event", "Play vs AI (" + AIChoosed.opponent.elo + ")");
+    game.header("Event", "You vs AI (" + AIChoosed.opponent.elo + ")");
     game.header("Site", "aroundchess.com");
     game.header("Date", date);
     game.header("White", whiteName);
@@ -1034,7 +1235,6 @@ export default function PlayingPage() {
   const setHeaderGameFinish = (winnerColor: string) => {
     const date = formatDatePgn();
     const time = formatTimePgn();
-    console.log(statusGame);
     const isWhiteWin = winnerColor === "white" ? "1" : "0";
     const isBlackWin = winnerColor !== "white" ? "1" : "0";
     const winResult =
@@ -1047,7 +1247,7 @@ export default function PlayingPage() {
 
   useEffect(() => {
     const timestamp = Date.now();
-    
+
     // Try to restore game from local storage
     let restored = false;
     if (typeof window !== "undefined") {
@@ -1055,13 +1255,38 @@ export default function PlayingPage() {
       if (savedGame) {
         try {
           const parsed = JSON.parse(savedGame);
-          if (
+
+          // Check if the saved game has ended (Win/Loss/Draw)
+          const gameHasEnded = parsed.statusGame === "Win" || parsed.statusGame === "Loss" || parsed.statusGame === "Draw";
+
+          if (gameHasEnded) {
+            console.log("🔄 [DEBUG] Saved game has ended, clearing localStorage and showing New Game dialog");
+
+            // Clear the saved game from localStorage
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+
+            // Close any open dialogs
+            setOpenGameStatus(false);
+
+            // Show New Game dialog ONLY if not coming from /playground/play-vs-ai page
+            // (to avoid showing modal twice when redirected from that page)
+            // const fromPlayVsAIPage = document.referrer.includes('/playground/play-vs-ai') &&
+            //                           !document.referrer.includes('/playground/play-vs-ai/playing');
+            // if (!fromPlayVsAIPage) {
+            //   setShowPlayVSAIModal(true);
+            // }
+
+            // Don't restore the game, let it initialize as a new game below
+            restored = false;
+          } else if (
             parsed.aiName === AIChoosed.opponent.name &&
             parsed.elo === AIChoosed.opponent.elo &&
             parsed.myColor === AIChoosed.color
           ) {
+            console.log("🔄 [DEBUG] Restoring ongoing game from localStorage");
+
             game.loadPgn(parsed.pgn);
-            
+
             // Rebuild fen history if not saved or just to be safe
             const tempGame = new Chess();
             const fens = [tempGame.fen()];
@@ -1071,18 +1296,18 @@ export default function PlayingPage() {
             });
             setFenHistory(fens);
             setCurrentMoveIndex(fens.length - 1);
-            
+
             setGamePosition(game.fen());
             setStatusGame(parsed.statusGame);
             setMyColor(parsed.myColor);
-            
+
             if (parsed.gameId) {
               setCurrentGameId(parsed.gameId);
             } else {
               const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
               setCurrentGameId(gameId);
             }
-            
+
             restored = true;
           }
         } catch (e) {
@@ -1111,7 +1336,7 @@ export default function PlayingPage() {
     }
     
     isGameInitialized.current = true;
-    
+
     setHeightScreen(window?.innerHeight);
     setHeightBoard(refBoard.current?.clientHeight);
   }, [AIChoosed]);
@@ -1121,7 +1346,7 @@ export default function PlayingPage() {
     handleResize();
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
-  }, [mounted, hideDiv, is3DMode]);
+  }, [mounted, hideDiv, is3DMode, isTutorialPlay]);
 
   const handleResize = () => {
     const width = window.innerWidth;
@@ -1135,23 +1360,28 @@ export default function PlayingPage() {
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
-      const sizeFactor = width <= 430 ? 0.85 : 0.9;
+      // Reduce size factor during tutorial to ensure button visibility
+      const sizeFactor = isTutorialPlay
+        ? (width <= 430 ? 0.65 : 0.7)
+        : (width <= 430 ? 0.85 : 0.9);
       setBoardSize(
         Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth)
       );
     } else {
       const availableHeight = height - minPadding * 2;
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8, maxBoardWidth));
+      // Reduce board size during tutorial to ensure button visibility
+      const heightFactor = isTutorialPlay ? 0.5 : 0.8;
+      setBoardSize(Math.min(maxSize, availableHeight * heightFactor, maxBoardWidth));
     }
   };
 
   useEffect(() => {
-    if (AIChoosed.color === "black") {
+    if (myColor === "black") {
       setOrientation("black");
     } else {
       setOrientation("white");
     }
-  }, []);
+  }, [myColor]);
 
   const handleSwitch = () => {
     setOrientation((prev) => {
@@ -1231,6 +1461,9 @@ export default function PlayingPage() {
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
 
+    // Close game end status dialog
+    setOpenGameStatus(false);
+
     setStatusGame("Ongoing");
     game.reset();
     const initialFen = game.fen();
@@ -1243,13 +1476,69 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
     setIsSaved(false);
+    setHasAnalysis(false); // Reset analysis state for new game
   };
 
   const handleNewGame = () => {
+    // Clear localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-    router.back();
+
+    // Close game end status dialog
+    setOpenGameStatus(false);
+
+    // Reset game state (same as handleRematch)
+    const timestamp = Date.now();
+    const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
+    setCurrentGameId(gameId);
+
+    setStatusGame("Ongoing");
+    game.reset();
+    const initialFen = game.fen();
+    setGamePosition(initialFen);
+    setFenHistory([initialFen]);
+    setCurrentMoveIndex(0);
+    setHeaderGameStart();
+    setLoserColor("");
+    setWinnerColor("");
+    setPreviousSquare(undefined);
+    setCurrentSquare(undefined);
+    setIsSaved(false);
+    setHasAnalysis(false);
+    
+    // Reset additional states
+    setCapturedWhite([]);
+    setCapturedBlack([]);
+    setBestline("");
+    setMoveClassification("");
+    setPositionEvaluation(0);
+    setPossibleMate("");
+    setHintClicked(false);
+    setMoveFrom("");
+    setMoveTo(null);
+    setRightClickedSquares({});
+    setOptionSquares({});
+    
+    // Reset to 2D mode
+    setIs3DMode(false);
+    setStyleChoosed("2d");
+    
+    // Open dialog for new game selection
+    setShowPlayVSAIModal(true);
+  };
+
+  const handleClosePlayVSAI = () => {
+    setShowPlayVSAIModal(false);
+  };
+
+  const handlePlayVSAILimit = (isLimit: boolean) => {
+    if (isLimit) {
+      toast.error(
+        "You have reached your play limit. Please upgrade to premium."
+      );
+      setOpenPricing(true);
+    }
   };
 
   const handleSaveLog = async () => {
@@ -1261,7 +1550,6 @@ export default function PlayingPage() {
       status: statusGame,
       pgn: game.pgn(),
     };
-    console.log("game.pgn()", game.pgn());
     setIsSaving(true);
     // handleSave();
     const res = await postVSAILogs(body);
@@ -1279,9 +1567,7 @@ export default function PlayingPage() {
       setAnalysisPgn(game.pgn());
     }
     handleForceRefresh();
-    console.log("res postVSAILogs", res);
     setIsSaved(true);
-    toast.success("Game saved successfully!");
     setIsSaving(false);
     loadLogs();
   };
@@ -1291,7 +1577,6 @@ export default function PlayingPage() {
       const formData = new FormData();
       const currentPgn = game.pgn();
       const totalMoves = Math.ceil(game.history().length / 2);
-      console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
       // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
@@ -1305,9 +1590,7 @@ export default function PlayingPage() {
       }
       const gameData = { ...response.data, pgn: currentPgn };
       const newGame = addOtherImportedGame(gameData);
-      console.log("newGame", newGame);
       setIsSaved(true);
-      toast.success("Game saved successfully!");
       setIsSaving(false);
     } catch (err: any) {
     } finally {
@@ -1320,6 +1603,7 @@ export default function PlayingPage() {
       const winnerColorLocal = loserColorLocal === "w" ? "black" : "white";
       const losserColorLocal = loserColorLocal !== "w" ? "black" : "white";
       const isUserWin = myColor === winnerColorLocal;
+
       setWinnerColor(winnerColorLocal);
       setLoserColor(losserColorLocal);
 
@@ -1514,16 +1798,17 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
-    const is3D = StyleChoosed === "3d";
-    setIs3DMode(is3D);
-  }, [StyleChoosed]);
+    // Always default to 2D mode for Play vs AI
+    setIs3DMode(false);
+    setStyleChoosed("2d");
+  }, []);
 
   const fetchLastAnalysis = async (pgnHash: string): Promise<any> => {
     try {
       const endpoint =
         process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       const response = await fetch(
-        `${endpoint}/v2/analyze/last-analysis/${pgnHash}`,
+        `${endpoint}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
         {
           method: "GET",
           headers: {
@@ -1542,6 +1827,110 @@ export default function PlayingPage() {
       return null;
     }
   };
+
+  const fetchLastAnalysisV3 = async (pgnHash: string): Promise<any> => {
+    try {
+      const endpoint =
+        process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+      const response = await fetch(
+        `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${sessionId}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching v3 last analysis:", error);
+      return null;
+    }
+  };
+
+  // Handle "Show Analysis" click
+  const handleShowAnalysis = async () => {
+    try {
+      const job = getJobByGameId(gameFromPgn.id);
+      const pgnHash = createPgnHash(gameFromPgn.pgn);
+
+      console.log("🔍 [handleShowAnalysis] Starting analysis fetch for game:", gameFromPgn.id);
+      console.log("🔍 [handleShowAnalysis] Job from store:", job);
+
+      // Fetch from both v2 and v3 endpoints in parallel
+      const [v2Analysis, v3Analysis] = await Promise.all([
+        fetchLastAnalysis(pgnHash),
+        fetchLastAnalysisV3(pgnHash)
+      ]);
+
+      console.log("📥 [handleShowAnalysis] V2 Analysis response:", v2Analysis);
+      console.log("📥 [handleShowAnalysis] V3 Analysis response:", v3Analysis);
+
+      // Prioritize job result over API response for v2 analysis
+      let finalV2Data = v2Analysis;
+      if (job && job.result && job.status === "completed") {
+        console.log("✅ [handleShowAnalysis] Using job result for v2 analysis data");
+        finalV2Data = {
+          success: true,
+          data: job.result
+        };
+      }
+
+      // Store both v2 and v3 results
+      setV2AnalysisData(finalV2Data);
+      setShortAnalysisData(v3Analysis);
+
+      console.log("💾 [handleShowAnalysis] Final V2 data set:", finalV2Data);
+      console.log("💾 [handleShowAnalysis] V3 data set:", v3Analysis);
+
+      if (v3Analysis?.success && v3Analysis.data) {
+        console.log("✅ [handleShowAnalysis] V3 analysis found, opening ChooseAnalysisMode");
+        // Open ChooseAnalysisMode dialog with both v2 and v3 data
+        setIsChooseAnalysisModeOpen(true);
+      } else if (finalV2Data?.success && finalV2Data.data) {
+        console.log("✅ [handleShowAnalysis] Only V2 analysis found, navigating directly to /analysis");
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(finalV2Data.data);
+        setIsFromGameHistory(true);
+
+        router.push("/analysis");
+      } else {
+        if (job && job.result) {
+          console.log("✅ [handleShowAnalysis] Using job result as fallback");
+          setPgn(gameFromPgn.pgn);
+          setDataGamesImport(gameFromPgn);
+          setDataAnalysis(job.result);
+          setIsFromGameHistory(true);
+
+          router.push("/analysis");
+        } else {
+          console.log("⚠️ [handleShowAnalysis] No analysis data found, opening analyze dialog");
+          setIsAnalyzeOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error("❌ [handleShowAnalysis] Error:", error);
+      const job = getJobByGameId(gameFromPgn.id);
+
+      if (job && job.result) {
+        console.log("📦 [handleShowAnalysis] Using job result as error fallback");
+        setPgn(gameFromPgn.pgn);
+        setDataGamesImport(gameFromPgn);
+        setDataAnalysis(job.result);
+        setIsFromGameHistory(true);
+        router.push("/analysis");
+      } else {
+        console.error("❌ [handleShowAnalysis] No fallback data available");
+      }
+    }
+  };
+
   useEffect(() => {
     const isCompleted = Object.values(analysisJobs).filter(
       (gameData) => gameData.status == "completed"
@@ -1569,9 +1958,21 @@ export default function PlayingPage() {
         onClick: async () => {
           try {
             const pgnHash = createPgnHash(currentPgn);
-            const lastAnalysis = await fetchLastAnalysis(pgnHash);
+            
+            // Fetch from both v2 and v3 endpoints in parallel
+            const [v2Analysis, v3Analysis] = await Promise.all([
+              fetchLastAnalysis(pgnHash),
+              fetchLastAnalysisV3(pgnHash)
+            ]);
 
-            if (lastAnalysis?.success && lastAnalysis.data) {
+            // Store both v2 and v3 results
+            setV2AnalysisData(v2Analysis);
+            setShortAnalysisData(v3Analysis);
+
+            if (v3Analysis?.success && v3Analysis.data) {
+              // Open ChooseAnalysisMode dialog with both v2 and v3 data
+              setIsChooseAnalysisModeOpen(true);
+            } else if (v2Analysis?.success && v2Analysis.data) {
               setPgn(currentPgn);
               const gameData = {
                 id: currentGameId,
@@ -1598,7 +1999,7 @@ export default function PlayingPage() {
                 username: username,
               };
               setDataGamesImport(gameData);
-              setDataAnalysis(lastAnalysis.data);
+              setDataAnalysis(v2Analysis.data);
               router.push("/analysis");
             } else {
               if (job && job.result) {
@@ -1631,11 +2032,10 @@ export default function PlayingPage() {
                 setDataAnalysis(job.result);
                 router.push("/analysis");
               } else {
-                setShowAnalyzeDialog(true);
+                setIsAnalyzeOpen(true);
               }
             }
           } catch (error) {
-            console.error("Error fetching analysis:", error);
             if (job && job.result) {
               setPgn(currentPgn);
               const gameData = {
@@ -1666,7 +2066,7 @@ export default function PlayingPage() {
               setDataAnalysis(job.result);
               router.push("/analysis");
             } else {
-              setShowAnalyzeDialog(true);
+              setIsAnalyzeOpen(true);
             }
           }
         },
@@ -1700,7 +2100,7 @@ export default function PlayingPage() {
             text: "Retry",
             icon: <AlertCircle className="h-4 w-4 mr-1" />,
             className: "bg-red-600 hover:bg-red-700 text-white",
-            onClick: () => setShowAnalyzeDialog(true),
+            onClick: () => setIsAnalyzeOpen(true),
             disabled: false,
           };
       }
@@ -1710,47 +2110,78 @@ export default function PlayingPage() {
       text: "Analyze now",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "btn-primary text-white",
-      onClick: () => setShowAnalyzeDialog(true),
+      onClick: () => setIsAnalyzeOpen(true),
       disabled: false,
     };
   };
 
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white p-0 sm:p-4 gap-4 lg:mt-8 xl:mt-0">
-      <GameEndStatus gameStatus={statusGame.toLowerCase()} />
+      {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
       <AnalyzeGameHistory
-        open={showAnalyzeDialog}
-        onOpenChange={setShowAnalyzeDialog}
-        game={{
-          id: currentGameId,
-          pgn: analysisPgn ?? game.pgn(),
-          username: username,
-          white: {
-            result:
-              game.header().Result === "0-1"
-                ? "lose"
-                : game.header().Result === "1-0"
-                ? "win"
-                : "draw",
-            username: game.header().White,
-          },
-          black: {
-            result:
-              game.header().Result === "1-0"
-                ? "lose"
-                : game.header().Result === "0-1"
-                ? "win"
-                : "draw",
-            username: game.header().Black,
-          },
-          date: formatDatePgn(),
+        open={isAnalyzeOpen}
+        onOpenChange={(open) => {
+          setIsAnalyzeOpen(open);
+        }}
+        game={gameFromPgn}
+        onAnalysisStarted={() => {
+          setIsChooseAnalysisModeOpen(true);
+        }}
+        onShortAnalysisReceived={(data) => {
+          setShortAnalysisData(data);
+
+          // Also get v2 analysis from job store if available
+          const job = getJobByGameId(gameFromPgn.id);
+          if (job && job.result) {
+            setV2AnalysisData({ success: true, data: job.result });
+          }
         }}
       />
+      <ChooseAnalysisMode
+        open={isChooseAnalysisModeOpen}
+        onOpenChange={setIsChooseAnalysisModeOpen}
+        game={gameFromPgn}
+        shortAnalysisData={shortAnalysisData}
+        v2AnalysisData={v2AnalysisData}
+        onOpenProcessingMode={() => {
+          setProcessingAnalysisModeOpen(true);
+        }}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+      <ProcessingAnalysisMode
+        open={processingAnalysisModeOpen}
+        onOpenChange={setProcessingAnalysisModeOpen}
+        game={gameFromPgn}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+      <GameAnalysis
+        open={gameAnalysisOpen}
+        onOpenChange={setGameAnalysisOpen}
+        v3Result={v3AnalysisResult}
+        isTutorialPlay={isTutorialPlay}
+        playerColor={myColor as "white" | "black"}
+      />
+      
+      {/* New Game Dialog */}
+      <StartPlayVSAI
+        visible={showPlayVSAIModal}
+        onClose={handleClosePlayVSAI}
+        onLimit={handlePlayVSAILimit}
+      />
+
       <div className="flex flex-col w-full gap-y-2 ">
-        <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 p-4 sm:p-0 border-b sm:border-none">
+        {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
+        <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
           <button onClick={() => router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
+
           <div className="flex flex-1 flex-row justify-center items-center gap-2">
             <Image
               src={"/images/play-vs-ai/icon-play-vs-ai.png"}
@@ -1759,14 +2190,14 @@ export default function PlayingPage() {
               height={1000}
               className="w-[22px] h-[21px] object-contain"
             />
-            <span className="font-semibold text-[18px]">Play VS AI</span>
+            <span className="font-semibold text-[18px]">You vs AI</span>
           </div>
           <div className="flex " />
         </div>
 
         <div className="hidden sm:block rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
           <div className="flex items-center justify-center rounded-[6px] bg-white shadow-md border border-[#DEDEDE] px-4 py-2">
-            <span className="text-xs font-normal">
+            <span className="text-[14px] --xs font-normal">
               Current Turn:{" "}
               <span className="text-[14px] font-medium">
                 {game.turn() === "w" ? "White" : "Black"}
@@ -1805,25 +2236,36 @@ export default function PlayingPage() {
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-2 px-5 sm:px-0">
-            {(orientation as string) !== myColor &&
-            moveClassification !== "" &&
-            moveClassification !== "excellent-move" &&
-            moveClassification !== "neutral-move" &&
-            moveClassification !== "inaccuracy-move" ? (
-              <div className="hidden sm:block">
-                <CommentaryMove classify={moveClassification} />
+          
+            <div className="w-full flex justify-between md:justify-end items-center px-[16px] mt-[24px] md:mt-0 md:px-0">
+              <div className="flex items-center gap-[8px] md:hidden">
+                <button onClick={() => router.push("/playground/play-vs-ai")}>
+                  <ArrowLeft color="black" size={24} />
+                </button>
+
+                <span>{username} ({orientation}) vs {AIChoosed.opponent.name.replace(/ .*/, "")}</span>
               </div>
-            ) : (
-              <div />
-            )}
-            <ButtonBoard
-              handleSwitch={handleSwitch}
-              handleThreeD={handleThreeD}
-              is3DMode={is3DMode}
-              boardSize={boardSize}
-            />
-          </div>
+              <div className="flex items-center justify-between md:mb-[16px] sm:px-0">
+                {(orientation as string) !== myColor &&
+                  moveClassification !== "" &&
+                  moveClassification !== "excellent-move" &&
+                  moveClassification !== "neutral-move" &&
+                  moveClassification !== "inaccuracy-move" ? (
+                    <div className="hidden sm:block">
+                      <CommentaryMove classify={moveClassification} />
+                    </div>
+                  ) : (
+                    <div />
+                  )}
+
+                  <ButtonBoard
+                    handleSwitch={handleSwitch}
+                    handleThreeD={handleThreeD}
+                    is3DMode={is3DMode}
+                    boardSize={boardSize}
+                  />
+              </div>
+            </div>
 
           <MobileCapturedPieces
             capturedWhite={capturedWhite}
@@ -1832,7 +2274,7 @@ export default function PlayingPage() {
           />
 
           <div className="flex flex-col justify-center items-center gap-3">
-            <motion.div
+            {/* <motion.div
               initial={{ rotateX: 180 }}
               animate={
                 !is3DMode
@@ -1889,87 +2331,92 @@ export default function PlayingPage() {
                   showPromotionDialog={showPromotionDialog}
                 />
               )}
-            </motion.div>
+            </motion.div> */}
 
-            <motion.div
-              style={{
-                width: boardSize,
-                display: !is3DMode ? "flex" : "none",
-                backfaceVisibility: "hidden",
-              }}
-            >
-              {!is3DMode && (
-                  <TwoDChessboard
-                    game={game}
-                    gameStatus={statusGame.toLowerCase()}
-                    setOptionSquares={setOptionSquares}
-                    arePiecesDraggable={isAtCurrentMove}
-                  onPieceDrop={onPieceDrop}
-                  arePiecesClickable={
-                    statusGame === "Ongoing" && isAtCurrentMove
-                  }
-                  orientation={orientation}
-                  boardWidth={boardSize}
-                  position={gamePosition}
-                  onSquareClick={
-                    game.turn() === isYourTurn ? onSquareClick : () => null
-                  }
-                  onSquareRightClick={onSquareRightClick}
-                  onPromotionPieceSelect={onPromotionPieceSelect}
-                  customSquareStyles={{
-                    ...moveSquares,
-                    ...optionSquares,
-                    ...rightClickedSquares,
-                    ...prevCurrentColor,
+            {isTutorialPlay ? (
+              <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-[80%]" />
+            ) : (
+              <>
+                <motion.div
+                  style={{
+                    width: boardSize,
+                    display: !is3DMode ? "flex" : "none",
+                    backfaceVisibility: "hidden",
+                    position: "relative",
                   }}
-                  areArrowsAllowed={true}
-                  customArrows={
-                    bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
-                      ? [
-                          [
-                            bestLine?.split(" ")?.[0].substring(0, 2) as Square,
-                            bestLine?.split(" ")?.[0].substring(2, 4) as Square,
-                          ],
-                        ]
-                      : null
-                  }
-                  customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={showPromotionDialog}
-                />
-              )}
-            </motion.div>
+                >
+                  {/* {!is3DMode && (
+                      <> */}
+                        <TwoDChessboard
+                          game={game}
+                          gameStatus={statusGame.toLowerCase()}
+                          setOptionSquares={setOptionSquares}
+                          arePiecesDraggable={isAtCurrentMove}
+                        onPieceDrop={onPieceDrop}
+                        arePiecesClickable={
+                          statusGame === "Ongoing" && isAtCurrentMove
+                        }
+                        orientation={orientation}
+                        boardWidth={boardSize}
+                        position={gamePosition}
+                        onSquareClick={
+                          game.turn() === isYourTurn ? onSquareClick : () => null
+                        }
+                        onSquareRightClick={onSquareRightClick}
+                        onPromotionPieceSelect={onPromotionPieceSelect}
+                        customSquareStyles={{
+                          ...moveSquares,
+                          ...optionSquares,
+                          ...rightClickedSquares,
+                          ...prevCurrentColor,
+                        }}
+                        areArrowsAllowed={false}
+                        promotionToSquare={moveTo}
+                        showPromotionDialog={showPromotionDialog}
+                      />
+                      {customArrowsConfig.length > 0 && (
+                        <CustomChessArrows
+                          arrows={customArrowsConfig}
+                          boardSize={boardSize}
+                          orientation={orientation}
+                        />
+                      )}
+                    {/* </>
+                  )} */}
+                </motion.div>
+              </>
+            )}
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
               <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Previous Place
-                </span>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] bg-[#F5F682]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Current Place
-                </span>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <div className="w-[14px] h-[14px] rounded-full bg-[#64646480]" />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Possible Move
-                </span>
-              </div>
-              <div className="hidden sm:flex flex-row items-center justify-center gap-1">
-                <ArrowRight color="#221AE950" size={16} />
-                <span className="h-[14px] font-normal text-[11px]">
-                  Move Recommendation
-                </span>
-              </div>
-            </div>
+                    <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Previous Place
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-1">
+                    <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Current Place
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-1">
+                    <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Possible Move
+                    </span>
+                  </div>
+                  <div className="hidden sm:flex flex-row items-center justify-center gap-1">
+                    <ArrowRight color="#221AE950" size={16} />
+                    <span className="h-[14px] font-normal text-[11px]">
+                      Move Recommendation
+                    </span>
+                  </div>
+                </div>
           </div>
 
           <div className="sm:hidden flex flex-col gap-4 mt-4">
-            {statusGame !== "Ongoing" && (
+            {isTutorialPlay || statusGame !== "Ongoing" && (
               <div className="flex justify-center items-center">
                 <CommentarGame
                   statusGame={statusGame}
@@ -1977,6 +2424,103 @@ export default function PlayingPage() {
                 />
               </div>
             )}
+
+            {isTutorialPlay && (
+              <>
+                <div className="flex justify-center items-center">
+                  <CommentarGame
+                    statusGame={"Win"}
+                    lossReason={"checkmate"}
+                  />
+                </div>
+                <ButtonFinish
+                  pgn={game.pgn()}
+                  handleAnalyzeGame={handleAnalyzeGame}
+                  handleNewGame={handleNewGame}
+                  handleRematch={handleRematch}
+                  handleShare={handleShare}
+                  handleDownload={handleDownload}
+                  handleSave={handleSave}
+                  isSaved={isSaved}
+                  isSaving={isSaving}
+                  hasAnalysis={hasAnalysis}
+                  onAnalyzeClick={() => {
+                    setIsAnalyzeOpen(true);
+                  }}
+                  onShowAnalysisClick={handleShowAnalysis}
+                />
+              </>
+              
+            )}
+
+            {!game.isGameOver() && (
+                  // <div className="flex flex-row justify-center items-center gap-2 px-4">
+                  <div className="flex flex-row justify-center items-center gap-[12px] px-[16px]">
+                    <button
+                      disabled={game.history().length === 0}
+                      // disabled={true}
+                      onClick={handleUndo}
+                      className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
+                      {/* <ChevronLeft size={24} color="#000" /> */}
+                    </button>
+                    {/* <button
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
+                      <ChevronRight size={24} color="#000" />
+                    </button> */}
+                    <button
+                      onClick={handleReset}
+                      className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clipPath="url(#clip0_852_113922)">
+                          <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_852_113922">
+                            <rect width="20" height="20" fill="white" transform="matrix(-1 0 0 1 20 0)"/>
+                          </clipPath>
+                        </defs>
+                      </svg>
+                      {/* <RotateCw size={20} color="#000" /> */}
+                    </button>
+                    
+                    {/* <button
+                      disabled={game.history().length === 0}
+                      onClick={handleUndo}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        game.history().length === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronLeft size={20} color="#000" />
+                    </button>
+                    <button
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
+                    >
+                      <ChevronRight size={20} color="#000" />
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+                    >
+                      <RotateCw size={20} color="#000" />
+                    </button> */}
+                  </div>
+                )}
 
             {statusGame === "Ongoing" ? (
               <ButtonPlaying
@@ -1996,10 +2540,14 @@ export default function PlayingPage() {
                 handleRematch={handleRematch}
                 handleShare={handleShare}
                 handleDownload={handleDownload}
-                getAnalysisButtonContent={getAnalysisButtonContent}
                 handleSave={handleSave}
                 isSaved={isSaved}
                 isSaving={isSaving}
+                hasAnalysis={hasAnalysis}
+                onAnalyzeClick={() => {
+                  setIsAnalyzeOpen(true);
+                }}
+                onShowAnalysisClick={handleShowAnalysis}
               />
             )}
 
@@ -2020,7 +2568,7 @@ export default function PlayingPage() {
                   className="object-contain"
                 />
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-[14px] --sm font-semibold ${
                     selectedTab === "current" ? `text-[#221AE9]` : `text-black`
                   }`}
                 >
@@ -2046,7 +2594,7 @@ export default function PlayingPage() {
                   className="object-contain"
                 />
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-[14px] --sm font-semibold ${
                     selectedTab === "past" ? `text-[#221AE9]` : `text-black`
                   }`}
                 >
@@ -2067,35 +2615,6 @@ export default function PlayingPage() {
                     statusGame={statusGame}
                   />
                 </div>
-
-                {!game.isGameOver() && (
-                  <div className="flex flex-row justify-center items-center gap-2 px-4">
-                    <button
-                      disabled={game.history().length === 0}
-                      onClick={handleUndo}
-                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        game.history().length === 0
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      <ChevronLeft size={20} color="#000" />
-                    </button>
-                    <button
-                      disabled={true}
-                      onClick={handleRedo}
-                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
-                    >
-                      <ChevronRight size={20} color="#000" />
-                    </button>
-                    <button
-                      onClick={handleReset}
-                      className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
-                    >
-                      <RotateCw size={20} color="#000" />
-                    </button>
-                  </div>
-                )}
               </>
             ) : (
               <div className="bg-white border border-[#DEDEDE] rounded-[16px] p-4">
@@ -2165,6 +2684,24 @@ export default function PlayingPage() {
       </div>
 
       <div className="hidden sm:block w-full">
+        <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
+          <button onClick={() => router.push("/playground/play-vs-ai")}>
+            <ArrowLeft color="black" size={24} />
+          </button>
+
+          <div className="flex flex-row justify-center items-center gap-2">
+            <Image
+              src={"/images/play-vs-ai/icon-play-vs-ai.png"}
+              alt="icon"
+              width={22}
+              height={21}
+              className="w-[22px] h-[21px] object-contain"
+            />
+            <span className="font-semibold text-[18px]">You vs AI</span>
+          </div>
+        </div>
+
+
         <Tabs defaultValue="current" className="w-full">
           <TabsList className="grid w-full grid-cols-2 min-h-[68px] rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 gap-2">
             <TabsTrigger
@@ -2223,10 +2760,10 @@ export default function PlayingPage() {
 
           <TabsContent value="current" className="gap-2">
             <div
-              className="flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4 "
-              style={{ height: heightBoard }}
+              className="lg:max-h-[625px] xxl:max-h-[675px] h-auto flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4"
+              // style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
-              <div className="flex flex-col px-4 w-full overflow-y-auto ">
+              <div ref={movementDetailsRef} className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
                   Movement Details
                 </span>
@@ -2236,44 +2773,58 @@ export default function PlayingPage() {
                   capturedBlack={capturedBlack}
                   PieceChoosed={PieceChoosed}
                 />
-              </div>
-              <div className="flex flex-col items-center w-full gap-2">
+
                 {!game.isGameOver() && (
-                  <div className="flex flex-row justify-center items-center gap-2 my-2">
+                  <div className="flex flex-row justify-center items-center gap-[12px] my-[16px]">
                     <button
                       disabled={game.history().length === 0}
+                      // disabled={true}
                       onClick={handleUndo}
-                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                        game.history().length === 0
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
+                      className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
-                      <ChevronLeft size={24} color="#000" />
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
+                      {/* <ChevronLeft size={24} color="#000" /> */}
                     </button>
-                    <button
+                    {/* <button
                       disabled={true}
                       onClick={handleRedo}
-                      className={`rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
+                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
                       <ChevronRight size={24} color="#000" />
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleReset}
-                      className="rounded-[4px] w-[80px] h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+                      className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <RotateCw size={20} color="#000" />
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clipPath="url(#clip0_852_113922)">
+                          <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_852_113922">
+                            <rect width="20" height="20" fill="white" transform="matrix(-1 0 0 1 20 0)"/>
+                          </clipPath>
+                        </defs>
+                      </svg>
+                      {/* <RotateCw size={20} color="#000" /> */}
                     </button>
                   </div>
                 )}
-
+              </div>
+              <div className="flex flex-col items-center w-full gap-2">
                 {statusGame !== "Ongoing" && (
                   <CommentarGame
                     lossReason={lossReason}
                     statusGame={statusGame}
                   />
                 )}
-                {statusGame === "Ongoing" ? (
+                {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={handleHint}
                     handleNewGame={handleNewGame}
@@ -2291,10 +2842,14 @@ export default function PlayingPage() {
                     handleRematch={handleRematch}
                     handleShare={handleShare}
                     handleDownload={handleDownload}
-                    getAnalysisButtonContent={getAnalysisButtonContent}
                     handleSave={handleSave}
                     isSaved={isSaved}
                     isSaving={isSaving}
+                    hasAnalysis={hasAnalysis}
+                    onAnalyzeClick={() => {
+                      setIsAnalyzeOpen(true);
+                    }}
+                    onShowAnalysisClick={handleShowAnalysis}
                   />
                 )}
               </div>

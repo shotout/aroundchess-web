@@ -198,13 +198,13 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
       </div>
       <div className="flex flex-col min-w-0 flex-1">
         {content && (
-          <p className="text-gray-900 font-medium text-xs sm:text-sm mb-2 leading-relaxed">
+          <p className="text-gray-900 font-medium text-[14px] --xs sm:text-[14px] --sm mb-2 leading-relaxed">
             {content}
           </p>
         )}
         {hasAnyOpenings ? (
           <div className="space-y-3">
-            <p className="text-xs sm:text-sm font-medium text-gray-800">
+            <p className="text-[14px] --xs sm:text-[14px] --sm font-medium text-gray-800">
               List of Topics that you've played:
             </p>
 
@@ -212,14 +212,14 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
               {/* White openings */}
               {relevantOpenings.white.length > 0 && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-gray-900 tracking-wide mb-1">
+                  <p className="text-[14px] --xs font-semibold text-gray-900 tracking-wide mb-1">
                     White Opening
                   </p>
                   <div className="space-y-1">
                     {relevantOpenings.white.map((opening, index) => (
                       <p
                         key={`white-${index}`}
-                        className="text-xs sm:text-sm text-gray-700 leading-snug"
+                        className="text-[14px] --xs sm:text-[14px] --sm text-gray-700 leading-snug"
                       >
                         <span className="break-words">{opening.name}</span> ={" "}
                         {opening.playCount}{" "}
@@ -233,14 +233,14 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
               {/* Black openings */}
               {relevantOpenings.black.length > 0 && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-gray-900 tracking-wide mb-1">
+                  <p className="text-[14px] --xs font-semibold text-gray-900 tracking-wide mb-1">
                     Black Opening
                   </p>
                   <div className="space-y-1">
                     {relevantOpenings.black.map((opening, index) => (
                       <p
                         key={`black-${index}`}
-                        className="text-xs sm:text-sm text-gray-700 leading-snug"
+                        className="text-[14px] --xs sm:text-[14px] --sm text-gray-700 leading-snug"
                       >
                         <span className="break-words">{opening.name}</span> ={" "}
                         {opening.playCount}{" "}
@@ -253,7 +253,7 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
             </div>
           </div>
         ) : (
-          <p className="text-xs sm:text-sm text-gray-500">
+          <p className="text-[14px] --xs sm:text-[14px] --sm text-gray-500">
             No openings have been played yet.
           </p>
         )}
@@ -319,7 +319,7 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
       <PopoverContent
         side="top"
         align="start"
-        className="p-3 sm:p-4 bg-blue-base/15 backdrop-blur-3xl border border-blue-base w-auto rounded-none rounded-t-md rounded-br-md"
+        className="!bg-[#ECEBFF] w-auto overflow-hidden border border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E] rounded-[8px]"
         sideOffset={10}
         alignOffset={10}
         onMouseEnter={handleMouseEnter}

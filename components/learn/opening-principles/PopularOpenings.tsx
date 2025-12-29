@@ -114,7 +114,7 @@ export function PopularOpenings() {
                 <h4 className="font-semibold text-gray-700 mb-2">Key Ideas:</h4>
                 <ul className="list-disc pl-5 space-y-1">
                   {popularOpenings[currentOpening].key_ideas.map((idea, index) => (
-                    <li key={index} className="text-sm text-gray-600">{idea}</li>
+                    <li key={index} className="text-[14px] --sm text-gray-600">{idea}</li>
                   ))}
                 </ul>
               </div>

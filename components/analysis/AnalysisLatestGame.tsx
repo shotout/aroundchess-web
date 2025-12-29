@@ -184,7 +184,7 @@ const AnalysisLatestGame: React.FC = () => {
             }}
             next={() => {
               setUserInitiatedChange(true);
-              setFocusPage("training");
+              setFocusPage("summary");
             }}
           />
         );
@@ -209,13 +209,28 @@ const AnalysisLatestGame: React.FC = () => {
         );
     }
   };
+  
   useEffect(() => {
     setTabFocus(focusPage);
   }, [focusPage]);
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1280);
+    };
+  
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
   const handleOnChangeTab = (tab: { name: string; label: string }) => {
     if (isSignedIn) {
       setTabFocus(tab.name);
-      setUserInitiatedChange(true);
+      if (!isMobile) {
+        setUserInitiatedChange(true);
+      }
       setFocusPage(tab.name);
       setChessMove({});
     } else {
@@ -227,9 +242,9 @@ const AnalysisLatestGame: React.FC = () => {
     <div
       ref={containerRef}
       style={{ width: widthContainer }}
-      className={`flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input lg:rounded-lg mb-2 sm:mb-4 lg:p-[32px]`}
+      className={`flex flex-col gap-2 bg-white mt-0 lg:mt-0 lg:border lg:border-input rounded-b-lg lg:rounded-lg mb-2 sm:mb-4 lg:p-[32px]`}
     >
-      <div className="flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
+      <div className="hidden md:flex flex-col px-4 gap-2 border-b border-b-[#DEDEDE]">
         <span className="text-[24px] sm:text-md md:text-lg lg:text-[24px] font-medium mb-1">
           Analysis
         </span>
@@ -247,7 +262,7 @@ const AnalysisLatestGame: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex flex-row bg-[#FAFDFF] border border-[C0CED4] rounded-[12px] overflow-x-auto gap-1 p-[8px]">
+      <div className="flex flex-row bt-white md:bg-[#FAFDFF] border-b md:border border-[C0CED4] md:rounded-[12px] overflow-x-auto gap-1 md:p-[8px] -ml-4 md:ml-0 w-[calc(100%+32px)] md:w-full">
         {tabsMenu.map((tab, index) => {
           return (
             <div
@@ -255,19 +270,20 @@ const AnalysisLatestGame: React.FC = () => {
               onClick={() => handleOnChangeTab(tab)}
               className={`flex cursor-pointer py-[8px] px-[16px] ${
                 tab.name === "movement" &&
-                `min-w-[136px] sm:min-w-[154px] lg:min-w-[154px]`
+                `min-w-[154px] lg:min-w-[154px]`
               } p-2 ${
                 focusPage === tab.name &&
-                `shadow-sm border border-[#c0ced4] rounded-md bg-[#FFF] font-semibold `
+                `shadow-sm border-b-[3px] md:border-b-[1px] md:border text-[#221AE9] md:text-[#121212] border-[#221AE9] md:border-[#c0ced4] md:rounded-md bg-[#FFF] font-semibold `
               }`}
             >
-              <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-[14px] font-medium">
+              <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-[14px] font-medium">
                 {tab.label}
               </span>
             </div>
           );
         })}
       </div>
+
       {renderView(focusPage)}
     </div>
   );

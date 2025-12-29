@@ -34,7 +34,7 @@ const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
     <div className="mb-6">
       {currentElo && (
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
             4
           </div>
           <Label htmlFor="timeframe-select" className="font-medium">

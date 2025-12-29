@@ -31,7 +31,7 @@ function SidebarContent({ topics, activeTab, setActiveTab }: LearnSidebarProps) 
     <div className="flex-1 flex flex-col h-full" ref={ref}>
       <div className="p-6 pb-2">
         <h2 className="text-xl font-semibold text-gray-900">Endgame Basics</h2>
-        <p className="text-sm text-muted-foreground mt-1">Master essential endgame techniques</p>
+        <p className="text-[14px] --sm text-muted-foreground mt-1">Master essential endgame techniques</p>
       </div>
       <ScrollArea className="flex-1">
         <div className="px-2 py-2">
@@ -42,7 +42,7 @@ function SidebarContent({ topics, activeTab, setActiveTab }: LearnSidebarProps) 
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 mb-1
+              className={`w-full text-left px-3 py-2 rounded-lg text-[14px] --sm transition-all duration-200 mb-1
                 ${
                   activeTab === item.id
                     ? "bg-blue-50 text-blue-700 font-medium"
@@ -53,7 +53,7 @@ function SidebarContent({ topics, activeTab, setActiveTab }: LearnSidebarProps) 
                 <div className={`${activeTab === item.id ? "text-blue-600" : "text-gray-500"}`}>{item.icon}</div>
                 <div className="flex-1">
                   <div className={`${activeTab === item.id ? "font-medium" : ""}`}>{item.title}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+                  <div className="text-[14px] --xs text-muted-foreground mt-0.5">{item.description}</div>
                 </div>
               </div>
             </motion.button>

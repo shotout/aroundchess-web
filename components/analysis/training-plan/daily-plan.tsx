@@ -91,7 +91,7 @@ export function DailyPlan() {
         <h3 className="text-lg font-medium">Today's Training Plan</h3>
         <div className="flex items-center mt-2 space-x-2">
           <Progress value={progressPercentage} className="w-full" />
-          <span className="text-sm font-medium">{progressPercentage.toFixed(0)}%</span>
+          <span className="text-[14px] --sm font-medium">{progressPercentage.toFixed(0)}%</span>
         </div>
       </div>
 
@@ -114,10 +114,10 @@ export function DailyPlan() {
                         {activity.type}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-[14px] --sm text-muted-foreground mt-1">
                       {activity.description}
                     </p>
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-4 mt-2 text-[14px] --sm text-muted-foreground">
                       <div className="flex items-center">
                         <Clock className="h-4 w-4 mr-1" />
                         {activity.timeSlot}

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import DotSpinner from "../game-history/Spinner";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export interface StartPlayVSAIProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export function StartPlayVSAI({
   onLimit,
 }: StartPlayVSAIProps) {
   const [isDesktop, setIsDesktop] = useState(false);
+  const { isTutorialPlay } = useTutorial();
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -31,16 +33,17 @@ export function StartPlayVSAI({
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
 
-  if (!visible) return null;
+  // Don't show dialog during tutorial
+  if (!visible || isTutorialPlay) return null;
 
   const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
   const headerHeight = window.innerWidth >= 1024 ? 96 : 72;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-1 sm:p-4"
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 4,
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
         paddingTop: headerHeight + 16,
         paddingBottom: 16,
         paddingRight: 16,
@@ -51,9 +54,14 @@ export function StartPlayVSAI({
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto z-10 h-full flex flex-col">
-        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="relative z-10 p-2 sm:p-4 overflow-y-auto flex-1 min-h-0">
+      <div className="relative w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto z-10 h-full flex items-center justify-center">
+        <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl flex flex-col overflow-hidden">
+          <div className="relative z-10 p-[16px] sm:p-4 overflow-y-auto min-h-fit">
+            <button className="absolute right-[16px] top-[10px] sm:top-[24px] sm:right-[24px] border md:border-0 px-3 py-1 rounded-[4px]" onClick={onClose}>
+              <X className="w-[16px] md:w-[24px] h-[16px] md:h-[24px] text-[#666] hover:text-[#333]" />
+            </button>
+
+
             <StartPlayVSAIContent onClose={onClose} />
           </div>
         </div>
@@ -160,7 +168,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-gray-900">
           Choose Your Color
         </h1>
-        <p className="text-xs sm:text-sm lg:text-base text-gray-600">
+        <p className="mb-[16px] text-[14px] --xs sm:text-[14px] --sm lg:text-base text-gray-600">
           Select which color you want to play as. The computer will play as the
           opposite color.
         </p>
@@ -171,12 +179,12 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         {[
           {
             color: "white",
-            icon: "/images/play-vs-ai/white-king.png",
+            icon: "/images/play-vs-ai/white-king.svg",
             label: "White",
           },
           {
             color: "black",
-            icon: "/images/play-vs-ai/black-king.png",
+            icon: "/images/play-vs-ai/black-king.svg",
             label: "Black",
           },
         ].map(({ color, icon, label }) => (
@@ -190,7 +198,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
             }`}
           >
             <div className="flex flex-col items-center space-y-1 sm:space-y-2 lg:space-y-4">
-              <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 lg:w-20 lg:h-20 flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 flex items-center justify-center">
                 <Image
                   src={icon}
                   alt={color}
@@ -199,8 +207,8 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                   className="max-w-full max-h-full object-contain"
                 />
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium text-gray-900">
+              <div className="flex flex-col items-center !mt-[8px]">
+                <span className="text-[14px] --xs sm:text-[14px] --sm md:text-base lg:text-lg font-medium text-gray-900">
                   {label}
                 </span>
               </div>
@@ -245,7 +253,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     />
                   </div>
                   <div
-                    className={`text-sm font-semibold ${
+                    className={`text-[14px] --sm font-semibold ${
                       difficulty === diff.key
                         ? "text-blue-700"
                         : "text-gray-900"
@@ -254,7 +262,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     {diff.label}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">{diff.range}</div>
+                <div className="text-[14px] --xs text-gray-500">{diff.range}</div>
               </div>
             </button>
           ))}
@@ -291,7 +299,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     />
                   </div>
                   <div
-                    className={`text-xs sm:text-sm font-semibold ${
+                    className={`text-[14px] --xs sm:text-[14px] --sm font-semibold ${
                       difficulty === diff.key
                         ? "text-blue-700"
                         : "text-gray-900"
@@ -300,7 +308,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     {diff.label}
                   </div>
                 </div>
-                <div className="text-[10px] sm:text-xs text-gray-500">{diff.range}</div>
+                <div className="text-[14px] --10px sm:text-[14px] --xs text-gray-500">{diff.range}</div>
               </div>
             </button>
           ))}
@@ -310,11 +318,11 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       {/* Opponents Grid */}
       <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
         <div
-          className="grid gap-2 sm:gap-3 lg:gap-3 max-h-48 sm:max-h-80 lg:max-h-80 overflow-y-auto justify-center"
+          className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[21vh] 2xl:max-h-[18vw] overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
-              ? "repeat(auto-fit, 120px)" 
-              : "repeat(auto-fit, 64px)" 
+              ? "repeat(auto-fit, 92px)" // "repeat(auto-fit, 94px)" 
+              : "repeat(auto-fit, 72px)" 
           }}
         >
           {opponents.map((opponent) => {
@@ -325,7 +333,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
               <button
                 key={opponent.id}
                 onClick={() => setSelectedOpponent(opponent.id)}
-                className={`p-1 rounded-md lg:rounded-lg border transition-all w-12 sm:w-16 md:w-16 lg:w-24 lg:h-auto ${
+                className={`p-1 rounded-md lg:rounded-lg border transition-all w-full sm:w-16 md:w-16 lg:w-24 lg:h-auto ${
                   selectedOpponent === opponent.id
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-transparent hover:border-gray-200 text-gray-700"
@@ -343,7 +351,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                   </div>
                   <div className="text-center">
                     <div
-                      className={`text-[10px] sm:text-xs lg:text-xs font-medium ${
+                      className={`text-[14px] --10px sm:text-[14px] --xs lg:text-[14px] --xs font-medium ${
                         selectedOpponent === opponent.id
                           ? "text-blue-base"
                           : "text-gray-900"
@@ -351,7 +359,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                     >
                       {opponent.name}
                     </div>
-                    <div className="text-[9px] sm:text-xs lg:text-xs text-gray-500">
+                    <div className="text-[9px] sm:text-[14px] --xs lg:text-[14px] --xs text-gray-500">
                       ELO {ELO}
                     </div>
                   </div>
@@ -372,7 +380,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         ) : (
           <button
             onClick={handlePlayNow}
-            className="w-full py-2 sm:py-3 lg:py-3 btn-primary text-xs sm:text-base lg:text-base text-white font-semibold rounded-full transition-colors"
+            className="w-full py-2 sm:py-3 lg:py-3 btn-primary text-[14px] --xs sm:text-base lg:text-base text-white font-semibold rounded-full transition-colors"
           >
             Play Now
           </button>

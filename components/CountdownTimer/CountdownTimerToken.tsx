@@ -47,7 +47,7 @@ const DigitFlip = ({ value }: { value: number }) => {
 const TimeBox = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-col items-center space-y-1">
     <DigitFlip value={value} />
-    <span className="text-[10px] md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">
+    <span className="text-[14px] --10px md:text-[16px] xl:text-[25px] text-[#2E3133] font-normal">
       {label}
     </span>
   </div>
@@ -91,7 +91,7 @@ export default function CountdownTimerToken() {
 
   return (
     <div className="flex flex-col items-center space-y-3 bg-gradient-to-b from-[#E7F3F7] via-[#DAF2FB] to-[#C8F1FF] border-2 border-[white] rounded-[16px] p-[16px]">
-      <p className="text-[12px] md:text-[17px] text-[#221AE9] font-medium">
+      <p className="text-[14px] -- md:text-[17px] text-[#221AE9] font-medium">
         You will get one Free Analysis Token in...
       </p>
       <div className="flex space-x-4">

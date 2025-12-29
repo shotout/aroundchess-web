@@ -83,7 +83,7 @@ export function DevelopmentStrategies() {
               <p className="text-gray-600 mb-4">{strategy.description}</p>
               <ul className="list-disc pl-5 space-y-1">
                 {strategy.tips.map((tip, tipIndex) => (
-                  <li key={tipIndex} className="text-sm text-gray-600">{tip}</li>
+                  <li key={tipIndex} className="text-[14px] --sm text-gray-600">{tip}</li>
                 ))}
               </ul>
             </CardContent>

@@ -150,14 +150,14 @@ export function FavoritesDialog({
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       </Button>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                       <span>{report.type}</span>
                       <span>•</span>
                       <span>{report.size}</span>
                       <span>•</span>
                       <span>Created {report.date}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                       <span>Added to favorites {report.addedDate}</span>
                     </div>
                     <div className="flex gap-2 mt-2">

@@ -53,7 +53,7 @@ export function ImportDropzone({ onAnalyze }: ImportDropzoneProps) {
             <p className="text-lg text-muted-foreground">
               Drag & drop your PGN file here, or click to select
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[14px] --sm text-muted-foreground">
               Maximum file size: 5MB
             </p>
           </div>
@@ -65,8 +65,8 @@ export function ImportDropzone({ onAnalyze }: ImportDropzoneProps) {
           <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
             <FileType className="h-5 w-5 text-primary" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{acceptedFiles[0].name}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[14px] --sm font-medium truncate">{acceptedFiles[0].name}</p>
+              <p className="text-[14px] --xs text-muted-foreground">
                 {(acceptedFiles[0].size / 1024).toFixed(1)} KB
               </p>
             </div>

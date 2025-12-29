@@ -96,7 +96,7 @@ export default function GameHeader({
                   style={{ objectFit: "contain", maxHeight: "40px" }}
                 />
               </div>
-              <span className="font-bold text-xs lg:text-lg h-10 flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="font-bold text-[14px] --xs lg:text-lg h-10 flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
                 {categoryData.name || "Loading..."}
               </span>
             </div>

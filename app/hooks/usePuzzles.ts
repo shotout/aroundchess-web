@@ -84,7 +84,8 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
       setHint(null); // Reset hint when loading a new puzzle
 
       const startingSide = puzzle.FEN.split(" ")[1];
-      setBoardOrientation(startingSide === "b" ? "white" : "black");
+      // Set board orientation so the player (who makes the move) is always at the bottom
+      setBoardOrientation(startingSide === "b" ? "black" : "white");
 
       // console.log('Loaded Puzzle:', puzzle)
     }
@@ -135,9 +136,24 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
   // Undo the last move
   const handleTakeBackMove = () => {
     if (isSolved || currentSolutionIndex === 0) return;
-    setFenHistory((prev) => prev.slice(0, -1));
-    setCurrentSolutionIndex((prev) => prev - 1);
-    game.undo();
+    
+    // Determine how many moves to undo
+    // If current move index is even (bot just moved), undo 2 moves (bot + player's previous move)
+    // If current move index is odd (player just moved), undo 1 move (just player's move)
+    const isBotTurn = currentSolutionIndex % 2 === 0;
+    const movesToUndo = 1; // isBotTurn ? 2 : 1;
+    
+    // Ensure we don't undo more moves than available
+    const actualMovesToUndo = Math.min(movesToUndo, currentSolutionIndex);
+    
+    // Undo the moves from the game
+    for (let i = 0; i < actualMovesToUndo; i++) {
+      game.undo();
+    }
+    
+    // Update state
+    setFenHistory((prev) => prev.slice(0, -actualMovesToUndo));
+    setCurrentSolutionIndex((prev) => prev - actualMovesToUndo);
   };
 
   // Toggle the board orientation
@@ -161,15 +177,34 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
       setHint(fromSquare); // Set the hint to the starting square of the next move
     }
   };
+  // Helper function to detect if a move is a knight move (L-shaped)
+  const isKnightMove = (from: string, to: string): boolean => {
+    const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankFrom = parseInt(from[1]) - 1;
+    const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+    const rankTo = parseInt(to[1]) - 1;
+
+    const fileDiff = Math.abs(fileTo - fileFrom);
+    const rankDiff = Math.abs(rankTo - rankFrom);
+
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
+    return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+  };
+
   const getHintArrow = () => {
     if (currentPuzzle) {
       const moves = solutionHistory;
       const nextMove = moves[currentSolutionIndex]; // Get the next move in the solution
+      const fromSquare = nextMove.substring(0, 2);
+      const toSquare = nextMove.substring(2, 4);
+      
       setArrow([
-        [
-          nextMove.substring(0, 2) as Square,
-          nextMove.substring(2, 4) as Square,
-        ],
+        {
+          from: fromSquare,
+          to: toSquare,
+          color: "rgba(34, 26, 233, 0.7)", // Purple hint color
+          isKnightMove: isKnightMove(fromSquare, toSquare)
+        },
       ]);
     }
   };

@@ -19,9 +19,9 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
   open,
   setOpen,
   onClose,
-}) => { 
+}) => {
   const [width, setWidth] = useState<number>(0);
- 
+
   const dialogOpen = open;
   const setDialogOpen = (v: boolean) => {
     setOpen!(v);
@@ -46,7 +46,6 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
         <DialogContent
           className={`p-0 bg-white shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}
         >
-          <DialogTitle></DialogTitle>
           <div className="w-full h-full block -mt-4">
             <Image
               src={src}

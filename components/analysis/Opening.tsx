@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { usePgnStore } from "../../app/store/zustandStore";
 import { useChessMoveStore } from "../../app/store/chessMoveStore";
+import { useChessboardRefStore } from "../../app/store/chessboardRefStore";
 import ReactCountryFlag from "react-country-flag";
 import { CardPlayer } from "@/components/player/CardPlayer";
 import { useTabFocusStore } from "@/app/store/tabAnalysisStore";
@@ -24,6 +25,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
   const { chessMove, setChessMove } = useChessMoveStore();
+  const { scrollToChessboard } = useChessboardRefStore();
   const { gameInfo, summary, movementDetails } = dataAnalysis ?? {};
 
   const { whiteSide, blackSide, overallGameAssessment, bestMoves } =
@@ -91,18 +93,21 @@ const Opening: React.FC<OpeningProps> = (props) => {
               item.gamePhase.toLowerCase().replace(/ /g, "") == tabFocus
           )
         : [];
-    console.log(moveOpening);
     if (moveOpening.length > 0) {
       move.move = moveOpening[moveOpening.length-2].move;
       move.type = "black";
     }
-    console.log(move);
     setChessMove(move);
+
+    // Scroll to chessboard using ref from store
+    setTimeout(() => {
+      scrollToChessboard();
+    }, 100);
   };
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
-        <span className="text-xs sm:hidden text-center">
+        <span className="text-[14px] --xs hidden text-center">
           <span className="line-clamp-1 text-[#00B427]">
             {whiteSide?.profileInfo.username}
           </span>{" "}
@@ -126,14 +131,14 @@ const Opening: React.FC<OpeningProps> = (props) => {
             capturedPieces={capturedBlack}
           />
         </div>
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-md text-right sm:text-left">
+        <div className="hidden lg:flex flex-col lg:flex-row gap-[16px]">
+          <div className="flex-1">
+            <p className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-left">
               White Opening:{" "}
             </p>
             <div className="flex flex-row justify-end sm:justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
-                {openings.white.name}
+              <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600">
+                {openings?.white.name}
               </span>
               {whiteOpening.classification && (
                 <Image
@@ -146,12 +151,12 @@ const Opening: React.FC<OpeningProps> = (props) => {
               {whiteOpening.classification}
             </div>
           </div>
-          <div>
-            <p className="text-sm sm:text-sm md:text-md lg:text-md text-left">
+          <div className="flex-1">
+            <p className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-left">
               Black Opening:{" "}
             </p>
             <div className="flex flex-row justify-start items-center gap-2 mt-1">
-              <span className="block font-semibold text-sm sm:text-sm md:text-md lg:text-md text-blue-600">
+              <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600">
                 {openings.black.name}
               </span>
               {blackOpening.classification && (
@@ -166,83 +171,145 @@ const Opening: React.FC<OpeningProps> = (props) => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-[16px]">
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
+            <div className="mb-2 lg:hidden">
+              <p className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-left font-bold text-[#364152]">
+                White Opening:{" "}
+              </p>
+              <div className="flex flex-row flex-wrap justify-start sm:justify-start items-center">
+                <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600 underline">
+                  {openings?.white.name}
+                </span>
+                <span className="flex items-center gap-[8px]">
+                  {whiteOpening.classification && (
+                    <Image
+                      alt="..."
+                      src={`/icons/${whiteOpening.classification.toLowerCase()}-moves-icon.png`}
+                      width={16}
+                      height={16}
+                      className="w-[16px] h-[16px] object-contain"
+                    />
+                  )}
+                  {whiteOpening.classification}
+                </span>
+              </div>
+            </div>
+            
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(whiteOpening)}
-                className="max-w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
+                className="max-w-1/2 cursor-pointer text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
+                <span className="text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md font-bold">
                   {whiteOpening.moves}
                 </span>
               </span>
-              <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                  whiteOpening.classification
-                )}`}
-              >
-                {whiteOpening.classification}
-              </span>
+
+              <div className="flex gap-[10px]">
+                <span
+                  className={`flex items-center justify-center min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                    whiteOpening.classification
+                  )}`}
+                >
+                  {whiteOpening.classification}
+                </span>
+              </div>
             </div>
-            {/* <ul className="list-disc list-inside text-xs"> */}
-            <ul className="list-inside text-xs">
+            {/* <ul className="list-disc list-inside text-[14px] --xs"> */}
+
+            <p className="font-bold mb-[8px] text-[14px]">Analysis:</p>
+
+            <ul className="list-disc list-inside text-[14px] --xs pl-[10px]">
               {whiteOpening.description.map((detail: any, i: number) => (
-                <li key={i} className="mb-1">
-                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-md">
+                <li key={i} className="mb-1 pl-[16px] -indent-[18px]">
+                  {/* <span className="font-bold text-[#585858] sm:text-[14px] --sm md:text-md lg:text-md">
                     {detail.split(" ")[0]}
-                  </span>{" "}
+                  </span>{" "} */}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+
+            <div className="mt-2 p-2 sm:p-4 border-l-4 border-[#221AE9] text-[#254B9D] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+              <p className="font-bold mb-[4px]">Recommendation:</p>
               {whiteOpening.explanation}
             </div>
           </div>
+
           <div className="border border-t-4 border-[#221AE9] rounded-lg p-2 sm:p-4 bg-white shadow">
+            <div className="mb-2 lg:hidden">
+              <p className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-left font-bold text-[#364152]">
+                Black Opening:{" "}
+              </p>
+              <div className="flex flex-row flex-wrap justify-start sm:justify-start items-center">
+                <span className="block font-semibold text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md text-blue-600">
+                  {openings.black.name}
+                </span>
+                <span className="flex items-center gap-[8px]">
+                  {blackOpening.classification && (
+                    <Image
+                      alt=""
+                      src={`/icons/${blackOpening.classification.toLowerCase()}-moves-icon.png`}
+                      width={16}
+                      height={16}
+                    />
+                  )}
+                  {blackOpening.classification}
+                </span>
+              </div>
+            </div>
             <div className="flex flex-row justify-between items-center mb-2 sm:mb-3">
               <span
                 onClick={() => handleOnClickMovement(blackOpening)}
-                className="w-1/2 cursor-pointer text-[10px] sm:text-xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
+                className="cursor-pointer text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md rounded-[4px] border border-primary p-1"
               >
                 Moves:{" "}
-                <span className="text-[10px] sm:text-xs md:text-md lg:text-md font-bold">
+                <span className="text-[14px] --10px sm:text-[14px] --xs md:text-md lg:text-md font-bold">
                   {blackOpening.moves}
                 </span>
               </span>
-              <span
-                className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[10px] sm:text-sm md:text-md lg:text-md ${getBadgeClass(
-                  blackOpening.classification
-                )}`}
-              >
-                {blackOpening.classification}
-              </span>
+
+              <div className="flex items-center gap-[10px]">
+                <span
+                  className={`flex items-center justify-center min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --10px sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
+                    blackOpening.classification
+                  )}`}
+                >
+                  {blackOpening.classification}
+                </span>
+              </div>
             </div>
-            {/* <ul className="list-disc list-inside text-xs"> */}
-            <ul className="list-inside text-xs">
+            
+            {blackOpening.description.length > 0 && (
+              <p className="font-bold mb-[8px] text-[14px]">Analysis:</p>
+            )}
+
+            {/* <ul className="list-disc list-inside text-[14px] --xs"> */}
+            <ul className="list-disc list-inside text-[14px] --xs pl-[10px]">
               {blackOpening.description.map((detail: any, i: number) => (
-                <li key={i} className="mb-1">
-                  <span className="font-bold text-[#585858] sm:text-sm md:text-md lg:text-md">
+                <li key={i} className="mb-1 pl-[16px] -indent-[18px]">
+                  {/* <span className="font-bold text-[#585858] sm:text-[14px] --sm md:text-md lg:text-md">
                     {detail.split(" ")[0]}
-                  </span>{" "}
+                  </span>{" "} */}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
             </ul>
-            <div className="mt-2 p-2 sm:p-4 font-semibold border-l-4 border-[#221AE9] text-[#254B9D] text-xs sm:text-sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+            <div className="mt-2 p-2 sm:p-4 border-l-4 border-[#221AE9] text-[#254B9D] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md bg-[#F6F9FF] rounded-md">
+              <p className="font-bold mb-[4px]">Recommendation:</p>
               {blackOpening.explanation}
             </div>
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-between mt-2 mx-2 mb-2">
+      <div className="flex flex-col md:flex-row justify-between gap-[8px] md:gap-[16px] mt-2 mx-2 mb-2">
         <button
           onClick={props.prev}
           className="btn-secondary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#221AE9] font-medium text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             <ArrowLeft color="#221AE9" className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
             Back: Threats&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -252,7 +319,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
           onClick={props.next}
           className="btn-primary flex items-center justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-xs sm:text-sm md:text-md lg:text-[16px] ">
+          <div className="flex flex-row items-center justify-center text-[#e6f7fe] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Middlegame
             <ArrowRight color="#e6f7fe" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>

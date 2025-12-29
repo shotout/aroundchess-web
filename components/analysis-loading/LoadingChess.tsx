@@ -19,7 +19,11 @@ interface ParsedMove {
   [key: string]: any;
 }
 
-const PgnPlayer: React.FC = () => {
+interface PgnPlayerProps {
+  maxBoardSize?: number;
+}
+
+const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
   const {
     StyleChoosed,
     setStyleChoosed,
@@ -294,23 +298,26 @@ const PgnPlayer: React.FC = () => {
     const height = window.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    const maxSize = window.innerWidth >= 1440 ? window.innerWidth / 3.25 : 400;
-    // const maxSize = window.innerWidth > 1300 ? 453 : window.innerWidth/1.5;
-    console.log("Resizing board...", isPortrait, window.innerWidth);
+    const defaultMaxSize = window.innerWidth >= 1440 ? window.innerWidth / 3.25 : 400;
+    // Use custom maxBoardSize if provided, otherwise use default calculation
+    const maxSize = maxBoardSize || defaultMaxSize;
+    console.log("Resizing board...", isPortrait, window.innerWidth, "maxSize:", maxSize);
 
     if (isPortrait) {
       // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
       // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.8 : 0.9;
-      setBoardSize(Math.min(maxSize, availableWidth * sizeFactor));
-      console.log(Math.min(maxSize, availableWidth * sizeFactor));
+      const calculatedSize = Math.min(maxSize, availableWidth * sizeFactor);
+      setBoardSize(calculatedSize);
+      console.log("Portrait board size:", calculatedSize);
     } else {
       // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
       // Use 80% of available height
-      setBoardSize(Math.min(maxSize, availableHeight * 0.8));
-      console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
+      const calculatedSize = Math.min(maxSize, availableHeight * 0.8);
+      setBoardSize(calculatedSize);
+      console.log("Landscape board size:", calculatedSize);
     }
   };
   return (
@@ -345,7 +352,7 @@ const PgnPlayer: React.FC = () => {
         )}
 
         {is3DMode && (
-          <div className="-mt-[40px]">
+          <div className="-my-[40px]">
             <ThreeDBoard
               arePiecesClickable={false}
               arePiecesDraggable={false}
@@ -383,7 +390,7 @@ const PgnPlayer: React.FC = () => {
         </div> */}
 
       {/* <div className="">
-        <p className="text-sm md:text-md text-center">
+        <p className="text-[14px] --sm md:text-md text-center">
           Move: {currentMoveIndex} / {moveHistory.length}
         </p>
         {error && <p className="text-red-500 mt-2">{error}</p>}

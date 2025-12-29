@@ -112,7 +112,7 @@ export function ChessBoard({ initialPosition = 'start' }) {
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Check and Checkmate</h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-[14px] --sm">
               When a king is under attack, it is in "check." The player must then move their king to safety, 
               block the attack, or capture the attacking piece. If there's no legal move to escape check, 
               it's "checkmate" and the game is over.
@@ -120,7 +120,7 @@ export function ChessBoard({ initialPosition = 'start' }) {
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Stalemate and Draws</h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-[14px] --sm">
               A game can end in a draw through stalemate (when a player has no legal moves but is not in check), 
               mutual agreement, threefold repetition, or the fifty-move rule.
             </p>

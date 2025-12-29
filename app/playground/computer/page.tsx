@@ -284,8 +284,8 @@ export default function ComputerGamePage() {
                             {/* Current Turn */}
                             <div className="bg-gray-50/50 p-3 rounded-lg">
                               <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Current Turn</span>
-                                <span className="text-sm font-medium text-blue-600">
+                                <span className="text-[14px] --sm text-gray-600">Current Turn</span>
+                                <span className="text-[14px] --sm font-medium text-blue-600">
                                   {currentPlayer === 'white' ? 'White' : 'Black'}
                                 </span>
                               </div>
@@ -293,28 +293,28 @@ export default function ComputerGamePage() {
 
                             {/* Material Advantage */}
                             <div>
-                              <h3 className="text-sm font-medium text-gray-900 mb-3">Material Advantage</h3>
+                              <h3 className="text-[14px] --sm font-medium text-gray-900 mb-3">Material Advantage</h3>
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-white border border-gray-300" />
-                                    <span className="text-sm text-gray-600">White</span>
+                                    <span className="text-[14px] --sm text-gray-600">White</span>
                                   </div>
-                                  <span className="text-sm font-medium">{eliminatedPieces.black.length || 0}</span>
+                                  <span className="text-[14px] --sm font-medium">{eliminatedPieces.black.length || 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-gray-900" />
-                                    <span className="text-sm text-gray-600">Black</span>
+                                    <span className="text-[14px] --sm text-gray-600">Black</span>
                                   </div>
-                                  <span className="text-sm font-medium">{eliminatedPieces.white.length || 0}</span>
+                                  <span className="text-[14px] --sm font-medium">{eliminatedPieces.white.length || 0}</span>
                                 </div>
                               </div>
                             </div>
 
                             {/* Move History */}
                             <div>
-                              <h3 className="text-sm font-medium text-gray-900 mb-3">Move History</h3>
+                              <h3 className="text-[14px] --sm font-medium text-gray-900 mb-3">Move History</h3>
                               <div className="bg-gray-50/50 p-3 rounded-lg">
                                 <ComputerMoveNotation />
                               </div>
@@ -344,11 +344,11 @@ export default function ComputerGamePage() {
                                       <span className="font-medium">
                                         {result.winner === 'white' ? 'You' : 'Computer'} won
                                       </span>
-                                      <span className="text-sm text-gray-500">
+                                      <span className="text-[14px] --sm text-gray-500">
                                         {new Date(result.date).toLocaleDateString()}
                                       </span>
                                     </div>
-                                    <div className="text-sm text-gray-600">
+                                    <div className="text-[14px] --sm text-gray-600">
                                       {result.moveCount} moves • {result.duration} minutes
                                     </div>
                                   </div>

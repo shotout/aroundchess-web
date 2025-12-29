@@ -175,7 +175,7 @@ const GameAlertDialogMobile = ({
               className="fixed bottom-0 left-0 right-0 z-50"
             >
               <div
-                className={`${colorStyles.background} border-t-4 ${colorStyles.border} rounded-t-3xl mb-2 p-6 relative overflow-hidden`}
+                className={`${colorStyles.background} border-t-4 ${colorStyles.border} rounded-t-3xl md:mb-2 p-6 relative overflow-hidden`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {image && (
@@ -210,7 +210,7 @@ const GameAlertDialogMobile = ({
                     </p>
 
                     {description && (
-                      <p className="text-sm text-[#0a142f] opacity-80 leading-relaxed">
+                      <p className="text-[14px] --sm text-[#0a142f] opacity-80 leading-relaxed">
                         {description}
                       </p>
                     )}
@@ -219,7 +219,7 @@ const GameAlertDialogMobile = ({
                   {/* Action Buttons */}
                   <div className="flex gap-x-1 w-full justify-between">
                     <button
-                      className="flex flex-1 gap-x-1 bg-white text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                      className="flex flex-1 gap-x-1 bg-white text-[14px] --xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                       onClick={(e) => {
                         handleShare();
                       }}

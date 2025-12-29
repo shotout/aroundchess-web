@@ -23,7 +23,7 @@ export const UserProfileCardSkeleton: React.FC = () => (
                 <div className="h-8 flex items-center justify-center">
                   <div className="w-20 h-6 bg-gray-200 rounded"></div>
                 </div>
-                <div className="relative h-[88px] flex justify-center items-end">
+                <div className="relative h-[98px] flex justify-center items-end">
                   <div className="w-10 h-14 bg-gray-200 rounded"></div>
                 </div>
                 <div className="text-center space-y-1">

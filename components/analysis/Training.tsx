@@ -94,32 +94,32 @@ const Training: React.FC<TrainingProps> = (props) => {
           <div className="flex flex-row items-center gap-2">
             <span
               onClick={() => handleOnClickMovement(item)}
-              className="cursor-pointer text-[12px] sm:text-sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
+              className="cursor-pointer text-[14px] -- sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-primary rounded-[4px] p-1"
             >
               Move {item.moveNumber}:{" "}
               <span className="font-bold">{item.move}</span>
             </span>
 
             <span
-              className={`rounded-full border border-input px-4 py-1 font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+              className={`rounded-full border border-input px-4 py-1 font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                 item.classification
               )}`}
             >
-              {item.evaluation}
+              {item.evaluation > 0 ? '+' : ''}{item.evaluation}
             </span>
-            <span className="text-xs sm:text-sm md:text-md lg:text-md font-semibold ">
+            <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md font-semibold ">
               {phase}
             </span>
           </div>
           <span
-            className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-xs sm:text-sm md:text-md lg:text-md ${getBadgeClass(
+            className={`min-w-[72px] text-center px-2 py-1 rounded-[4px] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ${getBadgeClass(
               item.classification
             )}`}
           >
             {item.classification}
           </span>
         </div>
-        <span className="text-sm sm:text-sm md:text-md lg:text-md font-normal">
+        <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md font-normal">
           <span className="font-bold">Analysis: </span>
           {item.analysis}
         </span>
@@ -133,7 +133,7 @@ const Training: React.FC<TrainingProps> = (props) => {
             height={1000}
             className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
           />
-          <span className="font-semibold text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
+          <span className="font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#254B9D]">
             {item.recommendedTrainingExercise}
           </span>
         </div>
@@ -143,7 +143,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           variant="default"
           className="btn-primary flex w-full h-[48px] whitespace-nowrap rounded-sm"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
+          <div className="flex flex-row items-center text-[#fff] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ">
             Go To Exercise
           </div>
         </Button>
@@ -255,7 +255,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           onClick={props.prev}
           className="btn-secondary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#000] text-xs sm:text-sm md:text-md lg:text-md ">
+          <div className="flex flex-row items-center text-[#000] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ">
             <ArrowLeft color="#000" className="mr-2 h-4 w-4 sm:h-6 w-6" />
             Improvement&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
@@ -265,7 +265,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           onClick={props.next}
           className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-sm sm:py-4 md:py-6 lg:py-8"
         >
-          <div className="flex flex-row items-center text-[#fff] text-xs sm:text-sm md:text-md lg:text-md ">
+          <div className="flex flex-row items-center text-[#fff] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md ">
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start your Training
             <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
           </div>

@@ -125,11 +125,11 @@ export function CommentsDialog({
                         <span className="font-medium">
                           {comment.user.name}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-[14px] --sm text-muted-foreground">
                           {comment.timestamp}
                         </span>
                       </div>
-                      <p className="text-sm">{comment.content}</p>
+                      <p className="text-[14px] --sm">{comment.content}</p>
                     </div>
                   </div>
                   {comment.replies?.map((reply) => (
@@ -151,11 +151,11 @@ export function CommentsDialog({
                           <span className="font-medium">
                             {reply.user.name}
                           </span>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-[14px] --sm text-muted-foreground">
                             {reply.timestamp}
                           </span>
                         </div>
-                        <p className="text-sm">{reply.content}</p>
+                        <p className="text-[14px] --sm">{reply.content}</p>
                       </div>
                     </div>
                   ))}

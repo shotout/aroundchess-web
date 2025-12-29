@@ -22,6 +22,8 @@ import { useDataCache } from "@/app/hooks/useDataCache";
 import EmptyLog from "./EmptyLog";
 import { sha256Hex } from "@/functions/sha256";
 import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
+import Link from "next/link";
+import Image from "next/image";
 
 const MistakeLog = () => {
   const { initializeData, isFetching, hasCachedData } = useDataCache();
@@ -194,7 +196,7 @@ const MistakeLog = () => {
                     : `border border-[#C0CED4] bg-white shadow-md font-medium `
                 }`}
               >
-                <span className="min-w-max text-[10px] sm:text-[14px] line-clamp-1">
+                <span className="min-w-max text-[14px] --10px sm:text-[14px] line-clamp-1">
                   {hist.title}
                 </span>
               </div>
@@ -209,7 +211,7 @@ const MistakeLog = () => {
               onValueChange={setMistakeType}
               defaultValue="All Type"
             >
-              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-[14px] --xs shrink-0 text-[#717375] font-normal text-[14px]">
                 <SelectValue placeholder="Mistake Type" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -230,7 +232,7 @@ const MistakeLog = () => {
               onValueChange={setGamePhase}
               defaultValue="All Phase"
             >
-              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+              <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-[14px] --xs shrink-0 text-[#717375] font-normal text-[14px]">
                 <SelectValue placeholder="Game Phase" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -245,7 +247,7 @@ const MistakeLog = () => {
             <button
               disabled={loadingPrevious}
               onClick={handleApplyFilters}
-              className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
+              className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-[14px] --xs whitespace-nowrap"
             >
               <Filter className="h-[20px] w-[20px]" />
               {loadingPrevious ? <DotSpinner size={5} /> : "Apply Filters"}
@@ -253,7 +255,7 @@ const MistakeLog = () => {
             <button
               disabled={loadingPrevious}
               onClick={handleClearFilters}
-              className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
+              className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-[14px] --xs whitespace-nowrap btn-secondary"
             >
               <Filter className="h-4 w-4" />
               {loadingPrevious ? <DotSpinner size={5} /> : "Clear Filters"}
@@ -272,7 +274,7 @@ const MistakeLog = () => {
             <>
               Filters Applied
               {activeFiltersCount > 0 && (
-                <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-xs rounded-full">
+                <span className="inline-flex items-center justify-center w-5 h-5 ml-1 bg-blue-base text-white text-[14px] --xs rounded-full">
                   {activeFiltersCount}
                 </span>
               )}
@@ -289,7 +291,7 @@ const MistakeLog = () => {
                 onValueChange={setMistakeType}
                 defaultValue="All Type"
               >
-                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-[14px] --xs shrink-0 text-[#717375] font-normal text-[14px]">
                   <SelectValue placeholder="Mistake Type" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -310,7 +312,7 @@ const MistakeLog = () => {
                 onValueChange={setGamePhase}
                 defaultValue="All Phase"
               >
-                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-xs shrink-0 text-[#717375] font-normal text-[14px]">
+                <SelectTrigger className="py-2 w-1/2 lg:h-12 border border-[#C0CED4] rounded-md text-[14px] --xs shrink-0 text-[#717375] font-normal text-[14px]">
                   <SelectValue placeholder="Game Phase" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -325,7 +327,7 @@ const MistakeLog = () => {
               <button
                 disabled={loadingPrevious}
                 onClick={handleApplyFilters}
-                className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-xs whitespace-nowrap"
+                className="btn-primary text-white flex items-center justify-center font-medium lg:w-40 gap-2 p-[10px] max-h-[40px] rounded-full text-[14px] --xs whitespace-nowrap"
               >
                 <Filter className="h-[20px] w-[20px]" />
                 {loadingPrevious ? <DotSpinner size={5} /> : "Apply Filters"}
@@ -333,7 +335,7 @@ const MistakeLog = () => {
               <button
                 disabled={loadingPrevious}
                 onClick={handleClearFilters}
-                className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-xs whitespace-nowrap btn-secondary"
+                className="btn-tertiary flex items-center justify-center font-medium lg:w-40 px-2 py-2 gap-2 rounded-full p-[10px] max-h-[40px] text-[14px] --xs whitespace-nowrap btn-secondary"
               >
                 <Filter className="h-[20px] w-[20px]" />
                 {loadingPrevious ? <DotSpinner size={5} /> : "Clear Filters"}
@@ -350,11 +352,24 @@ const MistakeLog = () => {
 
   return (
     <main className="w-full p-4 pb-[0px] space-y-[16px] bg-[#FAFDFF]">
+
+      <div className="hidden xl:flex items-center justify-left gap-[4px] mb-[32px]">
+            <Link href={'/my-game-history'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#ECF4FF]`}>
+              <Image src="/icons/sidebar-game-history.png" alt="icon" width={24} height={24} />
+              <span className="font-semibold">Game History</span>
+            </Link>
+
+            <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] justify-center py-[12px] px-[24px] rounded-t-[12px] bg-[#221AE9] text-white`}>
+              <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="invert brightness-0" />
+              <span>Saved Mistakes</span>
+            </Link>
+          </div>
+
       <div className="flex justify-center lg:justify-start items-center">
         <div className="flex flex-row items-end gap-2">
           <h1 className="text-xl lg:text-[32px] font-semibold">Feedback Log</h1>
           <div className="flex justify-center items-end h-full">
-            <p className="text-xs text-gray-500 lg:text-[18px] font-normal">
+            <p className="text-[14px] --xs text-gray-500 lg:text-[18px] font-normal">
               {`(${username.length>0?username:"No username set"})`}
             </p>
           </div>

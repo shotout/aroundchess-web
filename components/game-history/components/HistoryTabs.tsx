@@ -18,7 +18,7 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
         <div className="flex justify-center  border-gray-200 rounded-t-md overflow-hidden">
           <button
             onClick={() => setActiveUser("user")}
-            className={`flex-1 py-3 text-center text-sm md:text-base xl:text-lg transition-colors
+            className={`flex-1 py-3 text-center text-[14px] --sm md:text-base xl:text-lg transition-colors
               ${
                 activeUser === "user"
                   ? "font-bold "
@@ -31,7 +31,7 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({ username }) => {
           </button>
           <button
             onClick={() => setActiveUser("other")}
-            className={`flex-1 py-3 text-center text-sm md:text-base xl:text-lg transition-colors
+            className={`flex-1 py-3 text-center text-[14px] --sm md:text-base xl:text-lg transition-colors
               ${
                 activeUser === "other"
                   ? "font-bold "

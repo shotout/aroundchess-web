@@ -76,7 +76,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
               <TabsList className="h-12 p-0 bg-transparent border-b border-gray-100">
                 <TabsTrigger value="board" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none relative h-12 px-4">
                   <span className={cn(
-                    "text-sm font-medium transition-colors",
+                    "text-[14px] --sm font-medium transition-colors",
                     "data-[state=active]:text-indigo-600 data-[state=active]:before:absolute",
                     "data-[state=active]:before:bottom-0 data-[state=active]:before:left-0",
                     "data-[state=active]:before:h-0.5 data-[state=active]:before:w-full",
@@ -87,7 +87,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
                 </TabsTrigger>
                 <TabsTrigger value="engine" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none relative h-12 px-4">
                   <span className={cn(
-                    "text-sm font-medium transition-colors",
+                    "text-[14px] --sm font-medium transition-colors",
                     "data-[state=active]:text-indigo-600 data-[state=active]:before:absolute",
                     "data-[state=active]:before:bottom-0 data-[state=active]:before:left-0",
                     "data-[state=active]:before:h-0.5 data-[state=active]:before:w-full",
@@ -104,7 +104,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
             <div className="space-y-6">
               {/* Board Themes */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                   <Palette className="w-4 h-4 text-indigo-500" />
                   Board Theme
                 </label>
@@ -133,7 +133,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
                           />
                         ))}
                       </div>
-                      <span className="text-sm font-medium text-gray-700">{theme.name}</span>
+                      <span className="text-[14px] --sm font-medium text-gray-700">{theme.name}</span>
                     </button>
                   ))}
                 </div>
@@ -141,7 +141,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
 
               {/* Piece Themes */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                   <Crown className="w-4 h-4 text-indigo-500" />
                   Piece Theme
                 </label>
@@ -164,7 +164,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">{theme.name}</span>
+                      <span className="text-[14px] --sm font-medium text-gray-700">{theme.name}</span>
                     </button>
                   ))}
                 </div>
@@ -175,7 +175,7 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
           <TabsContent value="engine" className="flex-1 px-6 py-4">
             <div className="space-y-6">
               <div className="space-y-4">
-                <label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                   <Settings2 className="w-4 h-4 text-indigo-500" />
                   Choose Your Opponent
                 </label>

@@ -35,19 +35,19 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
           <Image
             src={iconSrc}
             alt={title}
-            width={50}
-            height={50}
-            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px]"
+            width={34}
+            height={32}
+            className="lg:w-[34px] lg:h-[32px]"
           />
-          <h3 className="text-base sm:text-lg font-semibold">{title}</h3>
+          <h3 className="text-[16px] font-semibold">{title}</h3>
         </div>
-        <div className="text-black text-xs sm:text-sm font-medium">
+        <div className="text-black text-[14px] --xs sm:text-[14px] font-medium">
           Estimated total duration per day:{" "}
           <span className="text-blue-800 font-bold">{duration}</span>
         </div>
       </div>
 
-      <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-2 sm:p-3 rounded-lg mb-4 text-gray-800 text-sm sm:text-base">
+      <div className="border-lightsky-blue-base border bg-[#E6F7FE] p-2 sm:p-3 rounded-lg mb-4 text-gray-800 sm:text-[14px]">
         <p>{instruction}</p>
       </div>
 
@@ -71,7 +71,7 @@ const TrainingSection: React.FC<TrainingSectionProps> = ({
           ))}
         </div>
       ) : (
-        <div className="text-center py-4 text-gray-500 text-sm sm:text-base">
+        <div className="text-center py-4 text-gray-500 text-[14px]">
           No topics available for this section.
         </div>
       )}

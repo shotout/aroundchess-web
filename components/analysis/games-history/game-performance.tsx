@@ -143,7 +143,7 @@ export function GamePerformance() {
           <div className="space-y-6">
             {strengthsAndWeaknesses.map((section) => (
               <div key={section.category}>
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                <h4 className="text-[14px] --sm font-medium text-muted-foreground mb-3">
                   {section.category}
                 </h4>
                 <div className="space-y-4">
@@ -156,7 +156,7 @@ export function GamePerformance() {
                         <div className="flex-1">
                           <div className="flex justify-between items-center mb-1">
                             <span className="font-medium">{item.title}</span>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-[14px] --sm text-muted-foreground">
                               {item.value}%
                             </span>
                           </div>
@@ -178,7 +178,7 @@ export function GamePerformance() {
           <Card className="p-4">
             <div className="space-y-2">
               <h4 className="font-medium">Short-term Goals</h4>
-              <ul className="list-disc list-inside text-sm text-muted-foreground">
+              <ul className="list-disc list-inside text-[14px] --sm text-muted-foreground">
                 <li>Practice endgame positions with rook and pawn</li>
                 <li>Study positional pawn sacrifices</li>
                 <li>Work on defensive techniques</li>
@@ -188,7 +188,7 @@ export function GamePerformance() {
           <Card className="p-4">
             <div className="space-y-2">
               <h4 className="font-medium">Training Focus</h4>
-              <ul className="list-disc list-inside text-sm text-muted-foreground">
+              <ul className="list-disc list-inside text-[14px] --sm text-muted-foreground">
                 <li>Endgame studies (40%)</li>
                 <li>Positional exercises (35%)</li>
                 <li>Defensive puzzles (25%)</li>

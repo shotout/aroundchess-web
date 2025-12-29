@@ -118,7 +118,7 @@ export function ArchiveDialog({
                 </SelectContent>
               </Select>
               <div className="flex items-center gap-2">
-                <Label htmlFor="show-tags" className="text-sm">
+                <Label htmlFor="show-tags" className="text-[14px] --sm">
                   Show Tags
                 </Label>
                 <Switch
@@ -166,16 +166,16 @@ export function ArchiveDialog({
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium">{report.title}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         {report.size}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                       <span>{report.type}</span>
                       <span>•</span>
                       <span>Created {report.date}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>Archived {report.archiveDate}</span>
                     </div>

@@ -126,7 +126,7 @@ export function PawnStructureLesson() {
               className="p-4 bg-white rounded-lg shadow-sm"
             >
               <h4 className="font-semibold text-blue-600">{concept.title}</h4>
-              <p className="text-sm text-gray-600 mt-1">{concept.description}</p>
+              <p className="text-[14px] --sm text-gray-600 mt-1">{concept.description}</p>
             </motion.div>
           ))}
         </motion.div>

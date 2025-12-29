@@ -97,7 +97,7 @@ export function ReportDetailsDialog({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">{mockReport.title}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Generated on {mockReport.date}
               </p>
             </div>
@@ -112,7 +112,7 @@ export function ReportDetailsDialog({
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
             <span>{mockReport.type}</span>
             <span>•</span>
             <span>{mockReport.size}</span>
@@ -146,7 +146,7 @@ export function ReportDetailsDialog({
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(mockReport.metadata).map(([key, value]) => (
                   <div key={key} className="space-y-1">
-                    <p className="text-sm text-muted-foreground capitalize">
+                    <p className="text-[14px] --sm text-muted-foreground capitalize">
                       {key.replace(/([A-Z])/g, " $1").trim()}
                     </p>
                     <p className="font-medium">{value}</p>
@@ -165,7 +165,7 @@ export function ReportDetailsDialog({
                       <Clock className="h-5 w-5 mt-1 text-muted-foreground" />
                       <div>
                         <p className="font-medium">{event.action}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[14px] --sm text-muted-foreground">
                           by {event.user} on {event.date}
                         </p>
                       </div>
@@ -185,7 +185,7 @@ export function ReportDetailsDialog({
                       <Users className="h-5 w-5 mt-1 text-muted-foreground" />
                       <div>
                         <p className="font-medium">{user.user}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[14px] --sm text-muted-foreground">
                           {user.role} • Last accessed {user.lastAccess}
                         </p>
                       </div>

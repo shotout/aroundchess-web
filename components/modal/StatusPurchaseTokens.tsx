@@ -70,7 +70,8 @@ export function StatusPurchaseTokens() {
     router.replace("/profile");
   };
   const handleAnalyze = () => {
-    router.replace("/analysis");
+    // Redirect to game history instead of showing AnalyzeGameDialog
+    router.replace("/my-game-history");
   };
   const handleFailed = () => {
     setOpen(false);
@@ -114,7 +115,7 @@ export function StatusPurchaseTokens() {
               onClick={handleAnalyze}
               className="w-[320px] btn-primary rounded-full h-[44px]  "
             >
-              <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+              <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
                 Analyze Game
               </span>
             </button>
@@ -124,7 +125,7 @@ export function StatusPurchaseTokens() {
               onClick={handleFailed}
               className="w-[320px] btn-primary rounded-full h-[44px] "
             >
-              <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+              <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
                 Retry Payment
               </span>
             </button>
@@ -134,7 +135,7 @@ export function StatusPurchaseTokens() {
               onClick={handleBack}
               className="w-[320px] btn-secondary rounded-full h-[44px] "
             >
-              <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+              <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
                 Back to Dashboard
               </span>
             </button>

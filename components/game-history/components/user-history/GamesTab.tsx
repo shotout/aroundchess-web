@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 const GamesTab: React.FC = () => {
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
-    useGames("chessdotcom");
+    useGames({ sources: ["chesscom"] });
 
   const {
     filters,

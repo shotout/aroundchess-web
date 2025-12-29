@@ -224,8 +224,13 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
+  // Calculate positions for triangle and badge separately
+  const MAX_BADGE_POSITION = 85; // Maximum safe position for badge (to prevent cutoff)
+  const trianglePosition = currentEloPercentage * 0.8333 + 9.5; // Actual triangle position
+  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
+
   const badgeClass =
-    "min-w-[120px] h-7 rounded-full flex justify-center items-center text-xs font-semibold";
+    "w-max h-6 md:h-7 rounded-full flex justify-center items-center text-[11.6px] md:text-[14px] --xs px-[10px] md:px-[16px] font-semibold";
 
   if (!skillLevels || skillLevels.length === 0) {
     return (
@@ -240,8 +245,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   return (
     <div className="relative">
       <TooltipProvider delayDuration={300} skipDelayDuration={100}>
-        <div className="w-full space-y-6">
-          <div className="hidden xl:grid grid-cols-6 gap-2">
+        <div className="relative w-full space-y-6 overflow-x-scroll">
+          <div className="w-[640px] lg:w-full grid grid-cols-6 gap-2">
             {skillLevels.map((level, index) => {
               const isReached = (currentElo || 0) >= level.elo;
               const isNextGoal = index === nextGoalIndex;
@@ -270,7 +275,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                       </div>
                     )}
                     {isNextGoal && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
                         <div
                           className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
                         >
@@ -281,7 +286,18 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                     )}
                   </div>
 
-                  <div className="relative h-[88px] flex justify-center items-end">
+                  <div className="relative h-[98px] flex justify-center items-end">
+                    {/* <div className="inline-flex items-end h-full">
+                      <div className="relative w-fit h-fit flex items-end">
+                        <Image
+                          src={imagePath}
+                          alt={level.title}
+                          width={regularWidth}
+                          height={regularHeight}
+                          className="object-contain align-bottom"
+                        />
+                      </div>
+                    </div> */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">
@@ -302,16 +318,16 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                         align="start"
                         sideOffset={20}
                         alignOffset={10}
-                        className={`bg-blue-base/5 w-[350px] backdrop-blur-3xl border border-blue-base shadow-lg rounded-none rounded-t-md ${
+                        className={`!bg-[#ECEBFF] overflow-hidden w-[250px] border border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E] rounded-[8px] ${
                           level.id === "grandmaster"
-                            ? "rounded-bl-md rounded-br-none"
-                            : "rounded-br-md"
+                            ? "!rounded-br-[0px]"
+                            : "!rounded-bl-[0px]"
                         }`}
                       >
                         <div className="flex items-center gap-x-2 p-1">
-                          <AlertCircle className="text-blue-base w-5 h-5" />
-                          <div className="text-xs text-justify">
-                            <h1>{level.description}</h1>
+                          <AlertCircle className="text-blue-base w-[24px] h-[24px]" />
+                          <div className="w-[calc(100%-26px)] text-[14px] leading-[130%] --xs text-left">
+                            {level.description}
                           </div>
                         </div>
                       </TooltipContent>
@@ -319,10 +335,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-sm flex items-center justify-center">
+                    <div className="font-semibold text-[14px] --sm flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
-                    <div className="text-xs text-gray-600 flex items-center justify-center">
+                    <div className="text-[14px] --xs text-gray-600 flex items-center justify-center">
                       <span className="whitespace-nowrap">ELO {level.elo}</span>
                     </div>
                   </div>
@@ -331,7 +347,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             })}
           </div>
 
-          <div className="grid xl:hidden grid-cols-3 gap-2">
+          {/* <div className="hidden grid-cols-6 gap-2">
             {mobileLevels.map((level, mobileIndex) => {
               const isReached = (currentElo || 0) >= level.elo;
               const isNextGoal =
@@ -386,10 +402,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                         className="bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg rounded-md"
                       >
                         <div className="flex flex-col gap-y-1 p-2">
-                          <h3 className="font-semibold text-sm">
+                          <h3 className="font-semibold text-[14px] --sm">
                             {level.title}
                           </h3>
-                          <p className="text-xs text-gray-600">
+                          <p className="text-[14px] --xs text-gray-600">
                             ELO Requirement: {level.elo}
                           </p>
                         </div>
@@ -398,21 +414,21 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-xs flex items-center justify-center">
+                    <div className="font-semibold text-[14px] --xs flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
-                    <div className="text-[10px] text-gray-600 flex items-center justify-center">
+                    <div className="text-[14px] --10px text-gray-600 flex items-center justify-center">
                       <span className="whitespace-nowrap">ELO {level.elo}</span>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
+          </div> */}
 
-          <div className="relative h-20 hidden xl:block">
+          <div className="w-[640px] lg:w-full relative h-20 block">
             <div className="relative w-full mt-6">
-              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-10">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-[5]">
                 {skillLevels.map((level, index) => {
                   const isReached = (currentElo || 0) >= level.elo;
                   return (
@@ -448,23 +464,27 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               </div>
             </div>
 
+            {/* Badge container - stops at safe position to prevent cutoff */}
             <div
               className="absolute -translate-x-1/2 top-8"
               style={{
-                left: `${currentEloPercentage * 0.8333 + 8.33}%`,
+                left: `${badgePosition}%`,
                 bottom: 0,
               }}
             >
-              <div className="w-4 h-4 -z-[1]  bg-[#26E279]  rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+              {/* Green triangle indicator - centered on badge */}
+              <div className={`${badgePosition < 10 ? 'left-[calc(50%-8px)]' : 'left-1/2'} w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute top-0 -translate-x-1/2 -translate-y-1/2`}></div>
+
+              {/* Badge text */}
               <div
-                className={`${badgeClass}  bg-gradient-to-b from-[#26E279] to-[#029A46]  text-white`}
+                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
               >
                 Your current ELO
               </div>
             </div>
           </div>
 
-          <div className="relative h-20 xl:hidden">
+          {/* <div className="relative h-20 xl:hidden">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
                 {mobileLevels.map((level, index) => {
@@ -518,7 +538,7 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 Your current ELO
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </TooltipProvider>
     </div>

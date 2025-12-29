@@ -189,10 +189,10 @@ export function NotificationsDialog({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     {notification.description}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-[14px] --sm text-muted-foreground">
                     {notification.timestamp}
                   </p>
                 </div>

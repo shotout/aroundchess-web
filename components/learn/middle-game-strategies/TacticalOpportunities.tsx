@@ -215,7 +215,7 @@ export function TacticalOpportunities() {
           <Button onClick={previousExample} variant="outline" size="sm">
             Previous Example
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14px] --sm text-muted-foreground">
             {currentExample + 1} of {tacticalExamples.length}
           </span>
           <Button onClick={nextExample} variant="outline" size="sm">
@@ -248,7 +248,7 @@ export function TacticalOpportunities() {
                     <p className="text-gray-600 mb-4">{motif.description}</p>
                     <ul className="list-disc pl-5 space-y-2">
                       {motif.key_points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="text-sm text-gray-600">
+                        <li key={pointIndex} className="text-[14px] --sm text-gray-600">
                           {point}
                         </li>
                       ))}
@@ -275,7 +275,7 @@ export function TacticalOpportunities() {
                     <p className="text-gray-600 mb-4">{principle.description}</p>
                     <ol className="list-decimal pl-5 space-y-2">
                       {principle.steps.map((step, stepIndex) => (
-                        <li key={stepIndex} className="text-sm text-gray-600">
+                        <li key={stepIndex} className="text-[14px] --sm text-gray-600">
                           {step}
                         </li>
                       ))}

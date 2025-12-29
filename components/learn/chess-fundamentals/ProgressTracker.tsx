@@ -45,7 +45,7 @@ export function ProgressTracker() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Your Progress</h3>
-          <p className="text-sm text-gray-500">Keep learning and earning achievements!</p>
+          <p className="text-[14px] --sm text-gray-500">Keep learning and earning achievements!</p>
         </div>
         <CircularProgress 
           value={progress} 
@@ -74,7 +74,7 @@ export function ProgressTracker() {
             </div>
             <div className="ml-3">
               <p className="font-medium">{achievement.title}</p>
-              <p className="text-sm">
+              <p className="text-[14px] --sm">
                 {achievement.completed ? 'Completed!' : 'In Progress'}
               </p>
             </div>

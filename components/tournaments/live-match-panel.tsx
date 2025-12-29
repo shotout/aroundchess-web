@@ -48,7 +48,7 @@ export function LiveMatchPanel() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Live Match</CardTitle>
+        <CardTitle className="text-[14px] --sm font-medium">Live Match</CardTitle>
         <Button
           variant="ghost"
           size="icon"
@@ -74,7 +74,7 @@ export function LiveMatchPanel() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{mockLiveMatch.team1.name}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                     <Timer className="h-4 w-4" />
                     {mockLiveMatch.team1.timeLeft}
                   </div>
@@ -86,7 +86,7 @@ export function LiveMatchPanel() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{mockLiveMatch.team2.name}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
                     <Timer className="h-4 w-4" />
                     {mockLiveMatch.team2.timeLeft}
                   </div>
@@ -96,7 +96,7 @@ export function LiveMatchPanel() {
 
               {/* Game Info */}
               <div className="rounded-lg bg-muted p-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-[14px] --sm">
                   <span>Move {mockLiveMatch.currentMove}</span>
                   <span>Last: {mockLiveMatch.lastMove}</span>
                 </div>

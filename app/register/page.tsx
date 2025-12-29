@@ -34,6 +34,7 @@ function RegisterPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
   const { setSessionId } = useProfileStore();
@@ -172,7 +173,7 @@ function RegisterPage() {
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { email });
-                      router.push("/analysis");
+        router.push("/my-game-history");
 
       } else if (data.token) {
         setSessionId(data.token);
@@ -180,7 +181,7 @@ function RegisterPage() {
         trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
-                      router.push("/analysis");
+        router.push("/my-game-history");
 
       } else {
         toast.error("No authentication token received");
@@ -380,6 +381,7 @@ function RegisterPage() {
                           id="email"
                           value={email ?? ""}
                           onChange={(e) => setEmail(e.target.value)}
+                          onBlur={() => setEmailTouched(true)}
                           placeholder="Enter your Email Address"
                           type="email"
                           autoCapitalize="none"
@@ -389,8 +391,8 @@ function RegisterPage() {
                           className="bg-light-10 border-2 border-gray-300 rounded-md h-12 text-black placeholder:text-gray-300"
                         />
                       </div>
-                      {emailValidation.message !== "" && (
-                        <span className="text-[#FF383C] text-[12px] mb-4 -mt-2 ml-2">
+                      {emailTouched && emailValidation.message !== "" && (
+                        <span className="text-[#FF383C] text-[14px] -- mb-4 -mt-2 ml-2">
                           {emailValidation.message}
                         </span>
                       )}
@@ -438,15 +440,15 @@ function RegisterPage() {
                       </div>
                     </div>
                   </div>
-                  {password !== confirmPassword && (
-                    <span className="text-[#FF383C] text-[12px] mb-2 ml-2">
+                  {confirmPassword !== "" && password !== confirmPassword && (
+                    <span className="text-[#FF383C] text-[14px] -- mb-2 ml-2">
                       Password doesn't match
                     </span>
                   )}
                   <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
                     <div className="flex flex-row flex-wrap">
                       {validatedConditions.map((condition, index) => (
-                        <div key={condition.id} className="w-1/2">
+                        <div key={condition.id} className="w-full md:w-1/2">
                           <div className="flex flex-row items-center">
                             <Image
                               alt=""
@@ -464,7 +466,7 @@ function RegisterPage() {
                               className="w-[16px] h-[16px]"
                             />
                             <span
-                              className={`ml-2 flex-1 font-normal text-[12px] ${
+                              className={`ml-2 flex-1 font-normal text-[14px] -- ${
                                 condition.isValid
                                   ? "text-[#34C759]"
                                   : (password.length > 0 ||
@@ -493,7 +495,7 @@ function RegisterPage() {
                 </form>
 
                 <div className="relative my-5 sm:my-6">
-                  <div className="relative flex justify-center text-xs uppercase">
+                  <div className="relative flex justify-center text-[14px] --xs uppercase">
                     <span className=" px-2 text-black font-medium">
                       or continue with
                     </span>
@@ -659,7 +661,7 @@ function RegisterPage() {
                             autoCapitalize="none"
                             autoCorrect="off"
                             maxLength={1}
-                            className="bg-white/40 border-white/40 rounded-md h-14 w-14 text-black text-center text-xl font-medium"
+                            className="bg-white/40 border-white/40 rounded-md w-[11.5vw] h-[11.5vw] sm:h-14 sm:w-14 text-black text-center text-xl font-medium"
                           />
                         ))}
                       </div>

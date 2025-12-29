@@ -228,7 +228,7 @@ export function PositionEvaluation() {
           <Button onClick={previousExample} variant="outline" size="sm">
             Previous Example
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14px] --sm text-muted-foreground">
             {currentExample + 1} of {positionEvaluationExamples.length}
           </span>
           <Button onClick={nextExample} variant="outline" size="sm">
@@ -260,7 +260,7 @@ export function PositionEvaluation() {
                     </div>
                     <ul className="list-disc pl-5 space-y-2">
                       {factor.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="text-sm text-gray-600">
+                        <li key={pointIndex} className="text-[14px] --sm text-gray-600">
                           {point}
                         </li>
                       ))}
@@ -284,10 +284,10 @@ export function PositionEvaluation() {
                 <Card className="h-full">
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold text-blue-600 mb-2">{technique.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{technique.description}</p>
+                    <p className="text-[14px] --sm text-gray-600 mb-4">{technique.description}</p>
                     <ol className="list-decimal pl-5 space-y-2">
                       {technique.steps.map((step, stepIndex) => (
-                        <li key={stepIndex} className="text-sm text-gray-600">
+                        <li key={stepIndex} className="text-[14px] --sm text-gray-600">
                           {step}
                         </li>
                       ))}

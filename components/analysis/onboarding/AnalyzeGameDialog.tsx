@@ -290,7 +290,7 @@ export function AnalyzeGameDialog({
 
   return (
     <div
-      className="fixed bg-black/50 z-50 flex items-center justify-center p-4 md:p-0"
+      className="fixed bg-black/50 z-[9999] flex items-center justify-center p-4 md:p-0 top-0 left-0 right-0 bottom-0"
       style={{
         top:
           typeof window !== "undefined" && window.innerWidth >= 1024
@@ -309,7 +309,7 @@ export function AnalyzeGameDialog({
         {/* Header */}
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">Analyze your games</h2>
-          <p className="text-sm text-black mt-2">
+          <p className="text-[14px] --sm text-black mt-2">
             Select your Games from Chess.com or upload your previous Game's{" "}
             <span className="font-bold">PGN </span>
             for a detailed Game Analysis.
@@ -323,7 +323,7 @@ export function AnalyzeGameDialog({
             <div className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1 rounded-md">
               <button
                 onClick={() => setActiveTab("auto")}
-                className={`p-2 rounded text-xs ${
+                className={`p-2 rounded text-[14px] --xs ${
                   activeTab === "auto" ? "bg-white shadow-sm" : "bg-transparent"
                 }`}
               >
@@ -331,7 +331,7 @@ export function AnalyzeGameDialog({
               </button>
               <button
                 onClick={() => setActiveTab("manual")}
-                className={`p-2 rounded text-xs flex items-center justify-center ${
+                className={`p-2 rounded text-[14px] --xs flex items-center justify-center ${
                   activeTab === "manual"
                     ? "bg-white shadow-sm"
                     : "bg-transparent"
@@ -356,7 +356,7 @@ export function AnalyzeGameDialog({
                     className="w-3 h-4 relative z-10"
                     priority
                   />
-                  <p className="block ml-1 text-base sm:text-sm text-black">
+                  <p className="block ml-1 text-base sm:text-[14px] --sm text-black">
                     Chess.com Username
                   </p>
                 </div>
@@ -376,13 +376,13 @@ export function AnalyzeGameDialog({
                     {usernameStatus === "found" && (
                       <div className="flex items-center text-green-500 whitespace-nowrap">
                         <Check className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Username found</span>
+                        <span className="text-[14px] --xs">Username found</span>
                       </div>
                     )}
                     {usernameStatus === "not-found" && (
                       <div className="flex items-center text-red-500 whitespace-nowrap">
                         <X className="h-4 w-4 mr-1" />
-                        <span className="text-xs">Username not found</span>
+                        <span className="text-[14px] --xs">Username not found</span>
                       </div>
                     )}
                   </div>
@@ -390,7 +390,7 @@ export function AnalyzeGameDialog({
               </div>
 
               <div className="space-y-2 mx-1">
-                <p className="block text-base sm:text-sm text-black">
+                <p className="block text-base sm:text-[14px] --sm text-black">
                   Select Game
                 </p>
                 {/* Custom Select */}
@@ -483,7 +483,7 @@ export function AnalyzeGameDialog({
                             : `border-gray-300 border-2`
                         } `}
                       />
-                      <span className="font-normal text-sm">{depth.title}</span>
+                      <span className="font-normal text-[14px] --sm">{depth.title}</span>
                       <span className="font-light text-[#364152] text-center text-[11px]">
                         {depth.description}
                       </span>
@@ -513,7 +513,7 @@ export function AnalyzeGameDialog({
                     onChange={(e) => setPgnText(e.target.value)}
                   />
                 </div>
-                <span className="flex items-center justify-center text-black text-xs text-center font-bold">
+                <span className="flex items-center justify-center text-black text-[14px] --xs text-center font-bold">
                   Or upload a .PGN file below:
                 </span>
                 <div
@@ -541,14 +541,14 @@ export function AnalyzeGameDialog({
                       <p className="text-gray-800 font-medium mb-1">
                         {fileName}
                       </p>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 text-[14px] --sm">
                         {(fileSize / 1024).toFixed(1)} KB
                       </p>
                     </div>
                   ) : (
                     <div className="text-center lg:h-48 flex flex-col items-center justify-center">
                       <UploadCloud className="h-10 w-10 mx-auto text-blue-600 mb-2" />
-                      <p className="block text-sm text-gray-700 mb-1">
+                      <p className="block text-[14px] --sm text-gray-700 mb-1">
                         Drag & drop or click to
                         <span
                           className="underline text-blue-600 font-bold cursor-pointer"
@@ -559,7 +559,7 @@ export function AnalyzeGameDialog({
                         </span>{" "}
                         a file
                       </p>
-                      <p className="block text-[10px] text-gray-700 mb-1">
+                      <p className="block text-[14px] --10px text-gray-700 mb-1">
                         Maximum file size: 5MB
                       </p>
                     </div>
@@ -571,7 +571,7 @@ export function AnalyzeGameDialog({
 
           <button
             onClick={handleAnalyzeGame}
-            className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+            className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 ${
               (usernameStatus !== "found" &&
                 !selectedGame &&
                 !pgnText &&

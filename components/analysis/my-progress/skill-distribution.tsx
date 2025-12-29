@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     return (
       <Card className="bg-background p-3">
         <p className="font-medium">{payload[0].name}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Strength: {payload[0].value}%
         </p>
       </Card>
@@ -40,7 +40,7 @@ export function SkillDistribution() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Skill Distribution</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             Your relative strength in different areas
           </p>
         </div>
@@ -80,7 +80,7 @@ export function SkillDistribution() {
               height={36}
               iconType="circle"
               formatter={(value: string) => (
-                <span className="text-sm text-foreground">{value}</span>
+                <span className="text-[14px] --sm text-foreground">{value}</span>
               )}
             />
           </PieChart>

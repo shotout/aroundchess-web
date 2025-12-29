@@ -55,7 +55,7 @@ export function ModalSetting() {
                 </div>
               </div>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] --sm text-gray-600">
               These cookies enable core functionality such as security,
               verification of identity and network management. These cookies
               can't be disabled.
@@ -85,7 +85,7 @@ export function ModalSetting() {
                 </div>
               </button>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] --sm text-gray-600">
               These cookies are used to track advertising effectiveness to
               provide a more relevant service and deliver better ads to suit
               your interests.
@@ -115,7 +115,7 @@ export function ModalSetting() {
                 </div>
               </button>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] --sm text-gray-600">
               These cookies collect data to remember choices users make to
               improve and give a more personalised experience.
             </p>
@@ -144,7 +144,7 @@ export function ModalSetting() {
                 </div>
               </button>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] --sm text-gray-600">
               These cookies help us to understand how visitors interact with our
               website, discover errors and provide a better overall analytics.
             </p>

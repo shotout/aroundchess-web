@@ -17,6 +17,10 @@ import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 export interface PremiumSubscriptionProps {
   visible: boolean;
@@ -60,12 +64,12 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-2 sm:p-4"
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
-        paddingTop: headerHeight + 16,
-        paddingBottom: 16,
-        paddingRight: 16,
+        paddingLeft: isDesktop ? sidebarWidth + 16 : 8,
+        paddingTop: isDesktop ? headerHeight + 16 : 80,
+        paddingBottom: isDesktop ? 16 : 8,
+        paddingRight: isDesktop ? 16 : 8,
       }}
     >
       <div
@@ -73,8 +77,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-6xl mx-auto z-10 h-full flex flex-col">
-        <div className="relative bg-blue-50 border border-blue-100 rounded-xl shadow-lg flex-1 min-h-0 flex flex-col">
+      <div className="relative w-full max-w-6xl mx-auto z-10 h-full flex flex-col max-h-[calc(100vh-88px)] sm:max-h-full">
+        <div className="relative bg-blue-50 border border-blue-100 rounded-xl shadow-lg flex-1 min-h-0 flex flex-col overflow-hidden">
           <div className="absolute inset-0 z-0 opacity-55">
             <Image
               src="/my-game-history/pattern.png"
@@ -88,18 +92,18 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 p-1 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 transition-colors z-20"
+            className="absolute right-2 top-2 sm:right-4 sm:top-4 p-1 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 transition-colors z-20"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="relative z-10 p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+          <div className="relative z-10 p-3 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-1 min-h-0">
             <div className="text-center space-y-1">
-              <h2 className="text-2xl font-semibold text-black">
+              <h2 className="text-xl sm:text-2xl font-semibold text-black">
                 Go Premium now
               </h2>
-              <p className="text-xl text-black font-semibold">
+              <p className="text-base sm:text-xl text-black font-semibold">
                 for unlimited access and become a Chess Master
               </p>
             </div>
@@ -365,7 +369,7 @@ export const PremiumSubsContent: React.FC<{
       className={`${`space-y-4 w-full`}`}
     >
       <div className="hidden md:block text-center space-y-2">
-        <p className="text-sm text-black">
+        <p className="text-[14px] --sm text-black">
           Discover our Suite of Powerful Features with the AroundChess{" "}
           <span className="text-blue-base font-medium">
             Premium Subscription:
@@ -384,7 +388,7 @@ export const PremiumSubsContent: React.FC<{
             />
             <FeatureImage
               imageUrl={"/icons/sidebar-play-vs-ai-icon-active.png"}
-              label="Playground: Play VS AI"
+              label="Playground: You vs AI"
             />
             <FeatureImage
               imageUrl={"/icons/sidebar-puzzle-icon-active.png"}
@@ -401,6 +405,7 @@ export const PremiumSubsContent: React.FC<{
           </div>
         </div>
       </div>
+
       <div className="flex flex-row items-center justify-between">
         <div
           className={`${
@@ -443,16 +448,17 @@ export const PremiumSubsContent: React.FC<{
           </span>
         </div>
       </div>
+      
       <div
         ref={containerRef}
-        className={`flex max-w-full overflow-x-auto gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
+        className={`flex w-[84vw] md:w-auto md:min-w-[320px] mx-auto overflow-x-scroll gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* free */}
         {(isMobile || packageFilter === "monthly") && (
           <div
             ref={freeCardRef}
-            className="min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
+            className="w-[84vw] md:w-auto md:min-w-[320px] lg:min-w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:order-none snap-center flex-shrink-0"
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-50 rounded-full">
@@ -471,7 +477,7 @@ export const PremiumSubsContent: React.FC<{
               </div>
             </div>
 
-            <p className="text-gray-700 text-sm mb-3">
+            <p className="text-gray-700 text-[14px] --sm mb-3">
               Our Basic Package for free limited Access!
             </p>
 
@@ -491,7 +497,7 @@ export const PremiumSubsContent: React.FC<{
                 onClick={handleSignUp}
                 className="cursor-pointer mt-3 relative w-full py-2 bg-[#221AE9] rounded-full flex items-center justify-center gap-2 overflow-hidden"
               >
-                <span className="text-white font-medium text-sm">
+                <span className="text-white font-medium text-[14px] --sm">
                   Sign up for free
                 </span>
               </div>
@@ -505,7 +511,7 @@ export const PremiumSubsContent: React.FC<{
                   width={40}
                   height={40}
                 />
-                <p className="text-sm font-medium text-black">
+                <p className="text-[14px] --sm font-medium text-black">
                   You are on this Package
                 </p>
 
@@ -520,16 +526,14 @@ export const PremiumSubsContent: React.FC<{
             )}
           </div>
         )}
+        
         {/* monthly */}
         {(isMobile ||
           packageFilter === "monthly" ||
           packageFilter === "yearly") && (
-          <div
-            ref={monthlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
-          >
+          <div ref={monthlyCardRef} className="w-[84vw] md:w-auto md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
-              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
+              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
               </div>
             </div> */}
@@ -561,20 +565,20 @@ export const PremiumSubsContent: React.FC<{
                   isPass > 0
                 ) ? (
                   <div className="text-xl font-semibold">
-                    $9.99 <span className="text-sm font-normal">/month</span>
+                    $9.99 <span className="text-[14px] --sm font-normal">/month</span>
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                     <PriceDiscount price={9.99} />
                     <div className="text-xl font-semibold">
-                      $6.99 <span className="text-sm font-normal">/month</span>
+                      $6.99 <span className="text-[14px] --sm font-normal">/month</span>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            <p className="text-sm mb-3">
+            <p className="text-[14px] --sm mb-3">
               Our Unlimited Package for frequent Chess Players!
             </p>
 
@@ -606,7 +610,7 @@ export const PremiumSubsContent: React.FC<{
               <button
                 disabled={isLoading}
                 onClick={() => handleGetPremium("monthly")}
-                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-[14px] --sm"
               >
                 {isLoading && paySelected == "monthly" ? (
                   <DotSpinner size={8} />
@@ -630,7 +634,7 @@ export const PremiumSubsContent: React.FC<{
                       height={32}
                       className="object-contain m-3 mr-0"
                     />
-                    <span className="font-medium text-xs text-black z-10">
+                    <span className="font-medium text-[14px] --xs text-black z-10">
                       {`You are on this Package. ${
                         activeMembership.autoRenew
                           ? ` The Subscription automatically renews on ` +
@@ -652,7 +656,7 @@ export const PremiumSubsContent: React.FC<{
                 </motion.div>
                 {activeMembership.autoRenew && (
                   <button className="mt-3" onClick={handleCancelSubscription}>
-                    <span className="font-medium text-sm text-white">
+                    <span className="font-medium text-[14px] --sm text-white">
                       Cancel Subscription
                     </span>
                   </button>
@@ -664,56 +668,49 @@ export const PremiumSubsContent: React.FC<{
 
         {/* yearly */}
         {(isMobile || packageFilter === "yearly") && (
-          <div
-            ref={yearlyCardRef}
-            className="min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0"
-          >
+          <div ref={yearlyCardRef}
+            className="w-[84vw] md:w-auto md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
             <div className="absolute -top-2 left-0 right-0 flex justify-center">
-              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-xs font-medium">
+              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
                 For frequent Chess Players
               </div>
             </div>
 
             {/* {!isMember &&
-              profile?.discountInfo?.hasActiveDiscount &&
-              isPass > 0 && (
-                <div className="flex justify-center items-center my-2">
-                  <CountdownTimerDiscount />
-                </div>
-              )} */}
+            profile?.discountInfo?.hasActiveDiscount &&
+            isPass > 0 && (
+            <div className="flex justify-center items-center my-2">
+              <CountdownTimerDiscount />
+            </div>
+            )} */}
 
             <div className="flex items-center gap-3 mb-3 pt-1">
               <div className="p-1 rounded-full">
-                <Image
-                  src="/onboarding/premium.png"
-                  alt="Premium Icon"
-                  width={48}
-                  height={48}
-                />
+                <Image src="/onboarding/premium.png" alt="Premium Icon" width={48} height={48} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
                 <div className="text-xl font-semibold">
-                  $79.99 <span className="text-sm font-normal">/year</span>
+                  $79.99 <span className="text-[14px] --sm font-normal">/year</span>
                 </div>
+                {/* <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <PriceDiscount price={79.99} />
+                  <div className="text-xl font-semibold">
+                    $29.99 <span className="text-[14px] --sm font-normal">/year</span>
+                  </div>
+                </div> */}
               </div>
             </div>
 
-            <p className="text-sm mb-3">
+            <p className="text-[14px] --sm mb-3">
               Our Unlimited Package for frequent Chess Players!
             </p>
 
             <div className="space-y-2 flex-grow">
-              <BenefitItem
-                text="1,000 Analyses per year (meaning $0.08 per Analysis)"
-                light
-              />
-              <BenefitItem
-                text="Full Access to the Feedback Log and Game History"
-                light
-              />
+              <BenefitItem text="1,000 Analyses per year (meaning $0.08 per Analysis)" light />
+              <BenefitItem text="Full Access to the Feedback Log and Game History" light />
               <BenefitItem text="Unlimited Puzzles" light />
               <BenefitItem text="Play vs. AI" light />
               <BenefitItem text="Board Vision Training" light />
@@ -724,67 +721,53 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {!isMember && !isMemberMonthly && (
-              <button
-                disabled={isLoading}
-                onClick={() => handleGetPremium("yearly")}
-                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-sm"
+            <button disabled={isLoading} onClick={()=> handleGetPremium("yearly")}
+              className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors
+              text-[14px] --sm"
               >
-                {isLoading && paySelected == "yearly" ? (
-                  <DotSpinner size={8} />
-                ) : (
-                  "Get Premium"
-                )}
-              </button>
+              {isLoading && paySelected == "yearly" ? (
+              <DotSpinner size={8} />
+              ) : (
+              "Get Premium"
+              )}
+            </button>
             )}
 
             {isMember && (
-              <>
-                <motion.div
-                  variants={fadeInUp}
-                  className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
-                >
-                  <div className="flex h-12 flex-row items-center rounded-lg gap-2">
-                    <Image
-                      src="/icons/onboarding-popup.png"
-                      alt="icon"
-                      width={32}
-                      height={32}
-                      className="object-contain m-3 mr-0"
-                    />
-                    <span className="font-medium text-xs text-black z-10">
-                      {`You are on this Package. ${
-                        activeMembership.autoRenew
-                          ? ` The Subscription automatically renews on ` +
-                            formatDateHistory(activeMembership.endDate) +
-                            "."
-                          : ``
-                      }`}
-                    </span>
-                    <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
-                      <Image
-                        src="/icons/sparks-member.png"
-                        alt="icon"
-                        width={48}
-                        height={48}
-                        className="object-cover"
-                      />
-                    </div>
+            <>
+              <motion.div variants={fadeInUp}
+                className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]">
+                <div className="flex h-12 flex-row items-center rounded-lg gap-2">
+                  <Image src="/icons/onboarding-popup.png" alt="icon" width={32} height={32}
+                    className="object-contain m-3 mr-0" />
+                  <span className="font-medium text-[14px] --xs text-black z-10">
+                    {`You are on this Package. ${
+                    activeMembership.autoRenew
+                    ? ` The Subscription automatically renews on ` +
+                    formatDateHistory(activeMembership.endDate) +
+                    "."
+                    : ``
+                    }`}
+                  </span>
+                  <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
+                    <Image src="/icons/sparks-member.png" alt="icon" width={48} height={48} className="object-cover" />
                   </div>
-                </motion.div>
-                {activeMembership.autoRenew && (
-                  <button className="mt-3" onClick={handleCancelSubscription}>
-                    <span className="font-medium text-sm text-white">
-                      Cancel Subscription
-                    </span>
-                  </button>
-                )}
-              </>
+                </div>
+              </motion.div>
+              {activeMembership.autoRenew && (
+              <button className="mt-3" onClick={handleCancelSubscription}>
+                <span className="font-medium text-[14px] --sm text-white">
+                  Cancel Subscription
+                </span>
+              </button>
+              )}
+            </>
             )}
           </div>
         )}
       </div>
 
-      <div className="bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-sm">
+      <div className="bg-white p-3 rounded-lg border border-gray-200 flex items-center gap-3 text-[14px] --sm">
         <Users className="w-4 h-4 text-blue-base flex-shrink-0" />
         <p className="text-gray-700">
           Are you interested in getting an AroundChess Subscription for your
@@ -820,17 +803,17 @@ const FeatureImage: React.FC<FeatureImageProps> = ({ imageUrl, label }) => {
       />
       <div className="text-center flex flex-col justify-end px-1">
         {firstPart == "Analyze Games" ? (
-          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-normal text-gray-900 leading-tight">
             Analyze <br /> Games
           </p>
         ) : (
-          <p className="text-[10px] font-normal text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-normal text-gray-900 leading-tight">
             {firstPart}
             {hasColon ? ":" : ""}
           </p>
         )}
         {secondPart ? (
-          <p className="text-[10px] font-medium text-gray-900 leading-tight">
+          <p className="text-[14px] --10px font-medium text-gray-900 leading-tight">
             {secondPart}
           </p>
         ) : (
@@ -848,6 +831,6 @@ const BenefitItem: React.FC<BenefitItemProps> = ({ text, light = false }) => (
         light ? "text-white" : "text-blue-base"
       }`}
     />
-    <p className="text-sm leading-relaxed">{text}</p>
+    <p className="text-[14px] --sm leading-relaxed">{text}</p>
   </div>
 );

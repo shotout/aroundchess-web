@@ -18,10 +18,10 @@ export function TournamentModeToggle() {
     <div className="flex items-center space-x-4 p-4 rounded-lg bg-[#FFF6DB] border border-yellow-200">
       <Trophy className="w-5 h-5 text-yellow-600" />
       <div className="flex-1">
-        <Label htmlFor="tournament-mode" className="text-sm font-medium text-gray-900">
+        <Label htmlFor="tournament-mode" className="text-[14px] --sm font-medium text-gray-900">
           Tournament Mode
         </Label>
-        <p className="text-xs text-gray-500">
+        <p className="text-[14px] --xs text-gray-500">
           Maximum strength with longer thinking time
         </p>
       </div>

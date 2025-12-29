@@ -16,7 +16,7 @@ export function TeamHeader() {
         </div>
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Teams</h1>
-          <p className="text-sm text-gray-500">Create and manage your chess teams</p>
+          <p className="text-[14px] --sm text-gray-500">Create and manage your chess teams</p>
         </div>
       </div>
       <Button

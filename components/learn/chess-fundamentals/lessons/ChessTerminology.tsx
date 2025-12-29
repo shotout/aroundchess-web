@@ -96,7 +96,7 @@ export function ChessTerminologyLesson() {
             <motion.button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-3 py-1 rounded-full text-sm ${
+              className={`px-3 py-1 rounded-full text-[14px] --sm ${
                 selectedCategory === category
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -130,11 +130,11 @@ export function ChessTerminologyLesson() {
               className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
               <h3 className="text-lg font-semibold text-gray-900">{term.term}</h3>
-              <p className="text-sm text-gray-600 mt-1">{term.definition}</p>
+              <p className="text-[14px] --sm text-gray-600 mt-1">{term.definition}</p>
               {term.example && (
-                <p className="text-sm text-gray-500 mt-2 italic">Example: {term.example}</p>
+                <p className="text-[14px] --sm text-gray-500 mt-2 italic">Example: {term.example}</p>
               )}
-              <span className="inline-block mt-2 text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+              <span className="inline-block mt-2 text-[14px] --xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                 {term.category}
               </span>
             </motion.div>

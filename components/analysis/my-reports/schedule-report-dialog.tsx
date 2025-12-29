@@ -115,7 +115,7 @@ export function ScheduleReportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Email Notifications</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Receive email when reports are generated
               </div>
             </div>

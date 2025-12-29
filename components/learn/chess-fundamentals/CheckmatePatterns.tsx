@@ -54,10 +54,10 @@ export function CheckmatePatterns() {
           <Card key={pattern.name} className="h-full">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-blue-600 mb-2">{pattern.name}</h3>
-              <p className="text-sm text-gray-600 mb-4">{pattern.description}</p>
+              <p className="text-[14px] --sm text-gray-600 mb-4">{pattern.description}</p>
               <div className="bg-gray-100 p-2 rounded">
-                <p className="text-xs text-gray-500">Example position (FEN):</p>
-                <code className="text-xs">{pattern.example}</code>
+                <p className="text-[14px] --xs text-gray-500">Example position (FEN):</p>
+                <code className="text-[14px] --xs">{pattern.example}</code>
               </div>
             </CardContent>
           </Card>

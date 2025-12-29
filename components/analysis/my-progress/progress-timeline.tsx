@@ -33,11 +33,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <Card className="bg-background p-3">
         <p className="font-medium">{label}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Rating: {payload[0].value}
         </p>
         {milestone && (
-          <p className="mt-1 text-xs text-primary">{milestone}</p>
+          <p className="mt-1 text-[14px] --xs text-primary">{milestone}</p>
         )}
       </Card>
     )
@@ -51,7 +51,7 @@ export function ProgressTimeline() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Progress Timeline</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             Your rating progression and key milestones
           </p>
         </div>
@@ -81,11 +81,11 @@ export function ProgressTimeline() {
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="date"
-              className="text-sm"
+              className="text-[14px] --sm"
               tick={{ fill: "hsl(var(--foreground))" }}
             />
             <YAxis
-              className="text-sm"
+              className="text-[14px] --sm"
               tick={{ fill: "hsl(var(--foreground))" }}
               domain={["dataMin - 100", "dataMax + 100"]}
             />

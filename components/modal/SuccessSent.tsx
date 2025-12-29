@@ -54,7 +54,7 @@ export function SuccessSent() {
             onClick={handleBack}
             className="w-full btn-primary rounded-full h-[44px] max-w-[320px]"
           >
-            <span className="font-medium text-[12px] sm:text-[16px] text-[#e6f7fe]">
+            <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
               Close
             </span>
           </button>

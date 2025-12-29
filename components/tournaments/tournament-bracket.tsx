@@ -97,7 +97,7 @@ export function TournamentBracket() {
                 marginTop: `${roundIndex * 4}rem`
               }}
             >
-              <h3 className="text-sm font-medium text-gray-500 mb-4">{round.name}</h3>
+              <h3 className="text-[14px] --sm font-medium text-gray-500 mb-4">{round.name}</h3>
               {round.matches.map((match, matchIndex) => (
                 <motion.div
                   key={match.id}
@@ -147,11 +147,11 @@ interface MatchTeamProps {
 function MatchTeam({ name, score, isWinner }: MatchTeamProps) {
   return (
     <div className="flex items-center justify-between">
-      <span className={`text-sm ${isWinner ? "font-semibold text-blue-600" : "text-gray-700"}`}>
+      <span className={`text-[14px] --sm ${isWinner ? "font-semibold text-blue-600" : "text-gray-700"}`}>
         {name}
       </span>
       {score !== null && (
-        <span className={`text-sm ${isWinner ? "font-semibold text-blue-600" : "text-gray-500"}`}>
+        <span className={`text-[14px] --sm ${isWinner ? "font-semibold text-blue-600" : "text-gray-500"}`}>
           {score}
         </span>
       )}

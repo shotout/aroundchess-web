@@ -3,7 +3,7 @@
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
 import { usePathname } from "next/navigation";
@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import DotSpinner from "../game-history/Spinner";
 import { useProfileFetch } from "./hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
-import { useTutorial } from "../TutorialProvider";
 
 export default function Navigation({
   children,
@@ -23,7 +22,6 @@ export default function Navigation({
   const pathname = usePathname();
   const { sessionId, hydrated, setAlreadyFetch } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
-  const { isTutorialPlay, stepFocused } = useTutorial();
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -31,21 +29,7 @@ export default function Navigation({
   const [widthContent, setWidthContent] = useState(0);
   const [mounted, setMounted] = useState(true);
 
-  useEffect(() => {
-    setAlreadyFetch(false);
-    setCallFetch(formatTimePgn());
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !mounted) return;
-
-    checkIfDesktop();
-
-    window.addEventListener("resize", checkIfDesktop);
-    return () => window.removeEventListener("resize", checkIfDesktop);
-  }, [mounted]);
-
-  const checkIfDesktop = () => {
+  const checkIfDesktop = useCallback(() => {
     const sidebarW = window.innerWidth / 6;
     const contentW = window.innerWidth - sidebarW;
     setIsDesktop(window.innerWidth >= 1280);
@@ -55,11 +39,67 @@ export default function Navigation({
     } else {
       setWidthSidebar(0);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    setAlreadyFetch(false);
+    setCallFetch(formatTimePgn());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !mounted) return;
+
+    checkIfDesktop();
+
+    window.addEventListener("resize", checkIfDesktop);
+    return () => window.removeEventListener("resize", checkIfDesktop);
+  }, [mounted, checkIfDesktop]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
+  // Expose closeSidebar to window for tutorial access
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).closeSidebar = closeSidebar;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).closeSidebar;
+      }
+    };
+  }, []);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!isDesktop && isSidebarOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+
+      // Prevent body scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        // Restore body scroll
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isSidebarOpen, isDesktop]);
 
   const sidebarVariants = {
     hidden: {
@@ -100,13 +140,13 @@ export default function Navigation({
       <div className="flex h-screen overflow-hidden bg-[#FCFCFD]">
         <div className="flex flex-col w-full">
           <div
-            className="fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0"
+            className="fixed top-[-1px] right-0 z-50 bg-white border-gray-200 left-0"
             style={{ top: "calc(var(--banner-height, 0px) - 1px)" }}
           >
             <Header onSidebarToggle={toggleSidebar} />
           </div>
           <main
-            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}
@@ -140,7 +180,7 @@ export default function Navigation({
               top: "var(--banner-height, 0px)",
               height: "calc(100vh - var(--banner-height, 0px))"
             }}
-            className={`fixed left-0 border-r border-gray-200 bg-white z-30`}
+            className={`fixed left-0 border-r border-gray-200 bg-white z-50`}
           >
             <Sidebar />
           </div>
@@ -152,13 +192,13 @@ export default function Navigation({
         >
           <div
             style={{ left: widthSidebar, top: "calc(var(--banner-height, 0px) - 1px)" }}
-            className={`fixed top-[-1px] right-0 z-40 bg-white border-gray-200 left-0`}
+            className={`fixed top-[-1px] right-0 z-50 bg-white border-gray-200 left-0`}
           >
             <Header onSidebarToggle={toggleSidebar} />
           </div>
 
           <main
-            className="flex-1 overflow-y-auto pt-[72px] lg:pt-24"
+            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}
@@ -174,9 +214,8 @@ export default function Navigation({
               />
             )}
 
-            <div
-              className={`relative z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}
-            >
+            {/* <div className={`relative z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}> */}
+            <div className={`z-10`}>
               {children}
             </div>
 
@@ -187,10 +226,7 @@ export default function Navigation({
         </div>
 
         <AnimatePresence mode="wait">
-          {((!isDesktop && isSidebarOpen) ||
-            (isTutorialPlay &&
-              stepFocused == 4 &&
-              window.innerWidth <= 1024)) && (
+          {(!isDesktop && isSidebarOpen) && (
             <>
               <motion.div
                 className="fixed inset-0 bg-black/50 z-50"
@@ -202,13 +238,13 @@ export default function Navigation({
               />
 
               <motion.div
-                className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200 shadow-xl"
+                className="fixed inset-y-0 right-0 z-50 w-[82%] bg-white border-l border-gray-200 shadow-xl"
                 variants={sidebarVariants}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
               >
-                <Sidebar onClose={() => setSidebarOpen(false)} />
+                <Sidebar onClose={() => setSidebarOpen(false)} isMobile={true} />
               </motion.div>
             </>
           )}

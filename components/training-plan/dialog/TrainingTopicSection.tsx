@@ -44,7 +44,7 @@ const TrainingTopicsSection: React.FC<TrainingTopicsSectionProps> = ({
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+        <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
           4
         </div>
         <Label className="font-medium">Topics</Label>

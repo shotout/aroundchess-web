@@ -64,7 +64,7 @@ export default function Home() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="apiType" className="block text-sm font-medium text-gray-700">Select API:</label>
+          <label htmlFor="apiType" className="block text-[14px] --sm font-medium text-gray-700">Select API:</label>
           <select
             id="apiType"
             value={apiType}
@@ -80,7 +80,7 @@ export default function Home() {
         </div>
 
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username:</label>
+          <label htmlFor="username" className="block text-[14px] --sm font-medium text-gray-700">Username:</label>
           <input
             type="text"
             id="username"
@@ -94,7 +94,7 @@ export default function Home() {
         {apiType === 'monthlyGames' && (
           <>
             <div>
-              <label htmlFor="year" className="block text-sm font-medium text-gray-700">Year:</label>
+              <label htmlFor="year" className="block text-[14px] --sm font-medium text-gray-700">Year:</label>
               <input
                 type="number"
                 id="year"
@@ -105,7 +105,7 @@ export default function Home() {
               />
             </div>
             <div>
-              <label htmlFor="month" className="block text-sm font-medium text-gray-700">Month:</label>
+              <label htmlFor="month" className="block text-[14px] --sm font-medium text-gray-700">Month:</label>
               <input
                 type="number"
                 id="month"

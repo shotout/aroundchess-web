@@ -4,7 +4,7 @@ export function ShareLink({ roomid }: { roomid: string }) {
   return (
     <div className="text-center flex flex-col gap-2">
       <div className="flex justify-center items-center gap-2">
-        <p className="text-lg max-sm:text-sm font-semibold text-blue-500 dark:text-blue-300">
+        <p className="text-lg max-sm:text-[14px] --sm font-semibold text-blue-500 dark:text-blue-300">
           {roomid}
         </p>
         <CopyIcon
@@ -29,7 +29,7 @@ export function ShareLink({ roomid }: { roomid: string }) {
         />
         <CheckIcon size={20} className="hidden" id="tick-icon" />
       </div>
-      <p className="text-sm">Share this ID to start the game.</p>
+      <p className="text-[14px] --sm">Share this ID to start the game.</p>
     </div>
   );
 }

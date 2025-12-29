@@ -204,16 +204,16 @@ export default function NewsPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-3">{article.summary}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <Badge variant="secondary" className="text-xs">
+                    <p className="text-[14px] --sm text-gray-600 line-clamp-3 mb-3">{article.summary}</p>
+                    <div className="flex items-center justify-between text-[14px] --xs text-gray-500">
+                      <Badge variant="secondary" className="text-[14px] --xs">
                         {article.source}
                       </Badge>
                       <span>{format(new Date(article.date), "MMM d, yyyy")}</span>
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 pt-0">
-                    <Button variant="outline" size="sm" className="w-full h-8 text-xs" asChild>
+                    <Button variant="outline" size="sm" className="w-full h-8 text-[14px] --xs" asChild>
                       <a href={article.url} target="_blank" rel="noopener noreferrer">
                         Read More <ExternalLink className="ml-2 h-3 w-3" />
                       </a>
@@ -242,8 +242,8 @@ export default function NewsPage() {
                   <ScrollArea className="h-[400px]">
                     {articles.filter(a => a.isSaved).map(article => (
                       <div key={article.id} className="p-2 hover:bg-gray-50 rounded cursor-pointer">
-                        <h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
-                        <p className="text-xs text-gray-500">{article.source}</p>
+                        <h4 className="font-medium text-[14px] --sm line-clamp-1">{article.title}</h4>
+                        <p className="text-[14px] --xs text-gray-500">{article.source}</p>
                       </div>
                     ))}
                   </ScrollArea>
@@ -252,8 +252,8 @@ export default function NewsPage() {
                   <ScrollArea className="h-[400px]">
                     {articles.filter(a => a.isStarred).map(article => (
                       <div key={article.id} className="p-2 hover:bg-gray-50 rounded cursor-pointer">
-                        <h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
-                        <p className="text-xs text-gray-500">{article.source}</p>
+                        <h4 className="font-medium text-[14px] --sm line-clamp-1">{article.title}</h4>
+                        <p className="text-[14px] --xs text-gray-500">{article.source}</p>
                       </div>
                     ))}
                   </ScrollArea>
@@ -262,8 +262,8 @@ export default function NewsPage() {
                   <ScrollArea className="h-[400px]">
                     {articles.filter(a => a.isPinned).map(article => (
                       <div key={article.id} className="p-2 hover:bg-gray-50 rounded cursor-pointer">
-                        <h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
-                        <p className="text-xs text-gray-500">{article.source}</p>
+                        <h4 className="font-medium text-[14px] --sm line-clamp-1">{article.title}</h4>
+                        <p className="text-[14px] --xs text-gray-500">{article.source}</p>
                       </div>
                     ))}
                   </ScrollArea>

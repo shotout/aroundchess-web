@@ -75,7 +75,7 @@ export default function CheckmateTrainingView({
             <div className="flex-shrink-0">
               <button
                 onClick={() => handlePositionSelect(index)}
-                className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-sm flex items-center space-x-1 hover:bg-blue-700 transition-colors whitespace-nowrap"
+                className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-[14px] --sm flex items-center space-x-1 hover:bg-blue-700 transition-colors whitespace-nowrap"
               >
                 <span>Start practice</span>
               </button>

@@ -42,11 +42,11 @@ const StatCard: React.FC<{
   isLoading,
 }) => (
   <Card
-    className={`p-3 h-[120px] lg:h-[147px] ${bgGradient} rounded-lg overflow-hidden relative flex flex-col justify-between`}
+    className={`p-3 h-[120px] lg:h-[147px] ${bgGradient} rounded-lg overflow-hidden relative flex flex-col gap-[8px]`}
   >
     <div className="flex items-center gap-2">
       {icon}
-      <h1 className="text-sm font-light lg:text-lg">{title}</h1>
+      <h1 className="text-[14px] --sm font-light lg:text-lg">{title}</h1>
     </div>
 
     <div className="flex flex-col">
@@ -70,7 +70,7 @@ const StatCard: React.FC<{
               <Swords fill="white" className="h-4 w-4" />
             )}
           </div>
-          <span className="text-xs mt-1 lg:mt-4 font-light lg:text-sm">
+          <span className="text-[14px] --xs mt-1 lg:mt-4 font-light lg:text-[14px] --sm">
             {subtitle}
           </span>
         </>
@@ -176,7 +176,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
         isTutorialPlay
           ? dataTutorial.averagePoint
           : statistics?.averageEloRating?.monthlyChange || 0
-      } points this month`,
+      } points compared to last month`,
       icon: <BarChart2 className="h-4 w-4 text-blue-500" />,
       bgGradient: "border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black",
       bgImage: "/my-game-history/background-b.png",
@@ -203,7 +203,7 @@ const StatisticsSection: React.FC<StatisticsSectionProps> = ({ username }) => {
 
   return (
     <div className={`${isTutorialPlay ? `hidden xl:block `:`xl:block `} xl:p-3 xl:border xl:border-primary-gray xl:rounded-md bg-transparent xl:bg-white xl:shadow-card`}>
-      <div className="font-semibold text-sm py-2 lg:text-xl">
+      <div className="font-semibold text-[18px] md:text-[14px] --sm py-2 lg:text-xl">
         Overall Statistics
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

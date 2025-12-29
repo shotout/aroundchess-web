@@ -315,7 +315,7 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
           />
         </div>
         <div className="absolute inset-0 flex items-center justify-center m-4">
-          <div className="w-full p-8 xl:max-w-[643px] z-10 sm:mx-7 rounded-md p-4 flex flex-col gap-2 items-center justify-center ">
+          <div className="w-full xl:max-w-[643px] z-10 sm:mx-7 rounded-md md:p-4 flex flex-col gap-2 items-center justify-center ">
             <Image
               src={"/images/puzzle/asset-puzzle.png"}
               alt="asset"
@@ -340,7 +340,8 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
               <span className="font-medium text-[16px]">
                 Select Puzzle Topic
               </span>
-              <Select
+              <SelectPuzzleTopic options={themesWithDescriptions} onChange={setSelectedTheme} />
+              {/* <Select
                 name="subject"
                 value={selectedTheme}
                 onValueChange={setSelectedTheme}
@@ -357,22 +358,22 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
                         value={item.name}
                       >
                         {item.name != selectedTheme ? (
-                          <div className="flex w-full flex-col items-center justify-center gap-2 py-[8px]">
-                            <span className="font-normal text-[12px]">
+                          <div className="flex w-[70vw] md:w-full flex-col items-center justify-center gap-[4px] md:py-[8px]">
+                            <span className="font-normal text-[16px] --">
                               {item.name}
                             </span>
-                            <span className="font-normal text-[11px] text-[#221AE9]">
+                            <span className="w-full text-center font-normal text-[14px] text-[#221AE9]">
                               {item.description}
                             </span>
                           </div>
                         ) : (
-                          item.name
+                          <span className="font-normal text-[16px] --">{item.name}</span>
                         )}
                       </SelectItem>
                     );
                   })}
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
             {isFetching ? (
               <DotSpinner />
@@ -390,5 +391,66 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
     );
   }
 );
+
+function useOutsideAlerter(ref: any, callback: any) {
+  useEffect(() => {
+    function handleClickOutside(event: any) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        callback()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [ref])
+}
+
+const SelectPuzzleTopic = ({options, onChange}: {options: any, onChange: (name: string) => void}) => {
+  const wrapperRef = useRef(null)
+
+  const [openOptions, setOpenOptions] = useState(false);
+  const [selected, setSelected] = useState("All");
+
+  useOutsideAlerter(wrapperRef, () => {
+    setOpenOptions(false)
+  })
+
+  const handleShowOption = () => {
+    setOpenOptions(!openOptions);  
+  }
+
+  const handleSelected = (name: string) => {
+    setSelected(name);
+    setOpenOptions(false);
+  }
+
+  useEffect(() => {
+    onChange(selected);
+  }, [selected])
+
+  return (
+    <div ref={wrapperRef} className="w-full relative">
+      <button type="button" onClick={handleShowOption} className="w-full flex items-center justify-between bg-white border border-[#D8DCE0] rounded-[8px] px-[12px] py-[8px]">
+        <span>{selected}</span>
+        <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className={openOptions ? "rotate-180" : ""}>
+          <path d="M1 1L5.75 5.75L10.5 1" stroke="#121212" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {openOptions && (
+          <div className="absolute top-12 w-full bg-white border border-[#D8DCE0] h-[240px] overflow-x-scroll rounded-[8px] z-10 shadow-[0px_2px_4px_0px_rgba(0,0,0,.12)]">
+            {options.map((item: any, index: number) => (
+              <button onClick={() => handleSelected(item.name)} type="button" key={index} disabled={selected === item.name} className="w-full px-[12px] py-[8px] border-b border-[#D8DCE0] last:border-b-0 text-center hover:bg-[#E6F7FE] disabled:bg-[#E6F7FE]">
+                <span className="text-[15px] text-[#000] mb-[2px] block">{item.name}</span>
+                <span className="text-[15px] text-[#221AE9] block">{item.description}</span>
+              </button>
+            ))}
+          </div>
+      )}
+    </div>
+  );
+}
 
 export default PuzzleInitialize;

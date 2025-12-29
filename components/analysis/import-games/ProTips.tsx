@@ -48,7 +48,7 @@ export function ProTips() {
               {tip.icon}
               <h4 className="font-medium">{tip.title}</h4>
             </div>
-            <p className="text-sm text-muted-foreground pl-7">
+            <p className="text-[14px] --sm text-muted-foreground pl-7">
               {tip.description}
             </p>
           </div>

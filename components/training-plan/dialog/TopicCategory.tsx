@@ -28,12 +28,12 @@ const TopicCategory: React.FC<TopicCategoryProps> = ({
   return (
     <div className="col-span-1 ">
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">
+        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[14px] --xs">
           {categoryNumber}
         </div>
-        <h3 className="text-xs text-nowrap font-medium">{title}</h3>
+        <h3 className="text-[14px] --xs text-nowrap font-medium">{title}</h3>
         {showLimit && (
-          <span className="text-[10px] text-gray-500">(select up to 3)</span>
+          <span className="text-[14px] --10px text-gray-500">(select up to 3)</span>
         )}
       </div>
       <div className="border p-4 rounded-lg">

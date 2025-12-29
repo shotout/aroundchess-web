@@ -15,7 +15,8 @@ export default function PlayVSAI() {
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(false);
-useEffect(() => {
+
+  useEffect(() => {
     trackCustomEvent("ViewPlayVSAI");
   }, []);
   useEffect(() => {
@@ -58,9 +59,9 @@ useEffect(() => {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+          <div className="w-full h-[64vh] md:h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
             <main className="w-full h-full xl:p-8">
-              <div className="relative mx-auto w-full h-full flex items-center justify-center rounded-xl overflow-hidden border">
+              <div className="relative bg-[#e0f6ff] mx-auto w-full h-full flex items-center justify-center md:rounded-xl overflow-hidden border">
                 {/* Premium Subscription Modal */}
                 <PremiumSubscription
                   visible={showPremiumDialog && !isLoading}
@@ -68,7 +69,7 @@ useEffect(() => {
                   onGetPremium={handleGetPremium}
                 />
 
-                {/* Play VS AI Modal */}
+                {/* You vs AI Modal */}
                 <StartPlayVSAI
                   visible={showPlayVSAIModal}
                   onClose={handleClosePlayVSAI}
@@ -78,7 +79,7 @@ useEffect(() => {
                 {isMobile ? (
                   <div className="absolute inset-0 z-0">
                     <Image
-                      src="/board-vision/board.png"
+                      src="/board-vision/board-mobile.png"
                       alt="Background"
                       priority
                       fill
@@ -89,7 +90,7 @@ useEffect(() => {
                     />
                   </div>
                 ) : (
-                  <div className="absolute z-0 bottom-0 left-0 min-w-full">
+                  <div className="absolute z-0 bottom-0 left-0 max-w-full">
                     <Image
                       src="/board-vision/board.png"
                       alt="Background"
@@ -113,7 +114,7 @@ useEffect(() => {
                         className="w-[188px] xl:w-[376px] h-auto"
                       />
                       <span className="font-medium text-lg xl:text-xl">
-                        Play VS AI
+                        You vs AI
                       </span>
                       <span className="font-normal text-md xl:mx-20 text-center">
                         Challenge AI to improve your accuracy and enhance your
@@ -125,8 +126,9 @@ useEffect(() => {
                         onClick={handleOpenPlayVSAI}
                         disabled={isLoading}
                         className="w-full px-4 py-2 btn-primary rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                        data-tutorial="play-vs-ai-step-2"
                       >
-                        {isLoading ? "Loading..." : "Start Now"}
+                        {isLoading ? "Loading..." : "Start a Game"}
                       </button>
                     </div>
                   </div>

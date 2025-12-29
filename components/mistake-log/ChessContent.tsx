@@ -66,19 +66,24 @@ const ChessContent: React.FC = () => {
   const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
-  const [orientation, setOrientation] = useState<BoardOrientation>("white");
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
+    "white"
+  );
+  const [orientation, setOrientation] = useState<BoardOrientation>(boardOrientation);
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
   const [currentMoveWhite, setCurrentMoveWhite] = useState<string>("0:10:00");
   const [currentMoveBlack, setCurrentMoveBlack] = useState<string>("0:10:00");
   const [parsedMoves, setParsedMoves] = useState<ParsedMove[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
-    "white"
-  );
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [startTime, setStartTime] = useState("0:10:00");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync orientation with boardOrientation so player is always at bottom
+  useEffect(() => {
+    setOrientation(boardOrientation);
+  }, [boardOrientation]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -445,7 +450,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs line-clamp-1 sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.blackWin && "text-[#00B427]"
                 }`}
               >
@@ -490,7 +495,7 @@ const ChessContent: React.FC = () => {
         </div>
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+          <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
             {currentMoveBlack}
           </span>
         </div>
@@ -518,7 +523,7 @@ const ChessContent: React.FC = () => {
           <div className="flex flex-col line-clamp-1 ">
             <div className="flex flex-row items-center gap-2">
               <span
-                className={`text-xs line-clamp-1 sm:text-sm md:text-md lg:text-[18px] font-medium ${
+                className={`text-[14px] --xs line-clamp-1 sm:text-[14px] --sm md:text-md lg:text-[18px] font-medium ${
                   previousAnalysesDetail?.whiteWin && "text-[#00B427]"
                 }`}
               >
@@ -563,7 +568,7 @@ const ChessContent: React.FC = () => {
         </div>
         <div className="border border-input min-w-1/4 rounded-md p-2 flex flex-row items-center justify-between gap-2 sm:gap-3">
           <Watch size={16} className="object-contain w-[16px] h-[16px]" />
-          <span className="text-xs xl:w-[80px] sm:text-sm md:text-md lg:text-lg font-medium">
+          <span className="text-[14px] --xs xl:w-[80px] sm:text-[14px] --sm md:text-md lg:text-lg font-medium">
             {currentMoveWhite}
           </span>
         </div>
@@ -597,7 +602,7 @@ const ChessContent: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        <button onClick={toggleBoardMode}>
+        {/* <button onClick={toggleBoardMode}>
           <Image
             src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
             alt="icon"
@@ -605,7 +610,7 @@ const ChessContent: React.FC = () => {
             height={1000}
             className="w-[22px] h-[27px] object-contain"
           />
-        </button>
+        </button> */}
       </div>
     );
   };

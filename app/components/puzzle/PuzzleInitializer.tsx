@@ -324,7 +324,7 @@ const PuzzleInitializer: React.FC<PuzzleInitializerProps> = React.memo(
                     className="p-3 hover:bg-gray-200 cursor-pointer"
                   >
                     <div className="font-bold text-black">{theme.name}</div>
-                    <div className="text-sm text-purple-600">
+                    <div className="text-[14px] --sm text-purple-600">
                       {theme.description}
                     </div>
                   </div>

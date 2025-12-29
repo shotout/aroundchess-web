@@ -4,7 +4,7 @@ import Performance from "./user-history/Performance";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 const UserHistory: React.FC = () => {
-  const Tabs = ["Games", "Analytics", "Performance"] as const;
+  const Tabs = ["Analytics", "Performance"] as const;
   const { tab, setTab } = usePgnStore();
 
   return (
@@ -12,7 +12,7 @@ const UserHistory: React.FC = () => {
       <div className="w-full xl:border-b border-[#DEDEDE] xl:mb-4">
         <div className="flex justify-between items-center xl:px-4">
           <div className="mb-4 w-full overflow-hidden lg:rounded-md md:bg-transparent lg:border-[1px] md:border-none lg:border-[#DEDEDE]">
-            <div className="flex justify-center items-center h-12 text-xs lg:text-sm px-2 p-0 md:p-4 xl:p-0">
+            <div className="flex justify-center items-center h-12 text-[14px] --xs lg:text-[14px] --sm px-2 p-0 md:p-4 xl:p-0">
               {Tabs.map((t, index) => (
                 <button
                   key={index}

@@ -95,7 +95,7 @@ export function ReportCollectionsDialog({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Your Collections</h4>
+            <h4 className="text-[14px] --sm font-medium">Your Collections</h4>
             <Button
               variant="outline"
               size="sm"
@@ -135,7 +135,7 @@ export function ReportCollectionsDialog({
                     <Folder className="h-4 w-4 text-blue-600" />
                     <div>
                       <p className="font-medium">{collection.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[14px] --sm text-muted-foreground">
                         {collection.reportCount} reports • Last updated{" "}
                         {collection.lastUpdated}
                       </p>

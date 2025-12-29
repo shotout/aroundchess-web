@@ -80,7 +80,7 @@ export function TeamRoster() {
                       <span className="font-medium">{member.name}</span>
                       <RoleIcon className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-[14px] --sm text-muted-foreground">
                       Rating: {member.rating}
                     </div>
                   </div>

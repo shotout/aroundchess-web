@@ -154,7 +154,7 @@ const IndividualTrainingTopic: React.FC<
 
     return (
       <div className="block md:hidden mt-2">
-        <p className="text-xs text-gray-600 leading-tight">
+        <p className="text-[14px] --xs text-gray-600 leading-tight">
           You've played this Topic:{" "}
           {detailedCount.isLegacy ? (
             <span className="font-medium">
@@ -189,7 +189,7 @@ const IndividualTrainingTopic: React.FC<
         >
           {isRecommended && (
             <Badge
-              className={`flex text-xs items-center gap-x-2 font-bold rounded-[2px] ${
+              className={`flex text-[14px] --xs items-center gap-x-2 font-bold rounded-[2px] ${
                 disabled
                   ? "bg-[f0f0f0]"
                   : isRecommended
@@ -218,7 +218,7 @@ const IndividualTrainingTopic: React.FC<
         </div>
 
         <h2
-          className={`font-bold mt-2 text-sm ${
+          className={`font-bold mt-2 text-[14px] --sm ${
             isSelected ? "text-blue-base" : "text-black"
           }`}
         >
@@ -244,14 +244,14 @@ const IndividualTrainingTopic: React.FC<
                     align="start"
                     sideOffset={20}
                     alignOffset={100}
-                    className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+                    className="max-w-[320px] rounded-none rounded-t-[8px] rounded-br-[8px] flex items-center gap-x-3 !bg-[#ECEBFF] backdrop-blur-3xl border !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)]"
                   >
                     <AlertCircle className="text-blue-base w-5 h-5" />
                     <div className="flex flex-col gap-y-2">
-                      <h3 className="font-semibold text-sm">
+                      <h3 className="font-semibold text-[14px] --sm">
                         You've played this opening
                       </h3>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-[14px] --xs text-gray-600">
                         {detailedCount.isLegacy ? (
                           <p>
                             {detailedCount.total}{" "}
@@ -285,13 +285,13 @@ const IndividualTrainingTopic: React.FC<
             align="center"
             sideOffset={5}
             alignOffset={5}
-            className="max-w-[230px] rounded-none rounded-t-md rounded-br-md bg-blue-base/5 backdrop-blur-3xl border border-blue-base "
+            className="max-w-[230px] rounded-t-[8px] rounded-br-[8px] !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] !bg-[#ECEBFF] text-[#0B094E] rounded-[8px] border border- "
           >
             <div className="flex items-center gap-x-2 p-1">
               <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
                 <AlertCircle className="text-blue-base max-w-5" />
               </div>
-              <p className="text-xs text-black">
+              <p className="text-[14px] --xs text-black">
                 Grandmasters recommend this Concept for the Training Plan of
                 your current level.
               </p>
@@ -312,14 +312,14 @@ const IndividualTrainingTopic: React.FC<
             align="start"
             sideOffset={20}
             alignOffset={100}
-            className="max-w-[300px] rounded-none rounded-t-md rounded-br-md flex items-center gap-x-3 bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg"
+            className="max-w-[300px] rounded-[8px] rounded-t-md rounded-br-md flex items-center gap-x-3 !bg-[#ECEBFF] backdrop-blur-3xl border !border-[#221AE9] shadow-[0px_4px_8px_0px_rgba(34,26,233,0.12)] text-[#0B094E]"
           >
             <AlertCircle className="text-blue-base w-5 h-5" />
             <div className="flex flex-col gap-y-2">
-              <h3 className="font-semibold text-sm">
+              <h3 className="font-semibold text-[14px] --sm">
                 You've played this opening
               </h3>
-              <div className="text-xs text-gray-600">
+              <div className="text-[14px] --xs text-gray-600">
                 {detailedCount.isLegacy ? (
                   <p>
                     {detailedCount.total} {formatPlayCount(detailedCount.total)}

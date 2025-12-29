@@ -85,7 +85,7 @@ export function GenerateReportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Include Charts</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Add visual representations of your data
               </div>
             </div>
@@ -97,7 +97,7 @@ export function GenerateReportDialog({
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Include Analysis</Label>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-[14px] --sm text-muted-foreground">
                 Add AI-powered insights and recommendations
               </div>
             </div>

@@ -135,7 +135,7 @@ export function ShareGame() {
                     <h2 className="text-xl font-semibold text-center mb-2">
                       Share this Game
                     </h2>
-                    <p className="text-sm text-gray-600 text-center">
+                    <p className="text-[14px] --sm text-gray-600 text-center">
                       Copy this Game's PGN or FEN and share it with your
                       Friends.
                     </p>
@@ -147,7 +147,7 @@ export function ShareGame() {
                         <span className="font-medium text-base">FEN</span>
                       </div>
                       <div className="bg-[#e6f7fe] rounded-lg p-4 flex items-start justify-between">
-                        <span className="text-sm font-mono break-all flex-1 mr-3">
+                        <span className="text-[14px] --sm font-mono break-all flex-1 mr-3">
                           {fen}
                         </span>
                         <button
@@ -164,7 +164,7 @@ export function ShareGame() {
                         <span className="font-medium text-base">PGN</span>
                       </div>
                       <div className="bg-[#e6f7fe] rounded-lg p-4 flex items-start justify-between">
-                        <span className="text-sm font-mono break-all flex-1 mr-3">
+                        <span className="text-[14px] --sm font-mono break-all flex-1 mr-3">
                           {pgn}
                         </span>
                         <button

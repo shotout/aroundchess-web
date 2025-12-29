@@ -21,7 +21,7 @@ export function PinnedSections({
       <Card className="p-4">
         <div className="text-center text-gray-500">
           <Pin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Pin your favorite sections for quick access</p>
+          <p className="text-[14px] --sm">Pin your favorite sections for quick access</p>
         </div>
       </Card>
     )
@@ -29,7 +29,7 @@ export function PinnedSections({
 
   return (
     <Card className="p-4">
-      <h3 className="text-sm font-medium mb-4">Pinned Sections</h3>
+      <h3 className="text-[14px] --sm font-medium mb-4">Pinned Sections</h3>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
           <AnimatePresence mode="popLayout">
@@ -50,7 +50,7 @@ export function PinnedSections({
                   onClick={() => setActiveTab(section.id)}
                 >
                   <span className="text-lg">{section.icon}</span>
-                  <span className="flex-1 text-sm font-medium">{section.title}</span>
+                  <span className="flex-1 text-[14px] --sm font-medium">{section.title}</span>
                   <Button
                     variant="ghost"
                     size="icon"

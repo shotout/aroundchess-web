@@ -37,7 +37,7 @@ export function GameModeCard({ href, title, description, color, mode }: GameMode
           </div>
           <h3 className="text-xl font-bold">{title}</h3>
         </div>
-        <p className="text-sm opacity-90 leading-relaxed">{description}</p>
+        <p className="text-[14px] --sm opacity-90 leading-relaxed">{description}</p>
       </Link>
     </motion.div>
   )

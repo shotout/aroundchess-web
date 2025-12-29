@@ -233,15 +233,15 @@ const TrainingGoals = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-bold text-base">Training Goals </h2>
-            <p className="text-xs max-w-40 text-gray-600">
+            <p className="text-[14px] --xs max-w-40 text-gray-600">
               Set and track your chess improvement goals
             </p>
           </div>
           <div>
             <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-48 border rounded-md bg-gray-primary text-xs">
+              <SelectTrigger className="w-48 border rounded-md bg-gray-primary text-[14px] --xs">
                 <div className="flex items-center">
-                  <span className="text-gray-500 mr-2 text-xs">Order:</span>
+                  <span className="text-gray-500 mr-2 text-[14px] --xs">Order:</span>
                   <SelectValue />
                 </div>
               </SelectTrigger>
@@ -268,16 +268,16 @@ const TrainingGoals = () => {
                   <div className="flex items-center">
                     <TargetIcon className="h-4 w-4 text-blue-base" />
                   </div>
-                  <h3 className="text-sm font-semibold">{goal.title}</h3>
+                  <h3 className="text-[14px] --sm font-semibold">{goal.title}</h3>
                 </div>
 
                 {/* Progress bar and button in same line */}
                 <div className="flex items-center w-full justify-between">
                   <div className="w-[70%]">
                     <div className="flex justify-between items-center mb-1">
-                      <p className="text-xs">Progress</p>
+                      <p className="text-[14px] --xs">Progress</p>
                       <div className="flex items-center">
-                        <span className="text-xs font-medium mr-1">
+                        <span className="text-[14px] --xs font-medium mr-1">
                           {goal.progress}%
                         </span>
                         {goal.progress === 100 ? (
@@ -297,13 +297,13 @@ const TrainingGoals = () => {
                   </div>
 
                   <div className="w-[25%]">
-                    <button className="px-4 py-2 rounded-md text-xs text-blue-base w-full btn-tertiary">
+                    <button className="px-4 py-2 rounded-md text-[14px] --xs text-blue-base w-full btn-tertiary">
                       {goal.status === "not-started" ? "Start" : "Resume"}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-2 text-xs text-gray-500 w-[70%]">
+                <div className="flex items-center justify-between mt-2 text-[14px] --xs text-gray-500 w-[70%]">
                   <div className="flex items-center gap-1">
                     <Trophy className="h-4 w-4" />
                     <span>{goal.metric}</span>
@@ -321,12 +321,12 @@ const TrainingGoals = () => {
         {/* Pagination Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-auto">
           <div className="flex items-center mb-3 sm:mb-0">
-            <span className="text-xs text-gray-600 mr-2">Goals per Page</span>
+            <span className="text-[14px] --xs text-gray-600 mr-2">Goals per Page</span>
             <Select
               value={String(itemsPerPage)}
               onValueChange={(value) => setItemsPerPage(Number(value))}
             >
-              <SelectTrigger className="w-16 border rounded-md bg-white text-xs">
+              <SelectTrigger className="w-16 border rounded-md bg-white text-[14px] --xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -394,7 +394,7 @@ const TrainingGoals = () => {
         <div className="w-full">
           <div className="mb-2">
             <h1 className="font-bold text-base">Performance Metrics</h1>
-            <p className="text-xs text-gray-600">
+            <p className="text-[14px] --xs text-gray-600">
               Track your progress across different aspects
             </p>
           </div>
@@ -411,8 +411,8 @@ const TrainingGoals = () => {
 
                 <div className="flex flex-col items-center justify-between w-full">
                   <div className="flex items-center justify-between w-full mb-2">
-                    <h2 className="font-semibold text-sm">{metric.title}</h2>
-                    <div className="text-xs">
+                    <h2 className="font-semibold text-[14px] --sm">{metric.title}</h2>
+                    <div className="text-[14px] --xs">
                       <span className="font-semibold">{metric.current}%</span>
                     </div>
                   </div>
@@ -422,7 +422,7 @@ const TrainingGoals = () => {
                       style={{ width: `${metric.current}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between w-full mt-1 text-xs">
+                  <div className="flex justify-between w-full mt-1 text-[14px] --xs">
                     <div>
                       Current:{" "}
                       <span className="font-semibold text-green-500">
@@ -445,7 +445,7 @@ const TrainingGoals = () => {
         {/* Key Statistics Section */}
         <div className="w-full">
           <h1 className="text-base font-bold mb-2">Performance Trends</h1>
-          <h1 className="text-xs mb-3">Monthly improvement</h1>
+          <h1 className="text-[14px] --xs mb-3">Monthly improvement</h1>
           <div className="grid grid-cols-2 gap-3 w-full">
             {keyStats.map((stat, index) => (
               <Card key={index} className="p-3 rounded-lg border bg-white">
@@ -455,10 +455,10 @@ const TrainingGoals = () => {
                     {stat.icon}
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-xs text-gray-500">{stat.title}</p>
+                    <p className="text-[14px] --xs text-gray-500">{stat.title}</p>
                     <h2 className="text-base font-semibold">{stat.value}</h2>
                     {stat.trend && (
-                      <p className={`text-[10px] ${stat.trendColor}`}>
+                      <p className={`text-[14px] --10px ${stat.trendColor}`}>
                         {stat.trend}
                       </p>
                     )}
@@ -488,11 +488,11 @@ const TrainingGoals = () => {
                   <h2 className="text-xl font-semibold mb-1">{stat.value}</h2>
 
                   {/* Title below the value */}
-                  <p className="text-xs text-gray-500 mb-1">{stat.title}</p>
+                  <p className="text-[14px] --xs text-gray-500 mb-1">{stat.title}</p>
 
                   {/* Trend at the bottom */}
                   {stat.trend && (
-                    <p className={`text-xs font-medium ${stat.trendColor}`}>
+                    <p className={`text-[14px] --xs font-medium ${stat.trendColor}`}>
                       {stat.trend}
                     </p>
                   )}

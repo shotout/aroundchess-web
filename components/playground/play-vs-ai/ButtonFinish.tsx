@@ -1,10 +1,9 @@
-import { usePgnStore } from "@/app/store/zustandStore";
-import { MobileTooltip } from "@/components/game-history/components/user-history/Analytics";
-import { ChooseDepthAnalyze } from "@/components/modal/ChooseDepthAnalyze";
 import { fadeInUp, motion } from "@/utils/motion";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { Info, Loader2, Plus, Save } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import Image from "next/image";
+import { useTutorial } from "@/components/TutorialProvider";
+import { usePgnStore } from "@/app/store/zustandStore";
 
 interface ButtonFinishProps {
   handleAnalyzeGame: () => void;
@@ -15,14 +14,10 @@ interface ButtonFinishProps {
   handleSave: () => void;
   isSaving?: boolean;
   pgn: string;
-  getAnalysisButtonContent?: () => {
-    text: string;
-    icon: React.ReactNode;
-    className: string;
-    onClick: () => void;
-    disabled?: boolean;
-  };
   isSaved: boolean;
+  hasAnalysis: boolean;
+  onAnalyzeClick: () => void;
+  onShowAnalysisClick: () => void;
 }
 
 export const ButtonFinish = ({
@@ -35,91 +30,59 @@ export const ButtonFinish = ({
   isSaving,
   isSaved,
   pgn,
-  getAnalysisButtonContent,
+  hasAnalysis,
+  onAnalyzeClick,
+  onShowAnalysisClick,
 }: ButtonFinishProps) => {
   const { username } = usePgnStore();
-  const analysisButton = getAnalysisButtonContent
-    ? getAnalysisButtonContent()
-    : null;
+  const { isTutorialPlay } = useTutorial();
 
-  const renderAnalyzeButton = (className: string) => {
-    if (!analysisButton) {
-      return <ChooseDepthAnalyze pgnParam={pgn} style={className} />;
-    }
-
-    return (
-      <button
-        onClick={analysisButton.onClick}
-        disabled={analysisButton.disabled}
-        className={`${
-          analysisButton.className
-        } ${className} rounded-full h-[40px] flex items-center justify-center transition-colors duration-150 ${
-          analysisButton.disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      >
-        <div className="flex flex-row items-center justify-center gap-2">
-          {analysisButton.icon}
-          <span className="font-medium">{analysisButton.text}</span>
-        </div>
-      </button>
-    );
-  };
   const renderButtonSave = () => {
-    // While auto-save is in progress, show the existing "Saving..." state.
-    // After the game has been saved (isSaved && !isSaving), replace the save button
-    // with the Analyze flow so the user can analyze this game immediately.
-    if (analysisButton && isSaved && !isSaving) {
-      return renderAnalyzeButton("w-full");
-    }
-
     return (
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
-          <button
-            onClick={handleSave}
-            disabled={isSaving || isSaved}
-            className={` w-full md:w-1/4 xl:w-full rounded-full h-[40px] border border-[#C0CED4] ${
-              isSaved ? "bg-green-600" : "btn-primary"
-            }`}
-          >
-            {isSaving ? (
-              <div className="flex flex-row items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-[#221AE9]" />
-                <span className="text-[#fff] font-medium">Saving...</span>
-              </div>
-            ) : (
-              <div className="flex flex-row items-center justify-center gap-2">
-                <Save color="#fff" className="w-[20px] h-[20px]" size={20} />
-                <span className="text-[#fff] font-medium">
-                  {isSaved ? "Game Saved" : "Save Game"}
-                </span>
-              </div>
-            )}
-          </button>
-          <MobileTooltip
-            content={[
-              `The game will be saved in the "Other Games" category of the
-                  Game History. If you would like to Analyze this Game, please
-                  visit your Game History.`,
-            ]}
-            side="left"
-          >
-            <Info
-              color="#221AE9"
-              className="h-[24] w-[24] text-gray-500 hover:text-gray-700"
-            />
-          </MobileTooltip>
+          {hasAnalysis ? (
+            // Show "Show Analysis" button when analysis is completed
+            <button
+              type="button"
+              onClick={onShowAnalysisClick}
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23]"
+            >
+              <Eye className="h-4 w-4" />
+              Show Analysis
+            </button>
+          ) : (
+            // Show "Analyze Now" button when no analysis exists
+            <button
+              type="button"
+              onClick={() => {
+                console.log("🔘 Analyze Now button clicked in ButtonFinish");
+                onAnalyzeClick();
+              }}
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23]"
+              data-tutorial="play-vs-ai-step-3"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Analyze Now
+            </button>
+          )}
         </div>
       </TooltipProvider>
     );
   };
+
   return (
     <motion.div
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
-      <div className="md:hidden xl:block">
-        {username.length > 0 && renderButtonSave()}
+      {/* During tutorial, always show the button. Otherwise use responsive classes */}
+      <div className={isTutorialPlay ? "block" : "md:hidden xl:block"}>
+        {renderButtonSave()}
       </div>
 
       <div className="flex w-full gap-2">
@@ -130,7 +93,7 @@ export const ButtonFinish = ({
           <div className="flex flex-row items-center justify-center gap-2">
             <Image
               alt="clipboard"
-              src={"/images/play-vs-ai/clipboard.png"}
+              src="/images/play-vs-ai/clipboard.png"
               width={1000}
               height={1000}
               className="h-[20px] w-[20px]"
@@ -151,8 +114,9 @@ export const ButtonFinish = ({
           </div>
         </button>
 
-        <div className="hidden md:block xl:hidden md:w-2/4">
-          {username.length > 0 && renderButtonSave()}
+        {/* During tutorial, hide this duplicate button. Otherwise show on md screens only */}
+        <div className={isTutorialPlay ? "hidden" : "hidden md:block xl:hidden md:w-2/4"}>
+          {renderButtonSave()}
         </div>
       </div>
     </motion.div>

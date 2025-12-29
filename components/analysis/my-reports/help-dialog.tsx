@@ -158,7 +158,7 @@ These features help you get more from your reports.`,
                   <AccordionTrigger>{topic.title}</AccordionTrigger>
                   <AccordionContent>
                     <div className="prose prose-sm">
-                      <div className="whitespace-pre-line text-sm text-muted-foreground">
+                      <div className="whitespace-pre-line text-[14px] --sm text-muted-foreground">
                         {topic.content}
                       </div>
                     </div>

@@ -442,11 +442,11 @@ export default function ModernClassics() {
                   <CardTitle className="text-lg font-semibold leading-tight">
                     {game.white} <span className="text-gray-400">vs</span> {game.black}
                   </CardTitle>
-                  <span className="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded-md flex-shrink-0">
+                  <span className="text-[14px] --xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded-md flex-shrink-0">
                     {game.opening}
                   </span>
                 </div>
-                <CardDescription className="flex items-center gap-2 text-sm">
+                <CardDescription className="flex items-center gap-2 text-[14px] --sm">
                   <span className="font-medium text-gray-700">{game.event}</span>
                   <span className="text-gray-400">•</span>
                   <span className="text-gray-500">{game.date}</span>
@@ -455,12 +455,12 @@ export default function ModernClassics() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col pt-0">
-                <p className="text-sm text-gray-600 line-clamp-3 mb-auto">{game.summary}</p>
+                <p className="text-[14px] --sm text-gray-600 line-clamp-3 mb-auto">{game.summary}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {game.concepts.slice(0, 2).map((concept) => (
                     <span
                       key={concept}
-                      className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
+                      className="text-[14px] --xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
                     >
                       {concept}
                     </span>
@@ -523,7 +523,7 @@ export default function ModernClassics() {
             <h2 className="text-3xl font-bold text-gray-900">
               {selectedGame.white} <span className="text-gray-400">vs</span> {selectedGame.black}
             </h2>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-[14px] --sm text-gray-500">
               <span className="font-medium text-gray-700">{selectedGame.event}</span>
               <span>•</span>
               <span>{selectedGame.date}</span>
@@ -567,7 +567,7 @@ export default function ModernClassics() {
                       <CardDescription>{point.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-gray-600">{point.example}</p>
+                      <p className="text-[14px] --sm text-gray-600">{point.example}</p>
                     </CardContent>
                   </Card>
                 ))}

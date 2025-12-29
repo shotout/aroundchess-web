@@ -25,11 +25,11 @@ const GoalsSection = ({ goals, duration }: GoalsSectionProps) => {
 
           {/* Goals section */}
           <div className="flex flex-col">
-            <h3 className="font-semibold text-sm md:text-xl mb-2 md:mb-0">
+            <h3 className="font-semibold text-[14px] --sm md:text-[16px] mb-2 md:mb-0">
               What you will get if you reach your Next Goals?
             </h3>
             {/* Goals list - vertical on mobile, horizontal on desktop */}
-            <ul className="text-blue-800 text-xs md:text-base flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
+            <ul className="text-blue-800 text-[14px] --xs md:text-base flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
               {goals.map((goal, index) => (
                 <li key={goal.id} className="flex items-center gap-2">
                   <span className="text-blue-600 font-medium flex items-center justify-center w-5 md:w-auto">
@@ -48,10 +48,10 @@ const GoalsSection = ({ goals, duration }: GoalsSectionProps) => {
       {/* Duration section - below on mobile, right side on desktop */}
       <div className="mt-4 md:mt-0 md:flex-shrink-0 pl-16 md:pl-0">
         <div className="flex flex-col md:items-end md:justify-center">
-          <div className="text-xs md:text-sm text-gray-600">
+          <div className="text-[14px] --xs md:text-[14px] --sm text-gray-600">
             {duration.text}
           </div>
-          <div className="flex items-center gap-1 text-blue-800 text-sm md:text-base font-semibold">
+          <div className="flex items-center gap-1 text-blue-800 text-[14px] --sm md:text-base font-semibold">
             {duration.value}
           </div>
         </div>

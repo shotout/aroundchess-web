@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export function FeaturesSection() {
   return (
-    <section className="pt-2 pb-1 sm:pt-12 lg:pt-12 bg-white rounded-t-[32px]">
+    <section className="relative pt-2 pb-1 sm:pt-12 lg:pt-12 bg-white sm:rounded-t-[32px]">
       <div className="container relative mx-auto px-4 md:px-6 lg:px-12">
         <motion.div
           className="text-center mb-2 mt-4 "
@@ -35,7 +35,7 @@ export function FeaturesSection() {
           <p className="md:my-2 lg:my-4 text-xl md:text-xl lg:text-[40px] font-semibold text-black">
             Your Personal Chess Lab
           </p>
-          <p className="xl:max-w-[496px] text-xs sm:text-md md:text-md lg:text-md xl:text-[20px] font-normal leading-[1.2] text-[#2e2e2e] max-w-2xl mx-auto">
+          <p className="xl:max-w-[496px] text-[14px] --xs sm:text-md md:text-md lg:text-md xl:text-[20px] font-normal leading-[1.2] text-[#2e2e2e] max-w-2xl mx-auto">
             Unlock your full potential with our comprehensive suite of Chess
             Analysis Tools and AI-based Training.
           </p>

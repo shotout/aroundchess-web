@@ -26,7 +26,7 @@ export function ChooseColor() {
         <div className="p-6 space-y-4">
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-semibold text-gray-900">Choose Your Side</h2>
-            <p className="text-gray-600 text-sm">Select which color you want to play as</p>
+            <p className="text-gray-600 text-[14px] --sm">Select which color you want to play as</p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -51,7 +51,7 @@ export function ChooseColor() {
                 >
                   Play as White
                 </Button>
-                <span className="text-sm text-gray-600">First to move</span>
+                <span className="text-[14px] --sm text-gray-600">First to move</span>
               </div>
 
               <div className="flex flex-col items-center gap-2">
@@ -73,14 +73,14 @@ export function ChooseColor() {
                 >
                   Play as Black
                 </Button>
-                <span className="text-sm text-gray-600">Second to move</span>
+                <span className="text-[14px] --sm text-gray-600">Second to move</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="bg-gray-50 px-6 py-3 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-[14px] --sm text-gray-500">
             You can change sides anytime during the game
           </p>
         </div>

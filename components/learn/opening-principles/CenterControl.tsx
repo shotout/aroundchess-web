@@ -82,7 +82,7 @@ export function CenterControl() {
               <p className="text-gray-600">
                 {centerControlStrategies[currentStrategy].description}
               </p>
-              <div className="text-sm text-gray-500 italic">
+              <div className="text-[14px] --sm text-gray-500 italic">
                 {centerControlStrategies[currentStrategy].analysis}
               </div>
             </div>

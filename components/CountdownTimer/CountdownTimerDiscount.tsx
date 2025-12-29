@@ -44,7 +44,7 @@ const DigitFlip = ({ value }: { value: number }) => {
 const TimeBox = ({ label, value }: { label: string; value: number }) => (
   <div className="flex flex-col items-center space-y-1">
     <DigitFlip value={value} />
-    <span className="text-[10px] md:text-[10px] xl:text-[12px] text-[#2E3133] font-normal">
+    <span className="text-[14px] --10px md:text-[14px] --10px xl:text-[14px] -- text-[#2E3133] font-normal">
       {label}
     </span>
   </div>
@@ -85,10 +85,10 @@ export default function CountdownTimerDiscount() {
 
   return (
     <div className="relative flex flex-col sm:w-[466px] sm:h-[126px] items-center space-y-3 bg-gradient-to-r from-[#66FEB7] via-[#00FE87] to-[#66FEB7] border-2 border-[#e6f7f3] border-dashed rounded-[8px] p-[8px]">
-      <p className="text-[14px] sm:text-[12px] lg:text-[14px] font-medium text-center text-black block">
+      <p className="text-[14px] sm:text-[14px] -- lg:text-[14px] font-medium text-center text-black block">
         Get a <span className="text-[#221AE9] font-bold">Special Discount </span>now
         on our 12 Months Premium Subscription.
-        <span className="text-[10px] sm:text-[12px] lg:text-[14px] font-medium text-center text-black block">
+        <span className="text-[14px] --10px sm:text-[14px] -- lg:text-[14px] font-medium text-center text-black block">
           Offer expires in...
         </span>
       </p>

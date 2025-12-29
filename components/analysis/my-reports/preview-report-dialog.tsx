@@ -64,7 +64,7 @@ export function PreviewReportDialog({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">{mockReport.title}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Generated on {mockReport.date}
               </p>
             </div>
@@ -79,7 +79,7 @@ export function PreviewReportDialog({
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-[14px] --sm text-muted-foreground">
             <span>{mockReport.type}</span>
             <span>•</span>
             <span>{mockReport.size}</span>
@@ -95,7 +95,7 @@ export function PreviewReportDialog({
             ))}
           </div>
           <div className="border-t pt-4">
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] --sm text-muted-foreground mb-4">
               {mockReport.summary}
             </p>
             <ScrollArea className="h-[400px] rounded-md border p-4">
@@ -105,7 +105,7 @@ export function PreviewReportDialog({
                     <h3 className="text-lg font-semibold mb-2">
                       {section.title}
                     </h3>
-                    <p className="text-sm whitespace-pre-line">
+                    <p className="text-[14px] --sm whitespace-pre-line">
                       {section.content}
                     </p>
                   </div>

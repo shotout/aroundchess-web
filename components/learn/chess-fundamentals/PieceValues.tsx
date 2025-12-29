@@ -109,11 +109,11 @@ export function PieceValues() {
                 <div className="text-4xl text-blue-600">{piece.piece}</div>
                 <div>
                   <div className="font-bold text-gray-900">{piece.name}</div>
-                  <div className="text-sm text-blue-600">Value: {piece.value}</div>
+                  <div className="text-[14px] --sm text-blue-600">Value: {piece.value}</div>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mb-4">{piece.description}</p>
-              <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1">
+              <p className="text-[14px] --sm text-gray-600 mb-4">{piece.description}</p>
+              <ul className="text-[14px] --sm text-gray-600 list-disc pl-4 space-y-1">
                 {piece.tips.map((tip, i) => (
                   <li key={i}>{tip}</li>
                 ))}
@@ -128,14 +128,14 @@ export function PieceValues() {
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Material Balance</h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-[14px] --sm">
               Keep track of the total value of pieces on both sides. A material advantage often 
               (but not always) translates to better winning chances.
             </p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Positional Factors</h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-[14px] --sm">
               Remember that piece values are relative. A well-placed knight might be worth more 
               than a trapped rook in certain positions.
             </p>

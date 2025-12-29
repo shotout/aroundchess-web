@@ -35,7 +35,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
       </div>
       <div className="grid grid-cols-1  sm:grid-cols-3 gap-3">
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Average Game Length</h1>
+          <h1 className="text-[14px] --sm font-semibold">Average Game Length</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">
@@ -47,7 +47,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
 
         {/* Accuracy Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Average Accuracy</h1>
+          <h1 className="text-[14px] --sm font-semibold">Average Accuracy</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.accuracy}%</h1>
@@ -57,7 +57,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
 
         {/* Blunder Rate Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
-          <h1 className="text-sm font-semibold">Blunder Rate</h1>
+          <h1 className="text-[14px] --sm font-semibold">Blunder Rate</h1>
           <div className="flex flex-col">
             <div className="flex gap-1 items-center">
               <h1 className="text-lg font-bold">{insights.blunderRate}%</h1>

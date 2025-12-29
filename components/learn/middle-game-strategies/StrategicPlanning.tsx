@@ -220,7 +220,7 @@ export function StrategicPlanning() {
           <Button onClick={previousExample} variant="outline" size="sm">
             Previous Example
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-[14px] --sm text-muted-foreground">
             {currentExample + 1} of {strategicPlanningExamples.length}
           </span>
           <Button onClick={nextExample} variant="outline" size="sm">
@@ -276,10 +276,10 @@ export function StrategicPlanning() {
                 <Card className="h-full">
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold text-blue-600 mb-2">{plan.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                    <p className="text-[14px] --sm text-gray-600 mb-4">{plan.description}</p>
                     <ol className="list-decimal pl-5 space-y-2">
                       {plan.steps.map((step, stepIndex) => (
-                        <li key={stepIndex} className="text-sm text-gray-600">
+                        <li key={stepIndex} className="text-[14px] --sm text-gray-600">
                           {step}
                         </li>
                       ))}

@@ -3,6 +3,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { gameHistoryApi } from "../services/api";
 import { FilterState, Game } from "../types/GameHistoryTypes";
 import { useProfileStore } from "@/app/store/profile";
+import { useTutorial } from "@/components/TutorialProvider";
 
 export const CACHE_EXPIRATION = 60 * 60 * 1000;
 
@@ -158,18 +159,27 @@ const isValidCache = (
   return age < expiration;
 };
 
-export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
+export interface GameFilters {
+  sources?: string[];
+  result?: string;
+  color?: string;
+  analyzedOnly?: boolean;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  opponent?: string;
+}
+
+export function useGames(filters?: GameFilters) {
   const {
-    username,
     gamesData: cachedUserGames,
-    otherGamesData: cachedOtherGames,
     gamesLastFetched,
-    otherGamesLastFetched,
     setGamesData,
-    setOtherGamesData,
     resetFetchState,
   } = usePgnStore();
   const { sessionId } = useProfileStore();
+  const { isTutorialPlay } = useTutorial();
 
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -178,16 +188,10 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   const fetchRef = useRef(false);
   const lastExecutedRef = useRef<string>("");
 
-  const cachedGames =
-    type === "chessdotcom" ? cachedUserGames : cachedOtherGames;
-  const lastFetched =
-    type === "chessdotcom" ? gamesLastFetched : otherGamesLastFetched;
-  const setInStore = type === "chessdotcom" ? setGamesData : setOtherGamesData;
-
-  const cacheValid = useMemo(
-    () => isValidCache(lastFetched, cachedGames, CACHE_EXPIRATION),
-    [lastFetched, cachedGames]
-  );
+  // Create a stable filter key for caching
+  const filterKey = useMemo(() => {
+    return JSON.stringify(filters || {});
+  }, [filters]);
 
   const updateState = useCallback(
     (processed: Game[]) => setGames(processed),
@@ -195,23 +199,8 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
   );
 
   const fetchGames = useCallback(async () => {
-    const key = `${sessionId}-${username}-${type}`;
-    if (fetchRef.current || lastExecutedRef.current === key) return;
-
-    if (!username && type === "chessdotcom") {
-      setIsLoading(false);
-      return;
-    }
-
-    if (cacheValid && cachedGames) {
-      try {
-        updateState(transformApiDataToComponentFormat(cachedGames));
-      } catch (err) {
-        console.error(`[${type.toUpperCase()}] cached processing error:`, err);
-        setError(err instanceof Error ? err : new Error("Cache error"));
-      } finally {
-        setIsLoading(false);
-      }
+    const key = `${sessionId}-${filterKey}`;
+    if (fetchRef.current || lastExecutedRef.current === key) {
       return;
     }
 
@@ -221,16 +210,15 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     setError(null);
 
     try {
-      const res = await gameHistoryApi.getUserGames(sessionId ?? null, type);
+      const res = await gameHistoryApi.getUserGames(sessionId ?? null, filters);
       if (res?.data) {
-        setInStore(res.data);
+        setGamesData(res.data);
         updateState(transformApiDataToComponentFormat(res.data));
       } else {
         throw new Error("Invalid server response");
       }
     } catch (err) {
       const e = err instanceof Error ? err : new Error("Fetch unknown error");
-      console.error(`[${type}] fetch error:`, e);
       setError(e);
     } finally {
       setIsLoading(false);
@@ -238,26 +226,26 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
         fetchRef.current = false;
       }, 1000);
     }
-  }, [
-    sessionId,
-    username,
-    type,
-    cacheValid,
-    cachedGames,
-    setInStore,
-    updateState,
-  ]);
+  }, [sessionId, filterKey, filters, setGamesData, updateState]);
 
   useEffect(() => {
-    if (!sessionId) return;
-    const key = `${sessionId}-${username}-${type}`;
+    // Skip fetching games when tutorial is active - we'll use dummy data instead
+    if (isTutorialPlay) {
+      setIsLoading(false);
+      setError(null);
+      setGames([]);
+      return;
+    }
+
+    if (!sessionId) {
+      return;
+    }
+
+    const key = `${sessionId}-${filterKey}`;
     if (lastExecutedRef.current !== key && !fetchRef.current) {
       fetchGames();
-    } else if (cacheValid && cachedGames) {
-      updateState(transformApiDataToComponentFormat(cachedGames));
-      setIsLoading(false);
-    }
-  }, [sessionId, username, type, cacheValid, cachedGames, fetchGames, updateState]);
+    } 
+  }, [sessionId, filterKey, fetchGames, isTutorialPlay]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
@@ -266,23 +254,50 @@ export function useGames(type: "chessdotcom" | "other" = "chessdotcom") {
     fetchGames();
   }, [resetFetchState, fetchGames]);
 
-  const handleForceRefresh = useCallback(() => {
+  const handleForceRefresh = useCallback(async () => {
     fetchRef.current = false;
     lastExecutedRef.current = "";
-    if (type === "chessdotcom") {
-      usePgnStore.getState().clearGamesData();
-    } else {
-      usePgnStore.getState().clearOtherGamesData();
+    usePgnStore.getState().resetGamesState();
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Call both endpoints in parallel
+      const [chessComResponse, otherGamesResponse] = await Promise.all([
+        gameHistoryApi.getChessComGames(sessionId),
+        gameHistoryApi.getUserGames(sessionId, {
+          sources: ['vs_ai', 'pgn_upload']
+        })
+      ]);
+
+      // Merge the results
+      const chessComGames = chessComResponse?.data || [];
+      const otherGames = otherGamesResponse?.data || [];
+      const allGames = [...chessComGames, ...otherGames];
+
+      // Update store and state with merged data
+      setGamesData(allGames);
+      updateState(transformApiDataToComponentFormat(allGames));
+
+      console.log("✅ [Force Refresh] Successfully updated games from both endpoints");
+      console.log("📊 Chess.com games:", chessComGames.length);
+      console.log("📊 Other games (vs_ai, pgn_upload):", otherGames.length);
+      console.log("📊 Total games:", allGames.length);
+    } catch (err) {
+      const e = err instanceof Error ? err : new Error("Force refresh failed");
+      setError(e);
+      console.error("❌ [Force Refresh] Error:", e.message);
+    } finally {
+      setIsLoading(false);
+      fetchRef.current = false;
     }
-    resetFetchState();
-    fetchGames();
-  }, [type, resetFetchState, fetchGames]);
+  }, [sessionId, setGamesData, updateState]);
 
   return {
     games,
     isLoading,
     error,
-    cacheValid,
     handleRetryFetch,
     handleForceRefresh,
   };

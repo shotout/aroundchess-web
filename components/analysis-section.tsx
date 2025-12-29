@@ -110,12 +110,12 @@ export function AnalysisSection() {
   }, []);
 
   const handleAnalysis = useCallback(() => {
-    if (isSignedIn) {
-      router.push("/analysis");
-    } else {
-      router.push("/register");
-    }
-  }, [isSignedIn, router]);
+    // if (isSignedIn) {
+      router.push("/my-game-history");
+    // } else {
+    //   router.push("/register");
+    // }
+  }, [router]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrent(index);
@@ -136,7 +136,7 @@ export function AnalysisSection() {
               <div className="group gap-4 flex flex-1 flex-row list-none items-center justify-start space-x-0 xl:space-x-0.5">
                 <span className="block text-md sm:text-md lg:text-[18px] font-semibold text-black text-center sm:text-left">
                   Analysis Overview -{" "}
-                  <span className="block lg:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
+                  <span className="block lg:inline text-[14px] --xs sm:text-[14px] --xs lg:text-[14px] --xs text-center font-normal lg:text-left">
                     How does AI-powered AroundChess Game Analysis work?
                   </span>
                 </span>
@@ -189,7 +189,7 @@ export function AnalysisSection() {
                           transition={{ duration: 0.3 }}
                           className="h-full flex flex-col"
                         >
-                          <span className="block text-sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
+                          <span className="block text-[14px] --sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
                             {analysis[current].title}
                           </span>
 
@@ -200,13 +200,13 @@ export function AnalysisSection() {
                                 "<b>$1</b>"
                               ),
                             }}
-                            className="block mt-1 text-xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3"
+                            className="block mt-1 text-[14px] --xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3"
                           />
 
                           {/* Content sections with scroll if needed */}
                           <div className="flex-1 overflow-y-auto mt-4 space-y-3 max-h-[500px] sm:max-h-[200px] xl:max-h-[400px]">
                             <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#221AE9] text-sm sm:text-md font-bold">
+                              <span className="text-[#221AE9] text-[14px] --sm sm:text-md font-bold">
                                 Idea
                               </span>
                               <span
@@ -216,24 +216,24 @@ export function AnalysisSection() {
                                     "<b>$1</b>"
                                   ),
                                 }}
-                                className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
+                                className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
                               />
                             </div>
 
                             <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#FA402D] text-sm sm:text-md font-bold">
+                              <span className="text-[#FA402D] text-[14px] --sm sm:text-md font-bold">
                                 Problem
                               </span>
-                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
                                 {analysis[current].problem}
                               </span>
                             </div>
 
                             <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
+                              <span className="text-[#27C2A3] text-[14px] --sm sm:text-md font-bold">
                                 Solution
                               </span>
-                              <span className="block mt-2 text-[11px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
                                 {analysis[current].solution}
                               </span>
                             </div>
@@ -246,7 +246,7 @@ export function AnalysisSection() {
                     <div className="flex flex-col w-full items-center justify-center pt-4">
                       <button
                         onClick={handleAnalysis}
-                        className="btn-primary rounded-full py-2 w-full px-7 sm:px-16 font-normal text-sm sm:text-md hover:opacity-90 transition-opacity"
+                        className="btn-primary rounded-full py-2 w-full px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md hover:opacity-90 transition-opacity"
                       >
                         Discover AroundChess's Analysis
                       </button>

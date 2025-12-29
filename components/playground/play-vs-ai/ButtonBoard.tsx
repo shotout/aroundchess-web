@@ -15,7 +15,7 @@ export const ButtonBoard = ({
 }: ButtonBoardProps) => {
   return (
     <div
-      style={{ width: boardSize }}
+      // style={{ width: boardSize }}
       className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
     >
       <button onClick={handleSwitch}>
@@ -28,7 +28,7 @@ export const ButtonBoard = ({
         />
       </button>
       <SettingBoard />
-      <button onClick={handleThreeD}>
+      {/* <button onClick={handleThreeD}>
         <Image
           src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
           alt="icon"
@@ -36,7 +36,7 @@ export const ButtonBoard = ({
           height={1000}
           className="w-[22px] h-[27px] object-contain"
         />
-      </button>
+      </button> */}
     </div>
   );
 };

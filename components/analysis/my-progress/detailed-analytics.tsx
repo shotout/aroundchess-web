@@ -48,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <Card className="bg-background p-3">
         <p className="font-medium">{label}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           {payload[0].name}: {payload[0].value}
           {payload[0].name === "hours" ? " hours" : "%"}
         </p>
@@ -64,7 +64,7 @@ export function DetailedAnalytics() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Detailed Analytics</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             In-depth analysis of your chess skills and activities
           </p>
         </div>
@@ -80,7 +80,7 @@ export function DetailedAnalytics() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h4 className="font-medium">Skill Breakdown</h4>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Your proficiency across different aspects
               </p>
             </div>
@@ -120,7 +120,7 @@ export function DetailedAnalytics() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h4 className="font-medium">Time Distribution</h4>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Hours spent on different activities
               </p>
             </div>
@@ -162,7 +162,7 @@ export function DetailedAnalytics() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h4 className="font-medium">Key Performance Metrics</h4>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] --sm text-muted-foreground">
                 Important indicators of your progress
               </p>
             </div>
@@ -176,30 +176,30 @@ export function DetailedAnalytics() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Target className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-medium">Accuracy</span>
+                  <span className="text-[14px] --sm font-medium">Accuracy</span>
                 </div>
                 <div className="text-2xl font-bold">92%</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[14px] --xs text-muted-foreground">
                   +5% from last month
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium">Win Rate</span>
+                  <span className="text-[14px] --sm font-medium">Win Rate</span>
                 </div>
                 <div className="text-2xl font-bold">65%</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[14px] --xs text-muted-foreground">
                   +3% from last month
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Brain className="h-4 w-4 text-purple-500" />
-                  <span className="text-sm font-medium">Learning Score</span>
+                  <span className="text-[14px] --sm font-medium">Learning Score</span>
                 </div>
                 <div className="text-2xl font-bold">850</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[14px] --xs text-muted-foreground">
                   Top 10% of users
                 </p>
               </div>

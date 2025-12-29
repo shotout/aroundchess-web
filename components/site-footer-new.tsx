@@ -72,7 +72,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <span className="font-semibold text-[16px] lg:text-[23px]">
                 We work hard to improve AroundChess every day.
               </span>
-              <span className="font-normal text-[12px] sm:text-[10px] lg:text-[14px]">
+              <span className="font-normal text-[14px] -- sm:text-[14px] --10px lg:text-[14px]">
                 If you have feedback, comments or might even have found a bug,
                 send us a message or contact us on Discord.
               </span>
@@ -82,7 +82,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   className="btn-secondary rounded-full h-[48px] sm:min-w-[240px] lg:min-w-[300px] flex flex-row items-center justify-center gap-2"
                 >
                   <FaDiscord className="w-[26px] h-[20px]" color={"#000"} />
-                  <span className="text-[11px] lg:text-[16px]">
+                  <span className="text-[14px] lg:text-[16px]">
                     Contact us on Discord
                   </span>
                 </button>
@@ -95,7 +95,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                     color={"#fff"}
                     fill="#fff"
                   />
-                  <span className="text-[11px] lg:text-[16px]">
+                  <span className="text-[14px] lg:text-[16px]">
                     Send us a message
                   </span>
                 </button>
@@ -104,7 +104,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
         </div>
 
-        <div className="grid gap-9 lg:grid-cols-3 sm:mb-8">
+        <div className="grid items-center gap-[16px] lg:grid-cols-3 sm:mb-8">
           <div>
             <div className="flex flex-row justify-between items-center">
               <Link
@@ -129,15 +129,39 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 className="block sm:hidden w-[150px] h-[96px] sm:w-[286px] sm:h-[96px] object-contain"
               />
             </div>
-            <p className="mt-2 font-normal text-lg sm:mt-2:text-[16px] text-[#364152]">
+            <p className="mt-2 font-normal text-[16px] sm:mt-2:text-[16px] text-[#364152]">
               Advanced chess training and analysis powered by AI
             </p>
           </div>
-          <div className="md:grid md:gap-9 md:grid-cols-3">
+          <div className="md:grid md:gap-[16px] md:grid-cols-3">
             <div>
               <h3 className="mb-8 text-lg font-semibold">Features</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
+                  <Link
+                    href="/play-practice"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Play & Practice
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/my-game-history"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Analyze Games
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/training"
+                    className="hover:text-gray-900 hover:underline text-[#364152]"
+                  >
+                    Training
+                  </Link>
+                </li>
+                {/* <li>
                   <Link
                     href="/opening-theory"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
@@ -168,14 +192,14 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                   >
                     Playground
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
             <div>
               <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">
                 Company
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
                     href="/about-us"
@@ -204,7 +228,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
             </div>
             <div>
               <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">Legal</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
                     href="/privacy-policy"
@@ -232,7 +256,17 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </ul>
             </div>
           </div>
-          <div className="hidden sm:flex justify-end">
+          <div className="flex justify-center">
+            <Image
+                src={"/images/switzerland.png"}
+                alt="made-in-switzerland"
+                quality={100}
+                width={600}
+                height={600}
+                className="hidden md:block w-[320px] object-contain"
+              />
+          </div>
+          {/* <div className="hidden sm:flex justify-end">
             <Image
               src={"/images/switzerland.png"}
               alt="made-in-switzerland"
@@ -241,11 +275,12 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               height={600}
               className="w-[140px] h-[96px] sm:w-[286px] sm:h-[96px] object-contain"
             />
-          </div>
+          </div> */}
         </div>
+        
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm text-[#364152]">
+            <p className="text-[14px] --sm text-[#364152]">
               © 2025 aroundchess. All rights reserved.
             </p>
             <div className="flex space-x-2">

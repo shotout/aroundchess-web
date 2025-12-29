@@ -111,7 +111,7 @@ const navItems = {
           description: "Master essential endgame positions",
         },
         {
-          title: "Play vs AI",
+          title: "You vs AI",
           href: "/practice/ai",
           description: "Challenge our advanced chess engine",
         },
@@ -270,7 +270,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
               <NavigationMenuList className="group flex flex-1 list-none items-center justify-center space-x-1 xl:space-x-0.5">
                 <NavigationMenuItem>
                   <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-[14px] --sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-[14px] --xs xl:px-2 xl:py-1.5">
                       <Home className="mr-2 h-4 w-4" />
                       Home
                     </NavigationMenuLink>
@@ -279,7 +279,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
                 <NavigationMenuItem>
                   <Link href="/about" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-[14px] --sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-[14px] --xs xl:px-2 xl:py-1.5">
                       <Info className="mr-2 h-4 w-4" />
                       About
                     </NavigationMenuLink>
@@ -354,7 +354,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
                 <NavigationMenuItem>
                   <Link href="/playground" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-[14px] --sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-[14px] --xs xl:px-2 xl:py-1.5">
                       <Gamepad2 className="mr-2 h-4 w-4" />
                       Playground
                     </NavigationMenuLink>
@@ -363,7 +363,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
                 <NavigationMenuItem>
                   <Link href="/pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-[14px] --sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-[14px] --xs xl:px-2 xl:py-1.5">
                       <DollarSign className="mr-2 h-4 w-4" />
                       Pricing
                     </NavigationMenuLink>
@@ -372,7 +372,7 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
 
                 <NavigationMenuItem>
                   <Link href="/contact" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-xs xl:px-2 xl:py-1.5">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-3 py-2 text-[14px] --sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 xl:text-[14px] --xs xl:px-2 xl:py-1.5">
                       <Mail className="mr-2 h-4 w-4" />
                       Contact
                     </NavigationMenuLink>
@@ -389,11 +389,11 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="text-xs px-2 py-1"
+                  className="text-[14px] --xs px-2 py-1"
                 >
                   <Link href="/login">Sign In</Link>
                 </Button>
-                <Button size="sm" asChild className="text-xs px-2 py-1">
+                <Button size="sm" asChild className="text-[14px] --xs px-2 py-1">
                   <Link href="/register">Try Now</Link>
                 </Button>
               </div>
@@ -424,8 +424,8 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <div className="text-[14px] --sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-[14px] --sm leading-snug text-muted-foreground">
             {children}
           </p>
         </Link>

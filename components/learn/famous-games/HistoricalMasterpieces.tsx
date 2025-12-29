@@ -144,14 +144,14 @@ export default function HistoricalMasterpieces() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-[14px] --sm text-muted-foreground mb-2">
                   {game.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {game.historicalSignificance.map((point, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary"
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[14px] --xs font-medium bg-primary/10 text-primary"
                     >
                       {point}
                     </span>
@@ -191,7 +191,7 @@ export default function HistoricalMasterpieces() {
                   <h4 className="font-medium mb-2">Historical Impact</h4>
                   <ul className="list-disc list-inside space-y-1">
                     {currentGame.impact.map((point, index) => (
-                      <li key={index} className="text-sm">{point}</li>
+                      <li key={index} className="text-[14px] --sm">{point}</li>
                     ))}
                   </ul>
                 </div>
@@ -199,7 +199,7 @@ export default function HistoricalMasterpieces() {
                   <h4 className="font-medium mb-2">Modern Relevance</h4>
                   <ul className="list-disc list-inside space-y-1">
                     {currentGame.modernRelevance.map((point, index) => (
-                      <li key={index} className="text-sm">{point}</li>
+                      <li key={index} className="text-[14px] --sm">{point}</li>
                     ))}
                   </ul>
                 </div>

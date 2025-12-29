@@ -187,17 +187,17 @@ const LoadingPage: React.FC = (props) => {
         {dataGame && (
           <div className="border border-input rounded-md flex flex-col items-center justify-center bg-white p-4 my-4 mx-4">
             {dataGame?.date && gameInfo == null && (
-              <span className="text-sm text-center">{dataGame?.date}</span>
+              <span className="text-[14px] --sm text-center">{dataGame?.date}</span>
             )}
             {dataGame?.end_time && gameInfo == null && (
-              <span className="text-sm text-center">
+              <span className="text-[14px] --sm text-center">
                 {unixFormatDate(dataGame?.end_time, "Y-m-d")}
               </span>
             )}
             {gameInfo && (
-              <span className="text-sm text-center">{gameInfo?.date}</span>
+              <span className="text-[14px] --sm text-center">{gameInfo?.date}</span>
             )}
-            <span className="text-sm text-center">
+            <span className="text-[14px] --sm text-center">
               <span
                 className={`text-lg font-semibold ${
                   dataGame?.white?.result == "win"

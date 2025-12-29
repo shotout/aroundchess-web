@@ -7,7 +7,7 @@ import GamesList from "../GameList";
 
 const OtherGamesTab: React.FC = () => {
   const { games, isLoading, error, handleRetryFetch, handleForceRefresh } =
-    useGames("other");
+    useGames({ sources: ["vs_ai", "pgn_upload"] });
 
   const {
     filters,

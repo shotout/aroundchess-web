@@ -107,7 +107,7 @@ export function AnalysisSection() {
               <div className="group gap-4 flex flex-1 flex-row list-none items-center justify-start space-x-0 xl:space-x-0.5">
                 <span className="block text-md sm:text-md lg:text-lg font-semibold text-black text-center sm:text-left">
                   Analysis Overview -{" "}
-                  <span className="block lg:inline text-xs sm:text-xs lg:text-xs text-center font-normal lg:text-left">
+                  <span className="block lg:inline text-[14px] --xs sm:text-[14px] --xs lg:text-[14px] --xs text-center font-normal lg:text-left">
                     How does AI-powered AroundChess Game Analysis work?
                   </span>
                 </span>
@@ -131,20 +131,20 @@ export function AnalysisSection() {
                     </div>
                   </div>
                   <div className="px-1 lg:px-4 w-full lg:w-1/2 md:mt-2">
-                    <span className="block text-sm sm:text-md lg:text-lg font-semibold text-black lg:text-left mt-4 sm:mt-0">
+                    <span className="block text-[14px] --sm sm:text-md lg:text-lg font-semibold text-black lg:text-left mt-4 sm:mt-0">
                       {analysis[current].title}
                     </span>
-                    <span className="block mt-1 text-xs sm:text-md lg:text-lg font-normal text-black lg:text-left">
+                    <span className="block mt-1 text-[14px] --xs sm:text-md lg:text-lg font-normal text-black lg:text-left">
                       {analysis[current].description}
                     </span>
                     <div className="flex flex-col md:flex-row lg:flex-col md:gap-2">
                       <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#221AE9] text-sm sm:text-md font-bold">
+                        <span className="text-[#221AE9] text-[14px] --sm sm:text-md font-bold">
                           Idea
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"
@@ -187,12 +187,12 @@ export function AnalysisSection() {
                       </div>
 
                       <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#FA402D] text-sm sm:text-md font-bold">
+                        <span className="text-[#FA402D] text-[14px] --sm sm:text-md font-bold">
                           Problem
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"
@@ -235,12 +235,12 @@ export function AnalysisSection() {
                       </div>
 
                       <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4 mt-4">
-                        <span className="text-[#27C2A3] text-sm sm:text-md font-bold">
+                        <span className="text-[#27C2A3] text-[14px] --sm sm:text-md font-bold">
                           Solution
                         </span>
                         <span className="flex flex-row md:flex-col lg:flex-row lg:items-center mt-2 text-[11px] sm:text-md lg:text-lg font-normal text-black lg:text-left">
                           White want the knights:{" "}
-                          <div className="flex flex-row items-center text-[10px] sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
+                          <div className="flex flex-row items-center text-[14px] --10px sm:text-md lg:text-lg font-semibold text-black sm:text-center lg:text-left">
                             &nbsp;
                             <Image
                               src="/icons/dot-icon.png"
@@ -287,13 +287,13 @@ export function AnalysisSection() {
                 <div className="flex flex-col items-center justify-center pt-6 md:pt-2 lg:pt-6">
                   <Button
                     onClick={handleAnalyze}
-                    className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-sm sm:text-md mb-3"
+                    className="w-fill md:w-full lg:w-2/6 px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md mb-3"
                   >
                     Analyze your most recent Game now
                   </Button>
                   {/* <Button
                     variant="link"
-                    className="w-fill text-black px-7 sm:px-16 font-normal text-sm sm:text-md"
+                    className="w-fill text-black px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md"
                   >
                     No Sign-Up required
                   </Button> */}

@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useBackgroundAnalysisStore } from '@/app/store/backgroundAnaysis';
 import { useProfileStore } from '@/app/store/profile';
-import { toast } from 'sonner';
 
 export const usePollingManager = () => {
   const { sessionId } = useProfileStore();
@@ -73,16 +72,16 @@ export const usePollingManager = () => {
         clearInterval(poll);
         forceStopPolling(gameId);
         updateJob(gameId, { status: "failed", error: "Polling timeout" });
-        if (!isRestore) {
-          toast.error("Analysis polling timed out. Please try again.");
-        }
         return;
       }
 
       try {
         const { default: axios } = await import("axios");
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
-        const response = await axios.get(`${baseUrl}${statusUrl}`, {
+        const timestamp = Date.now();
+        const separator = statusUrl.includes('?') ? '&' : '?';
+        const fullUrl = `${baseUrl}${statusUrl}${separator}t=${timestamp}`;
+        const response = await axios.get(fullUrl, {
           headers: { Authorization: `Bearer ${sessionId}` },
         });
         const d = response.data.data;
@@ -118,32 +117,56 @@ export const usePollingManager = () => {
               status: "failed",
               error: "Analysis completed but result is incomplete",
             });
-            if (!isRestore) {
-              toast.error("Analysis completed but result is incomplete. Please try again.");
-            }
             return;
           }
 
           if (isSmall) await new Promise((r) => setTimeout(r, 2000));
 
           forceStopPolling(gameId);
-          // override any waiting/finalizing state and mark completed
+          
+          // Fetch last-analysis to get complete data
+          try {
+            const resultPgn = d.result?.pgn || gamePgn;
+            if (resultPgn) {
+              const { createPgnHash } = await import("@/utils/crypto-utils");
+              const pgnHash = createPgnHash(resultPgn);
+              const { default: axios } = await import("axios");
+              const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+              
+              console.log("🔄 [V2 Polling] Fetching last-analysis for pgnHash:", pgnHash);
+              
+              const lastAnalysisRes = await axios.get(
+                `${baseUrl}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+                {
+                  headers: { Authorization: `Bearer ${sessionId}` },
+                }
+              );
+              
+              console.log("📥 [V2 Polling] Last-analysis response:", lastAnalysisRes.data);
+              
+              if (lastAnalysisRes.data?.success && lastAnalysisRes.data?.data) {
+                // Use data from last-analysis as it's more complete
+                updateJob(gameId, {
+                  status: "completed",
+                  progress: 100,
+                  result: lastAnalysisRes.data.data,
+                  error: undefined,
+                });
+                console.log("✅ [V2 Polling] Job updated with last-analysis data");
+                return;
+              }
+            }
+          } catch (lastAnalysisError: any) {
+            console.warn("⚠️ [V2 Polling] Failed to fetch last-analysis, using status result:", lastAnalysisError.message);
+          }
+          
+          // Fallback: use result from status if last-analysis fails
           updateJob(gameId, {
             status: "completed",
             progress: 100,
             result: d.result || d,
             error: undefined,
           });
-
-          toast.success(
-            isSmall
-              ? "Analysis complete! (Small games process quickly)"
-              : "Analysis complete!",
-            {
-              description: "Click 'View Results' to see your analysis.",
-              duration: 5000,
-            }
-          );
         }
       } catch (error: any) {
         console.error(`[POLLING] Error for game ${gameId}:`, error.message);
@@ -155,9 +178,6 @@ export const usePollingManager = () => {
             status: "failed",
             error: error.message || "Unknown error",
           });
-          if (!isRestore) {
-            toast.error("Analysis failed. Please try again.");
-          }
         }
       }
     }, pollInterval);

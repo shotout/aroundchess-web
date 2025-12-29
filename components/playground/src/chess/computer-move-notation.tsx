@@ -49,37 +49,37 @@ export function ComputerMoveNotation() {
         {/* Current Turn */}
         <div className="bg-blue-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Current Turn</span>
-            <span className="text-sm font-medium text-blue-600">{currentPlayer === 'white' ? 'White' : 'Black'}</span>
+            <span className="text-[14px] --sm text-gray-600">Current Turn</span>
+            <span className="text-[14px] --sm font-medium text-blue-600">{currentPlayer === 'white' ? 'White' : 'Black'}</span>
           </div>
         </div>
 
         {/* Move History */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-4">Move History</h4>
+          <h4 className="text-[14px] --sm font-medium text-gray-900 mb-4">Move History</h4>
           <div className={`relative ${moves.length > 8 ? 'h-[200px]' : ''}`}>
             <ScrollArea className="h-full">
               <div className="h-full">
                 {moves.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <p className="text-sm text-gray-500">No moves yet</p>
-                    <p className="text-xs text-gray-400 mt-1">Make your first move to start the game</p>
+                    <p className="text-[14px] --sm text-gray-500">No moves yet</p>
+                    <p className="text-[14px] --xs text-gray-400 mt-1">Make your first move to start the game</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-[32px_1fr_1fr] gap-x-8 gap-y-2 pr-4">
-                    <div className="text-sm font-medium text-gray-400 sticky top-0 bg-white py-2">#</div>
-                    <div className="text-sm font-medium text-gray-400 sticky top-0 bg-white py-2">{whiteName}</div>
-                    <div className="text-sm font-medium text-gray-400 sticky top-0 bg-white py-2">{blackName}</div>
+                    <div className="text-[14px] --sm font-medium text-gray-400 sticky top-0 bg-white py-2">#</div>
+                    <div className="text-[14px] --sm font-medium text-gray-400 sticky top-0 bg-white py-2">{whiteName}</div>
+                    <div className="text-[14px] --sm font-medium text-gray-400 sticky top-0 bg-white py-2">{blackName}</div>
                     {Array.from({ length: Math.ceil(moves.length / 2) }).map((_, i) => {
                       const whiteMove = moves[i * 2];
                       const blackMove = moves[i * 2 + 1];
                       return (
                         <React.Fragment key={i}>
-                          <div className="text-sm text-gray-500">{i + 1}.</div>
-                          <div className="text-sm text-gray-900">
+                          <div className="text-[14px] --sm text-gray-500">{i + 1}.</div>
+                          <div className="text-[14px] --sm text-gray-900">
                             {whiteMove && <span>{whiteMove}</span>}
                           </div>
-                          <div className="text-sm text-gray-900">
+                          <div className="text-[14px] --sm text-gray-900">
                             {blackMove && <span>{blackMove}</span>}
                           </div>
                         </React.Fragment>

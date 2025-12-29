@@ -139,7 +139,7 @@ export function LayoutDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Show Preview</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] --sm text-muted-foreground">
                   Display report previews in cards
                 </p>
               </div>
@@ -152,7 +152,7 @@ export function LayoutDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Compact Mode</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] --sm text-muted-foreground">
                   Reduce spacing between items
                 </p>
               </div>
@@ -165,7 +165,7 @@ export function LayoutDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Remember Layout</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] --sm text-muted-foreground">
                   Save these preferences for future visits
                 </p>
               </div>

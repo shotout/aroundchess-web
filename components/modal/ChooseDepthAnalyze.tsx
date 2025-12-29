@@ -287,10 +287,10 @@ export function ChooseDepthAnalyze({
                   {depth.description}
                 </span>
                 <div className="flex flex-col gap-1 items-center">
-                  <span className="font-medium text-[10px]">
+                  <span className="font-medium text-[14px] --10px">
                     Analysis can take up to:
                   </span>
-                  <span className="font-medium text-[10px]  ">
+                  <span className="font-medium text-[14px] --10px  ">
                     {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
                     {estimate}
                   </span>
@@ -338,7 +338,7 @@ export function ChooseDepthAnalyze({
         {renderDepthChoose()}
         <button
           onClick={handleAnalyzeGame}
-          className={`btn-primary w-full text-sm rounded-full py-2 my-4 ${
+          className={`btn-primary w-full text-[14px] --sm rounded-full py-2 my-4 ${
             depthChoosed == 0 ? "opacity-70 cursor-not-allowed" : ""
           }`}
           disabled={depthChoosed == 0}

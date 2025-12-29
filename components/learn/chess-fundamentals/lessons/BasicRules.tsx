@@ -424,7 +424,7 @@ export const BasicRulesLesson = () => {
                           {currentRule.detailedExplanation.map((point, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                              <p className="text-sm">{point}</p>
+                              <p className="text-[14px] --sm">{point}</p>
                             </div>
                           ))}
                         </div>
@@ -440,7 +440,7 @@ export const BasicRulesLesson = () => {
                           {currentRule.commonMistakes?.map((mistake, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <div className="w-1.5 h-1.5 rounded-full bg-destructive mt-2 flex-shrink-0" />
-                              <p className="text-sm text-muted-foreground">{mistake}</p>
+                              <p className="text-[14px] --sm text-muted-foreground">{mistake}</p>
                             </div>
                           ))}
                         </div>
@@ -451,7 +451,7 @@ export const BasicRulesLesson = () => {
                           {currentRule.advancedTechniques?.map((technique, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                              <p className="text-sm text-muted-foreground">{technique}</p>
+                              <p className="text-[14px] --sm text-muted-foreground">{technique}</p>
                             </div>
                           ))}
                         </div>
@@ -467,7 +467,7 @@ export const BasicRulesLesson = () => {
                           {currentRule.strategicConcepts?.map((concept, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                              <p className="text-sm text-muted-foreground">{concept}</p>
+                              <p className="text-[14px] --sm text-muted-foreground">{concept}</p>
                             </div>
                           ))}
                         </div>
@@ -481,7 +481,7 @@ export const BasicRulesLesson = () => {
                               {currentPosition.tips.map((tip, index) => (
                                 <div key={index} className="flex items-start gap-3">
                                   <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
-                                  <p className="text-sm text-muted-foreground">{tip}</p>
+                                  <p className="text-[14px] --sm text-muted-foreground">{tip}</p>
                                 </div>
                               ))}
                             </div>

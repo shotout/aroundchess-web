@@ -17,13 +17,13 @@ export const TableMovement = ({
     <table className="w-full table-auto border-separate border-spacing-0 rounded-tl-[8px] border-collapse border-[#BDD0F9]">
       <thead className="rounded-tl-[8px]">
         <tr className="bg-[#D7E3FB] ">
-          <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
+          <th className="p-2 border font-normal text-[14px] --xs border border-[#BDD0F9]">
             #
           </th>
-          <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
+          <th className="p-2 border font-normal text-[14px] --xs border border-[#BDD0F9]">
             {myColor == "white" ? "You" : "Computer"} (White)
           </th>
-          <th className="p-2 border font-normal text-xs border border-[#BDD0F9]">
+          <th className="p-2 border font-normal text-[14px] --xs border border-[#BDD0F9]">
             {myColor != "white" ? "You" : "Computer"} (Black)
           </th>
         </tr>
@@ -32,15 +32,15 @@ export const TableMovement = ({
         {capturedWhite && capturedWhite.length == 0 && (
           <tr className="text-center">
             <td
-              className={`p-2 border font-normal text-xs border-[#BDD0F9] rounded-bl-[8px]`}
+              className={`p-2 border font-normal text-[14px] --xs border-[#BDD0F9] rounded-bl-[8px]`}
             ></td>
             <td className="text-center align-middle p-2 border border-[#BDD0F9] ">
-              <span className="font-normal text-[12px]">No moves yet.</span>
+              <span className="font-normal text-[14px] --">No moves yet.</span>
             </td>
             <td
               className={`text-center align-middle p-2 border border-[#BDD0F9] rounded-br-[8px]`}
             >
-              <span className="font-normal text-[12px]">No moves yet.</span>
+              <span className="font-normal text-[14px] --">No moves yet.</span>
             </td>
           </tr>
         )}
@@ -52,7 +52,7 @@ export const TableMovement = ({
             return (
               <tr className="text-center" key={index}>
                 <td
-                  className={`p-2 border font-normal text-xs border-[#BDD0F9] ${
+                  className={`p-2 border font-normal text-[14px] --xs border-[#BDD0F9] ${
                     index + 1 == capturedWhite.length && `rounded-bl-[8px]`
                   }`}
                 >
@@ -68,7 +68,7 @@ export const TableMovement = ({
                       className="w-[16px] h-[16px] object-contain inline-block"
                     />
                   )}
-                  <span className="h-[16px] font-normal text-xs"> {move}</span>
+                  <span className="h-[16px] font-normal text-[14px] --xs"> {move}</span>
                 </td>
                 <td
                   className={`text-center align-middle p-2 border border-[#BDD0F9] ${
@@ -86,7 +86,7 @@ export const TableMovement = ({
                       />
                     )}
                   {capturedBlack[index] != null && (
-                    <span className="h-[16px] font-normal text-xs">
+                    <span className="h-[16px] font-normal text-[14px] --xs">
                       {" "}
                       {capturedBlack[index].san}
                     </span>

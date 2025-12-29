@@ -48,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <Card className="bg-background p-3">
         <p className="font-medium">{label}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Progress: {payload[0].value}%
         </p>
       </Card>
@@ -63,7 +63,7 @@ export function ProgressDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Topic Progress</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] --sm text-muted-foreground">
             Your progress across different chess topics
           </p>
         </div>
@@ -93,11 +93,11 @@ export function ProgressDashboard() {
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
               dataKey="topic"
-              className="text-sm"
+              className="text-[14px] --sm"
               tick={{ fill: "hsl(var(--foreground))" }}
             />
             <YAxis
-              className="text-sm"
+              className="text-[14px] --sm"
               tick={{ fill: "hsl(var(--foreground))" }}
             />
             <Tooltip content={<CustomTooltip />} />

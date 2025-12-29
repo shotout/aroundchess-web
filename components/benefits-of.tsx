@@ -63,7 +63,13 @@ export function BenefitsOf() {
   }, [sessionId, isSignedIn]);
   
   const handleAnalyze = () => {
-    router.push("/analysis");
+    // router.push("/analysis");
+    // router.push("/register");
+    if (isSignedIn) {
+      router.push("/my-game-history");
+    } else {
+      router.push("/register");
+    }
   };
   
   return (
@@ -80,7 +86,7 @@ export function BenefitsOf() {
             <h2 className="font-heading text-xl sm:text-2xl lg:text-[24px] font-semibold mb-1 sm:mb-2 text-black text-center lg:text-left">
               Benefits of AroundChess
             </h2>
-            <p className="text-sm font-normal sm:text-[18px] text-[#585858] mb-4 sm:mb-8 text-center lg:text-left">
+            <p className="text-[14px] --sm font-normal sm:text-[18px] text-[#585858] mb-4 sm:mb-8 text-center lg:text-left">
               What benefits you will get from our advance AI?
             </p>
           </motion.div>
@@ -108,10 +114,10 @@ export function BenefitsOf() {
                     alt=""
                     priority
                   />
-                  <span className="text-black text-sm md:text-md sm:text-left lg:text-[20px] font-medium mb-2">
+                  <span className="text-black text-[14px] --sm md:text-md sm:text-left lg:text-[20px] font-medium mb-2">
                     {item.title}
                   </span>
-                  <span className="text-[#364152] text-xs md:text-sm lg:text-[18px] font-normal">
+                  <span className="text-[#364152] text-[14px] --xs md:text-[14px] --sm lg:text-[18px] font-normal">
                     {item.description}
                   </span>
                 </div>
@@ -122,7 +128,7 @@ export function BenefitsOf() {
         <div className="flex flex-col items-center justify-center pt-6">
           <Button
             onClick={handleAnalyze}
-            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-sm sm:text-[20px] xl:min-w-[467px] mb-3"
+            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-[14px] --sm sm:text-[20px] xl:min-w-[467px] mb-3"
           >
             Analyze your most recent Game now
           </Button>

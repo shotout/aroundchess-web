@@ -9,7 +9,22 @@ import {
   Position,
   GameQuestion,
   Arrow,
+  ArrowConfig,
 } from "../types/default-pgn";
+
+// Helper function to detect if a move is a knight move (L-shaped)
+const isKnightMove = (from: string, to: string): boolean => {
+  const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
+  const rankFrom = parseInt(from[1]) - 1;
+  const fileTo = to.charCodeAt(0) - 'a'.charCodeAt(0);
+  const rankTo = parseInt(to[1]) - 1;
+
+  const fileDiff = Math.abs(fileTo - fileFrom);
+  const rankDiff = Math.abs(rankTo - rankFrom);
+
+  // Knight moves: 2 squares in one direction, 1 in perpendicular
+  return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
+};
 
 interface GameState {
   positions: Position[];
@@ -178,7 +193,7 @@ export const useBoardVisionStore = create<BoardVisionState>()(
             const chess = new Chess(defaultGame.currentPosition.fen);
             const allMoves = chess.moves({ verbose: true });
             const newHighlightedSquares: HighlightedSquares = {};
-            const newArrows: Arrow[] = [];
+            const newArrows: ArrowConfig[] = [];
 
             if (defaultGame.gameQuestion.text.includes("legal moves")) {
               allMoves.forEach((move) => {
@@ -187,7 +202,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   borderRadius: "100px",
                   border: "3px solid #0000C8",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             } else if (defaultGame.gameQuestion.text.includes("check moves")) {
               const checkMoves = allMoves.filter((move) =>
@@ -199,7 +219,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   border: "3px solid #FF0000",
                   borderRadius: "4px",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             } else if (
               defaultGame.gameQuestion.text.includes("capture moves")
@@ -213,7 +238,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   border: "3px solid #00CC00",
                   borderRadius: "4px",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             }
 
@@ -397,7 +427,7 @@ export const useBoardVisionStore = create<BoardVisionState>()(
             const chess = new Chess(userGame.currentPosition.fen);
             const allMoves = chess.moves({ verbose: true });
             const newHighlightedSquares: HighlightedSquares = {};
-            const newArrows: Arrow[] = [];
+            const newArrows: ArrowConfig[] = [];
 
             if (userGame.gameQuestion.text.includes("legal moves")) {
               allMoves.forEach((move) => {
@@ -406,7 +436,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   borderRadius: "100px",
                   border: "3px solid #1C16C2",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             } else if (userGame.gameQuestion.text.includes("check moves")) {
               const checkMoves = allMoves.filter((move) =>
@@ -418,7 +453,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   border: "3px solid #FF0000",
                   borderRadius: "4px",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             } else if (userGame.gameQuestion.text.includes("capture moves")) {
               const captureMoves = allMoves.filter((move) =>
@@ -430,7 +470,12 @@ export const useBoardVisionStore = create<BoardVisionState>()(
                   border: "3px solid #00CC00",
                   borderRadius: "4px",
                 };
-                newArrows.push([move.from, move.to]);
+                newArrows.push({
+                  from: move.from,
+                  to: move.to,
+                  color: "rgba(128, 0, 255, 0.45)",
+                  isKnightMove: isKnightMove(move.from, move.to)
+                });
               });
             }
 

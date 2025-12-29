@@ -4,6 +4,7 @@ import Image from "next/image";
 const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
   onCreatePlan,
   hasPlan,
+  disabled,
 }) => {
   return (
     <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border lg:rounded-md overflow-hidden">
@@ -30,8 +31,9 @@ const TrainingPlanCard: React.FC<TrainingPlanCardProps> = ({
           create your Training Plan.
         </span>
         <button
-          className="btn-primary w-full p-2 rounded-full"
+          className="btn-primary w-full p-2 rounded-full disabled:cursor-not-allowed disabled:opacity-60"
           onClick={onCreatePlan}
+          disabled={disabled}
         >
           Create Your Training Plan
         </button>

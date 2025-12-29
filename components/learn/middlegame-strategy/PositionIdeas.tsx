@@ -123,7 +123,7 @@ export function PositionIdeas({ ideas }: PositionIdeasProps) {
           <h3 className="font-semibold mb-2">Strategic Ideas</h3>
           <ul className="space-y-2">
             {ideas.filter(idea => idea.type === 'strategic').map((idea, index) => (
-              <li key={index} className="text-sm text-muted-foreground">
+              <li key={index} className="text-[14px] --sm text-muted-foreground">
                 • {idea.description}
               </li>
             ))}
@@ -134,7 +134,7 @@ export function PositionIdeas({ ideas }: PositionIdeasProps) {
           <h3 className="font-semibold mb-2">Tactical Ideas</h3>
           <ul className="space-y-2">
             {ideas.filter(idea => idea.type === 'tactical').map((idea, index) => (
-              <li key={index} className="text-sm text-muted-foreground">
+              <li key={index} className="text-[14px] --sm text-muted-foreground">
                 • {idea.description}
               </li>
             ))}

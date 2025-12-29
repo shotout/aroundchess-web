@@ -245,7 +245,7 @@ export function CreatePlanModal() {
           <TabsContent value="auto" className="space-y-4">
             <div className="space-y-4">
               <div>
-                <h4 className="mb-2 text-sm font-medium">Plan Duration</h4>
+                <h4 className="mb-2 text-[14px] --sm font-medium">Plan Duration</h4>
                 <Select value={planDuration} onValueChange={setPlanDuration}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select duration" />
@@ -265,7 +265,7 @@ export function CreatePlanModal() {
           <TabsContent value="manual" className="space-y-4">
             <div className="space-y-6">
               <div>
-                <h4 className="mb-2 text-sm font-medium">Plan Duration</h4>
+                <h4 className="mb-2 text-[14px] --sm font-medium">Plan Duration</h4>
                 <Select value={planDuration} onValueChange={setPlanDuration}>
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Select duration" />
@@ -280,7 +280,7 @@ export function CreatePlanModal() {
               </div>
 
               <div>
-                <h4 className="mb-2 text-sm font-medium">Difficulty Level</h4>
+                <h4 className="mb-2 text-[14px] --sm font-medium">Difficulty Level</h4>
                 <div className="flex gap-2">
                   <TooltipProvider>
                     {difficultyLevels.map((level) => (
@@ -321,7 +321,7 @@ export function CreatePlanModal() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <h4 className="mb-2 text-sm font-medium">Opening Repertoire (Select up to 3)</h4>
+                  <h4 className="mb-2 text-[14px] --sm font-medium">Opening Repertoire (Select up to 3)</h4>
                   <ScrollArea className="h-[400px] rounded-md border p-4">
                     <div className="space-y-2">
                       {filterTopicsBySearch(trainingTopics.openings).map((topic) => (
@@ -353,7 +353,7 @@ export function CreatePlanModal() {
                 </div>
 
                 <div>
-                  <h4 className="mb-2 text-sm font-medium">Middlegame Topics (Select up to 3)</h4>
+                  <h4 className="mb-2 text-[14px] --sm font-medium">Middlegame Topics (Select up to 3)</h4>
                   <ScrollArea className="h-[400px] rounded-md border p-4">
                     <div className="space-y-2">
                       {filterTopicsBySearch(trainingTopics.middlegame).map((topic) => (
@@ -385,7 +385,7 @@ export function CreatePlanModal() {
                 </div>
 
                 <div>
-                  <h4 className="mb-2 text-sm font-medium">Endgame Topics (Select up to 3)</h4>
+                  <h4 className="mb-2 text-[14px] --sm font-medium">Endgame Topics (Select up to 3)</h4>
                   <ScrollArea className="h-[400px] rounded-md border p-4">
                     <div className="space-y-2">
                       {filterTopicsBySearch(trainingTopics.endgame).map((topic) => (

@@ -22,6 +22,7 @@ import {
 import { useChessProfile } from "@/components/analysis/onboarding/useChessProfile";
 import { useProfileStore } from "../store/profile";
 import { useGameTypeSync } from "./store/gameTypeSync";
+import { useTutorial } from "@/components/TutorialProvider";
 
 const ChessProgressionUI: React.FC = () => {
   const {
@@ -36,9 +37,11 @@ const ChessProgressionUI: React.FC = () => {
   const [dialogMode, setDialogMode] = useState<"create" | "adjust">("create");
   const [hasPlan, setHasPlan] = useState(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const [showConnectAccount, setShowConnectAccount] = useState(false);
   const states = ["My Training Plan", "My Progress"];
   const { GameHistoryOpenings } = useApiClient();
   const { sessionId } = useProfileStore();
+
   const {
     setOpeningPlayed,
     isLoading: pgnLoading,
@@ -147,10 +150,17 @@ const ChessProgressionUI: React.FC = () => {
   }, [dialogOpen, resetExpiredStatus]);
 
   const handleCreatePlan = useCallback(() => {
+    // Check if user is connected and has username
+    if (!isSignedIn || !username) {
+      setShowConnectAccount(true);
+      return;
+    }
+
+    // User is connected and has username, proceed with creating plan
     setDialogMode("create");
     setAdjustMode(false);
     setDialogOpen(true);
-  }, [setAdjustMode]);
+  }, [username, isSignedIn, setAdjustMode]);
 
   const handleAdjustPlan = useCallback(() => {
     setDialogMode("adjust");
@@ -205,11 +215,15 @@ const ChessProgressionUI: React.FC = () => {
 
   return (
     <div className="flex flex-col xl:gap-4 lg:gap-4 lg:p-4 xl:p-4 2xl:p-8">
-      <ChessAccountSetup isLoading={profileLoading || pgnLoading} />
+      <ChessAccountSetup
+        isLoading={profileLoading || pgnLoading}
+        open={showConnectAccount}
+        setOpen={setShowConnectAccount}
+      />
 
       <div className="lg:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
-          My Training Plan
+          My Training Plan <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>
         </h1>
         <p className="xl:hidden">({displayUsername || "User"})</p>
       </div>
@@ -245,7 +259,7 @@ const ChessProgressionUI: React.FC = () => {
         {isLoadingSchedule ? (
           <PlanCheckSkeleton />
         ) : shouldShowCreatePlan ? (
-          <TrainingPlanCard onCreatePlan={handleCreatePlan} hasPlan={false} />
+          <TrainingPlanCard onCreatePlan={handleCreatePlan} disabled={!isSignedIn || !username} hasPlan={false} />
         ) : (
           <>
             <div className="flex w-full justify-center lg:justify-between px-4 py-1 lg:p-0">

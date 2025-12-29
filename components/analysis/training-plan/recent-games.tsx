@@ -93,7 +93,7 @@ export function RecentGames() {
     <div className="space-y-4">
       <div>
         <h3 className="text-lg font-medium">Recent Games</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] --sm text-muted-foreground">
           Your last 5 games and performance
         </p>
       </div>
@@ -114,7 +114,7 @@ export function RecentGames() {
                 <TableCell>
                   <div>
                     <div className="font-medium">{game.opponent}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-[14px] --sm text-muted-foreground">
                       Rating: {game.rating}
                     </div>
                   </div>
@@ -133,13 +133,13 @@ export function RecentGames() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">
+                  <div className="text-[14px] --sm">
                     <div>{game.opening}</div>
                     <div className="text-muted-foreground">{game.date}</div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex justify-end space-x-4 text-sm">
+                  <div className="flex justify-end space-x-4 text-[14px] --sm">
                     <div className="flex items-center text-blue-500">
                       <Target className="h-4 w-4 mr-1" />
                       {game.accuracy}%
@@ -161,7 +161,7 @@ export function RecentGames() {
         </Table>
       </ScrollArea>
 
-      <div className="flex justify-between items-center text-sm text-muted-foreground pt-4 border-t">
+      <div className="flex justify-between items-center text-[14px] --sm text-muted-foreground pt-4 border-t">
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <Trophy className="h-4 w-4 text-green-500 mr-1" />

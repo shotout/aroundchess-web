@@ -6,11 +6,13 @@ export const content = [
   './components/**/*.{ts,tsx}',
   './app/**/*.{ts,tsx}',
   './src/**/*.{ts,tsx}',
+  './node_modules/react-tailwindcss-datepicker/dist/index.esm.{js,ts}',
 ]
 export const theme = {
   extend: {
     screens : {
       '3xl': '1920px',
+      'xxl': '1400px',
     },
     fontFamily: {
       "black": ["AloeveraDisplay-Black", ...fontFamily.sans],
@@ -114,4 +116,3 @@ export const theme = {
   },
 }
 export const plugins = [require("tailwindcss-animate")]
-

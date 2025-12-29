@@ -344,7 +344,7 @@ function PricingCard({ title, price, description, features, buttonText, onSubscr
       highlighted ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white' : 'bg-white'
     }`}>
       {badge && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-yellow-400 text-purple-900 rounded-full text-sm font-semibold">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-yellow-400 text-purple-900 rounded-full text-[14px] --sm font-semibold">
           {badge}
         </div>
       )}
@@ -352,7 +352,7 @@ function PricingCard({ title, price, description, features, buttonText, onSubscr
         <CardTitle className="text-2xl">{title}</CardTitle>
         <div>
           <div className="text-4xl font-bold">{price}</div>
-          <p className={`text-sm ${highlighted ? 'text-gray-200' : 'text-muted-foreground'}`}>{description}</p>
+          <p className={`text-[14px] --sm ${highlighted ? 'text-gray-200' : 'text-muted-foreground'}`}>{description}</p>
         </div>
       </CardHeader>
       <CardContent className="space-y-4 flex-grow">
@@ -383,7 +383,7 @@ function Feature({ text, highlighted }: { text: string; highlighted?: boolean })
   return (
     <li className="flex items-center gap-2">
       <Check className={`w-5 h-5 ${highlighted ? 'text-yellow-400' : 'text-primary'}`} />
-      <span className="text-sm">{text}</span>
+      <span className="text-[14px] --sm">{text}</span>
     </li>
   )
 }

@@ -104,24 +104,13 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
     const count = countActiveFilters(currentFilters, defaultFilters);
     setActiveFiltersCount(count);
     setFiltersApplied(count > 0);
-  }, [
-    color, // Only watch color and results since those are the only active filters
-    results,
-    defaultFilters,
-    currentFilters,
-  ]);
+  }, [currentFilters, defaultFilters]);
 
   // Apply filters to games (only apply color and results filters)
   useEffect(() => {
     const filtered = filterGames(gamesData, currentFilters);
     setFilteredGames(filtered);
-  }, [
-    color, // Only watch color and results since those are the only active filters
-    results,
-    filtersApplied,
-    gamesData,
-    currentFilters,
-  ]);
+  }, [gamesData, currentFilters]);
 
   // Handle filter application
   const handleApplyFilters = () => {
@@ -139,15 +128,20 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
     setFiltersApplied(false);
   };
 
-  return {
-    filters: currentFilters,
-    setFilters: {
+  const setFiltersObj = useMemo(
+    () => ({
       setTimeRange,
       setGameType,
       setColor,
       setGameFormat,
       setResults,
-    },
+    }),
+    []
+  );
+
+  return {
+    filters: currentFilters,
+    setFilters: setFiltersObj,
     showFilters,
     setShowFilters,
     activeFiltersCount,

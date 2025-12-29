@@ -122,34 +122,34 @@ export default function ReportsPage() {
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <FileText className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium">Total Reports</span>
+            <span className="text-[14px] --sm font-medium">Total Reports</span>
           </div>
           <div className="mt-2 text-2xl font-bold">24</div>
-          <p className="text-xs text-muted-foreground">Generated this month</p>
+          <p className="text-[14px] --xs text-muted-foreground">Generated this month</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Brain className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium">Progress Reports</span>
+            <span className="text-[14px] --sm font-medium">Progress Reports</span>
           </div>
           <div className="mt-2 text-2xl font-bold">8</div>
-          <p className="text-xs text-muted-foreground">Last updated today</p>
+          <p className="text-[14px] --xs text-muted-foreground">Last updated today</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Trophy className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium">Game Analysis</span>
+            <span className="text-[14px] --sm font-medium">Game Analysis</span>
           </div>
           <div className="mt-2 text-2xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground">From recent games</p>
+          <p className="text-[14px] --xs text-muted-foreground">From recent games</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
             <Bell className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium">Scheduled Reports</span>
+            <span className="text-[14px] --sm font-medium">Scheduled Reports</span>
           </div>
           <div className="mt-2 text-2xl font-bold">4</div>
-          <p className="text-xs text-muted-foreground">Next generation in 2d</p>
+          <p className="text-[14px] --xs text-muted-foreground">Next generation in 2d</p>
         </Card>
       </div>
 
@@ -195,7 +195,7 @@ export default function ReportsPage() {
       {selectedReports.length > 0 && (
         <Card className="p-2">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[14px] --sm text-muted-foreground">
               {selectedReports.length} reports selected
             </span>
             <Button variant="outline" size="sm">

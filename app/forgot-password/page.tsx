@@ -566,7 +566,7 @@ const ForgotPasswordPage: NextPage = () => {
                     </div>
                   </div>
                   {newPassword !== confirmPassword && (
-                    <span className="text-[#FF383C] text-[12px] mb-2 ml-2">
+                    <span className="text-[#FF383C] text-[14px] -- mb-2 ml-2">
                       Password doesn't match
                     </span>
                   )}
@@ -591,7 +591,7 @@ const ForgotPasswordPage: NextPage = () => {
                               className="w-[16px] h-[16px]"
                             />
                             <span
-                              className={`ml-2 flex-1 font-normal text-[12px] ${
+                              className={`ml-2 flex-1 font-normal text-[14px] -- ${
                                 condition.isValid
                                   ? "text-[#34C759]"
                                   : (newPassword.length > 0 ||
@@ -654,7 +654,7 @@ const ForgotPasswordPage: NextPage = () => {
 
             {error && (
               <div className="mt-4 p-3 bg-red-100/70 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600 text-center">{error}</p>
+                <p className="text-[14px] --sm text-red-600 text-center">{error}</p>
               </div>
             )}
           </div>

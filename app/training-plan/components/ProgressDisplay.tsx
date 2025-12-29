@@ -102,7 +102,7 @@ const MobileTooltip = ({
         </button>
         {isVisible && (
           <div
-            className={`absolute z-50 px-3 py-2 text-sm text-black bg-white rounded-lg shadow-lg w-72 max-w-[90vw] ${
+            className={`absolute z-50 px-3 py-2 text-[14px] --sm text-black bg-white rounded-lg shadow-lg w-72 max-w-[90vw] ${
               side === "left"
                 ? "right-0 top-8"
                 : side === "right"
@@ -187,7 +187,7 @@ const RecentGamesSkeleton = () => (
   <div className="animate-pulse">
     <div className="h-5 bg-gray-200 rounded w-32 mb-4"></div>
     <div className="h-[200px] bg-gray-200 rounded mb-3"></div>
-    <div className="flex items-center justify-between gap-x-2 text-sm">
+    <div className="flex items-center justify-between gap-x-2 text-[14px] --sm">
       <div className="h-4 bg-gray-200 rounded w-20"></div>
       <div className="h-4 bg-gray-200 rounded w-24"></div>
       <div className="h-4 bg-gray-200 rounded w-16"></div>
@@ -229,8 +229,8 @@ const CustomTooltipContent = ({
     const data = payload[0].payload;
     return (
       <div className="bg-white p-2 border rounded-md shadow-md">
-        <p className="font-semibold text-sm">{data.week}</p>
-        <p className="text-sm">Rating: {data.rating}</p>
+        <p className="font-semibold text-[14px] --sm">{data.week}</p>
+        <p className="text-[14px] --sm">Rating: {data.rating}</p>
       </div>
     );
   }
@@ -254,8 +254,8 @@ const CustomBarTooltipContent = ({
             style={{ backgroundColor: data.fill }}
           />
           <div className="flex flex-col">
-            <p className="text-sm text-black">{data.category}:</p>
-            <p className="text-sm " style={{ color: data.fill }}>
+            <p className="text-[14px] --sm text-black">{data.category}:</p>
+            <p className="text-[14px] --sm " style={{ color: data.fill }}>
               {data.minutes} Minutes
             </p>
           </div>
@@ -501,7 +501,7 @@ const chartRange = React.useMemo(() => {
                         {apiData?.currentLevel?.rating?.toLocaleString() || "0"}
                       </h1>
                       <div className="flex items-center gap-x-2">
-                        <h1 className="text-sm lg:text-base">elo rating</h1>
+                        <h1 className="text-[14px] --sm lg:text-base">elo rating</h1>
                         <Star className="w-4 h-4 text-white" fill="#ffffff" />
                       </div>
                     </div>
@@ -518,7 +518,7 @@ const chartRange = React.useMemo(() => {
                 <div className="bg-[#FAC933]/5 border border-[#FAC933] flex items-start gap-y-1 lg:gap-y-2 justify-center flex-col rounded-lg p-3 lg:p-6 max-h-[150px] text-black relative overflow-hidden">
                   <div className="flex items-center gap-x-1 lg:gap-x-2">
                     <TargetIcon className="w-5 h-5 text-[#FAC933]" />
-                    <h1 className="text-sm lg:text-lg font-medium text-black">
+                    <h1 className="text-[14px] --sm lg:text-lg font-medium text-black">
                       Average Accuracy
                     </h1>
                   </div>
@@ -526,8 +526,8 @@ const chartRange = React.useMemo(() => {
                   <h1 className="text-xl lg:text-4xl font-bold text-[#FAC933]">
                     {apiData?.accuracy?.percentage || 0}%
                   </h1>
-                  <div className="text-sm lg:text-base font-medium">
-                    +{apiData?.accuracy?.improvement || 0}% improvement
+                  <div className="text-[14px] --sm lg:text-base font-medium">
+                    {(apiData?.accuracy?.improvement || 0) > 0 ? '+' : ''}{apiData?.accuracy?.improvement || 0}% improvement
                   </div>
                   <Image
                     alt=""
@@ -776,7 +776,7 @@ const chartRange = React.useMemo(() => {
             )}
           </div>
 
-          <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
+          <div className="md:col-span-2 flex flex-col rounded-md md:border md:p-4 gap-6 mt-6 md:mt-0">
             {/* Recent Games */}
             {isLoadingProgress ? (
               <RecentGamesSkeleton />
@@ -785,7 +785,7 @@ const chartRange = React.useMemo(() => {
                 <div className="flex items-center justify-between mb-2">
                   <h1 className="text-lg font-bold">
                     Recent Games{" "}
-                    <span className="text-sm font-normal text-gray-500">
+                    <span className="text-[14px] --sm font-normal text-gray-500">
                       {formattedRecentGames.length > 0
                         ? `(Last ${formattedRecentGames.length} games)`
                         : ""}
@@ -818,7 +818,7 @@ const chartRange = React.useMemo(() => {
                 ) : (
                   <>
                     <div className="rounded-sm border overflow-x-auto md:overflow-visible">
-                      <table className="w-full border-collapse text-[12px]">
+                      <table className="w-full border-collapse text-[14px] --">
                         <thead>
                           <tr className="bg-blue-50 font-medium">
                             <th className="p-1 text-left">Date</th>
@@ -838,10 +838,10 @@ const chartRange = React.useMemo(() => {
                                 {game.date}
                               </td>
                               <td className="p-1">
-                                <div className="font-medium text-[12px] truncate max-w-[8rem]">
+                                <div className="font-medium text-[14px] -- truncate max-w-[8rem]">
                                   {game.opponent}
                                 </div>
-                                <div className="text-gray-500 text-[10px] -ml-1">
+                                <div className="text-gray-500 text-[14px] --10px">
                                   Rating: {game.rating}
                                 </div>
                               </td>
@@ -881,10 +881,10 @@ const chartRange = React.useMemo(() => {
                       </table>
                     </div>
 
-                    <div className="flex items-center justify-between mt-3 gap-x-2 text-sm text-nowrap text-[11px] sm:text-sm">
+                    <div className="flex items-center justify-between mt-3 gap-x-2 text-[14px] --sm text-nowrap text-[11px] sm:text-[14px] --sm">
                       <div className="flex items-center">
                         <Trophy className="w-4 h-4 text-[#00B427] rounded-sm mr-1" />
-                        <h1 className="mr-1 text-xs lg:text-base">Win Rate:</h1>
+                        <h1 className="mr-1 text-[14px] --xs lg:text-base">Win Rate:</h1>
                         <span className="text-[#00B427] font-bold">
                           {apiData?.winRate || 0}%
                         </span>
@@ -895,7 +895,7 @@ const chartRange = React.useMemo(() => {
                           fill="#F1F5F9"
                           className="w-4 h-4 rounded-full text-blue-base flex items-center justify-center mr-1"
                         />
-                        <h1 className="mr-1 text-xs lg:text-base">
+                        <h1 className="mr-1 text-[14px] --xs lg:text-base">
                           Avg Accuracy:
                         </h1>
                         <span className="text-blue-base font-bold">
@@ -920,7 +920,7 @@ const chartRange = React.useMemo(() => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex flex-col lg:flex-row lg:items-center gap-x-2">
                     <h1 className="text-lg font-bold">Performance Trends</h1>
-                    <h1 className="text-sm text-gray-500">
+                    <h1 className="text-[14px] --sm text-gray-500">
                       (Last 7 days improvement)
                     </h1>
                   </div>
@@ -959,7 +959,7 @@ const chartRange = React.useMemo(() => {
                       return (
                         <Card
                           key={index}
-                          className="p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
+                          className="p-[8px] md:p-4 min-h-32 rounded-xl border flex items-center bg-white shadow-sm"
                         >
                           <div className="flex items-center">
                             <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center mr-3">
@@ -990,14 +990,14 @@ const chartRange = React.useMemo(() => {
                             </div>
 
                             <div className="flex-1">
-                              <h3 className="font-medium text-gray-700 text-sm">
+                              <h3 className="font-medium text-gray-700 text-[14px] --sm">
                                 {stat.title}
                               </h3>
                               <h2 className="text-2xl font-bold">
                                 {stat.value}
                               </h2>
-                              <div className={`text-sm font-bold ${color}`}>
-                                {value}
+                              <div className={`text-[14px] --sm font-bold ${stat.icon === "alert-red" ? "text-red-500" : stat.icon === "alert-yellow" ? "text-yellow-500" : color}`}>
+                                {Number(value.replace("%", "")) >= 0 ? "+" : ""}{value}
                               </div>
                             </div>
                           </div>
@@ -1029,10 +1029,18 @@ export default ProgressDisplay;
 const getChangeColorAndPrefix = (change: number, title: string) => {
   const isNegative = change < 0;
 
-  if (title === "Games Won")
-    return { color: "text-green-600", value: `${change.toString() + "%"}` };
+  if (!isNegative) {
+    if (title === "Games Won")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+    if (title === "Blunders")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+    if (title === "Mistakes")
+      return { color: "text-green-600", value: `${change.toString() + "%"}` };
+  }
 
   if (isNegative) {
+    if (title === "Games Won")
+      return { color: "text-red-500", value: `${change.toString() + "%"}` };
     if (title === "Mistakes")
       return { color: "text-yellow-500", value: `${change.toString() + "%"}` };
     if (title === "Blunders")
@@ -1041,6 +1049,6 @@ const getChangeColorAndPrefix = (change: number, title: string) => {
 
   return {
     color: "text-green-600",
-    value: `${change >= 0 ? "+" : ""}${change}`,
+    value: `${change > 0 ? "+" : ""}${change}`,
   };
 };

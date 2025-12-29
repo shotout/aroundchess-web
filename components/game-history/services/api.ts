@@ -112,12 +112,70 @@ export const gameHistoryApi = {
 
   getUserGames: async (
     sessionId: string | null,
-    type: "chessdotcom" | "other" = "chessdotcom"
+    filters?: {
+      sources?: string[];
+      result?: string;
+      color?: string;
+      analyzedOnly?: boolean;
+      startDate?: string;
+      endDate?: string;
+      page?: number;
+      limit?: number;
+      opponent?: string;
+    }
   ) => {
-    const ts = Date.now();
+    const params: Record<string, string | number | boolean> = {};
+
+    if (filters?.sources && filters.sources.length > 0) {
+      params.sources = filters.sources.join(',');
+    }
+    if (filters?.result) {
+      params.result = filters.result;
+    }
+    if (filters?.color) {
+      params.color = filters.color;
+    }
+    if (filters?.analyzedOnly !== undefined) {
+      params.analyzedOnly = filters.analyzedOnly;
+    }
+    if (filters?.startDate) {
+      params.startDate = filters.startDate;
+    }
+    if (filters?.endDate) {
+      params.endDate = filters.endDate;
+    }
+    if (filters?.page) {
+      params.page = filters.page;
+    }
+    if (filters?.limit) {
+      params.limit = filters.limit;
+    }
+    if (filters?.opponent) {
+      params.opponent = filters.opponent;
+    }
+
+    console.log("📤 [API] getUserGames called with filters:", filters);
+    console.log("📤 [API] URL params being sent:", params);
+    console.log("📤 [API] Sources array:", filters?.sources);
+    console.log("📤 [API] Sources joined:", params.sources);
+
     return apiRequest<ApiResponse<any[]>>(
-      `/games/my-game-history?type=${type}&ts=${ts}`,
-      { sessionId }
+      `/v3/games/my-game-history`,
+      { sessionId, params }
+    );
+  },
+
+  getChessComGames: async (sessionId: string | null) => {
+    const params: Record<string, string | number | boolean> = {
+      sources: 'chesscom'
+    };
+
+    console.log("📤 [API] getChessComGames called");
+    console.log("📤 [API] URL params being sent:", params);
+
+    return apiRequest<ApiResponse<any[]>>(
+      `/games/my-game-history`,
+      { sessionId, params }
     );
   },
 
@@ -171,21 +229,24 @@ export const gameHistoryApi = {
 
 export const refetchGameData = async (
   sessionId: string | null,
-  type: "all" | "chessdotcom" | "other" = "all"
+  filters?: {
+    sources?: string[];
+    result?: string;
+    color?: string;
+    analyzedOnly?: boolean;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+    opponent?: string;
+  }
 ): Promise<void> => {
   try {
     const store = usePgnStore.getState();
     store.resetFetchState();
 
-    if (type === "all" || type === "chessdotcom") {
-      const u = await gameHistoryApi.getUserGames(sessionId, "chessdotcom");
-      if (u?.data) store.setGamesData(u.data);
-    }
-
-    if (type === "all" || type === "other") {
-      const o = await gameHistoryApi.getUserGames(sessionId, "other");
-      if (o?.data) store.setOtherGamesData(o.data);
-    }
+    const u = await gameHistoryApi.getUserGames(sessionId, filters);
+    if (u?.data) store.setGamesData(u.data);
 
     toast.success("Game data refreshed successfully");
   } catch {

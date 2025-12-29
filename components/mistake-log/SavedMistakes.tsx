@@ -13,10 +13,75 @@ import { Pagination } from "../pagination/pagination";
 import { usePagination } from "../pagination/hook/usePagination";
 import { sha256Hex } from "@/functions/sha256";
 import { enrichMistakeLogsWithAnalyzeSections } from "./utils";
+import ChooseAnalysisMode from "../game-history/components/ChooseAnalysisMode";
+import ProcessingAnalysisMode from "../game-history/components/ProcessingAnalysisMode";
+import GameAnalysis from "../game-history/components/GameAnalysis";
+import { createPgnHash } from "@/utils/crypto-utils";
+import { useProfileStore } from "@/app/store/profile";
 
 interface savedProps {
   onClickSeePrevious?: () => void;
 }
+
+interface LastAnalysisResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  statusCode: number;
+}
+
+const endpoint = process.env.BASE_URL;
+
+const fetchLastAnalysisV2 = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v2/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch v2 analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
+
+const fetchLastAnalysisV3 = async (
+  pgnHash: string,
+  sessionId: string
+): Promise<LastAnalysisResponse | null> => {
+  try {
+    const response = await fetch(
+      `${endpoint}/v3/analyze/last-analysis/${pgnHash}?t=${Date.now()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch v3 analysis: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching v3 last analysis:", error);
+    return null;
+  }
+};
 
 const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -33,9 +98,19 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   
   const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
   const { currentData } = usePagination(savedMistakes);
+  const { sessionId } = useProfileStore();
   const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [sectionsByHash, setSectionsByHash] = useState<Record<string, any>>({});
+
+  // Dialog states for View Analysis flow
+  const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
+  const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
+  const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
+  const [processingAnalysisModeOpen, setProcessingAnalysisModeOpen] = useState(false);
+  const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
+  const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   useEffect(() => {
     if (savedMistakes.length > 0) {
@@ -122,13 +197,23 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const buildDisplayMistakeLog = (item: any) => {
     const moveItem = item?.mistakeLog;
     if (!moveItem) return null;
+    
     // Hide Opening phase entirely
     if (moveItem?.gamePhase === "Opening") return null;
+    
     const pgn = item?.pgn || "";
     const hash = (item as any).__hash as string | undefined;
-    const sections =
-      (hash && sectionsByHash[hash]) || undefined;
-    if (!sections) return { ...moveItem, analysis: "-", recommendation: "-" };
+    const sections = (hash && sectionsByHash[hash]) || undefined;
+    
+    // If sections not loaded yet, return basic moveItem (use existing analysis/recommendation if available)
+    if (!sections) {
+      return { 
+        ...moveItem, 
+        analysis: moveItem.analysis || "-", 
+        recommendation: moveItem.recommendation || "-" 
+      };
+    }
+    
     const enriched = enrichMistakeLogsWithAnalyzeSections(
       {
         criticalMistakes: [],
@@ -138,12 +223,23 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       },
       sections
     );
+    
     const merged =
       (enriched.threats && enriched.threats[0]) ||
       (enriched.badMoves && enriched.badMoves[0]) ||
       (enriched.criticalMistakes && enriched.criticalMistakes[0]) ||
       (enriched.weaknessIdentification && enriched.weaknessIdentification[0]) ||
       null;
+    
+    // If enrichment fails, fallback to basic moveItem (use existing analysis/recommendation)
+    if (!merged) {
+      return { 
+        ...moveItem, 
+        analysis: moveItem.analysis || "-", 
+        recommendation: moveItem.recommendation || "-" 
+      };
+    }
+    
     return merged;
   };
 
@@ -167,9 +263,51 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       const updatedData = savedMistakes.filter((item) => item.mistakeLog.id !== id);
       setSavedMistakes(updatedData);
     } catch (error) {
-      
+
     } finally {
       setLoadingUnsave(false);
+    }
+  };
+
+  const handleViewAnalysis = async (item: any) => {
+    try {
+      console.log("📤 [SavedMistakes - View Analysis] Starting analysis fetch");
+      console.log("📦 [SavedMistakes - View Analysis] Item data:", item);
+
+      const pgnHash = createPgnHash(item.pgn);
+      console.log("📤 [SavedMistakes - View Analysis] PGN Hash:", pgnHash);
+
+      // Store selected game for dialog components
+      setSelectedGame({
+        id: item.id || item._id,
+        pgn: item.pgn,
+        title: item.title,
+        playerInfo: item.playerInfo,
+        movementDetail: item.movementDetail,
+      });
+
+      // Fetch from both v2 and v3 endpoints in parallel
+      const [v2Analysis, v3Analysis] = await Promise.all([
+        fetchLastAnalysisV2(pgnHash, sessionId),
+        fetchLastAnalysisV3(pgnHash, sessionId)
+      ]);
+
+      console.log("📥 [SavedMistakes - View Analysis] V2 Response:", v2Analysis);
+      console.log("📥 [SavedMistakes - View Analysis] V3 Response:", v3Analysis);
+
+      // Store both v2 and v3 results
+      setV2AnalysisData(v2Analysis);
+      setShortAnalysisData(v3Analysis);
+
+      if (v3Analysis?.success && v3Analysis.data) {
+        console.log("✅ [SavedMistakes - View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
+        // Open ChooseAnalysisMode dialog with both v2 and v3 data
+        setIsChooseAnalysisModeOpen(true);
+      } else {
+        console.log("⚠️ [SavedMistakes - View Analysis] No v3 analysis found");
+      }
+    } catch (error) {
+      console.error("❌ [SavedMistakes - View Analysis] Error fetching analysis:", error);
     }
   };
 
@@ -185,7 +323,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
   return (
     <>
-      <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] bg-white lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
+      <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
         {currentData.length == 0 && (
           <EmptyLog onClickSeePrevious={onClickSeePrevious} />
         )}
@@ -193,11 +331,11 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
         {currentData.length > 0 &&
           currentData.map((item: any, index: number) => {
             const display = buildDisplayMistakeLog(item);
-            if (!display) return null;
+            
             return (
               <div
                 key={index}
-                className="flex flex-col gap-2 lg:mt-2 cursor-pointer"
+                className="flex flex-col gap-2 lg:mt-2 cursor-pointer 3xl:max-w-[1820px]"
                 onClick={() => {
                   handleOnClickMovement(display);
                   setPreviousAnalysesDetail(item);
@@ -212,7 +350,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   } rounded-md p-2 lg:p-4`}
                 >
                   <div className="flex flex-row justify-between items-center gap-2 mb-4">
-                    <div className="flex rounded-full max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-xs lg:text-[14px]">
+                    <div className="flex rounded-full md:max-h-[28px] bg-[#25CEDA] lg:py-1 px-3 justify-center items-center font-medium text-[14px] --xs lg:text-[14px]">
                       {item.title}
                     </div>
                     <div
@@ -235,13 +373,13 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                         <Image
                           alt=""
                           src={"/icons/alert-triangle.png"}
-                          width={1000}
-                          height={1000}
+                          width={14}
+                          height={14}
                           className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] lg:w-[18px] lg:h-[18px]"
                         />
                         <div className="flex flex-col">
-                          <span className="text-[12px]">Mistake Type:</span>
-                          <span className="text-[12px] font-semibold">
+                          <span className="text-[14px] --">Mistake Type:</span>
+                          <span className="text-[14px] -- font-semibold">
                             {item?.mistakeLog.type}
                           </span>
                         </div>
@@ -252,30 +390,30 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                           color="#221AE9"
                         />
                         <div className="flex flex-col">
-                          <span className="text-[12px]">Game Phase:</span>
-                          <span className="text-[12px] font-semibold">
+                          <span className="text-[14px] --">Game Phase:</span>
+                          <span className="text-[14px] -- font-semibold">
                             {item?.mistakeLog.gamePhase}
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-row items-center lg:justify-start gap-3">
-                      <span className="flex items-center text-[12px] font-normal min-h-[25px] sm:text-sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
+                      <span className="flex items-center text-[14px] -- font-normal min-h-[25px] sm:text-[14px] --sm md:text-md lg:text-md font-normal border border-[#221AE9] rounded-[4px] py-[4px] px-[8px]">
                         Move {item?.mistakeLog.moveNumber} :{" "}
-                        <span className="font-normal sm:text-sm md:text-md lg:text-md ">
+                        <span className="font-normal sm:text-[14px] --sm md:text-md lg:text-md ">
                           {" "}
                           {item?.mistakeLog.move}
                         </span>
                       </span>
                       <span
-                        className={`flex items-center rounded-full border border-[#DEDEDE] px-[8px] py-[4px] font-semibold text-xs sm:text-sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
+                        className={`flex items-center rounded-full border border-[#DEDEDE] px-[8px] py-[4px] font-semibold text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md text-center font-normal ${getScoreClass(
                           item?.mistakeLog.classification
                         )}`}
                       >
-                        {item?.mistakeLog.evaluation}
+                        {item?.mistakeLog.evaluation > 0 ? '+' : ''}{item?.mistakeLog.evaluation}
                       </span>
                       <span
-                        className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-sm sm:text-sm md:text-md lg:text-md  ${getBadgeClass(
+                        className={`flex items-center justify-center min-w-[72px] text-center px-[8px] py-[4px] rounded-[4px] text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md  ${getBadgeClass(
                           item?.mistakeLog.classification
                         )}`}
                       >
@@ -283,25 +421,47 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs sm:text-md md:text-md lg:text-[14px] font-normal">
+                  <span className="text-[14px] --xs sm:text-md md:text-md lg:text-[14px] font-normal">
                     <span className="font-semibold">Analysis: </span>
-                    {display?.analysis ?? ""}
+                    {display?.analysis ?? "-"}
                   </span>
-                  <div className="p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
-                    <div className="flex flex-row items-center justify-start gap-2 w-full">
-                      <Image
-                        alt=""
-                        src={"/icons/recommended-training-icon.png"}
-                        width={1000}
-                        height={1000}
-                        className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
-                      />
-                      <span className="text-xs sm:text-sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9] truncate whitespace-nowrap flex-1">
-                        <span className="font-bold">
-                          {display?.recommendation ?? ""}
+                  <div className="flex items-center gap-[16px]">
+                    <div className="w-full lg:w-[calc(100%-238px)] p-3 rounded-lg border border-blue-300 bg-gradient-to-r from-blue-50 to-white flex items-center space-x-2 mt-2">
+                      <div className="flex flex-row items-center justify-start gap-2 w-full">
+                        <Image
+                          alt=""
+                          src={"/icons/recommended-training-icon.png"}
+                          width={1000}
+                          height={1000}
+                          className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8"
+                        />
+                        <span className="text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-md xl:text-md font-normal text-[#221AE9]">
+                          <span className="font-bold">Recomendations: </span> {display?.recommendation ?? "-"}
                         </span>
-                      </span>
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewAnalysis(item);
+                      }}
+                      className="hidden lg:flex w-[222px] gap-[8px] border-[2px] border-white items-center justify-center p-[16px] text-white bg-gradient-to-b from-[#0AD847] to-[#018F34] rounded-full shadow-[0px_0px_8px_0px_#0AD847] hover:bg-[#018F34] cursor-pointer"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clipPath="url(#clip0_866_179599)">
+                          <path d="M0.664062 7.99935C0.664062 7.99935 3.33073 2.66602 7.9974 2.66602C12.6641 2.66602 15.3307 7.99935 15.3307 7.99935C15.3307 7.99935 12.6641 13.3327 7.9974 13.3327C3.33073 13.3327 0.664062 7.99935 0.664062 7.99935Z" stroke="#FAFDFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M7.9974 9.99935C9.10197 9.99935 9.9974 9.10392 9.9974 7.99935C9.9974 6.89478 9.10197 5.99935 7.9974 5.99935C6.89283 5.99935 5.9974 6.89478 5.9974 7.99935C5.9974 9.10392 6.89283 9.99935 7.9974 9.99935Z" stroke="#FAFDFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_866_179599">
+                            <rect width="16" height="16" fill="white"/>
+                          </clipPath>
+                        </defs>
+                      </svg>
+                      <span>View Analysis</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -309,6 +469,38 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
           })}
       </div>
       {currentData.length > 0 && <Pagination data={currentData} />}
+
+      {/* Dialog components for View Analysis flow */}
+      <ChooseAnalysisMode
+        open={isChooseAnalysisModeOpen}
+        onOpenChange={setIsChooseAnalysisModeOpen}
+        game={selectedGame}
+        shortAnalysisData={shortAnalysisData}
+        v2AnalysisData={v2AnalysisData}
+        onOpenProcessingMode={() => {
+          setProcessingAnalysisModeOpen(true);
+        }}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+
+      <ProcessingAnalysisMode
+        open={processingAnalysisModeOpen}
+        onOpenChange={setProcessingAnalysisModeOpen}
+        game={selectedGame}
+        onOpenGameAnalysis={(v3Result) => {
+          setV3AnalysisResult(v3Result);
+          setGameAnalysisOpen(true);
+        }}
+      />
+
+      <GameAnalysis
+        open={gameAnalysisOpen}
+        onOpenChange={setGameAnalysisOpen}
+        v3Result={v3AnalysisResult}
+      />
     </>
   );
 };

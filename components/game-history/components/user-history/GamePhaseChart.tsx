@@ -145,6 +145,8 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
       }
     : {};
 
+  console.log(barData, "barData");
+
   return (
     <div className="lg:p-4 rounded-lg w-full">
         <div className="flex items-center justify-between">
@@ -169,13 +171,20 @@ const GamePhaseChart: React.FC<GamePhaseChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={barData}
-            margin={{ top: 10, right: 10, bottom: 5, left: -25 }}
+            margin={{ top: 10, right: 10, bottom: 50, left: -25 }}
             layout="horizontal"
-            className="text-[10px]"
+            className="text-[14px] --10px"
             {...barChartProps}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#999" />
-            <XAxis dataKey="name" tick={{ textAnchor: "middle" }} />
+            <XAxis
+              dataKey="name"
+              tick={{ fontSize: 12 }}
+              angle={-20}
+              textAnchor="end"
+              height={80}
+              interval={0}
+            />
             <YAxis
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}

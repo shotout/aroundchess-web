@@ -66,19 +66,29 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
 
   const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
 
+  const [containerWidth, setContainerWidth] = useState(0);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     setScrollLeft(e.currentTarget.scrollLeft);
   };
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const scrollWidth = container.scrollWidth;
-      const clientWidth = container.clientWidth;
-      const isOverflowing = scrollWidth > clientWidth;
+    const updateContainerDimensions = () => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const scrollWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+        const isOverflowing = scrollWidth > clientWidth;
 
-      setShouldUseProximity(isOverflowing);
-    }
+        setShouldUseProximity(isOverflowing);
+        setContainerWidth(clientWidth);
+      }
+    };
+
+    updateContainerDimensions();
+
+    window.addEventListener('resize', updateContainerDimensions);
+    return () => window.removeEventListener('resize', updateContainerDimensions);
   }, [maxMoves]);
 
   const autoScrollToLatest = useCallback(() => {
@@ -121,10 +131,10 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
           <div className="flex flex-col gap-1 min-w-[60px]">
             <div className="h-[25px] bg-white"></div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">White</span>
+              <span className="text-[14px] --sm font-medium text-black">White</span>
             </div>
             <div className="bg-[#E6F7FE] border border-light-60 rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
-              <span className="text-sm font-medium text-black">Black</span>
+              <span className="text-[14px] --sm font-medium text-black">Black</span>
             </div>
           </div>
         </div>
@@ -147,11 +157,24 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const columnPosition = index * columnWidth;
                 const fixedColumnWidth = 70;
                 const relativePosition = columnPosition - scrollLeft;
+                const fadeZone = 120;
 
-                if (relativePosition < fixedColumnWidth) {
+                // Fade effect untuk sebelah kiri (di bawah label White/Black)
+                if (scrollLeft > 0 && relativePosition < fixedColumnWidth) {
                   const overlap = fixedColumnWidth - relativePosition;
-                  const fadeZone = 80;
                   opacity = Math.max(0.2, 1 - overlap / fadeZone);
+                }
+
+                // Fade effect untuk sebelah kanan saat scroll
+                const rightEdge = scrollLeft + containerWidth;
+                const columnRightEdge = columnPosition + columnWidth;
+                const distanceFromRight = rightEdge - columnRightEdge;
+
+                console.log("distanceFromRight", distanceFromRight, fadeZone);
+
+                if (distanceFromRight < (fadeZone / 2) && distanceFromRight > 0) {
+                  const rightOpacity = Math.max(0.2, distanceFromRight / fadeZone);
+                  opacity = Math.min(0.2, rightOpacity);
                 }
               }
 
@@ -161,31 +184,31 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                   className="flex flex-col gap-1 min-w-[60px] transition-opacity duration-150"
                   style={{ opacity }}
                 >
-                  <div className="text-center text-xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
+                  <div className="text-center text-[14px] --xs font-medium text-gray-600 px-2 py-1 h-[25px] flex items-center justify-center">
                     Move {moveNumber}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {whiteMove ? (
                       <div className="flex items-center justify-center">
-                        <span className="text-xs font-medium truncate">
+                        <span className="text-[14px] --xs font-medium truncate">
                           {whiteMove.san}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm font-medium"></span>
+                      <span className="text-[14px] --sm font-medium"></span>
                     )}
                   </div>
 
                   <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 text-center min-h-[40px] flex items-center justify-center">
                     {blackMove ? (
                       <div className="flex items-center justify-center">
-                        <span className="text-xs font-medium truncate">
+                        <span className="text-[14px] --xs font-medium truncate">
                           {blackMove.san}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm font-medium"></span>
+                      <span className="text-[14px] --sm font-medium"></span>
                     )}
                   </div>
                 </div>
@@ -663,6 +686,35 @@ export default function StageDetailView({
     }
   }, [game, initialFen, setPlayerColorFromFen, updateSyzygyAnalysis]);
 
+  const handleUndo = useCallback(() => {
+    if (moveHistory.length === 0) return;
+
+    try {
+      // Undo the last move
+      const lastMove = game.undo();
+      if (!lastMove) return;
+
+      // Update move history and position
+      const newMoveHistory = moveHistory.slice(0, -1);
+      setMoveHistory(newMoveHistory);
+      setPosition(game.fen());
+      setCurrentMoveIndex(newMoveHistory.length);
+
+      // Reset solved state if we undo
+      setIsSolved(false);
+      setShowGameEndDialog(false);
+      setShowHint(false);
+      setBestMove(null);
+      setOptionSquares({});
+      setMoveSquares({});
+
+      // Update Syzygy analysis for new position
+      updateSyzygyAnalysis();
+    } catch (e) {
+      console.error("Error undoing move:", e);
+    }
+  }, [game, moveHistory, updateSyzygyAnalysis]);
+
   const handleNewGame = useCallback(() => {
     const { setViewState } = useEndgameNavigation.getState();
 
@@ -733,16 +785,30 @@ export default function StageDetailView({
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
+  // Toggle 3D/2D mode and sync with global store
+  const handleToggle3DMode = useCallback(() => {
+    const newMode = !is3DMode;
+    setIs3DMode(newMode);
+
+    const { setStyleChoosed } = useChessBoardThemeStore.getState();
+    setStyleChoosed(newMode ? "3d" : "2d");
+  }, [is3DMode]);
+
   // Mobile button renderers
   const renderMobileButtons = () => {
     return (
       <div className="sm:hidden px-4 py-2 border-b">
+        {/* Mobile navigation buttons */}
+        <div className="sm:hidden">
+          {renderMobileNavigation()}
+        </div>
+
         {/* Game control buttons */}
         <div className="space-y-2">
           {!isSolved && (
-            <div className="flex gap-x-[2px] w-full justify-between sm:justify-center">
+            <div className="flex gap-x-[6px] w-full justify-center">
               <button
-                className="flex gap-x-1 text-[10px] items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className={`${showHint ? 'text-blue-base' : 'text-[#2E3133]'} flex gap-x-1 text-[14px] --10px items-center justify-center px-[20px] py-2 rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0`}
                 onClick={() => setShowHint(true)}
               >
                 <Image
@@ -750,12 +816,13 @@ export default function StageDetailView({
                   alt="hint icon"
                   width={10}
                   height={10}
+                  className={showHint ? "" : "grayscale"}
                 />
                 Hint
               </button>
 
               <button
-                className={`flex gap-x-[2px]  items-center justify-center px-3 py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
+                className={`flex gap-x-[2px] items-center justify-center px-[20px] py-2 rounded-full border whitespace-nowrap flex-shrink-0 ${
                   isAutoSolution
                     ? "border-blue-base bg-blue-base/5 text-blue-base"
                     : "border-primary-gray text-black"
@@ -766,15 +833,15 @@ export default function StageDetailView({
                 <Image
                   src={"/endgame-training/show-solution.png"}
                   alt="solution icon"
-                  width={10}
-                  height={10}
+                  width={16}
+                  height={16}
                 />
-                <span className="text-[10px]">
+                <span className="text-[14px] --10px">
                   {isAutoSolution ? "Solving..." : "Show Solution"}
                 </span>
               </button>
 
-              <button
+              {/* <button
                 onClick={resetPosition}
                 className="flex gap-x-[2px] items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
               >
@@ -784,27 +851,32 @@ export default function StageDetailView({
                   width={10}
                   height={10}
                 />
-                <span className="text-[10px]">Restart</span>
-              </button>
+                <span className="text-[14px] --10px">Restart</span>
+              </button> */}
 
               <button
                 onClick={navigateNext}
-                className="flex gap-x-[2px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
+                className="flex gap-x-[4px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
               >
-                <span className="text-[10px]">Next Stage</span>
-                <Image
-                  src={"/endgame-training/Union.png"}
-                  alt="arrow right icon"
-                  width={10}
-                  height={10}
-                />
+                <span className="text-[14px] --10px">Next Stage</span>
+                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_681_310758)">
+                    <path d="M0.875 6H13.2134" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7.69531 0.75L13.2078 6L7.69531 11.25" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_681_310758">
+                    <rect width="14" height="12" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
               </button>
             </div>
           )}
           {isSolved && (
             <div className="flex gap-x-1 w-full justify-between">
               <button
-                className="flex flex-1 gap-x-1 text-xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
+                className="flex flex-1 gap-x-1 text-[14px] --xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"
                 onClick={handleShare}
               >
                 <Image
@@ -816,7 +888,7 @@ export default function StageDetailView({
                 Share PGN/FEN
               </button>
 
-              <button
+              {/* <button
                 onClick={resetPosition}
                 className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
               >
@@ -827,7 +899,7 @@ export default function StageDetailView({
                   height={12}
                 />
                 <span className="text-[11px]">Rematch</span>
-              </button>
+              </button> */}
 
               <button
                 onClick={navigateNext}
@@ -850,11 +922,20 @@ export default function StageDetailView({
 
   const renderMobileNavigation = () => {
     return (
-      <div className="sm:hidden px-4 py-3 flex flex-row justify-center items-center gap-2">
+      <div className="px-4 mb-3 flex flex-row justify-center items-center gap-2">
         <button
+          disabled={moveHistory.length === 0}
+          onClick={handleUndo}
+          className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+        >
+          <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+          </svg>
+        </button>
+        {/* <button
           disabled={currentMoveIndex === 0}
           onClick={handlePreviousMove}
-          className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+          className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
             currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
@@ -863,19 +944,29 @@ export default function StageDetailView({
         <button
           disabled={currentMoveIndex >= moveHistory.length}
           onClick={handleNextMove}
-          className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+          className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
             currentMoveIndex >= moveHistory.length
               ? "opacity-50 cursor-not-allowed"
               : ""
           }`}
         >
           <ChevronRight size={20} color="#000" />
-        </button>
+        </button> */}
         <button
           onClick={resetPosition}
-          className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+          className="rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9]"
         >
-          <RotateCw size={20} color="#000" />
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clipPath="url(#clip0_852_113922)">
+              <path d="M3.41941 3V7.5H8.15625" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4.35153 12.2485C4.86472 13.6285 5.8361 14.8126 7.1193 15.6224C8.40251 16.4323 9.92801 16.824 11.4659 16.7385C13.0039 16.653 14.4709 16.095 15.6459 15.1486C16.821 14.2021 17.6404 12.9185 17.9807 11.4911C18.321 10.0637 18.1638 8.56994 17.5327 7.23485C16.9016 5.89976 15.8308 4.79569 14.4818 4.08903C13.1327 3.38236 11.5784 3.11137 10.0531 3.3169C8.52786 3.52244 7.11421 4.19335 6.02522 5.22855L4.20888 6.99854" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+            </g>
+            <defs>
+              <clipPath id="clip0_852_113922">
+                <rect width="20" height="20" fill="white" transform="matrix(-1 0 0 1 20 0)"/>
+              </clipPath>
+            </defs>
+          </svg>
         </button>
       </div>
     );
@@ -968,7 +1059,7 @@ export default function StageDetailView({
               </button>
               <SettingBoard />
 
-              <button onClick={() => setIs3DMode(!is3DMode)}>
+              {/* <button onClick={handleToggle3DMode}>
                 <Image
                   src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
                   alt="icon"
@@ -976,9 +1067,9 @@ export default function StageDetailView({
                   height={is3DMode ? 15 : 20}
                   className="object-contain"
                 />
-              </button>
+              </button> */}
             </div>
-            <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 lg:p-4 rounded-md flex flex-col">
+            <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
                 <div className=" flex items-center justify-center w-full xl:p-10 2xl:p-12 overflow-hidden">
                   <ChessboardWrapper
@@ -1029,21 +1120,22 @@ export default function StageDetailView({
 
             {/* Mobile controls below board */}
             {renderMobileButtons()}
+            
             <div className="px-4 py-2 flex flex-col gap-y-1">
-              <div className="sm:hidden">
+              {/* <div className="sm:hidden">
                 <SyzygyAnalysis
                   mateDistance={syzygyMateDistance}
                   playerColor={playerColor}
                   currentTurn={game.turn()}
                   isLoading={isSyzygyLoading}
                 />
-              </div>
+              </div> */}
               {!isSolved && (
                 <div className="flex sm:hidden flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-[4px] p-0">
                   <div className="flex  flex-col items-center py-1 justify-center gap-x-3 gap-y-2">
                     <div className="flex items-center">
                       <AlertCircle className="h-4 w-4 text-blue-base" />
-                      <h1 className="text-sm text-black">
+                      <h1 className="text-[14px] --sm text-black">
                         {isCheckmateMode
                           ? `Find the ${movesToCheckmate} ${
                               movesToCheckmate === 1 ? "move" : "moves"
@@ -1053,7 +1145,7 @@ export default function StageDetailView({
                           : "Black to Checkmate"}
                       </h1>
                     </div>
-                    <div className="truncate text-xs">{position}</div>
+                    <div className="truncate text-[14px] --xs">{position}</div>
                   </div>
                 </div>
               )}
@@ -1063,98 +1155,103 @@ export default function StageDetailView({
             <div className="sm:hidden px-4 py-3">
               <MobileMoveBoxes moveHistory={moveHistory} />
             </div>
-
-            {/* Mobile navigation buttons */}
-            {renderMobileNavigation()}
           </div>
 
           {/* Desktop sidebar */}
           <div className="hidden bg-white sm:flex border border-gray-200 rounded-md flex-col xl:col-span-4">
-            <div className="flex flex-col h-full">
-              <div className="w-full p-4 h-auto">
-                <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
-                  <div className="flex flex-row items-center justify-center gap-x-3">
-                    <AlertCircle className="h-8 w-8 text-blue-base" />
-                    <h1 className="text-lg xl:text-base text-black">
-                      {isCheckmateMode
-                        ? `Find the ${movesToCheckmate} ${
-                            movesToCheckmate === 1 ? "move" : "moves"
-                          } to checkmate`
-                        : playerColor === "w"
-                        ? "White to Checkmate"
-                        : "Black to Checkmate"}
-                    </h1>
+            <div className="flex justify-between flex-col h-full">
+              <div className="w-full">
+                <div className="w-full p-4 h-auto">
+                  <div className="flex flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-xl p-6">
+                    <div className="flex flex-row items-center justify-center gap-x-3">
+                      <AlertCircle className="h-8 w-8 text-blue-base" />
+                      <h1 className="text-lg xl:text-base text-black">
+                        {isCheckmateMode
+                          ? `Find the ${movesToCheckmate} ${
+                              movesToCheckmate === 1 ? "move" : "moves"
+                            } to checkmate`
+                          : playerColor === "w"
+                          ? "White to Checkmate"
+                          : "Black to Checkmate"}
+                      </h1>
+                    </div>
+                    <div className="bg-white text-[14px] --xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="truncate">{position}</div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[500px] break-all">
+                            <p className="text-[14px] --xs">{position}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
-                  <div className="bg-white text-xs xl:text-base rounded-md border border-gray-200 text-center p-2 w-full">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="truncate">{position}</div>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[500px] break-all">
-                          <p className="text-xs">{position}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                </div>
+
+                <MoveHistory moveHistory={moveHistory} />
+
+                <div className="hidden sm:block">
+                  {renderMobileNavigation()}
                 </div>
               </div>
 
-              <MoveHistory moveHistory={moveHistory} />
+              <div className="w-full">
+                <SyzygyAnalysis
+                  mateDistance={syzygyMateDistance}
+                  playerColor={playerColor}
+                  currentTurn={game.turn()}
+                  isLoading={isSyzygyLoading}
+                />
 
-              <SyzygyAnalysis
-                mateDistance={syzygyMateDistance}
-                playerColor={playerColor}
-                currentTurn={game.turn()}
-                isLoading={isSyzygyLoading}
-              />
+                {isSolved && (
+                  <div className="w-full overflow-hidden p-4">
+                    <GameOutcomeDisplay
+                      game={game}
+                      playerColor={playerColor}
+                      moveHistory={moveHistory}
+                      pieceConfig={pieceConfig}
+                      subcategoryName={subcategoryName}
+                      startTime={gameStartTime}
+                      endTime={gameEndTime}
+                      isGameOver={isSolved}
+                      onNewGame={handleNewGame}
+                      onRematch={resetPosition}
+                    />
+                  </div>
+                )}
 
-              {isSolved && (
-                <div className="w-full overflow-hidden p-4">
-                  <GameOutcomeDisplay
-                    game={game}
-                    playerColor={playerColor}
-                    moveHistory={moveHistory}
-                    pieceConfig={pieceConfig}
-                    subcategoryName={subcategoryName}
-                    startTime={gameStartTime}
-                    endTime={gameEndTime}
-                    isGameOver={isSolved}
-                    onNewGame={handleNewGame}
-                    onRematch={resetPosition}
-                  />
-                </div>
-              )}
+                <StockfishEngine
+                  game={game}
+                  position={position}
+                  gameStatus={isSolved ? "solved" : "ongoing"}
+                  setMoveHistory={setMoveHistory}
+                  setPosition={setPosition}
+                  setMoveSquares={setMoveSquares}
+                  checkGameStatus={checkGameStatus}
+                  setBestMove={setBestMove}
+                  showHint={showHint}
+                  playerColor={playerColor}
+                  depth={15}
+                  isAutoSolution={isAutoSolution}
+                  onSolutionComplete={handleSolutionComplete}
+                  onMovePlay={handleMoveWithSound}
+                />
 
-              <StockfishEngine
-                game={game}
-                position={position}
-                gameStatus={isSolved ? "solved" : "ongoing"}
-                setMoveHistory={setMoveHistory}
-                setPosition={setPosition}
-                setMoveSquares={setMoveSquares}
-                checkGameStatus={checkGameStatus}
-                setBestMove={setBestMove}
-                showHint={showHint}
-                playerColor={playerColor}
-                depth={15}
-                isAutoSolution={isAutoSolution}
-                onSolutionComplete={handleSolutionComplete}
-                onMovePlay={handleMoveWithSound}
-              />
-
-              <GameControls
-                game={game}
-                gameStatus={isSolved ? "solved" : "ongoing"}
-                handleHint={() => setShowHint(true)}
-                handleShowSolution={handleShowSolution}
-                resetPosition={resetPosition}
-                navigateNext={navigateNext}
-                isCheckmateMode={isCheckmateMode}
-                playerColor={playerColor}
-                isAutoSolution={isAutoSolution}
-                handleShare={handleShare}
-              />
+                <GameControls
+                  game={game}
+                  gameStatus={isSolved ? "solved" : "ongoing"}
+                  handleHint={() => setShowHint(true)}
+                  handleShowSolution={handleShowSolution}
+                  resetPosition={resetPosition}
+                  navigateNext={navigateNext}
+                  isCheckmateMode={isCheckmateMode}
+                  playerColor={playerColor}
+                  isAutoSolution={isAutoSolution}
+                  handleShare={handleShare}
+                />
+              </div>
             </div>
           </div>
         </div>

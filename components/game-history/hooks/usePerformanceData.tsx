@@ -19,8 +19,6 @@ export const processPerformanceData = (
 
   const barData: BarDataItem[] = apiData.barData || [];
 
-  console.log("[FE] Using barData from backend:", barData);
-
   const radarData: RadarDataItem[] = [
     {
       subject: "Calculation",
@@ -28,25 +26,25 @@ export const processPerformanceData = (
       fullMark: 100,
     },
     {
-      subject: "Positional",
+      subject: "Positional Play",
       A: apiData.skillAnalysis?.positional || 0,
       fullMark: 100,
     },
     {
-      subject: "Tactical",
+      subject: "Tactical Vision",
       A: apiData.skillAnalysis?.tactical || 0,
       fullMark: 100,
     },
     {
-      subject: "Endgame",
+      subject: "Endgame Technique",
       A: apiData.skillAnalysis?.endgame || 0,
       fullMark: 100,
     },
-    // {
-    //   subject: "Time Management",
-    //   A: apiData.skillAnalysis?.timeManagement || 0,
-    //   fullMark: 100,
-    // },
+    {
+      subject: "Time Management",
+      A: apiData.skillAnalysis?.timeManagement || 0,
+      fullMark: 100,
+    },
     {
       subject: "Opening Knowledge",
       A: apiData.skillAnalysis?.openingKnowledge || 0,
@@ -93,8 +91,10 @@ const formatTrainingKey = (key: string): string => {
 };
 
 const getSkillIconType = (skillName: string): string => {
-  if (skillName.includes("Calculation") || skillName.includes("Tactical")) {
+  if (skillName.includes("Calculation")) {
     return "Calculation";
+  } else if (skillName.includes("Tactical")) {
+    return "Tactical";
   } else if (skillName.includes("Opening")) {
     return "Opening Knowledge";
   } else if (skillName.includes("Time")) {

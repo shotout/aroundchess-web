@@ -348,7 +348,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
 
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-1 xl:grid-cols-10 2xl:grid-cols-10 gap-6">
-            <div className="xl:col-span-7 2xl:col-span-7 3xl:col-span-8 flex flex-col gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
+            <div className="xl:col-span-7 2xl:col-span-7 3xl:col-span-8 flex flex-col gap-[8px] md:gap-6 xl:border xl:p-4 xl:rounded-md xl:mb-6">
               <div className="flex justify-center">
                 <Button
                   onClick={handleResetPosition}
@@ -383,7 +383,7 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                   {sections.map((tab) => (
                     <button
                       key={tab}
-                      className={`flex-1 p-[10px] text-xs lg:text-base font-medium text-center rounded-lg transition-all ${
+                      className={`flex-1 p-[10px] text-[14px] --xs lg:text-base font-medium text-center rounded-lg transition-all ${
                         sectionName === tab
                           ? "bg-white shadow-md text-black font-bold"
                           : "text-gray-600 font-normal hover:bg-gray-100"
@@ -428,22 +428,21 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                 ) : (
                   <div className="flex gap-2">
                     <Button
-                      className="flex-1 py-3 text-white rounded-full btn-secondary cursor-default"
-                      disabled
+                      onClick={handleMarkAsUnread}
+                      className="w-full flex items-center justify-center space-x-2 rounded-full px-[8px] md:px-4 cursor-pointer btn-secondary"
+                      disabled={isMarkingAsUnread}
                     >
                       <Check className="mr-2 h-5 w-5" />
-                      <h1 className="text-blue-base font-semibold">
-                        Lesson Finished
-                      </h1>
+                      {isMarkingAsUnread ? "Updating..." : "Lesson Finished"}
                     </Button>
-                    <Button
+                    {/* <Button
                       className="flex-1 py-3 text-white rounded-full bg-gray-500 hover:bg-gray-600"
                       onClick={handleMarkAsUnread}
                       disabled={isMarkingAsUnread}
                     >
                       <X className="mr-2 h-5 w-5" />
                       {isMarkingAsUnread ? "Updating..." : "Unread The Lesson"}
-                    </Button>
+                    </Button> */}
                   </div>
                 )}
               </div>

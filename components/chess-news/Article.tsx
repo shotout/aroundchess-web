@@ -4,13 +4,13 @@ import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { usePagination } from "../pagination/hook/usePagination";
 import { Pagination } from "../pagination/pagination";
-import { formatDateNews } from "@/functions/format-date";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import NoData from "../NoData/NoData";
 import { ArticleSkeletonGrid, CategorySkeleton } from "./SkeletonNews";
 import { ImageWithFallback } from "./ImageWithFallback";
+import moment from "moment";
 
 export default function Article() {
   const { sessionId } = useProfileStore();
@@ -64,13 +64,13 @@ export default function Article() {
         <Image
           alt=""
           src="/icons/sidebar-news-icon.png"
-          width={1000}
-          height={1000}
+          width={100}
+          height={100}
           className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9"
         />
         <h1 className="text-xl md:text-[32px] font-semibold">Chess Blog</h1>
       </div>
-      <p className="text-gray-600 text-sm md:text-[18px] py-2 md:py-[8px]">
+      <p className="text-gray-600 text-[14px] --sm md:text-[18px] py-2 md:py-[8px]">
         Stay updated with the latest blog posts, tournaments, and player
         insights from around the world.
       </p>
@@ -89,7 +89,7 @@ export default function Article() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search topics..."
-              className="w-full text-xs sm:text-sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none"
+              className="w-full text-[14px] --xs sm:text-[14px] --sm h-[36px] sm:h-[40px] bg-[#F8F9FC] focus:border-0 focus:outline-none"
             />
           </div>
           <div className="flex items-start mt-4 w-full">
@@ -97,7 +97,7 @@ export default function Article() {
               {categories.length === 0 ? (
                 <CategorySkeleton count={5} />
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
+                <div className="flex overflow-x-auto pb-[8px] md:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-1">
                   {categories.map((tab) => (
                     <button
                       key={tab.id}
@@ -107,7 +107,7 @@ export default function Article() {
                         );
                         setQuery("");
                       }}
-                      className={`py-2 px-3 font-medium rounded-[4px] border-input border text-xs sm:text-sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
+                      className={`py-2 px-3 font-medium rounded-[4px] border-input border text-[14px] --xs sm:text-[14px] --sm min-h-[40px] sm:min-h-[44px] transition-all duration-200 ${
                         tab.id === selectedTab
                           ? "bg-[#81CFF3] text-black"
                           : "bg-white hover:bg-gray-50"
@@ -129,39 +129,43 @@ export default function Article() {
               <NoData>News is empty</NoData>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-6">
-              {currentData.map((article) => (
-                <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
-                  <div className="rounded-md overflow-hidden p-2 border border-input shadow-md min-h-[224px] h-auto sm:h-auto hover:shadow-lg transition-shadow duration-200">
-                    {article.imageUrl?.trim() !== "" ? (
-                      <ImageWithFallback
-                        src={article.imageUrl}
-                        alt={article.imageCaption || article.title || "Image"}
-                        width={1000}
-                        height={1000}
-                        className="w-full h-[100px] sm:h-[115px] object-cover p-4 rounded-md"
-                      />
-                    ) : (
-                      <div className="w-full h-[100px] sm:h-[115px] bg-gray-200 flex items-center justify-center rounded-md">
-                        <span className="text-gray-500 text-sm">No Image</span>
-                      </div>
-                    )}
-                    <div className="px-2 py-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-3 sm:gap-4 mt-[8px] md:mt-6">
+              {currentData.map((article) => {
+                return (
+                  <Link href={`/chess-blog/${article.slug}`} key={article.slug}>
+                    <div className="rounded-[8px] p-[10px] border border-[#DEDEDE] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.12)] transition-shadow duration-200 hover:shadow-lg">
+                      {article.imageUrl?.trim() !== "" ? (
+                        <ImageWithFallback
+                          src={article.imageUrl}
+                          alt={article.imageCaption || article.title || "Image"}
+                          width={1000}
+                          height={1000}
+                          className="w-full h-[180px] object-cover rounded-[8px] mb-[8px]"
+                        />
+                      ) : (
+                        <div className="w-full h-[180px] bg-gray-200 flex items-center justify-center rounded-[8px] mb-[8px]">
+                          <span className="text-gray-500 text-[14px] --sm">No Image</span>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500">
-                          {formatDateNews(article.publishedAt)}
-                        </p>
-                        <p className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap">
+                        <span className="block text-[14px] text-[#2E2E2E] truncate">
+                          {moment(article.publishedAt).format("MMM DD, YYYY")}
+                        </span>
+                        <span className="text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] rounded-[4px] px-[8px] py-[1px] text-[#221AE9] whitespace-nowrap">
                           {article.category?.name || "Uncategorized"}
-                        </p>
+                        </span>
                       </div>
-                      <h2 className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold mb-2 leading-tight">
-                        {article.title || "Untitled"}
-                      </h2>
+
+                      <h3 className="text-[16px] md:min-h-[45px] items-center line-clamp-2 font-semibold leading-[140%] mb-[8px]">
+                        {article.title}
+                      </h3>
+
+                      <p className="text-[14px] line-clamp-3 ">{article.content}</p>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
           {!isLoading && currentData.length > 0 && (
@@ -172,7 +176,7 @@ export default function Article() {
         </div>
         {sessionId && (
           <div className="md:border md:border-input md:rounded-md md:px-4 md:py-4 bg-white sm:w-full xl:w-1/3">
-            <span className="text-sm sm:text-md font-bold mt-4 block">
+            <span className="text-[18px] --sm sm:text-md font-bold mt-4 block">
               Saved Articles
             </span>
             <div className="flex flex-col mt-2 gap-2">
@@ -188,24 +192,23 @@ export default function Article() {
                       <Image
                         src={article.imageUrl}
                         alt={article.title}
-                        width={1000}
-                        height={1000}
+                        width={100}
+                        height={100}
                         className="w-12 h-12 sm:w-16 sm:h-16 rounded-[4px] object-cover flex-shrink-0"
                       />
                       <div className="flex flex-col flex-1 gap-1 sm:gap-2 min-w-0">
                         <div className="flex flex-row justify-between items-center gap-2">
-                          <p className="block text-[8px] sm:text-[10px] md:text-[10px] lg:text-[11px] text-gray-500 truncate">
-                            {formatDateNews(article.publishedAt)}
-                          </p>
-                          <span className="text-[8px] sm:text-[10px] md:text-[10px] lg:text-[10px] border border-[#221AE9] font-semibold rounded-[4px] px-1 py-[1px] text-[#221AE9] whitespace-nowrap flex-shrink-0">
+                          <span className="block text-[14px] text-[#2E2E2E] truncate">
+                            {moment(article.publishedAt).format("MMM DD, YYYY")}
+                          </span>
+                          <span className="text-[14px] --10px md:text-[14px] --10px lg:text-[14px] --10px border border-[#221AE9] rounded-[4px] px-[8px] py-[1px] text-[#221AE9] whitespace-nowrap">
                             {article.category.name}
                           </span>
                         </div>
-                        <div className="flex flex-row items-center justify-between">
-                          <span className="line-clamp-2 text-[9px] sm:text-[12px] md:text-[12px] lg:text-[12px] font-semibold leading-tight">
-                            {article.title}
-                          </span>
-                        </div>
+                    
+                        <h3 className="block line-clamp-3 text-[15px] leading-[140%]">
+                          {article.title}
+                        </h3>
                       </div>
                     </div>
                   </Link>

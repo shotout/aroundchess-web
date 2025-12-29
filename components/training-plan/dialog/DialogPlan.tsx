@@ -87,7 +87,7 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
               <h2 className="text-xl font-semibold text-center">
                 Create a Training Plan
               </h2>
-              <p className="text-sm text-center text-gray-600 mt-1">
+              <p className="text-[14px] --sm text-center text-gray-600 mt-1">
                 Choose between an AI-generated plan or customize your own
                 training path
               </p>
@@ -143,7 +143,7 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
               {mode === "ai" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
                   <Brain className="w-6 h-6 text-blue-600" />
-                  <p className="text-sm text-blue-800">
+                  <p className="text-[14px] --sm text-blue-800">
                     Our AI will generate a Training Plan to help you achieve
                     your Goal based on your Strengths and Weaknesses.
                   </p>

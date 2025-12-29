@@ -48,30 +48,30 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const handleStartAnalysis = async () => {
     try {
       // Set loading state immediately
-      setIsLoading(true);
-      setEstimateMinute(0);
-      setEstimateSecond(4);
-      setError(null);
+      // setIsLoading(true);
+      // setEstimateMinute(0);
+      // setEstimateSecond(4);
+      // setError(null);
 
       // Navigate to analysis page first
-      router.push("/analysis");
+      router.push("/my-game-history");
 
       // Load the data in background
-      const [resFamousGame, resAnalysis] = await Promise.all([
-        fetch("/local-data/famous-game.txt"),
-        fetch("/local-data/analysis.json"),
-      ]);
+      // const [resFamousGame, resAnalysis] = await Promise.all([
+      //   fetch("/local-data/famous-game.txt"),
+      //   fetch("/local-data/analysis.json"),
+      // ]);
 
-      const pgnLocal = await resFamousGame.text();
-      const responseAnalysis = await resAnalysis.json();
+      // const pgnLocal = await resFamousGame.text();
+      // const responseAnalysis = await resAnalysis.json();
 
-      setPgn(pgnLocal);
-      setDataAnalysis(responseAnalysis);
+      // setPgn(pgnLocal);
+      // setDataAnalysis(responseAnalysis);
 
-      // Keep loading for exactly 4 seconds
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 4000);
+      // // Keep loading for exactly 4 seconds
+      // setTimeout(() => {
+      //   setIsLoading(false);
+      // }, 4000);
     } catch (err) {
       setIsLoading(false);
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
@@ -94,7 +94,8 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   const handleDashboard = () => {
-    router.push("/analysis");
+    // Redirect to game history instead of analysis page
+    router.push("/my-game-history");
   };
 
   const handleLogout = async () => {
@@ -160,7 +161,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
           {/* Center: Desktop Navigation */}
           <div className="hidden xl:flex justify-center items-center gap-6 flex-1">
             {/* Analyze Button - Outside of NavigationMenu */}
-            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-sm font-medium xl:text-xs xl:px-2 xl:py-1.5">
+            <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
               <Button
                 onClick={handleStartAnalysis}
                 color="primary"
@@ -242,7 +243,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                 onClick={handleStartAnalysis}
                 color="primary"
                 variant="outlineprimary"
-                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-sm"
+                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-[14px] --sm"
               >
                 <BarChart2
                   className="mr-1 h-[16px] w-[16px]"
@@ -291,12 +292,12 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
               {!isSignedIn ? (
                 <div className="flex items-center gap-5">
                   <Link href="/login">
-                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 ">
+                    <button className="btn-secondary w-[120px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
                       Sign-In
                     </button>
                   </Link>
                   <Link href="/register">
-                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white ">
+                    <button className="btn-primary w-[120px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white ">
                       Try Now
                     </button>
                   </Link>
@@ -305,13 +306,13 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                 <div className="flex items-center gap-[16px]">
                   <button
                     onClick={handleDashboard}
-                    className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[12px] font-medium"
+                    className="line-clamp-1 btn-primary rounded-full p-[10px] w-[160px] h-[48px] text-[14px] -- font-medium"
                   >
                     My Dashboard
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[12px] font-medium text-white"
+                    className="rounded-full p-[10px] bg-[#FD0000] w-[160px] h-[48px] text-[14px] -- font-medium text-white"
                   >
                     Logout
                   </button>
@@ -342,8 +343,8 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <div className="text-[14px] --sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-[14px] --sm leading-snug text-muted-foreground">
             {children}
           </p>
         </Link>
@@ -381,6 +382,80 @@ function MobileNav(props: mobileProps) {
       href: "/chess-news",
       permission: true,
     },
+    {
+      name: "Play & Practice",
+      href: "/play-practice",
+      icon: "/icons/sidebar-playground-practice-icon.png",
+      iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+      children: [
+        {
+          name: "You vs AI",
+          href: "/playground/play-vs-ai",
+          icon: "/icons/sidebar-play-vs-ai-icon.png",
+          iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
+        },
+        {
+          name: "Puzzles",
+          href: "/playground/puzzle",
+          icon: "/icons/sidebar-puzzle-icon.png",
+          iconActive: "/icons/sidebar-puzzle-icon-active.png",
+        },
+        {
+          name: "Board Vision",
+          href: "/playground/board-vision",
+          icon: "/icons/sidebar-board-vision-icon.png",
+          iconActive: "/icons/sidebar-board-vision-icon-active.png",
+        },
+        {
+          name: "Endgame Training",
+          href: "/playground/endgame-training",
+          icon: "/icons/sidebar-endgame-training-icon.png",
+          iconActive: "/icons/sidebar-endgame-training-icon-active.png",
+        },
+      ]
+    },
+    {
+      name: "Analyze Games",
+      href: "/my-game-history",
+      icon: "/icons/sidebar-analyze-icon.png",
+      iconActive: "/icons/sidebar-analyze-icon-active.png",
+      children: [
+        {
+          name: "Game History",
+          href: "/my-game-history",
+          icon: "/icons/sidebar-game-history.png",
+          iconActive: "/icons/sidebar-game-history-active.png",
+        },
+        {
+          name: "Saved Mistakes",
+          href: "/saved-mistakes",
+          icon: "/icons/sidebar-saved-mistakes-icon.svg",
+          iconActive: "/icons/sidebar-saved-mistakes-icon-active.svg",
+        }
+      ]
+    },
+    {
+      name: "Training",
+      href: "/training",
+      icon: "/icons/sidebar-training-plan-icon.png",
+      iconActive: "/icons/sidebar-training-plan-icon-active.png",
+      children: [
+        {
+          name: "Training Plan",
+          href: "/training-plan",
+          icon: "/icons/sidebar-training-plan-icon-2.svg",
+          iconActive: "/icons/sidebar-training-plan-icon-active-2.svg",
+        },
+        {
+          name: "Handbook : Chess Theory",
+          href: "/handbook",
+          icon: "/icons/sidebar-theory-icon.png",
+          iconActive: "/icons/sidebar-theory-icon-active.png",
+        }
+      ]
+    },
+
+    /*
     {
       name: "Dashboard",
       icon: "/icons/sidebar-dashboard-icon.png",
@@ -444,7 +519,7 @@ function MobileNav(props: mobileProps) {
       iconActive: "/icons/sidebar-playground-practice-icon-active.png",
       children: [
         {
-          name: "Play vs AI",
+          name: "You vs AI",
           href: "/playground/play-vs-ai",
           icon: "/icons/sidebar-play-vs-ai-icon.png",
           iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
@@ -468,7 +543,7 @@ function MobileNav(props: mobileProps) {
           iconActive: "/icons/sidebar-endgame-training-icon-active.png",
         },
       ],
-    },
+    }, */
   ];
 
   const handleNavigation = (href: string, hasPermission: boolean) => {
@@ -492,35 +567,35 @@ function MobileNav(props: mobileProps) {
             <Image
               src="/icons/logo.png"
               alt="logo"
-              className="w-36 h-12"
+              width={199}
+              height={64}
               quality={100}
-              width={100}
-              height={100}
+              className="w-[125px] md:w-[199px] h-[40px] md:h-[64px] object-contain"
             />
           </Link>
         </div>
         <div
           onClick={props.handleStartAnalysis}
-          className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-sm sm:text-lg cursor-pointer hover:bg-[#221AE920]"
+          className="border border-primary bg-[#221AE910] rounded-md px-4 py-2 sm:py-4 flex items-center justify-center gap-1 text-[14px] --sm sm:text-lg cursor-pointer hover:bg-[#221AE920]"
         >
           <BarChart2 className="mr-2 h-4 w-4" />
           Analyze Now
         </div>
         <div className="flex flex-col w-full border border-input rounded-md py-0.5 px-1 mt-4 gap-4 sm:gap-6 bg-white">
           <Link href="/about-us">
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <Info className="mr-2 h-4 w-4" />
               About
             </div>
           </Link>
           <Link href="/faq">
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <HelpCircle className="mr-2 h-4 w-4" />
               FAQ
             </div>
           </Link>
           <button onClick={() => setOpenSubscribe(true)}>
-            <div className="text-sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
+            <div className="text-[14px] --sm sm:text-lg w-full flex flex-row h-9 items-center rounded-md bg-background px-3 py-2 font-medium bg-white xl:text-[14px] --xs xl:px-2 xl:py-1.5 hover:text-[#221AE9]">
               <DollarSign className="mr-2 h-4 w-4" />
               Pricing
             </div>
@@ -531,13 +606,13 @@ function MobileNav(props: mobileProps) {
           <div className="flex flex-col w-full items-center gap-5">
             <Link
               href="/login"
-              className="flex sm:h-[56px] items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-secondary rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Sign-In
             </Link>
             <Link
               href="/register"
-              className="flex sm:h-[56px] items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+              className="flex sm:h-[56px] items-center justify-center w-full btn-primary rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
             >
               Try Now
             </Link>
@@ -555,10 +630,10 @@ function MobileNav(props: mobileProps) {
           <Image
             src="/icons/logo.png"
             alt="logo"
-            className="w-[199px] h-[64px] object-contain"
+            width={199}
+            height={64}
             quality={100}
-            width={1000}
-            height={1000}
+            className="w-[125px] md:w-[199px] h-[40px] md:h-[64px] object-contain"
           />
         </Link>
       </div>
@@ -569,8 +644,8 @@ function MobileNav(props: mobileProps) {
           <Image
             src="/images/pricing/token-icon.png"
             alt="icon"
-            width={1000}
-            height={1000}
+            width={20}
+            height={20}
             className="w-[20px] h-[20px] object-contain"
           />
           <span className="block lg:text-[16px] text-[#221AE9] font-medium">
@@ -588,13 +663,13 @@ function MobileNav(props: mobileProps) {
           <div className="w-full flex flex-col items-center gap-[8px]">
             <button
               onClick={() => props.handleOpenOffer("tokens")}
-              className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="block btn-secondary w-full h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Buy Tokens
             </button>
             <button
               onClick={() => props.handleOpenOffer("subscription")}
-              className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-sm font-medium text-white hover:bg-blue-700"
+              className="block btn-primary w-full h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white hover:bg-blue-700"
             >
               Go Unlimited
             </button>
@@ -648,7 +723,7 @@ function MobileNav(props: mobileProps) {
                         handleNavigation(section.href, section.permission)
                       }
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive
                           ? "text-[#221AE9]"
                           : "hover:bg-[#221AE950] hover:text-[#221AE9]"
@@ -678,7 +753,7 @@ function MobileNav(props: mobileProps) {
                   ) : (
                     <div
                       className={cn(
-                        "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                        "group flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                         isActive ? "text-[#221AE9]" : ""
                       )}
                     >
@@ -711,7 +786,7 @@ function MobileNav(props: mobileProps) {
                                   : child.href
                               }
                               className={cn(
-                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-sm font-medium transition-all duration-200",
+                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
                                 isChildActive
                                   ? "bg-[#221AE910] text-[#221AE9] border-[#221AE9] border-r-4"
                                   : "text-gray-600 hover:bg-gray-50 hover:text-[#221AE9]"
@@ -768,7 +843,7 @@ function MobileNav(props: mobileProps) {
             <p className="font-medium text-[16px] text-[#121212] line-clamp-1">
               {profile?.name != "" ? profile?.name : username}
             </p>
-            <p className="font-normal text-[#364152] text-[12px] truncate line-clamp-1">
+            <p className="font-normal text-[#364152] text-[14px] -- truncate line-clamp-1">
               {profile?.email}
             </p>
           </div>

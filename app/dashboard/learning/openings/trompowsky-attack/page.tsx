@@ -145,7 +145,7 @@ export default function TrompowskyAttackPage() {
                 onClick={() => setCurrentVariation(variation)}
               >
                 <h4 className="font-semibold">{variation.name}</h4>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] --sm text-muted-foreground mt-1">
                   {variation.moves}
                 </p>
               </Card>
@@ -173,7 +173,7 @@ export default function TrompowskyAttackPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="font-semibold">{resource.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-[14px] --sm text-muted-foreground mt-1">
                       {resource.description}
                     </p>
                   </div>

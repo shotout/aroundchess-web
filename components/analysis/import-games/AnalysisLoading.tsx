@@ -86,7 +86,7 @@ export function AnalysisLoading() {
                 delay: index * 0.3,
                 duration: 0.5,
               }}
-              className="text-sm text-muted-foreground"
+              className="text-[14px] --sm text-muted-foreground"
             >
               {message}
             </motion.p>
@@ -121,7 +121,7 @@ export function AnalysisLoading() {
       >
         <Alert className="max-w-xl mx-auto bg-blue-50/20 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900">
           <Info className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-sm text-muted-foreground">
+          <AlertDescription className="text-[14px] --sm text-muted-foreground">
             Our analysis uses advanced chess engines for evaluation, which may result in slightly different assessments compared to other chess analysis tools. This helps provide a fresh perspective on your games while maintaining high accuracy.
           </AlertDescription>
         </Alert>
