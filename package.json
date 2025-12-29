@@ -104,5 +104,8 @@
   },
   "overrides": {
     "@gilbarbara/hooks": "^0.10.4"
+  },
+  "resolutions": {
+    "@radix-ui/react-visually-hidden": "1.2.4"
   }
 }
