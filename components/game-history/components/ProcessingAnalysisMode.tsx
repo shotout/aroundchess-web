@@ -170,8 +170,10 @@ export default function ProcessingAnalysisMode({
                             }} />
                     </div>
                     <h4 className="text-[24px] lg:text-[30px] mb-[24px] font-semibold">AI Analyzing Now...</h4>
-                    <div className="mb-[-56px]">
-                        <PgnPlayer />
+                    <div className="w-full max-w-full overflow-visible flex justify-center">
+                        <div className="flex justify-center w-full max-w-[calc(100vw-64px)] lg:max-w-[386px] xl:max-w-[482px]">
+                            <PgnPlayer maxBoardSize={380} />
+                        </div>
                     </div>
                 </div>
             </div>
