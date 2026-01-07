@@ -444,7 +444,10 @@ const GamesList: React.FC<GamesListProps> = ({
             getProfile({}).then((response) => {
               if (response.data != null) {
                 const profileData = response.data;
-                setProfile(data);
+                // Bugfix: `data` here is the token-balance payload from `getTokenBalance`.
+                // Overwriting the profile store with it removes `discountInfo`, which breaks
+                // the special-offer (discounted monthly price) UI in the pricing modal.
+                setProfile(profileData);
                 if (
                   data.balance == 0 &&
                   profileData.username.length > 0 &&
