@@ -45,6 +45,13 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
   const [dragActive, setDragActive] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showUsernameDialog, setShowUsernameDialog] = useState<boolean>(false);
+  const [usernameOptions, setUsernameOptions] = useState<{
+    white?: string;
+    black?: string;
+  } | null>(null);
+  const [selectedUsername, setSelectedUsername] = useState<string>("");
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const resetDialog = useCallback(() => {
     setIsSubmitted(false);
@@ -62,6 +69,10 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     setUploadedFile(null);
     setIsConfirmationMode(false);
     setIsOperationCompleted(false);
+    setShowUsernameDialog(false);
+    setUsernameOptions(null);
+    setSelectedUsername("");
+    setUsernameError(null);
   }, []);
 
   const handleTabChange = useCallback((tab: string) => {
@@ -77,6 +88,10 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     setUploadedFile(null);
     setIsConfirmationMode(false);
     setIsOperationCompleted(false);
+    setShowUsernameDialog(false);
+    setUsernameOptions(null);
+    setSelectedUsername("");
+    setUsernameError(null);
   }, []);
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -140,66 +155,128 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     }
   }, [activeTab, fileName, pgnText]);
 
+  const extractPgnUsernames = useCallback((content: string) => {
+    if (!content) {
+      return { white: "", black: "" };
+    }
+
+    const whiteMatch = content.match(/\[\s*White\s+"([^"]+)"\s*\]/i);
+    const blackMatch = content.match(/\[\s*Black\s+"([^"]+)"\s*\]/i);
+
+    return {
+      white: whiteMatch?.[1]?.trim() ?? "",
+      black: blackMatch?.[1]?.trim() ?? "",
+    };
+  }, []);
+
+  const submitImport = useCallback(
+    async (effectiveUsername: string, content: string) => {
+      setIsLoading(true);
+      setError(null);
+      setIsUploading(true);
+      setUploadProgress(0);
+      try {
+        const formData = new FormData();
+        if (!content) {
+          throw new Error("No PGN content available");
+        }
+        formData.append("pgn", content);
+        if (effectiveUsername) {
+          formData.append("username", effectiveUsername);
+        }
+        const response = await gameHistoryApi.importGame(
+          "game_history",
+          formData,
+          sessionId ?? null,
+          (ev: AxiosProgressEvent) => {
+            const pct = Math.round((ev.loaded * 100) / (ev.total || 1));
+            setUploadProgress(pct);
+          }
+        );
+        if (!response?.data) {
+          throw new Error("Invalid response from server");
+        }
+        const gameData = { ...response.data, pgn: content };
+        const newGame = addOtherImportedGame(gameData);
+        setImportedGameId(newGame.id.toString());
+        setIsOperationCompleted(true);
+        setIsConfirmationMode(false);
+        setIsUploading(false);
+        toast.success("Game imported successfully!");
+        handleForceRefresh();
+        setTimeout(() => {
+          resetDialog();
+          if (onSuccess) onSuccess();
+        }, 2000);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Import failed";
+        setError(msg);
+        toast.error(`Import failed: ${msg}`);
+      } finally {
+        setIsLoading(false);
+        setIsUploading(false);
+      }
+    },
+    [
+      sessionId,
+      addOtherImportedGame,
+      handleForceRefresh,
+      resetDialog,
+      onSuccess,
+    ]
+  );
+
   const handleAnalyzeButtonClick = useCallback(async () => {
     if (!isConfirmationMode) return;
-    setIsLoading(true);
-    setError(null);
-    setIsUploading(true);
-    setUploadProgress(0);
-    try {
-      const formData = new FormData();
-      const content = activeTab === "paste" ? pgnText : fileContent;
-      if (!content) {
-        throw new Error("No PGN content available");
+    const content = activeTab === "paste" ? pgnText : fileContent;
+    const storedUsername =
+      typeof username === "string" ? username.trim() : "";
+
+    if (!storedUsername && !selectedUsername) {
+      const options = extractPgnUsernames(content);
+      if (!options.white && !options.black) {
+        const msg =
+          "PGN is missing White/Black headers. Please use a PGN with player names.";
+        setError(msg);
+        toast.error(msg);
+        return;
       }
-      formData.append("pgn", content);
-      if (username) {
-        formData.append("username", username);
-      }
-      const response = await gameHistoryApi.importGame(
-        "game_history",
-        formData,
-        sessionId ?? null,
-        (ev: AxiosProgressEvent) => {
-          const pct = Math.round((ev.loaded * 100) / (ev.total || 1));
-          setUploadProgress(pct);
-        }
-      );
-      if (!response?.data) {
-        throw new Error("Invalid response from server");
-      }
-      const gameData = { ...response.data, pgn: content };
-      const newGame = addOtherImportedGame(gameData);
-      setImportedGameId(newGame.id.toString());
-      setIsOperationCompleted(true);
-      setIsConfirmationMode(false);
-      setIsUploading(false);
-      toast.success("Game imported successfully!");
-      handleForceRefresh();
-      setTimeout(() => {
-        resetDialog();
-        if (onSuccess) onSuccess();
-      }, 2000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Import failed";
-      setError(msg);
-      toast.error(`Import failed: ${msg}`);
-    } finally {
-      setIsLoading(false);
-      setIsUploading(false);
+      setUsernameOptions(options);
+      setShowUsernameDialog(true);
+      setUsernameError(null);
+      setSelectedUsername("");
+      return;
     }
+
+    const effectiveUsername = storedUsername || selectedUsername;
+    await submitImport(effectiveUsername, content);
   }, [
+    isConfirmationMode,
     activeTab,
     pgnText,
     fileContent,
     username,
-    sessionId,
-    isConfirmationMode,
-    addOtherImportedGame,
-    handleForceRefresh,
-    resetDialog,
-    onSuccess,
+    selectedUsername,
+    extractPgnUsernames,
+    submitImport,
   ]);
+
+  const handleConfirmUsername = useCallback(async () => {
+    const content = activeTab === "paste" ? pgnText : fileContent;
+    if (!selectedUsername) {
+      setUsernameError("Please choose a username to continue.");
+      return;
+    }
+    setShowUsernameDialog(false);
+    setUsernameError(null);
+    await submitImport(selectedUsername, content);
+  }, [activeTab, pgnText, fileContent, selectedUsername, submitImport]);
+
+  const handleCloseUsernameDialog = useCallback(() => {
+    setShowUsernameDialog(false);
+    setUsernameError(null);
+    setSelectedUsername("");
+  }, []);
 
   const handleRemoveFile = useCallback(() => {
     setFileName("");
@@ -512,6 +589,90 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {openDialog && showUsernameDialog && (
+        <div
+          className="fixed bg-black/35 z-[60] flex items-center justify-center p-4 md:p-0"
+          style={{
+            top:
+              typeof window !== "undefined" && window.innerWidth >= 1024
+                ? headerHeightLg
+                : headerHeight,
+            left: sidebarWidth,
+            right: 0,
+            bottom: 0,
+          }}
+          onClick={handleCloseUsernameDialog}
+        >
+          <div
+            className="w-full mx-auto rounded-lg max-w-sm md:max-w-md bg-white overflow-y-auto max-h-[95%] p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-center">
+              Choose Player Username
+            </h3>
+            <p className="text-[14px] --sm text-center text-gray-600 mt-2">
+              Your account doesn’t have a saved Chess.com username. Pick the
+              player name from this PGN to import the game.
+            </p>
+
+            <div className="mt-4 space-y-3">
+              {usernameOptions?.white && (
+                <label className="flex items-center gap-3 border rounded-md px-3 py-2 cursor-pointer hover:border-gray-400">
+                  <input
+                    type="radio"
+                    name="pgn-username"
+                    value={usernameOptions.white}
+                    checked={selectedUsername === usernameOptions.white}
+                    onChange={(e) => setSelectedUsername(e.target.value)}
+                  />
+                  <span className="text-[14px] --sm">
+                    {usernameOptions.white} (White)
+                  </span>
+                </label>
+              )}
+              {usernameOptions?.black && (
+                <label className="flex items-center gap-3 border rounded-md px-3 py-2 cursor-pointer hover:border-gray-400">
+                  <input
+                    type="radio"
+                    name="pgn-username"
+                    value={usernameOptions.black}
+                    checked={selectedUsername === usernameOptions.black}
+                    onChange={(e) => setSelectedUsername(e.target.value)}
+                  />
+                  <span className="text-[14px] --sm">
+                    {usernameOptions.black} (Black)
+                  </span>
+                </label>
+              )}
+            </div>
+
+            {usernameError && (
+              <div className="mt-3 text-red-500 text-[14px] --sm text-center">
+                {usernameError}
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                className="flex-1 py-3 btn-secondary font-medium rounded-full"
+                onClick={handleCloseUsernameDialog}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="flex-1 py-3 btn-primary text-white font-medium rounded-full"
+                onClick={handleConfirmUsername}
+                disabled={isLoading}
+              >
+                {isLoading ? "Processing..." : "Continue"}
+              </button>
             </div>
           </div>
         </div>
