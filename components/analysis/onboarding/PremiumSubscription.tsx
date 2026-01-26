@@ -588,8 +588,8 @@ export const PremiumSubsContent: React.FC<{
                   profile?.discountInfo &&
                   profile?.discountInfo?.hasActiveDiscount &&
                   isPass > 0
-                    ? "80 Analyses per year (meaning $0.09 per Analysis)"
-                    : "80 Analyses per year (meaning $0.13 per Analysis)"
+                    ? "80 Analyses per month (meaning $0.09 per Analysis)"
+                    : "80 Analyses per month (meaning $0.13 per Analysis)"
                 }
                 light
               />
