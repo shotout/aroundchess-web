@@ -198,9 +198,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     const moveItem = item?.mistakeLog;
     if (!moveItem) return null;
     
-    // Hide Opening phase entirely
-    if (moveItem?.gamePhase === "Opening") return null;
-    
     const pgn = item?.pgn || "";
     const hash = (item as any).__hash as string | undefined;
     const sections = (hash && sectionsByHash[hash]) || undefined;
