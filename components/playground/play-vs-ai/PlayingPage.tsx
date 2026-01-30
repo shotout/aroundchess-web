@@ -1070,14 +1070,33 @@ export default function PlayingPage() {
       return;
     }
 
-    // Determine arrow color based on piece at starting square
+    // Determine arrow color based on piece at starting square and direction
     const pieceAtFrom = game.get(fromSquare as Square);
     const playerColorCode = myColor === "white" ? "w" : "b";
 
-    // Yellow for own pieces, blue for opponent pieces or empty squares
-    const arrowColor = pieceAtFrom && pieceAtFrom.color === playerColorCode
-      ? "rgba(255, 170, 0, 0.8)"  // Yellow - own piece
-      : "rgba(0, 100, 255, 0.8)"; // Blue - opponent piece or empty
+    let arrowColor: string;
+
+    if (pieceAtFrom) {
+      // Starting from a piece - color based on whose piece it is
+      arrowColor = pieceAtFrom.color === playerColorCode
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - own piece
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent piece
+    } else {
+      // Starting from empty square - color based on direction
+      const fromRank = parseInt(fromSquare[1]);
+      const toRank = parseInt(toSquare[1]);
+
+      // Bottom-up is "my direction", top-down is "opponent direction"
+      // For white: bottom = rank 1, going up means toRank > fromRank
+      // For black: bottom = rank 8 (flipped), going up means toRank < fromRank
+      const isGoingUp = myColor === "white"
+        ? toRank > fromRank
+        : toRank < fromRank;
+
+      arrowColor = isGoingUp
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - my direction (bottom-up)
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent direction (top-down)
+    }
 
     setUserDrawnArrows(prev => {
       // Check if arrow already exists (toggle behavior)
