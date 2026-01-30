@@ -453,6 +453,23 @@ export default function PlayingPage() {
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
+  // User-drawn arrows state (for right-click drag arrow drawing)
+  const [userDrawnArrows, setUserDrawnArrows] = useState<{
+    from: string;
+    to: string;
+    color: string;
+    isKnightMove: boolean;
+  }[]>([]);
+  const [arrowDrawStart, setArrowDrawStart] = useState<string | null>(null);
+
+  // Pre-move queue state
+  const [preMoveQueue, setPreMoveQueue] = useState<Array<{
+    from: string;
+    to: string;
+    promotion?: string;
+  }>>([]);
+  const [isProcessingPreMove, setIsProcessingPreMove] = useState(false);
+
   const isYourTurn = myColor === "white" ? "w" : "b";
 
   // Helper function to detect if a move is a knight move (L-shaped)
@@ -486,6 +503,19 @@ export default function PlayingPage() {
       isKnightMove: isKnightMove(from, to)
     }];
   }, [bestLine, hintClicked, isKnightMove]);
+
+  // Pre-move square highlights
+  const preMoveSquareStyles = useMemo(() => {
+    const styles: Record<string, CSSProperties> = {};
+    preMoveQueue.forEach((preMove, index) => {
+      const color = index === 0
+        ? "rgba(255, 100, 100, 0.5)"  // Red for next pre-move
+        : "rgba(255, 150, 100, 0.4)"; // Orange for subsequent
+      styles[preMove.from] = { backgroundColor: color };
+      styles[preMove.to] = { backgroundColor: color };
+    });
+    return styles;
+  }, [preMoveQueue]);
 
   const updateFenHistory = useCallback((newFen: string) => {
     setFenHistory((prev) => {
@@ -848,6 +878,13 @@ export default function PlayingPage() {
       return;
     }
 
+    // Clear user-drawn arrows and pre-move queue on any left-click
+    if (userDrawnArrows.length > 0) {
+      setUserDrawnArrows([]);
+    }
+    if (preMoveQueue.length > 0) {
+      setPreMoveQueue([]);
+    }
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
 
@@ -931,6 +968,8 @@ export default function PlayingPage() {
         setMoveFrom("");
         setMoveTo(null);
         setOptionSquares({});
+        setRightClickedSquares({} as Record<string, CSSProperties>);
+        setUserDrawnArrows([]);
       }
 
       if (move === null) {
@@ -1030,11 +1069,15 @@ export default function PlayingPage() {
     setMoveTo(null);
     setShowPromotionDialog(false);
     setOptionSquares({});
+    setRightClickedSquares({} as Record<string, CSSProperties>);
+    setUserDrawnArrows([]);
     return true;
   };
 
   const onSquareRightClick = (square: Square) => {
-    const colour = "rgba(0, 0, 255, 0.4)";
+    // Note: This is kept for backwards compatibility but arrow drawing
+    // is now handled via mouse events on the board container
+    const colour = "rgba(235, 97, 80, 0.8)"; // Red like chess.com
     setRightClickedSquares({
       ...rightClickedSquares,
       [square]: {
@@ -1043,6 +1086,103 @@ export default function PlayingPage() {
       },
     });
   };
+
+  // Arrow drawing handlers for right-click drag functionality
+  const onArrowDrawEnd = useCallback((fromSquare: string, toSquare: string) => {
+    if (fromSquare === toSquare) {
+      // Same square - no arrow
+      return;
+    }
+
+    // Determine arrow color based on piece at starting square and direction
+    const pieceAtFrom = game.get(fromSquare as Square);
+    const playerColorCode = myColor === "white" ? "w" : "b";
+
+    let arrowColor: string;
+
+    if (pieceAtFrom) {
+      // Starting from a piece - color based on whose piece it is
+      arrowColor = pieceAtFrom.color === playerColorCode
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - own piece
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent piece
+    } else {
+      // Starting from empty square - color based on direction
+      const fromRank = parseInt(fromSquare[1]);
+      const toRank = parseInt(toSquare[1]);
+
+      // Bottom-up is "my direction", top-down is "opponent direction"
+      // For white: bottom = rank 1, going up means toRank > fromRank
+      // For black: bottom = rank 8 (flipped), going up means toRank < fromRank
+      const isGoingUp = myColor === "white"
+        ? toRank > fromRank
+        : toRank < fromRank;
+
+      arrowColor = isGoingUp
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - my direction (bottom-up)
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent direction (top-down)
+    }
+
+    setUserDrawnArrows(prev => {
+      // Check if arrow already exists (toggle behavior)
+      const existingIndex = prev.findIndex(
+        a => a.from === fromSquare && a.to === toSquare
+      );
+
+      if (existingIndex >= 0) {
+        // Remove existing arrow
+        return prev.filter((_, i) => i !== existingIndex);
+      }
+
+      // Add new arrow
+      return [...prev, {
+        from: fromSquare,
+        to: toSquare,
+        color: arrowColor,
+        isKnightMove: isKnightMove(fromSquare, toSquare)
+      }];
+    });
+
+    setArrowDrawStart(null);
+  }, [isKnightMove, game, myColor]);
+
+  // Clear user arrows on left-click
+  const clearUserArrows = useCallback(() => {
+    if (userDrawnArrows.length > 0) {
+      setUserDrawnArrows([]);
+    }
+  }, [userDrawnArrows.length]);
+
+  // Helper to get square from mouse event via data-square attribute
+  const getSquareFromEvent = useCallback((e: React.MouseEvent): string | null => {
+    const target = e.target as HTMLElement;
+    const squareEl = target.closest('[data-square]');
+    return squareEl?.getAttribute('data-square') || null;
+  }, []);
+
+  // Mouse event handlers for arrow drawing
+  const handleBoardMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 2) { // Right-click
+      e.preventDefault();
+      const square = getSquareFromEvent(e);
+      if (square) {
+        setArrowDrawStart(square);
+      }
+    }
+  }, [getSquareFromEvent]);
+
+  const handleBoardMouseUp = useCallback((e: React.MouseEvent) => {
+    if (e.button === 2 && arrowDrawStart) { // Right-click release
+      const square = getSquareFromEvent(e);
+      if (square && square !== arrowDrawStart) {
+        onArrowDrawEnd(arrowDrawStart, square);
+      }
+      setArrowDrawStart(null);
+    }
+  }, [arrowDrawStart, getSquareFromEvent, onArrowDrawEnd]);
+
+  const handleBoardContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent browser context menu
+  }, []);
 
   const prevCurrentColor = {
     ...(previousSquare && {
@@ -1094,9 +1234,105 @@ export default function PlayingPage() {
         setCurrentTurn((turnColor) =>
           turnColor !== "White" ? "White" : "Black"
         );
+        setRightClickedSquares({} as Record<string, CSSProperties>);
+        setUserDrawnArrows([]);
       }
     });
   };
+
+  // Execute the next pre-move in queue if valid
+  const executeNextPreMove = useCallback(() => {
+    if (preMoveQueue.length === 0 || isProcessingPreMove) {
+      return;
+    }
+
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
+      return;
+    }
+
+    setIsProcessingPreMove(true);
+    const nextPreMove = preMoveQueue[0];
+
+    // Check if move is legal
+    const moves = game.moves({ square: nextPreMove.from as Square, verbose: true });
+    const isLegal = moves.some((m: any) => m.from === nextPreMove.from && m.to === nextPreMove.to);
+
+    if (!isLegal) {
+      // Cascade cancellation: clear entire queue
+      setPreMoveQueue([]);
+      setIsProcessingPreMove(false);
+      return;
+    }
+
+    // Execute the pre-move
+    const move = game.move({
+      from: nextPreMove.from,
+      to: nextPreMove.to,
+      promotion: nextPreMove.promotion || 'q'
+    });
+
+    if (move) {
+      // Remove executed pre-move from queue
+      setPreMoveQueue(prev => prev.slice(1));
+
+      // Update game state (similar to onPieceDrop success path)
+      setMoveData(move);
+      playSound(game, move);
+      setMoveClassification("");
+      setBeforeFen(game.fen());
+
+      const newFen = game.fen();
+      setGamePosition(newFen);
+      updateFenHistory(newFen);
+      setAfterFen(newFen);
+
+      setPreviousSquare(nextPreMove.from as Square);
+      setCurrentSquare(nextPreMove.to as Square);
+
+      setCurrentTurn(turnColor => turnColor !== "White" ? "White" : "Black");
+
+      // Clear user arrows and highlights
+      setRightClickedSquares({} as Record<string, CSSProperties>);
+      setUserDrawnArrows([]);
+
+      // Trigger AI or classification
+      if (!isMobile) {
+        getClassificationMove(move);
+      } else {
+        setShouldTriggerAI(true);
+      }
+    } else {
+      // Move failed - cascade cancellation
+      setPreMoveQueue([]);
+    }
+
+    setIsProcessingPreMove(false);
+  }, [
+    preMoveQueue,
+    isProcessingPreMove,
+    game,
+    myColor,
+    statusGame,
+    updateFenHistory,
+    getClassificationMove,
+    isMobile
+  ]);
+
+  // Execute pre-moves when it becomes player's turn
+  useEffect(() => {
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    const isMyTurn = game.turn() === isYourTurnLocal;
+
+    if (isMyTurn && preMoveQueue.length > 0 && statusGame === "Ongoing" && isAtCurrentMove) {
+      // Small delay to let board update visually
+      const timer = setTimeout(() => {
+        executeNextPreMove();
+      }, 150);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gamePosition, preMoveQueue.length, myColor, statusGame, isAtCurrentMove, executeNextPreMove, game]);
 
   const handleHint = () => {
     const depthHint = depth;
@@ -1655,11 +1891,43 @@ export default function PlayingPage() {
       }
 
       const isYourTurnLocal = myColor === "white" ? "w" : "b";
-      if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
+      const isMyTurn = game.turn() === isYourTurnLocal;
+
+      if (statusGame !== "Ongoing") {
         return false;
       }
 
+      // If it's opponent's turn, queue as pre-move
+      if (!isMyTurn) {
+        // Max 5 pre-moves
+        if (preMoveQueue.length >= 5) {
+          return false;
+        }
+
+        // Check if this exact pre-move already exists (toggle off)
+        const existingIndex = preMoveQueue.findIndex(
+          pm => pm.from === sourceSquare && pm.to === targetSquare
+        );
+
+        if (existingIndex >= 0) {
+          // Remove this pre-move and all after it (cascade)
+          setPreMoveQueue(prev => prev.slice(0, existingIndex));
+        } else {
+          // Add to queue
+          setPreMoveQueue(prev => [...prev, {
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: 'q' // Default to queen for pre-move promotions
+          }]);
+        }
+
+        return true; // Accept visually (piece returns to original square)
+      }
+
+      // Normal move - clear pre-moves and arrows
       setRightClickedSquares({} as Record<string, CSSProperties>);
+      setUserDrawnArrows([]);
+      setPreMoveQueue([]);
       setBestline("");
 
       const moves = game.moves({
@@ -1754,6 +2022,7 @@ export default function PlayingPage() {
       isAtCurrentMove,
       goToLatestMove,
       updateFenHistory,
+      preMoveQueue,
     ]
   );
 
@@ -2313,6 +2582,7 @@ export default function PlayingPage() {
                     ...moveSquares,
                     ...optionSquares,
                     ...rightClickedSquares,
+                    ...preMoveSquareStyles,
                     ...prevCurrentColor,
                   }}
                   areArrowsAllowed={true}
@@ -2344,6 +2614,9 @@ export default function PlayingPage() {
                     backfaceVisibility: "hidden",
                     position: "relative",
                   }}
+                  onMouseDown={handleBoardMouseDown}
+                  onMouseUp={handleBoardMouseUp}
+                  onContextMenu={handleBoardContextMenu}
                 >
                   {/* {!is3DMode && (
                       <> */}
@@ -2368,15 +2641,16 @@ export default function PlayingPage() {
                           ...moveSquares,
                           ...optionSquares,
                           ...rightClickedSquares,
+                          ...preMoveSquareStyles,
                           ...prevCurrentColor,
                         }}
                         areArrowsAllowed={false}
                         promotionToSquare={moveTo}
                         showPromotionDialog={showPromotionDialog}
                       />
-                      {customArrowsConfig.length > 0 && (
+                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
                         <CustomChessArrows
-                          arrows={customArrowsConfig}
+                          arrows={[...customArrowsConfig, ...userDrawnArrows]}
                           boardSize={boardSize}
                           orientation={orientation}
                         />
@@ -2387,32 +2661,6 @@ export default function PlayingPage() {
               </>
             )}
 
-            <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
-              <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Previous Place
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Current Place
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Possible Move
-                    </span>
-                  </div>
-                  <div className="hidden sm:flex flex-row items-center justify-center gap-1">
-                    <ArrowRight color="#221AE950" size={16} />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Move Recommendation
-                    </span>
-                  </div>
-                </div>
           </div>
 
           <div className="sm:hidden flex flex-col gap-4 mt-4">

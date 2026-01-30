@@ -18,26 +18,26 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
     boardSize,
     orientation
 }) => {
-    const [arrowWidth, setArrowWidth] = useState(7);
-    const [arrowheadSize, setArrowheadSize] = useState({ width: 14, height: 14, pathSize: 10 });
+    const [arrowWidth, setArrowWidth] = useState(10);
+    const [arrowheadSize, setArrowheadSize] = useState({ width: 20, height: 20, pathSize: 14 });
 
     useEffect(() => {
         const updateArrowWidth = () => {
             if (window.innerWidth > 2000) {
+                setArrowWidth(16);
+                setArrowheadSize({ width: 32, height: 32, pathSize: 22 });
+            }
+            else if (window.innerWidth > 1500) {
                 setArrowWidth(12);
                 setArrowheadSize({ width: 24, height: 24, pathSize: 16 });
             }
-            else if (window.innerWidth > 1500) {
-                setArrowWidth(8);
-                setArrowheadSize({ width: 16, height: 16, pathSize: 12 });
-            } 
             else if (window.innerWidth > 576) {
-                setArrowWidth(6);
-                setArrowheadSize({ width: 18, height: 18, pathSize: 12 });
+                setArrowWidth(10);
+                setArrowheadSize({ width: 22, height: 22, pathSize: 15 });
             }
             else {
-                setArrowWidth(6);
-                setArrowheadSize({ width: 16, height: 16, pathSize: 10 });
+                setArrowWidth(9);
+                setArrowheadSize({ width: 20, height: 20, pathSize: 14 });
             }
         };
 
