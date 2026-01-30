@@ -1070,6 +1070,15 @@ export default function PlayingPage() {
       return;
     }
 
+    // Determine arrow color based on piece at starting square
+    const pieceAtFrom = game.get(fromSquare as Square);
+    const playerColorCode = myColor === "white" ? "w" : "b";
+
+    // Yellow for own pieces, blue for opponent pieces or empty squares
+    const arrowColor = pieceAtFrom && pieceAtFrom.color === playerColorCode
+      ? "rgba(255, 170, 0, 0.8)"  // Yellow - own piece
+      : "rgba(0, 100, 255, 0.8)"; // Blue - opponent piece or empty
+
     setUserDrawnArrows(prev => {
       // Check if arrow already exists (toggle behavior)
       const existingIndex = prev.findIndex(
@@ -1085,13 +1094,13 @@ export default function PlayingPage() {
       return [...prev, {
         from: fromSquare,
         to: toSquare,
-        color: "rgba(255, 170, 0, 0.8)", // Yellow like chess.com
+        color: arrowColor,
         isKnightMove: isKnightMove(fromSquare, toSquare)
       }];
     });
 
     setArrowDrawStart(null);
-  }, [isKnightMove]);
+  }, [isKnightMove, game, myColor]);
 
   // Clear user arrows on left-click
   const clearUserArrows = useCallback(() => {
