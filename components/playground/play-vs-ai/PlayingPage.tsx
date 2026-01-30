@@ -820,21 +820,6 @@ export default function PlayingPage() {
     }
   }, [shouldTriggerAI, isAtCurrentMove, statusGame, myColor, game.turn()]);
 
-  // Execute pre-moves when it becomes player's turn
-  useEffect(() => {
-    const isYourTurnLocal = myColor === "white" ? "w" : "b";
-    const isMyTurn = game.turn() === isYourTurnLocal;
-
-    if (isMyTurn && preMoveQueue.length > 0 && statusGame === "Ongoing" && isAtCurrentMove) {
-      // Small delay to let board update visually
-      const timer = setTimeout(() => {
-        executeNextPreMove();
-      }, 150);
-
-      return () => clearTimeout(timer);
-    }
-  }, [gamePosition, preMoveQueue.length, myColor, statusGame, isAtCurrentMove, executeNextPreMove, game]);
-
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -1345,6 +1330,21 @@ export default function PlayingPage() {
     getClassificationMove,
     isMobile
   ]);
+
+  // Execute pre-moves when it becomes player's turn
+  useEffect(() => {
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    const isMyTurn = game.turn() === isYourTurnLocal;
+
+    if (isMyTurn && preMoveQueue.length > 0 && statusGame === "Ongoing" && isAtCurrentMove) {
+      // Small delay to let board update visually
+      const timer = setTimeout(() => {
+        executeNextPreMove();
+      }, 150);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gamePosition, preMoveQueue.length, myColor, statusGame, isAtCurrentMove, executeNextPreMove, game]);
 
   const handleHint = () => {
     const depthHint = depth;
