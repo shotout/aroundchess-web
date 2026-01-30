@@ -504,18 +504,6 @@ export default function PlayingPage() {
     }];
   }, [bestLine, hintClicked, isKnightMove]);
 
-  // Generate pre-move visual arrows
-  const preMoveArrows = useMemo(() => {
-    return preMoveQueue.map((preMove, index) => ({
-      from: preMove.from,
-      to: preMove.to,
-      color: index === 0
-        ? "rgba(255, 100, 100, 0.8)"  // Red for next pre-move
-        : "rgba(255, 150, 100, 0.6)", // Orange for subsequent
-      isKnightMove: isKnightMove(preMove.from, preMove.to)
-    }));
-  }, [preMoveQueue, isKnightMove]);
-
   // Pre-move square highlights
   const preMoveSquareStyles = useMemo(() => {
     const styles: Record<string, CSSProperties> = {};
@@ -2660,9 +2648,9 @@ export default function PlayingPage() {
                         promotionToSquare={moveTo}
                         showPromotionDialog={showPromotionDialog}
                       />
-                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0 || preMoveArrows.length > 0) && (
+                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
                         <CustomChessArrows
-                          arrows={[...customArrowsConfig, ...userDrawnArrows, ...preMoveArrows]}
+                          arrows={[...customArrowsConfig, ...userDrawnArrows]}
                           boardSize={boardSize}
                           orientation={orientation}
                         />
