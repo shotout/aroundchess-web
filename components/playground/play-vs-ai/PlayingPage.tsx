@@ -462,6 +462,14 @@ export default function PlayingPage() {
   }[]>([]);
   const [arrowDrawStart, setArrowDrawStart] = useState<string | null>(null);
 
+  // Pre-move queue state
+  const [preMoveQueue, setPreMoveQueue] = useState<Array<{
+    from: string;
+    to: string;
+    promotion?: string;
+  }>>([]);
+  const [isProcessingPreMove, setIsProcessingPreMove] = useState(false);
+
   const isYourTurn = myColor === "white" ? "w" : "b";
 
   // Helper function to detect if a move is a knight move (L-shaped)
@@ -495,6 +503,31 @@ export default function PlayingPage() {
       isKnightMove: isKnightMove(from, to)
     }];
   }, [bestLine, hintClicked, isKnightMove]);
+
+  // Generate pre-move visual arrows
+  const preMoveArrows = useMemo(() => {
+    return preMoveQueue.map((preMove, index) => ({
+      from: preMove.from,
+      to: preMove.to,
+      color: index === 0
+        ? "rgba(255, 100, 100, 0.8)"  // Red for next pre-move
+        : "rgba(255, 150, 100, 0.6)", // Orange for subsequent
+      isKnightMove: isKnightMove(preMove.from, preMove.to)
+    }));
+  }, [preMoveQueue, isKnightMove]);
+
+  // Pre-move square highlights
+  const preMoveSquareStyles = useMemo(() => {
+    const styles: Record<string, CSSProperties> = {};
+    preMoveQueue.forEach((preMove, index) => {
+      const color = index === 0
+        ? "rgba(255, 100, 100, 0.5)"  // Red for next pre-move
+        : "rgba(255, 150, 100, 0.4)"; // Orange for subsequent
+      styles[preMove.from] = { backgroundColor: color };
+      styles[preMove.to] = { backgroundColor: color };
+    });
+    return styles;
+  }, [preMoveQueue]);
 
   const updateFenHistory = useCallback((newFen: string) => {
     setFenHistory((prev) => {
@@ -787,6 +820,21 @@ export default function PlayingPage() {
     }
   }, [shouldTriggerAI, isAtCurrentMove, statusGame, myColor, game.turn()]);
 
+  // Execute pre-moves when it becomes player's turn
+  useEffect(() => {
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    const isMyTurn = game.turn() === isYourTurnLocal;
+
+    if (isMyTurn && preMoveQueue.length > 0 && statusGame === "Ongoing" && isAtCurrentMove) {
+      // Small delay to let board update visually
+      const timer = setTimeout(() => {
+        executeNextPreMove();
+      }, 150);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gamePosition, preMoveQueue.length, myColor, statusGame, isAtCurrentMove, executeNextPreMove, game]);
+
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -857,9 +905,12 @@ export default function PlayingPage() {
       return;
     }
 
-    // Clear user-drawn arrows on any left-click
+    // Clear user-drawn arrows and pre-move queue on any left-click
     if (userDrawnArrows.length > 0) {
       setUserDrawnArrows([]);
+    }
+    if (preMoveQueue.length > 0) {
+      setPreMoveQueue([]);
     }
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
@@ -1215,6 +1266,85 @@ export default function PlayingPage() {
       }
     });
   };
+
+  // Execute the next pre-move in queue if valid
+  const executeNextPreMove = useCallback(() => {
+    if (preMoveQueue.length === 0 || isProcessingPreMove) {
+      return;
+    }
+
+    const isYourTurnLocal = myColor === "white" ? "w" : "b";
+    if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
+      return;
+    }
+
+    setIsProcessingPreMove(true);
+    const nextPreMove = preMoveQueue[0];
+
+    // Check if move is legal
+    const moves = game.moves({ square: nextPreMove.from as Square, verbose: true });
+    const isLegal = moves.some((m: any) => m.from === nextPreMove.from && m.to === nextPreMove.to);
+
+    if (!isLegal) {
+      // Cascade cancellation: clear entire queue
+      setPreMoveQueue([]);
+      setIsProcessingPreMove(false);
+      return;
+    }
+
+    // Execute the pre-move
+    const move = game.move({
+      from: nextPreMove.from,
+      to: nextPreMove.to,
+      promotion: nextPreMove.promotion || 'q'
+    });
+
+    if (move) {
+      // Remove executed pre-move from queue
+      setPreMoveQueue(prev => prev.slice(1));
+
+      // Update game state (similar to onPieceDrop success path)
+      setMoveData(move);
+      playSound(game, move);
+      setMoveClassification("");
+      setBeforeFen(game.fen());
+
+      const newFen = game.fen();
+      setGamePosition(newFen);
+      updateFenHistory(newFen);
+      setAfterFen(newFen);
+
+      setPreviousSquare(nextPreMove.from as Square);
+      setCurrentSquare(nextPreMove.to as Square);
+
+      setCurrentTurn(turnColor => turnColor !== "White" ? "White" : "Black");
+
+      // Clear user arrows and highlights
+      setRightClickedSquares({} as Record<string, CSSProperties>);
+      setUserDrawnArrows([]);
+
+      // Trigger AI or classification
+      if (!isMobile) {
+        getClassificationMove(move);
+      } else {
+        setShouldTriggerAI(true);
+      }
+    } else {
+      // Move failed - cascade cancellation
+      setPreMoveQueue([]);
+    }
+
+    setIsProcessingPreMove(false);
+  }, [
+    preMoveQueue,
+    isProcessingPreMove,
+    game,
+    myColor,
+    statusGame,
+    updateFenHistory,
+    getClassificationMove,
+    isMobile
+  ]);
 
   const handleHint = () => {
     const depthHint = depth;
@@ -1773,12 +1903,43 @@ export default function PlayingPage() {
       }
 
       const isYourTurnLocal = myColor === "white" ? "w" : "b";
-      if (game.turn() !== isYourTurnLocal || statusGame !== "Ongoing") {
+      const isMyTurn = game.turn() === isYourTurnLocal;
+
+      if (statusGame !== "Ongoing") {
         return false;
       }
 
+      // If it's opponent's turn, queue as pre-move
+      if (!isMyTurn) {
+        // Max 5 pre-moves
+        if (preMoveQueue.length >= 5) {
+          return false;
+        }
+
+        // Check if this exact pre-move already exists (toggle off)
+        const existingIndex = preMoveQueue.findIndex(
+          pm => pm.from === sourceSquare && pm.to === targetSquare
+        );
+
+        if (existingIndex >= 0) {
+          // Remove this pre-move and all after it (cascade)
+          setPreMoveQueue(prev => prev.slice(0, existingIndex));
+        } else {
+          // Add to queue
+          setPreMoveQueue(prev => [...prev, {
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: 'q' // Default to queen for pre-move promotions
+          }]);
+        }
+
+        return true; // Accept visually (piece returns to original square)
+      }
+
+      // Normal move - clear pre-moves and arrows
       setRightClickedSquares({} as Record<string, CSSProperties>);
       setUserDrawnArrows([]);
+      setPreMoveQueue([]);
       setBestline("");
 
       const moves = game.moves({
@@ -1873,6 +2034,7 @@ export default function PlayingPage() {
       isAtCurrentMove,
       goToLatestMove,
       updateFenHistory,
+      preMoveQueue,
     ]
   );
 
@@ -2432,6 +2594,7 @@ export default function PlayingPage() {
                     ...moveSquares,
                     ...optionSquares,
                     ...rightClickedSquares,
+                    ...preMoveSquareStyles,
                     ...prevCurrentColor,
                   }}
                   areArrowsAllowed={true}
@@ -2490,15 +2653,16 @@ export default function PlayingPage() {
                           ...moveSquares,
                           ...optionSquares,
                           ...rightClickedSquares,
+                          ...preMoveSquareStyles,
                           ...prevCurrentColor,
                         }}
                         areArrowsAllowed={false}
                         promotionToSquare={moveTo}
                         showPromotionDialog={showPromotionDialog}
                       />
-                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
+                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0 || preMoveArrows.length > 0) && (
                         <CustomChessArrows
-                          arrows={[...customArrowsConfig, ...userDrawnArrows]}
+                          arrows={[...customArrowsConfig, ...userDrawnArrows, ...preMoveArrows]}
                           boardSize={boardSize}
                           orientation={orientation}
                         />
