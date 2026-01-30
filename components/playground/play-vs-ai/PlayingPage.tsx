@@ -944,6 +944,8 @@ export default function PlayingPage() {
         setMoveFrom("");
         setMoveTo(null);
         setOptionSquares({});
+        setRightClickedSquares({} as Record<string, CSSProperties>);
+        setUserDrawnArrows([]);
       }
 
       if (move === null) {
@@ -1043,6 +1045,8 @@ export default function PlayingPage() {
     setMoveTo(null);
     setShowPromotionDialog(false);
     setOptionSquares({});
+    setRightClickedSquares({} as Record<string, CSSProperties>);
+    setUserDrawnArrows([]);
     return true;
   };
 
@@ -1178,6 +1182,8 @@ export default function PlayingPage() {
         setCurrentTurn((turnColor) =>
           turnColor !== "White" ? "White" : "Black"
         );
+        setRightClickedSquares({} as Record<string, CSSProperties>);
+        setUserDrawnArrows([]);
       }
     });
   };
@@ -1744,6 +1750,7 @@ export default function PlayingPage() {
       }
 
       setRightClickedSquares({} as Record<string, CSSProperties>);
+      setUserDrawnArrows([]);
       setBestline("");
 
       const moves = game.moves({
