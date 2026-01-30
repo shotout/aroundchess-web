@@ -1049,7 +1049,7 @@ export default function PlayingPage() {
   const onSquareRightClick = (square: Square) => {
     // Note: This is kept for backwards compatibility but arrow drawing
     // is now handled via mouse events on the board container
-    const colour = "rgba(0, 0, 255, 0.4)";
+    const colour = "rgba(235, 97, 80, 0.8)"; // Red like chess.com
     setRightClickedSquares({
       ...rightClickedSquares,
       [square]: {
