@@ -2509,32 +2509,6 @@ export default function PlayingPage() {
               </>
             )}
 
-            <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
-              <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] bg-[#C0CED4] md:bg-[#B9CA43]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Previous Place
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] bg-[#25CEDA] md:bg-[#F5F682]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Current Place
-                    </span>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <div className="w-[14px] h-[14px] rounded-full bg-[#221AE9] md:bg-[#64646480]" />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Possible Move
-                    </span>
-                  </div>
-                  <div className="hidden sm:flex flex-row items-center justify-center gap-1">
-                    <ArrowRight color="#221AE950" size={16} />
-                    <span className="h-[14px] font-normal text-[11px]">
-                      Move Recommendation
-                    </span>
-                  </div>
-                </div>
           </div>
 
           <div className="sm:hidden flex flex-col gap-4 mt-4">
