@@ -453,6 +453,15 @@ export default function PlayingPage() {
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
+  // User-drawn arrows state (for right-click drag arrow drawing)
+  const [userDrawnArrows, setUserDrawnArrows] = useState<{
+    from: string;
+    to: string;
+    color: string;
+    isKnightMove: boolean;
+  }[]>([]);
+  const [arrowDrawStart, setArrowDrawStart] = useState<string | null>(null);
+
   const isYourTurn = myColor === "white" ? "w" : "b";
 
   // Helper function to detect if a move is a knight move (L-shaped)
@@ -848,6 +857,10 @@ export default function PlayingPage() {
       return;
     }
 
+    // Clear user-drawn arrows on any left-click
+    if (userDrawnArrows.length > 0) {
+      setUserDrawnArrows([]);
+    }
     setRightClickedSquares({} as Record<string, CSSProperties>);
     setBestline("");
 
@@ -1034,6 +1047,8 @@ export default function PlayingPage() {
   };
 
   const onSquareRightClick = (square: Square) => {
+    // Note: This is kept for backwards compatibility but arrow drawing
+    // is now handled via mouse events on the board container
     const colour = "rgba(0, 0, 255, 0.4)";
     setRightClickedSquares({
       ...rightClickedSquares,
@@ -1043,6 +1058,75 @@ export default function PlayingPage() {
       },
     });
   };
+
+  // Arrow drawing handlers for right-click drag functionality
+  const onArrowDrawEnd = useCallback((fromSquare: string, toSquare: string) => {
+    if (fromSquare === toSquare) {
+      // Same square - no arrow
+      return;
+    }
+
+    setUserDrawnArrows(prev => {
+      // Check if arrow already exists (toggle behavior)
+      const existingIndex = prev.findIndex(
+        a => a.from === fromSquare && a.to === toSquare
+      );
+
+      if (existingIndex >= 0) {
+        // Remove existing arrow
+        return prev.filter((_, i) => i !== existingIndex);
+      }
+
+      // Add new arrow
+      return [...prev, {
+        from: fromSquare,
+        to: toSquare,
+        color: "rgba(255, 170, 0, 0.8)", // Yellow like chess.com
+        isKnightMove: isKnightMove(fromSquare, toSquare)
+      }];
+    });
+
+    setArrowDrawStart(null);
+  }, [isKnightMove]);
+
+  // Clear user arrows on left-click
+  const clearUserArrows = useCallback(() => {
+    if (userDrawnArrows.length > 0) {
+      setUserDrawnArrows([]);
+    }
+  }, [userDrawnArrows.length]);
+
+  // Helper to get square from mouse event via data-square attribute
+  const getSquareFromEvent = useCallback((e: React.MouseEvent): string | null => {
+    const target = e.target as HTMLElement;
+    const squareEl = target.closest('[data-square]');
+    return squareEl?.getAttribute('data-square') || null;
+  }, []);
+
+  // Mouse event handlers for arrow drawing
+  const handleBoardMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 2) { // Right-click
+      e.preventDefault();
+      const square = getSquareFromEvent(e);
+      if (square) {
+        setArrowDrawStart(square);
+      }
+    }
+  }, [getSquareFromEvent]);
+
+  const handleBoardMouseUp = useCallback((e: React.MouseEvent) => {
+    if (e.button === 2 && arrowDrawStart) { // Right-click release
+      const square = getSquareFromEvent(e);
+      if (square && square !== arrowDrawStart) {
+        onArrowDrawEnd(arrowDrawStart, square);
+      }
+      setArrowDrawStart(null);
+    }
+  }, [arrowDrawStart, getSquareFromEvent, onArrowDrawEnd]);
+
+  const handleBoardContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent browser context menu
+  }, []);
 
   const prevCurrentColor = {
     ...(previousSquare && {
@@ -2344,6 +2428,9 @@ export default function PlayingPage() {
                     backfaceVisibility: "hidden",
                     position: "relative",
                   }}
+                  onMouseDown={handleBoardMouseDown}
+                  onMouseUp={handleBoardMouseUp}
+                  onContextMenu={handleBoardContextMenu}
                 >
                   {/* {!is3DMode && (
                       <> */}
@@ -2374,9 +2461,9 @@ export default function PlayingPage() {
                         promotionToSquare={moveTo}
                         showPromotionDialog={showPromotionDialog}
                       />
-                      {customArrowsConfig.length > 0 && (
+                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
                         <CustomChessArrows
-                          arrows={customArrowsConfig}
+                          arrows={[...customArrowsConfig, ...userDrawnArrows]}
                           boardSize={boardSize}
                           orientation={orientation}
                         />
