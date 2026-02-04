@@ -145,12 +145,32 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
     { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
   ];
 
+  const getDifficultyIndex = (difficultyKey: string) =>
+    difficulties.findIndex((d) => d.key === difficultyKey);
+
+  const getOpponentELO = (opponentElo: number, difficultyKey: string) =>
+    opponentElo + getDifficultyIndex(difficultyKey) * 650;
+
+  // Keep 1500+ opponents out of Intermediate so they are shown in the next section.
+  const visibleOpponents =
+    difficulty !== "intermediate"
+      ? opponents
+      : opponents.filter(
+          (opponent) => getOpponentELO(opponent.elo, difficulty) <= 1450
+        );
+
+  useEffect(() => {
+    if (!visibleOpponents.find((opponent) => opponent.id === selectedOpponent)) {
+      setSelectedOpponent(visibleOpponents[0]?.id ?? 0);
+    }
+  }, [visibleOpponents, selectedOpponent]);
+
   const handlePlayNow = () => {
-    const index = opponents.findIndex((o) => o.id == selectedOpponent);
-    const ELO =
-      opponents[index].elo +
-      difficulties.findIndex((d) => d.key == difficulty) * 650;
-    const opponentData = { ...opponents[index], elo: ELO };
+    const selected = opponents.find((o) => o.id === selectedOpponent);
+    if (!selected) return;
+
+    const ELO = getOpponentELO(selected.elo, difficulty);
+    const opponentData = { ...selected, elo: ELO };
     const body = {
       color: selectedColor,
       difficulty: difficulty,
@@ -325,10 +345,8 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
               : "repeat(auto-fit, 72px)" 
           }}
         >
-          {opponents.map((opponent) => {
-            const ELO =
-              opponent.elo +
-              difficulties.findIndex((d) => d.key == difficulty) * 650;
+          {visibleOpponents.map((opponent) => {
+            const ELO = getOpponentELO(opponent.elo, difficulty);
             return (
               <button
                 key={opponent.id}
