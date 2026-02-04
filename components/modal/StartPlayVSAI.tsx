@@ -148,8 +148,16 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
   const getDifficultyIndex = (difficultyKey: string) =>
     difficulties.findIndex((d) => d.key === difficultyKey);
 
+  const difficultyEloOffset: Record<string, number> = {
+    beginner: 0,
+    intermediate: 650,
+    advanced: 1250,
+    master: 1950,
+  };
+
   const getOpponentELO = (opponentElo: number, difficultyKey: string) =>
-    opponentElo + getDifficultyIndex(difficultyKey) * 650;
+    opponentElo +
+    (difficultyEloOffset[difficultyKey] ?? getDifficultyIndex(difficultyKey) * 650);
 
   // Keep 1500+ opponents out of Intermediate so they are shown in the next section.
   const visibleOpponents =
