@@ -93,96 +93,132 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       icon: "/images/play-vs-ai/intermediate.png",
       iconActive: "/images/play-vs-ai/intermediate-active.png",
       label: "Intermediate",
-      range: "900 - 1400 ELO",
+      range: "900 - 1350 ELO",
       key: "intermediate",
     },
     {
       icon: "/images/play-vs-ai/advanced.png",
       iconActive: "/images/play-vs-ai/advanced-active.png",
       label: "Advanced",
-      range: "1500 - 2100 ELO",
+      range: "1500 - 1950 ELO",
       key: "advanced",
     },
     {
       icon: "/images/play-vs-ai/master.png",
       iconActive: "/images/play-vs-ai/master-active.png",
       label: "Master",
-      range: "2200 - 2450 ELO",
+      range: "2200 - 2700 ELO",
       key: "master",
     },
   ];
 
-  const opponents = [
-    {
-      id: 0,
-      name: "Thomas",
-      elo: 250,
-      img: "/images/play-vs-ai/thomas.png",
-    },
-    { id: 1, name: "Sofia", elo: 250, img: "/images/play-vs-ai/sofia.png" },
-    { id: 2, name: "Pierre", elo: 400, img: "/images/play-vs-ai/pierre.png" },
-    { id: 30, name: "Lieke", elo: 400, img: "/images/play-vs-ai/lieke.png" },
-    { id: 3, name: "Ana", elo: 400, img: "/images/play-vs-ai/ana.png" },
-    { id: 4, name: "Carlos", elo: 500, img: "/images/play-vs-ai/carlos.png" },
-    { id: 5, name: "Lana", elo: 500, img: "/images/play-vs-ai/lana.png" },
-    { id: 6, name: "Dimitri", elo: 500, img: "/images/play-vs-ai/dimitri.png" },
-    { id: 7, name: "Marco", elo: 600, img: "/images/play-vs-ai/marco.png" },
-    { id: 8, name: "Marie", elo: 600, img: "/images/play-vs-ai/marie.png" },
-    { id: 9, name: "Elena", elo: 600, img: "/images/play-vs-ai/elena.png" },
-    { id: 10, name: "Viktor", elo: 700, img: "/images/play-vs-ai/viktor.png" },
-    { id: 11, name: "Delia", elo: 700, img: "/images/play-vs-ai/delia.png" },
-    { id: 12, name: "Hans", elo: 700, img: "/images/play-vs-ai/hans.png" },
-    { id: 13, name: "Igor", elo: 800, img: "/images/play-vs-ai/igor.png" },
-    { id: 14, name: "Amel", elo: 800, img: "/images/play-vs-ai/amel.png" },
-    { id: 15, name: "Lisa", elo: 800, img: "/images/play-vs-ai/lisa.png" },
-    {
-      id: 16,
-      name: "Andreas",
-      elo: 850,
-      img: "/images/play-vs-ai/andreas.png",
-    },
-    { id: 17, name: "Astrid", elo: 850, img: "/images/play-vs-ai/astrid.png" },
-    { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
-  ];
-
-  const getDifficultyIndex = (difficultyKey: string) =>
-    difficulties.findIndex((d) => d.key === difficultyKey);
-
-  const difficultyEloOffset: Record<string, number> = {
-    beginner: 0,
-    intermediate: 650,
-    advanced: 1250,
-    master: 1950,
+  const opponentsByDifficulty: Record<string, { id: number; name: string; elo: number; img: string }[]> = {
+    beginner: [
+      { id: 0, name: "Thomas", elo: 250, img: "/images/play-vs-ai/thomas.png" },
+      { id: 1, name: "Sofia", elo: 250, img: "/images/play-vs-ai/sofia.png" },
+      { id: 2, name: "Pierre", elo: 400, img: "/images/play-vs-ai/pierre.png" },
+      { id: 30, name: "Lieke", elo: 400, img: "/images/play-vs-ai/lieke.png" },
+      { id: 3, name: "Ana", elo: 400, img: "/images/play-vs-ai/ana.png" },
+      { id: 4, name: "Carlos", elo: 500, img: "/images/play-vs-ai/carlos.png" },
+      { id: 5, name: "Lana", elo: 500, img: "/images/play-vs-ai/lana.png" },
+      { id: 6, name: "Dimitri", elo: 500, img: "/images/play-vs-ai/dimitri.png" },
+      { id: 7, name: "Marco", elo: 600, img: "/images/play-vs-ai/marco.png" },
+      { id: 8, name: "Marie", elo: 600, img: "/images/play-vs-ai/marie.png" },
+      { id: 9, name: "Elena", elo: 600, img: "/images/play-vs-ai/elena.png" },
+      { id: 10, name: "Viktor", elo: 700, img: "/images/play-vs-ai/viktor.png" },
+      { id: 11, name: "Delia", elo: 700, img: "/images/play-vs-ai/delia.png" },
+      { id: 12, name: "Hans", elo: 700, img: "/images/play-vs-ai/hans.png" },
+      { id: 13, name: "Igor", elo: 800, img: "/images/play-vs-ai/igor.png" },
+      { id: 14, name: "Amel", elo: 800, img: "/images/play-vs-ai/amel.png" },
+      { id: 15, name: "Lisa", elo: 800, img: "/images/play-vs-ai/lisa.png" },
+      { id: 16, name: "Andreas", elo: 850, img: "/images/play-vs-ai/andreas.png" },
+      { id: 17, name: "Astrid", elo: 850, img: "/images/play-vs-ai/astrid.png" },
+      { id: 18, name: "Ingrid", elo: 850, img: "/images/play-vs-ai/ingrid.png" },
+    ],
+    intermediate: [
+      { id: 100, name: "Naomi", elo: 900, img: "/play-vs-ai/naomi.png" },
+      { id: 101, name: "Tobias", elo: 900, img: "/play-vs-ai/tobias.png" },
+      { id: 102, name: "Mei Lin", elo: 950, img: "/play-vs-ai/meilin.png" },
+      { id: 103, name: "Aleksandr", elo: 950, img: "/play-vs-ai/aleksandr.png" },
+      { id: 104, name: "Priya", elo: 1000, img: "/play-vs-ai/priya.png" },
+      { id: 105, name: "Oscar", elo: 1000, img: "/play-vs-ai/oscar.png" },
+      { id: 106, name: "Linnea", elo: 1050, img: "/play-vs-ai/linnea.png" },
+      { id: 107, name: "Kwame", elo: 1050, img: "/play-vs-ai/kwame.png" },
+      { id: 108, name: "Yuki", elo: 1100, img: "/play-vs-ai/yuki.png" },
+      { id: 109, name: "Henrik", elo: 1100, img: "/play-vs-ai/henrik.png" },
+      { id: 110, name: "Fatima", elo: 1150, img: "/play-vs-ai/fatima.png" },
+      { id: 111, name: "Lukas", elo: 1150, img: "/play-vs-ai/lukas.png" },
+      { id: 112, name: "Anya", elo: 1200, img: "/play-vs-ai/anya.png" },
+      { id: 113, name: "Rashid", elo: 1200, img: "/play-vs-ai/rashid.png" },
+      { id: 114, name: "Camille", elo: 1250, img: "/play-vs-ai/camille.png" },
+      { id: 115, name: "Jin", elo: 1250, img: "/play-vs-ai/jin.png" },
+      { id: 116, name: "Zara", elo: 1300, img: "/play-vs-ai/zara.png" },
+      { id: 117, name: "Mateo", elo: 1300, img: "/play-vs-ai/mateo.png" },
+      { id: 118, name: "Ingeborg", elo: 1350, img: "/play-vs-ai/ingeborg.png" },
+      { id: 119, name: "Chen Wei", elo: 1350, img: "/play-vs-ai/chenwei.png" },
+    ],
+    advanced: [
+      { id: 200, name: "Katarina", elo: 1500, img: "/play-vs-ai/katarina.png" },
+      { id: 201, name: "Magnuson", elo: 1500, img: "/play-vs-ai/magnuson.png" },
+      { id: 202, name: "Adaeze", elo: 1550, img: "/play-vs-ai/adaeze.png" },
+      { id: 203, name: "Vladimir", elo: 1550, img: "/play-vs-ai/vladimir.png" },
+      { id: 204, name: "Sakura", elo: 1600, img: "/play-vs-ai/sakura.png" },
+      { id: 205, name: "Erik", elo: 1600, img: "/play-vs-ai/erik.png" },
+      { id: 206, name: "Isabella", elo: 1650, img: "/play-vs-ai/isabella.png" },
+      { id: 207, name: "Bjorn", elo: 1650, img: "/play-vs-ai/bjorn.png" },
+      { id: 208, name: "Amara", elo: 1700, img: "/play-vs-ai/amara.png" },
+      { id: 209, name: "Sergei", elo: 1700, img: "/play-vs-ai/sergei.png" },
+      { id: 210, name: "Lucia", elo: 1750, img: "/play-vs-ai/lucia.png" },
+      { id: 211, name: "Nikolai", elo: 1750, img: "/play-vs-ai/nikolai.png" },
+      { id: 212, name: "Sun-Hee", elo: 1800, img: "/play-vs-ai/sunhee.png" },
+      { id: 213, name: "Dominik", elo: 1800, img: "/play-vs-ai/dominik.png" },
+      { id: 214, name: "Nadia", elo: 1850, img: "/play-vs-ai/nadia.png" },
+      { id: 215, name: "Andrei", elo: 1850, img: "/play-vs-ai/andrei.png" },
+      { id: 216, name: "Olivia", elo: 1900, img: "/play-vs-ai/olivia.png" },
+      { id: 217, name: "Hassan", elo: 1900, img: "/play-vs-ai/hassan.png" },
+      { id: 218, name: "Elise", elo: 1950, img: "/play-vs-ai/elise.png" },
+      { id: 219, name: "Sven", elo: 1950, img: "/play-vs-ai/sven.png" },
+    ],
+    master: [
+      { id: 300, name: "Anastasia", elo: 2200, img: "/play-vs-ai/anastasia.png" },
+      { id: 301, name: "Maxim", elo: 2200, img: "/play-vs-ai/maxim.png" },
+      { id: 302, name: "Ximena", elo: 2250, img: "/play-vs-ai/ximena.png" },
+      { id: 303, name: "Gari", elo: 2250, img: "/play-vs-ai/gari.png" },
+      { id: 304, name: "Hiroshi", elo: 2300, img: "/play-vs-ai/hiroshi.png" },
+      { id: 305, name: "Svetlana", elo: 2300, img: "/play-vs-ai/svetlana.png" },
+      { id: 306, name: "Friedrich", elo: 2350, img: "/play-vs-ai/friedrich.png" },
+      { id: 307, name: "Miriam", elo: 2350, img: "/play-vs-ai/miriam.png" },
+      { id: 308, name: "Rajiv", elo: 2400, img: "/play-vs-ai/rajiv.png" },
+      { id: 309, name: "Natasha", elo: 2400, img: "/play-vs-ai/natasha.png" },
+      { id: 310, name: "Boris", elo: 2450, img: "/play-vs-ai/boris.png" },
+      { id: 311, name: "Lei", elo: 2450, img: "/play-vs-ai/lei.png" },
+      { id: 312, name: "Mikhail", elo: 2500, img: "/play-vs-ai/mikhail.png" },
+      { id: 313, name: "Valentina", elo: 2500, img: "/play-vs-ai/valentina.png" },
+      { id: 314, name: "Karlson", elo: 2550, img: "/play-vs-ai/karlson.png" },
+      { id: 315, name: "Diana", elo: 2550, img: "/play-vs-ai/diana.png" },
+      { id: 316, name: "Tigran", elo: 2600, img: "/play-vs-ai/tigran.png" },
+      { id: 317, name: "Aleksandra", elo: 2600, img: "/play-vs-ai/aleksandra.png" },
+      { id: 318, name: "Ivan", elo: 2650, img: "/play-vs-ai/ivan.png" },
+      { id: 319, name: "The Grandmaster", elo: 2700, img: "/play-vs-ai/grandmaster.png" },
+    ],
   };
 
-  const getOpponentELO = (opponentElo: number, difficultyKey: string) =>
-    opponentElo +
-    (difficultyEloOffset[difficultyKey] ?? getDifficultyIndex(difficultyKey) * 650);
-
-  // Keep 1500+ opponents out of Intermediate so they are shown in the next section.
-  const visibleOpponents =
-    difficulty !== "intermediate"
-      ? opponents
-      : opponents.filter(
-          (opponent) => getOpponentELO(opponent.elo, difficulty) <= 1450
-        );
+  const currentOpponents = opponentsByDifficulty[difficulty] ?? opponentsByDifficulty.beginner;
 
   useEffect(() => {
-    if (!visibleOpponents.find((opponent) => opponent.id === selectedOpponent)) {
-      setSelectedOpponent(visibleOpponents[0]?.id ?? 0);
+    if (!currentOpponents.find((opponent) => opponent.id === selectedOpponent)) {
+      setSelectedOpponent(currentOpponents[0]?.id ?? 0);
     }
-  }, [visibleOpponents, selectedOpponent]);
+  }, [currentOpponents, selectedOpponent]);
 
   const handlePlayNow = () => {
-    const selected = opponents.find((o) => o.id === selectedOpponent);
+    const selected = currentOpponents.find((o) => o.id === selectedOpponent);
     if (!selected) return;
 
-    const ELO = getOpponentELO(selected.elo, difficulty);
-    const opponentData = { ...selected, elo: ELO };
     const body = {
       color: selectedColor,
       difficulty: difficulty,
-      opponent: opponentData,
+      opponent: selected,
     };
     setAIChoosed(body);
     router.push("/playground/play-vs-ai/playing");
@@ -353,9 +389,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
               : "repeat(auto-fit, 72px)" 
           }}
         >
-          {visibleOpponents.map((opponent) => {
-            const ELO = getOpponentELO(opponent.elo, difficulty);
-            return (
+          {currentOpponents.map((opponent) => (
               <button
                 key={opponent.id}
                 onClick={() => setSelectedOpponent(opponent.id)}
@@ -386,13 +420,12 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
                       {opponent.name}
                     </div>
                     <div className="text-[9px] sm:text-[14px] --xs lg:text-[14px] --xs text-gray-500">
-                      ELO {ELO}
+                      ELO {opponent.elo}
                     </div>
                   </div>
                 </div>
               </button>
-            );
-          })}
+            ))}
         </div>
       </div>
       <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
