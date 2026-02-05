@@ -23,6 +23,132 @@ This document contains DALL-E prompts for generating unique chess bot avatars fo
 portrait of [NAME], [AGE] year old [ETHNICITY] [GENDER], [HAIR], [EYES] eyes, [EXPRESSION], head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess player avatar --ar 1:1 --s 250 --v 6
 ```
 
+## Beginner Tier (RECREATE - 20 Characters)
+
+**ELO Range: 250-850** | **Personality: Friendly, Casual, Approachable**
+
+### 1. Thomas (250 ELO)
+**File:** `thomas.png`
+```
+portrait of Thomas, 32 year old Mediterranean man, curly dark brown hair, short stubble, big warm smile showing teeth, tan olive skin, dark navy shirt, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 2. Sofia (250 ELO)
+**File:** `sofia.png`
+```
+portrait of Sofia, 30 year old European woman, blonde wavy shoulder-length hair, bright blue eyes, big cheerful smile showing teeth, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 3. Pierre (300 ELO)
+**File:** `pierre.png`
+```
+portrait of Pierre, 28 year old Black man, thick afro hairstyle, dark brown eyes, big warm smile, dark skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 4. Lieke (300 ELO)
+**File:** `lieke.png`
+```
+portrait of Lieke, 26 year old Dutch woman, golden-brown wavy hair past shoulders, striking violet-purple eyes, calm serious expression, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 5. Ana (350 ELO)
+**File:** `ana.png`
+```
+portrait of Ana, 25 year old Eastern European woman, short brown hair, brown eyes, bright cheerful smile, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 6. Carlos (350 ELO)
+**File:** `carlos.png`
+```
+portrait of Carlos, 27 year old man, red-orange hair, freckles across face, vivid green eyes, small neck tattoo, cheeky grin, head and shoulders, circular crop, neutral gray gradient background with subtle green tint, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 7. Lana (400 ELO)
+**File:** `lana.png`
+```
+portrait of Lana, 24 year old European woman, short brown hair, brown eyes, warm friendly smile, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 8. Dimitri (400 ELO)
+**File:** `dimitri.png`
+```
+portrait of Dimitri, 35 year old Native American man, long straight black hair, dark brown eyes, contemplative serious expression, beaded necklace, tan skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 9. Marco (450 ELO)
+**File:** `marco.png`
+```
+portrait of Marco, 29 year old man, wearing a baseball cap, short dark hair visible underneath, brown eyes, casual friendly expression, head and shoulders, circular crop, neutral olive-gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, casual chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 10. Marie (450 ELO)
+**File:** `marie.png`
+```
+portrait of Marie, 28 year old woman, dark hijab, warm brown skin, dark brown eyes, gentle warm smile, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 11. Elena (500 ELO)
+**File:** `elena.png`
+```
+portrait of Elena, 26 year old woman, long wavy red-auburn hair, bright green eyes, freckles, big cheerful smile, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 12. Viktor (500 ELO)
+**File:** `viktor.png`
+```
+portrait of Viktor, 33 year old Eastern European man, buzzcut shaved head, intense dark eyes, stubble, neck tattoo, muscular build visible at shoulders, stern serious expression, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, tough chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 13. Delia (550 ELO)
+**File:** `delia.png`
+```
+portrait of Delia, 30 year old woman, sleek black bob cut hair, dark brown eyes, striking angular features, serious composed expression, medium-dark skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 14. Hans (600 ELO)
+**File:** `hans.png`
+```
+portrait of Hans, 34 year old man, short curly dark hair, goatee, dark brown eyes, stern serious expression, brown skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 15. Igor (650 ELO)
+**File:** `igor.png`
+```
+portrait of Igor, 31 year old Eastern European man, wavy medium brown hair, light eyes, goofy wide grin, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 16. Amel (700 ELO)
+**File:** `amel.png`
+```
+portrait of Amel, 27 year old North African woman, curly brown hair, warm brown eyes, big bright smile, warm olive skin tone, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 17. Lisa (750 ELO)
+**File:** `lisa.png`
+```
+portrait of Lisa, 29 year old Scandinavian woman, long straight blonde hair, blue eyes, calm serious expression, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 18. Andreas (750 ELO)
+**File:** `andreas.png`
+```
+portrait of Andreas, 30 year old European man, wavy medium brown hair, brown eyes, big goofy friendly smile, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, friendly chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 19. Astrid (800 ELO)
+**File:** `astrid.png`
+```
+portrait of Astrid, 28 year old Scandinavian woman, blonde hair, blue eyes, calm composed expression, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+### 20. Ingrid (850 ELO)
+**File:** `ingrid.png`
+```
+portrait of Ingrid, 32 year old Nordic woman, golden-brown wavy hair past shoulders, striking violet-purple eyes, serious elegant expression, light skin, head and shoulders, circular crop, neutral gray gradient background, semi-realistic digital art, stylized 3D render, soft lighting, chess beginner avatar --ar 1:1 --s 250 --v 6
+```
+
+---
+
 ## Intermediate Tier (NEW - 20 Characters)
 
 **ELO Range: 900-1350** | **Personality: Focused, Studious, Determined**
@@ -405,12 +531,12 @@ portrait of mysterious chess grandmaster, 60 year old Eastern European man, comp
 
 | Tier | Count | ELO Range | Status |
 |------|-------|-----------|--------|
-| **Beginner** | 20 | 250-850 | Keep existing |
+| **Beginner** | 20 | 250-850 | Recreate in consistent style |
 | **Intermediate** | 20 | 900-1350 | Generate new |
 | **Advanced** | 20 | 1500-1950 | Generate new |
 | **Master** | 20 | 2200-2700 | Generate new |
 
-**Total new images needed: 60**
+**Total images: 80** (20 recreated + 60 new)
 
 ---
 
