@@ -199,7 +199,7 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       { id: 316, name: "Tigran", elo: 2600, img: "/play-vs-ai/tigran.png" },
       { id: 317, name: "Aleksandra", elo: 2600, img: "/play-vs-ai/aleksandra.png" },
       { id: 318, name: "Ivan", elo: 2650, img: "/play-vs-ai/ivan.png" },
-      { id: 319, name: "The Grandmaster", elo: 2700, img: "/play-vs-ai/grandmaster.png" },
+      { id: 319, name: "Grandmaster", elo: 2700, img: "/play-vs-ai/grandmaster.png" },
     ],
   };
 
