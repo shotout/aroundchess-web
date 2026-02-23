@@ -638,7 +638,7 @@ export const PricingOffer: React.FC = () => {
                 value="subscription"
                 className={`pt-[10px]`}
               >
-                <PremiumSubsContent onGetPremium={handleGetPremium} initialFilter={subscriptionFilter} />
+                <PremiumSubsContent onGetPremium={handleGetPremium} initialFilter={subscriptionFilter} source="pricing_dialog" />
               </TabsContent>
           </Tabs>
         </DialogContent>

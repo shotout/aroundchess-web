@@ -8,7 +8,7 @@ const MySubscription = () => {
         <span className="text-[18px] font-semibold">My Subscription</span>
       </div>
       <div className="border border-gray-200 rounded-lg p-6 bg-white flex justify-center">
-        <PremiumSubsContent />
+        <PremiumSubsContent source="user_settings" />
       </div>
     </div>
   );
