@@ -21,6 +21,7 @@ import CountdownTimerToken from "../CountdownTimer/CountdownTimerToken";
 import { useApiClient } from "@/functions/api-client";
 import { useRouter } from "next/navigation";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { trackPaywallInteraction } from "@/functions/tracking";
 interface TokenOption {
   amount: number;
   price: number;
@@ -152,6 +153,10 @@ export const PricingOffer: React.FC = () => {
       router.push("login");
       setOpen(false);
     } else {
+      trackPaywallInteraction(sessionId, {
+        buttonName: "purchase_tokens",
+        source: "token_purchase",
+      });
       setLoading(true);
       const tokenAmount =
         selectedToken != null && selectedToken != 5

@@ -1,9 +1,9 @@
 export function trackPaywallInteraction(
   sessionId: string,
   data: {
-    buttonName: "get_unlimited_package" | "get_premium";
+    buttonName: "get_unlimited_package" | "get_premium" | "purchase_tokens";
     planType?: "monthly" | "yearly" | null;
-    source: "sidebar" | "user_settings" | "pricing_dialog";
+    source: "sidebar" | "user_settings" | "pricing_dialog" | "token_purchase";
   }
 ) {
   if (!sessionId) return;
