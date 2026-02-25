@@ -16,6 +16,7 @@ import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { trackPaywallInteraction } from "@/functions/tracking";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -119,7 +120,8 @@ export const PremiumSubscription: React.FC<PremiumSubscriptionProps> = ({
 export const PremiumSubsContent: React.FC<{
   onGetPremium?: () => void;
   initialFilter?: "monthly" | "yearly";
-}> = ({ onGetPremium, initialFilter = "monthly" }) => {
+  source?: "user_settings" | "pricing_dialog";
+}> = ({ onGetPremium, initialFilter = "monthly", source = "user_settings" }) => {
   const {
     allMembershipPackages,
     activeMembership,
@@ -214,6 +216,12 @@ export const PremiumSubsContent: React.FC<{
 
   const handleGetPremium = async (type: string) => {
     setPaySelected(type);
+
+    trackPaywallInteraction(sessionId, {
+      buttonName: "get_premium",
+      planType: type as "monthly" | "yearly",
+      source,
+    });
 
     if (sessionId.length == 0) {
       setOpenLogin(true);

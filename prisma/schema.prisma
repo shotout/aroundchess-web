@@ -36,6 +36,7 @@ model User {
   notifications  Notification[]
   friendsTo      Friendship[]   @relation("UserFriends")
   friendsFrom    Friendship[]   @relation("FriendToUser")
+  paywallInteractions PaywallInteraction[]
 
   @@map("users")
 }
@@ -328,4 +329,21 @@ model ChessApiMonthlyGames {
 
   @@map("chess_api_monthly_games")
   @@unique([username, year, month])
+}
+
+model PaywallInteraction {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  buttonName String   @map("button_name")
+  planType   String?  @map("plan_type")
+  source     String
+  platform   String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([buttonName, source])
+  @@map("paywall_interactions")
 }

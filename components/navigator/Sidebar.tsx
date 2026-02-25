@@ -16,6 +16,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useTutorial } from "@/components/TutorialProvider";
+import { trackPaywallInteraction } from "@/functions/tracking";
 
 import { headers } from 'next/headers';
 
@@ -242,6 +243,12 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const handleOpenOffer = (type: string) => {
+    if (type === "subscription") {
+      trackPaywallInteraction(sessionId, {
+        buttonName: "get_unlimited_package",
+        source: "sidebar",
+      });
+    }
     setOpenSubscribe(true);
     setTabType(type);
     if (isMobile && onClose) onClose();
