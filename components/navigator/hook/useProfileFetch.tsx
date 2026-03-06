@@ -1,6 +1,8 @@
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
+import { MARCH_OFFER_DIALOG_SESSION_KEY } from "@/constants/marchOffer";
 import { useApiClient } from "@/functions/api-client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,6 +37,7 @@ export const useProfileFetch = () => {
   } = useProfileStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { setOpenOffer } = usePricingOffer();
+  const { open: isMarchOfferDialogOpen } = useMarchOfferDialog();
   const pathname = usePathname();
   useEffect(() => {
     if (!sessionId) return;
@@ -70,6 +73,9 @@ export const useProfileFetch = () => {
             if (response.data != null) {
               const data = response.data;
               setToken(data);
+              const hasPendingMarchOffer =
+                typeof window !== "undefined" &&
+                window.sessionStorage.getItem(MARCH_OFFER_DIALOG_SESSION_KEY) === "true";
               // console.log("profileData", profileData.discountInfo);
               // console.log("data.balance", data.balance);
               if (
@@ -78,7 +84,9 @@ export const useProfileFetch = () => {
                 profileData.discountInfo.hasActiveDiscount &&
                 profileData?.discountInfo?.startDate &&
                 !everShowOffer &&
-                !isFromGameHistory
+                !isFromGameHistory &&
+                !hasPendingMarchOffer &&
+                !isMarchOfferDialogOpen
               ) {
                 setOpenOffer(true);
                 setEverShowOffer(true);

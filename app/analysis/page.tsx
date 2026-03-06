@@ -14,10 +14,8 @@ import { AnalysisSkeleton } from "./skeleton";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { AnalyzeDifferentGame } from "@/components/modal/AnalyzeDifferentGame";
 import { useTutorial } from "@/components/TutorialProvider";
-import { PricingOffer } from "@/components/modal/PricingOffer";
 import { FaArrowLeft } from "react-icons/fa";
 import AnalysisResultMobile from "@/components/analysis/AnalysisResultMobile";
-import { set } from "lodash";
 
 export default function AnalysisPage() {
   const [mounted, setMounted] = useState(false);

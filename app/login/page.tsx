@@ -12,6 +12,7 @@ import { useProfileStore } from "../store/profile";
 import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
+import { MARCH_OFFER_DIALOG_SESSION_KEY } from "@/constants/marchOffer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -117,6 +118,11 @@ useEffect(() => {
         setPersistedCookie("token", data.data.access_token, 365);
         setSessionId(data.data.access_token);
         toast.success("Logged in successfully!");
+        try {
+          window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
+        } catch (error) {
+          console.error("Error preparing March offer dialog:", error);
+        }
 
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoading(true);

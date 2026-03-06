@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "../../store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { MARCH_OFFER_DIALOG_SESSION_KEY } from "@/constants/marchOffer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -145,6 +146,11 @@ export default function SSOCallbackPage() {
 
           setPersistedCookie("token", accessToken, 365);
           setSessionId(accessToken);
+          try {
+            window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
+          } catch (error) {
+            console.error("Error preparing March offer dialog:", error);
+          }
 
           try {
             const profileResponse = await fetch(`${baseUrl}/profile`, {
@@ -193,7 +199,7 @@ export default function SSOCallbackPage() {
     };
 
     processSSO();
-  }, [baseUrl, router, setSessionId]);
+  }, [baseUrl, providerType, router, setProfileShow, setSessionId]);
 
   if (isProcessing) {
     return (
