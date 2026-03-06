@@ -3,7 +3,7 @@
 import Sidebar from "@/components/navigator/Sidebar";
 import Header from "@/components/navigator/header";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
 import { SiteHeaderNew } from "../site-header-new";
 import { usePathname } from "next/navigation";
@@ -28,6 +28,7 @@ export default function Navigation({
   const [widthSidebar, setWidthSidebar] = useState(0);
   const [widthContent, setWidthContent] = useState(0);
   const [mounted, setMounted] = useState(true);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   const checkIfDesktop = useCallback(() => {
     const sidebarW = window.innerWidth / 6;
@@ -75,6 +76,10 @@ export default function Navigation({
       }
     };
   }, []);
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
@@ -146,6 +151,7 @@ export default function Navigation({
             <Header onSidebarToggle={toggleSidebar} />
           </div>
           <main
+            ref={mainRef}
             className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",

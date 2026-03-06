@@ -17,7 +17,7 @@ import { MarchOfferDialog } from "./MarchOfferDialog";
 export function MarchOfferDialogTrigger() {
   const { setOpen } = useMarchOfferDialog();
   const { setOpenOffer } = usePricingOffer();
-  const { setProfile } = useProfileStore();
+  const { hydrated, profile, sessionId, setProfile } = useProfileStore();
   const { getProfile } = useApiClient();
   const pathname = usePathname();
   const isEligibleRoute = pathname === "/analysis" || pathname === "/my-game-history";
@@ -31,10 +31,18 @@ export function MarchOfferDialogTrigger() {
       return;
     }
 
+    if (!hydrated) {
+      return;
+    }
+
     const shouldShowModal =
       window.sessionStorage.getItem(MARCH_OFFER_DIALOG_SESSION_KEY) === "true";
 
     if (!shouldShowModal) {
+      return;
+    }
+
+    if (!sessionId) {
       return;
     }
 
@@ -86,13 +94,14 @@ export function MarchOfferDialogTrigger() {
 
     const verifyEligibilityAndSchedule = async () => {
       try {
-        const response = await getProfile({});
+        const existingProfile = profile && Object.keys(profile).length > 0 ? profile : null;
+        const response = existingProfile ? null : await getProfile({});
         if (isCancelled) {
           return;
         }
 
-        const profileData = response?.data;
-        if (profileData) {
+        const profileData = existingProfile ?? response?.data;
+        if (!existingProfile && profileData) {
           setProfile(profileData);
         }
 
@@ -125,7 +134,7 @@ export function MarchOfferDialogTrigger() {
         cleanup();
       }
     };
-  }, [getProfile, isEligibleRoute, setOpen, setOpenOffer, setProfile]);
+  }, [getProfile, hydrated, isEligibleRoute, profile, sessionId, setOpen, setOpenOffer, setProfile]);
 
   if (!isEligibleRoute) {
     return null;
