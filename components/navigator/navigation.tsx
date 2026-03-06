@@ -152,7 +152,7 @@ export default function Navigation({
           </div>
           <main
             ref={mainRef}
-            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
+            className="flex-1 overflow-y-auto"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}
@@ -204,7 +204,7 @@ export default function Navigation({
           </div>
 
           <main
-            className="flex-1 overflow-y-auto !pt-[72px] lg:!pt-[97px]"
+            className="flex-1 overflow-y-auto"
             style={{
               paddingTop: "calc(var(--banner-height, 0px) + var(--current-header-height))",
             }}

@@ -67,7 +67,7 @@
 @layer base {
   :root {
     --header-height: 97px;
-    --mobile-header-height: 56px;
+    --mobile-header-height: 72px;
     --banner-height: 0px;
     --current-header-height: var(--mobile-header-height);
     --background: 220 33% 98%;
