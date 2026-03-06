@@ -58,7 +58,7 @@ export function MarchOfferDialog() {
         aria-modal="true"
         aria-labelledby="march-offer-dialog-title"
         aria-describedby="march-offer-dialog-description"
-        className="relative z-10 w-full max-w-[520px] overflow-hidden rounded-[28px] bg-[#D9EFF8] shadow-[0_40px_90px_rgba(6,17,46,0.34)] ring-1 ring-white/45"
+        className="relative z-10 w-full max-w-[520px] overflow-hidden rounded-[28px] bg-[#D9EFF8] shadow-[0_40px_90px_rgba(6,17,46,0.34)]"
       >
         <div className="sr-only">
           <h2 id="march-offer-dialog-title">March special offer</h2>
@@ -71,12 +71,12 @@ export function MarchOfferDialog() {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close March special offer dialog"
-          className="absolute right-4 top-4 z-20 text-white transition-transform duration-200 hover:scale-110 hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A5B9D] md:right-5 md:top-5"
+          className="absolute right-4 top-4 z-20 text-white transition-transform duration-200 hover:scale-105 hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A5B9D] md:right-5 md:top-5"
         >
-          <X className="h-8 w-8 md:h-9 md:w-9" />
+          <X className="h-6 w-6 md:h-7 md:w-7" />
         </button>
 
-        <div className="relative px-2 pt-2 sm:px-3 sm:pt-3 md:px-4 md:pt-4">
+        <div className="relative">
           <Image
             src={DESKTOP_MAIN_BANNER_SRC}
             alt="March special offer featuring monthly and yearly discounted analysis plans."
