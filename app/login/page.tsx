@@ -40,7 +40,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [deactivatedAlert, setDeactivatedAlert] = useState(false);
   const baseUrl = process.env.BASE_URL;
-  const { sessionId, setSessionId } = useProfileStore();
+  const { sessionId, setProfile, setSessionId } = useProfileStore();
   const { setProviderType, setProfileShow } = usePgnStore();
   const router = useRouter();
 useEffect(() => {
@@ -135,6 +135,8 @@ useEffect(() => {
 
           if (profileResponse.ok) {
             const profileData = await profileResponse.json();
+            const normalizedProfile = profileData.data ?? profileData;
+            setProfile(normalizedProfile);
             setProfileShow(profileData)
             try {
               if (isMarchOfferEligibleProfile(profileData)) {

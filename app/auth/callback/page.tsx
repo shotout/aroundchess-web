@@ -33,7 +33,7 @@ export default function SSOCallbackPage() {
     message: "",
   });
 
-  const { setSessionId,  } = useProfileStore();
+  const { setProfile, setSessionId,  } = useProfileStore();
   const {setProfileShow,providerType } = usePgnStore()
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
@@ -162,6 +162,8 @@ export default function SSOCallbackPage() {
 
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
+              const normalizedProfile = profileData.data ?? profileData;
+              setProfile(normalizedProfile);
               setProfileShow(profileData)
               try {
                 if (isMarchOfferEligibleProfile(profileData)) {
@@ -206,7 +208,7 @@ export default function SSOCallbackPage() {
     };
 
     processSSO();
-  }, [baseUrl, providerType, router, setProfileShow, setSessionId]);
+  }, [baseUrl, providerType, router, setProfile, setProfileShow, setSessionId]);
 
   if (isProcessing) {
     return (

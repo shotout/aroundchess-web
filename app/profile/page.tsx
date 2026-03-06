@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { ChangePassword } from "@/components/modal/ChangePassword";
@@ -41,6 +41,14 @@ function Profile() {
   const { isLoading } = usePgnStore();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    const mainElement = document.querySelector("main");
+    if (mainElement instanceof HTMLElement) {
+      mainElement.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, []);
   useEffect(() => {
     trackCustomEvent("ViewProfile");
   }, []);
