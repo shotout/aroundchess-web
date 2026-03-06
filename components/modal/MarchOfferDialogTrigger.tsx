@@ -1,12 +1,15 @@
 "use client";
 
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
+import { useProfileStore } from "@/app/store/profile";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import {
+  isMarchOfferEligibleProfile,
   MARCH_OFFER_DIALOG_DELAY_MS,
   MARCH_OFFER_DIALOG_MAX_WAIT_MS,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
+import { useApiClient } from "@/functions/api-client";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { MarchOfferDialog } from "./MarchOfferDialog";
@@ -14,6 +17,8 @@ import { MarchOfferDialog } from "./MarchOfferDialog";
 export function MarchOfferDialogTrigger() {
   const { setOpen } = useMarchOfferDialog();
   const { setOpenOffer } = usePricingOffer();
+  const { setProfile } = useProfileStore();
+  const { getProfile } = useApiClient();
   const pathname = usePathname();
   const isEligibleRoute = pathname === "/analysis" || pathname === "/my-game-history";
 
@@ -36,9 +41,10 @@ export function MarchOfferDialogTrigger() {
     let loadTimer: number | null = null;
     let maxTimer: number | null = null;
     let isModalShown = false;
+    let isCancelled = false;
 
     const showModal = () => {
-      if (isModalShown) {
+      if (isModalShown || isCancelled) {
         return;
       }
 
@@ -56,7 +62,7 @@ export function MarchOfferDialogTrigger() {
       }
     };
 
-    const waitForLoadThenShow = () => {
+    const scheduleModalDisplay = () => {
       if (document.readyState === "complete") {
         loadTimer = window.setTimeout(showModal, MARCH_OFFER_DIALOG_DELAY_MS);
         return undefined;
@@ -76,11 +82,37 @@ export function MarchOfferDialogTrigger() {
       };
     };
 
-    const cleanup = waitForLoadThenShow();
+    let cleanup: (() => void) | undefined;
 
-    maxTimer = window.setTimeout(showModal, MARCH_OFFER_DIALOG_MAX_WAIT_MS);
+    const verifyEligibilityAndSchedule = async () => {
+      try {
+        const response = await getProfile({});
+        if (isCancelled) {
+          return;
+        }
+
+        const profileData = response?.data;
+        if (profileData) {
+          setProfile(profileData);
+        }
+
+        if (!isMarchOfferEligibleProfile(profileData)) {
+          window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
+          return;
+        }
+
+        cleanup = scheduleModalDisplay();
+        maxTimer = window.setTimeout(showModal, MARCH_OFFER_DIALOG_MAX_WAIT_MS);
+      } catch (error) {
+        console.error("Error checking March offer eligibility:", error);
+        window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
+      }
+    };
+
+    void verifyEligibilityAndSchedule();
 
     return () => {
+      isCancelled = true;
       if (loadTimer) {
         window.clearTimeout(loadTimer);
       }
@@ -93,7 +125,7 @@ export function MarchOfferDialogTrigger() {
         cleanup();
       }
     };
-  }, [isEligibleRoute, setOpen, setOpenOffer]);
+  }, [getProfile, isEligibleRoute, setOpen, setOpenOffer, setProfile]);
 
   if (!isEligibleRoute) {
     return null;

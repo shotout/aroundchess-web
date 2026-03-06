@@ -12,7 +12,10 @@ import { useProfileStore } from "../store/profile";
 import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
-import { MARCH_OFFER_DIALOG_SESSION_KEY } from "@/constants/marchOffer";
+import {
+  isMarchOfferEligibleProfile,
+  MARCH_OFFER_DIALOG_SESSION_KEY,
+} from "@/constants/marchOffer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -118,11 +121,6 @@ useEffect(() => {
         setPersistedCookie("token", data.data.access_token, 365);
         setSessionId(data.data.access_token);
         toast.success("Logged in successfully!");
-        try {
-          window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
-        } catch (error) {
-          console.error("Error preparing March offer dialog:", error);
-        }
 
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoading(true);
@@ -138,6 +136,15 @@ useEffect(() => {
           if (profileResponse.ok) {
             const profileData = await profileResponse.json();
             setProfileShow(profileData)
+            try {
+              if (isMarchOfferEligibleProfile(profileData)) {
+                window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
+              } else {
+                window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
+              }
+            } catch (error) {
+              console.error("Error preparing March offer dialog:", error);
+            }
             
             const userUsername =
               profileData.data?.username || profileData.username;

@@ -2,7 +2,11 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
-import { MARCH_OFFER_DIALOG_SESSION_KEY } from "@/constants/marchOffer";
+import {
+  getMarchOfferDiscountInfo,
+  MARCH_OFFER_CAMPAIGN_ID,
+  MARCH_OFFER_DIALOG_SESSION_KEY,
+} from "@/constants/marchOffer";
 import { useApiClient } from "@/functions/api-client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -76,6 +80,8 @@ export const useProfileFetch = () => {
               const hasPendingMarchOffer =
                 typeof window !== "undefined" &&
                 window.sessionStorage.getItem(MARCH_OFFER_DIALOG_SESSION_KEY) === "true";
+              const hasMarchCampaignDiscount =
+                getMarchOfferDiscountInfo(profileData)?.campaign === MARCH_OFFER_CAMPAIGN_ID;
               // console.log("profileData", profileData.discountInfo);
               // console.log("data.balance", data.balance);
               if (
@@ -85,6 +91,7 @@ export const useProfileFetch = () => {
                 profileData?.discountInfo?.startDate &&
                 !everShowOffer &&
                 !isFromGameHistory &&
+                !hasMarchCampaignDiscount &&
                 !hasPendingMarchOffer &&
                 !isMarchOfferDialogOpen
               ) {
