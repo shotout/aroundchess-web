@@ -166,7 +166,12 @@ export default function SSOCallbackPage() {
               setProfile(normalizedProfile);
               setProfileShow(profileData)
               try {
-                if (isMarchOfferEligibleProfile(profileData)) {
+                const isEligible = isMarchOfferEligibleProfile(profileData);
+                console.log("[MarchOffer] SSO callback eligibility:", {
+                  isEligible,
+                  discountInfo: profileData?.data?.discountInfo ?? profileData?.discountInfo ?? "none",
+                });
+                if (isEligible) {
                   window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
                 } else {
                   window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
