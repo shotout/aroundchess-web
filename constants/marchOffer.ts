@@ -3,6 +3,9 @@ export const MARCH_OFFER_DIALOG_SESSION_KEY = "showMarchOfferModal";
 export const MARCH_OFFER_DIALOG_DELAY_MS = 1500;
 export const MARCH_OFFER_DIALOG_MAX_WAIT_MS = 6000;
 export const MARCH_OFFER_END_DATE_LABEL = "31.03.2026";
+export const MARCH_OFFER_END_MS = new Date("2026-04-01T00:00:00").getTime();
+
+export const isMarchCampaignActive = () => Date.now() < MARCH_OFFER_END_MS;
 
 const isEligiblePlan = (plan: unknown) => plan === "MONTHLY" || plan === "YEARLY";
 

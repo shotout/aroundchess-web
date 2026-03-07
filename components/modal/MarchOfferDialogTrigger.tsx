@@ -1,10 +1,8 @@
 "use client";
 
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
-import { useProfileStore } from "@/app/store/profile";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import {
-  isMarchOfferEligibleProfile,
   MARCH_OFFER_DIALOG_DELAY_MS,
   MARCH_OFFER_DIALOG_MAX_WAIT_MS,
   MARCH_OFFER_DIALOG_SESSION_KEY,
@@ -16,7 +14,6 @@ import { MarchOfferDialog } from "./MarchOfferDialog";
 export function MarchOfferDialogTrigger() {
   const { setOpen } = useMarchOfferDialog();
   const { setOpenOffer } = usePricingOffer();
-  const { profile } = useProfileStore();
   const pathname = usePathname();
   const isEligibleRoute = pathname === "/analysis" || pathname === "/my-game-history";
 
@@ -32,29 +29,7 @@ export function MarchOfferDialogTrigger() {
     const shouldShowModal =
       window.sessionStorage.getItem(MARCH_OFFER_DIALOG_SESSION_KEY) === "true";
 
-    console.log("[MarchOffer] Trigger check:", {
-      pathname,
-      shouldShowModal,
-      profileKeys: profile ? Object.keys(profile) : [],
-      discountInfo: profile?.discountInfo ?? "none",
-    });
-
     if (!shouldShowModal) {
-      return;
-    }
-
-    // Only gate on the profile if it already contains discount data.
-    // A profile hydrated from an older cache might lack discountInfo entirely;
-    // in that case we wait for the fresh fetch rather than permanently removing
-    // the session key.
-    const hasDiscountData =
-      profile &&
-      Object.keys(profile).length > 0 &&
-      profile.discountInfo !== undefined;
-
-    if (hasDiscountData && !isMarchOfferEligibleProfile(profile)) {
-      console.log("[MarchOffer] Profile not eligible, clearing session key");
-      window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
       return;
     }
 
@@ -68,7 +43,6 @@ export function MarchOfferDialogTrigger() {
       }
 
       isModalShown = true;
-      console.log("[MarchOffer] Showing dialog");
       setOpenOffer(false);
       setOpen(true);
       window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
@@ -118,7 +92,7 @@ export function MarchOfferDialogTrigger() {
         cleanup();
       }
     };
-  }, [isEligibleRoute, profile, setOpen, setOpenOffer]);
+  }, [isEligibleRoute, setOpen, setOpenOffer]);
 
   if (!isEligibleRoute) {
     return null;

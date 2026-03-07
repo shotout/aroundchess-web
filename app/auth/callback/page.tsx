@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "../../store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import {
-  isMarchOfferEligibleProfile,
+  isMarchCampaignActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
 import {
@@ -166,15 +166,8 @@ export default function SSOCallbackPage() {
               setProfile(normalizedProfile);
               setProfileShow(profileData)
               try {
-                const isEligible = isMarchOfferEligibleProfile(profileData);
-                console.log("[MarchOffer] SSO callback eligibility:", {
-                  isEligible,
-                  discountInfo: profileData?.data?.discountInfo ?? profileData?.discountInfo ?? "none",
-                });
-                if (isEligible) {
+                if (isMarchCampaignActive()) {
                   window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
-                } else {
-                  window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
                 }
               } catch (error) {
                 console.error("Error preparing March offer dialog:", error);

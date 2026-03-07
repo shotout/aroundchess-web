@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
 import {
-  isMarchOfferEligibleProfile,
+  isMarchCampaignActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
 import {
@@ -139,15 +139,8 @@ useEffect(() => {
             setProfile(normalizedProfile);
             setProfileShow(profileData)
             try {
-              const isEligible = isMarchOfferEligibleProfile(profileData);
-              console.log("[MarchOffer] Login eligibility:", {
-                isEligible,
-                discountInfo: profileData?.data?.discountInfo ?? profileData?.discountInfo ?? "none",
-              });
-              if (isEligible) {
+              if (isMarchCampaignActive()) {
                 window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
-              } else {
-                window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
               }
             } catch (error) {
               console.error("Error preparing March offer dialog:", error);
