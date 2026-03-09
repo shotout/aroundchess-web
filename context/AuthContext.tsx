@@ -9,6 +9,9 @@ import React, {
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 
+const MARCH_BANNER_STORAGE_KEY = "marchOfferBannerDismissed";
+const MARCH_BANNER_RESET_EVENT = "marchOfferBanner:reset";
+
 // Define the type for the auth context
 type AuthContextType = {
   user: User | null;
@@ -43,12 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
-        // When user logs in, clear the Black Friday banner closed flag
-        // so the banner reappears on their next login
+        // Refresh the March campaign banner for new sign-in sessions.
         if (event === "SIGNED_IN" && session?.user) {
-          localStorage.removeItem("blackFridayBannerClosed");
+          localStorage.removeItem(MARCH_BANNER_STORAGE_KEY);
+          window.dispatchEvent(new Event(MARCH_BANNER_RESET_EVENT));
         }
-        
+
         setUser(session?.user || null);
         setLoading(false);
       }

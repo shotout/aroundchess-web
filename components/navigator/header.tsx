@@ -263,8 +263,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     </div>
   );
 
-  console.log("isEndgameTraining", profile);
-
   return (
     <header
       className={`fixed xl:sticky top-0 z-60 flex w-full items-center ${

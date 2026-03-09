@@ -18,6 +18,7 @@ import { SuccessSent } from "./modal/SuccessSent";
 import { ModalSetting } from "@/app/cookies-consent/ModalSetting";
 import { LimitPuzzle } from "./modal/LimitPuzzle";
 import DialogSpecialDiscount from "./modal/DialogSpecialDiscount";
+import { MarchOfferDialogTrigger } from "./modal/MarchOfferDialogTrigger";
 
 interface SiteFooterProps {
   className?: string;
@@ -348,6 +349,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
       <CancelSubscription />
       <StatusPurchaseTokens />
       <PricingOffer />
+      <MarchOfferDialogTrigger />
       <ShareGame />
       <SuccessSent />
       <ModalSetting />

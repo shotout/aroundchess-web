@@ -299,7 +299,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   }, []);
 
   const sidebarContent = (
-    <div className="flex h-dvh flex-col z-10">
+    <div className="flex h-full min-h-0 flex-col z-10">
       {/* Logo */}
       <motion.div
         className="flex md:h-24 py-[8px] items-center px-6 md:justify-center sm:border-b mb-[8px] md:mb-[16px]"
@@ -400,7 +400,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       </motion.div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-3 h-dvh" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <ScrollArea
+        className="flex-1 min-h-0 py-3"
+        showScrollbar={isMobile}
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         <motion.nav
           className="space-y-5 px-2"
           variants={isMobile ? containerVariants : {}}
@@ -729,7 +733,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="h-dvh flex flex-col"
+        className="h-full min-h-0 flex flex-col"
       >
         {sidebarContent}
       </motion.div>

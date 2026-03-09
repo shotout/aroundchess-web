@@ -13,6 +13,10 @@ import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
 import {
+  isMarchCampaignActive,
+  MARCH_OFFER_DIALOG_SESSION_KEY,
+} from "@/constants/marchOffer";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
@@ -36,7 +40,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [deactivatedAlert, setDeactivatedAlert] = useState(false);
   const baseUrl = process.env.BASE_URL;
-  const { sessionId, setSessionId } = useProfileStore();
+  const { sessionId, setProfile, setSessionId } = useProfileStore();
   const { setProviderType, setProfileShow } = usePgnStore();
   const router = useRouter();
 useEffect(() => {
@@ -131,7 +135,16 @@ useEffect(() => {
 
           if (profileResponse.ok) {
             const profileData = await profileResponse.json();
+            const normalizedProfile = profileData.data ?? profileData;
+            setProfile(normalizedProfile);
             setProfileShow(profileData)
+            try {
+              if (isMarchCampaignActive()) {
+                window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
+              }
+            } catch (error) {
+              console.error("Error preparing March offer dialog:", error);
+            }
             
             const userUsername =
               profileData.data?.username || profileData.username;

@@ -2,8 +2,9 @@
 import { Toaster } from "sonner";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import { MarchOfferBanner } from "../components/MarchOfferBanner";
 import { TutorialProvider } from "../components/TutorialProvider";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <script src="/stockfish.js" defer></script>
           {setting.marketing && (
             <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 height="1"
                 width="1"
@@ -35,6 +37,7 @@ export default function RootLayout({
           )}
         </head>
         <body>
+          <MarchOfferBanner />
           {setting.marketing && (
             <Script id="facebook-pixel" strategy="afterInteractive">
               {`

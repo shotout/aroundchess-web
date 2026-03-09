@@ -17,6 +17,11 @@ import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { trackPaywallInteraction } from "@/functions/tracking";
+import {
+  isMarchCampaignActive,
+  MARCH_OFFER_DISCOUNT_PERCENT,
+  MARCH_OFFER_END_DATE_LABEL,
+} from "@/constants/marchOffer";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -174,6 +179,12 @@ export const PremiumSubsContent: React.FC<{
     new Date(profile?.discountInfo?.startDate).getTime() +
     7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
+
+  const marchActive = isMarchCampaignActive();
+  const showMarchDiscount = marchActive && !isMember && !isMemberMonthly;
+  const marchMultiplier = (100 - MARCH_OFFER_DISCOUNT_PERCENT) / 100;
+  const monthlyDiscounted = Math.round(9.99 * marchMultiplier * 100) / 100;
+  const yearlyDiscounted = Math.round(79.99 * marchMultiplier * 100) / 100;
 
   // Ensure we have membership packages loaded (fallback to API if needed)
   const resolveMembershipPackages = async () => {
@@ -567,7 +578,14 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Monthly)
                 </h3>
-                {!(
+                {showMarchDiscount ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <PriceDiscount price={9.99} />
+                    <div className="text-xl font-semibold">
+                      ${monthlyDiscounted.toFixed(2)} <span className="text-[14px] --sm font-normal">/month</span>
+                    </div>
+                  </div>
+                ) : !(
                   !isMemberMonthly &&
                   profile?.discountInfo?.hasActiveDiscount &&
                   isPass > 0
@@ -615,17 +633,24 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {!isMember && !isMemberMonthly && (
-              <button
-                disabled={isLoading}
-                onClick={() => handleGetPremium("monthly")}
-                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-[14px] --sm"
-              >
-                {isLoading && paySelected == "monthly" ? (
-                  <DotSpinner size={8} />
-                ) : (
-                  "Get Premium"
+              <>
+                <button
+                  disabled={isLoading}
+                  onClick={() => handleGetPremium("monthly")}
+                  className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors text-[14px] --sm"
+                >
+                  {isLoading && paySelected == "monthly" ? (
+                    <DotSpinner size={8} />
+                  ) : (
+                    "Get Premium"
+                  )}
+                </button>
+                {showMarchDiscount && (
+                  <p className="mt-1 text-center text-[12px] font-medium text-white/80">
+                    Offer ends {MARCH_OFFER_END_DATE_LABEL}
+                  </p>
                 )}
-              </button>
+              </>
             )}
 
             {isMemberMonthly && (
@@ -700,15 +725,18 @@ export const PremiumSubsContent: React.FC<{
                 <h3 className="text-lg font-semibold">
                   Premium Package (Yearly)
                 </h3>
-                <div className="text-xl font-semibold">
-                  $79.99 <span className="text-[14px] --sm font-normal">/year</span>
-                </div>
-                {/* <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                  <PriceDiscount price={79.99} />
-                  <div className="text-xl font-semibold">
-                    $29.99 <span className="text-[14px] --sm font-normal">/year</span>
+                {showMarchDiscount ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <PriceDiscount price={79.99} />
+                    <div className="text-xl font-semibold">
+                      ${yearlyDiscounted.toFixed(2)} <span className="text-[14px] --sm font-normal">/year</span>
+                    </div>
                   </div>
-                </div> */}
+                ) : (
+                  <div className="text-xl font-semibold">
+                    $79.99 <span className="text-[14px] --sm font-normal">/year</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -729,16 +757,23 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             {!isMember && !isMemberMonthly && (
-            <button disabled={isLoading} onClick={()=> handleGetPremium("yearly")}
-              className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors
-              text-[14px] --sm"
-              >
-              {isLoading && paySelected == "yearly" ? (
-              <DotSpinner size={8} />
-              ) : (
-              "Get Premium"
+            <>
+              <button disabled={isLoading} onClick={()=> handleGetPremium("yearly")}
+                className="mt-3 w-full py-2 bg-white rounded-full text-blue-base font-semibold hover:bg-blue-50 transition-colors
+                text-[14px] --sm"
+                >
+                {isLoading && paySelected == "yearly" ? (
+                <DotSpinner size={8} />
+                ) : (
+                "Get Premium"
+                )}
+              </button>
+              {showMarchDiscount && (
+                <p className="mt-1 text-center text-[12px] font-medium text-white/80">
+                  Offer ends {MARCH_OFFER_END_DATE_LABEL}
+                </p>
               )}
-            </button>
+            </>
             )}
 
             {isMember && (

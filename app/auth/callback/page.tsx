@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "../../store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import {
+  isMarchCampaignActive,
+  MARCH_OFFER_DIALOG_SESSION_KEY,
+} from "@/constants/marchOffer";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
@@ -29,7 +33,7 @@ export default function SSOCallbackPage() {
     message: "",
   });
 
-  const { setSessionId,  } = useProfileStore();
+  const { setProfile, setSessionId,  } = useProfileStore();
   const {setProfileShow,providerType } = usePgnStore()
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
@@ -158,7 +162,16 @@ export default function SSOCallbackPage() {
 
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
+              const normalizedProfile = profileData.data ?? profileData;
+              setProfile(normalizedProfile);
               setProfileShow(profileData)
+              try {
+                if (isMarchCampaignActive()) {
+                  window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
+                }
+              } catch (error) {
+                console.error("Error preparing March offer dialog:", error);
+              }
               
               const userUsername =
                 profileData.data?.username || profileData.username;
@@ -193,7 +206,7 @@ export default function SSOCallbackPage() {
     };
 
     processSSO();
-  }, [baseUrl, router, setSessionId]);
+  }, [baseUrl, providerType, router, setProfile, setProfileShow, setSessionId]);
 
   if (isProcessing) {
     return (
