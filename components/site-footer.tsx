@@ -56,7 +56,12 @@ export function SiteFooter({ className }: SiteFooterProps) {
                 <span className="sr-only">Facebook</span>
                 <Facebook className="h-6 w-6" />
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+              <Link
+                href="https://x.com/AroundChess_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+              >
                 <span className="sr-only">Twitter</span>
                 <Twitter className="h-6 w-6" />
               </Link>

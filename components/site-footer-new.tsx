@@ -43,7 +43,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
     window.open(url, "_blank");
   };
   const handleTwitter = () => {
-    const url = `https://x.com/Around_Chess`;
+    const url = `https://x.com/AroundChess_`;
     window.open(url, "_blank");
   };
   return (
