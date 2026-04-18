@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { gameHistoryApi } from "../services/api";
 import { useProfileStore } from "@/app/store/profile";
-import { useGames } from "../hooks/useGameData";
 import { useTutorial } from "@/components/TutorialProvider";
 
 interface ImportDialogButtonProps {
@@ -18,8 +17,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
   const { sessionId } = useProfileStore();
-  const { addOtherImportedGame, username } = usePgnStore();
-  const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
+  const { addOtherImportedGame, username, triggerGamesRefresh } = usePgnStore();
 
   const { isTutorialPlay } = useTutorial();
 
@@ -203,7 +201,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         setIsConfirmationMode(false);
         setIsUploading(false);
         toast.success("Game imported successfully!");
-        handleForceRefresh();
+        triggerGamesRefresh();
         setTimeout(() => {
           resetDialog();
           if (onSuccess) onSuccess();
@@ -220,7 +218,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     [
       sessionId,
       addOtherImportedGame,
-      handleForceRefresh,
+      triggerGamesRefresh,
       resetDialog,
       onSuccess,
     ]
