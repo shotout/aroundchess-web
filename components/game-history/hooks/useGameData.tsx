@@ -177,6 +177,7 @@ export function useGames(filters?: GameFilters) {
     gamesLastFetched,
     setGamesData,
     resetFetchState,
+    gamesRefreshTrigger,
   } = usePgnStore();
   const { sessionId } = useProfileStore();
   const { isTutorialPlay } = useTutorial();
@@ -246,6 +247,15 @@ export function useGames(filters?: GameFilters) {
       fetchGames();
     } 
   }, [sessionId, filterKey, fetchGames, isTutorialPlay]);
+
+  // Re-fetch when another component triggers a refresh (e.g. after PGN import)
+  useEffect(() => {
+    if (gamesRefreshTrigger > 0 && sessionId) {
+      fetchRef.current = false;
+      lastExecutedRef.current = "";
+      fetchGames();
+    }
+  }, [gamesRefreshTrigger]);
 
   const handleRetryFetch = useCallback(() => {
     fetchRef.current = false;
