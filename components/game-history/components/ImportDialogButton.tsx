@@ -232,15 +232,34 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
     const storedUsername =
       typeof username === "string" ? username.trim() : "";
 
-    if (!storedUsername && !selectedUsername) {
+    if (!selectedUsername) {
       const options = extractPgnUsernames(content);
       if (!options.white && !options.black) {
-        const msg =
-          "PGN is missing White/Black headers. Please use a PGN with player names.";
-        setError(msg);
-        toast.error(msg);
+        if (!storedUsername) {
+          const msg =
+            "PGN is missing White/Black headers. Please use a PGN with player names.";
+          setError(msg);
+          toast.error(msg);
+          return;
+        }
+        // No player names in PGN, but user has a stored username — proceed with it
+        await submitImport(storedUsername, content);
         return;
       }
+
+      const storedLower = storedUsername.toLowerCase();
+      const matchesWhite =
+        options.white && options.white.toLowerCase() === storedLower;
+      const matchesBlack =
+        options.black && options.black.toLowerCase() === storedLower;
+
+      if (storedUsername && (matchesWhite || matchesBlack)) {
+        // Stored username matches a player in the PGN — no need to ask
+        await submitImport(storedUsername, content);
+        return;
+      }
+
+      // Username missing or doesn't match either player — prompt the user
       setUsernameOptions(options);
       setShowUsernameDialog(true);
       setUsernameError(null);
@@ -248,8 +267,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       return;
     }
 
-    const effectiveUsername = storedUsername || selectedUsername;
-    await submitImport(effectiveUsername, content);
+    await submitImport(selectedUsername, content);
   }, [
     isConfirmationMode,
     activeTab,
@@ -616,8 +634,8 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
               Choose Player Username
             </h3>
             <p className="text-[14px] --sm text-center text-gray-600 mt-2">
-              Your account doesn’t have a saved Chess.com username. Pick the
-              player name from this PGN to import the game.
+              Select which player you are in this game so the analysis is
+              made from the correct perspective.
             </p>
 
             <div className="mt-4 space-y-3">
