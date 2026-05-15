@@ -233,7 +233,7 @@ export function MarchOfferBanner() {
               />
             </div>
 
-            <div className="absolute right-[7rem] top-1/2 flex -translate-y-1/2 items-center justify-end md:right-[9rem] lg:right-[12rem] xl:right-[18rem] 2xl:right-[22rem]">
+            <div className="absolute right-[7rem] top-1/2 flex -translate-y-1/2 items-center justify-end md:right-[9rem] lg:right-[12rem] xl:right-[18rem] 2xl:right-[22rem] min-[3000px]:right-[55rem]">
               <div className="relative w-[114px] transition-transform duration-200 group-hover:scale-[1.02] md:w-[132px] lg:w-[150px]">
                 <Image
                   src={BANNER_BUTTON_SRC}

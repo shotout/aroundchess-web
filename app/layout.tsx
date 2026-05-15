@@ -22,6 +22,8 @@ export default function RootLayout({
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
           <meta name="color-scheme" content="light" />
           <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
+          <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
           <script src="/stockfish.js" defer></script>
           {setting.marketing && (
             <noscript>
@@ -70,6 +72,15 @@ export default function RootLayout({
               `}
               </Script>
             </>
+          )}
+          {setting.marketing && (
+            <Script
+              id="google-adsense"
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6181542146270228"
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
           )}
 
           {/* <React.StrictMode> */}
