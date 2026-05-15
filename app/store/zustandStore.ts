@@ -177,6 +177,9 @@ interface PgnState {
   clearOtherGamesData: () => void;
   resetGamesState: () => void;
 
+  gamesRefreshTrigger: number;
+  triggerGamesRefresh: () => void;
+
   setGamesPagination: (pagination: PaginationState) => void;
   setOtherGamesPagination: (pagination: PaginationState) => void;
 
@@ -242,6 +245,7 @@ export const usePgnStore = create<PgnState>()(
       gamesData: [],
       gamesLastFetched: null,
       gamesPagination: defaultPaginationState,
+      gamesRefreshTrigger: 0,
 
       otherGamesData: [],
       otherGamesLastFetched: null,
@@ -425,6 +429,11 @@ export const usePgnStore = create<PgnState>()(
           gamesLastFetched: null,
           gamesPagination: defaultPaginationState,
         }),
+
+      triggerGamesRefresh: () =>
+        set((state) => ({
+          gamesRefreshTrigger: state.gamesRefreshTrigger + 1,
+        })),
 
       setGamesPagination: (pagination: PaginationState) =>
         set({ gamesPagination: pagination }),
