@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const MARCH_BANNER_STORAGE_KEY = "marchOfferBannerDismissed";
 const MARCH_BANNER_RESET_EVENT = "marchOfferBanner:reset";
-const MARCH_OFFER_END_MS = new Date("2026-04-01T00:00:00").getTime();
+const MARCH_OFFER_END_MS = new Date("2026-07-01T00:00:00").getTime();
 const BANNER_NO_DATE_BG_SRC =
   "/special-offer/20260306/Sticky%20Bar%20-%20Header%20Banner/Banner%20Main%20Bar%20-%20Without%20End%20Date.svg";
 const BANNER_MAIN_CONTENT_SRC =
