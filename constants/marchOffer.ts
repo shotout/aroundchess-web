@@ -5,6 +5,8 @@ export const MARCH_OFFER_DIALOG_MAX_WAIT_MS = 6000;
 export const MARCH_OFFER_DISCOUNT_PERCENT = 55;
 export const MARCH_OFFER_END_DATE_LABEL = "31.06.2026";
 export const MARCH_OFFER_END_MS = new Date("2026-07-01T00:00:00").getTime();
+export const MARCH_OFFER_MONTHLY_PRICE = 4.49;
+export const MARCH_OFFER_YEARLY_PRICE = 39.99;
 
 export const isMarchCampaignActive = () => Date.now() < MARCH_OFFER_END_MS;
 
