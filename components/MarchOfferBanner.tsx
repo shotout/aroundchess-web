@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const MARCH_BANNER_STORAGE_KEY = "marchOfferBannerDismissed";
 const MARCH_BANNER_RESET_EVENT = "marchOfferBanner:reset";
-const MARCH_OFFER_END_MS = new Date("2026-05-01T00:00:00").getTime();
+const MARCH_OFFER_END_MS = new Date("2026-07-01T00:00:00").getTime();
 const BANNER_NO_DATE_BG_SRC =
   "/special-offer/20260306/Sticky%20Bar%20-%20Header%20Banner/Banner%20Main%20Bar%20-%20Without%20End%20Date.svg";
 const BANNER_MAIN_CONTENT_SRC =
@@ -249,7 +249,7 @@ export function MarchOfferBanner() {
 
             <div className="absolute right-[3rem] top-1/2 hidden w-[126px] -translate-y-1/2 md:flex md:justify-center lg:w-[140px] xl:w-[154px] 2xl:w-[164px]">
               <span className="pointer-events-none whitespace-nowrap text-center text-[9px] font-semibold leading-none tracking-[-0.01em] text-white/85 lg:text-[10px] xl:text-[11px]">
-                Offer ends 30/04/2026
+                Offer ends 31/03/2026
               </span>
             </div>
           </div>
