@@ -19,9 +19,8 @@ import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { trackPaywallInteraction } from "@/functions/tracking";
 import {
   isMarchCampaignActive,
+  MARCH_OFFER_DISCOUNT_PERCENT,
   MARCH_OFFER_END_DATE_LABEL,
-  MARCH_OFFER_MONTHLY_PRICE,
-  MARCH_OFFER_YEARLY_PRICE,
 } from "@/constants/marchOffer";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -183,8 +182,9 @@ export const PremiumSubsContent: React.FC<{
 
   const marchActive = isMarchCampaignActive();
   const showMarchDiscount = marchActive && !isMember && !isMemberMonthly;
-  const monthlyDiscounted = MARCH_OFFER_MONTHLY_PRICE;
-  const yearlyDiscounted = MARCH_OFFER_YEARLY_PRICE;
+  const marchMultiplier = (100 - MARCH_OFFER_DISCOUNT_PERCENT) / 100;
+  const monthlyDiscounted = Math.round(9.99 * marchMultiplier * 100) / 100;
+  const yearlyDiscounted = Math.round(79.99 * marchMultiplier * 100) / 100;
 
   // Ensure we have membership packages loaded (fallback to API if needed)
   const resolveMembershipPackages = async () => {
