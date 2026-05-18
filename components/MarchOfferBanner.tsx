@@ -1,13 +1,13 @@
 "use client";
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { isMarchCampaignActive, MARCH_OFFER_END_DATE_LABEL } from "@/constants/marchOffer";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const MARCH_BANNER_STORAGE_KEY = "marchOfferBannerDismissed";
 const MARCH_BANNER_RESET_EVENT = "marchOfferBanner:reset";
-const MARCH_OFFER_END_MS = new Date("2026-07-01T00:00:00").getTime();
 const BANNER_NO_DATE_BG_SRC =
   "/special-offer/20260306/Sticky%20Bar%20-%20Header%20Banner/Banner%20Main%20Bar%20-%20Without%20End%20Date.svg";
 const BANNER_MAIN_CONTENT_SRC =
@@ -17,7 +17,6 @@ const BANNER_MAIN_TEXT_SRC =
 const BANNER_BUTTON_SRC =
   "/special-offer/20260306/Sticky%20Bar%20-%20Header%20Banner/Button.png";
 
-const isCampaignActive = () => Date.now() < MARCH_OFFER_END_MS;
 const getLocalDateStamp = (date = new Date()) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
     date.getDate()
@@ -80,7 +79,7 @@ export function MarchOfferBanner() {
   }, []);
 
   useEffect(() => {
-    if (!isCampaignActive() || readDismissedState()) {
+    if (!isMarchCampaignActive() || readDismissedState()) {
       resetBannerHeight();
       return;
     }
@@ -90,7 +89,7 @@ export function MarchOfferBanner() {
 
   useEffect(() => {
     const handleReset = () => {
-      if (!isCampaignActive()) {
+      if (!isMarchCampaignActive()) {
         setIsVisible(false);
         resetBannerHeight();
         return;
@@ -136,7 +135,7 @@ export function MarchOfferBanner() {
   }, [isVisible, syncBannerHeight]);
 
   useEffect(() => {
-    if (isVisible || !isCampaignActive() || !readDismissedState()) {
+    if (isVisible || !isMarchCampaignActive() || !readDismissedState()) {
       return;
     }
 
@@ -145,7 +144,7 @@ export function MarchOfferBanner() {
     nextMidnight.setHours(24, 0, 0, 0);
 
     const timeoutId = window.setTimeout(() => {
-      if (!isCampaignActive()) {
+      if (!isMarchCampaignActive()) {
         return;
       }
 
@@ -221,7 +220,7 @@ export function MarchOfferBanner() {
               />
             </div>
 
-            <div className="absolute left-1/2 top-1/2 min-w-0 w-full max-w-[300px] -translate-x-1/2 -translate-y-1/2 md:max-w-[400px] lg:max-w-[540px] xl:max-w-[680px] 2xl:max-w-[760px]">
+            <div className="absolute left-1/2 top-1/2 min-w-0 w-full max-w-[360px] -translate-x-1/2 -translate-y-1/2 md:max-w-[480px] lg:max-w-[calc(100vw-700px)] xl:max-w-[calc(100vw-912px)] 2xl:max-w-[calc(100vw-1048px)] min-[1760px]:max-w-[720px]">
               <Image
                 src={BANNER_MAIN_TEXT_SRC}
                 alt="Up to 55 percent discount. Get 1000 analyses at 3 dollars 33 per month."
@@ -234,7 +233,7 @@ export function MarchOfferBanner() {
             </div>
 
             <div className="absolute right-[7rem] top-1/2 flex -translate-y-1/2 items-center justify-end md:right-[9rem] lg:right-[12rem] xl:right-[18rem] 2xl:right-[22rem] min-[3000px]:right-[55rem]">
-              <div className="relative w-[114px] transition-transform duration-200 group-hover:scale-[1.02] md:w-[132px] lg:w-[150px]">
+              <div className="relative w-[114px] transition-transform duration-200 group-hover:scale-[1.02] md:w-[132px] lg:w-[150px] xl:w-[160px] 2xl:w-[164px] min-[1760px]:w-[174px]">
                 <Image
                   src={BANNER_BUTTON_SRC}
                   alt="Get Offer"
@@ -249,7 +248,7 @@ export function MarchOfferBanner() {
 
             <div className="absolute right-[3rem] top-1/2 hidden w-[126px] -translate-y-1/2 md:flex md:justify-center lg:w-[140px] xl:w-[154px] 2xl:w-[164px]">
               <span className="pointer-events-none whitespace-nowrap text-center text-[9px] font-semibold leading-none tracking-[-0.01em] text-white/85 lg:text-[10px] xl:text-[11px]">
-                Offer ends 31/03/2026
+                Offer ends {MARCH_OFFER_END_DATE_LABEL.replace(/\./g, "/")}
               </span>
             </div>
           </div>
