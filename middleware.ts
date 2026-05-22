@@ -60,11 +60,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (
-    pathname === "/sentry-example-page" ||
-    pathname === "/api/sentry-example-api" ||
-    pathname.startsWith("/monitoring")
-  ) {
+  if (pathname.startsWith("/monitoring")) {
     return NextResponse.next();
   }
 
