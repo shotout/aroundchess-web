@@ -60,6 +60,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (
+    pathname === "/sentry-example-page" ||
+    pathname === "/api/sentry-example-api" ||
+    pathname.startsWith("/monitoring")
+  ) {
+    return NextResponse.next();
+  }
+
   const isPublicRoute = publicRoutes.some((route) => pathname === route) || pathname.startsWith("/chess-blog/");
   if (isPublicRoute || (token != undefined && token != "")) {
     return NextResponse.next();
